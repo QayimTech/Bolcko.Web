@@ -1,0 +1,29 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<header class="flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-white dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-800 hard-drop">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-black tracking-tighter text-[#1B2235] dark:text-white">BLOCKO INDUSTRIAL</span>
+        <nav class="hidden lg:flex items-center gap-6">
+            <a class="font-['Work_Sans'] text-sm font-semibold tracking-tight text-[#8A95A8] hover:text-[#1B2235] transition-colors" href="#">Power Tools</a>
+            <a class="font-['Work_Sans'] text-sm font-semibold tracking-tight text-[#8A95A8] hover:text-[#1B2235] transition-colors" href="#">Hand Tools</a>
+            <a class="font-['Work_Sans'] text-sm font-semibold tracking-tight text-[#8A95A8] hover:text-[#1B2235] transition-colors" href="#">Consumables</a>
+            <a class="font-['Work_Sans'] text-sm font-semibold tracking-tight text-[#8A95A8] hover:text-[#1B2235] transition-colors" href="#">Fasteners</a>
+        </nav>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="relative hidden sm:block">
+            <input class="bg-[#E8EAF0] border-none text-sm px-4 py-2 w-64 focus:ring-2 focus:ring-[#E8A020] rounded-none" placeholder="Search Inventory..." type="text" />
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="p-2 text-[#1B2235] hover:bg-slate-50 relative">
+                <span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+            </button>
+            <button class="p-2 text-[#1B2235] hover:bg-slate-50 relative">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+                <span class="absolute top-2 right-2 w-2 h-2 bg-[#E8A020] rounded-full"></span>
+            </button>
+            <div class="w-8 h-8 bg-slate-200 border border-slate-300 overflow-hidden">
+                <img alt="User Profile" class="w-full h-full object-cover" data-alt="Portrait of a site manager in a blue collar work shirt with a professional and focused demeanor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoTXyCrgU0rqsNwgFIQhJWkNnutj3cRgvP2RP8HKpHGrQlw49Na1jlZPiQsXa7I4jgrpgpfoT5zFfrTDQgXwOEsl7Qgl3LmRH0uG5ZlRnLtO8aKwf_xRFv1A4dd_srJNTTUrRln9N1nyGyFIrhLkI2O-UvlX5AYLIkTAD1qqaLGELJw2eg-FIr-ftLhWY93zJ6p-HbpYDOj6mSjIMcbbp5X8dGa_QAl9DIC7X-PykKV7eZzYDf9NDBrm450y74JWkiGOesO7Z2jes" />
+            </div>
+        </div>
+    </div>
+</header>

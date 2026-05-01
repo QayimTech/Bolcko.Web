@@ -1,0 +1,313 @@
+﻿<main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 mb-8 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+        <a class="hover:text-primary transition-colors" href="#">Home</a>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <span class="text-on-surface font-bold">Building Materials</span>
+    </nav>
+    <div class="flex flex-col lg:flex-row gap-gutter">
+        <!-- Sidebar Filters -->
+        <aside class="w-full lg:w-64 flex-shrink-0 space-y-8">
+            <div class="border border-outline-variant p-md bg-white">
+                <h3 class="font-label-bold text-label-bold text-on-surface uppercase mb-4 flex items-center justify-between">
+                    Filters
+                    <span class="material-symbols-outlined text-sm">filter_list</span>
+                </h3>
+                <!-- Sub-categories -->
+                <div class="mb-8">
+                    <h4 class="font-label-bold text-label-bold text-secondary mb-3 uppercase text-[11px]">Categories</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input checked="" class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Cement</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Sand &amp; Aggregates</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Gravel</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Bricks &amp; Blocks</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Price Range -->
+                <div class="mb-8">
+                    <h4 class="font-label-bold text-label-bold text-secondary mb-3 uppercase text-[11px]">Price Range</h4>
+                    <div class="space-y-4">
+                        <input class="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" type="range" />
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="relative flex-1">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-outline">$</span>
+                                <input class="w-full text-xs py-1 pl-5 pr-1 border border-outline-variant bg-surface-container-low font-label-bold" type="text" value="0" />
+                            </div>
+                            <span class="text-outline">—</span>
+                            <div class="relative flex-1">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-outline">$</span>
+                                <input class="w-full text-xs py-1 pl-5 pr-1 border border-outline-variant bg-surface-container-low font-label-bold" type="text" value="5000" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Brand -->
+                <div class="mb-8">
+                    <h4 class="font-label-bold text-label-bold text-secondary mb-3 uppercase text-[11px]">Brand</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Holcim</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">CEMEX</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="rounded-none border-outline text-primary focus:ring-primary h-4 w-4" type="checkbox" />
+                            <span class="text-body-md group-hover:text-primary transition-colors">Heidelberg</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Rating -->
+                <div>
+                    <h4 class="font-label-bold text-label-bold text-secondary mb-3 uppercase text-[11px]">Customer Rating</h4>
+                    <div class="space-y-2">
+                        <button class="flex items-center gap-2 text-sm text-on-surface hover:text-primary">
+                            <div class="flex text-amber-500">
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1">star</span>
+                                <span class="material-symbols-outlined text-[18px]">star</span>
+                            </div>
+                            <span class="text-xs">&amp; Up</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- Product Grid -->
+        <div class="flex-1">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface">Building Materials</h1>
+                    <p class="text-on-surface-variant text-body-md mt-1">Showing 1-12 of 84 products</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-label-sm font-label-sm text-secondary uppercase">Sort By:</span>
+                    <select class="border-none bg-transparent font-label-bold text-on-surface focus:ring-0 cursor-pointer">
+                        <option>Newest Arrivals</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Most Popular</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter">
+                <!-- Product Card 1 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Premium Portland Cement" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="industrial stacked bags of premium Portland cement in a clean warehouse setting with morning sunlight filtering through windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVsn-t8CUCMLqym3OB5sK201LqQ0-SJuXOMy_-RvgToxsBQue_6Xb9FXDiOhSzHTH3RSvdYvPattuJMC5kUgpFHEcCIytBAQSg22xcpEb9mIJGOWK94bLwaGXCxM9liU2ukH_7Sqs8V0BS9So9Fl1g_WTPFE5Tc6mREKAYg_oQ6ceLxdY1pQNu2DVHWDnKGRsV-nq0IVvSlx7Kh43dcux7o4LrBdJpmN-vwGM8w30nXmE4qM7D0MdK3KeozN4au--foHGP1wIo2hs" />
+                        <div class="absolute top-2 left-2 bg-primary-container text-on-primary-container px-2 py-1 text-[10px] font-bold uppercase tracking-widest">In Stock</div>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: PC-001-50KG</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Premium Portland Cement</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">weight</span>
+                            50kg Bag
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$14.50</span>
+                            <span class="text-xs text-outline line-through">$18.00</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button class="bg-primary-container text-on-primary-container py-3 font-label-bold text-xs uppercase hard-shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                Add to Cart
+                            </button>
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all">
+                                Request Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Card 2 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Washed River Sand" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="large mound of filtered construction sand in an open-air yard with dramatic shadows and heavy machinery in the distance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyQ2UOW2K22LlmDrgrV2NJSDkgnSFxbR3SbV4Vf-V7H1sfYSIhV8ciXqAR_m2PlOXKcTaxB0EJC0A1O7B-OLroRSy4WqUlfezP4NCWlFjcC4jh0OAhAOgUct6nN_U2X6nQh0r_Fi_Bx0N6-lBFQQpfbIXlTD3I0FzfG3UsNtzMtW3fJa-yl2Aa3wxdCEH41Ev81kHv98w9JnZ2LUnK1a5GkcKZQ1j4uP-b7bwVBQG6E1KaekL6u4X_L7h6B_OU5Al4_IsTm-bt2rA" />
+                        <div class="absolute top-2 left-2 bg-on-tertiary-container text-white px-2 py-1 text-[10px] font-bold uppercase tracking-widest">Bulk Only</div>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: SND-RIV-M3</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Washed River Sand</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">square_foot</span>
+                            Cubic Meter
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$45.00</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2 pt-2">
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2 w-full">
+                                <span class="material-symbols-outlined text-sm">request_quote</span>
+                                Request Bulk Pricing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Card 3 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Crushed Aggregate 20mm" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="close-up of industrial grey crushed gravel with sharp edges and varying sizes under bright afternoon sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-PclhLCg-NNN02s8_dtm0mZITiUWXdyBss-b1jQzyFuLdXCoSm2y_jUyBjuX44c1lSBu87HNp2tbeDiI9tgyT3xrykgssa1JGf5gf3k67pOyi_WsxD5cTTtMrSEK_W2uL92ahTGWMIztiO1aypNDwP1ngMx-rS0H-_ZRtnqWycW5ecnj8fJb88AuZlVdKZRMN0omTMzHTmhGGnYkrrQ8X-YfsbOAovyEqYVotU_EpV8_XwUjnw_jPwZpM2MLLF_mpGgnRrBBQ6kw" />
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: GRV-20-40KG</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Crushed Aggregate 20mm</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">weight</span>
+                            40kg Bag
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$8.75</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button class="bg-primary-container text-on-primary-container py-3 font-label-bold text-xs uppercase hard-shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                Add to Cart
+                            </button>
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all">
+                                Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2 Card 1 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Common Clay Bricks" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="pallet of orange-red bricks arranged in perfect geometric rows at a construction supply depot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmqfxyC0LyCBfid8iLZFqJrvX15wSBxl46KCsCZeEnwpzS4iE2sBh6EzXqMdU0Wm4lc1Rfk0M67_KGpcl9oWZDkXenQXYNaPp6kgy_N3V2sNEmKjWXKClb4M9NjURmOgScXnr8ek-YcoqrvHinMx2m0JxY4xY48eQhXUx3j1RQMyxgUZfyUR-mkb_q-C2oKmq6ax1iZIX-GAPRzYhbE3P52dxJuSadVVWGGjRSnOtABcN3NZRN5Oz448ymLql3v8Uof42OQDCshs0" />
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: BRK-CLY-500</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Common Clay Bricks</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">grid_view</span>
+                            Pallet (500 units)
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$320.00</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button class="bg-primary-container text-on-primary-container py-3 font-label-bold text-xs uppercase hard-shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                Add to Cart
+                            </button>
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all">
+                                Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2 Card 2 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Hollow Concrete Block" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="industrial concrete blocks stacked vertically showing technical texture and durability, high contrast lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB55nAWxOETwd5cvOwj_G4STK4Zo4YkKl7AWXWnE68jHM5pa2okb6gF8R_Kw-1TeApSoiXgcnQE_zZZDh5NSDaXCpfj4F7DPhEUtQK0LtUevBwubANIqcQFebIW9SW_gOAQ2b9xCTD67xPSSxenO5UrR42arTRpCFtoN7_879PjsdApybdDM_vUrHLHfhUQzovYhaxxPci35whlwlD65S2qKMq0eEYB4jV4WALHQ5zPEGKijMkgttR5CIAcXl6xENGvuqiBKEnUYzw" />
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: HCB-08-UNT</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Hollow Concrete Block 8"</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">inventory_2</span>
+                            Per Unit
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$1.25</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button class="bg-primary-container text-on-primary-container py-3 font-label-bold text-xs uppercase hard-shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                Add
+                            </button>
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all">
+                                Bulk
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2 Card 3 -->
+                <div class="bg-white border border-outline-variant group hover:border-primary transition-all duration-300">
+                    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low relative">
+                        <img alt="Screened Topsoil" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="pile of high-quality yellow construction sand on a construction site with structural steel in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPdYjdrOlAkOMZiiYeaIpdZaDWJRvjVXc83n7sob42xNlZ-8674asjpaMsEu5Mw-aru6OHhAFdhfEpSpWuzS1g89f7ZvSAROojQ6i3gpEKJ6qe5ehgtvJUpv2GpJ7DFB715b7U2tp8wi3OiyaEFFpOgvFTyglKPPJl74nX4lAVqyZn7O1BI-abLQdMGmZsAMreCT1md-GPaKNc92plug8xD44ubqBNICqxZe8UWdAUWl1Oj2M0tM4mtfv6aMuGUQLn_ZsM0fCP9RU" />
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-bold text-secondary uppercase tracking-tighter">SKU: SL-SCRN-M3</p>
+                                <h3 class="font-headline-md text-body-lg text-on-surface leading-tight mt-1">Screened Topsoil</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-outline cursor-pointer hover:text-error transition-colors">favorite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm">square_foot</span>
+                            Cubic Meter
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-headline-md font-headline-md text-on-surface">$38.00</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button class="bg-primary-container text-on-primary-container py-3 font-label-bold text-xs uppercase hard-shadow hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                                Add
+                            </button>
+                            <button class="bg-on-surface text-white py-3 font-label-bold text-xs uppercase hard-shadow hover:bg-slate-800 active:scale-95 transition-all">
+                                Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Pagination -->
+            <div class="mt-12 flex justify-center items-center gap-2">
+                <button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center bg-on-surface text-white font-label-bold">1</button>
+                <button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container-low transition-colors font-label-bold">2</button>
+                <button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container-low transition-colors font-label-bold">3</button>
+                <span class="px-2 text-outline">...</span>
+                <button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container-low transition-colors font-label-bold">12</button>
+                <button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,227 @@
+﻿<section class="p-8 space-y-8 flex-1">
+    <!-- Dashboard Header Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+        <div class="bg-white p-6 border border-slate-200 hard-drop">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">Total Sales</p>
+            <h3 class="text-headline-md font-headline-md text-on-surface">$248,500.00</h3>
+            <div class="flex items-center mt-4 text-emerald-600 text-label-sm font-label-sm">
+                <span class="material-symbols-outlined text-sm mr-1" data-icon="trending_up">trending_up</span> +12.5% from last month
+            </div>
+        </div>
+        <div class="bg-white p-6 border border-slate-200 hard-drop">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">Open Tenders</p>
+            <h3 class="text-headline-md font-headline-md text-on-surface">42</h3>
+            <div class="flex items-center mt-4 text-amber-600 text-label-sm font-label-sm">
+                <span class="material-symbols-outlined text-sm mr-1" data-icon="pending_actions">pending_actions</span> 8 awaiting approval
+            </div>
+        </div>
+        <div class="bg-white p-6 border border-slate-200 hard-drop">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">Inventory Value</p>
+            <h3 class="text-headline-md font-headline-md text-on-surface">$1.2M</h3>
+            <div class="flex items-center mt-4 text-on-surface-variant text-label-sm font-label-sm">
+                <span class="material-symbols-outlined text-sm mr-1" data-icon="inventory_2">inventory_2</span> 15% Stocked in Bulk
+            </div>
+        </div>
+        <div class="bg-white p-6 border border-slate-200 hard-drop">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">Supply Chain Risk</p>
+            <h3 class="text-headline-md font-headline-md text-error">Low</h3>
+            <div class="flex items-center mt-4 text-emerald-600 text-label-sm font-label-sm">
+                <span class="material-symbols-outlined text-sm mr-1" data-icon="check_circle">check_circle</span> All channels active
+            </div>
+        </div>
+    </div>
+    <!-- Main Data Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-gutter items-start">
+        <!-- Incoming Tenders (Wide) -->
+        <div class="xl:col-span-2 space-y-gutter">
+            <div class="bg-white border border-slate-200 overflow-hidden hard-drop">
+                <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-white font-label-bold text-label-bold uppercase tracking-widest">Incoming Tender Requests (RFQs)</h2>
+                    <button class="text-[#E8A020] text-xs font-bold uppercase tracking-tight hover:underline">View All</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left b2b-table">
+                        <thead class="bg-slate-100 text-[#1B2235] font-label-bold text-[10px] uppercase tracking-widest">
+                            <tr>
+                                <th class="px-6 py-3">Project Name</th>
+                                <th class="px-6 py-3">Client</th>
+                                <th class="px-6 py-3">Budget Range</th>
+                                <th class="px-6 py-3">Closing Date</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3 border-none">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">Dax-4 Industrial Expansion</td>
+                                <td class="px-6 py-4">BuildCorp Ltd.</td>
+                                <td class="px-6 py-4">$45k - $60k</td>
+                                <td class="px-6 py-4 text-xs">Oct 12, 2024</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">Pending Review</span>
+                                </td>
+                                <td class="px-6 py-4 border-none text-[#E8A020] font-bold text-xs cursor-pointer">ANALYZE</td>
+                            </tr>
+                            <tr class="bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">Bridge Deck Fastening Kit</td>
+                                <td class="px-6 py-4">Metro Infra Group</td>
+                                <td class="px-6 py-4">$120k - $150k</td>
+                                <td class="px-6 py-4 text-xs">Oct 15, 2024</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">Pending Review</span>
+                                </td>
+                                <td class="px-6 py-4 border-none text-[#E8A020] font-bold text-xs cursor-pointer">ANALYZE</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">Power Grid Housing S12</td>
+                                <td class="px-6 py-4">National Energy</td>
+                                <td class="px-6 py-4">$12k - $18k</td>
+                                <td class="px-6 py-4 text-xs">Oct 18, 2024</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-1 text-[10px] font-bold uppercase rounded">In Analysis</span>
+                                </td>
+                                <td class="px-6 py-4 border-none text-[#E8A020] font-bold text-xs cursor-pointer">ANALYZE</td>
+                            </tr>
+                            <tr class="bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">Retail Storefront Fitout</td>
+                                <td class="px-6 py-4">Summit Retailers</td>
+                                <td class="px-6 py-4">$5k - $8k</td>
+                                <td class="px-6 py-4 text-xs">Oct 20, 2024</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">Pending Review</span>
+                                </td>
+                                <td class="px-6 py-4 border-none text-[#E8A020] font-bold text-xs cursor-pointer">ANALYZE</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Performance Charts Simulation (Using CSS/Grids) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                <div class="bg-white border border-slate-200 p-6 hard-drop">
+                    <h3 class="font-['Work_Sans'] text-xs uppercase font-bold tracking-widest text-[#1B2235] mb-6">Sales Performance</h3>
+                    <div class="h-40 flex items-end gap-2 px-2">
+                        <div class="w-full bg-slate-100 h-[40%] hover:bg-[#E8A020] transition-colors relative group">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold hidden group-hover:block">1.2k</div>
+                        </div>
+                        <div class="w-full bg-slate-100 h-[65%] hover:bg-[#E8A020] transition-colors relative group">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold hidden group-hover:block">2.4k</div>
+                        </div>
+                        <div class="w-full bg-slate-100 h-[50%] hover:bg-[#E8A020] transition-colors relative group">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold hidden group-hover:block">1.8k</div>
+                        </div>
+                        <div class="w-full bg-slate-100 h-[85%] hover:bg-[#E8A020] transition-colors relative group">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold hidden group-hover:block">3.6k</div>
+                        </div>
+                        <div class="w-full bg-[#E8A020] h-[95%] relative group">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold">4.2k</div>
+                        </div>
+                        <div class="w-full bg-slate-100 h-[60%] hover:bg-[#E8A020] transition-colors relative group"></div>
+                    </div>
+                    <div class="flex justify-between mt-4 text-[10px] font-bold text-[#8A95A8] uppercase tracking-tight">
+                        <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200 p-6 hard-drop">
+                    <h3 class="font-['Work_Sans'] text-xs uppercase font-bold tracking-widest text-[#1B2235] mb-6">Tender Volume</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-[#8A95A8]">Direct Inquiries</span>
+                                <span>72%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2">
+                                <div class="bg-[#1B2235] h-full w-[72%]"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-[#8A95A8]">Public Tenders</span>
+                                <span>28%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2">
+                                <div class="bg-[#E8A020] h-full w-[28%]"></div>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <p class="text-[10px] text-slate-500 italic uppercase">B2B engagement is up 14% this quarter</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Latest Orders (Side Rail) -->
+        <div class="space-y-gutter">
+            <div class="bg-white border border-slate-200 hard-drop">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-[#1B2235] font-label-bold text-label-bold uppercase tracking-widest">Latest Store Orders</h2>
+                    <span class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-0.5">LIVE</span>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    <!-- Order 1 -->
+                    <div class="p-6 hover:bg-slate-50 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-9921</p>
+                                <p class="text-sm font-bold text-[#1B2235]">Heavy Duty Drill Set x2</p>
+                            </div>
+                            <p class="text-sm font-bold text-[#1B2235]">$842.00</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-amber-600 uppercase">Processing</span>
+                            <span class="text-[10px] text-[#8A95A8]">2 mins ago</span>
+                        </div>
+                    </div>
+                    <!-- Order 2 -->
+                    <div class="p-6 hover:bg-slate-50 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-9918</p>
+                                <p class="text-sm font-bold text-[#1B2235]">Bulk Anchor Fasteners (5000pcs)</p>
+                            </div>
+                            <p class="text-sm font-bold text-[#1B2235]">$1,240.00</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-blue-600 uppercase">Shipped</span>
+                            <span class="text-[10px] text-[#8A95A8]">1 hour ago</span>
+                        </div>
+                    </div>
+                    <!-- Order 3 -->
+                    <div class="p-6 hover:bg-slate-50 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-9915</p>
+                                <p class="text-sm font-bold text-[#1B2235]">Pneumatic Jackhammer Rental</p>
+                            </div>
+                            <p class="text-sm font-bold text-[#1B2235]">$215.00</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-emerald-600 uppercase">Completed</span>
+                            <span class="text-[10px] text-[#8A95A8]">4 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-slate-100">
+                    <button class="w-full border border-slate-200 py-2 text-[10px] font-bold uppercase tracking-widest text-[#1B2235] hover:bg-slate-50 transition-all">View All Transactions</button>
+                </div>
+            </div>
+            <!-- Tool Inventory Spotlight -->
+            <div class="bg-[#1B2235] text-white border border-slate-800 overflow-hidden hard-drop">
+                <div class="h-32 bg-slate-800 relative">
+                    <img class="w-full h-full object-cover opacity-60" data-alt="Close-up of industrial heavy duty power tools organized in a modern metal storage unit with dramatic commercial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7ffdb-zEm2RZZE0oNRvhBGwml7anKF-NDZ1U8xJ-qyGA7idOo96BV6Fsu3UPBlGZWv0p9we4kWaKMxnoMq3JXvJvNuRgmrg9iy0_0cf6CfTeh0vXvThQI7tVGT8_HRizrXcseaDBYURWpD5aHf2WwMGytZ6I_nh29otmS1RjSCNpXaR-fws2M-monClvbHpew0xfbmi_d69-RkqJFZ1OKsMEQ3Xy9cnM2t5mYEbEOwbkbi4mbYREfVbuEf4IjhIdh-Qq_MnArEYI" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#1B2235] to-transparent"></div>
+                    <div class="absolute bottom-4 left-6">
+                        <span class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-1 uppercase tracking-tighter">Inventory Alert</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h4 class="text-sm font-bold mb-2">Low Stock: M20 Structural Bolts</h4>
+                    <p class="text-xs text-[#8A95A8] leading-relaxed mb-4">Current stock at 12% of threshold. Replenishment required for pending bridge tenders.</p>
+                    <button class="text-[#E8A020] text-[10px] font-bold uppercase tracking-widest flex items-center hover:gap-2 transition-all">
+                        REORDER NOW <span class="material-symbols-outlined text-sm ml-1" data-icon="chevron_right">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
