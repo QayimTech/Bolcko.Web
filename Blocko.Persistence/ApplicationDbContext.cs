@@ -15,14 +15,14 @@ namespace Blocko.Persistence
         }
 
         public DbSet<Bolcko.Domain.Entities.User.User> Users { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Bolcko.Domain.Entities.User.Address> Addresses { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Catalog.Category> Categories { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.Product> Products { get; set; }
         public DbSet<Bolcko.Domain.Entities.Order.Order> Orders { get; set; }
         public DbSet<Bolcko.Domain.Entities.Project.Project> Projects { get; set; }
         public DbSet<Bolcko.Domain.Entities.Tender.Tender> Tenders { get; set; }
-        public DbSet<TenderItem> TenderItems { get; set; }
-        public DbSet<MarketPrice> MarketPrices { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Tender.TenderItem> TenderItems { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Catalog.MarketPrice> MarketPrices { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,7 +37,7 @@ namespace Blocko.Persistence
             });
 
             // Address configuration
-            modelBuilder.Entity<Address>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.User.Address>(entity =>
             {
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Addresses)
@@ -46,7 +46,7 @@ namespace Blocko.Persistence
             });
 
             // Category configuration
-            modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Catalog.Category>(entity =>
             {
                 entity.HasOne(d => d.ParentCategory)
                     .WithMany(p => p.SubCategories)
@@ -84,7 +84,7 @@ namespace Blocko.Persistence
             });
 
             // TenderItem configuration
-            modelBuilder.Entity<TenderItem>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Tender.TenderItem>(entity =>
             {
                 entity.Property(e => e.RequestedQuantity).HasPrecision(18, 2);
                 entity.Property(e => e.ProposedPricePerUnit).HasPrecision(18, 2);
@@ -92,7 +92,7 @@ namespace Blocko.Persistence
             });
 
             // MarketPrice configuration
-            modelBuilder.Entity<MarketPrice>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Catalog.MarketPrice>(entity =>
             {
                 entity.Property(e => e.Price).HasPrecision(18, 2);
             });

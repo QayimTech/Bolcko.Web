@@ -1,5 +1,5 @@
 using Blocko.Services.Interfaces.User;
-using Bolcko.Domain.Entities;
+using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Interfaces;
 
 namespace Blocko.Services.Implementations.User
@@ -9,14 +9,14 @@ namespace Blocko.Services.Implementations.User
         private readonly IUnitOfWork _unitOfWork;
         public UserService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-        public async Task<Bolcko.Domain.Entities.User?> AuthenticateAsync(string email, string password)
+        public async Task<Bolcko.Domain.Entities.User.User?> AuthenticateAsync(string email, string password)
         {
             var user = await _unitOfWork.Users.GetByEmailAsync(email);
             if (user == null || user.PasswordHash != password) return null;
             return user;
         }
 
-        public async Task<Bolcko.Domain.Entities.User> RegisterUserAsync(Bolcko.Domain.Entities.User user, string password)
+        public async Task<Bolcko.Domain.Entities.User.User> RegisterUserAsync(Bolcko.Domain.Entities.User.User user, string password)
         {
             user.PasswordHash = password;
             await _unitOfWork.Users.AddAsync(user);
@@ -24,6 +24,6 @@ namespace Blocko.Services.Implementations.User
             return user;
         }
 
-        public async Task<Bolcko.Domain.Entities.User?> GetUserByIdAsync(int id) => await _unitOfWork.Users.GetByIdAsync(id);
+        public async Task<Bolcko.Domain.Entities.User.User?> GetUserByIdAsync(int id) => await _unitOfWork.Users.GetByIdAsync(id);
     }
 }

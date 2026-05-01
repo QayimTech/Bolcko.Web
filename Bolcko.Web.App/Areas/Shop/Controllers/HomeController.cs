@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Bolcko.Web.App.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Bolcko.Web.App.Controllers
+namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]
     public class HomeController : Controller

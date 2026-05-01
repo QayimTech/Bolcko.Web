@@ -1,5 +1,5 @@
 using Blocko.Services.Interfaces.Category;
-using Bolcko.Domain.Entities;
+using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Interfaces;
 
 namespace Blocko.Services.Implementations.Category
@@ -9,7 +9,7 @@ namespace Blocko.Services.Implementations.Category
         private readonly IUnitOfWork _unitOfWork;
         public CategoryService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-        public async Task<IEnumerable<Bolcko.Domain.Entities.Category>> GetRootCategoriesAsync() => await _unitOfWork.Categories.GetRootCategoriesAsync();
-        public async Task<IEnumerable<Bolcko.Domain.Entities.Category>> GetSubCategoriesAsync(int parentId) => await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetRootCategoriesAsync() => await _unitOfWork.Categories.GetRootCategoriesAsync();
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetSubCategoriesAsync(int parentId) => await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
     }
 }

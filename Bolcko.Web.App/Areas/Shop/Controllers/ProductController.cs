@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Bolcko.Web.App.Controllers
+namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]
     public class ProductController : Controller
