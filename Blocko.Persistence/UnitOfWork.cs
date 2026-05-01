@@ -1,11 +1,11 @@
 using Bolcko.Domain.Interfaces;
-using Blocko.Persistence.Repositories.User;
 using Blocko.Persistence.Repositories.Product;
 using Blocko.Persistence.Repositories.Category;
 using Blocko.Persistence.Repositories.Order;
 using Blocko.Persistence.Repositories.Tender;
 using Blocko.Persistence.Repositories.Project;
 using Blocko.Persistence.Repositories.MarketPrice;
+using Blocko.Persistence.Repositories.user;
 
 namespace Blocko.Persistence
 {

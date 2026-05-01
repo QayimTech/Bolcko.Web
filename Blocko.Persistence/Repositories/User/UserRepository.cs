@@ -2,7 +2,7 @@ using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blocko.Persistence.Repositories.User
+namespace Blocko.Persistence.Repositories.user
 {
     public class UserRepository : GenericRepository<Bolcko.Domain.Entities.User.User>, IUserRepository
     {

@@ -3,6 +3,7 @@ using Blocko.Services;
 using Bolcko.Domain.Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,25 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
 
 // Required for Identity UI features like SignInManager
+builder.Services.AddDbContext<BlockoDbContext>(options =>
+          options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+              b => b.MigrationsAssembly(typeof(BlockoDbContext).Assembly.FullName)));
+
+// ???????: ?????? AddIdentityCore ?? ???? ??? Persistence 
+// ????? ?? ????? ??? Cookies ?? ??? Web UI ????? ?? ASP.NET Core
+builder.Services.AddIdentityCore<User>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.User.RequireUniqueEmail = true;
+})
+.AddRoles<IdentityRole<int>>()
+.AddEntityFrameworkStores<BlockoDbContext>()
+.AddDefaultTokenProviders();
+
 builder.Services.AddIdentityApiEndpoints<User>()
     .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<BlockoDbContext>();
