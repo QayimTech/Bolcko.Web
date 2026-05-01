@@ -53,7 +53,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     // Custom logic to redirect based on the requested path (Area)
     options.Events.OnRedirectToLogin = context =>
     {
-        var requestPath = context.Request.Path.Value;
+        var requestPath = context.Request.Path.Value ?? "";
         if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
         {
             context.Response.Redirect("/Admin/Account/Login" + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
@@ -64,7 +64,25 @@ builder.Services.ConfigureApplicationCookie(options =>
         }
         else
         {
-            context.Response.Redirect(options.LoginPath + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
+            context.Response.Redirect("/Shop/Account/Login" + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
+        }
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        var requestPath = context.Request.Path.Value ?? "";
+        if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.Redirect("/Admin/Account/Login"); // Or a specific Admin Access Denied page
+        }
+        else if (requestPath.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.Redirect("/Dashboard/Account/Login");
+        }
+        else
+        {
+            context.Response.Redirect("/Shop/Account/AccessDenied");
         }
         return Task.CompletedTask;
     };
@@ -82,6 +100,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Redirect root to Shop Area
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Shop/Home/Index");
+    return Task.CompletedTask;
+});
 
 // Request Localization Middleware
 var supportedCultures = new[] { "ar", "en" };
