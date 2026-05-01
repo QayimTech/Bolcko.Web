@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-body;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-headline;
+    }
+}
+
+@layer components {
+    .shadow-hard {
+        box-shadow: 2px 2px 0px 0px rgba(27, 34, 53, 0.15);
+    }
+}

@@ -1,0 +1,49 @@
+namespace Bolcko.Domain.Enums
+{
+    public enum UserType
+    {
+        Individual = 1,
+        Contractor = 2,
+        Company = 3,
+        Admin = 4
+    }
+
+    public enum OrderStatus
+    {
+        Pending = 1,
+        Processing = 2,
+        Shipped = 3,
+        Delivered = 4,
+        Cancelled = 5
+    }
+
+    public enum ProjectStatus
+    {
+        Active = 1,
+        Completed = 2,
+        OnHold = 3
+    }
+
+    public enum TenderStatus
+    {
+        Open = 1,
+        UnderReview = 2,
+        Awarded = 3,
+        Closed = 4
+    }
+
+    public enum ProductStatus
+    {
+        InStock = 1,
+        OutOfStock = 2,
+        PreOrder = 3,
+        Discontinued = 4
+    }
+
+    public enum AddressType
+    {
+        Shipping = 1,
+        Billing = 2,
+        ProjectLocation = 3
+    }
+}

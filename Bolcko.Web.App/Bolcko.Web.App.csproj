@@ -13,4 +13,9 @@
     <Folder Include="Areas\Dashboard\Models\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Blocko.Persistence\Blocko.Persistence.csproj" />
+    <ProjectReference Include="..\Blocko.Services\Blocko.Services.csproj" />
+    <ProjectReference Include="..\Bolcko.Domain\Bolcko.Domain.csproj" />
+  </ItemGroup>
 </Project>

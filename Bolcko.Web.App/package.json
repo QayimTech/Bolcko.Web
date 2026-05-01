@@ -22,6 +22,7 @@
     "update-browserslist-db": "^1.2.3"
   },
   "scripts": {
+    "build:css": "npx tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/output.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

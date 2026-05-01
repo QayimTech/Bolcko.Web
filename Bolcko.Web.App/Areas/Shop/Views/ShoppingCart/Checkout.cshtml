@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "إتمام الطلب";
+}
+<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+    <header class="mb-12 border-r-4 border-primary-container pr-6">
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">إتمام الطلب</h1>
+        <p class="font-body-lg text-secondary">يرجى إدخال معلومات التوصيل لإكمال طلبك.</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        <!-- Checkout Form -->
+        <div class="lg:col-span-8">
+            <form class="space-y-8">
+                <!-- Customer Info -->
+                <div class="bg-white border border-outline-variant p-8 shadow-hard">
+                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم الكامل</label>
+                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسمك الكامل" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رقم الهاتف</label>
+                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="tel" placeholder="05xxxxxxxx" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">البريد الإلكتروني</label>
+                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@mail.com" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="bg-white border border-outline-variant p-8 shadow-hard">
+                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">عنوان التوصيل</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المدينة</label>
+                            <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                                <option>الرياض</option>
+                                <option>جدة</option>
+                                <option>الدمام</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المنطقة</label>
+                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم الحي" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">العنوان بالتفصيل (موقع المشروع)</label>
+                            <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-24" placeholder="أدخل وصفاً دقيقاً للموقع"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Info (Optional) -->
+                <div class="bg-white border border-outline-variant p-8 shadow-hard">
+                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات المشروع (اختياري)</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم المشروع</label>
+                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="مثلاً: فيلا الياسمين" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">نوع المشروع</label>
+                            <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                                <option>سكني</option>
+                                <option>تجاري</option>
+                                <option>صناعي</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-4">
+            <div class="bg-white border-2 border-on-background p-md shadow-hard sticky top-24">
+                <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">ملخص الطلب</h2>
+                <div class="space-y-4 mb-8">
+                    <!-- Mini Cart Items -->
+                    <div class="flex gap-4 border-b border-outline-variant pb-4">
+                        <img class="w-16 h-16 object-cover" src="https://images.unsplash.com/photo-1590069230005-db3937f91f30?auto=format&fit=crop&q=80&w=100" />
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-xs">بلوك أسمنتي قياسي</h4>
+                            <p class="text-[10px] text-outline-variant">500 وحدة</p>
+                            <p class="font-bold text-xs">2,500.00 ر.س</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-4">
+                        <span class="text-outline-variant">المجموع</span>
+                        <span class="font-headline-md text-primary">7,265.00 ر.س</span>
+                    </div>
+                </div>
+                
+                <a href="@Url.Action("Confirmation", "ShoppingCart", new { area = "Shop" })" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
+                    تأكيد وإرسال الطلب
+                    <span class="material-symbols-outlined">check_circle</span>
+                </a>
+                
+                <p class="mt-4 text-[10px] text-outline-variant text-center">بضغطك على تأكيد الطلب، فإنك توافق على شروط وأحكام Blocko.</p>
+            </div>
+        </div>
+    </div>
+</main>

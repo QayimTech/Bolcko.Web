@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "تأكيد طلب عرض السعر";
+}
+<main class="max-w-3xl mx-auto px-6 py-24 text-center">
+    <div class="bg-white border border-outline-variant p-12 shadow-hard">
+        <span class="material-symbols-outlined text-primary text-7xl mb-6" style="font-variation-settings: 'wght' 200">request_quote</span>
+        <h1 class="font-headline-xl text-on-surface mb-4">تم إرسال طلب عرض السعر بنجاح!</h1>
+        <p class="text-body-lg text-secondary mb-8">رقم الطلب المرجعي هو: <span class="font-bold text-on-surface">#QT-44210</span></p>
+        
+        <div class="bg-surface-container-low p-6 border-r-4 border-primary text-right mb-12">
+            <h3 class="font-bold text-on-surface mb-2">ما هي الخطوة التالية؟</h3>
+            <ul class="space-y-3 text-sm text-on-surface-variant">
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">circle</span>
+                    سيقوم فريق التسعير المختص بدراسة طلبك وتجهيز أفضل عرض مخصص لك.
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">circle</span>
+                    ستصلك نسخة من عرض السعر عبر البريد الإلكتروني خلال 24-48 ساعة عمل.
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">circle</span>
+                    سيتواصل معك مدير حسابك المخصص لمناقشة التفاصيل اللوجستية والخصومات المتاحة.
+                </li>
+            </ul>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase shadow-hard hover:opacity-90 transition-all">
+                تصفح المزيد من المنتجات
+            </a>
+            <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="bg-on-surface text-white font-bold px-8 py-4 uppercase shadow-hard hover:bg-slate-800 transition-all">
+                العودة للرئيسية
+            </a>
+        </div>
+    </div>
+</main>

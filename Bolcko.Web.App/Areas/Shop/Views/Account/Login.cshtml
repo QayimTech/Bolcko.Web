@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+    Layout = "_Layout"; // Or a simplified layout if preferred
+}
+<main class="min-h-[70vh] flex items-center justify-center py-12 px-6 text-right">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 border border-outline-variant shadow-hard">
+        <div class="text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900 uppercase mb-2">BLOCKO</h1>
+            <h2 class="text-xl font-bold text-on-surface">تسجيل الدخول إلى حسابك</h2>
+            <p class="mt-2 text-sm text-on-surface-variant">أو <a href="@Url.Action("Register", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">إنشاء حساب جديد</a></p>
+        </div>
+        
+        <form class="mt-8 space-y-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">البريد الإلكتروني</label>
+                    <input type="email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="example@mail.com" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">كلمة المرور</label>
+                    <input type="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-primary border-outline focus:ring-primary rounded-none" />
+                    <label for="remember-me" class="text-xs text-on-surface">تذكرني</label>
+                </div>
+                <div class="text-xs">
+                    <a href="#" class="font-bold text-primary hover:underline">نسيت كلمة المرور؟</a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="w-full bg-on-surface text-white font-bold py-4 uppercase shadow-hard hover:bg-slate-800 transition-all">
+                    دخول
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

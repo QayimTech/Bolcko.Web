@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "إنشاء حساب";
+}
+<main class="min-h-[80vh] flex items-center justify-center py-12 px-6 text-right">
+    <div class="max-w-xl w-full space-y-8 bg-white p-10 border border-outline-variant shadow-hard">
+        <div class="text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900 uppercase mb-2">BLOCKO</h1>
+            <h2 class="text-xl font-bold text-on-surface">إنشاء حساب جديد</h2>
+            <p class="mt-2 text-sm text-on-surface-variant">لديك حساب بالفعل؟ <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">تسجيل الدخول</a></p>
+        </div>
+        
+        <form class="mt-8 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">الاسم الكامل</label>
+                    <input type="text" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="أدخل اسمك الكامل" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">رقم الهاتف</label>
+                    <input type="tel" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="05xxxxxxxx" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">البريد الإلكتروني</label>
+                    <input type="email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="example@mail.com" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">كلمة المرور</label>
+                    <input type="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">تأكيد كلمة المرور</label>
+                    <input type="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">نوع المستخدم</label>
+                    <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                        <option>فرد</option>
+                        <option>شركة مقاولات</option>
+                        <option>مكتب هندسي</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-primary border-outline focus:ring-primary rounded-none" />
+                <label for="terms" class="text-xs text-on-surface">أوافق على <a href="#" class="font-bold text-primary hover:underline">الشروط والأحكام</a> و <a href="#" class="font-bold text-primary hover:underline">سياسة الخصوصية</a></label>
+            </div>
+
+            <div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all">
+                    إنشاء الحساب
+                </button>
+            </div>
+        </form>
+    </div>
+</main>

@@ -2,15 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
-    [Area("Shop")]  
-    public class ShoppingCartController : Controller
+    [Area("Shop")]
+    public class QuoteController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Checkout()
+        public IActionResult Request()
         {
             return View();
         }

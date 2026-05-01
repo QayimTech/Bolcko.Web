@@ -1,6 +1,11 @@
+using Blocko.Persistence;
+using Blocko.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddServices();
 
 var app = builder.Build();
 

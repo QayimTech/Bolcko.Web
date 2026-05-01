@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "طلب عرض سعر";
+}
+<main class="max-w-4xl mx-auto px-6 py-12 text-right">
+    <header class="mb-12 border-r-4 border-primary-container pr-6">
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">طلب عرض سعر للكميات</h1>
+        <p class="font-body-lg text-secondary">يرجى تعبئة النموذج أدناه للحصول على تسعير مخصص لمشروعك.</p>
+    </header>
+
+    <form class="space-y-8">
+        <!-- Customer & Company Info -->
+        <div class="bg-white border border-outline-variant p-8 shadow-hard">
+            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل والشركة</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">نوع العميل</label>
+                    <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                        <option>شركة مقاولات</option>
+                        <option>مطور عقاري</option>
+                        <option>مكتب هندسي</option>
+                        <option>فرد (كمية كبيرة)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم الشركة (اختياري)</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسم الشركة" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم الكامل للمسؤول</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسمك الكامل" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رقم الهاتف</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="tel" placeholder="05xxxxxxxx" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Info -->
+        <div class="bg-white border border-outline-variant p-8 shadow-hard">
+            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات المشروع</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم المشروع</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="مثلاً: مجمع سكني حطين" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">موقع المشروع (المدينة)</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="الرياض، جدة، إلخ" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Products List -->
+        <div class="bg-white border border-outline-variant p-8 shadow-hard">
+            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">المنتجات المطلوبة</h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-12 gap-4 items-end border-b border-outline-variant pb-4">
+                    <div class="col-span-6">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المنتج</label>
+                        <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم المنتج أو SKU" value="أسمنت بورتلاندي 50 كجم" />
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الكمية</label>
+                        <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="number" value="1000" />
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الوحدة</label>
+                        <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                            <option>كيس</option>
+                            <option>طن</option>
+                            <option>متر مكعب</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    إضافة منتج آخر
+                </button>
+            </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="bg-white border border-outline-variant p-8 shadow-hard">
+            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">ملاحظات إضافية</h2>
+            <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-32" placeholder="أدخل أي متطلبات خاصة أو جداول زمنية للتوصيل"></textarea>
+        </div>
+
+        <div class="flex justify-end">
+            <a href="@Url.Action("Confirmation", "Quote", new { area = "Shop" })" class="bg-primary text-white font-bold px-12 py-4 uppercase shadow-hard hover:opacity-90 transition-all flex items-center gap-2">
+                إرسال طلب عرض السعر
+                <span class="material-symbols-outlined">send</span>
+            </a>
+        </div>
+    </form>
+</main>

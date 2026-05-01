@@ -93,9 +93,9 @@ module.exports = {
             },
 
             fontFamily: {
-                body: ["Inter", "sans-serif"],
-                headline: ["Work Sans", "sans-serif"],
-                label: ["Inter", "sans-serif"]
+                body: ["Noto Kufi Arabic", "Inter", "sans-serif"],
+                headline: ["Noto Kufi Arabic", "Work Sans", "sans-serif"],
+                label: ["Noto Kufi Arabic", "Inter", "sans-serif"]
             },
 
             fontSize: {

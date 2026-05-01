@@ -1,208 +1,161 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "الرئيسية";
 }
 <main>
     <section class="relative bg-on-surface text-white h-[600px] flex items-center overflow-hidden">
         <div class="absolute inset-0 opacity-40">
-            <img class="w-full h-full object-cover" data-alt="dramatic wide shot of a modern construction site with concrete pillars and steel reinforcement at dusk with cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmsuALppyebN-T8WNijyfxIhru2THW_hBsZkmprmGpa1fgmHgau7LalDElaAmbi1bg5cXfEj6VO407bM7mp72snMyVyJpqutKXXlk3ha3LT2-0s3drvwjqP8wVRsGJVr-_zZ_XnSx4MrzbU3Iti64FuFcJrn1iwcNkghUP6FeUUSYlQvHTRh5twEvilY19amscV4myXLI3GEBaU_PlRUbHJzC2fa2rMvponFQ3gryPUpiR2Qy58XvuyQfH60ew2K34fCDN2zY9ov4" />
+            <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" alt="Construction site" />
         </div>
         <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12">
             <div class="flex flex-col gap-8">
-                <h1 class="font-headline-xl text-white">THE FOUNDATION OF EVERY GREAT PROJECT.</h1>
-                <p class="font-body-lg text-secondary-fixed-dim max-w-lg">High-precision industrial supplies for the professional contractor. From raw concrete to precision tools, we deliver structural integrity.</p>
+                <h1 class="font-headline-xl text-white">الأساس المتين لكل مشروع عظيم.</h1>
+                <p class="font-body-lg text-secondary-fixed-dim max-w-lg">توريدات صناعية عالية الدقة للمقاولين المحترفين. من الخرسانة الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</p>
                 <div class="flex flex-wrap gap-4">
-                    <button class="bg-primary-container text-on-primary-container font-label-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 hard-shadow">
-                        Shop Now
-                    </button>
-                    <button class="bg-[#1B2235] text-white font-label-bold px-8 py-4 uppercase border border-white/20 tracking-wider transition-all hover:bg-white hover:text-on-surface">
-                        Request a Quote
-                    </button>
+                    <a href="@Url.Action("Index", "Category")" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard">
+                        تصفح المنتجات
+                    </a>
+                    <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="bg-[#1B2235] text-white font-bold px-8 py-4 uppercase border border-white/20 tracking-wider transition-all hover:bg-white hover:text-on-surface">
+                        اطلب عرض سعر
+                    </a>
                 </div>
             </div>
             <div class="hidden md:flex items-center justify-center">
-                <div class="bg-on-surface/80 backdrop-blur-md border border-outline/20 p-8 flex flex-col gap-4 max-w-sm">
-                    <span class="text-primary-container font-label-bold uppercase text-xs tracking-[0.2em]">Next-Day Delivery</span>
-                    <h3 class="font-headline-md">Stocked &amp; Ready.</h3>
-                    <p class="text-sm opacity-80">98% of our core catalog is ready for immediate dispatch to your job site.</p>
+                <div class="bg-on-surface/80 backdrop-blur-md border border-outline/20 p-8 flex flex-col gap-4 max-w-sm text-right">
+                    <span class="text-primary-container font-bold uppercase text-xs tracking-[0.2em]">توصيل سريع</span>
+                    <h3 class="font-headline-md text-white">متوفر وجاهز للشحن.</h3>
+                    <p class="text-sm opacity-80 text-white">98% من كتالوجنا الأساسي جاهز للإرسال الفوري إلى موقع عملك.</p>
                 </div>
             </div>
         </div>
     </section>
+
     <section class="py-xl max-w-7xl mx-auto px-6">
         <div class="flex justify-between items-end mb-md">
-            <h2 class="font-headline-lg uppercase border-l-4 border-primary-container pl-4">Featured Categories</h2>
-            <a class="font-label-bold text-primary hover:underline underline-offset-4" href="#">Browse All</a>
+            <h2 class="font-headline-lg uppercase border-r-4 border-primary-container pr-4">الفئات المميزة</h2>
+            <a class="font-bold text-primary hover:underline underline-offset-4" href="@Url.Action("Index", "Category", new { area = "Shop" })">عرض الكل</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            <div class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="industrial heavy-duty concrete blocks stacked in a geometric pattern on a construction site" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuqDsusCZ7XZjG2Az_CeyGvb5n_mOnB85FmnA_RgUZ8S_CP1_JJJtuu3O9DgrZKYamjI4m9W-EAlTMe11jKguG64ny-X9b4LA2t01FJXd0_wX-tvk2RJVztU1lI_IC39Mi71hAQY8ww7i91WIBw1BPQxCTr4VV5XBvIAfmUhHoCeLPNfaRabEFBLnGLaNxsBd0ddVuXiuuS-CJuq2_YD5jCrN-o-pSjuUoX8i0cQec5mB3wIR7q3AHmW4NBi89rGmYLrFEk9MydIg" />
+            <!-- Category Cards -->
+            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="Cement" />
                 <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6">
-                    <h4 class="font-headline-md text-white">Cement</h4>
-                    <span class="text-primary-container font-label-bold uppercase text-xs">820 Items</span>
+                <div class="absolute bottom-6 right-6">
+                    <h4 class="font-headline-md text-white">الأسمنت</h4>
+                    <span class="text-primary-container font-bold uppercase text-xs">820 منتج</span>
                 </div>
             </div>
-            <div class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="close-up of industrial steel reinforcement bars rusted in high-contrast textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBdvjbyDsSOKskjwLbRQy1BZiKzIEDHKAAUrFTu-mB13K8n8OnB2OT-y7QZkK75x-SFiSO8XJADOcS22kk7Br5XBW_Y2fon3GLrDJ6iD-dXgrsUFOvlYF62j0MU6r67iIkzcMCN-7GOgKp1SNIfUqcAA8LeRm_R6YnGoUXeLISkcR9MZgQHtE982kAYfKlaZXpf72c54ZoPaN2a9CbjAE2_Xe9P9l5_bipc7OocUsGVsUrv9t8hBf-ebT-GnYcO3Cwad0kDV27nIk" />
+            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1516216628859-9bccecad13f7?auto=format&fit=crop&q=80&w=1000" alt="Steel" />
                 <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6">
-                    <h4 class="font-headline-md text-white">Steel</h4>
-                    <span class="text-primary-container font-label-bold uppercase text-xs">450 Items</span>
+                <div class="absolute bottom-6 right-6">
+                    <h4 class="font-headline-md text-white">الحديد</h4>
+                    <span class="text-primary-container font-bold uppercase text-xs">450 منتج</span>
                 </div>
             </div>
-            <div class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="neatly stacked red clay bricks on a construction site with sunlight casting sharp shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBexawLEg3xzlJSf_DG_-mlJSlDJ8FcwpkqPPPj10JzrnS1gFTYOcCbcnB7L3FXovyJoNVLq5C6R6dPzSqv9gpaqBsBq1PGhA3Rx8kdy4xzo1jKaux5i2cnmfpNKJFw69sDwqIAvrXLxqbuJ9RXnPjddHhP_nSIIKgs7JhqLlTC6vQM9LznSx4LKnH1hzjcyMOtRJrn6GEiREuUuIi0osYs-rHgusQzxvnYoc60_r4FW5pAZDFNRJAg3DskxcaoHrkpFxFJlTbcdjs" />
+            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1590069230005-db3937f91f30?auto=format&fit=crop&q=80&w=1000" alt="Bricks" />
                 <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6">
-                    <h4 class="font-headline-md text-white">Bricks</h4>
-                    <span class="text-primary-container font-label-bold uppercase text-xs">1,200 Items</span>
+                <div class="absolute bottom-6 right-6">
+                    <h4 class="font-headline-md text-white">الطوب</h4>
+                    <span class="text-primary-container font-bold uppercase text-xs">1,200 منتج</span>
                 </div>
             </div>
-            <div class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="professional contractor tools including levels and hammers on a wooden workbench with industrial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUakTKOdvdPMJhHio9IW311Itgp7GX9rbc-91pK3VzYCnsFh96ygtWzQmTMPVev_QRQhA4tDkdK9uq1uk8vctcLkflDOc2yhmIU2Zga4c-lKyVex_GGvyad2ebQKYOxmtTa0JQFpH-o_MUwPrS6zCPAD37ZnY-PtvaSlOsQizJuj--lh87YgUCE4fWXy4i-urtIKAIRKAs732txNhDjaD4Mq5wngfItH-Hlhq15C3OZQZM1IM357dm1ZFCii2lm4xawpa6OA6veDA" />
+            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&q=80&w=1000" alt="Tools" />
                 <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6">
-                    <h4 class="font-headline-md text-white">Tools</h4>
-                    <span class="text-primary-container font-label-bold uppercase text-xs">2,400 Items</span>
+                <div class="absolute bottom-6 right-6">
+                    <h4 class="font-headline-md text-white">الأدوات</h4>
+                    <span class="text-primary-container font-bold uppercase text-xs">2,400 منتج</span>
                 </div>
             </div>
         </div>
     </section>
+
     <section class="bg-surface-container-low py-xl">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-end mb-md">
-                <h2 class="font-headline-lg uppercase border-l-4 border-primary-container pl-4">Bestselling Equipment</h2>
+                <h2 class="font-headline-lg uppercase border-r-4 border-primary-container pr-4">الأكثر مبيعاً</h2>
                 <div class="flex gap-2">
                     <button class="w-10 h-10 border border-outline bg-white flex items-center justify-center hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                        <span class="material-symbols-outlined">chevron_left</span>
+                        <span class="material-symbols-outlined">chevron_right</span>
                     </button>
                     <button class="w-10 h-10 border border-outline bg-white flex items-center justify-center hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                        <span class="material-symbols-outlined">chevron_right</span>
+                        <span class="material-symbols-outlined">chevron_left</span>
                     </button>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-                <div class="bg-white border border-outline-variant/30 flex flex-col hard-shadow group">
+                <!-- Product Card -->
+                <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop" })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer">
                     <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
-                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="high-quality cordless power drill on a clean white background, commercial product photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCy2v8k8EFuls8hMtUuuLwwDQLA8jrdIJn8_RX5O5nf7jZak6wgAkBFmTxMd2K90hka_5l-WCR6aUeZJHLBPTsoMt2_xD2vSlWeRkhDvi4aJBuMl3Mn16oDjzKr6muN5b6HBH8CAo4qILi2Iuxx9g60Qc8DfKrwnnl5tR5xy3Nb2GSIPd2P77KNx90w-osD_P6SMYCM1UZZn1B3pDYGgSBthp5CW-05hjju04R08Mv-9mYCDLgnDIK5OGFRMCbKY5MdjFAtVvHkhio" />
-                        <span class="absolute top-4 left-4 bg-on-surface text-white font-label-bold px-2 py-1 text-[10px] uppercase">SKU: DX-4092</span>
+                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=80&w=1000" alt="Drill" />
+                        <span class="absolute top-4 right-4 bg-on-surface text-white font-bold px-2 py-1 text-[10px] uppercase">SKU: DX-4092</span>
                     </div>
                     <div class="p-4 flex flex-col gap-2">
-                        <h5 class="font-label-bold uppercase text-on-surface">Pro-Impact 20V Cordless Drill</h5>
+                        <h5 class="font-bold uppercase text-on-surface">مثقاب كهربائي 20 فولت</h5>
                         <div class="flex justify-between items-center mt-2">
-                            <span class="font-headline-md text-primary">$189.99</span>
-                            <span class="text-xs text-on-surface-variant font-label-sm">In Stock</span>
+                            <span class="font-headline-md text-primary">189.99 ر.س</span>
+                            <span class="text-xs text-on-surface-variant">متوفر</span>
                         </div>
-                        <button class="mt-4 w-full bg-primary-container text-on-primary-container font-label-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
+                        <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
                             <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                            Add To Cart
+                            أضف إلى السلة
                         </button>
                     </div>
                 </div>
-                <div class="bg-white border border-outline-variant/30 flex flex-col hard-shadow group">
-                    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
-                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="heavy-duty industrial protective helmet in bright yellow on a construction plan blueprint" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSFtxQZwfrrAsnOqTKzIq5yZ_fh6F9YNtdFMqt_Mo6hrk6uNWPbohLqg_XdiY3tjg-XuZQhiIF2yR4CloXU7ij7aAL6AX92HT2Gy1CLAX7kJcNW8WH_Dxj10M1-bc-8lbdkF8Upg3YxoFjR_IaFld3PwXCZn-DVH13gZjz0BlbTGo0feXS91Qg6yMiy92ZSJEzLc5s8KOOOAnJMUbKJTL-fkzFJNbkXrMxBlVq7_JMDg1LgCQGW90s36wBY0OKG9HzRSNxTbYWvP0" />
-                        <span class="absolute top-4 left-4 bg-on-surface text-white font-label-bold px-2 py-1 text-[10px] uppercase">SKU: SH-900</span>
-                    </div>
-                    <div class="p-4 flex flex-col gap-2">
-                        <h5 class="font-label-bold uppercase text-on-surface">Steel-Core Safety Helmet</h5>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="font-headline-md text-primary">$45.00</span>
-                            <span class="text-xs text-on-surface-variant font-label-sm">Bulk Available</span>
-                        </div>
-                        <button class="mt-4 w-full bg-primary-container text-on-primary-container font-label-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
-                            <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                            Add To Cart
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white border border-outline-variant/30 flex flex-col hard-shadow group">
-                    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
-                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="industrial grade high-visibility work gloves on a weathered concrete surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeOKtTrgAjMJ0V-tpf8l61ys6VQrmIeYMRjPtzjIbX8oayWzaM5q_QcvASPYezVXQmpXGvC67CErHcPyWgrnPulXE2Byc7m0x6D2lcRAyP_Tlege2LfMSTGtka1sOo5unObTJwTq4SB_JvpWHPIFsVL-Wis_Bh24hsYNn3e4yNCpXkKvizfBWZL2LTRVwmsBbdyrbWEAYoUxykfCfh6CnICUK8kVUFtE2dcPgtnGCMOmSc_wXr5_IhToSuVHYQSM459b9aqOr29LU" />
-                        <span class="absolute top-4 left-4 bg-on-surface text-white font-label-bold px-2 py-1 text-[10px] uppercase">SKU: GV-122</span>
-                    </div>
-                    <div class="p-4 flex flex-col gap-2">
-                        <h5 class="font-label-bold uppercase text-on-surface">Kevlar Grip Work Gloves</h5>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="font-headline-md text-primary">$24.50</span>
-                            <span class="text-xs text-on-surface-variant font-label-sm">In Stock</span>
-                        </div>
-                        <button class="mt-4 w-full bg-primary-container text-on-primary-container font-label-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
-                            <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                            Add To Cart
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white border border-outline-variant/30 flex flex-col hard-shadow group">
-                    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
-                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="modern laser leveling tool on a tripod inside an industrial building frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDYy2cNIGLerKPOQeGb61OZwoY_Vj9judPz2FhlroECi2QwLNu9PXpmqqSPsZ_k13dK5u5sJ3z4OtrWk_bAj4gHChqgVv52DlRmXKeJtl18rc60jDGQjznnF0HFWMzMMzO1ltObJtH4s1J2xcD8CEIPMZ2MezdUuGJf80nLCY0W77auMqsF9O1Q9iNmcricgxK7shAFKb6PbfsDE7tQYP3QxhS7kV6P3lIL7GhD-8yO0AO2TwnFyFHFg6_X7HkCDUhP0Xpqzb5j7Q" />
-                        <span class="absolute top-4 left-4 bg-on-surface text-white font-label-bold px-2 py-1 text-[10px] uppercase">SKU: LS-300</span>
-                    </div>
-                    <div class="p-4 flex flex-col gap-2">
-                        <h5 class="font-label-bold uppercase text-on-surface">360° Precision Laser Level</h5>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="font-headline-md text-primary">$312.00</span>
-                            <span class="text-xs text-on-surface-variant font-label-sm">Next-Day</span>
-                        </div>
-                        <button class="mt-4 w-full bg-primary-container text-on-primary-container font-label-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
-                            <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                            Add To Cart
-                        </button>
-                    </div>
-                </div>
+                <!-- Add more cards as needed -->
             </div>
         </div>
     </section>
+
     <section class="bg-on-surface py-xl">
         <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-margin items-center">
-            <div class="flex flex-col gap-6">
-                <h2 class="font-headline-xl text-white">BULK PROJECTS REQUIRE PRECISION PRICING.</h2>
-                <p class="text-secondary-fixed-dim font-body-lg">Scale your project efficiently. Our B2B portal offers volume discounts, scheduled deliveries, and dedicated account management for construction firms.</p>
+            <div class="flex flex-col gap-6 text-right">
+                <h2 class="font-headline-xl text-white">المشاريع الكبيرة تتطلب تسعيراً دقيقاً.</h2>
+                <p class="text-secondary-fixed-dim font-body-lg">قم بتوسيع مشروعك بكفاءة. تقدم بوابة B2B الخاصة بنا خصومات على الكميات، وعمليات تسليم مجدولة، وإدارة حسابات مخصصة لشركات الإنشاءات.</p>
                 <div class="flex flex-col gap-4">
                     <div class="flex items-start gap-4">
                         <span class="material-symbols-outlined text-primary-container mt-1">verified</span>
                         <div>
-                            <h6 class="text-white font-label-bold">Guaranteed Supply</h6>
-                            <p class="text-sm text-slate-400">Lock in inventory for long-term project phases.</p>
+                            <h6 class="text-white font-bold">توريد مضمون</h6>
+                            <p class="text-sm text-slate-400">تأمين المخزون لمراحل المشروع طويلة الأجل.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-4">
                         <span class="material-symbols-outlined text-primary-container mt-1">local_shipping</span>
                         <div>
-                            <h6 class="text-white font-label-bold">Logistic Support</h6>
-                            <p class="text-sm text-slate-400">Custom multi-site delivery schedules.</p>
+                            <h6 class="text-white font-bold">دعم لوجستي</h6>
+                            <p class="text-sm text-slate-400">جداول تسليم مخصصة لمواقع متعددة.</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-10 hard-shadow">
-                <h3 class="font-headline-md text-on-surface mb-8 uppercase tracking-tight">Request Bulk Quote</h3>
+            <div class="bg-white p-10 shadow-hard text-right">
+                <h3 class="font-headline-md text-on-surface mb-8 uppercase tracking-tight">اطلب عرض سعر للكميات</h3>
                 <form class="flex flex-col gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Company Name</label>
-                        <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all" type="text" />
+                        <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">اسم الشركة</label>
+                        <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right" type="text" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Contact Name</label>
-                            <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all" type="text" />
+                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">اسم المسؤول</label>
+                            <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right" type="text" />
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Project Scale</label>
-                            <select class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all">
-                                <option>Residential</option>
-                                <option>Commercial</option>
-                                <option>Industrial</option>
+                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">نوع المشروع</label>
+                            <select class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right">
+                                <option>سكني</option>
+                                <option>تجاري</option>
+                                <option>صناعي</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">Estimated Budget</label>
-                        <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all" placeholder="$5,000+" type="text" />
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase tracking-widest hover:opacity-90 transition-all">
+                            إرسال الطلب
+                        </button>
                     </div>
-                    <button class="bg-on-surface text-white font-label-bold py-4 mt-4 uppercase tracking-widest hover:bg-primary transition-colors" type="submit">
-                        Initialize Inquiry
-                    </button>
                 </form>
             </div>
         </div>
