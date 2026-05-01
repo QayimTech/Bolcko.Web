@@ -1,7 +1,7 @@
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Enums;
 
-namespace Bolcko.Domain.Entities
+namespace Bolcko.Domain.Entities.User
 {
     public class Address : BaseEntity
     {

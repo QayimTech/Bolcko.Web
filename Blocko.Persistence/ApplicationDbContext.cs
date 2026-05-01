@@ -1,4 +1,9 @@
-using Bolcko.Domain.Entities;
+using Bolcko.Domain.Entities.User;
+using Bolcko.Domain.Entities.Product;
+using Bolcko.Domain.Entities.Catalog;
+using Bolcko.Domain.Entities.Order;
+using Bolcko.Domain.Entities.Project;
+using Bolcko.Domain.Entities.Tender;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Persistence
@@ -9,13 +14,13 @@ namespace Blocko.Persistence
         {
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Bolcko.Domain.Entities.User.User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<Project> Projects { get; set; }
-        public DbSet<Tender> Tenders { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Product.Product> Products { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Order.Order> Orders { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Project.Project> Projects { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Tender.Tender> Tenders { get; set; }
         public DbSet<TenderItem> TenderItems { get; set; }
         public DbSet<MarketPrice> MarketPrices { get; set; }
 
@@ -24,7 +29,7 @@ namespace Blocko.Persistence
             base.OnModelCreating(modelBuilder);
 
             // User configuration
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.User.User>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
@@ -50,14 +55,14 @@ namespace Blocko.Persistence
             });
 
             // Product configuration
-            modelBuilder.Entity<Product>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Product.Product>(entity =>
             {
                 entity.Property(e => e.RetailPrice).HasPrecision(18, 2);
                 entity.Property(e => e.Weight).HasPrecision(18, 2);
             });
 
             // Order configuration
-            modelBuilder.Entity<Order>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Order.Order>(entity =>
             {
                 entity.Property(e => e.TotalAmount).HasPrecision(18, 2);
 
@@ -73,7 +78,7 @@ namespace Blocko.Persistence
             });
 
             // Tender configuration
-            modelBuilder.Entity<Tender>(entity =>
+            modelBuilder.Entity<Bolcko.Domain.Entities.Tender.Tender>(entity =>
             {
                 entity.Property(e => e.TotalQuotedAmount).HasPrecision(18, 2);
             });

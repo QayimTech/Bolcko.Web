@@ -1,6 +1,6 @@
 using Bolcko.Domain.Common;
 
-namespace Bolcko.Domain.Entities
+namespace Bolcko.Domain.Entities.Catalog
 {
     public class MarketPrice : BaseEntity
     {

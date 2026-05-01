@@ -1,6 +1,7 @@
 using Bolcko.Domain.Common;
+using Bolcko.Domain.Entities.Product;
 
-namespace Bolcko.Domain.Entities
+namespace Bolcko.Domain.Entities.Catalog
 {
     public class Category : BaseEntity
     {
@@ -10,6 +11,6 @@ namespace Bolcko.Domain.Entities
         public string? Description { get; set; }
 
         public ICollection<Category> SubCategories { get; set; } = new List<Category>();
-        public ICollection<Product> Products { get; set; } = new List<Product>();
+        public ICollection<Bolcko.Domain.Entities.Product.Product> Products { get; set; } = new List<Bolcko.Domain.Entities.Product.Product>();
     }
 }

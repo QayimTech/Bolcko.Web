@@ -1,4 +1,14 @@
 using Blocko.Services.Interfaces;
+using Blocko.Services.Interfaces.User;
+using Blocko.Services.Interfaces.Product;
+using Blocko.Services.Interfaces.Category;
+using Blocko.Services.Interfaces.Order;
+using Blocko.Services.Interfaces.Tender;
+using Blocko.Services.Implementations.User;
+using Blocko.Services.Implementations.Product;
+using Blocko.Services.Implementations.Category;
+using Blocko.Services.Implementations.Order;
+using Blocko.Services.Implementations.Tender;
 using Bolcko.Domain.Interfaces;
 
 namespace Blocko.Services.Implementations

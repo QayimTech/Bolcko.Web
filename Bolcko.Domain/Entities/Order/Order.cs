@@ -1,12 +1,13 @@
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Enums;
+using Bolcko.Domain.Entities.User;
 
-namespace Bolcko.Domain.Entities
+namespace Bolcko.Domain.Entities.Order
 {
     public class Order : BaseEntity
     {
         public int UserId { get; set; }
-        public User User { get; set; } = null!;
+        public Bolcko.Domain.Entities.User.User User { get; set; } = null!;
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }

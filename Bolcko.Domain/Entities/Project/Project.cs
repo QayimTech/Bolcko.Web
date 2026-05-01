@@ -1,12 +1,13 @@
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Enums;
+using Bolcko.Domain.Entities.User;
 
-namespace Bolcko.Domain.Entities
+namespace Bolcko.Domain.Entities.Project
 {
     public class Project : BaseEntity
     {
         public int UserId { get; set; }
-        public User User { get; set; } = null!;
+        public Bolcko.Domain.Entities.User.User User { get; set; } = null!;
         public string ProjectName { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime? StartDate { get; set; }
