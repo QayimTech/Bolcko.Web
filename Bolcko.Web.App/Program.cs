@@ -31,32 +31,24 @@ app.UseWebLocalization();
 
 app.UseRouting();
 
-// Auth MUST be between UseRouting and UseEndpoints
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Data Seeding
 await app.SeedIdentityDataAsync();
 
-// --- 3. Endpoints Phase ---
-app.UseEndpoints(endpoints =>
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapGet("/", context =>
 {
-    // Root Redirect
-    endpoints.MapGet("/", context =>
-    {
-        context.Response.Redirect("/Shop/Home/Index");
-        return Task.CompletedTask;
-    });
-
-    // Areas Support
-    endpoints.MapControllerRoute(
-        name: "areas",
-        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-    // Default Route
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
+    context.Response.Redirect("/Shop/Home/Index");
+    return Task.CompletedTask;
 });
 
 app.Run();
