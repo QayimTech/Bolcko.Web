@@ -11,7 +11,7 @@ builder.Services.AddWebServices(builder.Configuration);
 
 var app = builder.Build();
 
-// --- 2. Middleware Pipeline (Order is Critical for SRP & Security) ---
+// --- 2. Middleware Pipeline ---
 
 if (app.Environment.IsDevelopment())
 {
@@ -26,16 +26,25 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Localization should be early
-app.UseWebLocalization();
-
+// 1. Routing MUST be before Auth & Authorization
 app.UseRouting();
 
+// 2. Localization can be here
+app.UseWebLocalization();
+
+// 3. Auth & Authorization MUST be between Routing and Endpoints
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Data Seeding
+// 4. Data Seeding
 await app.SeedIdentityDataAsync();
+
+// 5. Endpoint Mapping
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Shop/Home/Index");
+    return Task.CompletedTask;
+});
 
 app.MapControllerRoute(
     name: "areas",
@@ -44,11 +53,5 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/Shop/Home/Index");
-    return Task.CompletedTask;
-});
 
 app.Run();
