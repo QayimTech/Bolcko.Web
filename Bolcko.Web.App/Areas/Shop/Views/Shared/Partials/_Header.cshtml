@@ -1,9 +1,13 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
 <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
     <div class="flex justify-between items-center w-full px-6 py-3 max-w-7xl mx-auto">
         <div class="flex items-center gap-8">
             <a href="/" class="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">Blocko</a>
             <nav class="hidden md:flex gap-6 items-center font-medium text-sm">
-                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Category")">الفئات</a>
+                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
                 <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">المشاريع</a>
                 <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="@Url.Action("AboutUs","Home")">من نحن</a>
                 <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">اتصل بنا</a>
@@ -48,6 +52,7 @@
             {
                 <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+                    <span class="text-xs font-bold mr-1">@SharedLocalizer["Login"]</span>
                 </a>
             }
             <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative inline-block">
