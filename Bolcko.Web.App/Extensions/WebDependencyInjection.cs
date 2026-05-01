@@ -11,13 +11,32 @@ namespace Bolcko.Web.App.Extensions
     {
         public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // 1. Localization
+            // 1. Identity & Auth (Must be configured before calling UserManager in Seeder)
+            services.AddIdentityCore<User>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<int>>()
+            .AddEntityFrameworkStores<BlockoDbContext>()
+            .AddDefaultTokenProviders();
+
+            // Required for SignInManager and other Identity UI features
+            services.AddIdentityApiEndpoints<User>()
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<BlockoDbContext>();
+
+            // 2. Localization
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddControllersWithViews()
                 .AddViewLocalization()
                 .AddDataAnnotationsLocalization();
 
-            // 2. Identity & Cookies
+            // 3. Cookies configuration
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = "Blocko.Auth";
