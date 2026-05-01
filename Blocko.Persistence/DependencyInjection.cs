@@ -1,4 +1,4 @@
-using Bolcko.Domain.Interfaces;
+using Blocko.Domain.Interfaces;
 using Blocko.Persistence.Repositories;
 using Blocko.Persistence.Repositories.User;
 using Blocko.Persistence.Repositories.Product;
@@ -23,7 +23,9 @@ namespace Blocko.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(BlockoDbContext).Assembly.FullName)));
 
-            services.AddIdentity<User, IdentityRole<int>>(options =>
+            // هندسياً: نستخدم AddIdentityCore في طبقة الـ Persistence 
+            // لأنها لا تعتمد على Cookies أو الـ Web UI الخاص بـ ASP.NET Core
+            services.AddIdentityCore<User>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -32,6 +34,7 @@ namespace Blocko.Persistence
                 options.Password.RequireLowercase = false;
                 options.User.RequireUniqueEmail = true;
             })
+            .AddRoles<IdentityRole<int>>()
             .AddEntityFrameworkStores<BlockoDbContext>()
             .AddDefaultTokenProviders();
 

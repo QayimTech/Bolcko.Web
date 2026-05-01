@@ -1,5 +1,7 @@
 using Blocko.Persistence;
 using Blocko.Services;
+using Bolcko.Domain.Entities.User;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
+
+// Required for Identity UI features like SignInManager
+builder.Services.AddIdentityApiEndpoints<User>()
+    .AddRoles<IdentityRole<int>>()
+    .AddEntityFrameworkStores<BlockoDbContext>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

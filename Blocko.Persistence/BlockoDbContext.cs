@@ -16,7 +16,6 @@ namespace Blocko.Persistence
         {
         }
 
-        public DbSet<Bolcko.Domain.Entities.User.User> Users { get; set; }
         public DbSet<Bolcko.Domain.Entities.User.Address> Addresses { get; set; }
         public DbSet<Bolcko.Domain.Entities.Catalog.Category> Categories { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.Product> Products { get; set; }
