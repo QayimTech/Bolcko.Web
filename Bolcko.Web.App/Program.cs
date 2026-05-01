@@ -7,12 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthentication("CookieAuth")
     .AddCookie("CookieAuth", options =>
     {
-        options.Cookie.Name = "Bolcko.Auth";
+        options.Cookie.Name = "Blocko.Auth";
         options.LoginPath = "/Shop/Account/Login";
         options.AccessDeniedPath = "/Shop/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);

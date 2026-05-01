@@ -6,7 +6,7 @@ namespace Blocko.Persistence.Repositories.Project
 {
     public class ProjectRepository : GenericRepository<Bolcko.Domain.Entities.Project.Project>, IProjectRepository
     {
-        public ProjectRepository(ApplicationDbContext context) : base(context) { }
+        public ProjectRepository(BlockoDbContext context) : base(context) { }
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Project.Project>> GetUserProjectsAsync(int userId) => 
             await _context.Projects.Where(p => p.UserId == userId).ToListAsync();

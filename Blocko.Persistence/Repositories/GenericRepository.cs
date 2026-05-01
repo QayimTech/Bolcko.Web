@@ -6,9 +6,9 @@ namespace Blocko.Persistence.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly ApplicationDbContext _context;
+        protected readonly BlockoDbContext _context;
 
-        public GenericRepository(ApplicationDbContext context)
+        public GenericRepository(BlockoDbContext context)
         {
             _context = context;
         }

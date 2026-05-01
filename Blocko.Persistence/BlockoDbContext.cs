@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public class BlockoDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public BlockoDbContext(DbContextOptions<BlockoDbContext> options) : base(options)
         {
         }
 

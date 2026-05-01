@@ -11,9 +11,9 @@ namespace Blocko.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _context;
+        private readonly BlockoDbContext _context;
 
-        public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(BlockoDbContext context)
         {
             _context = context;
             Users = new UserRepository(_context);
