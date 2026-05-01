@@ -7,14 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
-builder.Services.AddAuthentication("CookieAuth")
-    .AddCookie("CookieAuth", options =>
-    {
-        options.Cookie.Name = "Blocko.Auth";
-        options.LoginPath = "/Shop/Account/Login";
-        options.AccessDeniedPath = "/Shop/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
-    });
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "Blocko.Auth";
+    options.LoginPath = "/Shop/Account/Login";
+    options.AccessDeniedPath = "/Shop/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+});
 
 var app = builder.Build();
 

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Bolcko.Domain.Interfaces;
+using Blocko.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Persistence.Repositories

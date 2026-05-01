@@ -3,17 +3,14 @@ using Bolcko.Domain.Enums;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Project;
 using Bolcko.Domain.Entities.Tender;
+using Microsoft.AspNetCore.Identity;
 
 namespace Bolcko.Domain.Entities.User
 {
-    public class User : BaseEntity
+    public class User : IdentityUser<int>
     {
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
         public UserType UserType { get; set; }
         public string? CompanyName { get; set; }
         public string? BusinessRegistrationNumber { get; set; }

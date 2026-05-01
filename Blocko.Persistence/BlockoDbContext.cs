@@ -5,10 +5,12 @@ using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Project;
 using Bolcko.Domain.Entities.Tender;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Blocko.Persistence
 {
-    public class BlockoDbContext : DbContext
+    public class BlockoDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public BlockoDbContext(DbContextOptions<BlockoDbContext> options) : base(options)
         {
@@ -28,12 +30,10 @@ namespace Blocko.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // User configuration
-            modelBuilder.Entity<Bolcko.Domain.Entities.User.User>(entity =>
+            // Identity configuration
+            modelBuilder.Entity<User>(entity =>
             {
-                entity.HasKey(e => e.Id);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-                entity.HasIndex(e => e.Email).IsUnique();
             });
 
             // Address configuration

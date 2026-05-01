@@ -1,8 +1,8 @@
 using Blocko.Services.Interfaces;
+using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
@@ -10,15 +10,19 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     public class AccountController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AccountController(IServiceManager serviceManager)
+        public AccountController(IServiceManager serviceManager, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _serviceManager = serviceManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public IActionResult Login()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index");
             }
@@ -28,32 +32,18 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            var user = await _serviceManager.UserService.AuthenticateAsync(email, password);
+            var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                var claims = new List<Claim>
+                var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
+                if (result.Succeeded)
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, user.UserType.ToString())
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
-                };
-
-                await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(claimsIdentity), authProperties);
-
-                if (user.UserType == UserType.Admin)
-                {
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    if (user.UserType == UserType.Admin)
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    }
+                    return RedirectToAction("Index");
                 }
-                
-                return RedirectToAction("Index");
             }
             
             ViewBag.Error = "بيانات الدخول غير صحيحة";
@@ -63,13 +53,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync("CookieAuth");
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Register()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index");
             }
@@ -77,7 +67,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(Bolcko.Domain.Entities.User.User user, string password, string confirmPassword)
+        public async Task<IActionResult> Register(User user, string password, string confirmPassword)
         {
             if (password != confirmPassword)
             {
@@ -85,32 +75,27 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return View(user);
             }
 
-            var existingUser = await _serviceManager.UserService.AuthenticateAsync(user.Email, password);
-            if (existingUser != null)
+            user.UserName = user.Email;
+            var result = await _userManager.CreateAsync(user, password);
+            if (result.Succeeded)
             {
-                ViewBag.Error = "البريد الإلكتروني مستخدم بالفعل";
-                return View(user);
+                // Add role claim if needed, but for now we use UserType
+                await _signInManager.SignInAsync(user, isPersistent: true);
+                
+                if (user.UserType == UserType.Admin)
+                {
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
+                }
+                return RedirectToAction("Index");
             }
 
-            await _serviceManager.UserService.RegisterUserAsync(user, password);
-            
-            // Auto login after registration
-            return await Login(user.Email, password);
+            ViewBag.Error = string.Join(", ", result.Errors.Select(e => e.Description));
+            return View(user);
         }
 
         public async Task<IActionResult> Index()
         {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Login");
-            }
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return RedirectToAction("Login");
-
-            int userId = int.Parse(userIdClaim.Value);
-            var user = await _serviceManager.UserService.GetUserByIdAsync(userId); 
-            
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login");
