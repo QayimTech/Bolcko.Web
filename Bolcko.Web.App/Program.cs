@@ -4,6 +4,7 @@ using Bolcko.Domain.Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Bolcko.Web.App.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Seed Identity Data
+await app.SeedIdentityDataAsync();
 
 app.MapControllerRoute(
     name: "areas",
