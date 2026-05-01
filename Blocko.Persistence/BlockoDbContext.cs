@@ -29,6 +29,13 @@ namespace Blocko.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            // Seed Roles
+            modelBuilder.Entity<IdentityRole<int>>().HasData(
+                new IdentityRole<int> { Id = 1, Name = "Admin", NormalizedName = "ADMIN" },
+                new IdentityRole<int> { Id = 2, Name = "DashboardUser", NormalizedName = "DASHBOARDUSER" },
+                new IdentityRole<int> { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
+            );
+
             // Identity configuration
             modelBuilder.Entity<User>(entity =>
             {

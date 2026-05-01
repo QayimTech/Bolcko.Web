@@ -1,0 +1,40 @@
+@model Bolcko.Domain.Entities.User.User
+@{
+    ViewData["Title"] = "إضافة مستخدم داشبورد";
+}
+
+<section class="p-8 space-y-8 flex-1 text-right">
+    <div class="max-w-2xl bg-white border border-slate-200 shadow-hard">
+        <div class="bg-[#1B2235] px-6 py-4">
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة مستخدم داشبورد جديد</h2>
+        </div>
+        <form asp-area="Admin" asp-controller="User" asp-action="CreateDashboardUser" method="post" class="p-8 space-y-6">
+            <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">الاسم الأول</label>
+                    <input type="text" name="FirstName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="الاسم الأول" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">الاسم الأخير</label>
+                    <input type="text" name="LastName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="الاسم الأخير" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">البريد الإلكتروني</label>
+                    <input type="email" name="Email" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right text-left" placeholder="example@blocko.com" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">كلمة المرور</label>
+                    <input type="password" name="password" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="********" />
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-[#E8A020] text-[#1B2235] font-bold py-4 uppercase tracking-widest hover:brightness-110 transition-all">
+                    حفظ المستخدم
+                </button>
+            </div>
+        </form>
+    </div>
+</section>

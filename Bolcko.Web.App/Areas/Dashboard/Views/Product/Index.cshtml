@@ -1,0 +1,51 @@
+@model IEnumerable<Bolcko.Domain.Entities.Product.Product>
+@{
+    ViewData["Title"] = "إدارة المنتجات";
+}
+
+<section class="p-8 space-y-8 flex-1 text-right">
+    <div class="bg-white border border-slate-200 shadow-hard">
+        <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">قائمة المنتجات</h2>
+            <a href="@Url.Action("Create", "Product", new { area = "Dashboard" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">إضافة منتج جديد</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-slate-100 text-[#1B2235] font-bold text-[10px] uppercase tracking-widest">
+                    <tr>
+                        <th class="px-6 py-3">المنتج</th>
+                        <th class="px-6 py-3">الفئة</th>
+                        <th class="px-6 py-3">السعر (تجزئة)</th>
+                        <th class="px-6 py-3">المخزون</th>
+                        <th class="px-6 py-3">الحالة</th>
+                        <th class="px-6 py-3">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var product in Model)
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">@product.Name</td>
+                                <td class="px-6 py-4">@product.Category?.Name</td>
+                                <td class="px-6 py-4">@product.RetailPrice.ToString("N2") ر.س</td>
+                                <td class="px-6 py-4">@product.StockQuantity @product.UnitOfMeasure</td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@product.Status.ToString()</span>
+                                </td>
+                                <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">تعديل</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-on-surface-variant">لا توجد منتجات مسجلة حالياً.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

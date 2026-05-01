@@ -1,0 +1,40 @@
+@model IEnumerable<Bolcko.Domain.Entities.User.User>
+@{
+    ViewData["Title"] = "إدارة المستخدمين";
+}
+
+<section class="p-8 space-y-8 flex-1 text-right">
+    <div class="bg-white border border-slate-200 shadow-hard">
+        <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">قائمة المستخدمين</h2>
+            <a href="@Url.Action("CreateDashboardUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">إضافة مستخدم داشبورد</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-slate-100 text-[#1B2235] font-bold text-[10px] uppercase tracking-widest">
+                    <tr>
+                        <th class="px-6 py-3">الاسم</th>
+                        <th class="px-6 py-3">البريد الإلكتروني</th>
+                        <th class="px-6 py-3">نوع المستخدم</th>
+                        <th class="px-6 py-3">تاريخ التسجيل</th>
+                        <th class="px-6 py-3">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    @foreach (var user in Model)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-[#1B2235]">@user.FirstName @user.LastName</td>
+                            <td class="px-6 py-4">@user.Email</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@user.UserType.ToString()</span>
+                            </td>
+                            <td class="px-6 py-4 text-xs">@user.RegistrationDate.ToString("yyyy/MM/dd")</td>
+                            <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">تعديل</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -42,6 +42,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     {
                         return RedirectToAction("Index", "Home", new { area = "Admin" });
                     }
+                    if (user.UserType == UserType.DashboardUser)
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Dashboard" });
+                    }
                     return RedirectToAction("Index");
                 }
             }

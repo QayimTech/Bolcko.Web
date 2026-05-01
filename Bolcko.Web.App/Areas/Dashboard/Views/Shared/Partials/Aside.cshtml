@@ -1,0 +1,40 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<aside class="fixed right-0 top-0 h-full flex flex-col pt-6 pb-4 bg-[#1B2235] dark:bg-slate-950 h-screen w-64 border-l border-white/10 z-50 text-right">
+    <div class="px-6 mb-8">
+        <h1 class="text-white text-lg font-bold tracking-widest uppercase">Blocko</h1>
+        <p class="font-body text-xs uppercase font-bold tracking-widest text-[#8A95A8]">لوحة البائع</p>
+    </div>
+    <nav class="flex-1 px-0 overflow-y-auto">
+        <div class="flex flex-col">
+            <a class="flex items-center px-6 py-4 bg-[#E8A020] text-[#1B2235] rounded-none border-r-4 border-white transition-all" href="@Url.Action("Index", "Home", new { area = "Dashboard" })">
+                <span class="material-symbols-outlined ml-3">dashboard</span>
+                <span class="font-bold text-xs uppercase tracking-widest">لوحة التحكم</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-[#8A95A8] hover:bg-white/5 transition-all" href="@Url.Action("Index", "Product", new { area = "Dashboard" })">
+                <span class="material-symbols-outlined ml-3">inventory_2</span>
+                <span class="font-bold text-xs uppercase tracking-widest">إدارة المنتجات</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-[#8A95A8] hover:bg-white/5 transition-all" href="#">
+                <span class="material-symbols-outlined ml-3">analytics</span>
+                <span class="font-bold text-xs uppercase tracking-widest">الإحصائيات</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-[#8A95A8] hover:bg-white/5 transition-all" href="#">
+                <span class="material-symbols-outlined ml-3">settings</span>
+                <span class="font-bold text-xs uppercase tracking-widest">الإعدادات</span>
+            </a>
+        </div>
+    </nav>
+    <div class="mt-auto px-6 space-y-4">
+        <div class="pt-4 border-t border-white/5 space-y-2">
+            <a class="flex items-center text-[#8A95A8] text-xs font-bold uppercase tracking-widest hover:text-white transition-all" href="/">
+                <span class="material-symbols-outlined ml-3 text-sm">home</span> العودة للمتجر
+            </a>
+            <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="flex items-center w-full text-right text-[#8A95A8] text-xs font-bold uppercase tracking-widest hover:text-white transition-all">
+                    <span class="material-symbols-outlined ml-3 text-sm">logout</span> تسجيل الخروج
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
