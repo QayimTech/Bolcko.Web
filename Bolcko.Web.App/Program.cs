@@ -1,135 +1,35 @@
 using Blocko.Persistence;
 using Blocko.Services;
-using Bolcko.Domain.Entities.User;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Bolcko.Web.App.Extensions;
-using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Localization Services
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+// 1. Layer Dependencies
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
 
-// Required for Identity UI features like SignInManager
-builder.Services.AddDbContext<BlockoDbContext>(options =>
-          options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-              b => b.MigrationsAssembly(typeof(BlockoDbContext).Assembly.FullName)));
-
-// ???????: ?????? AddIdentityCore ?? ???? ??? Persistence 
-// ????? ?? ????? ??? Cookies ?? ??? Web UI ????? ?? ASP.NET Core
-builder.Services.AddIdentityCore<User>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-    options.User.RequireUniqueEmail = true;
-})
-.AddRoles<IdentityRole<int>>()
-.AddEntityFrameworkStores<BlockoDbContext>()
-.AddDefaultTokenProviders();
-
-builder.Services.AddIdentityApiEndpoints<User>()
-    .AddRoles<IdentityRole<int>>()
-    .AddEntityFrameworkStores<BlockoDbContext>();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.Name = "Blocko.Auth";
-    options.LoginPath = "/Shop/Account/Login";
-    options.AccessDeniedPath = "/Shop/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromDays(7);
-    
-    // Custom logic to redirect based on the requested path (Area)
-    options.Events.OnRedirectToLogin = context =>
-    {
-        var requestPath = context.Request.Path.Value ?? "";
-        if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Admin/Account/Login" + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
-        }
-        else if (requestPath.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Dashboard/Account/Login" + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
-        }
-        else
-        {
-            context.Response.Redirect("/Shop/Account/Login" + "?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
-        }
-        return Task.CompletedTask;
-    };
-
-    options.Events.OnRedirectToAccessDenied = context =>
-    {
-        var requestPath = context.Request.Path.Value ?? "";
-        if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Admin/Account/Login"); // Or a specific Admin Access Denied page
-        }
-        else if (requestPath.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Dashboard/Account/Login");
-        }
-        else
-        {
-            context.Response.Redirect("/Shop/Account/AccessDenied");
-        }
-        return Task.CompletedTask;
-    };
-});
+// 2. Web Specific Services (SRP)
+builder.Services.AddWebServices(builder.Configuration);
 
 var app = builder.Build();
 
+// 3. Environment & Static Files
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
+// 4. Identity Seeding
+await app.SeedIdentityDataAsync();
 
-// Redirect root to Shop Area
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/Shop/Home/Index");
-    return Task.CompletedTask;
-});
-
-// Request Localization Middleware
-var supportedCultures = new[] { "ar", "en" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(supportedCultures[0])
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-
-app.UseRequestLocalization(localizationOptions);
-
+// 5. Auth & Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Seed Identity Data
-await app.SeedIdentityDataAsync();
-
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-);
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
+// 6. Web Middleware & Routing (SRP)
+app.UseWebMiddleware();
 
 app.Run();
