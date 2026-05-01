@@ -9,34 +9,42 @@
             <p class="mt-2 text-sm text-on-surface-variant">لديك حساب بالفعل؟ <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">تسجيل الدخول</a></p>
         </div>
         
-        <form class="mt-8 space-y-6">
+        <form class="mt-8 space-y-6" asp-area="Shop" asp-controller="Account" asp-action="Register" method="post">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">الاسم الكامل</label>
-                    <input type="text" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="أدخل اسمك الكامل" />
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">الاسم الأول</label>
+                    <input type="text" name="FirstName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="الاسم الأول" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">الاسم الأخير</label>
+                    <input type="text" name="LastName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="الاسم الأخير" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">اسم المستخدم</label>
+                    <input type="text" name="Username" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="username" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">رقم الهاتف</label>
-                    <input type="tel" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="05xxxxxxxx" />
+                    <input type="tel" name="PhoneNumber" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="05xxxxxxxx" />
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">البريد الإلكتروني</label>
-                    <input type="email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="example@mail.com" />
+                    <input type="email" name="Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="example@mail.com" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">كلمة المرور</label>
-                    <input type="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                    <input type="password" name="Password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">تأكيد كلمة المرور</label>
-                    <input type="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                    <input type="password" name="ConfirmPassword" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">نوع المستخدم</label>
-                    <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
-                        <option>فرد</option>
-                        <option>شركة مقاولات</option>
-                        <option>مكتب هندسي</option>
+                    <select name="UserType" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                        <option value="1">فرد</option>
+                        <option value="2">مقاول</option>
+                        <option value="3">شركة</option>
                     </select>
                 </div>
             </div>
@@ -47,7 +55,7 @@
             </div>
 
             <div>
-                <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all">
+                <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-lg hover:bg-primary/90 transition-all rounded-md">
                     إنشاء الحساب
                 </button>
             </div>

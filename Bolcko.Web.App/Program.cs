@@ -7,6 +7,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddServices();
 
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "Bolcko.Auth";
+        options.LoginPath = "/Shop/Account/Login";
+        options.AccessDeniedPath = "/Shop/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -16,12 +25,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 

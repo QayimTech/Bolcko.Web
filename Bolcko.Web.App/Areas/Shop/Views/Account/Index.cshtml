@@ -1,5 +1,11 @@
+@using Bolcko.Domain.Entities.User
+@using Bolcko.Domain.Entities.Order
+@using Bolcko.Domain.Entities.Tender
 @{
     ViewData["Title"] = "حسابي";
+    var user = ViewBag.User as User;
+    var orders = ViewBag.Orders as List<Order> ?? new List<Order>();
+    var tenders = ViewBag.Tenders as List<Tender> ?? new List<Tender>();
 }
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
     <div class="flex flex-col lg:flex-row-reverse gap-gutter">
@@ -10,8 +16,8 @@
                     <div class="w-20 h-20 bg-primary-container rounded-full mx-auto mb-4 flex items-center justify-center">
                         <span class="material-symbols-outlined text-4xl text-on-primary-container">person</span>
                     </div>
-                    <h2 class="font-bold">أحمد محمد</h2>
-                    <p class="text-xs text-slate-400">عميل مميز</p>
+                    <h2 class="font-bold">@(user?.FirstName + " " + user?.LastName)</h2>
+                    <p class="text-xs text-slate-400">@user?.UserType.ToString()</p>
                 </div>
                 <nav class="p-4">
                     <ul class="space-y-2">
@@ -40,10 +46,12 @@
                             </a>
                         </li>
                         <li class="pt-4 mt-4 border-t border-outline-variant">
-                            <a href="#" class="flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
-                                <span>تسجيل الخروج</span>
-                                <span class="material-symbols-outlined text-sm">logout</span>
-                            </a>
+                            <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
+                                    <span>تسجيل الخروج</span>
+                                    <span class="material-symbols-outlined text-sm">logout</span>
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </nav>
@@ -54,23 +62,23 @@
         <div class="flex-1 space-y-8">
             <header class="border-r-4 border-primary-container pr-6 mb-8">
                 <h1 class="font-headline-xl text-on-surface uppercase mb-2">لوحة التحكم</h1>
-                <p class="font-body-lg text-secondary">مرحباً بك مجدداً، أحمد. إليك ملخص لنشاطك الأخير.</p>
+                <p class="font-body-lg text-secondary">مرحباً بك مجدداً، @user?.FirstName. إليك ملخص لنشاطك الأخير.</p>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">shopping_bag</span>
-                    <h3 class="text-2xl font-bold text-on-surface">12</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">طلب مكتمل</p>
+                    <h3 class="text-2xl font-bold text-on-surface">@orders.Count</h3>
+                    <p class="text-xs text-on-surface-variant uppercase font-bold">إجمالي الطلبات</p>
                 </div>
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">request_quote</span>
-                    <h3 class="text-2xl font-bold text-on-surface">3</h3>
+                    <h3 class="text-2xl font-bold text-on-surface">@tenders.Count</h3>
                     <p class="text-xs text-on-surface-variant uppercase font-bold">عروض أسعار نشطة</p>
                 </div>
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">architecture</span>
-                    <h3 class="text-2xl font-bold text-on-surface">5</h3>
+                    <h3 class="text-2xl font-bold text-on-surface">0</h3>
                     <p class="text-xs text-on-surface-variant uppercase font-bold">مشاريع مسجلة</p>
                 </div>
             </div>
@@ -93,17 +101,29 @@
                             </tr>
                         </thead>
                         <tbody class="text-sm">
-                            <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                                <td class="p-4 font-bold">#BLK-98721</td>
-                                <td class="p-4">2024/05/01</td>
-                                <td class="p-4">7,265.00 ر.س</td>
-                                <td class="p-4">
-                                    <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">قيد المراجعة</span>
-                                </td>
-                                <td class="p-4">
-                                    <button class="text-primary font-bold hover:underline">التفاصيل</button>
-                                </td>
-                            </tr>
+                            @if (orders.Any())
+                            {
+                                @foreach (var order in orders.Take(5))
+                                {
+                                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                        <td class="p-4 font-bold">#BLK-@order.Id.ToString("D5")</td>
+                                        <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd")</td>
+                                        <td class="p-4">@order.TotalAmount.ToString("N2") ر.س</td>
+                                        <td class="p-4">
+                                            <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">@order.Status.ToString()</span>
+                                        </td>
+                                        <td class="p-4">
+                                            <button class="text-primary font-bold hover:underline">التفاصيل</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">لا توجد طلبات سابقة</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

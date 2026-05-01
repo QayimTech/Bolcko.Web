@@ -16,12 +16,34 @@
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
-            </a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="relative group">
+                    <button class="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+                        <span class="text-sm font-medium hidden md:block">@User.Identity.Name</span>
+                    </button>
+                    <div class="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">لوحة التحكم</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">لوحة الإدارة</a>
+                        }
+                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-slate-200 dark:border-slate-700">
+                            <button type="submit" class="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">تسجيل الخروج</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+                </a>
+            }
             <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative inline-block">
                 <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">shopping_cart</span>
-                <span class="absolute top-0 right-0 bg-primary-container text-on-primary-container text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+                <span class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
             </a>
         </div>
     </div>
