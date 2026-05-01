@@ -84,37 +84,15 @@ namespace Bolcko.Web.App.Extensions
             return services;
         }
 
-        public static IApplicationBuilder UseWebMiddleware(this IApplicationBuilder app)
+        public static IApplicationBuilder UseWebLocalization(this IApplicationBuilder app)
         {
-            // 1. Localization Middleware
             var supportedCultures = new[] { "ar", "en" };
             var localizationOptions = new RequestLocalizationOptions()
                 .SetDefaultCulture(supportedCultures[0])
                 .AddSupportedCultures(supportedCultures)
                 .AddSupportedUICultures(supportedCultures);
 
-            app.UseRequestLocalization(localizationOptions);
-
-            // 2. Root Redirect
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", context =>
-                {
-                    context.Response.Redirect("/Shop/Home/Index");
-                    return Task.CompletedTask;
-                });
-                
-                endpoints.MapControllerRoute(
-                    name: "areas",
-                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
-
-            return app;
+            return app.UseRequestLocalization(localizationOptions);
         }
     }
 }
