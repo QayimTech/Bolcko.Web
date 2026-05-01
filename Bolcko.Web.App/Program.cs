@@ -131,9 +131,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/Shop/Home");
-    return Task.CompletedTask;
-});
+
 app.Run();
