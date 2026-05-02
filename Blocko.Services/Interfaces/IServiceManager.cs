@@ -3,6 +3,7 @@ using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces.User;
+using Blocko.Services.Interfaces.SEO;
 
 namespace Blocko.Services.Interfaces
 {
@@ -14,5 +15,6 @@ namespace Blocko.Services.Interfaces
         IMarketPriceService MarketPriceService { get; }
         IOrderService OrderService { get; }
         ITenderService TenderService { get; }
+        ISEOService SEOService { get; }
     }
 }

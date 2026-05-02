@@ -11,6 +11,9 @@ using Bolcko.Domain.Interfaces;
 using Blocko.Services.Implementations.user;
 using Blocko.Services.Implementations.order;
 
+using Blocko.Services.Interfaces.SEO;
+using Blocko.Services.Implementations.SEO;
+
 namespace Blocko.Services.Implementations
 {
     public class ServiceManager : IServiceManager
@@ -21,6 +24,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IMarketPriceService> _lazyMarketPriceService;
         private readonly Lazy<IOrderService> _lazyOrderService;
         private readonly Lazy<ITenderService> _lazyTenderService;
+        private readonly Lazy<ISEOService> _lazySEOService;
 
         public ServiceManager(IUnitOfWork unitOfWork)
         {
@@ -30,6 +34,7 @@ namespace Blocko.Services.Implementations
             _lazyMarketPriceService = new Lazy<IMarketPriceService>(() => new MarketPriceService(unitOfWork));
             _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork));
             _lazyTenderService = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
+            _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
         }
 
         public IUserService UserService => _lazyUserService.Value;
@@ -38,5 +43,6 @@ namespace Blocko.Services.Implementations
         public IMarketPriceService MarketPriceService => _lazyMarketPriceService.Value;
         public IOrderService OrderService => _lazyOrderService.Value;
         public ITenderService TenderService => _lazyTenderService.Value;
+        public ISEOService SEOService => _lazySEOService.Value;
     }
 }

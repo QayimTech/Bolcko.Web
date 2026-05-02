@@ -9,7 +9,9 @@ namespace Bolcko.Domain.Interfaces
         ITenderRepository Tenders { get; }
         IProjectRepository Projects { get; }
         IMarketPriceRepository MarketPrices { get; }
+        ISEORepository SEO { get; }
         
         Task<int> CompleteAsync();
+        Task<int> SaveChangesAsync();
     }
 }

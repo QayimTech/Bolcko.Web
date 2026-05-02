@@ -1,0 +1,61 @@
+@model IEnumerable<Bolcko.Domain.Entities.Order.DTOs.OrderDto>
+@{
+    ViewData["Title"] = "إدارة الطلبات";
+}
+
+<section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">إدارة الطلبات</h1>
+            <p class="text-on-surface-variant text-sm mt-1">عرض ومتابعة طلبات العملاء في النظام</p>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-sm transition-all hover:shadow-lg">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">رقم الطلب</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">العميل</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">التاريخ</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجمالي</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الحالة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors group">
+                        <td class="px-6 py-4 font-mono text-xs font-bold text-primary">#ORD-@item.Id.ToString("D4")</td>
+                        <td class="px-6 py-4 text-slate-900 font-bold">@item.UserName</td>
+                        <td class="px-6 py-4 text-slate-600">@item.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td class="px-6 py-4 text-primary font-black">@item.TotalAmount.ToString("N2") ر.س</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full 
+                                @(item.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "bg-amber-100 text-amber-700" : 
+                                  item.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" : 
+                                  item.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" : 
+                                  item.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="@Url.Action("Details", new { id = item.Id })" class="text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد طلبات حالياً
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,58 @@
+@model IEnumerable<Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto>
+@{
+    ViewData["Title"] = "إدارة SEO";
+}
+
+<section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">إدارة SEO</h1>
+            <p class="text-on-surface-variant text-sm mt-1">إدارة الكلمات المفتاحية والأوصاف لمحركات البحث</p>
+        </div>
+        <a href="@Url.Action("Create")" class="bg-primary text-white px-6 py-2 font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-hard">
+            <span class="material-symbols-outlined">add</span>
+            إضافة صفحة
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-sm transition-all hover:shadow-lg">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">اسم الصفحة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">العنوان (Title)</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">رقم الترتيب</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors group">
+                        <td class="px-6 py-4 font-bold text-slate-900">@item.PageName</td>
+                        <td class="px-6 py-4 text-slate-600">@item.PageTitle</td>
+                        <td class="px-6 py-4 text-slate-600">@(item.PageOrder?.ToString() ?? "-")</td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-slate-400 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('هل أنت متأكد من الحذف؟');" class="inline">
+                                <button type="submit" class="text-slate-400 hover:text-error transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد بيانات SEO حالياً
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

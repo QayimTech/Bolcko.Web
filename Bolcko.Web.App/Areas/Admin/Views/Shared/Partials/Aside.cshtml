@@ -46,6 +46,11 @@
                 <span class="text-xs font-bold uppercase tracking-widest">العطاءات</span>
             </a>
 
+            <a href="@Url.Action("Index", "SEO", new { area = "Admin" })" class="flex items-center gap-4 px-4 py-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SEO" ? "text-white bg-[#E8A020]/10 border-r-4 border-[#E8A020]" : "text-slate-400 hover:text-white hover:bg-white/5") transition-all group">
+                <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "SEO" ? "text-[#E8A020]" : "group-hover:text-[#E8A020]")">search_check</span>
+                <span class="text-xs font-bold uppercase tracking-widest">إدارة SEO</span>
+            </a>
+
             <a href="#" class="flex items-center gap-4 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
                 <span class="material-symbols-outlined group-hover:text-[#E8A020]">settings</span>
                 <span class="text-xs font-bold uppercase tracking-widest">الإعدادات</span>
