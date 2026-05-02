@@ -102,7 +102,7 @@ namespace Blocko.Services.Implementations.Product
                 BulkPricingAvailable = productDto.BulkPricingAvailable
             };
             await _unitOfWork.Products.AddAsync(product);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task UpdateProductAsync(ProductDto productDto)
@@ -120,7 +120,7 @@ namespace Blocko.Services.Implementations.Product
                 product.ImageUrl = productDto.ImageUrl;
                 product.BulkPricingAvailable = productDto.BulkPricingAvailable;
                 _unitOfWork.Products.Update(product);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CompleteAsync();
             }
         }
 
@@ -130,7 +130,7 @@ namespace Blocko.Services.Implementations.Product
             if (product != null)
             {
                 _unitOfWork.Products.Remove(product);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CompleteAsync();
             }
         }
     }

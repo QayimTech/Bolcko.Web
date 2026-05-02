@@ -1,8 +1,6 @@
 using Blocko.Services.Implementations;
-using Blocko.Services.Implementations.User;
 using Blocko.Services.Implementations.Product;
 using Blocko.Services.Implementations.Category;
-using Blocko.Services.Implementations.Order;
 using Blocko.Services.Implementations.Tender;
 using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.User;
@@ -11,6 +9,8 @@ using Blocko.Services.Interfaces.Category;
 using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Tender;
 using Microsoft.Extensions.DependencyInjection;
+using Blocko.Services.Implementations.user;
+using Blocko.Services.Implementations.order;
 
 namespace Blocko.Services
 {

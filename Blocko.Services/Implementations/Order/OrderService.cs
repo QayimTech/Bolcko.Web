@@ -3,7 +3,7 @@ using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Order.DTOs;
 using Bolcko.Domain.Interfaces;
 
-namespace Blocko.Services.Implementations.Order
+namespace Blocko.Services.Implementations.order
 {
     public class OrderService : IOrderService
     {
@@ -12,7 +12,7 @@ namespace Blocko.Services.Implementations.Order
 
         public async Task<OrderDto> PlaceOrderAsync(OrderDto orderDto)
         {
-            var order = new Bolcko.Domain.Entities.Order.Order
+            var order = new Order
             {
                 UserId = orderDto.UserId,
                 OrderDate = DateTime.UtcNow,

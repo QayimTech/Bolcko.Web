@@ -75,7 +75,7 @@ namespace Blocko.Services.Implementations.Category
                 ParentCategoryId = categoryDto.ParentCategoryId
             };
             await _unitOfWork.Categories.AddAsync(category);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task UpdateCategoryAsync(CategoryDto categoryDto)
@@ -87,7 +87,7 @@ namespace Blocko.Services.Implementations.Category
                 category.Description = categoryDto.Description;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
                 _unitOfWork.Categories.Update(category);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CompleteAsync();
             }
         }
 
@@ -97,7 +97,7 @@ namespace Blocko.Services.Implementations.Category
             if (category != null)
             {
                 _unitOfWork.Categories.Remove(category);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CompleteAsync();
             }
         }
     }
