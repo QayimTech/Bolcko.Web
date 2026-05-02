@@ -24,7 +24,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Tender.Tender> Tenders { get; set; }
         public DbSet<Bolcko.Domain.Entities.Tender.TenderItem> TenderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Catalog.MarketPrice> MarketPrices { get; set; }
-
+        public DbSet<Bolcko.Domain.Entities.SEO.SEOMetadata> SEOMetadata { get; set; }  
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -6,6 +6,7 @@ using Blocko.Persistence.Repositories.Tender;
 using Blocko.Persistence.Repositories.Project;
 using Blocko.Persistence.Repositories.MarketPrice;
 using Blocko.Persistence.Repositories.user;
+using Blocko.Persistence.Repositories.SEO;
 
 namespace Blocko.Persistence
 {
@@ -23,6 +24,7 @@ namespace Blocko.Persistence
             Tenders = new TenderRepository(_context);
             Projects = new ProjectRepository(_context);
             MarketPrices = new MarketPriceRepository(_context);
+            SEO = new SEORepositroy(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -32,6 +34,7 @@ namespace Blocko.Persistence
         public ITenderRepository Tenders { get; private set; }
         public IProjectRepository Projects { get; private set; }
         public IMarketPriceRepository MarketPrices { get; private set; }
+        public ISEORepository SEO { get; private set; }
 
         public async Task<int> CompleteAsync()
         {
@@ -41,6 +44,11 @@ namespace Blocko.Persistence
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        public Task<int> SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
         }
     }
 }
