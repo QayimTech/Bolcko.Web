@@ -1,7 +1,7 @@
 @model dynamic
 @{
     bool isRoot = ViewBag.IsRoot ?? false;
-    var category = ViewBag.Category as Bolcko.Domain.Entities.Catalog.Category;
+    var category = ViewBag.Category as Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto;
     ViewData["Title"] = isRoot ? "كافة الفئات" : (category?.Name ?? "الفئة");
 }
 
@@ -20,14 +20,14 @@
             <div class="flex-1">
                 <h1 class="font-headline-lg text-on-surface mb-8">تصفح الفئات</h1>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                    @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.Category>)Model)
+                    @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)Model)
                     {
                         <div onclick="location.href='@Url.Action("Index", new { id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10 shadow-hard">
                             <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="@cat.Name" />
                             <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
                             <div class="absolute bottom-6 right-6">
                                 <h4 class="font-headline-md text-white">@cat.Name</h4>
-                                <span class="text-primary-container font-bold uppercase text-xs">@cat.Products.Count منتج</span>
+                                <span class="text-primary-container font-bold uppercase text-xs">@cat.ProductCount منتج</span>
                             </div>
                         </div>
                     }
@@ -58,16 +58,16 @@
                 <div class="flex justify-between items-end mb-6">
                     <div>
                         <h1 class="font-headline-lg text-on-surface">@category?.Name</h1>
-                        <p class="text-on-surface-variant text-body-md mt-1">@(((IEnumerable<Bolcko.Domain.Entities.Product.Product>)Model).Count()) منتج متاح</p>
+                        <p class="text-on-surface-variant text-body-md mt-1">@(((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Count()) منتج متاح</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter">
-                    @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.Product>)Model)
+                    @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model)
                     {
                         <partial name="Partials/_ProductCard" model="product" />
                     }
-                    @if (!((IEnumerable<Bolcko.Domain.Entities.Product.Product>)Model).Any())
+                    @if (!((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Any())
                     {
                         <div class="col-span-3 py-20 text-center text-slate-400 italic">
                             لا توجد منتجات في هذه الفئة حالياً

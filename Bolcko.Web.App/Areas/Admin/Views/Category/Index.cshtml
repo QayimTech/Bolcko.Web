@@ -1,4 +1,4 @@
-@model IEnumerable<Bolcko.Domain.Entities.Catalog.Category>
+@model IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>
 @{
     ViewData["Title"] = "إدارة الفئات";
 }
@@ -33,7 +33,7 @@
                             <span class="font-bold text-slate-900">@item.Name</span>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-slate-600">@(item.ParentCategory?.Name ?? "-")</span>
+                            <span class="text-slate-600">@(item.ParentCategoryName ?? "-")</span>
                         </td>
                         <td class="px-6 py-4">
                             <span class="text-slate-500 text-sm">@item.Description</span>

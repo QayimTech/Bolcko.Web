@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
+using Bolcko.Domain.Entities.Product.DTOs;
+using Bolcko.Domain.Entities.Catalog.DTOs;
+
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]

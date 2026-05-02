@@ -38,7 +38,7 @@
             <a class="font-bold text-primary hover:underline underline-offset-4" href="@Url.Action("Index", "Category", new { area = "Shop" })">عرض الكل</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.Category>)ViewBag.Categories)
+            @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
                 <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
                     <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
@@ -48,7 +48,7 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
                     <div class="absolute bottom-6 right-6">
                         <h4 class="font-headline-md text-white">@cat.Name</h4>
-                        <span class="text-primary-container font-bold uppercase text-xs">@cat.Products.Count منتج</span>
+                        <span class="text-primary-container font-bold uppercase text-xs">@cat.ProductCount منتج</span>
                     </div>
                 </div>
             }
@@ -69,7 +69,7 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-                @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.Product>)ViewBag.FeaturedProducts)
+                @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)ViewBag.FeaturedProducts)
                 {
                     <partial name="Partials/_ProductCard" model="product" />
                 }

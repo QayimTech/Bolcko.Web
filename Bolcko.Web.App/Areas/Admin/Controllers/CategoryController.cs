@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
-using Bolcko.Domain.Entities.Catalog;
+using Bolcko.Domain.Entities.Catalog.DTOs;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -25,20 +25,20 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.ParentCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-            return View();
+            return View(new CategoryDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Category category)
+        public async Task<IActionResult> Create(CategoryDto categoryDto)
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.CategoryService.AddCategoryAsync(category);
+                await _serviceManager.CategoryService.AddCategoryAsync(categoryDto);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.ParentCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-            return View(category);
+            return View(categoryDto);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -52,15 +52,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Category category)
+        public async Task<IActionResult> Edit(CategoryDto categoryDto)
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.CategoryService.UpdateCategoryAsync(category);
+                await _serviceManager.CategoryService.UpdateCategoryAsync(categoryDto);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.ParentCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-            return View(category);
+            return View(categoryDto);
         }
 
         [HttpPost]

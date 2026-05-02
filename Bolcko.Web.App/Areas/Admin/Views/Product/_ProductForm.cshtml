@@ -1,4 +1,4 @@
-@model Bolcko.Domain.Entities.Product.Product
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="space-y-6">
@@ -12,7 +12,7 @@
             <label asp-for="CategoryId" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الفئة</label>
             <select asp-for="CategoryId" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all">
                 <option value="">-- اختر الفئة --</option>
-                @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.Category>)ViewBag.Categories)
+                @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
                 {
                     <option value="@cat.Id">@cat.Name</option>
                 }

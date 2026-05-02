@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
-using Bolcko.Domain.Entities.Product;
+using Bolcko.Domain.Entities.Product.DTOs;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -25,20 +25,20 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-            return View();
+            return View(new ProductDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(ProductDto productDto)
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.ProductService.AddProductAsync(product);
+                await _serviceManager.ProductService.AddProductAsync(productDto);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-            return View(product);
+            return View(productDto);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -52,15 +52,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Product product)
+        public async Task<IActionResult> Edit(ProductDto productDto)
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.ProductService.UpdateProductAsync(product);
+                await _serviceManager.ProductService.UpdateProductAsync(productDto);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-            return View(product);
+            return View(productDto);
         }
 
         [HttpPost]

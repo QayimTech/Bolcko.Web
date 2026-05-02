@@ -7,6 +7,9 @@ using Bolcko.Web.App.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
+using Bolcko.Domain.Entities.Product.DTOs;
+using Bolcko.Domain.Entities.Catalog.DTOs;
+
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]

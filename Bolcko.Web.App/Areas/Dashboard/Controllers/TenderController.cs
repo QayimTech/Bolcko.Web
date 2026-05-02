@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
-using Bolcko.Domain.Entities.Tender;
+using Bolcko.Domain.Entities.Tender.DTOs;
 using System.Security.Claims;
 
 namespace Bolcko.Web.App.Areas.Dashboard.Controllers
@@ -19,7 +19,6 @@ namespace Bolcko.Web.App.Areas.Dashboard.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get current user ID (assuming it's stored in NameIdentifier claim)
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (int.TryParse(userIdStr, out int userId))
             {
@@ -27,7 +26,7 @@ namespace Bolcko.Web.App.Areas.Dashboard.Controllers
                 return View(tenders);
             }
             
-            return View(new List<Tender>());
+            return View(new List<TenderDto>());
         }
 
         public async Task<IActionResult> Browse()

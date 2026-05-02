@@ -1,13 +1,15 @@
+using Bolcko.Domain.Entities.Product.DTOs;
+
 namespace Blocko.Services.Interfaces.Product
 {
     public interface IProductService
     {
-        Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetAllProductsAsync();
-        Task<Bolcko.Domain.Entities.Product.Product?> GetProductByIdAsync(int id);
-        Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetProductsByCategoryAsync(int categoryId);
-        Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetFeaturedProductsAsync();
-        Task AddProductAsync(Bolcko.Domain.Entities.Product.Product product);
-        Task UpdateProductAsync(Bolcko.Domain.Entities.Product.Product product);
+        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<ProductDto?> GetProductByIdAsync(int id);
+        Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync();
+        Task AddProductAsync(ProductDto productDto);
+        Task UpdateProductAsync(ProductDto productDto);
         Task DeleteProductAsync(int id);
     }
 }

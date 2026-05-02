@@ -1,4 +1,4 @@
-@model IEnumerable<Bolcko.Domain.Entities.Product.Product>
+@model IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>
 @{
     ViewData["Title"] = "إدارة المنتجات";
 }
@@ -47,7 +47,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-slate-600">@(item.Category?.Name ?? "-")</span>
+                            <span class="text-slate-600">@(item.CategoryName ?? "-")</span>
                         </td>
                         <td class="px-6 py-4">
                             <span class="font-bold text-[#E8A020]">@item.RetailPrice.ToString("C")</span>
