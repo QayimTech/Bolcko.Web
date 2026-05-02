@@ -1,19 +1,20 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-<header class="flex justify-between items-center w-full px-8 h-20 sticky top-0 z-40 bg-white border-b border-slate-200">
+<header class="flex justify-between items-center w-full px-6 h-20 sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
     <div class="flex items-center gap-4">
-        <button id="sidebar-toggle" class="lg:hidden text-slate-600">
-            <span class="material-symbols-outlined">menu</span>
+        <button id="sidebar-toggle" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-600">
+            <span class="material-symbols-outlined">menu_open</span>
         </button>
-        <h2 class="text-lg font-bold text-slate-800">@ViewBag.Title</h2>
+        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-widest hidden sm:block">@ViewBag.Title</h2>
     </div>
-    <div class="flex items-center gap-6">
-        <div class="flex items-center gap-3">
+    
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
             <div class="text-left hidden sm:block">
-                <p class="text-xs font-bold text-slate-900">@User.Identity?.Name</p>
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest">لوحة البائع</p>
+                <p class="text-[11px] font-black text-slate-900 leading-none">@User.Identity?.Name</p>
+                <p class="text-[9px] text-primary font-bold uppercase tracking-tighter mt-1">لوحة البائع</p>
             </div>
-            <div class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-slate-400">person</span>
+            <div class="w-10 h-10 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-primary shadow-sm">
+                <span class="material-symbols-outlined">person</span>
             </div>
         </div>
     </div>
