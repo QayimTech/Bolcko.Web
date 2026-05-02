@@ -17,33 +17,74 @@
     }
 }
 
-/* Custom Scrollbar for Sidebar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
+/* Global Smoothness & Animations */
+:root {
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --primary-color: #E8A020;
+    --surface-bg: #F8FAFC;
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+
+* {
+    scroll-behavior: smooth;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+
+/* Page Entrance Animation */
+.page-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+
+.content-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Interactive Elements */
+.card-hover {
+    transition: var(--transition-smooth);
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.btn-smooth {
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+.btn-smooth:active {
+    transform: scale(0.96);
 }
 
 /* Sidebar Transition */
 .sidebar-transition {
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-smooth);
 }
 
-/* Fix for main content overlap */
 #main-content {
-    margin-right: var(--sidebar-width, 280px);
+    transition: var(--transition-smooth);
+    margin-right: var(--sidebar-width);
 }
 
 body.sidebar-collapsed #main-content {
-    margin-right: var(--sidebar-collapsed-width, 80px);
+    margin-right: var(--sidebar-collapsed-width);
 }
 
 @media (max-width: 1024px) {
@@ -52,7 +93,17 @@ body.sidebar-collapsed #main-content {
     }
 }
 
-/* Smooth active state for sidebar items */
-.sidebar-active-shadow {
-    box-shadow: 0 10px 15px -3px rgba(232, 160, 32, 0.3), 0 4px 6px -4px rgba(232, 160, 32, 0.3);
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
 }

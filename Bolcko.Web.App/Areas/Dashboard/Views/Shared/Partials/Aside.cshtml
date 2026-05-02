@@ -1,22 +1,22 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<aside id="dashboard-sidebar" class="fixed right-0 top-0 h-full bg-[#0F172A] z-[100] sidebar-transition transform lg:translate-x-0 translate-x-full overflow-hidden border-l border-white/5 text-right flex flex-col shadow-2xl" style="width: var(--sidebar-width);">
+<aside id="dashboard-sidebar" class="fixed right-0 top-0 h-full bg-white z-[100] sidebar-transition transform lg:translate-x-0 translate-x-full overflow-hidden border-l border-slate-200 text-right flex flex-col shadow-sm" style="width: var(--sidebar-width);">
     <!-- Sidebar Header -->
-    <div class="h-20 flex items-center justify-between px-6 border-b border-white/5 flex-shrink-0">
+    <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100 flex-shrink-0">
         <div class="flex items-center gap-3 overflow-hidden">
             <div class="sidebar-logo-icon hidden">
-                <div class="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
                     <span class="text-white font-black text-xl">B</span>
                 </div>
             </div>
-            <div class="sidebar-logo-full whitespace-nowrap">
-                <h1 class="text-white text-xl font-black tracking-tighter uppercase flex items-center gap-2">
-                    <span class="bg-gradient-to-br from-primary to-primary/80 text-white px-2.5 py-1 rounded-lg">B</span>
+            <div class="sidebar-logo-full whitespace-nowrap transition-all duration-300">
+                <h1 class="text-slate-900 text-xl font-black tracking-tighter uppercase flex items-center gap-2">
+                    <span class="bg-primary text-white px-2.5 py-1 rounded-lg">B</span>
                     <span class="sidebar-text">BLOCKO <span class="text-primary">DASHBOARD</span></span>
                 </h1>
             </div>
         </div>
-        <button id="close-sidebar-dash" class="lg:hidden text-slate-400 hover:text-white transition-colors">
+        <button id="close-sidebar-dash" class="lg:hidden text-slate-400 hover:text-slate-600 transition-colors">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
@@ -24,51 +24,46 @@
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
         <div>
-            <p class="sidebar-text px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 opacity-50">لوحة البائع</p>
+            <p class="sidebar-text px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">لوحة البائع</p>
             
-            <nav class="space-y-1.5">
-                <a href="@Url.Action("Index", "Home", new { area = "Dashboard" })" 
-                   class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-primary text-white shadow-xl shadow-primary/30" : "text-slate-400 hover:bg-white/5 hover:text-white")">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "" : "group-hover:scale-110") transition-transform">dashboard</span>
-                    <span class="sidebar-text text-sm font-bold truncate">لوحة التحكم</span>
-                </a>
-                
-                <a href="@Url.Action("Index", "Product", new { area = "Dashboard" })" 
-                   class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "bg-primary text-white shadow-xl shadow-primary/30" : "text-slate-400 hover:bg-white/5 hover:text-white")">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "" : "group-hover:scale-110") transition-transform">inventory_2</span>
-                    <span class="sidebar-text text-sm font-bold truncate">إدارة المنتجات</span>
-                </a>
+            <nav class="space-y-1">
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                    var menuItems = new[] {
+                        new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
+                        new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
+                        new { Label = "العطاءات", Icon = "gavel", Controller = "Tender", Action = "Index" },
+                        new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" },
+                        new { Label = "الإحصائيات", Icon = "analytics", Controller = "Stats", Action = "Index" }
+                    };
+                }
 
-                <a href="@Url.Action("Index", "Tender", new { area = "Dashboard" })" 
-                   class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tender" ? "bg-primary text-white shadow-xl shadow-primary/30" : "text-slate-400 hover:bg-white/5 hover:text-white")">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tender" ? "" : "group-hover:scale-110") transition-transform">gavel</span>
-                    <span class="sidebar-text text-sm font-bold truncate">العطاءات</span>
-                </a>
-
-                <a href="@Url.Action("Index", "SEO", new { area = "Dashboard" })" 
-                   class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group @(ViewContext.RouteData.Values["controller"]?.ToString() == "SEO" ? "bg-primary text-white shadow-xl shadow-primary/30" : "text-slate-400 hover:bg-white/5 hover:text-white")">
-                    <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "SEO" ? "" : "group-hover:scale-110") transition-transform">search_check</span>
-                    <span class="sidebar-text text-sm font-bold truncate">إدارة SEO</span>
-                </a>
-
-                <a href="#" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 group text-slate-400 hover:bg-white/5 hover:text-white">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">analytics</span>
-                    <span class="sidebar-text text-sm font-bold truncate">الإحصائيات</span>
-                </a>
+                @foreach (var item in menuItems)
+                {
+                    bool isActive = currentController == item.Controller;
+                    <a href="@Url.Action(item.Action, item.Controller, new { area = "Dashboard" })" 
+                       class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group @(isActive ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900")">
+                        <span class="material-symbols-outlined @(isActive ? "text-primary" : "group-hover:text-primary") transition-colors">@item.Icon</span>
+                        <span class="sidebar-text text-sm font-bold truncate">@item.Label</span>
+                        @if (isActive) {
+                            <div class="sidebar-text mr-auto w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        }
+                    </a>
+                }
             </nav>
         </div>
     </div>
 
     <!-- Sidebar Footer -->
-    <div class="p-4 border-t border-white/5 space-y-1 flex-shrink-0">
-        <a href="/" class="flex items-center gap-4 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-2xl transition-all group">
+    <div class="p-4 border-t border-slate-100 space-y-1 flex-shrink-0">
+        <a href="/" class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all group">
             <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
             <span class="sidebar-text text-sm font-bold truncate">العودة للمتجر</span>
         </a>
 
         <form asp-area="Dashboard" asp-controller="Account" asp-action="Logout" method="post">
-            <button type="submit" class="w-full flex items-center gap-4 px-4 py-3.5 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all group">
-                <span class="material-symbols-outlined group-hover:scale-110 transition-transform">logout</span>
+            <button type="submit" class="w-full flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all group text-right">
+                <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">logout</span>
                 <span class="sidebar-text text-sm font-bold truncate">تسجيل الخروج</span>
             </button>
         </form>
