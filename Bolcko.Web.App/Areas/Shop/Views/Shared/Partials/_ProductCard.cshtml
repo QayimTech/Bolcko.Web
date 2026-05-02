@@ -1,10 +1,13 @@
 @model Bolcko.Domain.Entities.Product.Product
 
-<div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer h-full">
+<div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer h-full transition-all hover:border-primary-container">
     <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
-            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="@Model.ImageUrl" alt="@Model.Name" />
+            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                 src="@Model.ImageUrl" 
+                 onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'"
+                 alt="@Model.Name" />
         }
         else
         {
@@ -24,7 +27,7 @@
                     @(Model.StockQuantity > 0 ? "متوفر" : "نفذ من المخزون")
                 </span>
             </div>
-            <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
+            <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80 hover:bg-primary-container/90">
                 <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
                 أضف إلى السلة
             </button>

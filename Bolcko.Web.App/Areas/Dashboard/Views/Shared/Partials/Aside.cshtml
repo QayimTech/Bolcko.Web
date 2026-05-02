@@ -1,25 +1,33 @@
-<aside class="fixed right-0 top-0 h-full bg-[#1B2235] w-64 z-[100] transition-transform duration-300 transform lg:translate-x-0 overflow-y-auto border-l border-white/5 text-right">
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 z-[90] lg:hidden transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+<aside id="dashboard-sidebar" class="fixed right-0 top-0 h-full bg-[#1B2235] w-64 z-[100] transition-transform duration-300 transform lg:translate-x-0 translate-x-full overflow-y-auto border-l border-white/5 text-right flex flex-col">
     <div class="p-8 flex flex-col h-full">
         <div class="mb-10 flex items-center justify-between">
             <div>
                 <h1 class="text-white text-xl font-black tracking-tighter uppercase">BLOCKO <span class="text-primary">DASHBOARD</span></h1>
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">لوحة البائع</p>
             </div>
+            <button id="close-sidebar-dash" class="lg:hidden text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
 
         <nav class="flex-1 -mx-4 space-y-1">
-            <a href="@Url.Action("Index", "Home", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 text-white bg-primary/10 border-r-4 border-primary transition-all group">
-                <span class="material-symbols-outlined text-primary">dashboard</span>
+            <a href="@Url.Action("Index", "Home", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "text-white bg-primary/10 border-r-4 border-primary" : "text-slate-400 hover:text-white hover:bg-white/5") transition-all group">
+                <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "text-primary" : "group-hover:text-primary")">dashboard</span>
                 <span class="text-xs font-bold uppercase tracking-widest">لوحة التحكم</span>
             </a>
             
-            <a href="@Url.Action("Index", "Product", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
-                <span class="material-symbols-outlined group-hover:text-primary">inventory_2</span>
+            <a href="@Url.Action("Index", "Product", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "text-white bg-primary/10 border-r-4 border-primary" : "text-slate-400 hover:text-white hover:bg-white/5") transition-all group">
+                <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "text-primary" : "group-hover:text-primary")">inventory_2</span>
                 <span class="text-xs font-bold uppercase tracking-widest">إدارة المنتجات</span>
             </a>
 
-            <a href="@Url.Action("Index", "Tender", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
-                <span class="material-symbols-outlined group-hover:text-primary">gavel</span>
+            <a href="@Url.Action("Index", "Tender", new { area = "Dashboard" })" class="flex items-center gap-4 px-4 py-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tender" ? "text-white bg-primary/10 border-r-4 border-primary" : "text-slate-400 hover:text-white hover:bg-white/5") transition-all group">
+                <span class="material-symbols-outlined @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tender" ? "text-primary" : "group-hover:text-primary")">gavel</span>
                 <span class="text-xs font-bold uppercase tracking-widest">العطاءات</span>
             </a>
 

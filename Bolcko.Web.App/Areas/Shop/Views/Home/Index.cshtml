@@ -4,7 +4,10 @@
 <main>
     <section class="relative bg-on-surface text-white h-[600px] flex items-center overflow-hidden">
         <div class="absolute inset-0 opacity-40">
-            <img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" alt="Construction site" />
+            <img class="w-full h-full object-cover" 
+                 src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" 
+                 onerror="this.src='https://placehold.co/1920x1080/1e293b/ffffff?text=Blocko+Construction'"
+                 alt="Construction site" />
         </div>
         <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12">
             <div class="flex flex-col gap-8">
@@ -38,7 +41,10 @@
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.Category>)ViewBag.Categories)
             {
                 <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="@cat.Name" />
+                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                         src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
+                         onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                         alt="@cat.Name" />
                     <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
                     <div class="absolute bottom-6 right-6">
                         <h4 class="font-headline-md text-white">@cat.Name</h4>
@@ -139,6 +145,40 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </section>
+    <section class="bg-surface py-xl border-t border-outline-variant/10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+                <div class="flex flex-col items-center text-center gap-4 group">
+                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <span class="material-symbols-outlined text-3xl text-primary">local_shipping</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface">توصيل سريع</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">توصيل في نفس اليوم لجميع الطلبات داخل المنطقة الصناعية.</p>
+                </div>
+                <div class="flex flex-col items-center text-center gap-4 group">
+                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <span class="material-symbols-outlined text-3xl text-primary">verified_user</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface">ضمان الجودة</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">جميع موادنا مطابقة للمواصفات والمقاييس العالمية.</p>
+                </div>
+                <div class="flex flex-col items-center text-center gap-4 group">
+                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <span class="material-symbols-outlined text-3xl text-primary">support_agent</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface">دعم فني 24/7</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">فريق من الخبراء جاهز للرد على استفساراتكم في أي وقت.</p>
+                </div>
+                <div class="flex flex-col items-center text-center gap-4 group">
+                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <span class="material-symbols-outlined text-3xl text-primary">payments</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface">دفع آمن</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">خيارات دفع متعددة وآمنة تشمل الدفع عند الاستلام.</p>
+                </div>
             </div>
         </div>
     </section>

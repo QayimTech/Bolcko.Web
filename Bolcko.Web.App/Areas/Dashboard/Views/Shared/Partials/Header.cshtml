@@ -1,22 +1,19 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-<header class="flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-white dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-800 hard-drop">
-    <div class="flex items-center gap-8">
-        <span class="text-xl font-black tracking-tighter text-[#1B2235] dark:text-white uppercase">Blocko Dashboard</span>
-    </div>
+<header class="flex justify-between items-center w-full px-8 h-20 sticky top-0 z-40 bg-white border-b border-slate-200">
     <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-            <button class="p-2 text-[#1B2235] hover:bg-slate-50 relative">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="absolute top-2 right-2 w-2 h-2 bg-[#E8A020] rounded-full"></span>
-            </button>
-            <div class="flex items-center gap-3">
-                <div class="text-left hidden sm:block">
-                    <p class="text-xs font-bold text-[#1B2235]">@User.Identity?.Name</p>
-                    <p class="text-[10px] text-[#8A95A8]">Dashboard User</p>
-                </div>
-                <div class="w-8 h-8 bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center">
-                    <span class="material-symbols-outlined text-slate-600">person</span>
-                </div>
+        <button id="sidebar-toggle" class="lg:hidden text-slate-600">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h2 class="text-lg font-bold text-slate-800">@ViewBag.Title</h2>
+    </div>
+    <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+            <div class="text-left hidden sm:block">
+                <p class="text-xs font-bold text-slate-900">@User.Identity?.Name</p>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest">لوحة البائع</p>
+            </div>
+            <div class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-slate-400">person</span>
             </div>
         </div>
     </div>

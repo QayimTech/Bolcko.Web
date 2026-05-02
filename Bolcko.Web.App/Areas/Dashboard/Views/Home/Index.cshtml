@@ -32,17 +32,17 @@
     <div class="bg-white border border-slate-200 p-8 shadow-hard">
         <h2 class="text-[#1B2235] font-bold text-sm uppercase tracking-widest mb-6">إجراءات سريعة</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <a href="#" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
+            <a href="@Url.Action("Create", "Product", new { area = "Dashboard" })" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
                 <span class="material-symbols-outlined text-3xl text-primary mb-2 group-hover:scale-110 transition-transform">add_box</span>
                 <span class="text-xs font-bold text-[#1B2235]">إضافة منتج</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
+            <a href="@Url.Action("Index", "Product", new { area = "Dashboard" })" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
                 <span class="material-symbols-outlined text-3xl text-primary mb-2 group-hover:scale-110 transition-transform">list_alt</span>
                 <span class="text-xs font-bold text-[#1B2235]">قائمة المنتجات</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
-                <span class="material-symbols-outlined text-3xl text-primary mb-2 group-hover:scale-110 transition-transform">monitoring</span>
-                <span class="text-xs font-bold text-[#1B2235]">التقارير</span>
+            <a href="@Url.Action("Index", "Tender", new { area = "Dashboard" })" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
+                <span class="material-symbols-outlined text-3xl text-primary mb-2 group-hover:scale-110 transition-transform">gavel</span>
+                <span class="text-xs font-bold text-[#1B2235]">العطاءات</span>
             </a>
             <a href="#" class="flex flex-col items-center justify-center p-6 border border-slate-100 hover:bg-slate-50 transition-all group">
                 <span class="material-symbols-outlined text-3xl text-primary mb-2 group-hover:scale-110 transition-transform">person</span>

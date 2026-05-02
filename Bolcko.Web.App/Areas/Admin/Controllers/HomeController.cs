@@ -9,14 +9,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
 
-        public HomeController(IServiceManager serviceManager)
+        public HomeController(IServiceManager serviceManager, Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager)
         {
             _serviceManager = serviceManager;
+            _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            ViewBag.UserCount = _userManager.Users.Count();
+            ViewBag.ProductCount = (await _serviceManager.ProductService.GetAllProductsAsync()).Count();
+            ViewBag.CategoryCount = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count();
             return View();
         }
     }
