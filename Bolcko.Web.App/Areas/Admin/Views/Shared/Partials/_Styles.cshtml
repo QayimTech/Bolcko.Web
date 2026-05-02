@@ -1,4 +1,4 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
@@ -6,22 +6,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
 <style>
+    :root {
+        --sidebar-width: 280px;
+        --sidebar-collapsed-width: 80px;
+    }
 
+    [dir="rtl"] {
+        --sidebar-offset: var(--sidebar-width);
+    }
 
     .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         vertical-align: middle;
     }
 
-    .hard-drop {
-        box-shadow: 2px 2px 0px 0px rgba(27, 34, 53, 0.1);
+    .sidebar-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .b2b-table th {
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
     }
 
-    .b2b-table td {
-        border-right: 1px solid rgba(27, 34, 53, 0.05);
+    /* Fix for broken design - ensured content doesn't hide behind fixed sidebar */
+    #main-content {
+        margin-right: var(--sidebar-width);
+    }
+
+    body.sidebar-collapsed #main-content {
+        margin-right: var(--sidebar-collapsed-width);
+    }
+
+    @@media (max-width: 1024px) {
+        #main-content {
+            margin-right: 0 !important;
+        }
     }
 </style>

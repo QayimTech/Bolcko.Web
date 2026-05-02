@@ -16,3 +16,43 @@
         box-shadow: 2px 2px 0px 0px rgba(27, 34, 53, 0.15);
     }
 }
+
+/* Custom Scrollbar for Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar Transition */
+.sidebar-transition {
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fix for main content overlap */
+#main-content {
+    margin-right: var(--sidebar-width, 280px);
+}
+
+body.sidebar-collapsed #main-content {
+    margin-right: var(--sidebar-collapsed-width, 80px);
+}
+
+@media (max-width: 1024px) {
+    #main-content {
+        margin-right: 0 !important;
+    }
+}
+
+/* Smooth active state for sidebar items */
+.sidebar-active-shadow {
+    box-shadow: 0 10px 15px -3px rgba(232, 160, 32, 0.3), 0 4px 6px -4px rgba(232, 160, 32, 0.3);
+}
