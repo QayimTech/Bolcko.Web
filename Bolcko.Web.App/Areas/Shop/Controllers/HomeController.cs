@@ -26,11 +26,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
             var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
             
-            // For now, passing to ViewData or creating a ViewModel would be better
             ViewBag.FeaturedProducts = featuredProducts;
             ViewBag.Categories = rootCategories;
             
             return View();
+        }
+
+        public async Task<IActionResult> GetMarketPrices()
+        {
+            var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+            return PartialView("Partials/_MarketPrices", prices);
         }
 
         public IActionResult AboutUs()

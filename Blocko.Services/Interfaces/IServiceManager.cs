@@ -11,6 +11,7 @@ namespace Blocko.Services.Interfaces
         IUserService UserService { get; }
         IProductService ProductService { get; }
         ICategoryService CategoryService { get; }
+        IMarketPriceService MarketPriceService { get; }
         IOrderService OrderService { get; }
         ITenderService TenderService { get; }
     }

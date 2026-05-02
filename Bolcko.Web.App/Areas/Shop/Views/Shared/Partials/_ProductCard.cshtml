@@ -1,0 +1,33 @@
+@model Bolcko.Domain.Entities.Product.Product
+
+<div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer h-full">
+    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="@Model.ImageUrl" alt="@Model.Name" />
+        }
+        else
+        {
+            <div class="w-full h-full flex items-center justify-center bg-slate-100">
+                <span class="material-symbols-outlined text-4xl text-slate-300">image</span>
+            </div>
+        }
+        <span class="absolute top-4 right-4 bg-on-surface text-white font-bold px-2 py-1 text-[10px] uppercase">SKU: @Model.Sku</span>
+    </div>
+    <div class="p-4 flex flex-col gap-2 flex-1">
+        <h5 class="font-bold uppercase text-on-surface">@Model.Name</h5>
+        <p class="text-xs text-on-surface-variant line-clamp-2">@Model.Description</p>
+        <div class="mt-auto pt-4">
+            <div class="flex justify-between items-center">
+                <span class="font-headline-md text-primary">@Model.RetailPrice.ToString("N2") <span class="text-xs">ر.س</span></span>
+                <span class="text-[10px] font-bold @(Model.StockQuantity > 0 ? "text-success" : "text-error") uppercase">
+                    @(Model.StockQuantity > 0 ? "متوفر" : "نفذ من المخزون")
+                </span>
+            </div>
+            <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
+                <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                أضف إلى السلة
+            </button>
+        </div>
+    </div>
+</div>

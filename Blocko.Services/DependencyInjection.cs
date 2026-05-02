@@ -22,6 +22,7 @@ namespace Blocko.Services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IMarketPriceService, MarketPriceService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ITenderService, TenderService>();
             

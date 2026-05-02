@@ -35,39 +35,17 @@
             <a class="font-bold text-primary hover:underline underline-offset-4" href="@Url.Action("Index", "Category", new { area = "Shop" })">عرض الكل</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            <!-- Category Cards -->
-            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="Cement" />
-                <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 right-6">
-                    <h4 class="font-headline-md text-white">الأسمنت</h4>
-                    <span class="text-primary-container font-bold uppercase text-xs">820 منتج</span>
+            @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.Category>)ViewBag.Categories)
+            {
+                <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="@cat.Name" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
+                    <div class="absolute bottom-6 right-6">
+                        <h4 class="font-headline-md text-white">@cat.Name</h4>
+                        <span class="text-primary-container font-bold uppercase text-xs">@cat.Products.Count منتج</span>
+                    </div>
                 </div>
-            </div>
-            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1516216628859-9bccecad13f7?auto=format&fit=crop&q=80&w=1000" alt="Steel" />
-                <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 right-6">
-                    <h4 class="font-headline-md text-white">الحديد</h4>
-                    <span class="text-primary-container font-bold uppercase text-xs">450 منتج</span>
-                </div>
-            </div>
-            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1590069230005-db3937f91f30?auto=format&fit=crop&q=80&w=1000" alt="Bricks" />
-                <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 right-6">
-                    <h4 class="font-headline-md text-white">الطوب</h4>
-                    <span class="text-primary-container font-bold uppercase text-xs">1,200 منتج</span>
-                </div>
-            </div>
-            <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop" })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&q=80&w=1000" alt="Tools" />
-                <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 right-6">
-                    <h4 class="font-headline-md text-white">الأدوات</h4>
-                    <span class="text-primary-container font-bold uppercase text-xs">2,400 منتج</span>
-                </div>
-            </div>
+            }
         </div>
     </section>
 
@@ -85,25 +63,10 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-                <!-- Product Card -->
-                <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop" })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer">
-                    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
-                        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=80&w=1000" alt="Drill" />
-                        <span class="absolute top-4 right-4 bg-on-surface text-white font-bold px-2 py-1 text-[10px] uppercase">SKU: DX-4092</span>
-                    </div>
-                    <div class="p-4 flex flex-col gap-2">
-                        <h5 class="font-bold uppercase text-on-surface">مثقاب كهربائي 20 فولت</h5>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="font-headline-md text-primary">189.99 ر.س</span>
-                            <span class="text-xs text-on-surface-variant">متوفر</span>
-                        </div>
-                        <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80">
-                            <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                            أضف إلى السلة
-                        </button>
-                    </div>
-                </div>
-                <!-- Add more cards as needed -->
+                @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.Product>)ViewBag.FeaturedProducts)
+                {
+                    <partial name="Partials/_ProductCard" model="product" />
+                }
             </div>
         </div>
     </section>
@@ -117,60 +80,11 @@
                 </div>
                 <p class="text-on-surface-variant text-sm max-w-md md:text-left">أسعار المواد الأساسية في السوق المحلي بالأردن (تحديث كل 24 ساعة).</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between group hover:border-primary transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-surface-container flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary">architecture</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-on-surface">حديد التسليح</h4>
-                            <p class="text-[10px] text-on-surface-variant uppercase">طن / 12 ملم</p>
-                        </div>
-                    </div>
-                    <div class="text-left">
-                        <span class="font-headline-md text-on-surface">645.00 <span class="text-xs">ر.س</span></span>
-                        <div class="flex items-center gap-1 text-[10px] text-success justify-end">
-                            <span class="material-symbols-outlined text-[12px]">trending_up</span>
-                            <span>+2.4%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between group hover:border-primary transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-surface-container flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary">foundation</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-on-surface">الأسمنت البورتلاندي</h4>
-                            <p class="text-[10px] text-on-surface-variant uppercase">طن / مكيس</p>
-                        </div>
-                    </div>
-                    <div class="text-left">
-                        <span class="font-headline-md text-on-surface">112.50 <span class="text-xs">ر.س</span></span>
-                        <div class="flex items-center gap-1 text-[10px] text-error justify-end">
-                            <span class="material-symbols-outlined text-[12px]">trending_down</span>
-                            <span>-0.8%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between group hover:border-primary transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-surface-container flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary">grid_view</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-on-surface">بلوك 20 سم</h4>
-                            <p class="text-[10px] text-on-surface-variant uppercase">1000 حبة</p>
-                        </div>
-                    </div>
-                    <div class="text-left">
-                        <span class="font-headline-md text-on-surface">4,200 <span class="text-xs">ر.س</span></span>
-                        <div class="flex items-center gap-1 text-[10px] text-outline-variant justify-end">
-                            <span class="material-symbols-outlined text-[12px]">horizontal_rule</span>
-                            <span>0.0%</span>
-                        </div>
-                    </div>
+            
+            <div id="market-prices-container">
+                <!-- Loaded via AJAX -->
+                <div class="flex justify-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
             </div>
         </div>
@@ -229,3 +143,14 @@
         </div>
     </section>
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load market prices via AJAX
+            $.get('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })', function(data) {
+                $('#market-prices-container').html(data);
+            });
+        });
+    </script>
+}

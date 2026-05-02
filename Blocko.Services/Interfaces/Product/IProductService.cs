@@ -6,5 +6,8 @@ namespace Blocko.Services.Interfaces.Product
         Task<Bolcko.Domain.Entities.Product.Product?> GetProductByIdAsync(int id);
         Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetFeaturedProductsAsync();
+        Task AddProductAsync(Bolcko.Domain.Entities.Product.Product product);
+        Task UpdateProductAsync(Bolcko.Domain.Entities.Product.Product product);
+        Task DeleteProductAsync(int id);
     }
 }

@@ -19,11 +19,18 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (id == null)
             {
-                var categories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-                return View(categories);
+                var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
+                ViewBag.IsRoot = true;
+                return View(rootCategories);
             }
             
+            var category = await _serviceManager.CategoryService.GetCategoryByIdAsync(id.Value);
+            if (category == null) return NotFound();
+
             var products = await _serviceManager.ProductService.GetProductsByCategoryAsync(id.Value);
+            ViewBag.Category = category;
+            ViewBag.IsRoot = false;
+            
             return View(products);
         }
     }

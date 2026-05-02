@@ -1,0 +1,84 @@
+@model IEnumerable<Bolcko.Domain.Entities.Product.Product>
+@{
+    ViewData["Title"] = "إدارة المنتجات";
+}
+
+<section class="p-8 space-y-8 text-right">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">إدارة المنتجات</h1>
+            <p class="text-on-surface-variant text-sm mt-1">عرض وإدارة قائمة المنتجات في النظام</p>
+        </div>
+        <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
+            <span class="material-symbols-outlined">add</span>
+            إضافة منتج جديد
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">المنتج</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الفئة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">السعر</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الكمية</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">SKU</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" class="w-10 h-10 object-cover border border-slate-200" alt="@item.Name" />
+                                }
+                                else
+                                {
+                                    <div class="w-10 h-10 bg-slate-100 flex items-center justify-center border border-slate-200">
+                                        <span class="material-symbols-outlined text-slate-400">image</span>
+                                    </div>
+                                }
+                                <span class="font-bold text-slate-900">@item.Name</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-600">@(item.Category?.Name ?? "-")</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-[#E8A020]">@item.RetailPrice.ToString("C")</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-600">@item.StockQuantity @item.UnitOfMeasure</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 text-slate-600">@item.Sku</span>
+                        </td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');" class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد منتجات حالياً
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

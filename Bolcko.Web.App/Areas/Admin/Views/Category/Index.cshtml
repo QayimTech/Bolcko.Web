@@ -1,0 +1,64 @@
+@model IEnumerable<Bolcko.Domain.Entities.Catalog.Category>
+@{
+    ViewData["Title"] = "إدارة الفئات";
+}
+
+<section class="p-8 space-y-8 text-right">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">إدارة الفئات</h1>
+            <p class="text-on-surface-variant text-sm mt-1">عرض وإدارة فئات المنتجات في النظام</p>
+        </div>
+        <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
+            <span class="material-symbols-outlined">add</span>
+            إضافة فئة جديدة
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">اسم الفئة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الفئة الأب</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الوصف</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-slate-900">@item.Name</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-600">@(item.ParentCategory?.Name ?? "-")</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-500 text-sm">@item.Description</span>
+                        </td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذه الفئة؟');" class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد فئات حالياً
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

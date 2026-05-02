@@ -1,0 +1,42 @@
+@model IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+    @foreach (var price in Model)
+    {
+        <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between group hover:border-primary transition-colors">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+                    @if (price.MaterialName.Contains("حديد"))
+                    {
+                        <span class="material-symbols-outlined text-primary">architecture</span>
+                    }
+                    else if (price.MaterialName.Contains("أسمنت"))
+                    {
+                        <span class="material-symbols-outlined text-primary">foundation</span>
+                    }
+                    else
+                    {
+                        <span class="material-symbols-outlined text-primary">grid_view</span>
+                    }
+                </div>
+                <div>
+                    <h4 class="font-bold text-on-surface">@price.MaterialName</h4>
+                    <p class="text-[10px] text-on-surface-variant uppercase">@price.UnitOfMeasure</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <span class="font-headline-md text-on-surface">@price.Price.ToString("N2") <span class="text-xs">@price.Currency</span></span>
+                <div class="flex items-center gap-1 text-[10px] text-outline-variant justify-end">
+                    <span class="material-symbols-outlined text-[12px]">schedule</span>
+                    <span>@price.LastUpdated.ToString("yyyy-MM-dd")</span>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-span-3 text-center py-8 text-on-surface-variant italic">
+            لا توجد تحديثات للأسعار حالياً
+        </div>
+    }
+</div>

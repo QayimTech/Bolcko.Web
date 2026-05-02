@@ -1,0 +1,67 @@
+@model IEnumerable<Bolcko.Domain.Entities.Tender.Tender>
+@{
+    ViewData["Title"] = "عطاءاتي";
+}
+
+<section class="p-8 space-y-8 text-right">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">عطاءاتي</h1>
+            <p class="text-on-surface-variant text-sm mt-1">إدارة العطاءات التي قمت بإنشائها</p>
+        </div>
+        <a href="@Url.Action("Browse")" class="bg-primary text-white px-6 py-2 font-bold flex items-center gap-2 hover:opacity-90 transition-all">
+            <span class="material-symbols-outlined">search</span>
+            تصفح العطاءات المفتوحة
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">العنوان</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">تاريخ الطلب</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الموعد النهائي</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الحالة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-slate-900">@item.TenderTitle</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-600">@item.RequestDate.ToString("yyyy-MM-dd")</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-slate-600">@(item.SubmissionDeadline?.ToString("yyyy-MM-dd") ?? "-")</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full 
+                                @(item.Status == Bolcko.Domain.Enums.TenderStatus.Open ? "bg-emerald-100 text-emerald-700" : 
+                                  item.Status == Bolcko.Domain.Enums.TenderStatus.Awarded ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="@Url.Action("Details", new { id = item.Id })" class="text-primary hover:underline font-bold text-sm">
+                                التفاصيل
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد عطاءات حالياً
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

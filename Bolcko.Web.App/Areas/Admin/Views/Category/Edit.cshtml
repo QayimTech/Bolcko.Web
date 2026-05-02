@@ -1,0 +1,31 @@
+@model Bolcko.Domain.Entities.Catalog.Category
+@{
+    ViewData["Title"] = "تعديل الفئة";
+}
+
+<section class="p-8 max-w-2xl mx-auto text-right">
+    <div class="mb-8">
+        <h1 class="font-headline-md text-on-surface">تعديل الفئة</h1>
+        <p class="text-on-surface-variant text-sm mt-1">تعديل بيانات فئة: @Model.Name</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard p-8">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <partial name="_CategoryForm" model="Model" />
+            
+            <div class="mt-10 flex gap-4">
+                <button type="submit" class="flex-1 bg-[#E8A020] text-white px-8 py-3 font-bold hover:bg-[#d18f1c] transition-all">
+                    تحديث الفئة
+                </button>
+                <a href="@Url.Action("Index")" class="px-8 py-3 font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
