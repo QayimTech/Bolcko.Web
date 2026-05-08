@@ -1,17 +1,19 @@
 using Blocko.Services.Interfaces;
+using Bolcko.Domain.Entities.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "DashboardUser,Admin")]
+
     public class HomeController : Controller
     {
         private readonly IServiceManager _serviceManager;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<User> _userManager;
 
-        public HomeController(IServiceManager serviceManager, Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager)
+        public HomeController(IServiceManager serviceManager, Microsoft.AspNetCore.Identity.UserManager<User> userManager)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;

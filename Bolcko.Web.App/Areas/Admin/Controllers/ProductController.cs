@@ -6,7 +6,8 @@ using Bolcko.Domain.Entities.Product.DTOs;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "DashboardUser,Admin")]
+
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;

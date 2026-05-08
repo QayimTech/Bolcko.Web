@@ -28,54 +28,96 @@
             <partial name="Partials/Footer" />
         </div>
 
-        <!-- Mobile Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-[90] lg:hidden transition-opacity duration-300 opacity-0 pointer-events-none backdrop-blur-sm"></div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        $(document).ready(function() {
+               $(document).ready(function () {
+
             const body = $('body');
             const sidebar = $('#admin-sidebar');
             const overlay = $('#sidebar-overlay');
 
             function toggleSidebar() {
+
                 if (window.innerWidth < 1024) {
+
                     sidebar.toggleClass('translate-x-full');
+
                     overlay.toggleClass('opacity-0 pointer-events-none');
+
                     body.toggleClass('overflow-hidden');
-                } else {
+
+                }
+                else {
+
                     body.toggleClass('sidebar-collapsed');
-                    
+
                     if (body.hasClass('sidebar-collapsed')) {
+
                         sidebar.css('width', 'var(--sidebar-collapsed-width)');
+
                         $('.sidebar-text').fadeOut(100);
+
                         $('.sidebar-logo-full').hide();
+
                         $('.sidebar-logo-icon').show();
+
                     } else {
+
                         sidebar.css('width', 'var(--sidebar-width)');
+
                         $('.sidebar-text').delay(100).fadeIn(200);
+
                         $('.sidebar-logo-full').show();
+
                         $('.sidebar-logo-icon').hide();
                     }
                 }
             }
 
-            $('#sidebar-toggle, #close-sidebar, #sidebar-overlay').on('click', toggleSidebar);
+            $('#sidebar-toggle, #close-sidebar').on('click', function (e) {
 
-            // Handle window resize for UI consistency
-            $(window).resize(function() {
+                e.stopPropagation();
+
+                toggleSidebar();
+            });
+
+            overlay.on('click', function () {
+
+                if (window.innerWidth < 1024) {
+
+                    toggleSidebar();
+                }
+            });
+
+            sidebar.on('click', function (e) {
+
+                e.stopPropagation();
+            });
+
+
+            $(window).off('resize').on('resize', function () {
+
                 if (window.innerWidth >= 1024) {
+
                     overlay.addClass('opacity-0 pointer-events-none');
+
                     body.removeClass('overflow-hidden');
+
                     sidebar.removeClass('translate-x-full');
+
                 } else {
+
                     sidebar.addClass('translate-x-full');
+
                     body.removeClass('sidebar-collapsed');
+
                     sidebar.css('width', '');
                 }
             });
+
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
