@@ -13,7 +13,11 @@ namespace Bolcko.Web.App.Extensions
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
             // 1. Seed Roles
-            string[] roles = { "Admin", "DashboardUser", "Customer" };
+            // NOTE:
+            // - SuperAdmin: full access (Users/SEO/Everything)
+            // - AdminUser: محدود (Products/Orders/Categories)
+            // - Customer: متجر
+            string[] roles = { "SuperAdmin", "AdminUser", "Customer" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -22,7 +26,7 @@ namespace Bolcko.Web.App.Extensions
                 }
             }
 
-            // 2. Seed First Admin
+            // 2. Seed First Super Admin
             var adminEmail = "admin@blocko.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -34,7 +38,7 @@ namespace Bolcko.Web.App.Extensions
                     Email = adminEmail,
                     FirstName = "Super",
                     LastName = "Admin",
-                    UserType = UserType.Admin,
+                    UserType = UserType.SuperAdmin,
                     EmailConfirmed = true,
                     RegistrationDate = DateTime.UtcNow
                 };
@@ -42,7 +46,7 @@ namespace Bolcko.Web.App.Extensions
                 var result = await userManager.CreateAsync(newAdmin, "Admin@123");
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(newAdmin, "Admin");
+                    await userManager.AddToRoleAsync(newAdmin, "SuperAdmin");
                 }
             }
         }

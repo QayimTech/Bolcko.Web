@@ -4,6 +4,7 @@ using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Project;
 using Bolcko.Domain.Entities.Tender;
+using Bolcko.Domain.Entities.ShoppingCart;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +25,9 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Tender.Tender> Tenders { get; set; }
         public DbSet<Bolcko.Domain.Entities.Tender.TenderItem> TenderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Catalog.MarketPrice> MarketPrices { get; set; }
-        public DbSet<Bolcko.Domain.Entities.SEO.SEOMetadata> SEOMetadata { get; set; }  
+        public DbSet<Bolcko.Domain.Entities.SEO.SEOMetadata> SEOMetadata { get; set; }
+        public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; set; }  
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -94,6 +97,31 @@ namespace Blocko.Persistence
             modelBuilder.Entity<Bolcko.Domain.Entities.Catalog.MarketPrice>(entity =>
             {
                 entity.Property(e => e.Price).HasPrecision(18, 2);
+            });
+
+            // ShoppingCart configuration
+            modelBuilder.Entity<Bolcko.Domain.Entities.ShoppingCart.ShoppingCart>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                    .WithMany()
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ShoppingCartItem configuration
+            modelBuilder.Entity<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem>(entity =>
+            {
+                entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.ShoppingCart)
+                    .WithMany(p => p.Items)
+                    .HasForeignKey(d => d.ShoppingCartId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Product)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

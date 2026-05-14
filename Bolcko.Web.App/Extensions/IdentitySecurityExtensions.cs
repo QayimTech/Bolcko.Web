@@ -33,8 +33,6 @@ namespace Bolcko.Web.App.Extensions
                     var requestPath = context.Request.Path.Value ?? "";
                     if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
                         context.Response.Redirect("/Admin/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
-                    else if (requestPath.StartsWith("/Dashboard", StringComparison.OrdinalIgnoreCase))
-                        context.Response.Redirect("/Dashboard/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     else
                         context.Response.Redirect("/Shop/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     return Task.CompletedTask;

@@ -43,11 +43,23 @@
                         الفلاتر
                         <span class="material-symbols-outlined text-sm">filter_list</span>
                     </h3>
-                    <!-- Sub-categories (Placeholder) -->
+                    <!-- Sub-categories -->
                     <div class="mb-8">
                         <h4 class="font-bold text-secondary mb-3 uppercase text-[11px]">الفئات الفرعية</h4>
                         <div class="space-y-2">
-                            <p class="text-xs text-slate-400 italic">لا توجد فئات فرعية</p>
+                            @if (ViewBag.SubCategories != null && ((IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.SubCategories).Any())
+                            {
+                                @foreach (var subCat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.SubCategories)
+                                {
+                                    <a href="@Url.Action("Index", new { id = subCat.Id })" class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors rounded">
+                                        @subCat.Name <span class="text-xs text-outline-variant">(@subCat.ProductCount)</span>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-xs text-slate-400 italic">لا توجد فئات فرعية</p>
+                            }
                         </div>
                     </div>
                 </div>

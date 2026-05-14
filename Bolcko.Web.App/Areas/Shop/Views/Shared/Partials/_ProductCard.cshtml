@@ -1,11 +1,11 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
-<div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right cursor-pointer h-full transition-all hover:border-primary-container">
-    <div class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden">
+<div class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right h-full transition-all hover:border-primary-container">
+    <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden cursor-pointer">
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
-            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                 src="@Model.ImageUrl" 
+            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 src="@Model.ImageUrl"
                  onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'"
                  alt="@Model.Name" />
         }
@@ -18,7 +18,7 @@
         <span class="absolute top-4 right-4 bg-on-surface text-white font-bold px-2 py-1 text-[10px] uppercase">SKU: @Model.Sku</span>
     </div>
     <div class="p-4 flex flex-col gap-2 flex-1">
-        <h5 class="font-bold uppercase text-on-surface">@Model.Name</h5>
+        <h5 class="font-bold uppercase text-on-surface cursor-pointer hover:text-primary" onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'">@Model.Name</h5>
         <p class="text-xs text-on-surface-variant line-clamp-2">@Model.Description</p>
         <div class="mt-auto pt-4">
             <div class="flex justify-between items-center">
@@ -27,10 +27,14 @@
                     @(Model.StockQuantity > 0 ? "متوفر" : "نفذ من المخزون")
                 </span>
             </div>
-            <button onclick="event.stopPropagation();" class="mt-4 w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80 hover:bg-primary-container/90">
-                <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                أضف إلى السلة
-            </button>
+            <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="mt-4">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80 hover:bg-primary-container/90">
+                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    أضف إلى السلة
+                </button>
+            </form>
         </div>
     </div>
 </div>

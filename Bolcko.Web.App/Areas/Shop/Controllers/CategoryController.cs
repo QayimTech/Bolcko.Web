@@ -26,14 +26,17 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 ViewBag.IsRoot = true;
                 return View(rootCategories);
             }
-            
+
             var category = await _serviceManager.CategoryService.GetCategoryByIdAsync(id.Value);
             if (category == null) return NotFound();
 
+            var subCategories = await _serviceManager.CategoryService.GetSubCategoriesAsync(id.Value);
             var products = await _serviceManager.ProductService.GetProductsByCategoryAsync(id.Value);
+
             ViewBag.Category = category;
+            ViewBag.SubCategories = subCategories;
             ViewBag.IsRoot = false;
-            
+
             return View(products);
         }
     }

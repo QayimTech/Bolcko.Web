@@ -38,14 +38,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    if (user.UserType == UserType.Admin)
-                    {
+                    // Redirect by role (not by UserType) to keep authorization consistent
+                    if (await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin"))
                         return RedirectToAction("Index", "Home", new { area = "Admin" });
-                    }
-                    if (user.UserType == UserType.DashboardUser)
-                    {
-                        return RedirectToAction("Index", "Home", new { area = "Dashboard" });
-                    }
+
                     return RedirectToAction("Index");
                 }
             }
@@ -80,16 +76,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             user.UserName = user.Email;
+            user.UserType = UserType.Customer;
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
-                // Add role claim if needed, but for now we use UserType
+                // Default role for new users
+                await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 
-                if (user.UserType == UserType.Admin)
-                {
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
-                }
                 return RedirectToAction("Index");
             }
 
