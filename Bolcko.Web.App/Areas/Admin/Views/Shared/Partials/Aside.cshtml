@@ -57,16 +57,22 @@
 
                 @{
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                        bool isSuperAdmin = User.IsInRole("SuperAdmin");
 
-                    var menuItems = new[]
-                    {
-                                new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
-                                new { Label = "إدارة المستخدمين", Icon = "manage_accounts", Controller = "User", Action = "Index" },
-                                new { Label = "إدارة الفئات", Icon = "category", Controller = "Category", Action = "Index" },
-                                new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
-                                new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" },
-                                new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" }
-                                };
+                        var menuItems = new List<dynamic>
+                        {
+                            new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
+                            new { Label = "إدارة الفئات", Icon = "category", Controller = "Category", Action = "Index" },
+                            new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
+                            new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" },
+                        };
+
+                        // SuperAdmin Only
+                        if (isSuperAdmin)
+                        {
+                            menuItems.Add(new { Label = "إدارة المستخدمين", Icon = "manage_accounts", Controller = "User", Action = "Index" });
+                            menuItems.Add(new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" });
+                        }
                 }
 
                 @foreach (var item in menuItems)

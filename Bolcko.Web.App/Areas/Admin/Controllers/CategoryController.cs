@@ -6,7 +6,7 @@ using Bolcko.Domain.Entities.Catalog.DTOs;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "AdminUser,SuperAdmin")]
     public class CategoryController : Controller
     {
         private readonly IServiceManager _serviceManager;

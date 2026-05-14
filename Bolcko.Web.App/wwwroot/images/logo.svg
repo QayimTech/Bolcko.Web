@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Block Icon -->
+  <rect x="10" y="15" width="30" height="30" rx="4" fill="url(#logoGradient)" />
+  <rect x="18" y="23" width="14" height="14" rx="2" fill="white" opacity="0.9" />
+  
+  <!-- Text -->
+  <text x="50" y="42" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1e293b">BLOCKO</text>
+  <text x="50" y="52" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#64748b" letter-spacing="3">CONSTRUCTION</text>
+</svg>

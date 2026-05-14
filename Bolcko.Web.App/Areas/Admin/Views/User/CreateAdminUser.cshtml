@@ -1,16 +1,16 @@
 @model Bolcko.Domain.Entities.User.User
 @{
-    ViewData["Title"] = "إضافة مستخدم داشبورد";
+    ViewData["Title"] = "إضافة Admin";
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="max-w-2xl bg-white border border-slate-200 shadow-hard">
         <div class="bg-[#1B2235] px-6 py-4">
-            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة مستخدم داشبورد جديد</h2>
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة Admin جديد</h2>
         </div>
-        <form asp-area="Admin" asp-controller="User" asp-action="CreateDashboardUser" method="post" class="p-8 space-y-6">
+        <form asp-area="Admin" asp-controller="User" asp-action="CreateAdminUser" method="post" class="p-8 space-y-6">
             <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">الاسم الأول</label>
@@ -38,3 +38,4 @@
         </form>
     </div>
 </section>
+

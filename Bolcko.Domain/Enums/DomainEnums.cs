@@ -3,8 +3,8 @@ namespace Bolcko.Domain.Enums
     public enum UserType
     {
         Customer = 1,
-        DashboardUser = 2,
-        Admin = 3 // Super Admin
+        AdminUser = 2,
+        SuperAdmin = 3
     }
 
     public enum OrderStatus
