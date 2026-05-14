@@ -17,7 +17,7 @@ namespace Bolcko.Web.App.Extensions
             // - SuperAdmin: full access (Users/SEO/Everything)
             // - AdminUser: محدود (Products/Orders/Categories)
             // - Customer: متجر
-            string[] roles = { "SuperAdmin", "AdminUser", "Customer" };
+            string[] roles = { "Admin", "DashboardUser", "Customer" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -38,7 +38,7 @@ namespace Bolcko.Web.App.Extensions
                     Email = adminEmail,
                     FirstName = "Super",
                     LastName = "Admin",
-                    UserType = UserType.SuperAdmin,
+                    UserType = UserType.Admin,
                     EmailConfirmed = true,
                     RegistrationDate = DateTime.UtcNow
                 };
@@ -46,8 +46,8 @@ namespace Bolcko.Web.App.Extensions
                 var result = await userManager.CreateAsync(newAdmin, "Admin@123");
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(newAdmin, "SuperAdmin");
-                }
+                    await userManager.AddToRoleAsync(newAdmin, "Admin");
+                } 
             }
         }
     }

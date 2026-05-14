@@ -3,7 +3,7 @@ using Bolcko.Domain.Entities.ShoppingCart;
 using Bolcko.Domain.Entities.ShoppingCart.DTOs;
 using Bolcko.Domain.Interfaces;
 
-namespace Blocko.Services.Implementations.ShoppingCart
+namespace Blocko.Services.Implementations.shoppingCart
 {
     public class ShoppingCartService : IShoppingCartService
     {

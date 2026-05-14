@@ -7,7 +7,7 @@ using Bolcko.Domain.Enums;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly UserManager<User> _userManager;
@@ -32,7 +32,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> CreateAdminUser(User user, string password)
         {
             // We rely on Roles for authorization; keep UserType only for domain semantics.
-            user.UserType = UserType.AdminUser;
+            user.UserType = UserType.Admin;
             user.UserName = user.Email;
             
             var result = await _userManager.CreateAsync(user, password);

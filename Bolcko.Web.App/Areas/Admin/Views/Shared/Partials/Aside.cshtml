@@ -16,9 +16,7 @@
 
     <!-- Sidebar Header -->
     <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100 flex-shrink-0">
-
         <div class="flex items-center gap-3 overflow-hidden">
-
             <div class="sidebar-logo-icon hidden">
                 <div class="w-10 h-10 bg-[#E8A020] rounded-xl flex items-center justify-center shadow-lg shadow-[#E8A020]/20">
                     <span class="text-white font-black text-xl">B</span>
@@ -28,7 +26,6 @@
             <div class="sidebar-logo-full whitespace-nowrap transition-all duration-300">
                 <h1 class="text-slate-900 text-xl font-black tracking-tighter uppercase flex items-center gap-2">
                     <span class="bg-[#E8A020] text-white px-2.5 py-1 rounded-lg">B</span>
-
                     <span class="sidebar-text">
                         BLOCKO
                         <span class="text-[#E8A020]">ADMIN</span>
@@ -39,50 +36,48 @@
 
         <button id="close-sidebar"
                 class="lg:hidden text-slate-400 hover:text-slate-600 transition-colors">
-
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
 
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto py-6 px-3 space-y-8 custom-scrollbar">
-
         <div>
-
             <p class="sidebar-text px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">
                 القائمة الرئيسية
             </p>
 
             <nav class="space-y-1">
-
                 @{
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-                        bool isSuperAdmin = User.IsInRole("SuperAdmin");
+                    bool isSuperAdmin = User.IsInRole("SuperAdmin");
 
-                        var menuItems = new List<dynamic>
-                        {
-                            new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
-                            new { Label = "إدارة الفئات", Icon = "category", Controller = "Category", Action = "Index" },
-                            new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
-                            new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" },
-                        };
+                    var menuItems = new List<dynamic>
+                                {
+                                new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
+                                new { Label = "إدارة الفئات", Icon = "category", Controller = "Category", Action = "Index" },
+                                new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
+                                new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" },
+                                };
 
-                        // SuperAdmin Only
-                        if (isSuperAdmin)
-                        {
-                            menuItems.Add(new { Label = "إدارة المستخدمين", Icon = "manage_accounts", Controller = "User", Action = "Index" });
-                            menuItems.Add(new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" });
-                        }
+                    if (isSuperAdmin)
+                    {
+                        menuItems.Add(new { Label = "إدارة المستخدمين", Icon = "manage_accounts", Controller = "User", Action = "Index" });
+                        menuItems.Add(new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" });
+                    }
                 }
 
                 @foreach (var item in menuItems)
                 {
-                    bool isActive = currentController == item.Controller;
+                    // الحل هنا: تحويل القيم لنصوص لتجنب خطأ الـ dynamic في Url.Action
+                    string ctrl = item.Controller.ToString();
+                    string act = item.Action.ToString();
+                    bool isActive = currentController == ctrl;
 
-                    <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
-                       class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group @(isActive ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900")">
+                    <a href="@Url.Action(act, ctrl, new { area = "Admin" })"
+                       class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group @(isActive ? "bg-slate-900 text-white shadow-lg" : "text-slate-600 hover:bg-slate-50")">
 
-                        <span class="material-symbols-outlined @(isActive ? "text-[#E8A020]" : "group-hover:text-[#E8A020]") transition-colors">
+                        <span class="material-symbols-outlined transition-colors @(isActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
                             @item.Icon
                         </span>
 
@@ -92,144 +87,88 @@
 
                         @if (isActive)
                         {
-                            <div class="sidebar-text mr-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
+                            @* ml-auto تدفع النقطة لليسار لأن التصميم RTL *@
+                            <div class="sidebar-text ml-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
                         }
-
                     </a>
                 }
-
             </nav>
-
         </div>
-
     </div>
 
     <!-- Footer -->
     <div class="p-4 border-t border-slate-100 space-y-1 flex-shrink-0">
-
         <a href="/"
            class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all group">
-
             <span class="material-symbols-outlined group-hover:scale-110 transition-transform">
                 home
             </span>
-
             <span class="sidebar-text text-sm font-bold truncate">
                 العودة للمتجر
             </span>
         </a>
 
-        <form asp-area="Admin"
-              asp-controller="Account"
-              asp-action="Logout"
-              method="post">
-
+        <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post">
             <button type="submit"
                     class="w-full flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all group text-right">
-
                 <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">
                     logout
                 </span>
-
                 <span class="sidebar-text text-sm font-bold truncate">
                     تسجيل الخروج
                 </span>
-
             </button>
         </form>
     </div>
-
 </aside>
 
-<script id="98n77v">
+<script>
     $(document).ready(function () {
-
         const body = $('body');
         const sidebar = $('#admin-sidebar');
         const overlay = $('#sidebar-overlay');
 
         function openSidebar() {
-
             sidebar.removeClass('translate-x-full');
-
             overlay.removeClass('hidden');
-
-            setTimeout(() => {
-                overlay.removeClass('opacity-0');
-            }, 10);
-
+            setTimeout(() => { overlay.removeClass('opacity-0'); }, 10);
             body.addClass('overflow-hidden');
         }
 
         function closeSidebar() {
-
             sidebar.addClass('translate-x-full');
-
             overlay.addClass('opacity-0');
-
-            setTimeout(() => {
-                overlay.addClass('hidden');
-            }, 300);
-
+            setTimeout(() => { overlay.addClass('hidden'); }, 300);
             body.removeClass('overflow-hidden');
         }
 
         $('#sidebar-toggle').on('click', function () {
-
-            // Mobile
             if (window.innerWidth < 1024) {
-
                 openSidebar();
-            }
-
-            // Desktop
-            else {
-
+            } else {
                 body.toggleClass('sidebar-collapsed');
-
                 if (body.hasClass('sidebar-collapsed')) {
-
                     sidebar.css('width', 'var(--sidebar-collapsed-width)');
-
-                    $('.sidebar-text').hide();
-
-                    $('.sidebar-logo-full').hide();
-
+                    $('.sidebar-text, .sidebar-logo-full').hide();
                     $('.sidebar-logo-icon').show();
-
                 } else {
-
                     sidebar.css('width', 'var(--sidebar-width)');
-
-                    $('.sidebar-text').show();
-
-                    $('.sidebar-logo-full').show();
-
+                    $('.sidebar-text, .sidebar-logo-full').show();
                     $('.sidebar-logo-icon').hide();
                 }
             }
         });
 
-        $('#close-sidebar, #sidebar-overlay').on('click', function () {
-
-            closeSidebar();
-        });
+        $('#close-sidebar, #sidebar-overlay').on('click', closeSidebar);
 
         $(window).on('resize', function () {
-
             if (window.innerWidth >= 1024) {
-
                 overlay.addClass('hidden opacity-0');
-
                 body.removeClass('overflow-hidden');
-
                 sidebar.removeClass('translate-x-full');
-            }
-            else {
-
+            } else {
                 sidebar.addClass('translate-x-full');
             }
         });
-
     });
 </script>

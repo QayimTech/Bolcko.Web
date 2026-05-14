@@ -7,6 +7,7 @@ using Blocko.Persistence.Repositories.Project;
 using Blocko.Persistence.Repositories.MarketPrice;
 using Blocko.Persistence.Repositories.user;
 using Blocko.Persistence.Repositories.SEO;
+using Blocko.Persistence.Repositories;
 
 namespace Blocko.Persistence
 {

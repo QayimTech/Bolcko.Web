@@ -5,7 +5,7 @@ using Blocko.Services.Interfaces;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "AdminUser,SuperAdmin")]
+    [Authorize(Roles = "Admin,DashboardUser")]
 
     public class OrderController : Controller
     {

@@ -6,7 +6,7 @@ using Bolcko.Domain.Entities.Product.DTOs;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "AdminUser,SuperAdmin")]
+    [Authorize(Roles = "Admin,DashboardUser")]
 
     public class ProductController : Controller
     {

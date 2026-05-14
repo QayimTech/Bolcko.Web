@@ -6,8 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Services Registration (DI) ---
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddServices();
-
+builder.Services.AddServices(builder.Configuration);
 // Web Specific Services (Clean & Expressive)
 builder.Services.AddBlockoIdentitySecurity();
 builder.Services.AddBlockoLocalization();

@@ -1,18 +1,47 @@
 using Blocko.Services.Interfaces.Image;
-using System.Drawing;
-using System.Drawing.Imaging;
 
-namespace Blocko.Services.Implementations.Image
+using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace Blocko.Services.Implementations.Images
 {
     public class ImageService : IImageService
     {
-        private readonly IWebHostEnvironment _environment;
+        private readonly string _basePath;
         private readonly HttpClient _httpClient;
 
-        public ImageService(IWebHostEnvironment environment, HttpClient httpClient)
+        // ??????? ?????????: ??????? IOptions ?????? ?????????
+        public ImageService(IOptions<ImageSettings> settings, HttpClient httpClient)
         {
-            _environment = environment;
+            _basePath = settings.Value.BasePath;
             _httpClient = httpClient;
+        }
+
+        public async Task<string> SaveImageAsync(Stream fileStream, string fileName, string folderPath)
+        {
+            try
+            {
+                var uniqueFileName = GenerateUniqueFileName(fileName);
+                var localPath = Path.Combine(_basePath, folderPath, uniqueFileName);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
+
+                using (var destinationStream = new FileStream(localPath, FileMode.Create))
+                {
+                    await fileStream.CopyToAsync(destinationStream);
+                }
+
+                await CompressImageAsync(localPath);
+
+                return Path.Combine(folderPath, uniqueFileName).Replace("\\", "/");
+            }
+            catch { return string.Empty; }
         }
 
         public async Task<string> DownloadAndCompressImageAsync(string imageUrl, string folderPath)
@@ -22,8 +51,9 @@ namespace Blocko.Services.Implementations.Image
                 var response = await _httpClient.GetAsync(imageUrl);
                 response.EnsureSuccessStatusCode();
 
-                var fileName = GenerateUniqueFileName(Path.GetFileName(imageUrl) ?? "image.jpg");
-                var localPath = Path.Combine(_environment.WebRootPath, folderPath, fileName);
+                var fileName = Path.GetFileName(new Uri(imageUrl).LocalPath);
+                var uniqueFileName = GenerateUniqueFileName(fileName);
+                var localPath = Path.Combine(_basePath, folderPath, uniqueFileName);
 
                 Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
 
@@ -35,86 +65,36 @@ namespace Blocko.Services.Implementations.Image
 
                 await CompressImageAsync(localPath);
 
-                return $"/{folderPath}/{fileName}";
+                return Path.Combine(folderPath, uniqueFileName).Replace("\\", "/");
             }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        public async Task<string> SaveImageAsync(IFormFile file, string folderPath)
-        {
-            var fileName = GenerateUniqueFileName(file.FileName);
-            var localPath = Path.Combine(_environment.WebRootPath, folderPath, fileName);
-
-            Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
-
-            using (var stream = new FileStream(localPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            await CompressImageAsync(localPath);
-
-            return $"/{folderPath}/{fileName}";
+            catch { return string.Empty; }
         }
 
         public async Task<string> CompressImageAsync(string imagePath, int quality = 75)
         {
             try
             {
-                using (var image = Image.FromFile(imagePath))
+                using var image = await Image.LoadAsync(imagePath);
+                image.Mutate(x => x.Resize(new ResizeOptions
                 {
-                    var jpegEncoder = GetEncoder(ImageFormat.Jpeg);
-                    var encoderParams = new EncoderParameters(1);
-                    encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                    Mode = ResizeMode.Max,
+                    Size = new Size(1200, 1200)
+                }));
 
-                    var compressedPath = imagePath;
-                    using (var stream = new FileStream(compressedPath, FileMode.Create))
-                    {
-                        image.Save(stream, jpegEncoder, encoderParams);
-                    }
-                }
-
+                var encoder = new JpegEncoder { Quality = quality };
+                await image.SaveAsync(imagePath, encoder);
                 return imagePath;
             }
-            catch
-            {
-                return imagePath;
-            }
+            catch { return imagePath; }
         }
 
         public void DeleteImage(string imagePath)
         {
-            if (!string.IsNullOrEmpty(imagePath))
-            {
-                var fullPath = Path.Combine(_environment.WebRootPath, imagePath.TrimStart('/'));
-                if (File.Exists(fullPath))
-                {
-                    File.Delete(fullPath);
-                }
-            }
+            if (string.IsNullOrWhiteSpace(imagePath)) return;
+            var fullPath = Path.Combine(_basePath, imagePath.TrimStart('/'));
+            if (File.Exists(fullPath)) File.Delete(fullPath);
         }
 
-        public string GenerateUniqueFileName(string originalFileName)
-        {
-            var extension = Path.GetExtension(originalFileName);
-            var fileName = Path.GetFileNameWithoutExtension(originalFileName);
-            return $"{fileName}_{Guid.NewGuid():N}{extension}";
-        }
-
-        private ImageCodecInfo GetEncoder(ImageFormat format)
-        {
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            foreach (ImageCodecInfo codec in codecs)
-            {
-                if (codec.FormatID == format.Guid)
-                {
-                    return codec;
-                }
-            }
-            return null;
-        }
+        public string GenerateUniqueFileName(string originalFileName) => $"{Guid.NewGuid():N}.jpg";
     }
 }
