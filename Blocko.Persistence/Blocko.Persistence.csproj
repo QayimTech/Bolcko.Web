@@ -15,6 +15,5 @@
     </PackageReference>
   </ItemGroup><ItemGroup>
     <ProjectReference Include="..\Bolcko.Domain\Bolcko.Domain.csproj" />
-    <ProjectReference Include="..\Blocko.Services\Blocko.Services.csproj" />
   </ItemGroup>
 </Project>
