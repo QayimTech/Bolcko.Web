@@ -5,7 +5,7 @@ using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
 
-namespace Blocko.Services.Implementations.Order
+namespace Blocko.Services.Implementations.order
 {
     public class OrderService : IOrderService
     {

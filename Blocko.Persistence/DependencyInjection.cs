@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Interfaces;
 using Blocko.Persistence.Repositories.user;
+using Bolcko.Domain.Common;
+using Blocko.Persistence.Common;
 
 namespace Blocko.Persistence
 {
@@ -32,6 +34,7 @@ namespace Blocko.Persistence
             services.AddScoped<ITenderRepository, TenderRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IMarketPriceRepository, MarketPriceRepository>();
+            services.AddScoped(typeof(IPagedList<>), typeof(PagedList<>));
             return services;
         }
     }
