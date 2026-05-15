@@ -1,0 +1,74 @@
+@model Bolcko.Domain.Entities.User.User
+@{
+    ViewData["Title"] = "تعديل المستخدم";
+    string? currentRole = ViewBag.CurrentRole;
+}
+
+<section class="p-8 flex-1 text-right">
+    <div class="max-w-2xl mx-auto space-y-8">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-slate-900">تعديل المستخدم</h1>
+            <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="text-slate-500 hover:text-slate-700">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+        </div>
+
+        <div class="bg-white border border-slate-200 shadow-hard p-8">
+            <form method="post" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="FirstName" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الاسم الأول</label>
+                        <input asp-for="FirstName" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                        <span asp-validation-for="FirstName" class="text-red-500 text-xs mt-1"></span>
+                    </div>
+                    <div>
+                        <label asp-for="LastName" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الاسم الأخير</label>
+                        <input asp-for="LastName" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                        <span asp-validation-for="LastName" class="text-red-500 text-xs mt-1"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label asp-for="Email" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">البريد الإلكتروني</label>
+                    <input asp-for="Email" type="email" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                    <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="CompanyName" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">اسم الشركة (اختياري)</label>
+                        <input asp-for="CompanyName" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                    </div>
+                    <div>
+                        <label asp-for="BusinessRegistrationNumber" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">رقم التسجيل التجاري (اختياري)</label>
+                        <input asp-for="BusinessRegistrationNumber" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الدور</label>
+                    <select name="role" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all">
+                        @foreach (var role in (string[])ViewBag.Roles)
+                        {
+                            <option value="@role" @(currentRole == role ? "selected" : "")>@role</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">كلمة المرور الجديدة (اختياري - اتركها فارغة لعدم التغيير)</label>
+                    <input type="password" name="newPassword" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-1 bg-[#E8A020] text-[#1B2235] px-6 py-3 text-sm font-bold uppercase hover:brightness-110 transition-all">
+                        حفظ التغييرات
+                    </button>
+                    <a href="@Url.Action("Index", "User", new { area = "Admin" })" class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 text-sm font-bold uppercase hover:bg-slate-300 transition-all text-center">
+                        إلغاء
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

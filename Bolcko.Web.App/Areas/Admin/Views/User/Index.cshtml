@@ -1,13 +1,15 @@
 @model IEnumerable<Bolcko.Domain.Entities.User.User>
 @{
     ViewData["Title"] = "إدارة المستخدمين";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="bg-white border border-slate-200 shadow-hard">
         <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
             <h2 class="text-white font-bold text-sm uppercase tracking-widest">قائمة المستخدمين</h2>
-            <a href="@Url.Action("CreateAdminUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">إضافة Admin</a>
+            <a href="@Url.Action("CreateAdminUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">إضافة مستخدم</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-right">
@@ -30,11 +32,40 @@
                                 <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@user.UserType.ToString()</span>
                             </td>
                             <td class="px-6 py-4 text-xs">@user.RegistrationDate.ToString("yyyy/MM/dd")</td>
-                            <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">تعديل</td>
+                            <td class="px-6 py-4 flex gap-2 items-center">
+                                <a href="@Url.Action("Edit", "User", new { area = "Admin", id = user.Id })" class="text-[#E8A020] font-bold text-xs hover:underline">تعديل</a>
+                                <form asp-action="Delete" method="post" class="inline-block" onsubmit="return confirm('هل أنت متأكد من حذف هذا المستخدم؟');">
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="text-red-500 font-bold text-xs hover:underline">حذف</button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+        
+        @if (totalPages > 1)
+        {
+            <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+                <div class="text-sm text-slate-500">
+                    صفحة @currentPage من @totalPages
+                </div>
+                <div class="flex gap-2">
+                    @if (currentPage > 1)
+                    {
+                        <a href="@Url.Action("Index", "User", new { area = "Admin", page = currentPage - 1 })" class="px-4 py-2 text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all rounded">السابق</a>
+                    }
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <a href="@Url.Action("Index", "User", new { area = "Admin", page = i })" class="px-4 py-2 text-sm @(i == currentPage ? "bg-[#E8A020] text-[#1B2235]" : "bg-slate-100 text-slate-700 hover:bg-slate-200") transition-all rounded">@i</a>
+                    }
+                    @if (currentPage < totalPages)
+                    {
+                        <a href="@Url.Action("Index", "User", new { area = "Admin", page = currentPage + 1 })" class="px-4 py-2 text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all rounded">التالي</a>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </section>

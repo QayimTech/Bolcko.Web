@@ -21,6 +21,7 @@ namespace Blocko.Services.Implementations.Category
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
                 DisplayOrder = c.DisplayOrder,
+                ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -35,6 +36,7 @@ namespace Blocko.Services.Implementations.Category
                 Description = c.Description,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
+                ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -49,6 +51,7 @@ namespace Blocko.Services.Implementations.Category
                 Description = c.Description,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
+                ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -66,6 +69,7 @@ namespace Blocko.Services.Implementations.Category
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
                 DisplayOrder = category.DisplayOrder,
+                ImageUrl = category.ImageUrl,
                 ProductCount = category.Products?.Count ?? 0
             };
         }
@@ -77,7 +81,8 @@ namespace Blocko.Services.Implementations.Category
                 Name = categoryDto.Name,
                 Description = categoryDto.Description,
                 ParentCategoryId = categoryDto.ParentCategoryId,
-                DisplayOrder = categoryDto.DisplayOrder
+                DisplayOrder = categoryDto.DisplayOrder,
+                ImageUrl = categoryDto.ImageUrl
             };
             await _unitOfWork.Categories.AddAsync(category);
             await _unitOfWork.CompleteAsync();
@@ -92,6 +97,7 @@ namespace Blocko.Services.Implementations.Category
                 category.Description = categoryDto.Description;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
                 category.DisplayOrder = categoryDto.DisplayOrder;
+                category.ImageUrl = categoryDto.ImageUrl;
                 _unitOfWork.Categories.Update(category);
                 await _unitOfWork.CompleteAsync();
             }

@@ -41,10 +41,20 @@
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
                 <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
-                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                         src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
-                         onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
-                         alt="@cat.Name" />
+                    @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                    {
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                             src="@(cat.ImageUrl.StartsWith("http") ? cat.ImageUrl : "/" + cat.ImageUrl.TrimStart('/'))" 
+                             onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                             alt="@cat.Name" />
+                    }
+                    else
+                    {
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                             src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
+                             onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                             alt="@cat.Name" />
+                    }
                     <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
                     <div class="absolute bottom-6 right-6">
                         <h4 class="font-headline-md text-white">@cat.Name</h4>
