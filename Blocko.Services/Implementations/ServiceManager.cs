@@ -4,9 +4,11 @@ using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.Category;
 using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Tender;
+using Blocko.Services.Interfaces.ShoppingCart;
 using Blocko.Services.Implementations.Product;
 using Blocko.Services.Implementations.Category;
 using Blocko.Services.Implementations.Tender;
+using Blocko.Services.Implementations.shoppingCart;
 using Bolcko.Domain.Interfaces;
 using Blocko.Services.Implementations.user;
 using Blocko.Services.Implementations.order;
@@ -25,6 +27,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IOrderService> _lazyOrderService;
         private readonly Lazy<ITenderService> _lazyTenderService;
         private readonly Lazy<ISEOService> _lazySEOService;
+        private readonly Lazy<IShoppingCartService> _lazyShoppingCartService;
 
         public ServiceManager(IUnitOfWork unitOfWork)
         {
@@ -35,6 +38,7 @@ namespace Blocko.Services.Implementations
             _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork));
             _lazyTenderService = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
             _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
+            _lazyShoppingCartService = new Lazy<IShoppingCartService>(() => new ShoppingCartService(unitOfWork));
         }
 
         public IUserService UserService => _lazyUserService.Value;
@@ -44,5 +48,6 @@ namespace Blocko.Services.Implementations
         public IOrderService OrderService => _lazyOrderService.Value;
         public ITenderService TenderService => _lazyTenderService.Value;
         public ISEOService SEOService => _lazySEOService.Value;
+        public IShoppingCartService ShoppingCartService => _lazyShoppingCartService.Value;
     }
 }
