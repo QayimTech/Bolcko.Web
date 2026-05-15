@@ -50,7 +50,8 @@
                     <select name="role" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all">
                         @foreach (var role in (string[])ViewBag.Roles)
                         {
-                            <option value="@role" @(currentRole == role ? "selected" : "")>@role</option>
+                            bool isSelected = currentRole == role;
+                            <option value="@role" selected="@isSelected">@role</option>
                         }
                     </select>
                 </div>

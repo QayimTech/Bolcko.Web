@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
 
@@ -19,12 +20,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var usersQuery = _userManager.Users.OrderByDescending(u => u.RegistrationDate);
-            var totalUsers = usersQuery.Count();
+            var usersQuery = _userManager.Users.AsNoTracking().OrderByDescending(u => u.RegistrationDate);
+            var totalUsers = await usersQuery.CountAsync();
             var users = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalUsers / pageSize);
+            ViewBag.TotalItems = totalUsers;
             ViewBag.PageSize = pageSize;
 
             return View(users);
