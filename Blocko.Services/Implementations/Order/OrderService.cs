@@ -5,7 +5,7 @@ using Bolcko.Domain.Interfaces;
 using Blocko.Services.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blocko.Services.Implementations.order
+namespace Blocko.Services.Implementations.Order
 {
     public class OrderService : IOrderService
     {
