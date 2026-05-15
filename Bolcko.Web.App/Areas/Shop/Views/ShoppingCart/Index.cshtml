@@ -20,7 +20,9 @@
                         <div class="w-full md:w-48 h-48 bg-surface-variant flex-shrink-0">
                             @if (!string.IsNullOrEmpty(item.ProductImage))
                             {
-                                <img alt="@item.ProductName" class="w-full h-full object-cover" src="@item.ProductImage" onerror="this.src='https://placehold.co/400x400/e2e8f0/475569?text=@(Uri.EscapeDataString(item.ProductName))'" />
+                                <img alt="@item.ProductName" class="w-full h-full object-cover" 
+                                     src="@(item.ProductImage.StartsWith("http") ? item.ProductImage : "/" + item.ProductImage.TrimStart('/'))"
+                                     onerror="this.src='https://placehold.co/400x400/e2e8f0/475569?text=@(Uri.EscapeDataString(item.ProductName))'" />
                             }
                             else
                             {
@@ -52,9 +54,10 @@
                             <div class="mt-6 flex flex-wrap justify-between items-end">
                                 <form asp-action="UpdateItem" method="post" class="flex items-center border border-outline shadow-hard">
                                     <input type="hidden" name="itemId" value="@item.Id" />
-                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-l border-outline">+</button>
-                                    <span class="px-6 py-1 font-bold text-on-surface">@item.Quantity</span>
-                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-r border-outline">-</button>
+                                    <button type="button" data-decrement="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-l border-outline">-</button>
+                                    <input id="quantity-@item.Id" type="number" name="quantity" value="@item.Quantity" min="1" class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
+                                    <button type="button" data-increment="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-r border-outline">+</button>
+                                    <button type="submit" class="px-4 py-1 bg-primary-container text-on-primary-container font-bold hover:opacity-90 transition-opacity">تحديث</button>
                                 </form>
                                 <div class="text-left">
                                     <p class="font-bold text-xs text-outline uppercase mb-1">المجموع الفرعي</p>
@@ -137,3 +140,25 @@
         </div>
     }
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('[data-increment]').click(function() {
+                var itemId = $(this).data('increment');
+                var input = $('#quantity-' + itemId);
+                var current = parseInt(input.val());
+                input.val(current + 1);
+            });
+            
+            $('[data-decrement]').click(function() {
+                var itemId = $(this).data('decrement');
+                var input = $('#quantity-' + itemId);
+                var current = parseInt(input.val());
+                if (current > 1) {
+                    input.val(current - 1);
+                }
+            });
+        });
+    </script>
+}

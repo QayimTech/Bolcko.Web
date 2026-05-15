@@ -13,13 +13,14 @@ namespace Blocko.Services.Implementations.Category
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
             var categories = await _unitOfWork.Categories.GetAllAsync();
-            return categories.Select(c => new CategoryDto
+            return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
+                DisplayOrder = c.DisplayOrder,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -27,12 +28,13 @@ namespace Blocko.Services.Implementations.Category
         public async Task<IEnumerable<CategoryDto>> GetRootCategoriesAsync()
         {
             var categories = await _unitOfWork.Categories.GetRootCategoriesAsync();
-            return categories.Select(c => new CategoryDto
+            return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
                 ParentCategoryId = c.ParentCategoryId,
+                DisplayOrder = c.DisplayOrder,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -40,12 +42,13 @@ namespace Blocko.Services.Implementations.Category
         public async Task<IEnumerable<CategoryDto>> GetSubCategoriesAsync(int parentId)
         {
             var categories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
-            return categories.Select(c => new CategoryDto
+            return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
                 ParentCategoryId = c.ParentCategoryId,
+                DisplayOrder = c.DisplayOrder,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
@@ -62,6 +65,7 @@ namespace Blocko.Services.Implementations.Category
                 Description = category.Description,
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
+                DisplayOrder = category.DisplayOrder,
                 ProductCount = category.Products?.Count ?? 0
             };
         }
@@ -72,7 +76,8 @@ namespace Blocko.Services.Implementations.Category
             {
                 Name = categoryDto.Name,
                 Description = categoryDto.Description,
-                ParentCategoryId = categoryDto.ParentCategoryId
+                ParentCategoryId = categoryDto.ParentCategoryId,
+                DisplayOrder = categoryDto.DisplayOrder
             };
             await _unitOfWork.Categories.AddAsync(category);
             await _unitOfWork.CompleteAsync();
@@ -86,6 +91,7 @@ namespace Blocko.Services.Implementations.Category
                 category.Name = categoryDto.Name;
                 category.Description = categoryDto.Description;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
+                category.DisplayOrder = categoryDto.DisplayOrder;
                 _unitOfWork.Categories.Update(category);
                 await _unitOfWork.CompleteAsync();
             }

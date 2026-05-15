@@ -5,8 +5,7 @@ using Blocko.Services.Interfaces;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,DashboardUser")]
-
+    [Authorize(Roles = "Admin")]
     public class OrderController : Controller
     {
         private readonly IServiceManager _serviceManager;

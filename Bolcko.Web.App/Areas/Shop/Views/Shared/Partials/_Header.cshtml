@@ -59,7 +59,7 @@
             }
             <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative inline-block">
                 <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">shopping_cart</span>
-                <span class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+                @await Component.InvokeAsync("CartCount")
             </a>
         </div>
     </div>

@@ -9,6 +9,7 @@ namespace Bolcko.Domain.Entities.Catalog
         public int? ParentCategoryId { get; set; }
         public Category? ParentCategory { get; set; }
         public string? Description { get; set; }
+        public int DisplayOrder { get; set; } = 0;
 
         public ICollection<Category> SubCategories { get; set; } = new List<Category>();
         public ICollection<Bolcko.Domain.Entities.Product.Product> Products { get; set; } = new List<Bolcko.Domain.Entities.Product.Product>();

@@ -29,16 +29,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAdminUser(User user, string password)
+        public async Task<IActionResult> CreateAdminUser(User user, string password, string role = "Admin")
         {
             // We rely on Roles for authorization; keep UserType only for domain semantics.
-            user.UserType = UserType.Admin;
+            user.UserType = role == "Admin" ? UserType.Admin : UserType.DashboardUser;
             user.UserName = user.Email;
             
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, "AdminUser");
+                await _userManager.AddToRoleAsync(user, role);
                 return RedirectToAction("Index");
             }
 

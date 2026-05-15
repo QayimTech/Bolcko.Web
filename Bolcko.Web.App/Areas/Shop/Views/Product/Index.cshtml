@@ -1,124 +1,113 @@
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 @{
     ViewData["Title"] = "تفاصيل المنتج";
 }
 <main class="max-w-7xl mx-auto px-6 py-8 text-right">
-    <!-- Breadcrumbs -->
-    <nav class="flex mb-8 items-center gap-2 font-bold text-label-sm text-on-surface-variant uppercase tracking-widest">
-        <a class="hover:text-primary" href="/">الرئيسية</a>
-        <span class="material-symbols-outlined text-sm">chevron_left</span>
-        <a class="hover:text-primary" href="/Shop/Category">مواد البناء</a>
-        <span class="material-symbols-outlined text-sm">chevron_left</span>
-        <a class="hover:text-primary" href="#">الأسمنت</a>
-        <span class="material-symbols-outlined text-sm">chevron_left</span>
-        <span class="text-on-surface font-bold">أسمنت بورتلاندي</span>
-    </nav>
+    @if (Model != null)
+    {
+        <!-- Breadcrumbs -->
+        <nav class="flex mb-8 items-center gap-2 font-bold text-label-sm text-on-surface-variant uppercase tracking-widest">
+            <a class="hover:text-primary" href="/">الرئيسية</a>
+            <span class="material-symbols-outlined text-sm">chevron_left</span>
+            @if (!string.IsNullOrEmpty(Model.CategoryName))
+            {
+                <a class="hover:text-primary" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+            }
+            <span class="text-on-surface font-bold">@Model.Name</span>
+        </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <!-- Product Gallery -->
-        <div class="lg:col-span-7 space-y-6">
-            <div class="border border-outline-variant bg-white overflow-hidden shadow-hard">
-                <img alt="Portland Cement Bag" class="w-full h-[500px] object-cover" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" />
-            </div>
-            <div class="grid grid-cols-4 gap-4">
-                <div class="border-2 border-primary bg-white cursor-pointer shadow-hard">
-                    <img alt="Thumbnail 1" class="w-full h-24 object-cover" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=200" />
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- Product Gallery -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="border border-outline-variant bg-white overflow-hidden shadow-hard">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img alt="@Model.Name" class="w-full h-[500px] object-cover" 
+                             src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
+                             onerror="this.src='https://placehold.co/800x500/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                    }
+                    else
+                    {
+                        <div class="w-full h-[500px] flex items-center justify-center bg-slate-100">
+                            <span class="material-symbols-outlined text-6xl text-slate-300">image</span>
+                        </div>
+                    }
                 </div>
-                <!-- Add more thumbnails as needed -->
             </div>
-        </div>
 
-        <!-- Product Info -->
-        <div class="lg:col-span-5 flex flex-col">
-            <div class="mb-2">
-                <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 font-bold text-xs border border-outline-variant uppercase">SKU: BLK-PCM-50-HE</span>
-            </div>
-            <h1 class="font-headline-xl text-on-surface mb-1">أسمنت بورتلاندي 50 كجم</h1>
-            <p class="font-headline-md text-primary mb-6">درجة صناعية نوع I/II</p>
-            
-            <div class="bg-white border-y border-outline-variant py-6 mb-8">
-                <div class="flex items-baseline gap-4 mb-4">
-                    <span class="text-4xl font-bold text-on-surface">18.50 ر.س</span>
-                    <span class="text-xs text-on-surface-variant uppercase">للوحدة (شامل الضريبة)</span>
+            <!-- Product Info -->
+            <div class="lg:col-span-5 flex flex-col">
+                <div class="mb-2">
+                    <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 font-bold text-xs border border-outline-variant uppercase">SKU: @Model.Sku</span>
                 </div>
+                <h1 class="font-headline-xl text-on-surface mb-1">@Model.Name</h1>
                 
-                <div class="flex gap-4 items-center">
-                    <div class="flex border border-outline-variant h-12 overflow-hidden shadow-hard">
-                        <button type="button" data-quantity-btn="add" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">add</span></button>
-                        <input class="w-16 border-x border-outline-variant text-center focus:ring-0 bg-white font-bold" type="number" value="1" />
-                        <button type="button" data-quantity-btn="remove" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">remove</span></button>
+                <div class="bg-white border-y border-outline-variant py-6 mb-8">
+                    <div class="flex items-baseline gap-4 mb-4">
+                        <span class="text-4xl font-bold text-on-surface">@Model.RetailPrice.ToString("N2") ر.س</span>
+                        <span class="text-xs text-on-surface-variant uppercase">للوحدة (شامل الضريبة)</span>
                     </div>
-                    <button class="flex-1 h-12 bg-primary-container text-on-primary-container font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-hard">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        أضف إلى السلة
-                    </button>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div>
-                    <h3 class="font-bold uppercase text-on-surface-variant mb-2 border-r-4 border-primary pr-2">الوصف</h3>
-                    <p class="font-body-md text-on-surface leading-relaxed">
-                        الأسمنت البورتلاندي الخاص بنا هو مادة بناء عالية الجودة للأغراض العامة مناسبة لجميع تطبيقات الخرسانة. تم تصميمه للقوة والمتانة، ويلبي معايير ASTM C150 للأسمنت من النوع الأول والنوع الثاني. مثالي للخرسانة الإنشائية وأعمال البناء واللياسة.
-                    </p>
-                </div>
-
-                <div class="border border-outline-variant overflow-hidden shadow-hard">
-                    <div class="bg-on-surface p-2">
-                        <span class="text-white font-bold uppercase">المواصفات الفنية</span>
+                    
+                    <div class="flex gap-4 items-center">
+                        <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex gap-4 items-center flex-1">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <div class="flex border border-outline-variant h-12 overflow-hidden shadow-hard">
+                                <button type="button" data-quantity-btn="add" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">add</span></button>
+                                <input id="quantity-input" class="w-16 border-x border-outline-variant text-center focus:ring-0 bg-white font-bold" type="number" name="quantity" value="1" min="1" />
+                                <button type="button" data-quantity-btn="remove" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">remove</span></button>
+                            </div>
+                            <button type="submit" class="flex-1 h-12 bg-primary-container text-on-primary-container font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-hard">
+                                <span class="material-symbols-outlined">shopping_cart</span>
+                                أضف إلى السلة
+                            </button>
+                        </form>
                     </div>
-                    <table class="w-full text-sm">
-                        <tbody>
-                            <tr class="border-b border-outline-variant bg-surface-container-low">
-                                <td class="p-3 font-bold text-on-surface-variant w-1/3">الوزن</td>
-                                <td class="p-3 border-r border-outline-variant text-right">50 كجم</td>
-                            </tr>
-                            <tr class="border-b border-outline-variant">
-                                <td class="p-3 font-bold text-on-surface-variant">قوة الضغط</td>
-                                <td class="p-3 border-r border-outline-variant text-right">42.5 ميجا باسكال (28 يوم)</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
 
-                <!-- Bulk Quote CTA -->
-                <div class="p-6 bg-secondary text-white shadow-hard mt-4">
-                    <h4 class="font-headline-md mb-2">تشتري كميات كبيرة؟</h4>
-                    <p class="font-body-md text-secondary-fixed-dim mb-4">يمكن للمقاولين وعملاء B2B الوصول إلى أسعار خاصة للطلبات التي تزيد عن 40 وحدة.</p>
-                    <a class="inline-flex items-center gap-2 text-primary-container font-bold uppercase border-b-2 border-primary-container pb-1 hover:text-white hover:border-white transition-all" href="@Url.Action("Request", "Quote", new { area = "Shop" })">
-                        اطلب عرض سعر خاص
-                        <span class="material-symbols-outlined">arrow_back</span>
-                    </a>
+                <div class="space-y-6">
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div>
+                            <h3 class="font-bold uppercase text-on-surface-variant mb-2 border-r-4 border-primary pr-2">الوصف</h3>
+                            <p class="font-body-md text-on-surface leading-relaxed">
+                                @Model.Description
+                            </p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Related Products -->
-    <section class="mt-24">
-        <div class="flex justify-between items-end mb-8 border-b-4 border-on-surface pb-4">
-            <div>
-                <span class="font-bold text-primary uppercase">منتجات ذات صلة</span>
-                <h2 class="font-headline-lg text-on-surface">يشتريها العملاء عادة مع هذا المنتج</h2>
-            </div>
-            <a class="font-bold uppercase flex items-center gap-1 hover:text-primary transition-colors" href="/Shop/Category">
-                عرض الكتالوج <span class="material-symbols-outlined">chevron_left</span>
+    }
+    else
+    {
+        <div class="text-center py-20">
+            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">inventory</span>
+            <h2 class="font-headline-lg text-on-surface mb-2">المنتج غير موجود</h2>
+            <p class="text-on-surface-variant mb-8">عذراً، لم يتم العثور على المنتج المطلوب</p>
+            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard inline-block">
+                تصفح المنتجات
             </a>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            <!-- Related Product Card -->
-            <div class="border border-outline-variant bg-white shadow-hard flex flex-col">
-                <img alt="Concrete Sand" class="w-full h-48 object-cover border-b border-outline-variant" src="https://images.unsplash.com/photo-1516216628859-9bccecad13f7?auto=format&fit=crop&q=80&w=400" />
-                <div class="p-4 flex flex-col flex-grow">
-                    <span class="font-bold text-[10px] uppercase text-on-surface-variant mb-1">SKU: SND-012</span>
-                    <h3 class="font-bold text-on-surface mb-2">رمل خرسانة مغسول (كميات)</h3>
-                    <div class="mt-auto flex justify-between items-center">
-                        <span class="font-headline-md text-primary">45.00 ر.س/طن</span>
-                        <button class="w-10 h-10 bg-on-surface text-white flex items-center justify-center hover:bg-primary transition-colors">
-                            <span class="material-symbols-outlined">add</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    }
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const quantityInput = $('#quantity-input');
+            
+            $('[data-quantity-btn="add"]').click(function() {
+                let current = parseInt(quantityInput.val());
+                quantityInput.val(current + 1);
+            });
+            
+            $('[data-quantity-btn="remove"]').click(function() {
+                let current = parseInt(quantityInput.val());
+                if (current > 1) {
+                    quantityInput.val(current - 1);
+                }
+            });
+        });
+    </script>
+}

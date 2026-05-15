@@ -37,6 +37,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> UpdateItem(int itemId, int quantity)
         {
             string sessionId = GetSessionId();
+            if (quantity < 1)
+            {
+                return RedirectToAction(nameof(RemoveItem), new { itemId });
+            }
             await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity);
             return RedirectToAction(nameof(Index));
         }

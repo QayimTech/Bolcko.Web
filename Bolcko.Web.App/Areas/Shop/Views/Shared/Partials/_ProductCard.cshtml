@@ -5,7 +5,7 @@
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
             <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                 src="@Model.ImageUrl"
+                 src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
                  onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'"
                  alt="@Model.Name" />
         }
@@ -19,7 +19,10 @@
     </div>
     <div class="p-4 flex flex-col gap-2 flex-1">
         <h5 class="font-bold uppercase text-on-surface cursor-pointer hover:text-primary" onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'">@Model.Name</h5>
-        <p class="text-xs text-on-surface-variant line-clamp-2">@Model.Description</p>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="text-xs text-on-surface-variant line-clamp-2">@Model.Description</p>
+        }
         <div class="mt-auto pt-4">
             <div class="flex justify-between items-center">
                 <span class="font-headline-md text-primary">@Model.RetailPrice.ToString("N2") <span class="text-xs">ر.س</span></span>
