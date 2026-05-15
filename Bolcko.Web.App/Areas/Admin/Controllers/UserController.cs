@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
+using Blocko.Persistence.Common;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -24,7 +25,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var totalCount = await usersQuery.CountAsync();
             var items = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            var pagedResult = new Blocko.Services.Common.PagedList<Bolcko.Domain.Entities.User.User>(items, totalCount, page, pageSize);
+            var pagedResult = new PagedList<User>(items, totalCount, page, pageSize);
             return View(pagedResult);
         }
 

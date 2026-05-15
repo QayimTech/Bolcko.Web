@@ -1,3 +1,4 @@
+using Blocko.Persistence.Common;
 using Blocko.Services.Implementations;
 using Blocko.Services.Implementations.Category;
 using Blocko.Services.Implementations.Images;
@@ -14,6 +15,7 @@ using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.ShoppingCart;
 using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces.User;
+using Bolcko.Domain.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 // ... ???? ??? Usings
@@ -34,6 +36,7 @@ namespace Blocko.Services
             services.AddScoped<IMarketPriceService, MarketPriceService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ITenderService, TenderService>();
+            services.AddScoped<IPagedList<>>, PagedList<>>();
 
             // ??????? ?????? ????
             services.AddScoped<IImageService, ImageService>();
