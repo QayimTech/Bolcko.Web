@@ -15,6 +15,11 @@ namespace Bolcko.Web.App.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (HttpContext.Session == null)
+            {
+                return View(0);
+            }
+
             string sessionId = HttpContext.Session.GetString("CartSessionId") ?? Guid.NewGuid().ToString();
             if (HttpContext.Session.GetString("CartSessionId") == null)
             {

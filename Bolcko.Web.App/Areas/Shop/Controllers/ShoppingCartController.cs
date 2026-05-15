@@ -66,6 +66,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         private string GetSessionId()
         {
+            if (HttpContext.Session == null)
+            {
+                return Guid.NewGuid().ToString();
+            }
+
             if (HttpContext.Session.GetString("CartSessionId") == null)
             {
                 HttpContext.Session.SetString("CartSessionId", Guid.NewGuid().ToString());
