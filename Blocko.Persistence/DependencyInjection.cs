@@ -32,7 +32,6 @@ namespace Blocko.Persistence
             services.AddScoped<ITenderRepository, TenderRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IMarketPriceRepository, MarketPriceRepository>();
-
             return services;
         }
     }

@@ -1,8 +1,7 @@
-using Blocko.Persistence.Common;
 using Blocko.Services.Implementations;
 using Blocko.Services.Implementations.Category;
 using Blocko.Services.Implementations.Images;
-using Blocko.Services.Implementations.order;
+using Blocko.Services.Implementations.Order;
 using Blocko.Services.Implementations.Product;
 using Blocko.Services.Implementations.shoppingCart;
 using Blocko.Services.Implementations.Tender;
@@ -15,10 +14,8 @@ using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.ShoppingCart;
 using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces.User;
-using Bolcko.Domain.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-// ... ???? ??? Usings
 
 namespace Blocko.Services
 {
@@ -26,7 +23,6 @@ namespace Blocko.Services
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // ??? ??? ????????? ?? appsettings.json
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
             services.AddScoped<IServiceManager, ServiceManager>();
@@ -38,9 +34,7 @@ namespace Blocko.Services
             services.AddScoped<ITenderService, TenderService>();
             services.AddScoped<IPagedList<>>, PagedList<>>();
 
-            // ??????? ?????? ????
             services.AddScoped<IImageService, ImageService>();
-
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddHttpClient();
 
