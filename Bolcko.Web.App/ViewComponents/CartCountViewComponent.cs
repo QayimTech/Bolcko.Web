@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
+using System.Security.Claims;
 
 namespace Bolcko.Web.App.ViewComponents
 {
@@ -20,9 +21,18 @@ namespace Bolcko.Web.App.ViewComponents
                 HttpContext.Session.SetString("CartSessionId", sessionId);
             }
 
-            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0") : null;
-            var cart = await _serviceManager.ShoppingCartService.GetCartAsync(sessionId, userId);
+            int? userId = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                var claimsPrincipal = User as ClaimsPrincipal;
+                var nameIdentifierClaim = claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier);
+                if (nameIdentifierClaim != null && int.TryParse(nameIdentifierClaim.Value, out int id))
+                {
+                    userId = id;
+                }
+            }
 
+            var cart = await _serviceManager.ShoppingCartService.GetCartAsync(sessionId, userId);
             return View(cart.TotalItems);
         }
     }

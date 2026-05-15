@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces.ShoppingCart;
 using Bolcko.Domain.Entities.ShoppingCart.DTOs;
+using System.Security.Claims;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
@@ -17,7 +18,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Index()
         {
             string sessionId = GetSessionId();
-            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0") : null;
+            int? userId = GetUserId();
 
             var cart = await _shoppingCartService.GetCartAsync(sessionId, userId);
             return View(cart);
@@ -27,7 +28,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             string sessionId = GetSessionId();
-            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0") : null;
+            int? userId = GetUserId();
 
             await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId);
             return RedirectToAction(nameof(Index));
@@ -70,6 +71,20 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 HttpContext.Session.SetString("CartSessionId", Guid.NewGuid().ToString());
             }
             return HttpContext.Session.GetString("CartSessionId")!;
+        }
+
+        private int? GetUserId()
+        {
+            if (!User.Identity.IsAuthenticated) return null;
+
+            var claimsPrincipal = User as ClaimsPrincipal;
+            var nameIdentifierClaim = claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier);
+            if (nameIdentifierClaim != null && int.TryParse(nameIdentifierClaim.Value, out int id))
+            {
+                return id;
+            }
+
+            return null;
         }
     }
 }
