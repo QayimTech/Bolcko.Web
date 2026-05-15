@@ -14,8 +14,8 @@ namespace Bolcko.Web.App.Extensions
 
             // 1. Seed Roles
             // NOTE:
-            // - SuperAdmin: full access (Users/SEO/Everything)
-            // - AdminUser: محدود (Products/Orders/Categories)
+            // - Admin: full access (Users/SEO/Everything)
+            // - DashboardUser: محدود (Products/Orders/Categories)
             // - Customer: متجر
             string[] roles = { "Admin", "DashboardUser", "Customer" };
             foreach (var role in roles)
