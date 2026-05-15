@@ -1,4 +1,5 @@
-@model IEnumerable<Bolcko.Domain.Entities.User.User>
+@using Blocko.Services.Common
+@model IPagedList<Bolcko.Domain.Entities.User.User>
 @{
     ViewData["Title"] = "إدارة المستخدمين";
 }
@@ -11,7 +12,7 @@
         </div>
         
         @* Pagination on top as requested *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
         
         <div class="overflow-x-auto">
             <table class="w-full text-right">
@@ -25,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                    @foreach (var user in Model)
+                    @foreach (var user in Model.Items)
                     {
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 font-bold text-[#1B2235]">@user.FirstName @user.LastName</td>
@@ -48,6 +49,6 @@
         </div>
         
         @* Pagination also on bottom for better UX *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
     </div>
 </section>

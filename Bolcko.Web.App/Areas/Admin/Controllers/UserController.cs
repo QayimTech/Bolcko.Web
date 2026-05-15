@@ -21,15 +21,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var usersQuery = _userManager.Users.AsNoTracking().OrderByDescending(u => u.RegistrationDate);
-            var totalUsers = await usersQuery.CountAsync();
-            var users = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var totalCount = await usersQuery.CountAsync();
+            var items = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalUsers / pageSize);
-            ViewBag.TotalItems = totalUsers;
-            ViewBag.PageSize = pageSize;
-
-            return View(users);
+            var pagedResult = new Blocko.Services.Common.PagedList<Bolcko.Domain.Entities.User.User>(items, totalCount, page, pageSize);
+            return View(pagedResult);
         }
 
         public IActionResult CreateAdminUser()
