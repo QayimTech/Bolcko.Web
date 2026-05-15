@@ -1,16 +1,12 @@
-namespace Blocko.Services.Common
-{
-    public interface IPagedList<T>
-    {
-        IEnumerable<T> Items { get; }
-        int TotalCount { get; }
-        int PageIndex { get; }
-        int PageSize { get; }
-        int TotalPages { get; }
-        bool HasPreviousPage { get; }
-        bool HasNextPage { get; }
-    }
+﻿using Bolcko.Domain.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
+namespace Blocko.Persistence.Common
+{
     public class PagedList<T> : IPagedList<T>
     {
         public IEnumerable<T> Items { get; }

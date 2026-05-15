@@ -2,8 +2,9 @@ using Blocko.Services.Interfaces.Category;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Interfaces;
-using Blocko.Services.Common;
 using Microsoft.EntityFrameworkCore;
+using Bolcko.Domain.Common;
+using Blocko.Persistence.Common;
 
 namespace Blocko.Services.Implementations.Category
 {

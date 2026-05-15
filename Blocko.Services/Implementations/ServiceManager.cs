@@ -11,10 +11,10 @@ using Blocko.Services.Implementations.Tender;
 using Blocko.Services.Implementations.shoppingCart;
 using Bolcko.Domain.Interfaces;
 using Blocko.Services.Implementations.user;
-using Blocko.Services.Implementations.order;
 
 using Blocko.Services.Interfaces.SEO;
 using Blocko.Services.Implementations.SEO;
+using Blocko.Services.Implementations.order;
 
 namespace Blocko.Services.Implementations
 {

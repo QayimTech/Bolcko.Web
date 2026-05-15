@@ -2,10 +2,11 @@ using Blocko.Services.Interfaces.Order;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Order.DTOs;
 using Bolcko.Domain.Interfaces;
-using Blocko.Services.Common;
 using Microsoft.EntityFrameworkCore;
+using Bolcko.Domain.Common;
+using Blocko.Persistence.Common;
 
-namespace Blocko.Services.Implementations.Order
+namespace Blocko.Services.Implementations.order
 {
     public class OrderService : IOrderService
     {

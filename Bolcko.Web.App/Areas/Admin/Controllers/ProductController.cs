@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Product.DTOs;
-using Blocko.Services.Common;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {

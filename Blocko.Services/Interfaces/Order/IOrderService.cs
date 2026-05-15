@@ -1,5 +1,5 @@
 using Bolcko.Domain.Entities.Order.DTOs;
-using Blocko.Services.Common;
+using Bolcko.Domain.Common;
 
 namespace Blocko.Services.Interfaces.Order
 {

@@ -1,4 +1,5 @@
-using Blocko.Services.Common;
+using Blocko.Persistence.Common;
+using Bolcko.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Persistence.Extensions

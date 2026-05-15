@@ -1,8 +1,9 @@
+using Blocko.Persistence.Common;
 using Blocko.Services.Interfaces.Product;
+using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Domain.Interfaces;
-using Blocko.Services.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Product
