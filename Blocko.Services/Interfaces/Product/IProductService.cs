@@ -1,10 +1,12 @@
 using Bolcko.Domain.Entities.Product.DTOs;
+using Blocko.Services.Common;
 
 namespace Blocko.Services.Interfaces.Product
 {
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize);
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync();

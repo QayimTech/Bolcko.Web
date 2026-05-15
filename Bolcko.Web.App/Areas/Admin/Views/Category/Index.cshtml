@@ -1,4 +1,4 @@
-@model IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>
+@model Blocko.Services.Common.IPagedList<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>
 @{
     ViewData["Title"] = "إدارة الفئات";
 }
@@ -16,6 +16,9 @@
     </div>
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        @* Pagination on top *@
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+
         <table class="w-full text-right border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
@@ -26,7 +29,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model)
+                @foreach (var item in Model.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4">
@@ -50,7 +53,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Any())
+                @if (!Model.Items.Any())
                 {
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
@@ -60,5 +63,8 @@
                 }
             </tbody>
         </table>
+
+        @* Pagination on bottom *@
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
     </div>
 </section>

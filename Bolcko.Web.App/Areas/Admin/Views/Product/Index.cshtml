@@ -1,4 +1,4 @@
-@model IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>
+@model Blocko.Services.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>
 @{
     ViewData["Title"] = "إدارة المنتجات";
 }
@@ -16,6 +16,9 @@
     </div>
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        @* Pagination on top *@
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+
         <table class="w-full text-right border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
@@ -28,14 +31,14 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model)
+                @foreach (var item in Model.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 @if (!string.IsNullOrEmpty(item.ImageUrl))
                                 {
-                                    <img src="@item.ImageUrl" class="w-10 h-10 object-cover border border-slate-200" alt="@item.Name" />
+                                    <img src="@(item.ImageUrl.StartsWith("http") ? item.ImageUrl : "/" + item.ImageUrl.TrimStart('/'))" class="w-10 h-10 object-cover border border-slate-200" alt="@item.Name" />
                                 }
                                 else
                                 {
@@ -70,7 +73,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Any())
+                @if (!Model.Items.Any())
                 {
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
@@ -80,5 +83,8 @@
                 }
             </tbody>
         </table>
+
+        @* Pagination on bottom *@
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
     </div>
 </section>

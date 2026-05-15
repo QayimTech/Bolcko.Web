@@ -1,30 +1,15 @@
-@* 
-    Parameters (passed via ViewBag or ViewData):
-    - ViewBag.CurrentPage
-    - ViewBag.TotalPages
-    - ViewBag.TotalItems
-    - ViewBag.PageSize
-*@
+@model Blocko.Services.Common.IPagedList<object>
 
-@{
-    int currentPage = ViewBag.CurrentPage ?? 1;
-    int totalPages = ViewBag.TotalPages ?? 1;
-    int totalItems = ViewBag.TotalItems ?? 0;
-    int pageSize = ViewBag.PageSize ?? 10;
-    bool hasPreviousPage = currentPage > 1;
-    bool hasNextPage = currentPage < totalPages;
-}
-
-@if (totalPages > 1)
+@if (Model.TotalPages > 1)
 {
     <div class="flex items-center justify-between border-t border-slate-200 px-6 py-4">
         <div class="text-sm text-slate-500">
-            عرض @(((currentPage - 1) * pageSize + 1)) - @Math.Min(currentPage * pageSize, totalItems) من @totalItems
+            عرض @(((Model.PageIndex - 1) * Model.PageSize + 1)) - @Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount) من @Model.TotalCount
         </div>
         <div class="flex items-center gap-2">
-            @if (hasPreviousPage)
+            @if (Model.HasPreviousPage)
             {
-                <a href="?page=@(currentPage - 1)&pageSize=@pageSize" 
+                <a href="?page=@(Model.PageIndex - 1)&pageSize=@Model.PageSize" 
                    class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                     السابق
@@ -32,25 +17,25 @@
             }
             
             <div class="flex items-center gap-1">
-                @for (int i = 1; i <= totalPages; i++)
+                @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    if (i == currentPage - 2 || i == currentPage - 1 || i == currentPage || i == currentPage + 1 || i == currentPage + 2 || i == 1 || i == totalPages)
+                    if (i == Model.PageIndex - 2 || i == Model.PageIndex - 1 || i == Model.PageIndex || i == Model.PageIndex + 1 || i == Model.PageIndex + 2 || i == 1 || i == Model.TotalPages)
                     {
-                        <a href="?page=@i&pageSize=@pageSize" 
-                           class="@(i == currentPage ? "bg-[#E8A020] text-[#1B2235]" : "bg-slate-100 text-slate-700 hover:bg-slate-200") px-3 py-2 text-sm font-medium rounded-lg transition-all">
+                        <a href="?page=@i&pageSize=@Model.PageSize" 
+                           class="@(i == Model.PageIndex ? "bg-[#E8A020] text-[#1B2235]" : "bg-slate-100 text-slate-700 hover:bg-slate-200") px-3 py-2 text-sm font-medium rounded-lg transition-all">
                             @i
                         </a>
                     }
-                    else if (i == currentPage - 3 || i == currentPage + 3)
+                    else if (i == Model.PageIndex - 3 || i == Model.PageIndex + 3)
                     {
                         <span class="text-slate-400 px-1">...</span>
                     }
                 }
             </div>
             
-            @if (hasNextPage)
+            @if (Model.HasNextPage)
             {
-                <a href="?page=@(currentPage + 1)&pageSize=@pageSize" 
+                <a href="?page=@(Model.PageIndex + 1)&pageSize=@Model.PageSize" 
                    class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                     التالي
                     <span class="material-symbols-outlined text-sm">arrow_back</span>

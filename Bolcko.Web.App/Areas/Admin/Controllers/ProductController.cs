@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Product.DTOs;
+using Blocko.Services.Common;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -17,9 +18,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _serviceManager = serviceManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var products = await _serviceManager.ProductService.GetAllProductsAsync();
+            var products = await _serviceManager.ProductService.GetPagedProductsAsync(page, pageSize);
             return View(products);
         }
 

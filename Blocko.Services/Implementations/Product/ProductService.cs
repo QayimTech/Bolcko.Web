@@ -2,6 +2,8 @@ using Blocko.Services.Interfaces.Product;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Domain.Interfaces;
+using Blocko.Services.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Product
 {
@@ -27,6 +29,33 @@ namespace Blocko.Services.Implementations.Product
                 ImageUrl = p.ImageUrl,
                 BulkPricingAvailable = p.BulkPricingAvailable
             });
+        }
+
+        public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.Products.GetAllAsQueryable()
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.Id);
+
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var dtos = items.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name,
+                RetailPrice = p.RetailPrice,
+                StockQuantity = p.StockQuantity,
+                UnitOfMeasure = p.UnitOfMeasure,
+                Sku = p.Sku,
+                ImageUrl = p.ImageUrl,
+                BulkPricingAvailable = p.BulkPricingAvailable
+            });
+
+            return new PagedList<ProductDto>(dtos, totalCount, pageIndex, pageSize);
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)

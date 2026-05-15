@@ -23,6 +23,11 @@ namespace Blocko.Persistence.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
+        public IQueryable<T> GetAllAsQueryable()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
+
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().Where(predicate).ToListAsync();

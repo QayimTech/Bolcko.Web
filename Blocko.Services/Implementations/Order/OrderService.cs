@@ -2,6 +2,8 @@ using Blocko.Services.Interfaces.Order;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Order.DTOs;
 using Bolcko.Domain.Interfaces;
+using Blocko.Services.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.order
 {
@@ -53,6 +55,29 @@ namespace Blocko.Services.Implementations.order
                 Status = o.Status,
                 PaymentStatus = o.PaymentStatus
             });
+        }
+
+        public async Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.Orders.GetAllAsQueryable()
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate);
+
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var dtos = items.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                UserId = o.UserId,
+                UserName = o.User?.UserName,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                PaymentStatus = o.PaymentStatus
+            });
+
+            return new PagedList<OrderDto>(dtos, totalCount, pageIndex, pageSize);
         }
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id)
