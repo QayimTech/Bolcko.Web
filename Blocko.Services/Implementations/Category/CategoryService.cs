@@ -2,7 +2,6 @@ using Blocko.Services.Interfaces.Category;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
 
@@ -31,15 +30,14 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize)
         {
-            var query = _unitOfWork.Categories.GetAllAsQueryable()
-                .Include(c => c.Products)
-                .OrderBy(c => c.DisplayOrder)
-                .ThenBy(c => c.Name);
+            var pagedCategories = await _unitOfWork.Categories.GetPagedAsync(
+                pageIndex,
+                pageSize,
+                orderBy: q => q.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name),
+                includes: c => c.Products!
+            );
 
-            var totalCount = await query.CountAsync();
-            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            var dtos = items.Select(c => new CategoryDto
+            var dtos = pagedCategories.Items.Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
@@ -51,7 +49,7 @@ namespace Blocko.Services.Implementations.Category
                 ProductCount = c.Products?.Count ?? 0
             });
 
-            return new PagedList<CategoryDto>(dtos, totalCount, pageIndex, pageSize);
+            return new PagedList<CategoryDto>(dtos, pagedCategories.TotalCount, pageIndex, pageSize);
         }
 
         public async Task<IEnumerable<CategoryDto>> GetRootCategoriesAsync()

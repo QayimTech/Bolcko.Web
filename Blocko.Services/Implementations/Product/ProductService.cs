@@ -4,7 +4,6 @@ using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Product
 {
@@ -34,14 +33,14 @@ namespace Blocko.Services.Implementations.Product
 
         public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize)
         {
-            var query = _unitOfWork.Products.GetAllAsQueryable()
-                .Include(p => p.Category)
-                .OrderByDescending(p => p.Id);
+            var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
+                pageIndex,
+                pageSize,
+                orderBy: q => q.OrderByDescending(p => p.Id),
+                includes: p => p.Category!
+            );
 
-            var totalCount = await query.CountAsync();
-            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            var dtos = items.Select(p => new ProductDto
+            var dtos = pagedProducts.Items.Select(p => new ProductDto
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -56,7 +55,7 @@ namespace Blocko.Services.Implementations.Product
                 BulkPricingAvailable = p.BulkPricingAvailable
             });
 
-            return new PagedList<ProductDto>(dtos, totalCount, pageIndex, pageSize);
+            return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)

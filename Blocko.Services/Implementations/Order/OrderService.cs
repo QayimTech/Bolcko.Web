@@ -2,11 +2,10 @@ using Blocko.Services.Interfaces.Order;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Order.DTOs;
 using Bolcko.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
 
-namespace Blocko.Services.Implementations.order
+namespace Blocko.Services.Implementations.Order
 {
     public class OrderService : IOrderService
     {
@@ -60,14 +59,14 @@ namespace Blocko.Services.Implementations.order
 
         public async Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize)
         {
-            var query = _unitOfWork.Orders.GetAllAsQueryable()
-                .Include(o => o.User)
-                .OrderByDescending(o => o.OrderDate);
+            var pagedOrders = await _unitOfWork.Orders.GetPagedAsync(
+                pageIndex,
+                pageSize,
+                orderBy: q => q.OrderByDescending(o => o.OrderDate),
+                includes: o => o.User!
+            );
 
-            var totalCount = await query.CountAsync();
-            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            var dtos = items.Select(o => new OrderDto
+            var dtos = pagedOrders.Items.Select(o => new OrderDto
             {
                 Id = o.Id,
                 UserId = o.UserId,
@@ -78,7 +77,7 @@ namespace Blocko.Services.Implementations.order
                 PaymentStatus = o.PaymentStatus
             });
 
-            return new PagedList<OrderDto>(dtos, totalCount, pageIndex, pageSize);
+            return new PagedList<OrderDto>(dtos, pagedOrders.TotalCount, pageIndex, pageSize);
         }
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id)

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Bolcko.Domain.Common;
 
 namespace Bolcko.Domain.Interfaces
 {
@@ -11,5 +12,6 @@ namespace Bolcko.Domain.Interfaces
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);
+        Task<IPagedList<T>> GetPagedAsync(int pageIndex, int pageSize, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, params Expression<Func<T, object>>[] includes);
     }
 }
