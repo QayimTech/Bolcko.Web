@@ -29,7 +29,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model.Items)
+                @foreach (var item in Model.Orders.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors group">
                         <td class="px-6 py-4 font-mono text-xs font-bold text-primary">#ORD-@item.Id.ToString("D4")</td>

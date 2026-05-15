@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bolcko.Domain.Common
 {
-    public interface IPagedList<T>
+    public interface IPagedList<out T>
     {
         IEnumerable<T> Items { get; }
         int TotalCount { get; }

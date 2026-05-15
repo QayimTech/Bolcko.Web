@@ -1,6 +1,6 @@
-@using Bolcko.Domain.Common
 @using Bolcko.Domain.Entities.Catalog.DTOs
-@model IPagedList<CategoryDto>
+@using Bolcko.Web.App.Areas.Admin.Models.ViewModels
+@model CategoryIndexViewModel
 @{
     ViewData["Title"] = "إدارة الفئات";
 }
@@ -67,6 +67,6 @@
         </table>
 
         @* Pagination on bottom *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Categories" />
     </div>
 </section>

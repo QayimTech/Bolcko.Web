@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                    @foreach (var user in Model.Items)
+                    @foreach (var user in Model.Users.Items)
                     {
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 font-bold text-[#1B2235]">@user.FirstName @user.LastName</td>

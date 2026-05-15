@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Product.DTOs;
+using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,DashboardUser")]
-
+    [Authorize(Roles = "Admin, DashboardUser")]
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;
@@ -20,7 +20,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var products = await _serviceManager.ProductService.GetPagedProductsAsync(page, pageSize);
-            return View(products);
+            var viewModel = new ProductIndexViewModel
+            {
+                Products = products
+            };
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Create()

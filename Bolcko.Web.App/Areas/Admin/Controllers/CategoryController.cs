@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Catalog.DTOs;
+using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "DashboardUser,Admin")]
+    [Authorize(Roles = "Admin, DashboardUser")]
     public class CategoryController : Controller
     {
         private readonly IServiceManager _serviceManager;
@@ -19,7 +20,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var categories = await _serviceManager.CategoryService.GetPagedCategoriesAsync(page, pageSize);
-            return View(categories);
+            var viewModel = new CategoryIndexViewModel
+            {
+                Categories = categories
+            };
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Create()

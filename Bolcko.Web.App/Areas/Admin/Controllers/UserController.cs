@@ -25,8 +25,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var totalCount = await usersQuery.CountAsync();
             var items = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            var pagedResult = new PagedList<User>(items, totalCount, page, pageSize);
-            return View(pagedResult);
+            var pagedResult = new Blocko.Persistence.Common.PagedList<Bolcko.Domain.Entities.User.User>(items, totalCount, page, pageSize);
+            var viewModel = new UserIndexViewModel
+            {
+                Users = pagedResult
+            };
+            return View(viewModel);
         }
 
         public IActionResult CreateAdminUser()
