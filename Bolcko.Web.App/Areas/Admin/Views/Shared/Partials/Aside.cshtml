@@ -57,13 +57,13 @@
                                 new { Label = "لوحة التحكم", Icon = "dashboard", Controller = "Home", Action = "Index" },
                                 new { Label = "إدارة الفئات", Icon = "category", Controller = "Category", Action = "Index" },
                                 new { Label = "إدارة المنتجات", Icon = "inventory_2", Controller = "Product", Action = "Index" },
-                                };
+                                new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" },
+                                new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" }
+                            };
 
                     if (isAdmin)
                     {
-                        menuItems.Add(new { Label = "إدارة الطلبات", Icon = "shopping_bag", Controller = "Order", Action = "Index" });
                         menuItems.Add(new { Label = "إدارة المستخدمين", Icon = "manage_accounts", Controller = "User", Action = "Index" });
-                        menuItems.Add(new { Label = "إدارة SEO", Icon = "search_check", Controller = "SEO", Action = "Index" });
                     }
                 }
 

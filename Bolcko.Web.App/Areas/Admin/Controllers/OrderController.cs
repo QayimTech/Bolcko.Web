@@ -7,7 +7,7 @@ using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, DashboardUser")]
     public class OrderController : Controller
     {
         private readonly IServiceManager _serviceManager;

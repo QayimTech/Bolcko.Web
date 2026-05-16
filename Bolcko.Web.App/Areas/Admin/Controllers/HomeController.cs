@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,DashboardUser")]
+    [Authorize(Roles = "Admin, DashboardUser")]
 
     public class HomeController : Controller
     {
