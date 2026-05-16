@@ -36,6 +36,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         public IActionResult CreateAdminUser()
         {
+            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
             return View();
         }
 

@@ -1,12 +1,12 @@
 @model Bolcko.Domain.Entities.User.User
 @{
-    ViewData["Title"] = "إضافة Admin";
+    ViewData["Title"] = "إضافة مستخدم إداري";
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="max-w-2xl bg-white border border-slate-200 shadow-hard">
         <div class="bg-[#1B2235] px-6 py-4">
-            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة Admin جديد</h2>
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة مستخدم إداري جديد</h2>
         </div>
         <form asp-area="Admin" asp-controller="User" asp-action="CreateAdminUser" method="post" class="p-8 space-y-6">
             <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
@@ -23,6 +23,16 @@
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">البريد الإلكتروني</label>
                     <input type="email" name="Email" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right text-left" placeholder="example@blocko.com" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">نوع المستخدم</label>
+                    <select name="role" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right">
+                        <option value="" disabled selected>اختر نوع المستخدم</option>
+                        @foreach (var role in ViewBag.Roles)
+                        {
+                            <option value="@role">@(role == "Admin" ? "سوبر أدمن" : "أدمن داشبورد")</option>
+                        }
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">كلمة المرور</label>
