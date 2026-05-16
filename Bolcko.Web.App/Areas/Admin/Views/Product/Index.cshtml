@@ -1,6 +1,6 @@
-@using Bolcko.Domain.Common
 @using Bolcko.Domain.Entities.Product.DTOs
-@model IPagedList<ProductDto>
+@using Bolcko.Web.App.Areas.Admin.Models.ViewModels
+@model ProductIndexViewModel
 @{
     ViewData["Title"] = "إدارة المنتجات";
 }
@@ -19,7 +19,7 @@
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
         @* Pagination on top *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Products" />
 
         <table class="w-full text-right border-collapse">
             <thead>
@@ -33,7 +33,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model.Items)
+                @foreach (var item in Model.Products.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4">
@@ -75,7 +75,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Items.Any())
+                @if (!Model.Products.Items.Any())
                 {
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">

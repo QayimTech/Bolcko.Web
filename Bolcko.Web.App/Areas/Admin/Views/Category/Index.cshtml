@@ -19,7 +19,7 @@
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
         @* Pagination on top *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Categories" />
 
         <table class="w-full text-right border-collapse">
             <thead>
@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model.Items)
+                @foreach (var item in Model.Categories.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4">
@@ -55,7 +55,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Items.Any())
+                @if (!Model.Categories.Items.Any())
                 {
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">

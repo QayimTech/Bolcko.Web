@@ -1,5 +1,6 @@
-@using Bolcko.Domain.Common
-@model IPagedList<Bolcko.Domain.Entities.User.User>
+@using Bolcko.Domain.Entities.User
+@using Bolcko.Web.App.Areas.Admin.Models.ViewModels
+@model UserIndexViewModel
 @{
     ViewData["Title"] = "إدارة المستخدمين";
 }
@@ -12,7 +13,7 @@
         </div>
         
         @* Pagination on top as requested *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Users" />
         
         <div class="overflow-x-auto">
             <table class="w-full text-right">
@@ -49,6 +50,6 @@
         </div>
         
         @* Pagination also on bottom for better UX *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Users" />
     </div>
 </section>

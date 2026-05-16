@@ -1,6 +1,7 @@
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
@@ -11,9 +12,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         private readonly IServiceManager _serviceManager;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<User> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public HomeController(IServiceManager serviceManager, Microsoft.AspNetCore.Identity.UserManager<User> userManager)
+        public HomeController(IServiceManager serviceManager,UserManager<User> userManager)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
@@ -24,6 +25,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             ViewBag.UserCount = _userManager.Users.Count();
             ViewBag.ProductCount = (await _serviceManager.ProductService.GetAllProductsAsync()).Count();
             ViewBag.CategoryCount = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count();
+            
+            
+            
             return View();
         }
     }

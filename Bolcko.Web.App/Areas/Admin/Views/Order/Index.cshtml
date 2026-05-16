@@ -1,6 +1,6 @@
-@using Bolcko.Domain.Common
 @using Bolcko.Domain.Entities.Order.DTOs
-@model IPagedList<OrderDto>
+@using Bolcko.Web.App.Areas.Admin.Models.ViewModels
+@model OrderIndexViewModel
 @{
     ViewData["Title"] = "إدارة الطلبات";
 }
@@ -15,7 +15,7 @@
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-sm transition-all hover:shadow-lg">
         @* Pagination on top *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Orders" />
 
         <table class="w-full text-right border-collapse">
             <thead>
@@ -52,7 +52,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Items.Any())
+                @if (!Model.Orders.Items.Any())
                 {
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
@@ -64,6 +64,6 @@
         </table>
 
         @* Pagination on bottom *@
-        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model" />
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Orders" />
     </div>
 </section>

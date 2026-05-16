@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
 using Blocko.Persistence.Common;
+using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -25,7 +26,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var totalCount = await usersQuery.CountAsync();
             var items = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            var pagedResult = new Blocko.Persistence.Common.PagedList<Bolcko.Domain.Entities.User.User>(items, totalCount, page, pageSize);
+            var pagedResult = new PagedList<User>(items, totalCount, page, pageSize);
             var viewModel = new UserIndexViewModel
             {
                 Users = pagedResult
@@ -44,7 +45,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             // We rely on Roles for authorization; keep UserType only for domain semantics.
             user.UserType = role == "Admin" ? UserType.Admin : UserType.DashboardUser;
             user.UserName = user.Email;
-            
+
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
@@ -63,7 +64,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return NotFound();
-            
+
             ViewBag.Roles = new[] { "Admin", "DashboardUser" };
             ViewBag.CurrentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
             return View(user);
