@@ -25,9 +25,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             ViewBag.UserCount = _userManager.Users.Count();
             ViewBag.ProductCount = (await _serviceManager.ProductService.GetAllProductsAsync()).Count();
             ViewBag.CategoryCount = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count();
-            
-            
-            
             return View();
         }
     }
