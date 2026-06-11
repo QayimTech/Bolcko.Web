@@ -2,75 +2,148 @@
 @{
     ViewData["Title"] = "تفاصيل المنتج";
 }
-<main class="max-w-7xl mx-auto px-6 py-8 text-right">
+
+<main class="max-w-7xl mx-auto px-6 py-12 text-right">
     @if (Model != null)
     {
         <!-- Breadcrumbs -->
-        <nav class="flex mb-8 items-center gap-2 font-bold text-label-sm text-on-surface-variant uppercase tracking-widest">
-            <a class="hover:text-primary" href="/">الرئيسية</a>
-            <span class="material-symbols-outlined text-sm">chevron_left</span>
+        <nav class="flex items-center gap-2 mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+            <a class="hover:text-[#E8A020] transition-colors" href="/">الرئيسية</a>
+            <span class="material-symbols-outlined text-xs">chevron_left</span>
             @if (!string.IsNullOrEmpty(Model.CategoryName))
             {
-                <a class="hover:text-primary" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
-                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
+                <span class="material-symbols-outlined text-xs">chevron_left</span>
             }
-            <span class="text-on-surface font-bold">@Model.Name</span>
+            <span class="text-slate-800 font-bold">@Model.Name</span>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <!-- Product Gallery -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <!-- Product Gallery Section (7 columns) -->
             <div class="lg:col-span-7 space-y-6">
-                <div class="border border-outline-variant bg-white overflow-hidden shadow-hard">
+                <div class="border border-slate-100 bg-white rounded-3xl overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.02)] p-4 relative group">
+                    <!-- SKU Badge -->
+                    <span class="absolute top-8 right-8 bg-[#151B26] text-white font-bold px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-wider shadow-md z-10">
+                        SKU: @Model.Sku
+                    </span>
+                    
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
-                        <img alt="@Model.Name" class="w-full h-[500px] object-cover" 
-                             src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
-                             onerror="this.src='https://placehold.co/800x500/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                        var imageUrls = Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                        var firstImage = imageUrls.FirstOrDefault() ?? string.Empty;
+                        
+                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out" 
+                             src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
+                             onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                             
+                        @if (imageUrls.Length > 1)
+                        {
+                            <div class="flex flex-wrap gap-3 mt-4 justify-start">
+                                @for (int i = 0; i < imageUrls.Length; i++)
+                                {
+                                    var img = imageUrls[i];
+                                    var activeClass = i == 0 ? "border-[#E8A020] ring-1 ring-[#E8A020]" : "border-slate-100 hover:border-[#E8A020]/50";
+                                    <div class="w-20 h-20 bg-slate-50 border-2 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 thumbnail-image-box @activeClass"
+                                         data-image-url="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))">
+                                        <img src="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))" 
+                                             class="w-full h-full object-cover" 
+                                             onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
+                                             alt="Thumbnail @(i+1)" />
+                                    </div>
+                                }
+                            </div>
+                        }
                     }
                     else
                     {
-                        <div class="w-full h-[500px] flex items-center justify-center bg-slate-100">
-                            <span class="material-symbols-outlined text-6xl text-slate-300">image</span>
+                        <div class="w-full h-[550px] flex flex-col items-center justify-center bg-slate-50 rounded-2xl">
+                            <span class="material-symbols-outlined text-7xl text-slate-200">image</span>
+                            <span class="text-xs text-slate-400 mt-2 font-bold">صورة المنتج غير متوفرة</span>
                         </div>
                     }
                 </div>
             </div>
 
-            <!-- Product Info -->
-            <div class="lg:col-span-5 flex flex-col">
-                <div class="mb-2">
-                    <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 font-bold text-xs border border-outline-variant uppercase">SKU: @Model.Sku</span>
+            <!-- Product Info Section (5 columns) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                <div>
+                    @if (!string.IsNullOrEmpty(Model.CategoryName))
+                    {
+                        <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">@Model.CategoryName</span>
+                    }
+                    <h1 class="font-headline-lg text-slate-800 mt-2 mb-4 leading-snug">@Model.Name</h1>
+                    
+                    <!-- Glowing Stock Indicator -->
+                    <div class="flex items-center gap-2">
+                        @if (Model.StockQuantity > 0)
+                        {
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-emerald-600">متوفر وجاهز للشحن الفوري</span>
+                        }
+                        else
+                        {
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span class="text-xs font-bold text-rose-500">نفذ من المخزن مؤقتاً</span>
+                        }
+                    </div>
                 </div>
-                <h1 class="font-headline-xl text-on-surface mb-1">@Model.Name</h1>
                 
-                <div class="bg-white border-y border-outline-variant py-6 mb-8">
-                    <div class="flex items-baseline gap-4 mb-4">
-                        <span class="text-4xl font-bold text-on-surface">@Model.RetailPrice.ToString("N2") ر.س</span>
-                        <span class="text-xs text-on-surface-variant uppercase">للوحدة (شامل الضريبة)</span>
+                <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
+                    <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-50 pb-6">
+                        <span class="text-4xl font-extrabold text-slate-900">@Model.RetailPrice.ToString("N2")</span>
+                        <span class="text-sm font-bold text-slate-400">ر.س / @Model.UnitOfMeasure</span>
+                        <span class="text-[10px] text-slate-400 mr-2 font-medium">(شامل ضريبة القيمة المضافة)</span>
                     </div>
                     
-                    <div class="flex gap-4 items-center">
-                        <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex gap-4 items-center flex-1">
-                            <input type="hidden" name="productId" value="@Model.Id" />
-                            <div class="flex border border-outline-variant h-12 overflow-hidden shadow-hard">
-                                <button type="button" data-quantity-btn="add" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">add</span></button>
-                                <input id="quantity-input" class="w-16 border-x border-outline-variant text-center focus:ring-0 bg-white font-bold" type="number" name="quantity" value="1" min="1" />
-                                <button type="button" data-quantity-btn="remove" class="px-4 bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">remove</span></button>
+                    <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex flex-col gap-6">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">الكمية المطلوبة</label>
+                            <div class="flex gap-4 items-center">
+                                <!-- Modern Quantity Selector -->
+                                <div class="flex border border-slate-100 rounded-2xl h-14 overflow-hidden shadow-sm items-center bg-white">
+                                    <button type="button" data-quantity-btn="add" class="px-5 h-full text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm font-bold">add</span>
+                                    </button>
+                                    <input id="quantity-input" class="w-16 border-x border-slate-100 text-center focus:outline-none focus:ring-0 bg-white font-bold text-slate-800 text-base" type="number" name="quantity" value="1" min="1" />
+                                    <button type="button" data-quantity-btn="remove" class="px-5 h-full text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm font-bold">remove</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- Modern Add to Cart Button -->
+                                <button type="submit" class="flex-1 h-14 bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95">
+                                    <span class="material-symbols-outlined text-xl">shopping_cart</span>
+                                    <span class="text-sm tracking-wider">أضف إلى السلة</span>
+                                </button>
                             </div>
-                            <button type="submit" class="flex-1 h-12 bg-primary-container text-on-primary-container font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-hard">
-                                <span class="material-symbols-outlined">shopping_cart</span>
-                                أضف إلى السلة
-                            </button>
-                        </form>
+                        </div>
+                    </form>
+                    
+                    <!-- Trust Checkout Badge -->
+                    <div class="border-t border-slate-50 pt-6 mt-6 flex flex-wrap gap-4 items-center justify-between text-xs text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-slate-300">verified</span>
+                            أصلي ومضمون
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-slate-300">local_shipping</span>
+                            شحن سريع
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-slate-300">lock</span>
+                            دفع آمن 100%
+                        </span>
                     </div>
                 </div>
 
-                <div class="space-y-6">
+                <div class="space-y-6 bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div>
-                            <h3 class="font-bold uppercase text-on-surface-variant mb-2 border-r-4 border-primary pr-2">الوصف</h3>
-                            <p class="font-body-md text-on-surface leading-relaxed">
+                            <h3 class="font-bold text-slate-800 mb-3 border-r-4 border-[#E8A020] pr-3">تفاصيل ومواصفات المنتج</h3>
+                            <p class="font-body-md text-slate-500 leading-relaxed">
                                 @Model.Description
                             </p>
                         </div>
@@ -81,12 +154,13 @@
     }
     else
     {
-        <div class="text-center py-20">
-            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">inventory</span>
-            <h2 class="font-headline-lg text-on-surface mb-2">المنتج غير موجود</h2>
-            <p class="text-on-surface-variant mb-8">عذراً، لم يتم العثور على المنتج المطلوب</p>
-            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard inline-block">
-                تصفح المنتجات
+        <div class="text-center py-24 bg-white border border-slate-100 rounded-3xl max-w-lg mx-auto shadow-sm">
+            <span class="material-symbols-outlined text-7xl text-slate-200 mb-4 animate-bounce">inventory</span>
+            <h2 class="font-headline-lg text-slate-800 mb-2">المنتج غير متوفر</h2>
+            <p class="text-slate-400 mb-8 text-sm">عذراً، لم نتمكن من العثور على هذا المنتج في قاعدة البيانات حالياً.</p>
+            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" 
+               class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-xl transition-all shadow-md inline-block">
+                تصفح المنتجات البديلة
             </a>
         </div>
     }
@@ -107,6 +181,20 @@
                 if (current > 1) {
                     quantityInput.val(current - 1);
                 }
+            });
+
+            // Thumbnail Click Switch Logic with Smooth Transition
+            $('.thumbnail-image-box').click(function() {
+                $('.thumbnail-image-box').removeClass('border-[#E8A020] ring-1 ring-[#E8A020]').addClass('border-slate-100');
+                $(this).addClass('border-[#E8A020] ring-1 ring-[#E8A020]').removeClass('border-slate-100');
+                
+                const newUrl = $(this).data('image-url');
+                const mainImg = $('#main-product-image');
+                
+                mainImg.fadeOut(150, function() {
+                    mainImg.attr('src', newUrl);
+                    mainImg.fadeIn(150);
+                });
             });
         });
     </script>

@@ -1,84 +1,121 @@
 @{
     ViewData["Title"] = "الرئيسية";
 }
-<main>
-    <section class="relative bg-on-surface text-white h-[600px] flex items-center overflow-hidden">
-        <div class="absolute inset-0 opacity-40">
+
+<main class="bg-[#faf8ff] text-[#161b28]">
+    <!-- Hero Section -->
+    <section class="relative bg-[#0D111A] text-white min-h-[650px] flex items-center overflow-hidden py-16">
+        <!-- Glowing background decoration -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#E8A020]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="absolute inset-0 opacity-20 mix-blend-overlay">
             <img class="w-full h-full object-cover" 
                  src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" 
-                 onerror="this.src='https://placehold.co/1920x1080/1e293b/ffffff?text=Blocko+Construction'"
+                 onerror="this.src='https://placehold.co/1920x1080/0d111a/ffffff?text=Blocko+Construction'"
                  alt="Construction site" />
         </div>
-        <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="flex flex-col gap-8">
-                <h1 class="font-headline-xl text-white">الأساس المتين لكل مشروع عظيم.</h1>
-                <p class="font-body-lg text-secondary-fixed-dim max-w-lg">توريدات صناعية عالية الدقة للمقاولين المحترفين. من الخرسانة الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="@Url.Action("Index", "Category")" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard">
-                        تصفح المنتجات
+        
+        <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="flex flex-col gap-8 text-right">
+                <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E8A020] bg-[#E8A020]/10 px-3.5 py-1.5 rounded-full w-max">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E8A020] animate-pulse"></span>
+                    توريدات إنشائية معتمدة
+                </span>
+                <h1 class="font-headline-xl text-white leading-tight">الأساس المتين لكل مشروع عظيم.</h1>
+                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">توريدات صناعية وإنشائية عالية الدقة للمقاولين المحترفين. من الخرسانة والمواد الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</p>
+                
+                <div class="flex flex-wrap gap-4 justify-start">
+                    <a href="@Url.Action("Index", "Category")" 
+                       class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.2)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+                        <span>تصفح المنتجات</span>
+                        <span class="material-symbols-outlined text-base">arrow_back</span>
                     </a>
-                    <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="bg-[#1B2235] text-white font-bold px-8 py-4 uppercase border border-white/20 tracking-wider transition-all hover:bg-white hover:text-on-surface">
+                    <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" 
+                       class="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
                         اطلب عرض سعر
                     </a>
                 </div>
             </div>
+            
             <div class="hidden md:flex items-center justify-center">
-                <div class="bg-on-surface/80 backdrop-blur-md border border-outline/20 p-8 flex flex-col gap-4 max-w-sm text-right">
-                    <span class="text-primary-container font-bold uppercase text-xs tracking-[0.2em]">توصيل سريع</span>
-                    <h3 class="font-headline-md text-white">متوفر وجاهز للشحن.</h3>
-                    <p class="text-sm opacity-80 text-white">98% من كتالوجنا الأساسي جاهز للإرسال الفوري إلى موقع عملك.</p>
+                <!-- Premium Glassmorphic Feature Card -->
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-3xl flex flex-col gap-4 max-w-sm text-right shadow-2xl relative">
+                    <div class="absolute -top-3 -right-3 w-12 h-12 bg-[#E8A020] rounded-2xl flex items-center justify-center text-[#151B26] shadow-lg">
+                        <span class="material-symbols-outlined font-bold">local_shipping</span>
+                    </div>
+                    <span class="text-[#E8A020] font-bold uppercase text-xs tracking-wider pt-2">شحن وتوصيل فوري</span>
+                    <h3 class="font-headline-md text-white">جاهز ومتاح للشحن.</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">98% من كتالوجنا الأساسي مخزّن وجاهز للإرسال الفوري مباشرة لموقع العمل الخاص بك.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-xl max-w-7xl mx-auto px-6">
-        <div class="flex justify-between items-end mb-md">
-            <h2 class="font-headline-lg uppercase border-r-4 border-primary-container pr-4">الفئات المميزة</h2>
-            <a class="font-bold text-primary hover:underline underline-offset-4" href="@Url.Action("Index", "Category", new { area = "Shop" })">عرض الكل</a>
+    <!-- Categories Section -->
+    <section class="py-24 max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-end mb-12 text-right">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">تصفح بذكاء</span>
+                <h2 class="font-headline-lg border-r-4 border-[#E8A020] pr-4 mt-2">الفئات المميزة</h2>
+            </div>
+            <a class="font-bold text-[#E8A020] hover:underline underline-offset-4 flex items-center gap-1.5 transition-all text-sm" 
+               href="@Url.Action("Index", "Category", new { area = "Shop" })">
+                <span>عرض الكل</span>
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+            </a>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
-                <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10">
+                <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" 
+                     class="group relative aspect-square bg-white rounded-3xl overflow-hidden cursor-pointer border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    
                     @if (!string.IsNullOrEmpty(cat.ImageUrl))
                     {
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                              src="@(cat.ImageUrl.StartsWith("http") ? cat.ImageUrl : "/" + cat.ImageUrl.TrimStart('/'))" 
-                             onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                             onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
                              alt="@cat.Name" />
                     }
                     else
                     {
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                              src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
-                             onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                             onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
                              alt="@cat.Name" />
                     }
-                    <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                    <div class="absolute bottom-6 right-6">
-                        <h4 class="font-headline-md text-white">@cat.Name</h4>
-                        <span class="text-primary-container font-bold uppercase text-xs">@cat.ProductCount منتج</span>
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0D111A]/90 via-[#0D111A]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300"></div>
+                    <div class="absolute bottom-6 right-6 left-6 text-right text-white">
+                        <h4 class="font-headline-md text-white mb-1 group-hover:text-[#E8A020] transition-colors">@cat.Name</h4>
+                        <span class="text-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white/10 px-2.5 py-1 rounded-md">@cat.ProductCount منتج</span>
                     </div>
                 </div>
             }
         </div>
     </section>
 
-    <section class="bg-surface-container-low py-xl">
+    <!-- Best Sellers Section -->
+    <section class="bg-white py-24 border-y border-slate-50">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-end mb-md">
-                <h2 class="font-headline-lg uppercase border-r-4 border-primary-container pr-4">الأكثر مبيعاً</h2>
+            <div class="flex justify-between items-end mb-12 text-right">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">المفضلة لدى العملاء</span>
+                    <h2 class="font-headline-lg border-r-4 border-[#E8A020] pr-4 mt-2">المنتجات الأكثر مبيعاً</h2>
+                </div>
                 <div class="flex gap-2">
-                    <button class="w-10 h-10 border border-outline bg-white flex items-center justify-center hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                        <span class="material-symbols-outlined">chevron_right</span>
+                    <button class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
                     </button>
-                    <button class="w-10 h-10 border border-outline bg-white flex items-center justify-center hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                        <span class="material-symbols-outlined">chevron_left</span>
+                    <button class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
+                        <span class="material-symbols-outlined text-lg">chevron_left</span>
                     </button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)ViewBag.FeaturedProducts)
                 {
                     <partial name="Partials/_ProductCard" model="product" />
@@ -87,62 +124,77 @@
         </div>
     </section>
 
-    <section class="bg-surface py-xl">
+    <!-- Live Market Prices Section -->
+    <section class="bg-[#faf8ff] py-24">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-md gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4 text-right">
                 <div>
-                    <span class="text-primary font-bold uppercase text-xs tracking-widest">تحديثات حية</span>
-                    <h2 class="font-headline-lg uppercase border-r-4 border-primary-container pr-4 mt-2">أسعار السوق اليوم</h2>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        مباشر ومحدث
+                    </span>
+                    <h2 class="font-headline-lg border-r-4 border-[#E8A020] pr-4 mt-2">أسعار مواد البناء بالسوق المحلي</h2>
                 </div>
-                <p class="text-on-surface-variant text-sm max-w-md md:text-left">أسعار المواد الأساسية في السوق المحلي بالأردن (تحديث كل 24 ساعة).</p>
+                <p class="text-slate-500 text-sm max-w-md md:text-left leading-relaxed">مؤشرات يومية تقريبية لأسعار المواد الإنشائية الأساسية في السوق المحلي الأردني لدعم تسعير مشاريعكم بدقة.</p>
             </div>
             
             <div id="market-prices-container">
                 <!-- Loaded via AJAX -->
-                <div class="flex justify-center py-12">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div class="flex justify-center py-16">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E8A020]"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="bg-on-surface py-xl">
-        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-margin items-center">
-            <div class="flex flex-col gap-6 text-right">
-                <h2 class="font-headline-xl text-white">المشاريع الكبيرة تتطلب تسعيراً دقيقاً.</h2>
-                <p class="text-secondary-fixed-dim font-body-lg">قم بتوسيع مشروعك بكفاءة. تقدم بوابة B2B الخاصة بنا خصومات على الكميات، وعمليات تسليم مجدولة، وإدارة حسابات مخصصة لشركات الإنشاءات.</p>
-                <div class="flex flex-col gap-4">
+    <!-- B2B Quote Section -->
+    <section class="bg-[#0D111A] py-24 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-[#E8A020]/5 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+            <div class="flex flex-col gap-6 text-right text-white">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">حسابات الشركات والـ B2B</span>
+                <h2 class="font-headline-xl text-white">المشاريع الكبيرة تتطلب تسعيراً دقيقاً ودعماً مخصصاً.</h2>
+                <p class="text-slate-300 font-body-lg leading-relaxed">قم بتوسيع نطاق أعمالك بكفاءة. تقدم بوابة B2B وخدمات الشركات لـ LOCKO خصومات كبيرة على الكميات، عمليات تسليم مجدولة للمواقع، ومديري حسابات مخصصين لشركات المقاولات الكبرى.</p>
+                
+                <div class="flex flex-col gap-6 mt-4">
                     <div class="flex items-start gap-4">
-                        <span class="material-symbols-outlined text-primary-container mt-1">verified</span>
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#E8A020] flex-shrink-0">
+                            <span class="material-symbols-outlined text-xl">verified</span>
+                        </div>
                         <div>
-                            <h6 class="text-white font-bold">توريد مضمون</h6>
-                            <p class="text-sm text-slate-400">تأمين المخزون لمراحل المشروع طويلة الأجل.</p>
+                            <h6 class="text-white font-bold text-sm">توريد مضمون ومستدام</h6>
+                            <p class="text-xs text-slate-400 mt-1">تأمين وتخزين الكميات المطلوبة لمراحل مشروعك طويلة الأجل دون انقطاع.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-4">
-                        <span class="material-symbols-outlined text-primary-container mt-1">local_shipping</span>
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#E8A020] flex-shrink-0">
+                            <span class="material-symbols-outlined text-xl">local_shipping</span>
+                        </div>
                         <div>
-                            <h6 class="text-white font-bold">دعم لوجستي</h6>
-                            <p class="text-sm text-slate-400">جداول تسليم مخصصة لمواقع متعددة.</p>
+                            <h6 class="text-white font-bold text-sm">دعم لوجستي متقدم</h6>
+                            <p class="text-xs text-slate-400 mt-1">جداول شحن وتوصيل مخصصة متناسبة مع مواقع العمل المتعددة الخاصة بشركتك.</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white p-10 shadow-hard text-right">
-                <h3 class="font-headline-md text-on-surface mb-8 uppercase tracking-tight">اطلب عرض سعر للكميات</h3>
-                <form class="flex flex-col gap-4">
+            
+            <!-- Custom Quote Form Card -->
+            <div class="bg-white/5 backdrop-blur-md border border-white/10 p-10 rounded-3xl shadow-2xl text-right relative">
+                <h3 class="font-headline-md text-white mb-8">اطلب عرض سعر للكميات الكبيرة</h3>
+                <form class="flex flex-col gap-6">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">اسم الشركة</label>
-                        <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right" type="text" />
+                        <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">اسم الشركة</label>
+                        <input class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" placeholder="شركتك الموقرة..." />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">اسم المسؤول</label>
-                            <input class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right" type="text" />
+                            <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">اسم المسؤول</label>
+                            <input class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" placeholder="اسمك الكريم..." />
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold uppercase text-on-surface-variant mb-1">نوع المشروع</label>
-                            <select class="w-full bg-surface-container-low border border-outline-variant p-3 focus:ring-0 focus:border-primary transition-all text-right">
+                            <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">نوع المشروع</label>
+                            <select class="w-full bg-[#151B26] border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right">
                                 <option>سكني</option>
                                 <option>تجاري</option>
                                 <option>صناعي</option>
@@ -150,7 +202,8 @@
                         </div>
                     </div>
                     <div>
-                        <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase tracking-widest hover:opacity-90 transition-all">
+                        <button type="submit" 
+                                class="w-full bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold py-4 rounded-xl transition-all duration-300 transform active:scale-95 shadow-[0_6px_20px_rgba(232,160,32,0.15)]">
                             إرسال الطلب
                         </button>
                     </div>
@@ -158,36 +211,38 @@
             </div>
         </div>
     </section>
-    <section class="bg-surface py-xl border-t border-outline-variant/10">
+
+    <!-- Trust Features Section -->
+    <section class="bg-white py-20 border-t border-slate-50">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-                <div class="flex flex-col items-center text-center gap-4 group">
-                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                        <span class="material-symbols-outlined text-3xl text-primary">local_shipping</span>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+                    <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
+                        <span class="material-symbols-outlined text-2xl font-bold">local_shipping</span>
                     </div>
-                    <h4 class="font-bold text-on-surface">توصيل سريع</h4>
-                    <p class="text-xs text-on-surface-variant leading-relaxed">توصيل في نفس اليوم لجميع الطلبات داخل المنطقة الصناعية.</p>
+                    <h4 class="font-bold text-slate-800">توصيل سريع وموثوق</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">شحن مجدول وتوصيل للمنطقة الصناعية ومختلف المواقع الإنشائية بيسر وسهولة.</p>
                 </div>
-                <div class="flex flex-col items-center text-center gap-4 group">
-                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                        <span class="material-symbols-outlined text-3xl text-primary">verified_user</span>
+                <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+                    <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
+                        <span class="material-symbols-outlined text-2xl font-bold">verified_user</span>
                     </div>
-                    <h4 class="font-bold text-on-surface">ضمان الجودة</h4>
-                    <p class="text-xs text-on-surface-variant leading-relaxed">جميع موادنا مطابقة للمواصفات والمقاييس العالمية.</p>
+                    <h4 class="font-bold text-slate-800">ضمان ومطابقة المواصفات</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">كافة المنتجات لدينا مطابقة للمقاييس العالمية ومرفقة بشهادات الفحص المخبري.</p>
                 </div>
-                <div class="flex flex-col items-center text-center gap-4 group">
-                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                        <span class="material-symbols-outlined text-3xl text-primary">support_agent</span>
+                <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+                    <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
+                        <span class="material-symbols-outlined text-2xl font-bold">support_agent</span>
                     </div>
-                    <h4 class="font-bold text-on-surface">دعم فني 24/7</h4>
-                    <p class="text-xs text-on-surface-variant leading-relaxed">فريق من الخبراء جاهز للرد على استفساراتكم في أي وقت.</p>
+                    <h4 class="font-bold text-slate-800">دعم فني واستشاري 24/7</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">فريق من المستشارين والمهندسين جاهز لمساعدتكم في أي وقت لتقدير الكميات.</p>
                 </div>
-                <div class="flex flex-col items-center text-center gap-4 group">
-                    <div class="w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                        <span class="material-symbols-outlined text-3xl text-primary">payments</span>
+                <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+                    <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
+                        <span class="material-symbols-outlined text-2xl font-bold">payments</span>
                     </div>
-                    <h4 class="font-bold text-on-surface">دفع آمن</h4>
-                    <p class="text-xs text-on-surface-variant leading-relaxed">خيارات دفع متعددة وآمنة تشمل الدفع عند الاستلام.</p>
+                    <h4 class="font-bold text-slate-800">تسهيلات وخيارات دفع مرنة</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">خيارات دفع رقمية متعددة وآمنة، إضافة إلى خطوط الائتمان للمؤسسات المسجلة.</p>
                 </div>
             </div>
         </div>

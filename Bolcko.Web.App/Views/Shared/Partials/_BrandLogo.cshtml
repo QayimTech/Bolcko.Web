@@ -1,0 +1,61 @@
+@model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
+@{
+    bool isIconOnly = Model.IsIconOnly;
+    bool isAdmin = Model.IsAdmin;
+    string theme = Model.Theme ?? "light"; // "light" or "dark"
+    string height = Model.Height ?? "h-10"; // CSS height class
+
+    string darkColor = "#0F172A";
+    string lightColor = "#FFFFFF";
+    string brandColor = "#E8A020";
+    
+    string fillTextMain = theme == "dark" ? lightColor : darkColor;
+    string fillTextSubtitle = theme == "dark" ? "#94A3B8" : "#64748B";
+}
+
+<div class="flex items-center gap-3" dir="ltr">
+    @if (isIconOnly)
+    {
+        <!-- Icon Only (Collapsed Sidebar) -->
+        <svg viewBox="0 0 100 100" class="@height aspect-square w-auto" xmlns="http://www.w3.org/2000/svg">
+            <!-- Yellow Rounded Square Icon -->
+            <rect x="10" y="10" width="80" height="80" rx="20" fill="#E8A020" />
+            <!-- Stylized White Blocks inside the Icon -->
+            <rect x="28" y="26" width="12" height="48" rx="6" fill="#FFFFFF" />
+            <rect x="52" y="30" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+            <rect x="52" y="58" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+        </svg>
+    }
+    else
+    {
+        <!-- Full Logo (Header, Footer, Open Sidebar) -->
+        <svg viewBox="0 0 350 100" class="@height aspect-[3.5/1]" xmlns="http://www.w3.org/2000/svg">
+            <!-- Icon -->
+            <rect x="10" y="10" width="80" height="80" rx="20" fill="#E8A020" />
+            <rect x="28" y="26" width="12" height="48" rx="6" fill="#FFFFFF" />
+            <rect x="52" y="30" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+            <rect x="52" y="58" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+
+            <!-- Brand Text -->
+            @if (isAdmin)
+            {
+                <!-- Admin Mode -->
+                @Html.Raw($"<text x=\"110\" y=\"56\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"44\" font-weight=\"900\" fill=\"{fillTextMain}\" letter-spacing=\"1\">LOCKO</text>")
+                @Html.Raw($"<text x=\"255\" y=\"56\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"44\" font-weight=\"900\" fill=\"{brandColor}\" letter-spacing=\"1\">ADMIN</text>")
+                
+                <line x1="110" y1="72" x2="335" y2="72" stroke="#E8A020" stroke-width="4" />
+                @Html.Raw($"<text x=\"110\" y=\"88\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"12\" font-weight=\"900\" fill=\"{fillTextSubtitle}\" letter-spacing=\"2\">DASHBOARD MANAGEMENT</text>")
+            }
+            else
+            {
+                <!-- Standard/Shop Mode -->
+                @Html.Raw($"<text x=\"110\" y=\"65\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"62\" font-weight=\"900\" fill=\"{fillTextMain}\" letter-spacing=\"1\">LOCKO</text>")
+                @Html.Raw($"<text x=\"325\" y=\"30\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"{fillTextMain}\">®</text>")
+
+                <line x1="110" y1="76" x2="335" y2="76" stroke="#E8A020" stroke-width="3" />
+                @Html.Raw($"<text x=\"132\" y=\"88\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"11\" font-weight=\"900\" fill=\"{fillTextSubtitle}\" letter-spacing=\"4.5\">CONSTRUCTION SUPPLIES</text>")
+                <line x1="110" y1="94" x2="335" y2="94" stroke="#E8A020" stroke-width="1.5" />
+            }
+        </svg>
+    }
+</div>

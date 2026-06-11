@@ -1,68 +1,192 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="space-y-6">
-        <div>
-            <label asp-for="Name" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">اسم المنتج</label>
-            <input asp-for="Name" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
-            <span asp-validation-for="Name" class="text-red-500 text-xs mt-1"></span>
-        </div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 text-right">
+    <!-- Main Details Panel -->
+    <div class="lg:col-span-7 space-y-6">
+        <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 space-y-6">
+            <h3 class="text-sm font-bold text-slate-800 border-r-4 border-[#E8A020] pr-3 mb-4">تفاصيل المنتج الأساسية</h3>
 
-        <div>
-            <label asp-for="CategoryId" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الفئة</label>
-            <select asp-for="CategoryId" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all">
-                <option value="">-- اختر الفئة --</option>
-                @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
-                {
-                    <option value="@cat.Id">@cat.Name</option>
-                }
-            </select>
-            <span asp-validation-for="CategoryId" class="text-red-500 text-xs mt-1"></span>
-        </div>
+            <div>
+                <label asp-for="Name" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">اسم المنتج</label>
+                <input asp-for="Name" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium" placeholder="أدخل اسم المنتج بالكامل..." />
+                <span asp-validation-for="Name" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+            </div>
 
-        <div class="grid grid-cols-2 gap-4">
             <div>
-                <label asp-for="RetailPrice" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">السعر</label>
-                <input asp-for="RetailPrice" type="number" step="0.01" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
-                <span asp-validation-for="RetailPrice" class="text-red-500 text-xs mt-1"></span>
+                <label asp-for="CategoryId" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الفئة</label>
+                <select asp-for="CategoryId" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium appearance-none">
+                    <option value="">-- اختر الفئة المناسبة --</option>
+                    @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
+                    {
+                        <option value="@cat.Id">@cat.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="CategoryId" class="text-rose-500 text-xs mt-1 block font-bold"></span>
             </div>
-            <div>
-                <label asp-for="Sku" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">SKU</label>
-                <input asp-for="Sku" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
-                <span asp-validation-for="Sku" class="text-red-500 text-xs mt-1"></span>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label asp-for="StockQuantity" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الكمية</label>
-                <input asp-for="StockQuantity" type="number" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
-                <span asp-validation-for="StockQuantity" class="text-red-500 text-xs mt-1"></span>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="RetailPrice" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">السعر (ر.س)</label>
+                    <input asp-for="RetailPrice" type="number" step="0.01" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium" placeholder="0.00" />
+                    <span asp-validation-for="RetailPrice" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+                </div>
+                <div>
+                    <label asp-for="Sku" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">رمز SKU</label>
+                    <input asp-for="Sku" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium" placeholder="BLK-XXX" />
+                    <span asp-validation-for="Sku" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+                </div>
             </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="StockQuantity" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الكمية المتوفرة</label>
+                    <input asp-for="StockQuantity" type="number" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium" placeholder="0" />
+                    <span asp-validation-for="StockQuantity" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+                </div>
+                <div>
+                    <label asp-for="UnitOfMeasure" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">وحدة القياس</label>
+                    <input asp-for="UnitOfMeasure" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium" placeholder="مثلاً: طن، حبة، متر" />
+                    <span asp-validation-for="UnitOfMeasure" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+                </div>
+            </div>
+
             <div>
-                <label asp-for="UnitOfMeasure" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">وحدة القياس</label>
-                <input asp-for="UnitOfMeasure" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" placeholder="مثلاً: طن، حبة" />
-                <span asp-validation-for="UnitOfMeasure" class="text-red-500 text-xs mt-1"></span>
+                <label asp-for="Description" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الوصف والمواصفات</label>
+                <textarea asp-for="Description" rows="6" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-sm font-medium leading-relaxed" placeholder="أدخل تفاصيل ومواصفات المنتج الفنية هنا..."></textarea>
+                <span asp-validation-for="Description" class="text-rose-500 text-xs mt-1 block font-bold"></span>
+            </div>
+
+            <div class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <input asp-for="BulkPricingAvailable" type="checkbox" class="w-5 h-5 text-[#E8A020] border-slate-300 rounded-lg focus:ring-[#E8A020] focus:ring-2 focus:ring-offset-0 transition-all cursor-pointer" />
+                <label asp-for="BulkPricingAvailable" class="text-sm font-bold text-slate-700 cursor-pointer select-none">متاح لبيع الجملة والمشاريع الكبرى</label>
             </div>
         </div>
     </div>
 
-    <div class="space-y-6">
-        <div>
-            <label asp-for="ImageUrl" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">رابط الصورة</label>
-            <input asp-for="ImageUrl" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
-            <span asp-validation-for="ImageUrl" class="text-red-500 text-xs mt-1"></span>
-        </div>
-
-        <div>
-            <label asp-for="Description" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الوصف</label>
-            <textarea asp-for="Description" rows="5" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all"></textarea>
-            <span asp-validation-for="Description" class="text-red-500 text-xs mt-1"></span>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <input asp-for="BulkPricingAvailable" type="checkbox" class="w-4 h-4 text-[#E8A020] border-slate-300 rounded focus:ring-[#E8A020]" />
-            <label asp-for="BulkPricingAvailable" class="text-sm font-bold text-slate-700">متاح لبيع الجملة</label>
+    <!-- Media & Images Panel -->
+    <div class="lg:col-span-5 space-y-6">
+        <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 space-y-6">
+            <h3 class="text-sm font-bold text-slate-800 border-r-4 border-[#E8A020] pr-3 mb-4">معرض صور المنتج</h3>
+            <input type="hidden" asp-for="ImageUrl" id="hidden-image-urls" />
+            
+            <div id="image-urls-container" class="space-y-4">
+                <!-- Dynamic rows with previews will be generated here by jQuery -->
+            </div>
+            
+            <button type="button" id="add-image-url-btn" 
+                    class="w-full py-3 border-2 border-dashed border-[#E8A020]/30 hover:border-[#E8A020] rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#E8A020] hover:bg-[#E8A020]/5 transition-all">
+                <span class="material-symbols-outlined text-sm font-bold">add</span>
+                إضافة رابط صورة إضافية
+            </button>
+            <span asp-validation-for="ImageUrl" class="text-rose-500 text-xs mt-1 block font-bold"></span>
         </div>
     </div>
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const container = $('#image-urls-container');
+        const hiddenInput = $('#hidden-image-urls');
+        
+        // Parse existing comma-separated URLs
+        const rawVal = hiddenInput.val() ? hiddenInput.val().trim() : '';
+        const existingUrls = rawVal ? rawVal.split(',') : [];
+        
+        function renderUrlRow(url = '') {
+            const index = container.find('.image-url-row').length;
+            const uniqueId = `img-preview-${Date.now()}-${index}`;
+            
+            const row = $(`
+                <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3 image-url-row">
+                    <div class="flex gap-2 items-center">
+                        <input type="text" class="image-url-input flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/10 outline-none transition-all text-xs" 
+                               value="${url}" placeholder="رابط الصورة (مثال: https://images.unsplash.com/...) " />
+                        <button type="button" class="remove-url-btn text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-all flex items-center justify-center p-2.5 rounded-xl">
+                            <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Premium Real-time Preview Area -->
+                    <div class="preview-area border border-dashed border-slate-100 rounded-xl aspect-[16/9] bg-slate-50 flex items-center justify-center overflow-hidden relative">
+                        <img id="${uniqueId}" src="" class="w-full h-full object-cover hidden" alt="Product preview" />
+                        <div class="placeholder flex flex-col items-center justify-center text-slate-300 gap-1.5 p-4">
+                            <span class="material-symbols-outlined text-2xl">image</span>
+                            <span class="text-[10px] font-bold text-slate-400">معاينة مباشرة</span>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            const input = row.find('.image-url-input');
+            const imgElement = row.find(`#${uniqueId}`);
+            const placeholder = row.find('.placeholder');
+            
+            function updatePreview() {
+                const currentUrl = input.val().trim();
+                if (currentUrl) {
+                    let formattedUrl = currentUrl;
+                    if (!currentUrl.startsWith('http') && !currentUrl.startsWith('/')) {
+                        formattedUrl = '/' + currentUrl;
+                    }
+                    
+                    imgElement.attr('src', formattedUrl);
+                    imgElement.off('load').on('load', function() {
+                        imgElement.removeClass('hidden');
+                        placeholder.addClass('hidden');
+                    });
+                    imgElement.off('error').on('error', function() {
+                        imgElement.addClass('hidden');
+                        placeholder.removeClass('hidden');
+                        placeholder.find('span.material-symbols-outlined').text('broken_image').addClass('text-rose-300');
+                        placeholder.find('span.text-[10px]').text('رابط الصورة غير صالح أو غير مدعوم').addClass('text-rose-400');
+                    });
+                } else {
+                    imgElement.addClass('hidden');
+                    placeholder.removeClass('hidden');
+                    placeholder.find('span.material-symbols-outlined').text('image').removeClass('text-rose-300');
+                    placeholder.find('span.text-[10px]').text('معاينة مباشرة').removeClass('text-rose-400');
+                }
+            }
+            
+            row.find('.remove-url-btn').click(function() {
+                row.remove();
+                updateHiddenValue();
+            });
+            
+            input.on('input', function() {
+                updateHiddenValue();
+                updatePreview();
+            });
+            
+            container.append(row);
+            
+            // Trigger initial preview if URL exists
+            if (url) {
+                updatePreview();
+            }
+        }
+        
+        function updateHiddenValue() {
+            const urls = [];
+            container.find('.image-url-input').each(function() {
+                const val = $(this).val().trim();
+                if (val) {
+                    urls.push(val.replace(/,/g, ''));
+                }
+            });
+            hiddenInput.val(urls.join(','));
+        }
+        
+        if (existingUrls.length > 0) {
+            existingUrls.forEach(url => renderUrlRow(url));
+        } else {
+            renderUrlRow(); // Show one empty row by default
+        }
+        
+        $('#add-image-url-btn').click(function() {
+            renderUrlRow();
+        });
+    });
+</script>
+

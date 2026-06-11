@@ -5,42 +5,49 @@
     ViewData["Title"] = isRoot ? "كافة الفئات" : (category?.Name ?? "الفئة");
 }
 
-<main class="max-w-7xl mx-auto px-6 py-8 text-right">
+<main class="max-w-7xl mx-auto px-6 py-12 text-right">
     <!-- Breadcrumbs -->
-    <nav class="flex items-center gap-2 mb-8 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">
-        <a class="hover:text-primary transition-colors" href="/">الرئيسية</a>
-        <span class="material-symbols-outlined text-[14px]">chevron_left</span>
-        <span class="text-on-surface font-bold">@ViewData["Title"]</span>
+    <nav class="flex items-center gap-2 mb-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+        <a class="hover:text-[#E8A020] transition-colors" href="/">الرئيسية</a>
+        <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <span class="text-slate-800 font-bold">@ViewData["Title"]</span>
     </nav>
 
-    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+    <div class="flex flex-col lg:flex-row-reverse gap-12 items-start">
         @if (isRoot)
         {
             <!-- Root Categories Grid -->
-            <div class="flex-1">
-                <h1 class="font-headline-lg text-on-surface mb-8">تصفح الفئات</h1>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <div class="flex-grow w-full animate-fade-in">
+                <div class="mb-10 text-right">
+                    <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">مجموعات التوريد</span>
+                    <h1 class="font-headline-lg text-slate-800 mt-2">تصفح فئات المواد الإنشائية</h1>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)Model)
                     {
-                        <div onclick="location.href='@Url.Action("Index", new { id = cat.Id })'" class="group relative aspect-square bg-surface-container overflow-hidden cursor-pointer border border-outline-variant/10 shadow-hard">
+                        <div onclick="location.href='@Url.Action("Index", new { id = cat.Id })'" 
+                             class="group relative aspect-square bg-white rounded-3xl overflow-hidden cursor-pointer border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                            
                             @if (!string.IsNullOrEmpty(cat.ImageUrl))
                             {
-                                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                                      src="@(cat.ImageUrl.StartsWith("http") ? cat.ImageUrl : "/" + cat.ImageUrl.TrimStart('/'))" 
-                                     onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                                     onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
                                      alt="@cat.Name" />
                             }
                             else
                             {
-                                <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                                      src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
-                                     onerror="this.src='https://placehold.co/800x800/e2e8f0/475569?text=@(Uri.EscapeDataString(cat.Name))'"
+                                     onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
                                      alt="@cat.Name" />
                             }
-                            <div class="absolute inset-0 bg-gradient-to-t from-on-surface to-transparent opacity-60"></div>
-                            <div class="absolute bottom-6 right-6">
-                                <h4 class="font-headline-md text-white">@cat.Name</h4>
-                                <span class="text-primary-container font-bold uppercase text-xs">@cat.ProductCount منتج</span>
+                            
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#0D111A]/90 via-[#0D111A]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300"></div>
+                            <div class="absolute bottom-6 right-6 left-6 text-right text-white">
+                                <h4 class="font-headline-md text-white mb-1 group-hover:text-[#E8A020] transition-colors">@cat.Name</h4>
+                                <span class="text-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white/10 px-2.5 py-1 rounded-md">@cat.ProductCount منتج</span>
                             </div>
                         </div>
                     }
@@ -50,28 +57,31 @@
         else
         {
             <!-- Sidebar Filters -->
-            <aside class="w-full lg:w-64 flex-shrink-0 space-y-8">
-                <div class="border border-outline-variant p-md bg-white shadow-hard">
-                    <h3 class="font-bold text-on-surface uppercase mb-4 flex items-center justify-between">
-                        الفلاتر
-                        <span class="material-symbols-outlined text-sm">filter_list</span>
+            <aside class="w-full lg:w-72 flex-shrink-0 space-y-6">
+                <div class="border border-slate-100 p-6 rounded-3xl bg-white shadow-[0_4px_25px_rgba(0,0,0,0.015)]">
+                    <h3 class="font-bold text-slate-800 text-sm uppercase mb-4 flex items-center justify-between border-b border-slate-50 pb-4">
+                        تصفية الفئات
+                        <span class="material-symbols-outlined text-slate-400 text-lg">filter_list</span>
                     </h3>
+                    
                     <!-- Sub-categories -->
-                    <div class="mb-8">
-                        <h4 class="font-bold text-secondary mb-3 uppercase text-[11px]">الفئات الفرعية</h4>
-                        <div class="space-y-2">
+                    <div>
+                        <h4 class="font-bold text-[#E8A020] mb-3 uppercase text-[10px] tracking-wider">الفئات الفرعية المتاحة</h4>
+                        <div class="space-y-1.5">
                             @if (ViewBag.SubCategories != null && ((IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.SubCategories).Any())
                             {
                                 @foreach (var subCat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.SubCategories)
                                 {
-                                    <a href="@Url.Action("Index", new { id = subCat.Id })" class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors rounded">
-                                        @subCat.Name <span class="text-xs text-outline-variant">(@subCat.ProductCount)</span>
+                                    <a href="@Url.Action("Index", new { id = subCat.Id })" 
+                                       class="flex justify-between items-center px-3 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-[#E8A020] rounded-xl transition-all duration-200">
+                                        <span>@subCat.Name</span>
+                                        <span class="text-[10px] font-bold bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full group-hover:bg-[#E8A020]/10 group-hover:text-[#E8A020]">@subCat.ProductCount</span>
                                     </a>
                                 }
                             }
                             else
                             {
-                                <p class="text-xs text-slate-400 italic">لا توجد فئات فرعية</p>
+                                <p class="text-xs text-slate-400 italic py-2">لا توجد فئات فرعية مخصصة</p>
                             }
                         </div>
                     </div>
@@ -79,23 +89,26 @@
             </aside>
 
             <!-- Product Grid -->
-            <div class="flex-1">
-                <div class="flex justify-between items-end mb-6">
+            <div class="flex-grow w-full">
+                <div class="flex justify-between items-end mb-8 border-b border-slate-50 pb-6 text-right">
                     <div>
-                        <h1 class="font-headline-lg text-on-surface">@category?.Name</h1>
-                        <p class="text-on-surface-variant text-body-md mt-1">@(((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Count()) منتج متاح</p>
+                        <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">تصفح منتجات الفئة</span>
+                        <h1 class="font-headline-lg text-slate-800 mt-2">@category?.Name</h1>
+                        <p class="text-slate-400 text-xs mt-1">@(((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Count()) منتج متاح للطلب</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-gutter">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                     @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model)
                     {
                         <partial name="Partials/_ProductCard" model="product" />
                     }
+                    
                     @if (!((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Any())
                     {
-                        <div class="col-span-3 py-20 text-center text-slate-400 italic">
-                            لا توجد منتجات في هذه الفئة حالياً
+                        <div class="col-span-3 py-24 text-center bg-white border border-slate-100 rounded-3xl text-slate-400 italic shadow-sm">
+                            <span class="material-symbols-outlined text-5xl mb-3 text-slate-300">inventory_2</span>
+                            <p class="text-xs">عذراً، لا توجد منتجات مسجلة في هذه الفئة حالياً</p>
                         </div>
                     }
                 </div>

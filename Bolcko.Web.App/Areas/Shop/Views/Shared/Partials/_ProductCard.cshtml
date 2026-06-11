@@ -1,41 +1,81 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
-<div class="bg-white border border-outline-variant/30 flex flex-col shadow-hard group text-right h-full transition-all hover:border-primary-container">
-    <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" class="aspect-[4/3] bg-surface-container-highest relative overflow-hidden cursor-pointer">
+<div class="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)] group text-right h-full transition-all duration-300 hover:border-[#E8A020]/30 hover:shadow-[0_12px_30px_rgba(232,160,32,0.05)] hover:-translate-y-1.5 relative">
+    
+    <!-- Image Gallery Wrapper -->
+    <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" 
+         class="aspect-[4/3] bg-slate-50 relative overflow-hidden rounded-2xl cursor-pointer">
+        
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
         {
-            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                  src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
-                 onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.Name))'"
+                 onerror="this.src='https://placehold.co/600x400/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'"
                  alt="@Model.Name" />
         }
         else
         {
-            <div class="w-full h-full flex items-center justify-center bg-slate-100">
+            <div class="w-full h-full flex flex-col items-center justify-center bg-slate-50">
                 <span class="material-symbols-outlined text-4xl text-slate-300">image</span>
             </div>
         }
-        <span class="absolute top-4 right-4 bg-on-surface text-white font-bold px-2 py-1 text-[10px] uppercase">SKU: @Model.Sku</span>
+        
+        <!-- Floating SKU badge -->
+        <span class="absolute top-3 right-3 bg-[#151B26] text-white/95 font-bold px-2.5 py-1 rounded-xl text-[9px] uppercase tracking-wider shadow-sm">
+            SKU: @Model.Sku
+        </span>
     </div>
-    <div class="p-4 flex flex-col gap-2 flex-1">
-        <h5 class="font-bold uppercase text-on-surface cursor-pointer hover:text-primary" onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'">@Model.Name</h5>
+
+    <!-- Product Text Content -->
+    <div class="pt-4 flex flex-col flex-1">
+        <!-- Category Tag -->
+        @if (!string.IsNullOrEmpty(Model.CategoryName))
+        {
+            <span class="text-[10px] font-bold text-[#E8A020] uppercase tracking-widest mb-1">@Model.CategoryName</span>
+        }
+        
+        <!-- Product Title -->
+        <h5 class="font-bold text-base text-slate-800 cursor-pointer hover:text-[#E8A020] transition-colors line-clamp-1 mb-2"
+            onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'">
+            @Model.Name
+        </h5>
+        
+        <!-- Description -->
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="text-xs text-on-surface-variant line-clamp-2">@Model.Description</p>
+            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">@Model.Description</p>
         }
-        <div class="mt-auto pt-4">
-            <div class="flex justify-between items-center">
-                <span class="font-headline-md text-primary">@Model.RetailPrice.ToString("N2") <span class="text-xs">ر.س</span></span>
-                <span class="text-[10px] font-bold @(Model.StockQuantity > 0 ? "text-success" : "text-error") uppercase">
-                    @(Model.StockQuantity > 0 ? "متوفر" : "نفذ من المخزون")
+        
+        <!-- Bottom Pricing and Add to Cart Section -->
+        <div class="mt-auto">
+            <div class="flex justify-between items-center border-t border-slate-50 pt-4 mb-4">
+                <span class="font-bold text-lg text-slate-900">
+                    @Model.RetailPrice.ToString("N2") <span class="text-[10px] font-medium text-slate-400">ر.س</span>
                 </span>
+                
+                <!-- Glowing Stock Indicator -->
+                <div class="flex items-center gap-1.5">
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-emerald-600">متوفر</span>
+                    }
+                    else
+                    {
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        <span class="text-[10px] font-bold text-rose-500">نفذ</span>
+                    }
+                </div>
             </div>
-            <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="mt-4">
+            
+            <!-- Add to Cart Form -->
+            <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post">
                 <input type="hidden" name="productId" value="@Model.Id" />
                 <input type="hidden" name="quantity" value="1" />
-                <button type="submit" class="w-full bg-primary-container text-on-primary-container font-bold py-3 uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:opacity-80 hover:bg-primary-container/90">
+                <button type="submit" 
+                        class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                    أضف إلى السلة
+                    <span class="text-xs tracking-wider">أضف إلى السلة</span>
                 </button>
             </form>
         </div>

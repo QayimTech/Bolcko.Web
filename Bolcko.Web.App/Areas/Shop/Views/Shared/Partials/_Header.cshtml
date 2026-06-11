@@ -2,63 +2,64 @@
 @using Bolcko.Web.App
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 
-<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
-    <div class="flex justify-between items-center w-full px-6 py-3 max-w-7xl mx-auto">
+<header class="bg-[#151B26]/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
+    <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
         <div class="flex items-center gap-8">
-            <a href="/" class="flex items-center gap-2">
-                <img src="~/images/logo.svg" alt="Blocko Logo" class="h-10 w-auto" />
+            <a href="/" class="flex items-center gap-2 text-white hover:opacity-90 transition-opacity">
+                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-10")' />
             </a>
             <nav class="hidden md:flex gap-6 items-center font-medium text-sm">
-                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
-                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">المشاريع</a>
-                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="@Url.Action("AboutUs","Home")">من نحن</a>
-                <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">اتصل بنا</a>
+                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
+                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="#">المشاريع</a>
+                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("AboutUs","Home")">من نحن</a>
+                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="#">اتصل بنا</a>
             </nav>
         </div>
         <div class="flex-1 max-w-md mx-8 hidden lg:block">
             <div class="relative group">
-                <input class="w-full bg-surface-container-low border border-outline-variant py-2 pr-10 pl-4 focus:ring-0 focus:border-primary-container text-body-md" placeholder="بحث عن مواد البناء..." type="text" />
-                <span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant">search</span>
+                <input class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pe-4 ps-10 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] focus:bg-white/10 transition-all text-body-md text-start" placeholder="بحث عن مواد البناء..." type="text" />
+                <span class="material-symbols-outlined absolute start-3 top-3 text-slate-400 group-focus-within:text-[#E8A020] transition-colors">search</span>
             </div>
         </div>
         <div class="flex items-center gap-4">
             <!-- Language Switcher -->
-            <div class="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4 ml-4">
+            <div class="flex items-center gap-2 border-e border-white/10 pe-4 me-4">
                 <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2">
-                    <button type="submit" name="culture" value="ar" class="text-[10px] font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-primary" : "text-slate-400 hover:text-slate-600")">AR</button>
-                    <span class="text-slate-300 text-[10px]">|</span>
-                    <button type="submit" name="culture" value="en" class="text-[10px] font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-primary" : "text-slate-400 hover:text-slate-600")">EN</button>
+                    <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">AR</button>
+                    <span class="text-white/20 text-xs">|</span>
+                    <button type="submit" name="culture" value="en" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">EN</button>
                 </form>
             </div>
 
             @if (User.Identity.IsAuthenticated)
             {
                 <div class="relative group">
-                    <button class="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+                    <button class="flex items-center gap-2 p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors">
+                        <span class="material-symbols-outlined text-slate-300">person</span>
                         <span class="text-sm font-medium hidden md:block">@User.Identity.Name</span>
+                        <span class="material-symbols-outlined text-xs">expand_more</span>
                     </button>
-                    <div class="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">لوحة التحكم</a>
+                    <div class="absolute end-0 top-full mt-2 w-48 bg-[#1B2235] border border-white/10 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden z-50">
+                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="block px-4 py-3 text-sm text-slate-200 hover:bg-white/5 transition-colors text-start">لوحة التحكم</a>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">لوحة الإدارة</a>
+                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="block px-4 py-3 text-sm text-slate-200 hover:bg-white/5 transition-colors text-start border-t border-white/5">لوحة الإدارة</a>
                         }
-                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-slate-200 dark:border-slate-700">
-                            <button type="submit" class="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">تسجيل الخروج</button>
+                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/10">
+                            <button type="submit" class="w-full text-start px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors">تسجيل الخروج</button>
                         </form>
                     </div>
                 </div>
             }
             else
             {
-                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
-                    <span class="text-xs font-bold mr-1">@SharedLocalizer["Login"]</span>
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="flex items-center gap-1.5 p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors">
+                    <span class="material-symbols-outlined text-slate-300">person</span>
+                    <span class="text-xs font-bold">@SharedLocalizer["Login"]</span>
                 </a>
             }
-            <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative inline-block">
-                <span class="material-symbols-outlined text-slate-600 dark:text-slate-400">shopping_cart</span>
+            <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors relative inline-block">
+                <span class="material-symbols-outlined text-slate-300">shopping_cart</span>
                 @await Component.InvokeAsync("CartCount")
             </a>
         </div>
