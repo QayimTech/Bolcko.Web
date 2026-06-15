@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title - لوحة تحكم Blocko</title>
+    <title>@ViewBag.Title - @L["BlockoAdminPanel"]</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,91 +33,58 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-               $(document).ready(function () {
+        $(function () {
+            const $body    = $('body');
+            const $sidebar = $('#admin-sidebar');
+            const $overlay = $('#sidebar-overlay');
+            const isRTL    = $('html').attr('dir') === 'rtl';
 
-            const body = $('body');
-            const sidebar = $('#admin-sidebar');
-            const overlay = $('#sidebar-overlay');
+            // The class that visually hides the sidebar off-screen
+            const hideClass = isRTL ? 'translate-x-full' : '-translate-x-full';
 
-            function toggleSidebar() {
+            function openSidebar() {
+                $sidebar.removeClass(hideClass);
+                $overlay.removeClass('hidden');
+                setTimeout(() => $overlay.removeClass('opacity-0'), 10);
+                $body.addClass('overflow-hidden');
+            }
 
+            function closeSidebar() {
+                $sidebar.addClass(hideClass);
+                $overlay.addClass('opacity-0');
+                setTimeout(() => $overlay.addClass('hidden'), 300);
+                $body.removeClass('overflow-hidden');
+            }
+
+            $('#sidebar-toggle').on('click', function () {
                 if (window.innerWidth < 1024) {
-
-                    sidebar.toggleClass('translate-x-full');
-
-                    overlay.toggleClass('opacity-0 pointer-events-none');
-
-                    body.toggleClass('overflow-hidden');
-
-                }
-                else {
-
-                    body.toggleClass('sidebar-collapsed');
-
-                    if (body.hasClass('sidebar-collapsed')) {
-
-                        sidebar.css('width', 'var(--sidebar-collapsed-width)');
-
-                        $('.sidebar-text').fadeOut(100);
-
-                        $('.sidebar-logo-full').hide();
-
+                    $sidebar.hasClass(hideClass) ? openSidebar() : closeSidebar();
+                } else {
+                    $body.toggleClass('sidebar-collapsed');
+                    if ($body.hasClass('sidebar-collapsed')) {
+                        $sidebar.css('width', 'var(--sidebar-collapsed-width)');
+                        $('.sidebar-text, .sidebar-logo-full').hide();
                         $('.sidebar-logo-icon').show();
-
                     } else {
-
-                        sidebar.css('width', 'var(--sidebar-width)');
-
-                        $('.sidebar-text').delay(100).fadeIn(200);
-
-                        $('.sidebar-logo-full').show();
-
+                        $sidebar.css('width', 'var(--sidebar-width)');
+                        $('.sidebar-text, .sidebar-logo-full').show();
                         $('.sidebar-logo-icon').hide();
                     }
                 }
-            }
-
-            $('#sidebar-toggle, #close-sidebar').on('click', function (e) {
-
-                e.stopPropagation();
-
-                toggleSidebar();
             });
 
-            overlay.on('click', function () {
+            $('#close-sidebar, #sidebar-overlay').on('click', closeSidebar);
 
-                if (window.innerWidth < 1024) {
-
-                    toggleSidebar();
-                }
-            });
-
-            sidebar.on('click', function (e) {
-
-                e.stopPropagation();
-            });
-
-
-            $(window).off('resize').on('resize', function () {
-
+            $(window).on('resize', function () {
                 if (window.innerWidth >= 1024) {
-
-                    overlay.addClass('opacity-0 pointer-events-none');
-
-                    body.removeClass('overflow-hidden');
-
-                    sidebar.removeClass('translate-x-full');
-
+                    $overlay.addClass('hidden opacity-0');
+                    $body.removeClass('overflow-hidden');
+                    $sidebar.removeClass(hideClass);
+                    $sidebar.css('width', '');
                 } else {
-
-                    sidebar.addClass('translate-x-full');
-
-                    body.removeClass('sidebar-collapsed');
-
-                    sidebar.css('width', '');
+                    if (!$sidebar.hasClass(hideClass)) closeSidebar();
                 }
             });
-
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

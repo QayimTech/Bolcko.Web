@@ -28,6 +28,8 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.SEO.SEOMetadata> SEOMetadata { get; set; }
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; set; }  
+        public DbSet<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -77,6 +79,32 @@ namespace Blocko.Persistence
                     .WithMany()
                     .HasForeignKey(d => d.BillingAddressId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // OrderItem configuration
+            modelBuilder.Entity<Bolcko.Domain.Entities.Order.OrderItem>(entity =>
+            {
+                entity.Property(e => e.UnitPrice).HasPrecision(18, 2);
+                entity.Property(e => e.Subtotal).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Items)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Product)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ProductImage configuration
+            modelBuilder.Entity<Bolcko.Domain.Entities.Product.ProductImage>(entity =>
+            {
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.Images)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Tender configuration

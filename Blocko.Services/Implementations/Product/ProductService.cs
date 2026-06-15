@@ -60,7 +60,7 @@ namespace Blocko.Services.Implementations.Product
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            var p = await _unitOfWork.Products.GetByIdAsync(id);
+            var p = await _unitOfWork.Products.GetByIdWithImagesAsync(id);
             if (p == null) return null;
             return new ProductDto
             {
@@ -74,7 +74,15 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                Images = p.Images.Select(img => new ProductImageDto
+                {
+                    Id = img.Id,
+                    Url = img.Url,
+                    AltText = img.AltText,
+                    Caption = img.Caption,
+                    DisplayOrder = img.DisplayOrder
+                }).ToList()
             };
         }
 
@@ -128,15 +136,22 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = productDto.UnitOfMeasure,
                 Sku = productDto.Sku,
                 ImageUrl = productDto.ImageUrl,
-                BulkPricingAvailable = productDto.BulkPricingAvailable
+                BulkPricingAvailable = productDto.BulkPricingAvailable,
+                Images = productDto.Images.Select(img => new ProductImage
+                {
+                    Url = img.Url,
+                    AltText = img.AltText ?? productDto.Name,
+                    Caption = img.Caption,
+                    DisplayOrder = img.DisplayOrder
+                }).ToList()
             };
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateProductAsync(ProductDto productDto)
+        public async Task UpdateProductAsync(ProductDto productDto, List<int>? deleteImageIds = null)
         {
-            var product = await _unitOfWork.Products.GetByIdAsync(productDto.Id);
+            var product = await _unitOfWork.Products.GetByIdWithImagesAsync(productDto.Id);
             if (product != null)
             {
                 product.Name = productDto.Name;
@@ -146,8 +161,44 @@ namespace Blocko.Services.Implementations.Product
                 product.StockQuantity = productDto.StockQuantity;
                 product.UnitOfMeasure = productDto.UnitOfMeasure;
                 product.Sku = productDto.Sku;
-                product.ImageUrl = productDto.ImageUrl;
                 product.BulkPricingAvailable = productDto.BulkPricingAvailable;
+
+                // Handle deletions
+                if (deleteImageIds != null && deleteImageIds.Any())
+                {
+                    var imagesToRemove = product.Images.Where(img => deleteImageIds.Contains(img.Id)).ToList();
+                    foreach (var img in imagesToRemove)
+                    {
+                        product.Images.Remove(img);
+                    }
+                }
+
+                // Add new images
+                if (productDto.Images != null && productDto.Images.Any())
+                {
+                    int nextOrder = product.Images.Any() ? product.Images.Max(img => img.DisplayOrder) + 1 : 1;
+                    foreach (var imgDto in productDto.Images)
+                    {
+                        product.Images.Add(new ProductImage
+                        {
+                            Url = imgDto.Url,
+                            AltText = imgDto.AltText ?? productDto.Name,
+                            Caption = imgDto.Caption,
+                            DisplayOrder = nextOrder++
+                        });
+                    }
+                }
+
+                // Update ImageUrl
+                if (product.Images.Any())
+                {
+                    product.ImageUrl = product.Images.OrderBy(img => img.DisplayOrder).First().Url;
+                }
+                else
+                {
+                    product.ImageUrl = null;
+                }
+
                 _unitOfWork.Products.Update(product);
                 await _unitOfWork.CompleteAsync();
             }

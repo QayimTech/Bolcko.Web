@@ -17,5 +17,6 @@ namespace Bolcko.Domain.Entities.Order
         public Address BillingAddress { get; set; } = null!;
         public string? PaymentMethod { get; set; }
         public string? PaymentStatus { get; set; }
+        public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

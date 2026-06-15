@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -11,10 +15,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(IServiceManager serviceManager)
+        public ProductController(IServiceManager serviceManager, IWebHostEnvironment webHostEnvironment)
         {
             _serviceManager = serviceManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -35,10 +41,32 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductDto productDto)
+        public async Task<IActionResult> Create(ProductDto productDto, IFormFileCollection uploadImages)
         {
             if (ModelState.IsValid)
             {
+                if (uploadImages != null && uploadImages.Count > 0)
+                {
+                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                    
+                    int order = 1;
+                    foreach (var image in uploadImages)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(fileStream);
+                        }
+                        productDto.Images.Add(new ProductImageDto { Url = "/images/products/" + uniqueFileName, DisplayOrder = order++ });
+                    }
+                    if(productDto.Images.Any())
+                    {
+                        productDto.ImageUrl = productDto.Images.First().Url;
+                    }
+                }
+
                 await _serviceManager.ProductService.AddProductAsync(productDto);
                 return RedirectToAction(nameof(Index));
             }
@@ -57,11 +85,59 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ProductDto productDto)
+        public async Task<IActionResult> Edit(ProductDto productDto, IFormFileCollection uploadImages, List<int>? deleteImageIds)
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.ProductService.UpdateProductAsync(productDto);
+                // Delete physical files from disk for deleted images
+                if (deleteImageIds != null && deleteImageIds.Any())
+                {
+                    var existingProduct = await _serviceManager.ProductService.GetProductByIdAsync(productDto.Id);
+                    if (existingProduct != null && existingProduct.Images != null)
+                    {
+                        foreach (var id in deleteImageIds)
+                        {
+                            var img = existingProduct.Images.FirstOrDefault(i => i.Id == id);
+                            if (img != null && !string.IsNullOrEmpty(img.Url))
+                            {
+                                try
+                                {
+                                    string relativePath = img.Url.Replace("/", "\\").TrimStart('\\');
+                                    string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
+                                    if (System.IO.File.Exists(fullPath))
+                                    {
+                                        System.IO.File.Delete(fullPath);
+                                    }
+                                }
+                                catch (Exception) { /* Ignore file access/deletion errors */ }
+                            }
+                        }
+                    }
+                }
+
+                if (uploadImages != null && uploadImages.Count > 0)
+                {
+                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                    
+                    int order = 1;
+                    foreach (var image in uploadImages)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(fileStream);
+                        }
+                        productDto.Images.Add(new ProductImageDto { Url = "/images/products/" + uniqueFileName, DisplayOrder = order++ });
+                    }
+                    if(string.IsNullOrEmpty(productDto.ImageUrl) && productDto.Images.Any())
+                    {
+                        productDto.ImageUrl = productDto.Images.First().Url;
+                    }
+                }
+
+                await _serviceManager.ProductService.UpdateProductAsync(productDto, deleteImageIds);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
@@ -71,6 +147,40 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
+            var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
+            if (product != null)
+            {
+                if (product.Images != null && product.Images.Any())
+                {
+                    foreach (var img in product.Images)
+                    {
+                        try
+                        {
+                            string relativePath = img.Url.Replace("/", "\\").TrimStart('\\');
+                            string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                System.IO.File.Delete(fullPath);
+                            }
+                        }
+                        catch (Exception) { /* Ignore */ }
+                    }
+                }
+                if (!string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    try
+                    {
+                        string relativePath = product.ImageUrl.Replace("/", "\\").TrimStart('\\');
+                        string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            System.IO.File.Delete(fullPath);
+                        }
+                    }
+                    catch (Exception) { /* Ignore */ }
+                }
+            }
+
             await _serviceManager.ProductService.DeleteProductAsync(id);
             return RedirectToAction(nameof(Index));
         }

@@ -1,9 +1,11 @@
 @{
-    ViewData["Title"] = "دخول المسؤولين";
+    ViewData["Title"] = L["AdminLoginTitle"];
     Layout = null; // Clean layout for login
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var isRtl = currentCulture == "ar";
 }
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="@currentCulture" dir="@(isRtl ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,7 +20,7 @@
     <div class="max-w-md w-full bg-white shadow-2xl border-t-4 border-[#E8A020] p-10">
         <div class="text-center mb-10">
             <h1 class="text-3xl font-black tracking-tighter text-[#1B2235] uppercase mb-2">BLOCKO <span class="text-[#E8A020]">ADMIN</span></h1>
-            <p class="text-slate-500 text-sm font-bold uppercase tracking-widest">بوابة الإدارة المركزية</p>
+            <p class="text-slate-500 text-sm font-bold uppercase tracking-widest">@L["CentralAdminPortal"]</p>
         </div>
 
         @if (ViewBag.Error != null)
@@ -30,21 +32,21 @@
 
         <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" class="space-y-6">
             <div>
-                <label class="block text-[10px] font-black text-[#1B2235] uppercase tracking-[0.2em] mb-2">البريد الإلكتروني للمسؤول</label>
+                <label class="block text-[10px] font-black text-[#1B2235] uppercase tracking-[0.2em] mb-2">@L["AdminEmailLabel"]</label>
                 <input type="email" name="email" required class="w-full bg-slate-50 border border-slate-200 p-4 focus:ring-0 focus:border-[#E8A020] outline-none transition-all" placeholder="admin@blocko.com" />
             </div>
             <div>
-                <label class="block text-[10px] font-black text-[#1B2235] uppercase tracking-[0.2em] mb-2">كلمة المرور</label>
+                <label class="block text-[10px] font-black text-[#1B2235] uppercase tracking-[0.2em] mb-2">@L["Password"]</label>
                 <input type="password" name="password" required class="w-full bg-slate-50 border border-slate-200 p-4 focus:ring-0 focus:border-[#E8A020] outline-none transition-all" placeholder="********" />
             </div>
 
             <button type="submit" class="w-full bg-[#1B2235] text-white font-bold py-4 uppercase tracking-[0.3em] hover:bg-[#E8A020] hover:text-[#1B2235] transition-all duration-300">
-                تسجيل الدخول
+                @L["Login"]
             </button>
         </form>
 
         <div class="mt-10 text-center">
-            <a href="/" class="text-[10px] font-bold text-slate-400 hover:text-[#E8A020] uppercase tracking-widest transition-colors">العودة للموقع الرئيسي</a>
+            <a href="/" class="text-[10px] font-bold text-slate-400 hover:text-[#E8A020] uppercase tracking-widest transition-colors">@L["BackToMainStore"]</a>
         </div>
     </div>
 </body>

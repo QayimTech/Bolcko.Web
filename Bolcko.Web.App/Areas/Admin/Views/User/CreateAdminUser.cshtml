@@ -1,48 +1,48 @@
 @model Bolcko.Domain.Entities.User.User
 @{
-    ViewData["Title"] = "إضافة مستخدم إداري";
+    ViewData["Title"] = L["AddAdminUser"];
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="max-w-2xl bg-white border border-slate-200 shadow-hard">
         <div class="bg-[#1B2235] px-6 py-4">
-            <h2 class="text-white font-bold text-sm uppercase tracking-widest">إضافة مستخدم إداري جديد</h2>
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">@L["AddNewAdminUser"]</h2>
         </div>
         <form asp-area="Admin" asp-controller="User" asp-action="CreateAdminUser" method="post" class="p-8 space-y-6">
             <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">الاسم الأول</label>
-                    <input type="text" name="FirstName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="الاسم الأول" />
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["FirstName"]</label>
+                    <input type="text" name="FirstName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="@L["FirstName"]" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">الاسم الأخير</label>
-                    <input type="text" name="LastName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="الاسم الأخير" />
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["LastName"]</label>
+                    <input type="text" name="LastName" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="@L["LastName"]" />
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">البريد الإلكتروني</label>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["Email"]</label>
                     <input type="email" name="Email" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right text-left" placeholder="example@blocko.com" />
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">نوع المستخدم</label>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["UserType"]</label>
                     <select name="role" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right">
-                        <option value="" disabled selected>اختر نوع المستخدم</option>
+                        <option value="" disabled selected>@L["SelectUserType"]</option>
                         @foreach (var role in ViewBag.Roles)
                         {
-                            <option value="@role">@(role == "Admin" ? "سوبر أدمن" : "أدمن داشبورد")</option>
+                            <option value="@role">@(role == "Admin" ? L["SuperAdmin"] : L["DashboardAdmin"])</option>
                         }
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">كلمة المرور</label>
+                    <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["Password"]</label>
                     <input type="password" name="password" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right" placeholder="********" />
                 </div>
             </div>
 
             <div class="pt-4">
                 <button type="submit" class="w-full bg-[#E8A020] text-[#1B2235] font-bold py-4 uppercase tracking-widest hover:brightness-110 transition-all">
-                    حفظ المستخدم
+                    @L["SaveUser"]
                 </button>
             </div>
         </form>

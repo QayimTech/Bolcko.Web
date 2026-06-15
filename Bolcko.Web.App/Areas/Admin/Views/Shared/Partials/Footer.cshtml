@@ -1,11 +1,10 @@
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <footer class="h-16 flex items-center justify-between px-10 border-t border-slate-200 bg-white text-slate-500">
     <div class="text-[11px] font-bold uppercase tracking-widest">
-        &copy; @DateTime.Now.Year BLOCKO INDUSTRIAL EQUIPMENT. جميع الحقوق محفوظة.
+        &copy; @DateTime.Now.Year BLOCKO INDUSTRIAL EQUIPMENT. @L["AllRightsReserved"]
     </div>
     <div class="flex gap-6 text-[10px] font-black uppercase tracking-tighter">
-        <a href="#" class="hover:text-primary transition-colors">شروط البيع</a>
-        <a href="#" class="hover:text-primary transition-colors">سياسة الخصوصية</a>
-        <a href="#" class="hover:text-primary transition-colors">الدعم الفني</a>
+        <a href="#" class="hover:text-primary transition-colors">@L["TermsOfSale"]</a>
+        <a href="#" class="hover:text-primary transition-colors">@L["PrivacyPolicy"]</a>
+        <a href="#" class="hover:text-primary transition-colors">@L["TechnicalSupport"]</a>
     </div>
 </footer>

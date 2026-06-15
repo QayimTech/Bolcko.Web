@@ -1,35 +1,35 @@
 @{
-    ViewData["Title"] = "لوحة التحكم";
+    ViewData["Title"] = L["Dashboard"];
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
         <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">إجمالي المبيعات</p>
-            <h3 class="font-headline-md text-on-surface">248,500.00 ر.س</h3>
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["TotalSales"]</p>
+            <h3 class="font-headline-md text-on-surface">248,500.00 @L["Currency"]</h3>
             <div class="flex items-center mt-4 text-emerald-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">trending_up</span> +12.5% عن الشهر الماضي
+                <span class="material-symbols-outlined text-sm ml-1">trending_up</span> @L["SalesIncreaseRate"]
             </div>
         </div>
         <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">العطاءات المفتوحة</p>
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["OpenTenders"]</p>
             <h3 class="font-headline-md text-on-surface">42</h3>
             <div class="flex items-center mt-4 text-amber-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">pending_actions</span> 8 بانتظار الموافقة
+                <span class="material-symbols-outlined text-sm ml-1">pending_actions</span> @L["TendersPendingApproval"]
             </div>
         </div>
         <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">قيمة المخزون</p>
-            <h3 class="font-headline-md text-on-surface">1.2 مليون</h3>
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["InventoryValue"]</p>
+            <h3 class="font-headline-md text-on-surface">@L["InventoryValueQuantity"]</h3>
             <div class="flex items-center mt-4 text-on-surface-variant text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">inventory_2</span> 15% متوفر للكميات
+                <span class="material-symbols-outlined text-sm ml-1">inventory_2</span> @L["AvailableForBulk"]
             </div>
         </div>
         <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">مخاطر التوريد</p>
-            <h3 class="font-headline-md text-emerald-600">منخفضة</h3>
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["SupplyRisk"]</p>
+            <h3 class="font-headline-md text-emerald-600">@L["LowRisk"]</h3>
             <div class="flex items-center mt-4 text-emerald-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">check_circle</span> جميع القنوات نشطة
+                <span class="material-symbols-outlined text-sm ml-1">check_circle</span> @L["AllChannelsActive"]
             </div>
         </div>
     </div>
@@ -40,33 +40,32 @@
         <div class="xl:col-span-2 space-y-gutter">
             <div class="bg-white border border-slate-200 overflow-hidden shadow-hard">
                 <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
-                    <h2 class="text-white font-bold text-sm uppercase tracking-widest">طلبات العطاءات الواردة (RFQs)</h2>
-                    <button class="text-[#E8A020] text-xs font-bold uppercase hover:underline">عرض الكل</button>
+                    <h2 class="text-white font-bold text-sm uppercase tracking-widest">@L["IncomingRFQs"]</h2>
+                    <button class="text-[#E8A020] text-xs font-bold uppercase hover:underline">@L["ViewAll"]</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right">
                         <thead class="bg-slate-100 text-[#1B2235] font-bold text-[10px] uppercase tracking-widest">
                             <tr>
-                                <th class="px-6 py-3">اسم المشروع</th>
-                                <th class="px-6 py-3">العميل</th>
-                                <th class="px-6 py-3">الميزانية التقديرية</th>
-                                <th class="px-6 py-3">تاريخ الإغلاق</th>
-                                <th class="px-6 py-3">الحالة</th>
-                                <th class="px-6 py-3">الإجراءات</th>
+                                <th class="px-6 py-3">@L["ProjectName"]</th>
+                                <th class="px-6 py-3">@L["Customer"]</th>
+                                <th class="px-6 py-3">@L["EstimatedBudget"]</th>
+                                <th class="px-6 py-3">@L["ClosingDate"]</th>
+                                <th class="px-6 py-3">@L["Status"]</th>
+                                <th class="px-6 py-3">@L["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
                             <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-[#1B2235]">توسعة مجمع صناعي - المرحلة 4</td>
-                                <td class="px-6 py-4">شركة بناء المحدودة</td>
-                                <td class="px-6 py-4">45k - 60k ر.س</td>
-                                <td class="px-6 py-4 text-xs">12 أكتوبر 2024</td>
+                                <td class="px-6 py-4 font-bold text-[#1B2235]">@L["SampleProjectName"]</td>
+                                <td class="px-6 py-4">@L["SampleCustomerName"]</td>
+                                <td class="px-6 py-4">@L["SampleBudget"]</td>
+                                <td class="px-6 py-4 text-xs">@L["SampleClosingDate"]</td>
                                 <td class="px-6 py-4">
-                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">قيد المراجعة</span>
+                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@L["UnderReview"]</span>
                                 </td>
-                                <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">تحليل</td>
+                                <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">@L["Analyze"]</td>
                             </tr>
-                            <!-- More rows -->
                         </tbody>
                     </table>
                 </div>
@@ -77,24 +76,23 @@
         <div class="space-y-gutter">
             <div class="bg-white border border-slate-200 shadow-hard">
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h2 class="text-[#1B2235] font-bold text-sm uppercase tracking-widest">آخر طلبات المتجر</h2>
-                    <span class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-0.5">مباشر</span>
+                    <h2 class="text-[#1B2235] font-bold text-sm uppercase tracking-widest">@L["LatestShopOrders"]</h2>
+                    <span class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-0.5">@L["Live"]</span>
                 </div>
                 <div class="divide-y divide-slate-100">
                     <div class="p-6 hover:bg-slate-50 transition-colors">
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-9921</p>
-                                <p class="text-sm font-bold text-[#1B2235]">مثقاب كهربائي عالي الأداء x2</p>
+                                <p class="text-sm font-bold text-[#1B2235]">@L["SampleOrderItemName"]</p>
                             </div>
-                            <p class="text-sm font-bold text-[#1B2235]">842.00 ر.س</p>
+                            <p class="text-sm font-bold text-[#1B2235]">842.00 @L["Currency"]</p>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-bold text-amber-600 uppercase">قيد التنفيذ</span>
-                            <span class="text-[10px] text-[#8A95A8]">منذ دقيقتين</span>
+                            <span class="text-[10px] font-bold text-amber-600 uppercase">@L["Processing"]</span>
+                            <span class="text-[10px] text-[#8A95A8]">@L["TwoMinutesAgo"]</span>
                         </div>
                     </div>
-                    <!-- More orders -->
                 </div>
             </div>
         </div>

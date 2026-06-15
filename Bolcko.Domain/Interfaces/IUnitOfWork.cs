@@ -11,6 +11,7 @@ namespace Bolcko.Domain.Interfaces
         IMarketPriceRepository MarketPrices { get; }
         ISEORepository SEO { get; }
         IShoppingCartRepository ShoppingCarts { get; }
+        IAddressRepository Addresses { get; }
 
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();

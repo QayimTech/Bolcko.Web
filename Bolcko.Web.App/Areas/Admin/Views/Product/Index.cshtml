@@ -2,18 +2,18 @@
 @using Bolcko.Web.App.Areas.Admin.Models.ViewModels
 @model ProductIndexViewModel
 @{
-    ViewData["Title"] = "إدارة المنتجات";
+    ViewData["Title"] = L["ManageProducts"];
 }
 
 <section class="p-8 space-y-8 text-right">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="font-headline-md text-on-surface">إدارة المنتجات</h1>
-            <p class="text-on-surface-variant text-sm mt-1">عرض وإدارة قائمة المنتجات في النظام</p>
+            <h1 class="font-headline-md text-on-surface">@L["ManageProducts"]</h1>
+            <p class="text-on-surface-variant text-sm mt-1">@L["ManageProductsDescription"]</p>
         </div>
         <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
             <span class="material-symbols-outlined">add</span>
-            إضافة منتج جديد
+            @L["AddNewProduct"]
         </a>
     </div>
 
@@ -24,12 +24,12 @@
         <table class="w-full text-right border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">المنتج</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الفئة</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">السعر</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الكمية</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">SKU</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Product"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Category"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Price"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Quantity"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Sku"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Actions"]</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -67,7 +67,7 @@
                             <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
                                 <span class="material-symbols-outlined">edit</span>
                             </a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');" class="inline">
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('@L["DeleteProductConfirm"]');" class="inline">
                                 <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
@@ -79,7 +79,7 @@
                 {
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
-                            لا توجد منتجات حالياً
+                            @L["NoProductsAvailable"]
                         </td>
                     </tr>
                 }

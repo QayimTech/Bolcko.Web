@@ -2,18 +2,18 @@
 @using Bolcko.Web.App.Areas.Admin.Models.ViewModels
 @model CategoryIndexViewModel
 @{
-    ViewData["Title"] = "إدارة الفئات";
+    ViewData["Title"] = L["ManageCategories"];
 }
 
 <section class="p-8 space-y-8 text-right">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="font-headline-md text-on-surface">إدارة الفئات</h1>
-            <p class="text-on-surface-variant text-sm mt-1">عرض وإدارة فئات المنتجات في النظام</p>
+            <h1 class="font-headline-md text-on-surface">@L["ManageCategories"]</h1>
+            <p class="text-on-surface-variant text-sm mt-1">@L["ManageCategoriesDescription"]</p>
         </div>
         <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
             <span class="material-symbols-outlined">add</span>
-            إضافة فئة جديدة
+            @L["AddNewCategory"]
         </a>
     </div>
 
@@ -24,10 +24,10 @@
         <table class="w-full text-right border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">اسم الفئة</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الفئة الأب</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الوصف</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الإجراءات</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["CategoryName"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["ParentCategory"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Description"]</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Actions"]</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -47,7 +47,7 @@
                             <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
                                 <span class="material-symbols-outlined">edit</span>
                             </a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذه الفئة؟');" class="inline">
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('@L["DeleteCategoryConfirm"]');" class="inline">
                                 <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
@@ -59,7 +59,7 @@
                 {
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
-                            لا توجد فئات حالياً
+                            @L["NoCategoriesAvailable"]
                         </td>
                     </tr>
                 }

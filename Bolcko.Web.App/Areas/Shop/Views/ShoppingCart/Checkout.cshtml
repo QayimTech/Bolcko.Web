@@ -1,3 +1,4 @@
+@model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
 @{
     ViewData["Title"] = "إتمام الطلب";
 }
@@ -10,22 +11,25 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
         <!-- Checkout Form -->
         <div class="lg:col-span-8">
-            <form class="space-y-8">
+            <form asp-action="PlaceOrder" asp-controller="ShoppingCart" method="post" class="space-y-8">
                 <!-- Customer Info -->
                 <div class="bg-white border border-outline-variant p-8 shadow-hard">
                     <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم الكامل</label>
-                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسمك الكامل" />
+                            <input asp-for="FullName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="أدخل اسمك الكامل" />
+                            <span asp-validation-for="FullName" class="text-error text-xs"></span>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رقم الهاتف</label>
-                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="tel" placeholder="05xxxxxxxx" />
+                            <input asp-for="Phone" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="tel" placeholder="05xxxxxxxx" />
+                            <span asp-validation-for="Phone" class="text-error text-xs"></span>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">البريد الإلكتروني</label>
-                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@mail.com" />
+                            <input asp-for="Email" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@mail.com" />
+                            <span asp-validation-for="Email" class="text-error text-xs"></span>
                         </div>
                     </div>
                 </div>
@@ -36,19 +40,21 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المدينة</label>
-                            <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
-                                <option>الرياض</option>
-                                <option>جدة</option>
-                                <option>الدمام</option>
+                            <select asp-for="City" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                                <option value="الرياض">الرياض</option>
+                                <option value="جدة">جدة</option>
+                                <option value="الدمام">الدمام</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المنطقة</label>
-                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم الحي" />
+                            <input asp-for="Area" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم الحي" />
+                            <span asp-validation-for="Area" class="text-error text-xs"></span>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">العنوان بالتفصيل (موقع المشروع)</label>
-                            <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-24" placeholder="أدخل وصفاً دقيقاً للموقع"></textarea>
+                            <textarea asp-for="DetailedAddress" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-24" placeholder="أدخل وصفاً دقيقاً للموقع"></textarea>
+                            <span asp-validation-for="DetailedAddress" class="text-error text-xs"></span>
                         </div>
                     </div>
                 </div>
@@ -59,16 +65,29 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم المشروع</label>
-                            <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="مثلاً: فيلا الياسمين" />
+                            <input asp-for="ProjectName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="مثلاً: فيلا الياسمين" />
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">نوع المشروع</label>
-                            <select class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
-                                <option>سكني</option>
-                                <option>تجاري</option>
-                                <option>صناعي</option>
+                            <select asp-for="ProjectType" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
+                                <option value="سكني">سكني</option>
+                                <option value="تجاري">تجاري</option>
+                                <option value="صناعي">صناعي</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white border border-outline-variant p-8 shadow-hard">
+                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">طريقة الدفع</h2>
+                    <div class="flex items-center gap-4 border border-primary p-4 bg-primary-container bg-opacity-10 cursor-pointer">
+                        <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-primary focus:ring-primary" id="cod" />
+                        <label for="cod" class="font-bold text-on-surface flex-grow cursor-pointer">
+                            الدفع عند الاستلام (COD)
+                            <span class="block text-xs font-normal text-secondary mt-1">ادفع نقداً عند توصيل طلبك.</span>
+                        </label>
+                        <span class="material-symbols-outlined text-primary text-3xl">payments</span>
                     </div>
                 </div>
             </form>
@@ -80,25 +99,53 @@
                 <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">ملخص الطلب</h2>
                 <div class="space-y-4 mb-8">
                     <!-- Mini Cart Items -->
-                    <div class="flex gap-4 border-b border-outline-variant pb-4">
-                        <img class="w-16 h-16 object-cover" src="https://images.unsplash.com/photo-1590069230005-db3937f91f30?auto=format&fit=crop&q=80&w=100" />
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-xs">بلوك أسمنتي قياسي</h4>
-                            <p class="text-[10px] text-outline-variant">500 وحدة</p>
-                            <p class="font-bold text-xs">2,500.00 ر.س</p>
+                    @if (ViewBag.Cart != null)
+                    {
+                        var cart = (Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto)ViewBag.Cart;
+                        foreach (var item in cart.Items)
+                        {
+                            <div class="flex gap-4 border-b border-outline-variant pb-4">
+                                @if (!string.IsNullOrEmpty(item.ProductImage))
+                                {
+                                    <img class="w-16 h-16 object-cover" src="@item.ProductImage" />
+                                }
+                                else
+                                {
+                                    <div class="w-16 h-16 bg-surface-container-high flex items-center justify-center text-outline">
+                                        <span class="material-symbols-outlined">image</span>
+                                    </div>
+                                }
+                                <div class="flex-grow">
+                                    <h4 class="font-bold text-xs">@item.ProductName</h4>
+                                    <p class="text-[10px] text-outline-variant">@item.Quantity وحدة</p>
+                                    <p class="font-bold text-xs">@item.TotalPrice.ToString("N2") ر.س</p>
+                                </div>
+                            </div>
+                        }
+                        
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-outline-variant text-sm">المجموع الفرعي</span>
+                            <span class="font-bold">@cart.Subtotal.ToString("N2") ر.س</span>
                         </div>
-                    </div>
-                    
-                    <div class="flex justify-between items-center pt-4">
-                        <span class="text-outline-variant">المجموع</span>
-                        <span class="font-headline-md text-primary">7,265.00 ر.س</span>
-                    </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-outline-variant text-sm">الشحن</span>
+                            <span class="font-bold">@cart.Shipping.ToString("N2") ر.س</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-outline-variant pb-4">
+                            <span class="text-outline-variant text-sm">الضريبة (15%)</span>
+                            <span class="font-bold">@cart.Tax.ToString("N2") ر.س</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4">
+                            <span class="text-outline-variant font-bold">المجموع الكلي</span>
+                            <span class="font-headline-md text-primary">@cart.Total.ToString("N2") ر.س</span>
+                        </div>
+                    }
                 </div>
                 
-                <a href="@Url.Action("Confirmation", "ShoppingCart", new { area = "Shop" })" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
+                <button type="button" onclick="document.querySelector('form').submit()" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
                     تأكيد وإرسال الطلب
                     <span class="material-symbols-outlined">check_circle</span>
-                </a>
+                </button>
                 
                 <p class="mt-4 text-[10px] text-outline-variant text-center">بضغطك على تأكيد الطلب، فإنك توافق على شروط وأحكام Blocko.</p>
             </div>

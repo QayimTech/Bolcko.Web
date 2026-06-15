@@ -6,5 +6,6 @@ namespace Bolcko.Domain.Interfaces
     {
         Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetFeaturedProductsAsync();
+        Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAsync(int id);
     }
-}
+}

@@ -70,4 +70,478 @@
   <data name="Categories" xml:space="preserve">
     <value>الفئات</value>
   </data>
+  <data name="MainMenu" xml:space="preserve">
+    <value>القائمة الرئيسية</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="ManageCategories" xml:space="preserve">
+    <value>إدارة الفئات</value>
+  </data>
+  <data name="ManageProducts" xml:space="preserve">
+    <value>إدارة المنتجات</value>
+  </data>
+  <data name="ManageSEO" xml:space="preserve">
+    <value>إدارة SEO</value>
+  </data>
+  <data name="ManageOrders" xml:space="preserve">
+    <value>إدارة الطلبات</value>
+  </data>
+  <data name="ManageUsers" xml:space="preserve">
+    <value>إدارة المستخدمين</value>
+  </data>
+  <data name="BackToStore" xml:space="preserve">
+    <value>العودة للمتجر</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="SystemAdmin" xml:space="preserve">
+    <value>مدير النظام</value>
+  </data>
+  <data name="Arabic" xml:space="preserve">
+    <value>العربية</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="BlockoAdminPanel" xml:space="preserve">
+    <value>لوحة تحكم Blocko</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>جميع الحقوق محفوظة.</value>
+  </data>
+  <data name="TermsOfSale" xml:space="preserve">
+    <value>شروط البيع</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>سياسة الخصوصية</value>
+  </data>
+  <data name="TechnicalSupport" xml:space="preserve">
+    <value>الدعم الفني</value>
+  </data>
+  <data name="ManageCategoriesDescription" xml:space="preserve">
+    <value>عرض وإدارة فئات المنتجات في النظام</value>
+  </data>
+  <data name="AddNewCategory" xml:space="preserve">
+    <value>إضافة فئة جديدة</value>
+  </data>
+  <data name="CategoryName" xml:space="preserve">
+    <value>اسم الفئة</value>
+  </data>
+  <data name="ParentCategory" xml:space="preserve">
+    <value>الفئة الأب</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve">
+    <value>هل أنت متأكد من حذف هذه الفئة؟</value>
+  </data>
+  <data name="NoCategoriesAvailable" xml:space="preserve">
+    <value>لا توجد فئات حالياً</value>
+  </data>
+  <data name="AddNewCategoryDescription" xml:space="preserve">
+    <value>أدخل تفاصيل الفئة الجديدة أدناه</value>
+  </data>
+  <data name="SaveCategory" xml:space="preserve">
+    <value>حفظ الفئة</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>تعديل الفئة</value>
+  </data>
+  <data name="EditCategoryDescription" xml:space="preserve">
+    <value>تعديل بيانات فئة: {0}</value>
+  </data>
+  <data name="UpdateCategory" xml:space="preserve">
+    <value>تحديث الفئة</value>
+  </data>
+  <data name="CategoryNamePlaceholder" xml:space="preserve">
+    <value>مثلاً: مواد البناء</value>
+  </data>
+  <data name="ParentCategoryOptional" xml:space="preserve">
+    <value>الفئة الأب (اختياري)</value>
+  </data>
+  <data name="MainCategoryOption" xml:space="preserve">
+    <value>-- فئة رئيسية --</value>
+  </data>
+  <data name="DisplayOrder" xml:space="preserve">
+    <value>ترتيب العرض</value>
+  </data>
+  <data name="ImageUrlOptional" xml:space="preserve">
+    <value>رابط الصورة (اختياري)</value>
+  </data>
+  <data name="CategoryDescriptionPlaceholder" xml:space="preserve">
+    <value>وصف موجز للفئة...</value>
+  </data>
+  <data name="ManageProductsDescription" xml:space="preserve">
+    <value>عرض وإدارة قائمة المنتجات في النظام</value>
+  </data>
+  <data name="AddNewProduct" xml:space="preserve">
+    <value>إضافة منتج جديد</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>المنتج</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>الفئة</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>السعر</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>الكمية</value>
+  </data>
+  <data name="Sku" xml:space="preserve">
+    <value>SKU</value>
+  </data>
+  <data name="DeleteProductConfirm" xml:space="preserve">
+    <value>هل أنت متأكد من حذف هذا المنتج؟</value>
+  </data>
+  <data name="NoProductsAvailable" xml:space="preserve">
+    <value>لا توجد منتجات حالياً</value>
+  </data>
+  <data name="AddNewProductDescription" xml:space="preserve">
+    <value>أدخل تفاصيل ومواصفات المنتج الجديد في الكتالوج</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>العودة للوحة التحكم</value>
+  </data>
+  <data name="CancelOperation" xml:space="preserve">
+    <value>إلغاء العملية</value>
+  </data>
+  <data name="SaveNewProduct" xml:space="preserve">
+    <value>حفظ المنتج الجديد</value>
+  </data>
+  <data name="EditProduct" xml:space="preserve">
+    <value>تعديل المنتج</value>
+  </data>
+  <data name="EditProductDescription" xml:space="preserve">
+    <value>تعديل بيانات المنتج: {0}</value>
+  </data>
+  <data name="CancelEdit" xml:space="preserve">
+    <value>إلغاء التعديل</value>
+  </data>
+  <data name="UpdateProduct" xml:space="preserve">
+    <value>تحديث بيانات المنتج</value>
+  </data>
+  <data name="BasicProductDetails" xml:space="preserve">
+    <value>تفاصيل المنتج الأساسية</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>اسم المنتج</value>
+  </data>
+  <data name="ProductNamePlaceholder" xml:space="preserve">
+    <value>أدخل اسم المنتج بالكامل...</value>
+  </data>
+  <data name="SelectCategoryOption" xml:space="preserve">
+    <value>-- اختر الفئة المناسبة --</value>
+  </data>
+  <data name="PriceLabel" xml:space="preserve">
+    <value>السعر (ر.س)</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>ر.س</value>
+  </data>
+  <data name="SkuLabel" xml:space="preserve">
+    <value>رمز SKU</value>
+  </data>
+  <data name="StockQuantity" xml:space="preserve">
+    <value>الكمية المتوفرة</value>
+  </data>
+  <data name="UnitOfMeasure" xml:space="preserve">
+    <value>وحدة القياس</value>
+  </data>
+  <data name="UnitOfMeasurePlaceholder" xml:space="preserve">
+    <value>مثلاً: طن، حبة، متر</value>
+  </data>
+  <data name="DescriptionLabel" xml:space="preserve">
+    <value>الوصف والمواصفات</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>أدخل تفاصيل ومواصفات المنتج الفنية هنا...</value>
+  </data>
+  <data name="BulkPricingLabel" xml:space="preserve">
+    <value>متاح لبيع الجملة والمشاريع الكبرى</value>
+  </data>
+  <data name="BulkPricingDescription" xml:space="preserve">
+    <value>تفعيل هذا الخيار يتيح التفاوض على السعر للكميات الكبيرة</value>
+  </data>
+  <data name="ProductImages" xml:space="preserve">
+    <value>صور المنتج</value>
+  </data>
+  <data name="DragDropInstructions" xml:space="preserve">
+    <value>اسحب الصور هنا أو انقر للاختيار</value>
+  </data>
+  <data name="DragDropConstraints" xml:space="preserve">
+    <value>PNG، JPG، WEBP — بحد أقصى 5MB للصورة</value>
+  </data>
+  <data name="DropImagesHere" xml:space="preserve">
+    <value>أفلت الصور هنا</value>
+  </data>
+  <data name="CurrentImages" xml:space="preserve">
+    <value>الصور الحالية</value>
+  </data>
+  <data name="CurrentImage" xml:space="preserve">
+    <value>الصورة الحالية</value>
+  </data>
+  <data name="SelectedImagesCount" xml:space="preserve">
+    <value>تم اختيار {0} صورة</value>
+  </data>
+  <data name="ManageOrders" xml:space="preserve">
+    <value>إدارة الطلبات</value>
+  </data>
+  <data name="ManageOrdersDescription" xml:space="preserve">
+    <value>عرض ومتابعة طلبات العملاء في النظام</value>
+  </data>
+  <data name="OrderNumber" xml:space="preserve">
+    <value>رقم الطلب</value>
+  </data>
+  <data name="Customer" xml:space="preserve">
+    <value>العميل</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="NoOrdersAvailable" xml:space="preserve">
+    <value>لا توجد طلبات حالياً</value>
+  </data>
+  <data name="ManageSEO" xml:space="preserve">
+    <value>إدارة SEO</value>
+  </data>
+  <data name="ManageSEODescription" xml:space="preserve">
+    <value>إدارة الكلمات المفتاحية والأوصاف لمحركات البحث</value>
+  </data>
+  <data name="AddPage" xml:space="preserve">
+    <value>إضافة صفحة</value>
+  </data>
+  <data name="PageName" xml:space="preserve">
+    <value>اسم الصفحة</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>العنوان (Title)</value>
+  </data>
+  <data name="PageOrder" xml:space="preserve">
+    <value>رقم الترتيب</value>
+  </data>
+  <data name="DeleteConfirm" xml:space="preserve">
+    <value>هل أنت متأكد من الحذف؟</value>
+  </data>
+  <data name="NoSEODataAvailable" xml:space="preserve">
+    <value>لا توجد بيانات SEO حالياً</value>
+  </data>
+  <data name="AddNewSEOPage" xml:space="preserve">
+    <value>إضافة صفحة SEO</value>
+  </data>
+  <data name="AddNewSEOPageDescription" xml:space="preserve">
+    <value>أدخل بيانات محركات البحث للصفحة الجديدة</value>
+  </data>
+  <data name="SaveData" xml:space="preserve">
+    <value>حفظ البيانات</value>
+  </data>
+  <data name="EditSEOPage" xml:space="preserve">
+    <value>تعديل بيانات SEO</value>
+  </data>
+  <data name="EditSEOPageDescription" xml:space="preserve">
+    <value>تعديل بيانات صفحة: {0}</value>
+  </data>
+  <data name="UpdateData" xml:space="preserve">
+    <value>تحديث البيانات</value>
+  </data>
+  <data name="PageNameLabel" xml:space="preserve">
+    <value>اسم الصفحة (Page Name)</value>
+  </data>
+  <data name="PageTitleLabel" xml:space="preserve">
+    <value>عنوان الصفحة (Page Title)</value>
+  </data>
+  <data name="PageTitlePlaceholder" xml:space="preserve">
+    <value>العنوان الذي يظهر في التبويب</value>
+  </data>
+  <data name="MetaDescriptionLabel" xml:space="preserve">
+    <value>وصف الصفحة (Meta Description)</value>
+  </data>
+  <data name="MetaDescriptionPlaceholder" xml:space="preserve">
+    <value>وصف موجز لمحركات البحث...</value>
+  </data>
+  <data name="MetaKeywordsLabel" xml:space="preserve">
+    <value>الكلمات المفتاحية (Meta Keywords)</value>
+  </data>
+  <data name="MetaKeywordsPlaceholder" xml:space="preserve">
+    <value>كلمة1, كلمة2, ...</value>
+  </data>
+  <data name="PageUrlLabel" xml:space="preserve">
+    <value>رابط الصفحة (Page URL)</value>
+  </data>
+  <data name="PageOrderLabel" xml:space="preserve">
+    <value>رقم الترتيب</value>
+  </data>
+  <data name="ManageUsers" xml:space="preserve">
+    <value>إدارة المستخدمين</value>
+  </data>
+  <data name="UsersList" xml:space="preserve">
+    <value>قائمة المستخدمين</value>
+  </data>
+  <data name="AddUser" xml:space="preserve">
+    <value>إضافة مستخدم</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="UserType" xml:space="preserve">
+    <value>نوع المستخدم</value>
+  </data>
+  <data name="RegistrationDate" xml:space="preserve">
+    <value>تاريخ التسجيل</value>
+  </data>
+  <data name="DeleteUserConfirm" xml:space="preserve">
+    <value>هل أنت متأكد من حذف هذا المستخدم؟</value>
+  </data>
+  <data name="AddAdminUser" xml:space="preserve">
+    <value>إضافة مستخدم إداري</value>
+  </data>
+  <data name="AddNewAdminUser" xml:space="preserve">
+    <value>إضافة مستخدم إداري جديد</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>الاسم الأخير</value>
+  </data>
+  <data name="SelectUserType" xml:space="preserve">
+    <value>اختر نوع المستخدم</value>
+  </data>
+  <data name="SuperAdmin" xml:space="preserve">
+    <value>سوبر أدمن</value>
+  </data>
+  <data name="DashboardAdmin" xml:space="preserve">
+    <value>أدمن داشبورد</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="SaveUser" xml:space="preserve">
+    <value>حفظ المستخدم</value>
+  </data>
+  <data name="EditUser" xml:space="preserve">
+    <value>تعديل المستخدم</value>
+  </data>
+  <data name="CompanyNameOptional" xml:space="preserve">
+    <value>اسم الشركة (اختياري)</value>
+  </data>
+  <data name="BusinessRegistrationNumberOptional" xml:space="preserve">
+    <value>رقم التسجيل التجاري (اختياري)</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>الدور</value>
+  </data>
+  <data name="NewPasswordOptional" xml:space="preserve">
+    <value>كلمة المرور الجديدة (اختياري - اتركها فارغة لعدم التغيير)</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="AdminLoginTitle" xml:space="preserve">
+    <value>دخول المسؤولين</value>
+  </data>
+  <data name="CentralAdminPortal" xml:space="preserve">
+    <value>بوابة الإدارة المركزية</value>
+  </data>
+  <data name="AdminEmailLabel" xml:space="preserve">
+    <value>البريد الإلكتروني للمسؤول</value>
+  </data>
+  <data name="BackToMainStore" xml:space="preserve">
+    <value>العودة للموقع الرئيسي</value>
+  </data>
+  <data name="TotalSales" xml:space="preserve">
+    <value>إجمالي المبيعات</value>
+  </data>
+  <data name="SalesIncreaseRate" xml:space="preserve">
+    <value>+12.5% عن الشهر الماضي</value>
+  </data>
+  <data name="OpenTenders" xml:space="preserve">
+    <value>العطاءات المفتوحة</value>
+  </data>
+  <data name="TendersPendingApproval" xml:space="preserve">
+    <value>8 بانتظار الموافقة</value>
+  </data>
+  <data name="InventoryValue" xml:space="preserve">
+    <value>قيمة المخزون</value>
+  </data>
+  <data name="InventoryValueQuantity" xml:space="preserve">
+    <value>1.2 مليون</value>
+  </data>
+  <data name="AvailableForBulk" xml:space="preserve">
+    <value>15% متوفر للكميات</value>
+  </data>
+  <data name="SupplyRisk" xml:space="preserve">
+    <value>مخاطر التوريد</value>
+  </data>
+  <data name="LowRisk" xml:space="preserve">
+    <value>منخفضة</value>
+  </data>
+  <data name="AllChannelsActive" xml:space="preserve">
+    <value>جميع القنوات نشطة</value>
+  </data>
+  <data name="IncomingRFQs" xml:space="preserve">
+    <value>طلبات العطاءات الواردة (RFQs)</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>عرض الكل</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>اسم المشروع</value>
+  </data>
+  <data name="EstimatedBudget" xml:space="preserve">
+    <value>الميزانية التقديرية</value>
+  </data>
+  <data name="ClosingDate" xml:space="preserve">
+    <value>تاريخ الإغلاق</value>
+  </data>
+  <data name="SampleProjectName" xml:space="preserve">
+    <value>توسعة مجمع صناعي - المرحلة 4</value>
+  </data>
+  <data name="SampleCustomerName" xml:space="preserve">
+    <value>شركة بناء المحدودة</value>
+  </data>
+  <data name="SampleBudget" xml:space="preserve">
+    <value>45k - 60k ر.س</value>
+  </data>
+  <data name="SampleClosingDate" xml:space="preserve">
+    <value>12 أكتوبر 2024</value>
+  </data>
+  <data name="UnderReview" xml:space="preserve">
+    <value>قيد المراجعة</value>
+  </data>
+  <data name="Analyze" xml:space="preserve">
+    <value>تحليل</value>
+  </data>
+  <data name="LatestShopOrders" xml:space="preserve">
+    <value>آخر طلبات المتجر</value>
+  </data>
+  <data name="Live" xml:space="preserve">
+    <value>مباشر</value>
+  </data>
+  <data name="SampleOrderItemName" xml:space="preserve">
+    <value>مثقاب كهربائي عالي الأداء x2</value>
+  </data>
+  <data name="TwoMinutesAgo" xml:space="preserve">
+    <value>منذ دقيقتين</value>
+  </data>
 </root>

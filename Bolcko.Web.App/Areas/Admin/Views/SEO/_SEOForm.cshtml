@@ -3,33 +3,33 @@
 <div class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-            <label asp-for="PageName" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">اسم الصفحة (Page Name)</label>
+            <label asp-for="PageName" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["PageNameLabel"]</label>
             <input asp-for="PageName" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Home, Products, etc." />
             <span asp-validation-for="PageName" class="text-error text-xs mt-1"></span>
         </div>
         <div>
-            <label asp-for="PageTitle" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">عنوان الصفحة (Page Title)</label>
-            <input asp-for="PageTitle" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="العنوان الذي يظهر في التبويب" />
+            <label asp-for="PageTitle" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["PageTitleLabel"]</label>
+            <input asp-for="PageTitle" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="@L["PageTitlePlaceholder"]" />
         </div>
     </div>
 
     <div>
-        <label asp-for="MetaDescription" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">وصف الصفحة (Meta Description)</label>
-        <textarea asp-for="MetaDescription" rows="3" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="وصف موجز لمحركات البحث..."></textarea>
+        <label asp-for="MetaDescription" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["MetaDescriptionLabel"]</label>
+        <textarea asp-for="MetaDescription" rows="3" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="@L["MetaDescriptionPlaceholder"]"></textarea>
     </div>
 
     <div>
-        <label asp-for="MetaKeywords" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">الكلمات المفتاحية (Meta Keywords)</label>
-        <input asp-for="MetaKeywords" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="كلمة1, كلمة2, ..." />
+        <label asp-for="MetaKeywords" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["MetaKeywordsLabel"]</label>
+        <input asp-for="MetaKeywords" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="@L["MetaKeywordsPlaceholder"]" />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-            <label asp-for="PageUrl" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">رابط الصفحة (Page URL)</label>
+            <label asp-for="PageUrl" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["PageUrlLabel"]</label>
             <input asp-for="PageUrl" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="/Home, /Products, etc." />
         </div>
         <div>
-            <label asp-for="PageOrder" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">رقم الترتيب</label>
+            <label asp-for="PageOrder" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["PageOrderLabel"]</label>
             <input asp-for="PageOrder" type="number" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
         </div>
     </div>

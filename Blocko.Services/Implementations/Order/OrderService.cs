@@ -4,6 +4,8 @@ using Bolcko.Domain.Entities.Order.DTOs;
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
+using Bolcko.Domain.Entities.ShoppingCart.DTOs;
+using Bolcko.Domain.Entities.User;
 
 namespace Blocko.Services.Implementations.order
 {
@@ -12,19 +14,65 @@ namespace Blocko.Services.Implementations.order
         private readonly IUnitOfWork _unitOfWork;
         public OrderService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-        public async Task<OrderDto> PlaceOrderAsync(OrderDto orderDto)
+        public async Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, CheckoutDto checkoutDto)
         {
+            var shippingAddress = new Address
+            {
+                UserId = userId,
+                AddressLine1 = checkoutDto.DetailedAddress,
+                City = checkoutDto.City,
+                StateProvince = checkoutDto.Area,
+                AddressType = Bolcko.Domain.Enums.AddressType.Shipping
+            };
+            
+            var billingAddress = new Address
+            {
+                UserId = userId,
+                AddressLine1 = checkoutDto.DetailedAddress,
+                City = checkoutDto.City,
+                StateProvince = checkoutDto.Area,
+                AddressType = Bolcko.Domain.Enums.AddressType.Billing
+            };
+
+            await _unitOfWork.Addresses.AddAsync(shippingAddress);
+            await _unitOfWork.Addresses.AddAsync(billingAddress);
+            await _unitOfWork.CompleteAsync(); // To get Address IDs
+
             var order = new Order
             {
-                UserId = orderDto.UserId,
+                UserId = userId,
                 OrderDate = DateTime.UtcNow,
-                TotalAmount = orderDto.TotalAmount,
-                Status = orderDto.Status
+                TotalAmount = cart.Total,
+                Status = Bolcko.Domain.Enums.OrderStatus.Pending,
+                PaymentMethod = checkoutDto.PaymentMethod,
+                PaymentStatus = "Pending",
+                ShippingAddressId = shippingAddress.Id,
+                BillingAddressId = billingAddress.Id,
+                Items = cart.Items.Select(i => new OrderItem
+                {
+                    ProductId = i.ProductId,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    Subtotal = i.TotalPrice
+                }).ToList()
             };
+
             await _unitOfWork.Orders.AddAsync(order);
+
+            // Deduct stock
+            foreach (var item in cart.Items)
+            {
+                var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity -= item.Quantity;
+                    if(product.StockQuantity < 0) product.StockQuantity = 0;
+                    _unitOfWork.Products.Update(product);
+                }
+            }
+
             await _unitOfWork.CompleteAsync();
-            orderDto.Id = order.Id;
-            return orderDto;
+            return new OrderDto { Id = order.Id, TotalAmount = order.TotalAmount };
         }
 
         public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId)

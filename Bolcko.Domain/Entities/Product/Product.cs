@@ -21,5 +21,6 @@ namespace Bolcko.Domain.Entities.Product
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public bool BulkPricingAvailable { get; set; }
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
     }
 }

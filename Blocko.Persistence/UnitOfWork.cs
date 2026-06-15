@@ -27,6 +27,7 @@ namespace Blocko.Persistence
             MarketPrices = new MarketPriceRepository(_context);
             SEO = new SEORepositroy(_context);
             ShoppingCarts = new ShoppingCartRepository(_context);
+            Addresses = new AddressRepository(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -38,6 +39,7 @@ namespace Blocko.Persistence
         public IMarketPriceRepository MarketPrices { get; private set; }
         public ISEORepository SEO { get; private set; }
         public IShoppingCartRepository ShoppingCarts { get; private set; }
+        public IAddressRepository Addresses { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

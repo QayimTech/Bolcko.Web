@@ -21,6 +21,9 @@ namespace Bolcko.Web.App.Extensions
                 .AddSupportedCultures(supportedCultures)
                 .AddSupportedUICultures(supportedCultures);
 
+            // Cookie provider must be first so it takes priority
+            localizationOptions.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+
             return app.UseRequestLocalization(localizationOptions);
         }
     }

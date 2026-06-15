@@ -61,10 +61,16 @@ namespace Blocko.Services.Implementations.shoppingCart
             if (product == null)
                 throw new Exception("Product not found");
 
+            if (quantity > product.StockQuantity)
+                throw new Exception("Not enough stock available");
+
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
 
             if (existingItem != null)
             {
+                if (existingItem.Quantity + quantity > product.StockQuantity)
+                    throw new Exception("Not enough stock available");
+                    
                 existingItem.Quantity += quantity;
                 existingItem.UnitPrice = product.RetailPrice;
             }
@@ -104,6 +110,10 @@ namespace Blocko.Services.Implementations.shoppingCart
             }
             else
             {
+                var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId);
+                if (product != null && quantity > product.StockQuantity)
+                    throw new Exception("Not enough stock available");
+                    
                 item.Quantity = quantity;
             }
 

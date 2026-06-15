@@ -1,12 +1,12 @@
 @model Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
 @{
-    ViewData["Title"] = "إضافة صفحة SEO";
+    ViewData["Title"] = L["AddNewSEOPage"];
 }
 
 <section class="p-8 max-w-4xl mx-auto text-right animate-in slide-in-from-bottom duration-500">
     <div class="mb-8">
-        <h1 class="font-headline-md text-on-surface">إضافة صفحة SEO</h1>
-        <p class="text-on-surface-variant text-sm mt-1">أدخل بيانات محركات البحث للصفحة الجديدة</p>
+        <h1 class="font-headline-md text-on-surface">@L["AddNewSEOPage"]</h1>
+        <p class="text-on-surface-variant text-sm mt-1">@L["AddNewSEOPageDescription"]</p>
     </div>
 
     <div class="bg-white border border-slate-200 shadow-hard p-8 rounded-sm">
@@ -15,10 +15,10 @@
             
             <div class="mt-10 flex gap-4">
                 <button type="submit" class="flex-1 bg-primary text-white px-8 py-3 font-bold hover:opacity-90 transition-all shadow-hard">
-                    حفظ البيانات
+                    @L["SaveData"]
                 </button>
                 <a href="@Url.Action("Index")" class="px-8 py-3 font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">
-                    إلغاء
+                    @L["Cancel"]
                 </a>
             </div>
         </form>

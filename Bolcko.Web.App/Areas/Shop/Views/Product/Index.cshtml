@@ -27,7 +27,36 @@
                         SKU: @Model.Sku
                     </span>
                     
-                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    @if (Model.Images != null && Model.Images.Any())
+                    {
+                        var firstImage = Model.Images.OrderBy(img => img.DisplayOrder).First().Url;
+                        
+                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out" 
+                             src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
+                             onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                             
+                        @if (Model.Images.Count > 1)
+                        {
+                            <div class="flex flex-wrap gap-3 mt-4 justify-start">
+                                @{
+                                    var sortedImages = Model.Images.OrderBy(img => img.DisplayOrder).ToList();
+                                }
+                                @for (int i = 0; i < sortedImages.Count; i++)
+                                {
+                                    var img = sortedImages[i];
+                                    var activeClass = i == 0 ? "border-[#E8A020] ring-1 ring-[#E8A020]" : "border-slate-100 hover:border-[#E8A020]/50";
+                                    <div class="w-20 h-20 bg-slate-50 border-2 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 thumbnail-image-box @activeClass"
+                                         data-image-url="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))">
+                                        <img src="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))" 
+                                             class="w-full h-full object-cover" 
+                                             onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
+                                             alt="Thumbnail @(i+1)" />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
                         var imageUrls = Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         var firstImage = imageUrls.FirstOrDefault() ?? string.Empty;

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces.ShoppingCart;
 using Bolcko.Domain.Entities.ShoppingCart.DTOs;
+using Bolcko.Domain.Entities.Order.DTOs;
+using Blocko.Services.Interfaces.Order;
 using System.Security.Claims;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
@@ -9,10 +11,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     public class ShoppingCartController : Controller
     {
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IOrderService _orderService;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService)
+        public ShoppingCartController(IShoppingCartService shoppingCartService, IOrderService orderService)
         {
             _shoppingCartService = shoppingCartService;
+            _orderService = orderService;
         }
 
         public async Task<IActionResult> Index()
@@ -54,14 +58,49 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Checkout()
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
         {
-            return View();
+            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
+            ViewBag.Cart = cart;
+            return View(new CheckoutDto());
         }
 
-        public IActionResult Confirmation()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PlaceOrder(CheckoutDto checkoutDto)
         {
-            return View();
+            if (!ModelState.IsValid)
+            {
+                return View("Checkout", checkoutDto);
+            }
+
+            string sessionId = GetSessionId();
+            int? userId = GetUserId();
+
+            if (!userId.HasValue)
+            {
+                // In a real app, maybe redirect to login or allow guest checkout. For now, assuming logged in user.
+                return RedirectToAction("Login", "Account");
+            }
+
+            var cart = await _shoppingCartService.GetCartAsync(sessionId, userId);
+            if (cart == null || !cart.Items.Any())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var order = await _orderService.PlaceOrderAsync(userId.Value, cart, checkoutDto);
+            await _shoppingCartService.ClearCartAsync(sessionId);
+
+            return RedirectToAction(nameof(Confirmation), new { orderId = order.Id });
+        }
+
+        public async Task<IActionResult> Confirmation(int orderId)
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            if(order == null) return NotFound();
+            return View(order);
         }
 
         private string GetSessionId()

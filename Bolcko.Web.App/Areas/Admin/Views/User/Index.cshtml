@@ -2,14 +2,14 @@
 @using Bolcko.Web.App.Areas.Admin.Models.ViewModels
 @model UserIndexViewModel
 @{
-    ViewData["Title"] = "إدارة المستخدمين";
+    ViewData["Title"] = L["ManageUsers"];
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
     <div class="bg-white border border-slate-200 shadow-hard">
         <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
-            <h2 class="text-white font-bold text-sm uppercase tracking-widest">قائمة المستخدمين</h2>
-            <a href="@Url.Action("CreateAdminUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">إضافة مستخدم</a>
+            <h2 class="text-white font-bold text-sm uppercase tracking-widest">@L["UsersList"]</h2>
+            <a href="@Url.Action("CreateAdminUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">@L["AddUser"]</a>
         </div>
         
         @* Pagination on top as requested *@
@@ -19,11 +19,11 @@
             <table class="w-full text-right">
                 <thead class="bg-slate-100 text-[#1B2235] font-bold text-[10px] uppercase tracking-widest">
                     <tr>
-                        <th class="px-6 py-3">الاسم</th>
-                        <th class="px-6 py-3">البريد الإلكتروني</th>
-                        <th class="px-6 py-3">نوع المستخدم</th>
-                        <th class="px-6 py-3">تاريخ التسجيل</th>
-                        <th class="px-6 py-3">الإجراءات</th>
+                        <th class="px-6 py-3">@L["Name"]</th>
+                        <th class="px-6 py-3">@L["Email"]</th>
+                        <th class="px-6 py-3">@L["UserType"]</th>
+                        <th class="px-6 py-3">@L["RegistrationDate"]</th>
+                        <th class="px-6 py-3">@L["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
@@ -37,10 +37,10 @@
                             </td>
                             <td class="px-6 py-4 text-xs">@user.RegistrationDate.ToString("yyyy/MM/dd")</td>
                             <td class="px-6 py-4 flex gap-2 items-center">
-                                <a href="@Url.Action("Edit", "User", new { area = "Admin", id = user.Id })" class="text-[#E8A020] font-bold text-xs hover:underline">تعديل</a>
-                                <form asp-action="Delete" method="post" class="inline-block" onsubmit="return confirm('هل أنت متأكد من حذف هذا المستخدم؟');">
+                                <a href="@Url.Action("Edit", "User", new { area = "Admin", id = user.Id })" class="text-[#E8A020] font-bold text-xs hover:underline">@L["Edit"]</a>
+                                <form asp-action="Delete" method="post" class="inline-block" onsubmit="return confirm('@L["DeleteUserConfirm"]');">
                                     <input type="hidden" name="id" value="@user.Id" />
-                                    <button type="submit" class="text-red-500 font-bold text-xs hover:underline">حذف</button>
+                                    <button type="submit" class="text-red-500 font-bold text-xs hover:underline">@L["Delete"]</button>
                                 </form>
                             </td>
                         </tr>
