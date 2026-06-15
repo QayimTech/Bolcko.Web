@@ -1,11 +1,9 @@
 @using Bolcko.Domain.Entities.User
 @using Bolcko.Domain.Entities.Order
-@using Bolcko.Domain.Entities.Tender
+@model List<Order>
 @{
-    ViewData["Title"] = "حسابي";
+    ViewData["Title"] = "طلباتي";
     var user = ViewBag.User as User;
-    var orders = ViewBag.Orders as List<Order> ?? new List<Order>();
-    var tenders = ViewBag.Tenders as List<Tender> ?? new List<Tender>();
 }
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
     <div class="flex flex-col lg:flex-row-reverse gap-gutter">
@@ -22,13 +20,13 @@
                 <nav class="p-4">
                     <ul class="space-y-2">
                         <li>
-                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
+                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
                                 <span>لوحة التحكم</span>
                                 <span class="material-symbols-outlined text-sm">dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
                                 <span>طلباتي</span>
                                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
                             </a>
@@ -61,59 +59,52 @@
         <!-- Main Content -->
         <div class="flex-1 space-y-8">
             <header class="border-r-4 border-primary-container pr-6 mb-8">
-                <h1 class="font-headline-xl text-on-surface uppercase mb-2">لوحة التحكم</h1>
-                <p class="font-body-lg text-secondary">مرحباً بك مجدداً، @user?.FirstName. إليك ملخص لنشاطك الأخير.</p>
+                <h1 class="font-headline-xl text-on-surface uppercase mb-2">طلباتي</h1>
+                <p class="font-body-lg text-secondary">قائمة بجميع طلباتك السابقة والحالية وحالتها.</p>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">shopping_bag</span>
-                    <h3 class="text-2xl font-bold text-on-surface">@orders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">إجمالي الطلبات</p>
-                </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">request_quote</span>
-                    <h3 class="text-2xl font-bold text-on-surface">@tenders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">عروض أسعار نشطة</p>
-                </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">architecture</span>
-                    <h3 class="text-2xl font-bold text-on-surface">0</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">مشاريع مسجلة</p>
-                </div>
-            </div>
-
-            <!-- Recent Orders Table -->
+            <!-- Orders Table -->
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
-                <div class="p-6 border-b border-outline-variant flex justify-between items-center">
-                    <h2 class="font-bold text-on-surface uppercase">آخر الطلبات</h2>
-                    <a href="/Shop/Account/Orders" class="text-xs text-primary font-bold hover:underline">عرض الكل</a>
-                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right">
                         <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                             <tr>
                                 <th class="p-4">رقم الطلب</th>
                                 <th class="p-4">التاريخ</th>
-                                <th class="p-4">المبلغ</th>
+                                <th class="p-4">المبلغ الإجمالي</th>
                                 <th class="p-4">الحالة</th>
+                                <th class="p-4">طريقة الدفع</th>
                                 <th class="p-4">الإجراء</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
-                            @if (orders.Any())
+                            @if (Model != null && Model.Any())
                             {
-                                @foreach (var order in orders.Take(5))
+                                @foreach (var order in Model)
                                 {
                                     <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                                         <td class="p-4 font-bold">#BLK-@order.Id.ToString("D5")</td>
-                                        <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd")</td>
-                                        <td class="p-4">@order.TotalAmount.ToString("N2") د.أ</td>
+                                        <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                        <td class="p-4 text-primary font-bold">@order.TotalAmount.ToString("N2") د.أ</td>
                                         <td class="p-4">
-                                            <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">@order.Status.ToString()</span>
+                                            @{
+                                                string statusClass = order.Status.ToString() switch
+                                                {
+                                                    "Pending" => "bg-amber-100 text-amber-800 border-amber-200",
+                                                    "Processing" => "bg-blue-100 text-blue-800 border-blue-200",
+                                                    "Completed" => "bg-green-100 text-green-800 border-green-200",
+                                                    "Cancelled" => "bg-red-100 text-red-800 border-red-200",
+                                                    _ => "bg-slate-100 text-slate-800 border-slate-200"
+                                                };
+                                            }
+                                            <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-sm border @statusClass">@order.Status.ToString()</span>
                                         </td>
+                                        <td class="p-4 text-secondary">@(string.IsNullOrEmpty(order.PaymentMethod) ? "غير محدد" : order.PaymentMethod)</td>
                                         <td class="p-4">
-                                            <button class="text-primary font-bold hover:underline">التفاصيل</button>
+                                            <a href="#" class="text-primary font-bold hover:underline flex items-center gap-1">
+                                                <span>التفاصيل</span>
+                                                <span class="material-symbols-outlined text-[16px]">visibility</span>
+                                            </a>
                                         </td>
                                     </tr>
                                 }
@@ -121,7 +112,12 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">لا توجد طلبات سابقة</td>
+                                    <td colspan="6" class="p-12 text-center text-on-surface-variant flex flex-col items-center justify-center">
+                                        <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">shopping_cart_checkout</span>
+                                        <p class="text-lg font-bold text-on-surface">لا توجد طلبات سابقة</p>
+                                        <p class="text-sm mt-2">لم تقم بإجراء أي طلبات حتى الآن.</p>
+                                        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="mt-6 bg-primary text-on-primary px-6 py-2 rounded font-bold hover:bg-primary-hover transition-colors">تصفح المنتجات</a>
+                                    </td>
                                 </tr>
                             }
                         </tbody>

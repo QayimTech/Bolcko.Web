@@ -28,6 +28,29 @@ namespace Blocko.Services.Implementations.Tender
             return tenderDto;
         }
 
+        public async Task<TenderDto> CreateQuoteRequestAsync(QuoteRequestDto quoteRequestDto, int? userId = null)
+        {
+            var tender = new Bolcko.Domain.Entities.Tender.Tender
+            {
+                UserId = userId ?? 1, // Defaulting to 1 for anonymous guests or handle properly
+                TenderTitle = $"Quote Request: {quoteRequestDto.ProjectName ?? "General Materials"}",
+                TenderDescription = $"Company: {quoteRequestDto.CompanyName}\n" +
+                                    $"Name: {quoteRequestDto.FullName}\n" +
+                                    $"Email: {quoteRequestDto.Email}\n" +
+                                    $"Phone: {quoteRequestDto.Phone}\n" +
+                                    $"City: {quoteRequestDto.City}\n" +
+                                    $"Project Type: {quoteRequestDto.ProjectType}\n" +
+                                    $"Notes: {quoteRequestDto.Notes}",
+                RequestDate = DateTime.UtcNow,
+                Status = Bolcko.Domain.Enums.TenderStatus.Open
+            };
+            
+            await _unitOfWork.Tenders.AddAsync(tender);
+            await _unitOfWork.CompleteAsync();
+            
+            return new TenderDto { Id = tender.Id, TenderTitle = tender.TenderTitle };
+        }
+
         public async Task<IEnumerable<TenderDto>> GetOpenTendersAsync()
         {
             var tenders = await _unitOfWork.Tenders.GetOpenTendersAsync();

@@ -1,0 +1,65 @@
+@model Bolcko.Domain.Entities.Order.DTOs.OrderDto
+@{
+    ViewData["Title"] = "تفاصيل الطلب #" + Model.OrderNumber;
+    Layout = "_AdminLayout";
+}
+
+<div class="p-6 text-right">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">تفاصيل الطلب: @Model.OrderNumber</h1>
+        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-800 rounded hover:bg-slate-300">عودة للقائمة</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">معلومات عامة</h2>
+            <p class="mb-2"><span class="font-bold">رقم الطلب:</span> @Model.OrderNumber</p>
+            <p class="mb-2"><span class="font-bold">التاريخ:</span> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+            <p class="mb-2"><span class="font-bold">الحالة:</span> @Model.Status</p>
+            <p class="mb-2"><span class="font-bold">العميل:</span> @(Model.UserName ?? "غير محدد")</p>
+        </div>
+
+        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">الدفع والشحن</h2>
+            <p class="mb-2"><span class="font-bold">المبلغ الإجمالي:</span> @Model.TotalAmount.ToString("N2") د.أ</p>
+            <p class="mb-2"><span class="font-bold">طريقة الدفع:</span> @(Model.PaymentMethod ?? "غير محدد")</p>
+            <p class="mb-2"><span class="font-bold">حالة الدفع:</span> @Model.PaymentStatus</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg mb-6">
+        <h2 class="text-lg font-bold mb-4 border-b pb-2">العناصر</h2>
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="p-3">معرف المنتج</th>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">الكمية</th>
+                            <th class="p-3">السعر</th>
+                            <th class="p-3">الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="border-b border-slate-100">
+                                <td class="p-3">@item.ProductId</td>
+                                <td class="p-3">@item.ProductName</td>
+                                <td class="p-3">@item.Quantity</td>
+                                <td class="p-3">@item.UnitPrice.ToString("N2") د.أ</td>
+                                <td class="p-3">@item.TotalPrice.ToString("N2") د.أ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-secondary">لا توجد عناصر لهذا الطلب.</p>
+        }
+    </div>
+</div>

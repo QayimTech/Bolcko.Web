@@ -245,10 +245,10 @@
     <value>-- اختر الفئة المناسبة --</value>
   </data>
   <data name="PriceLabel" xml:space="preserve">
-    <value>السعر (ر.س)</value>
+    <value>السعر (د.أ)</value>
   </data>
   <data name="Currency" xml:space="preserve">
-    <value>ر.س</value>
+    <value>د.أ</value>
   </data>
   <data name="SkuLabel" xml:space="preserve">
     <value>رمز SKU</value>
@@ -543,5 +543,260 @@
   </data>
   <data name="TwoMinutesAgo" xml:space="preserve">
     <value>منذ دقيقتين</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="AboutUs" xml:space="preserve">
+    <value>من نحن</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>اتصل بنا</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>بحث عن مواد البناء...</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="AdminPanel" xml:space="preserve">
+    <value>لوحة الإدارة</value>
+  </data>
+  <data name="FeaturedProductsTitle" xml:space="preserve">
+    <value>المنتجات المميزة</value>
+  </data>
+  <data name="FeaturedProductsDesc" xml:space="preserve">
+    <value>تشكيلة مختارة من أفضل مواد البناء لمشاريعك.</value>
+  </data>
+  <data name="CategoriesTitle" xml:space="preserve">
+    <value>تصفح حسب الفئة</value>
+  </data>
+  <data name="CategoriesDesc" xml:space="preserve">
+    <value>مجموعة متكاملة من فئات مواد البناء لتسهيل عملية البحث.</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>عرض الكل</value>
+  </data>
+  <data name="HomeHeroTitle" xml:space="preserve">
+    <value>المنصة الرائدة لتوريد مواد البناء</value>
+  </data>
+  <data name="HomeHeroDesc" xml:space="preserve">
+    <value>نوفر لك كافة احتياجات مشروعك من مواد البناء بجودة عالية وأسعار تنافسية مع خدمة توصيل موثوقة.</value>
+  </data>
+  <data name="RequestQuote" xml:space="preserve">
+    <value>طلب تسعيرة</value>
+  </data>
+  <data name="BrowseProducts" xml:space="preserve">
+    <value>تصفح المنتجات</value>
+  </data>
+  <data name="Subtotal" xml:space="preserve">
+    <value>المجموع الفرعي</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>ضريبة القيمة المضافة (15%)</value>
+  </data>
+  <data name="ShippingEstimated" xml:space="preserve">
+    <value>الشحن المقدر</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>المجموع الكلي</value>
+  </data>
+  <data name="ProceedToCheckout" xml:space="preserve">
+    <value>إتمام عملية الشراء</value>
+  </data>
+  <data name="HomeHeroBadge" xml:space="preserve">
+    <value>توريدات إنشائية معتمدة</value>
+  </data>
+  <data name="HomeHeroTitle" xml:space="preserve">
+    <value>الأساس المتين لكل مشروع عظيم.</value>
+  </data>
+  <data name="HomeHeroDesc" xml:space="preserve">
+    <value>توريدات صناعية وإنشائية عالية الدقة للمقاولين المحترفين. من الخرسانة والمواد الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</value>
+  </data>
+  <data name="ShippingBadge" xml:space="preserve">
+    <value>شحن وتوصيل فوري</value>
+  </data>
+  <data name="ShippingTitle" xml:space="preserve">
+    <value>جاهز ومتاح للشحن.</value>
+  </data>
+  <data name="ShippingDesc" xml:space="preserve">
+    <value>98% من كتالوجنا الأساسي مخزّن وجاهز للإرسال الفوري مباشرة لموقع العمل الخاص بك.</value>
+  </data>
+  <data name="BrowseSmartly" xml:space="preserve">
+    <value>تصفح بذكاء</value>
+  </data>
+  <data name="FeaturedCategories" xml:space="preserve">
+    <value>الفئات المميزة</value>
+  </data>
+  <data name="CustomerFavorites" xml:space="preserve">
+    <value>المفضلة لدى العملاء</value>
+  </data>
+  <data name="BestSellingProducts" xml:space="preserve">
+    <value>المنتجات الأكثر مبيعاً</value>
+  </data>
+  <data name="LiveUpdated" xml:space="preserve">
+    <value>مباشر ومحدث</value>
+  </data>
+  <data name="LocalMarketPrices" xml:space="preserve">
+    <value>أسعار مواد البناء بالسوق المحلي</value>
+  </data>
+  <data name="MarketPricesDesc" xml:space="preserve">
+    <value>مؤشرات يومية تقريبية لأسعار المواد الإنشائية الأساسية في السوق المحلي الأردني لدعم تسعير مشاريعكم بدقة.</value>
+  </data>
+  <data name="CorporateAccounts" xml:space="preserve">
+    <value>حسابات الشركات والـ B2B</value>
+  </data>
+  <data name="BigProjectsTitle" xml:space="preserve">
+    <value>المشاريع الكبيرة تتطلب تسعيراً دقيقاً ودعماً مخصصاً.</value>
+  </data>
+  <data name="BigProjectsDesc" xml:space="preserve">
+    <value>قم بتوسيع نطاق أعمالك بكفاءة. تقدم بوابة B2B وخدمات الشركات لـ LOCKO خصومات كبيرة على الكميات، عمليات تسليم مجدولة للمواقع، ومديري حسابات مخصصين لشركات المقاولات الكبرى.</value>
+  </data>
+  <data name="GuaranteedSupply" xml:space="preserve">
+    <value>توريد مضمون ومستدام</value>
+  </data>
+  <data name="GuaranteedSupplyDesc" xml:space="preserve">
+    <value>تأمين وتخزين الكميات المطلوبة لمراحل مشروعك طويلة الأجل دون انقطاع.</value>
+  </data>
+  <data name="AdvancedLogistics" xml:space="preserve">
+    <value>دعم لوجستي متقدم</value>
+  </data>
+  <data name="AdvancedLogisticsDesc" xml:space="preserve">
+    <value>جداول شحن وتوصيل مخصصة متناسبة مع مواقع العمل المتعددة الخاصة بشركتك.</value>
+  </data>
+  <data name="RequestBulkQuote" xml:space="preserve">
+    <value>اطلب عرض سعر للكميات الكبيرة</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>اسم الشركة</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>اسم المسؤول</value>
+  </data>
+  <data name="ProjectType" xml:space="preserve">
+    <value>نوع المشروع</value>
+  </data>
+  <data name="SubmitRequest" xml:space="preserve">
+    <value>إرسال الطلب</value>
+  </data>
+  <data name="FastDelivery" xml:space="preserve">
+    <value>توصيل سريع وموثوق</value>
+  </data>
+  <data name="FastDeliveryDesc" xml:space="preserve">
+    <value>شحن مجدول وتوصيل للمنطقة الصناعية ومختلف المواقع الإنشائية بيسر وسهولة.</value>
+  </data>
+  <data name="WarrantyMatching" xml:space="preserve">
+    <value>ضمان ومطابقة المواصفات</value>
+  </data>
+  <data name="WarrantyMatchingDesc" xml:space="preserve">
+    <value>كافة المنتجات لدينا مطابقة للمقاييس العالمية ومرفقة بشهادات الفحص المخبري.</value>
+  </data>
+  <data name="TechnicalSupport" xml:space="preserve">
+    <value>دعم فني واستشاري 24/7</value>
+  </data>
+  <data name="TechnicalSupportDesc" xml:space="preserve">
+    <value>فريق من المستشارين والمهندسين جاهز لمساعدتكم في أي وقت لتقدير الكميات.</value>
+  </data>
+  <data name="FlexiblePayments" xml:space="preserve">
+    <value>تسهيلات وخيارات دفع مرنة</value>
+  </data>
+  <data name="FlexiblePaymentsDesc" xml:space="preserve">
+    <value>خيارات دفع رقمية متعددة وآمنة، إضافة إلى خطوط الائتمان للمؤسسات المسجلة.</value>
+  </data>
+  <data name="Residential" xml:space="preserve">
+    <value>سكني</value>
+  </data>
+  <data name="Commercial" xml:space="preserve">
+    <value>تجاري</value>
+  </data>
+  <data name="Industrial" xml:space="preserve">
+    <value>صناعي</value>
+  </data>
+  <data name="ShoppingCartTitle" xml:space="preserve">
+    <value>سلة التسوق</value>
+  </data>
+  <data name="CartItemCount" xml:space="preserve">
+    <value>لديك {0} منتج في سلة التسوق</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>تحديث</value>
+  </data>
+  <data name="InStock" xml:space="preserve">
+    <value>متوفر</value>
+  </data>
+  <data name="OutOfStock" xml:space="preserve">
+    <value>نفذ من المخزون</value>
+  </data>
+  <data name="QualityGuaranteed" xml:space="preserve">
+    <value>جودة مضمونة</value>
+  </data>
+  <data name="QualityGuaranteedDesc" xml:space="preserve">
+    <value>مواد متوافقة مع المواصفات</value>
+  </data>
+  <data name="SiteDelivery" xml:space="preserve">
+    <value>توصيل للموقع</value>
+  </data>
+  <data name="SiteDeliveryDesc" xml:space="preserve">
+    <value>إلى أي موقع إنشائي رئيسي</value>
+  </data>
+  <data name="OrderSummary" xml:space="preserve">
+    <value>ملخص الطلب</value>
+  </data>
+  <data name="CompleteOrder" xml:space="preserve">
+    <value>إتمام الطلب</value>
+  </data>
+  <data name="SecurePaymentVia" xml:space="preserve">
+    <value>نقبل الدفع الآمن عبر</value>
+  </data>
+  <data name="CartEmpty" xml:space="preserve">
+    <value>سلة التسوق فارغة</value>
+  </data>
+  <data name="CartEmptyDesc" xml:space="preserve">
+    <value>ابدأ بإضافة المنتجات إلى سلة التسوق</value>
+  </data>
+  <data name="AddToCart" xml:space="preserve">
+    <value>أضف إلى السلة</value>
+  </data>
+  <data name="ItemInStock" xml:space="preserve">
+    <value>متوفر</value>
+  </data>
+  <data name="ItemOutOfStock" xml:space="preserve">
+    <value>نفذ</value>
+  </data>
+  <data name="ProductDetails" xml:space="preserve">
+    <value>تفاصيل ومواصفات المنتج</value>
+  </data>
+  <data name="OriginalAndGuaranteed" xml:space="preserve">
+    <value>أصلي ومضمون</value>
+  </data>
+  <data name="FastShipping" xml:space="preserve">
+    <value>شحن سريع</value>
+  </data>
+  <data name="SecurePayment" xml:space="preserve">
+    <value>دفع آمن 100%</value>
+  </data>
+  <data name="QuantityRequired" xml:space="preserve">
+    <value>الكمية المطلوبة</value>
+  </data>
+  <data name="VatIncluded" xml:space="preserve">
+    <value>(شامل ضريبة القيمة المضافة)</value>
+  </data>
+  <data name="ProductNotAvailable" xml:space="preserve">
+    <value>المنتج غير متوفر</value>
+  </data>
+  <data name="ProductNotAvailableDesc" xml:space="preserve">
+    <value>عذراً، لم نتمكن من العثور على هذا المنتج في قاعدة البيانات حالياً.</value>
+  </data>
+  <data name="BrowseAlternatives" xml:space="preserve">
+    <value>تصفح المنتجات البديلة</value>
+  </data>
+  <data name="AvailableForImmediateShipping" xml:space="preserve">
+    <value>متوفر وجاهز للشحن الفوري</value>
+  </data>
+  <data name="TemporarilyOutOfStock" xml:space="preserve">
+    <value>نفذ من المخزن مؤقتاً</value>
   </data>
 </root>

@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "اتصل بنا";
+}
+<main class="max-w-4xl mx-auto px-6 py-12 text-right">
+    <header class="mb-12 border-r-4 border-primary-container pr-6">
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">اتصل بنا</h1>
+        <p class="font-body-lg text-secondary">نحن هنا للإجابة على جميع استفساراتك وتقديم الدعم لمشاريعك.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="space-y-8">
+            <div class="flex items-start gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl">location_on</span>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">العنوان</h3>
+                    <p class="text-secondary">عمان، المملكة الأردنية الهاشمية</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl">phone</span>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">الهاتف</h3>
+                    <p class="text-secondary">+962 6 xxxx xxxx</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl">email</span>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">البريد الإلكتروني</h3>
+                    <p class="text-secondary">info@bolcko.com</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-outline-variant p-8 shadow-hard">
+            <form class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسمك الكريم" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">البريد الإلكتروني</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@domain.com" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الرسالة</label>
+                    <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-32" placeholder="اكتب رسالتك هنا..."></textarea>
+                </div>
+                <button type="button" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all">
+                    إرسال الرسالة
+                </button>
+            </form>
+        </div>
+    </div>
+</main>

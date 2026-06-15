@@ -1,12 +1,12 @@
 @model Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto
 @{
-    ViewData["Title"] = "سلة التسوق";
+    ViewData["Title"] = SharedLocalizer["ShoppingCartTitle"];
 }
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
     <!-- Header -->
     <header class="mb-12 border-r-4 border-primary-container pr-6">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">سلة التسوق</h1>
-        <p class="font-body-lg text-secondary">لديك @Model.TotalItems منتج في سلة التسوق الخاصة بك.</p>
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["ShoppingCartTitle"]</h1>
+        <p class="font-body-lg text-secondary">@string.Format(SharedLocalizer["CartItemCount"], Model.TotalItems)</p>
     </header>
 
     @if (Model.Items.Any())
@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="mt-3">
                                     <span class="inline-block @(item.StockQuantity > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800") text-[10px] font-bold px-2 py-1 uppercase rounded-sm border @(item.StockQuantity > 0 ? "border-green-200" : "border-red-200")">
-                                        @(item.StockQuantity > 0 ? "متوفر" : "نفذ من المخزون")
+                                        @(item.StockQuantity > 0 ? SharedLocalizer["InStock"].Value : SharedLocalizer["OutOfStock"].Value)
                                     </span>
                                 </div>
                             </div>
@@ -57,11 +57,11 @@
                                     <button type="button" data-decrement="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-l border-outline">-</button>
                                     <input id="quantity-@item.Id" type="number" name="quantity" value="@item.Quantity" min="1" class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
                                     <button type="button" data-increment="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-r border-outline">+</button>
-                                    <button type="submit" class="px-4 py-1 bg-primary-container text-on-primary-container font-bold hover:opacity-90 transition-opacity">تحديث</button>
+                                    <button type="submit" class="px-4 py-1 bg-primary-container text-on-primary-container font-bold hover:opacity-90 transition-opacity">@SharedLocalizer["Update"]</button>
                                 </form>
                                 <div class="text-left">
-                                    <p class="font-bold text-xs text-outline uppercase mb-1">المجموع الفرعي</p>
-                                    <p class="font-headline-md text-on-surface">@item.TotalPrice.ToString("N2") <span class="text-sm">ر.س</span></p>
+                                    <p class="font-bold text-xs text-outline uppercase mb-1">@SharedLocalizer["Subtotal"]</p>
+                                    <p class="font-headline-md text-on-surface">@item.TotalPrice.ToString("N2") <span class="text-sm">د.أ</span></p>
                                 </div>
                             </div>
                         </div>
@@ -73,15 +73,15 @@
                     <div class="flex items-center gap-4 p-4 border border-outline-variant bg-surface-container-low shadow-hard">
                         <span class="material-symbols-outlined text-primary text-3xl">verified</span>
                         <div>
-                            <h4 class="font-bold text-on-surface uppercase">جودة مضمونة</h4>
-                            <p class="text-xs text-outline uppercase">مواد متوافقة مع المواصفات</p>
+                            <h4 class="font-bold text-on-surface uppercase">@SharedLocalizer["QualityGuaranteed"]</h4>
+                            <p class="text-xs text-outline uppercase">@SharedLocalizer["QualityGuaranteedDesc"]</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 border border-outline-variant bg-surface-container-low shadow-hard">
                         <span class="material-symbols-outlined text-primary text-3xl">local_shipping</span>
                         <div>
-                            <h4 class="font-bold text-on-surface uppercase">توصيل للموقع</h4>
-                            <p class="text-xs text-outline uppercase">إلى أي موقع إنشائي رئيسي</p>
+                            <h4 class="font-bold text-on-surface uppercase">@SharedLocalizer["SiteDelivery"]</h4>
+                            <p class="text-xs text-outline uppercase">@SharedLocalizer["SiteDeliveryDesc"]</p>
                         </div>
                     </div>
                 </div>
@@ -90,34 +90,34 @@
             <!-- Order Summary Section -->
             <div class="lg:col-span-4">
                 <div class="bg-white border-2 border-on-background p-md shadow-hard sticky top-24">
-                    <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">ملخص الطلب</h2>
+                    <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">@SharedLocalizer["OrderSummary"]</h2>
                     <div class="space-y-4 mb-8">
-                        <div class="flex justify-between items-center">
-                            <span class="text-outline-variant">المجموع الفرعي</span>
-                            <span class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") ر.س</span>
+                        <div class="flex justify-between items-center text-sm mb-4">
+                            <span class="text-secondary">@SharedLocalizer["Subtotal"]</span>
+                            <span class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") د.أ</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-outline-variant">ضريبة القيمة المضافة (15%)</span>
-                            <span class="font-bold text-on-surface">@Model.Tax.ToString("N2") ر.س</span>
+                        <div class="flex justify-between items-center text-sm mb-4">
+                            <span class="text-secondary">@SharedLocalizer["Tax"]</span>
+                            <span class="font-bold text-on-surface">@Model.Tax.ToString("N2") د.أ</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-outline-variant">الشحن التقديري</span>
-                            <span class="font-bold text-on-surface">@Model.Shipping.ToString("N2") ر.س</span>
+                        <div class="flex justify-between items-center text-sm mb-6 pb-6 border-b border-outline-variant">
+                            <span class="text-secondary">@SharedLocalizer["ShippingEstimated"]</span>
+                            <span class="font-bold text-on-surface">@Model.Shipping.ToString("N2") د.أ</span>
                         </div>
-                        <div class="pt-4 border-t border-outline-variant flex justify-between items-center">
-                            <span class="font-headline-md text-on-surface uppercase">الإجمالي</span>
-                            <span class="font-headline-md text-primary">@Model.Total.ToString("N2") ر.س</span>
+                        <div class="flex justify-between items-center mb-8">
+                            <span class="font-bold text-lg text-on-surface">@SharedLocalizer["Total"]</span>
+                            <span class="font-headline-md text-primary">@Model.Total.ToString("N2") د.أ</span>
                         </div>
                     </div>
 
                     <!-- CTA -->
                     <a href="@Url.Action("Checkout", "ShoppingCart", new { area = "Shop" })" class="w-full bg-primary-container text-on-primary-container font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
-                        إتمام الطلب
+                        @SharedLocalizer["CompleteOrder"]
                         <span class="material-symbols-outlined">arrow_back</span>
                     </a>
 
                     <div class="mt-6 flex flex-col items-center gap-4 border-t border-outline-variant pt-6">
-                        <p class="text-xs text-outline-variant uppercase">نقبل الدفع الآمن عبر</p>
+                        <p class="text-xs text-outline-variant uppercase">@SharedLocalizer["SecurePaymentVia"]</p>
                         <div class="flex gap-4 opacity-50 grayscale">
                             <span class="material-symbols-outlined">credit_card</span>
                             <span class="material-symbols-outlined">account_balance</span>
@@ -132,10 +132,10 @@
     {
         <div class="text-center py-20">
             <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">shopping_cart</span>
-            <h2 class="font-headline-lg text-on-surface mb-2">سلة التسوق فارغة</h2>
-            <p class="text-on-surface-variant mb-8">ابدأ بإضافة المنتجات إلى سلة التسوق</p>
+            <h2 class="font-headline-lg text-on-surface mb-2">@SharedLocalizer["CartEmpty"]</h2>
+            <p class="text-on-surface-variant mb-8">@SharedLocalizer["CartEmptyDesc"]</p>
             <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard inline-block">
-                تصفح المنتجات
+                @SharedLocalizer["BrowseProducts"]
             </a>
         </div>
     }

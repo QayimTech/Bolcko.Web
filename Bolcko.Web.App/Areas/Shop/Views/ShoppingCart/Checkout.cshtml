@@ -41,9 +41,9 @@
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المدينة</label>
                             <select asp-for="City" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
-                                <option value="الرياض">الرياض</option>
-                                <option value="جدة">جدة</option>
-                                <option value="الدمام">الدمام</option>
+                                <option value="عمان">عمان</option>
+                                <option value="الزرقاء">الزرقاء</option>
+                                <option value="إربد">إربد</option>
                             </select>
                         </div>
                         <div>
@@ -56,12 +56,21 @@
                             <textarea asp-for="DetailedAddress" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-24" placeholder="أدخل وصفاً دقيقاً للموقع"></textarea>
                             <span asp-validation-for="DetailedAddress" class="text-error text-xs"></span>
                         </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الدولة</label>
+                            <input asp-for="Country" value="الأردن" readonly class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right text-outline-variant" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الرمز البريدي</label>
+                            <input asp-for="PostalCode" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="11111" />
+                            <span asp-validation-for="PostalCode" class="text-error text-xs"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Project Info (Optional) -->
                 <div class="bg-white border border-outline-variant p-8 shadow-hard">
-                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات المشروع (اختياري)</h2>
+                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات المشروع وملاحظات (اختياري)</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم المشروع</label>
@@ -74,6 +83,10 @@
                                 <option value="تجاري">تجاري</option>
                                 <option value="صناعي">صناعي</option>
                             </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">ملاحظات إضافية</label>
+                            <textarea asp-for="Notes" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-24" placeholder="أضف أي ملاحظات حول التوصيل أو الطلب"></textarea>
                         </div>
                     </div>
                 </div>
@@ -118,26 +131,26 @@
                                 <div class="flex-grow">
                                     <h4 class="font-bold text-xs">@item.ProductName</h4>
                                     <p class="text-[10px] text-outline-variant">@item.Quantity وحدة</p>
-                                    <p class="font-bold text-xs">@item.TotalPrice.ToString("N2") ر.س</p>
+                                    <p class="font-bold text-xs">@item.TotalPrice.ToString("N2") د.أ</p>
                                 </div>
                             </div>
                         }
                         
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-outline-variant text-sm">المجموع الفرعي</span>
-                            <span class="font-bold">@cart.Subtotal.ToString("N2") ر.س</span>
+                            <span class="font-bold">@cart.Subtotal.ToString("N2") د.أ</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-outline-variant text-sm">الشحن</span>
-                            <span class="font-bold">@cart.Shipping.ToString("N2") ر.س</span>
+                            <span class="font-bold">@cart.Shipping.ToString("N2") د.أ</span>
                         </div>
                         <div class="flex justify-between items-center border-b border-outline-variant pb-4">
                             <span class="text-outline-variant text-sm">الضريبة (15%)</span>
-                            <span class="font-bold">@cart.Tax.ToString("N2") ر.س</span>
+                            <span class="font-bold">@cart.Tax.ToString("N2") د.أ</span>
                         </div>
                         <div class="flex justify-between items-center pt-4">
                             <span class="text-outline-variant font-bold">المجموع الكلي</span>
-                            <span class="font-headline-md text-primary">@cart.Total.ToString("N2") ر.س</span>
+                            <span class="font-headline-md text-primary">@cart.Total.ToString("N2") د.أ</span>
                         </div>
                     }
                 </div>

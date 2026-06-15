@@ -50,7 +50,7 @@
         <div class="mt-auto">
             <div class="flex justify-between items-center border-t border-slate-50 pt-4 mb-4">
                 <span class="font-bold text-lg text-slate-900">
-                    @Model.RetailPrice.ToString("N2") <span class="text-[10px] font-medium text-slate-400">ر.س</span>
+                    @Model.RetailPrice.ToString("N2") <span class="text-[10px] font-medium text-slate-400">د.أ</span>
                 </span>
                 
                 <!-- Glowing Stock Indicator -->
@@ -58,12 +58,12 @@
                     @if (Model.StockQuantity > 0)
                     {
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-emerald-600">متوفر</span>
+                        <span class="text-[10px] font-bold text-emerald-600">@SharedLocalizer["ItemInStock"]</span>
                     }
                     else
                     {
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                        <span class="text-[10px] font-bold text-rose-500">نفذ</span>
+                        <span class="text-[10px] font-bold text-rose-500">@SharedLocalizer["ItemOutOfStock"]</span>
                     }
                 </div>
             </div>
@@ -75,7 +75,7 @@
                 <button type="submit" 
                         class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                    <span class="text-xs tracking-wider">أضف إلى السلة</span>
+                    <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>
                 </button>
             </form>
         </div>

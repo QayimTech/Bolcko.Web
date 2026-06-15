@@ -25,5 +25,20 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
             return View(product);
         }
+
+        public async Task<IActionResult> Search(string query)
+        {
+            var products = await _serviceManager.ProductService.GetAllProductsAsync();
+            if (!string.IsNullOrEmpty(query))
+            {
+                products = products.Where(p => 
+                    (p.Name != null && p.Name.Contains(query, StringComparison.OrdinalIgnoreCase)) || 
+                    (p.Description != null && p.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                ).ToList();
+            }
+            
+            ViewBag.Query = query;
+            return View(products);
+        }
     }
 }

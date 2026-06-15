@@ -1,6 +1,6 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 @{
-    ViewData["Title"] = "تفاصيل المنتج";
+    ViewData["Title"] = SharedLocalizer["ProductDetails"];
 }
 
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
@@ -87,7 +87,7 @@
                     {
                         <div class="w-full h-[550px] flex flex-col items-center justify-center bg-slate-50 rounded-2xl">
                             <span class="material-symbols-outlined text-7xl text-slate-200">image</span>
-                            <span class="text-xs text-slate-400 mt-2 font-bold">صورة المنتج غير متوفرة</span>
+                            <span class="text-xs text-slate-400 mt-2 font-bold">@SharedLocalizer["ProductNotAvailable"]</span>
                         </div>
                     }
                 </div>
@@ -107,12 +107,12 @@
                         @if (Model.StockQuantity > 0)
                         {
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-xs font-bold text-emerald-600">متوفر وجاهز للشحن الفوري</span>
+                            <span class="text-xs font-bold text-emerald-600">@SharedLocalizer["AvailableForImmediateShipping"]</span>
                         }
                         else
                         {
                             <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                            <span class="text-xs font-bold text-rose-500">نفذ من المخزن مؤقتاً</span>
+                            <span class="text-xs font-bold text-rose-500">@SharedLocalizer["TemporarilyOutOfStock"]</span>
                         }
                     </div>
                 </div>
@@ -120,15 +120,15 @@
                 <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
                     <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-50 pb-6">
                         <span class="text-4xl font-extrabold text-slate-900">@Model.RetailPrice.ToString("N2")</span>
-                        <span class="text-sm font-bold text-slate-400">ر.س / @Model.UnitOfMeasure</span>
-                        <span class="text-[10px] text-slate-400 mr-2 font-medium">(شامل ضريبة القيمة المضافة)</span>
+                        <span class="text-sm font-bold text-slate-400">د.أ / @Model.UnitOfMeasure</span>
+                        <span class="text-sm font-medium">@SharedLocalizer["VatIncluded"]</span>
                     </div>
                     
                     <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="productId" value="@Model.Id" />
                         
                         <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">الكمية المطلوبة</label>
+                            <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">@SharedLocalizer["QuantityRequired"]</label>
                             <div class="flex gap-4 items-center">
                                 <!-- Modern Quantity Selector -->
                                 <div class="flex border border-slate-100 rounded-2xl h-14 overflow-hidden shadow-sm items-center bg-white">
@@ -144,7 +144,7 @@
                                 <!-- Modern Add to Cart Button -->
                                 <button type="submit" class="flex-1 h-14 bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95">
                                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                                    <span class="text-sm tracking-wider">أضف إلى السلة</span>
+                                    <span class="text-sm tracking-wider">@SharedLocalizer["AddToCart"]</span>
                                 </button>
                             </div>
                         </div>
@@ -154,15 +154,15 @@
                     <div class="border-t border-slate-50 pt-6 mt-6 flex flex-wrap gap-4 items-center justify-between text-xs text-slate-400">
                         <span class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-base text-slate-300">verified</span>
-                            أصلي ومضمون
+                            @SharedLocalizer["OriginalAndGuaranteed"]
                         </span>
                         <span class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-base text-slate-300">local_shipping</span>
-                            شحن سريع
+                            @SharedLocalizer["FastShipping"]
                         </span>
                         <span class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-base text-slate-300">lock</span>
-                            دفع آمن 100%
+                            @SharedLocalizer["SecurePayment"]
                         </span>
                     </div>
                 </div>
@@ -171,7 +171,7 @@
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div>
-                            <h3 class="font-bold text-slate-800 mb-3 border-r-4 border-[#E8A020] pr-3">تفاصيل ومواصفات المنتج</h3>
+                            <h3 class="font-bold text-slate-800 mb-3 border-r-4 border-[#E8A020] pr-3">@SharedLocalizer["ProductDetails"]</h3>
                             <p class="font-body-md text-slate-500 leading-relaxed">
                                 @Model.Description
                             </p>
@@ -185,11 +185,11 @@
     {
         <div class="text-center py-24 bg-white border border-slate-100 rounded-3xl max-w-lg mx-auto shadow-sm">
             <span class="material-symbols-outlined text-7xl text-slate-200 mb-4 animate-bounce">inventory</span>
-            <h2 class="font-headline-lg text-slate-800 mb-2">المنتج غير متوفر</h2>
-            <p class="text-slate-400 mb-8 text-sm">عذراً، لم نتمكن من العثور على هذا المنتج في قاعدة البيانات حالياً.</p>
+            <h2 class="font-headline-lg text-slate-800 mb-2">@SharedLocalizer["ProductNotAvailable"]</h2>
+            <p class="text-slate-400 mb-8 text-sm">@SharedLocalizer["ProductNotAvailableDesc"]</p>
             <a href="@Url.Action("Index", "Category", new { area = "Shop" })" 
                class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-xl transition-all shadow-md inline-block">
-                تصفح المنتجات البديلة
+                @SharedLocalizer["BrowseAlternatives"]
             </a>
         </div>
     }

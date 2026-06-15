@@ -6,8 +6,29 @@
     <div class="bg-white border border-outline-variant p-12 shadow-hard">
         <span class="material-symbols-outlined text-primary text-7xl mb-6" style="font-variation-settings: 'wght' 200">check_circle</span>
         <h1 class="font-headline-xl text-on-surface mb-4">تم استلام طلبك بنجاح!</h1>
-        <p class="text-body-lg text-secondary mb-8">رقم الطلب الخاص بك هو: <span class="font-bold text-on-surface">#BLK-@Model?.Id</span></p>
-        <p class="text-body-lg text-secondary mb-8">إجمالي المبلغ: <span class="font-bold text-on-surface">@Model?.TotalAmount.ToString("N2") ر.س</span></p>
+        <p class="text-body-lg text-secondary mb-8">رقم الطلب الخاص بك هو: <span class="font-bold text-on-surface">@Model?.OrderNumber</span></p>
+        <p class="text-body-lg text-secondary mb-4">إجمالي المبلغ: <span class="font-bold text-on-surface">@Model?.TotalAmount.ToString("N2") د.أ</span></p>
+        
+        @if(Model?.Items != null && Model.Items.Any())
+        {
+            <div class="bg-surface-container-low p-6 mb-8 text-right text-sm">
+                <h4 class="font-bold mb-4 border-b border-outline-variant pb-2">تفاصيل الطلب</h4>
+                @foreach (var item in Model.Items)
+                {
+                    <div class="flex justify-between mb-2">
+                        <span>@item.Quantity x @item.ProductName (أو ما يعادله)</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if(Model?.PaymentMethod == "COD")
+        {
+            <div class="bg-primary-container bg-opacity-20 p-4 border border-primary mb-8">
+                <p class="font-bold text-primary">طريقة الدفع: الدفع عند الاستلام</p>
+                <p class="text-xs text-secondary mt-1">يرجى تجهيز المبلغ المطلوب عند استلام الطلبية.</p>
+            </div>
+        }
         
         <div class="bg-surface-container-low p-6 border-r-4 border-primary text-right mb-12">
             <h3 class="font-bold text-on-surface mb-2">ماذا يحدث الآن؟</h3>

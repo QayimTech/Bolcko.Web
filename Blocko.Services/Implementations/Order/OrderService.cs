@@ -40,6 +40,7 @@ namespace Blocko.Services.Implementations.order
 
             var order = new Order
             {
+                OrderNumber = $"BLK-{DateTime.UtcNow:yyMMdd}-{new Random().Next(1000, 9999)}",
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 TotalAmount = cart.Total,
@@ -72,7 +73,7 @@ namespace Blocko.Services.Implementations.order
             }
 
             await _unitOfWork.CompleteAsync();
-            return new OrderDto { Id = order.Id, TotalAmount = order.TotalAmount };
+            return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount };
         }
 
         public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId)
@@ -130,17 +131,26 @@ namespace Blocko.Services.Implementations.order
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id)
         {
-            var o = await _unitOfWork.Orders.GetByIdAsync(id);
+            var o = await _unitOfWork.Orders.GetOrderByIdWithItemsAsync(id);
             if (o == null) return null;
             return new OrderDto
             {
                 Id = o.Id,
+                OrderNumber = o.OrderNumber,
                 UserId = o.UserId,
                 UserName = o.User?.UserName,
                 OrderDate = o.OrderDate,
                 TotalAmount = o.TotalAmount,
                 Status = o.Status,
-                PaymentStatus = o.PaymentStatus
+                PaymentMethod = o.PaymentMethod,
+                PaymentStatus = o.PaymentStatus,
+                Items = o.Items?.Select(i => new OrderItemDto
+                {
+                    ProductId = i.ProductId,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.Subtotal
+                }).ToList() ?? new List<OrderItemDto>()
             };
         }
     }

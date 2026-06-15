@@ -32,5 +32,11 @@ namespace Bolcko.Domain.Entities.Order.DTOs
 
         [Required]
         public string PaymentMethod { get; set; } = "COD";
+
+        public string? Country { get; set; }
+        
+        public string? PostalCode { get; set; }
+
+        public string? Notes { get; set; }
     }
 }

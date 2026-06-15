@@ -46,6 +46,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View();
         }
 
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

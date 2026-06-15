@@ -6,6 +6,7 @@ namespace Bolcko.Domain.Entities.Order
 {
     public class Order : BaseEntity
     {
+        public string OrderNumber { get; set; } = string.Empty;
         public int UserId { get; set; }
         public Bolcko.Domain.Entities.User.User User { get; set; } = null!;
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;

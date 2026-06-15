@@ -114,9 +114,18 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View();
         }
 
-        public IActionResult Orders()
+        public async Task<IActionResult> Orders()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var orders = await _serviceManager.OrderService.GetUserOrdersAsync(user.Id);
+            ViewBag.User = user;
+            
+            return View(orders);
         }
 
         public IActionResult Quotes()

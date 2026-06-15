@@ -45,4 +45,11 @@ namespace Bolcko.Domain.Enums
         Billing = 2,
         ProjectLocation = 3
     }
+
+    public enum PaymentMethod
+    {
+        COD = 1,
+        BankTransfer = 2,
+        CreditCard = 3
+    }
 }

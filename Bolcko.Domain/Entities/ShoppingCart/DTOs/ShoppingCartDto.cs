@@ -9,7 +9,7 @@ namespace Bolcko.Domain.Entities.ShoppingCart.DTOs
         public int TotalItems => Items.Sum(i => i.Quantity);
         public decimal Subtotal => Items.Sum(i => i.TotalPrice);
         public decimal Tax => Subtotal * 0.15m;
-        public decimal Shipping => 250.00m;
+        public decimal Shipping => 5.00m;
         public decimal Total => Subtotal + Tax + Shipping;
     }
 }

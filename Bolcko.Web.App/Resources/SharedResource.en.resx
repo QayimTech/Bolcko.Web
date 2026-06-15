@@ -245,10 +245,10 @@
     <value>-- Select Category --</value>
   </data>
   <data name="PriceLabel" xml:space="preserve">
-    <value>Price (SAR)</value>
+    <value>Price (JOD)</value>
   </data>
   <data name="Currency" xml:space="preserve">
-    <value>SAR</value>
+    <value>JOD</value>
   </data>
   <data name="SkuLabel" xml:space="preserve">
     <value>SKU Code</value>
@@ -543,5 +543,260 @@
   </data>
   <data name="TwoMinutesAgo" xml:space="preserve">
     <value>2 minutes ago</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="AboutUs" xml:space="preserve">
+    <value>About Us</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Search for building materials...</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="AdminPanel" xml:space="preserve">
+    <value>Admin Panel</value>
+  </data>
+  <data name="FeaturedProductsTitle" xml:space="preserve">
+    <value>Featured Products</value>
+  </data>
+  <data name="FeaturedProductsDesc" xml:space="preserve">
+    <value>A curated selection of the best building materials for your projects.</value>
+  </data>
+  <data name="CategoriesTitle" xml:space="preserve">
+    <value>Browse by Category</value>
+  </data>
+  <data name="CategoriesDesc" xml:space="preserve">
+    <value>A comprehensive range of building material categories to facilitate your search.</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>View All</value>
+  </data>
+  <data name="HomeHeroTitle" xml:space="preserve">
+    <value>The Leading Platform for Building Materials Supply</value>
+  </data>
+  <data name="HomeHeroDesc" xml:space="preserve">
+    <value>We provide all your project needs of building materials with high quality and competitive prices with reliable delivery service.</value>
+  </data>
+  <data name="RequestQuote" xml:space="preserve">
+    <value>Request Quote</value>
+  </data>
+  <data name="BrowseProducts" xml:space="preserve">
+    <value>Browse Products</value>
+  </data>
+  <data name="Subtotal" xml:space="preserve">
+    <value>Subtotal</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>VAT (15%)</value>
+  </data>
+  <data name="ShippingEstimated" xml:space="preserve">
+    <value>Estimated Shipping</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total Amount</value>
+  </data>
+  <data name="ProceedToCheckout" xml:space="preserve">
+    <value>Proceed to Checkout</value>
+  </data>
+  <data name="HomeHeroBadge" xml:space="preserve">
+    <value>Certified Construction Supplies</value>
+  </data>
+  <data name="HomeHeroTitle" xml:space="preserve">
+    <value>The Solid Foundation for Every Great Project.</value>
+  </data>
+  <data name="HomeHeroDesc" xml:space="preserve">
+    <value>High-precision industrial and construction supplies for professional contractors. From concrete and raw materials to precision tools, we provide everything you need.</value>
+  </data>
+  <data name="ShippingBadge" xml:space="preserve">
+    <value>Immediate Shipping &amp; Delivery</value>
+  </data>
+  <data name="ShippingTitle" xml:space="preserve">
+    <value>Ready and Available for Shipping.</value>
+  </data>
+  <data name="ShippingDesc" xml:space="preserve">
+    <value>98% of our core catalog is stocked and ready for immediate dispatch directly to your job site.</value>
+  </data>
+  <data name="BrowseSmartly" xml:space="preserve">
+    <value>Browse Smartly</value>
+  </data>
+  <data name="FeaturedCategories" xml:space="preserve">
+    <value>Featured Categories</value>
+  </data>
+  <data name="CustomerFavorites" xml:space="preserve">
+    <value>Customer Favorites</value>
+  </data>
+  <data name="BestSellingProducts" xml:space="preserve">
+    <value>Best Selling Products</value>
+  </data>
+  <data name="LiveUpdated" xml:space="preserve">
+    <value>Live &amp; Updated</value>
+  </data>
+  <data name="LocalMarketPrices" xml:space="preserve">
+    <value>Local Market Construction Material Prices</value>
+  </data>
+  <data name="MarketPricesDesc" xml:space="preserve">
+    <value>Approximate daily indicators for basic construction material prices in the local Jordanian market to support accurate project pricing.</value>
+  </data>
+  <data name="CorporateAccounts" xml:space="preserve">
+    <value>Corporate Accounts &amp; B2B</value>
+  </data>
+  <data name="BigProjectsTitle" xml:space="preserve">
+    <value>Large projects require accurate pricing and dedicated support.</value>
+  </data>
+  <data name="BigProjectsDesc" xml:space="preserve">
+    <value>Scale your business efficiently. Bolcko's B2B portal and corporate services offer volume discounts, scheduled site deliveries, and dedicated account managers for major contracting firms.</value>
+  </data>
+  <data name="GuaranteedSupply" xml:space="preserve">
+    <value>Guaranteed &amp; Sustainable Supply</value>
+  </data>
+  <data name="GuaranteedSupplyDesc" xml:space="preserve">
+    <value>Securing and storing required quantities for your long-term project phases without interruption.</value>
+  </data>
+  <data name="AdvancedLogistics" xml:space="preserve">
+    <value>Advanced Logistics Support</value>
+  </data>
+  <data name="AdvancedLogisticsDesc" xml:space="preserve">
+    <value>Customized shipping and delivery schedules tailored to your company's multiple job sites.</value>
+  </data>
+  <data name="RequestBulkQuote" xml:space="preserve">
+    <value>Request a Quote for Bulk Quantities</value>
+  </data>
+  <data name="CompanyName" xml:space="preserve">
+    <value>Company Name</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>Contact Person</value>
+  </data>
+  <data name="ProjectType" xml:space="preserve">
+    <value>Project Type</value>
+  </data>
+  <data name="SubmitRequest" xml:space="preserve">
+    <value>Submit Request</value>
+  </data>
+  <data name="FastDelivery" xml:space="preserve">
+    <value>Fast &amp; Reliable Delivery</value>
+  </data>
+  <data name="FastDeliveryDesc" xml:space="preserve">
+    <value>Scheduled shipping and delivery to industrial zones and various construction sites with ease.</value>
+  </data>
+  <data name="WarrantyMatching" xml:space="preserve">
+    <value>Warranty &amp; Specification Compliance</value>
+  </data>
+  <data name="WarrantyMatchingDesc" xml:space="preserve">
+    <value>All our products comply with international standards and are accompanied by laboratory test certificates.</value>
+  </data>
+  <data name="TechnicalSupport" xml:space="preserve">
+    <value>24/7 Technical &amp; Consulting Support</value>
+  </data>
+  <data name="TechnicalSupportDesc" xml:space="preserve">
+    <value>A team of consultants and engineers is ready to help you at any time to estimate quantities.</value>
+  </data>
+  <data name="FlexiblePayments" xml:space="preserve">
+    <value>Flexible Payment Facilities &amp; Options</value>
+  </data>
+  <data name="FlexiblePaymentsDesc" xml:space="preserve">
+    <value>Multiple secure digital payment options, in addition to credit lines for registered establishments.</value>
+  </data>
+  <data name="Residential" xml:space="preserve">
+    <value>Residential</value>
+  </data>
+  <data name="Commercial" xml:space="preserve">
+    <value>Commercial</value>
+  </data>
+  <data name="Industrial" xml:space="preserve">
+    <value>Industrial</value>
+  </data>
+  <data name="ShoppingCartTitle" xml:space="preserve">
+    <value>Shopping Cart</value>
+  </data>
+  <data name="CartItemCount" xml:space="preserve">
+    <value>You have {0} item(s) in your cart</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="InStock" xml:space="preserve">
+    <value>In Stock</value>
+  </data>
+  <data name="OutOfStock" xml:space="preserve">
+    <value>Out of Stock</value>
+  </data>
+  <data name="QualityGuaranteed" xml:space="preserve">
+    <value>Quality Guaranteed</value>
+  </data>
+  <data name="QualityGuaranteedDesc" xml:space="preserve">
+    <value>Specification-compliant materials</value>
+  </data>
+  <data name="SiteDelivery" xml:space="preserve">
+    <value>Site Delivery</value>
+  </data>
+  <data name="SiteDeliveryDesc" xml:space="preserve">
+    <value>To any major construction site</value>
+  </data>
+  <data name="OrderSummary" xml:space="preserve">
+    <value>Order Summary</value>
+  </data>
+  <data name="CompleteOrder" xml:space="preserve">
+    <value>Proceed to Checkout</value>
+  </data>
+  <data name="SecurePaymentVia" xml:space="preserve">
+    <value>We accept secure payment via</value>
+  </data>
+  <data name="CartEmpty" xml:space="preserve">
+    <value>Your Cart is Empty</value>
+  </data>
+  <data name="CartEmptyDesc" xml:space="preserve">
+    <value>Start adding products to your shopping cart</value>
+  </data>
+  <data name="AddToCart" xml:space="preserve">
+    <value>Add to Cart</value>
+  </data>
+  <data name="ItemInStock" xml:space="preserve">
+    <value>In Stock</value>
+  </data>
+  <data name="ItemOutOfStock" xml:space="preserve">
+    <value>Sold Out</value>
+  </data>
+  <data name="ProductDetails" xml:space="preserve">
+    <value>Product Details &amp; Specifications</value>
+  </data>
+  <data name="OriginalAndGuaranteed" xml:space="preserve">
+    <value>Original &amp; Guaranteed</value>
+  </data>
+  <data name="FastShipping" xml:space="preserve">
+    <value>Fast Shipping</value>
+  </data>
+  <data name="SecurePayment" xml:space="preserve">
+    <value>100% Secure Payment</value>
+  </data>
+  <data name="QuantityRequired" xml:space="preserve">
+    <value>Required Quantity</value>
+  </data>
+  <data name="VatIncluded" xml:space="preserve">
+    <value>(VAT Included)</value>
+  </data>
+  <data name="ProductNotAvailable" xml:space="preserve">
+    <value>Product Not Available</value>
+  </data>
+  <data name="ProductNotAvailableDesc" xml:space="preserve">
+    <value>Sorry, we could not find this product in our database at this time.</value>
+  </data>
+  <data name="BrowseAlternatives" xml:space="preserve">
+    <value>Browse Alternative Products</value>
+  </data>
+  <data name="AvailableForImmediateShipping" xml:space="preserve">
+    <value>Available for Immediate Shipping</value>
+  </data>
+  <data name="TemporarilyOutOfStock" xml:space="preserve">
+    <value>Temporarily Out of Stock</value>
   </data>
 </root>
