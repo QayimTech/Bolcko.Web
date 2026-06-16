@@ -1,56 +1,87 @@
 using Blocko.Persistence;
 using Blocko.Services;
 using Bolcko.Web.App.Extensions;
+using Serilog;
+using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog first
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/bolcko-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-// --- 1. Services Registration (DI) ---
-builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddServices(builder.Configuration);
-// Web Specific Services (Clean & Expressive)
-builder.Services.AddBlockoIdentitySecurity();
-builder.Services.AddBlockoLocalization();
-builder.Services.AddBlockoMvcInterface();
-
-// Add Session Services
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
+try
 {
-    options.IdleTimeout = TimeSpan.FromDays(7);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+    Log.Information("Starting Bolcko.Web application");
 
-var app = builder.Build();
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseSerilog(); // Use Serilog for logging
 
-// --- 2. Middleware Pipeline (Strict Engineering Order) ---
+    // --- 1. Services Registration (DI) ---
+    builder.Services.AddPersistence(builder.Configuration);
+    builder.Services.AddServices(builder.Configuration);
+    // Web Specific Services (Clean & Expressive)
+    builder.Services.AddBlockoIdentitySecurity();
+    builder.Services.AddBlockoLocalization();
+    builder.Services.AddBlockoMvcInterface();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
+    // Add Session Services with secure configuration
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
+
+    var app = builder.Build();
+
+    // --- 2. Middleware Pipeline (Strict Engineering Order) ---
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    // Use Session Middleware (before routing/authorization)
+    app.UseSession();
+
+    // Localization should be handled early
+    app.UseBlockoRequestLocalization();
+
+    // Core Security Pipeline (Routing -> Auth -> Authorization)
+    app.UseBlockoSecurityPipeline();
+
+    // Seed initial data (only in Development for safety)
+    if (app.Environment.IsDevelopment())
+    {
+        await app.SeedIdentityDataAsync();
+        Log.Information("Development identity data seeded");
+    }
+
+    // --- 3. Endpoint Mapping ---
+    app.MapBlockoAppEndpoints();
+
+    app.Run();
 }
-else
+catch (Exception ex)
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-// Use Session Middleware (before routing/authorization)
-app.UseSession();
-
-// Localization should be handled early
-app.UseBlockoRequestLocalization();
-
-// Core Security Pipeline (Routing -> Auth -> Authorization)
-app.UseBlockoSecurityPipeline();
-
-// Seed initial data
-await app.SeedIdentityDataAsync();
-
-// --- 3. Endpoint Mapping ---
-app.MapBlockoAppEndpoints();
-
-app.Run();
+finally
+{
+    await Log.CloseAndFlushAsync();
+}

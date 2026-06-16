@@ -124,6 +124,25 @@ namespace Blocko.Services.Implementations.Product
             });
         }
 
+        public async Task<IEnumerable<ProductDto>> SearchProductsAsync(string? query)
+        {
+            var products = await _unitOfWork.Products.SearchProductsAsync(query);
+            return products.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name,
+                RetailPrice = p.RetailPrice,
+                StockQuantity = p.StockQuantity,
+                UnitOfMeasure = p.UnitOfMeasure,
+                Sku = p.Sku,
+                ImageUrl = p.ImageUrl,
+                BulkPricingAvailable = p.BulkPricingAvailable
+            });
+        }
+
         public async Task AddProductAsync(ProductDto productDto)
         {
             var product = new Bolcko.Domain.Entities.Product.Product

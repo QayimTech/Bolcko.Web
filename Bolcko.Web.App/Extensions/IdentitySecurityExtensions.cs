@@ -11,11 +11,19 @@ namespace Bolcko.Web.App.Extensions
         {
             services.AddIdentity<User, IdentityRole<int>>(options =>
             {
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
+                // Strong password policies for production
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 12;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequiredUniqueChars = 6;
+                
+                // Lockout policies for security
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+                
                 options.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<BlockoDbContext>()
@@ -24,9 +32,14 @@ namespace Bolcko.Web.App.Extensions
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = "Blocko.Auth";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                
                 options.LoginPath = "/Shop/Account/Login";
                 options.AccessDeniedPath = "/Shop/Account/AccessDenied";
-                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                options.SlidingExpiration = true;
 
                 options.Events.OnRedirectToLogin = context =>
                 {

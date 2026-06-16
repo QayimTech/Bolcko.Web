@@ -16,5 +16,18 @@ namespace Blocko.Persistence.Repositories.Product
 
         public async Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAsync(int id) =>
             await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> SearchProductsAsync(string? query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await _context.Products.ToListAsync();
+            }
+
+            return await _context.Products.Where(p => 
+                (p.Name != null && p.Name.Contains(query)) || 
+                (p.Description != null && p.Description.Contains(query))
+            ).ToListAsync();
+        }
     }
 }

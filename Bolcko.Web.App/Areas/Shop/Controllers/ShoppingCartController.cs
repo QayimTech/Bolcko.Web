@@ -72,6 +72,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var cartItems = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
+                ViewBag.Cart = cartItems;
                 return View("Checkout", checkoutDto);
             }
 
@@ -80,8 +82,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             if (!userId.HasValue)
             {
-                // In a real app, maybe redirect to login or allow guest checkout. For now, assuming logged in user.
-                return RedirectToAction("Login", "Account");
+                // Store checkout data in TempData and redirect to login
+                TempData["CheckoutData"] = System.Text.Json.JsonSerializer.Serialize(checkoutDto);
+                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action(nameof(PlaceOrder)) });
             }
 
             var cart = await _shoppingCartService.GetCartAsync(sessionId, userId);
@@ -105,16 +108,20 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         private string GetSessionId()
         {
+            // Defensive check - Session should always be available after UseSession() middleware
             if (HttpContext.Session == null)
             {
+                // Fallback - generate a temporary ID (though this won't persist)
                 return Guid.NewGuid().ToString();
             }
 
-            if (HttpContext.Session.GetString("CartSessionId") == null)
+            var existingSessionId = HttpContext.Session.GetString("CartSessionId");
+            if (string.IsNullOrEmpty(existingSessionId))
             {
-                HttpContext.Session.SetString("CartSessionId", Guid.NewGuid().ToString());
+                existingSessionId = Guid.NewGuid().ToString();
+                HttpContext.Session.SetString("CartSessionId", existingSessionId);
             }
-            return HttpContext.Session.GetString("CartSessionId")!;
+            return existingSessionId;
         }
 
         private int? GetUserId()
