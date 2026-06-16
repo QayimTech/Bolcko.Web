@@ -30,6 +30,17 @@ namespace Blocko.Services.Implementations.Tender
 
         public async Task<TenderDto> CreateQuoteRequestAsync(QuoteRequestDto quoteRequestDto, int? userId = null)
         {
+            // Build description with product details
+            var productDescription = string.Empty;
+            if (quoteRequestDto.Products?.Any() ?? false)
+            {
+                productDescription = "\n\nRequested Products:\n";
+                foreach (var product in quoteRequestDto.Products)
+                {
+                    productDescription += $"- {product.ProductName} ({product.Quantity} {product.Unit})\n";
+                }
+            }
+
             var tender = new Bolcko.Domain.Entities.Tender.Tender
             {
                 UserId = userId ?? 1, // Defaulting to 1 for anonymous guests or handle properly
@@ -40,14 +51,17 @@ namespace Blocko.Services.Implementations.Tender
                                     $"Phone: {quoteRequestDto.Phone}\n" +
                                     $"City: {quoteRequestDto.City}\n" +
                                     $"Project Type: {quoteRequestDto.ProjectType}\n" +
-                                    $"Notes: {quoteRequestDto.Notes}",
+                                    $"Notes: {quoteRequestDto.Notes}" + productDescription,
                 RequestDate = DateTime.UtcNow,
                 Status = Bolcko.Domain.Enums.TenderStatus.Open
             };
-            
+
             await _unitOfWork.Tenders.AddAsync(tender);
             await _unitOfWork.CompleteAsync();
-            
+
+            // If there are products, we would add TenderItem records here, but since TenderItem requires ProductId, we'll skip for now
+            // A future improvement would be to map product names to product IDs
+
             return new TenderDto { Id = tender.Id, TenderTitle = tender.TenderTitle };
         }
 

@@ -1,7 +1,21 @@
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Bolcko.Domain.Entities.Tender.DTOs
 {
+    public class QuoteRequestItemDto
+    {
+        [Required(ErrorMessage = "Product Name is required.")]
+        public string ProductName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Quantity is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
+        public int Quantity { get; set; }
+
+        [Required(ErrorMessage = "Unit is required.")]
+        public string Unit { get; set; } = string.Empty;
+    }
+
     public class QuoteRequestDto
     {
         [Required(ErrorMessage = "Full Name is required.")]
@@ -25,5 +39,7 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
         public string? ProjectType { get; set; }
 
         public string? Notes { get; set; }
+
+        public List<QuoteRequestItemDto> Products { get; set; } = new List<QuoteRequestItemDto>();
     }
 }
