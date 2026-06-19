@@ -53,18 +53,62 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateItemAjax(int itemId, int quantity)
+        {
+            string sessionId = GetSessionId();
+            int? userId = GetUserId();
+            bool removed = false;
+
+            try
+            {
+                if (quantity < 1)
+                {
+                    await _shoppingCartService.RemoveFromCartAsync(sessionId, itemId, userId);
+                    removed = true;
+                }
+                else
+                {
+                    await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+
+            var cart = await _shoppingCartService.GetCartAsync(sessionId, userId);
+            var updatedItem = cart.Items.FirstOrDefault(i => i.Id == itemId);
+
+            return Json(new
+            {
+                success = true,
+                removed,
+                itemSubtotal = updatedItem?.TotalPrice ?? 0m,
+                cartSubtotal = cart.Subtotal,
+                cartTax = cart.Tax,
+                cartShipping = cart.Shipping,
+                cartTotal = cart.Total,
+                totalItems = cart.TotalItems
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateItem(int itemId, int quantity)
         {
             string sessionId = GetSessionId();
             int? userId = GetUserId();
 
-            if (quantity < 1)
-            {
-                return RedirectToAction(nameof(RemoveItem), new { itemId });
-            }
             try
             {
-                await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity, userId);
+                if (quantity < 1)
+                {
+                    await _shoppingCartService.RemoveFromCartAsync(sessionId, itemId, userId);
+                }
+                else
+                {
+                    await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity, userId);
+                }
             }
             catch (Exception ex)
             {

@@ -16,27 +16,50 @@
                 <!-- Categories Dropdown Menu -->
                 <div class="relative group">
                     <button type="button" class="flex items-center gap-1 text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200 font-medium text-sm focus:outline-none py-2">
+                        <span class="material-symbols-outlined text-[18px]">grid_view</span>
                         <span>@SharedLocalizer["Categories"]</span>
                         <span class="material-symbols-outlined text-[14px]">expand_more</span>
                     </button>
-                    <div class="absolute start-0 top-full mt-1 w-64 bg-[#1B2235] border border-white/10 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden z-50 py-2">
-                        @if (rootCategories != null && rootCategories.Any())
-                        {
-                            @foreach (var cat in rootCategories)
-                            {
-                                <a href="@Url.Action("Details", "Category", new { area = "Shop", id = cat.Id })" class="block px-4 py-2.5 text-sm text-slate-200 hover:bg-white/5 hover:text-[#E8A020] transition-colors text-start">
-                                    @cat.Name
+                    <!-- Mega Menu Dropdown -->
+                    <div class="absolute start-0 top-full mt-4 w-[500px] bg-[#1B2235]/95 backdrop-blur-xl border border-white/10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden z-50">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-4 px-2">
+                                <h3 class="text-white font-bold text-sm uppercase tracking-wider">تصفح الأقسام</h3>
+                                <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="text-xs font-bold text-[#E8A020] hover:underline flex items-center gap-1">
+                                    @SharedLocalizer["ViewAllCategories"]
+                                    <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
                                 </a>
-                            }
-                            <div class="border-t border-white/5 my-1.5"></div>
-                            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="block px-4 py-2 text-xs font-bold text-[#E8A020] hover:underline text-start">
-                                @SharedLocalizer["ViewAllCategories"]
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="block px-4 py-2.5 text-sm text-slate-400 text-start">لا توجد تصنيفات حالياً</span>
-                        }
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                @if (rootCategories != null && rootCategories.Any())
+                                {
+                                    @foreach (var cat in rootCategories)
+                                    {
+                                        <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-[#E8A020] group/cat transition-all duration-200">
+                                            <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover/cat:bg-[#E8A020]/20 group-hover/cat:text-[#E8A020] group-hover/cat:border-[#E8A020]/30 transition-all shadow-sm">
+                                                <span class="material-symbols-outlined text-[20px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                                            </div>
+                                            <span class="font-bold text-sm">@cat.Name</span>
+                                        </a>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="block col-span-2 px-4 py-4 text-sm text-slate-400 text-center bg-white/5 rounded-xl border border-dashed border-white/10">لا توجد تصنيفات حالياً</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-r from-[#151B26] to-[#1B2235] p-4 border-t border-white/5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-[#E8A020]/20 flex items-center justify-center text-[#E8A020]">
+                                    <span class="material-symbols-outlined">support_agent</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-white text-sm font-bold">هل تحتاج مساعدة في اختيار المواد؟</h4>
+                                    <p class="text-slate-400 text-xs mt-0.5">تواصل مع خبرائنا الآن للحصول على استشارة.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>

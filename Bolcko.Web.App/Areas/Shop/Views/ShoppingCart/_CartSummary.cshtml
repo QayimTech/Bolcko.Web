@@ -1,0 +1,43 @@
+@model Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto
+
+<div class="bg-white border-2 border-on-background p-md shadow-hard sticky top-24">
+
+    <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">
+        @SharedLocalizer["OrderSummary"]
+    </h2>
+
+    <div class="space-y-4 mb-8">
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-secondary">@SharedLocalizer["Subtotal"]</span>
+            <span id="summary-subtotal" class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") د.أ</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-secondary">@SharedLocalizer["Tax"]</span>
+            <span id="summary-tax" class="font-bold text-on-surface">@Model.Tax.ToString("N2") د.أ</span>
+        </div>
+        <div class="flex justify-between items-center text-sm pb-6 border-b border-outline-variant">
+            <span class="text-secondary">@SharedLocalizer["ShippingEstimated"]</span>
+            <span id="summary-shipping" class="font-bold text-on-surface">@Model.Shipping.ToString("N2") د.أ</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="font-bold text-lg text-on-surface">@SharedLocalizer["Total"]</span>
+            <span id="summary-total" class="font-headline-md text-primary">@Model.Total.ToString("N2") د.أ</span>
+        </div>
+    </div>
+
+    <a href="@Url.Action("Checkout", "ShoppingCart", new { area = "Shop" })"
+       class="w-full bg-primary-container text-on-primary-container font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
+        @SharedLocalizer["CompleteOrder"]
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="mt-6 flex flex-col items-center gap-4 border-t border-outline-variant pt-6">
+        <p class="text-xs text-outline-variant uppercase">@SharedLocalizer["SecurePaymentVia"]</p>
+        <div class="flex gap-4 opacity-50 grayscale">
+            <span class="material-symbols-outlined">credit_card</span>
+            <span class="material-symbols-outlined">account_balance</span>
+            <span class="material-symbols-outlined">payments</span>
+        </div>
+    </div>
+
+</div>

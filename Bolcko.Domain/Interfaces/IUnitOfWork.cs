@@ -1,4 +1,6 @@
 using Bolcko.Domain.Entities.Tender;
+using Bolcko.Domain.Entities.Order;
+using Bolcko.Domain.Entities.Product;
 
 namespace Bolcko.Domain.Interfaces
 {
@@ -16,6 +18,8 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; }
         IAddressRepository Addresses { get; }
         IGenericRepository<TenderItem> TenderItems { get; }
+        IGenericRepository<OrderItem> OrderItems { get; }
+        IGenericRepository<ProductImage> ProductImages { get; }
 
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();

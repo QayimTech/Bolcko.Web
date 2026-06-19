@@ -63,7 +63,7 @@ namespace Blocko.Services.Implementations.Category
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
-                ProductCount = c.Products?.Count ?? 0
+                ProductCount = (c.Products?.Count ?? 0) + (c.SubCategories?.Sum(sc => sc.Products?.Count ?? 0) ?? 0)
             });
         }
 
@@ -134,28 +134,60 @@ namespace Blocko.Services.Implementations.Category
             var category = await _unitOfWork.Categories.GetByIdAsync(id);
             if (category != null)
             {
-                await DeleteCategoryRecursiveAsync(category);
-                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    await DeleteCategoryRecursiveAsync(category);
+                    await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.CommitTransactionAsync();
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    throw;
+                }
             }
         }
 
         private async Task DeleteCategoryRecursiveAsync(Bolcko.Domain.Entities.Catalog.Category category)
         {
-            // First load and delete subcategories recursively
+            // 1. Recursively delete subcategories first
             var subCategories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == category.Id);
-            foreach(var sub in subCategories)
+            foreach (var sub in subCategories)
             {
                 await DeleteCategoryRecursiveAsync(sub);
             }
-            
-            // Delete products
+
+            // 2. Get all products in this category
             var products = await _unitOfWork.Products.FindAsync(p => p.CategoryId == category.Id);
-            foreach(var p in products)
+            foreach (var product in products)
             {
-                _unitOfWork.Products.Remove(p);
+                // 2a. Delete OrderItems referencing this product
+                var orderItems = await _unitOfWork.OrderItems.FindAsync(oi => oi.ProductId == product.Id);
+                foreach (var oi in orderItems)
+                {
+                    _unitOfWork.OrderItems.Remove(oi);
+                }
+
+                // 2b. Delete ShoppingCartItems referencing this product
+                var cartItems = await _unitOfWork.ShoppingCartItems.FindAsync(ci => ci.ProductId == product.Id);
+                foreach (var ci in cartItems)
+                {
+                    _unitOfWork.ShoppingCartItems.Remove(ci);
+                }
+
+                // 2c. Delete ProductImages (should cascade, but explicit for safety)
+                var images = await _unitOfWork.ProductImages.FindAsync(img => img.ProductId == product.Id);
+                foreach (var img in images)
+                {
+                    _unitOfWork.ProductImages.Remove(img);
+                }
+
+                // 2d. Delete the product itself
+                _unitOfWork.Products.Remove(product);
             }
 
-            // Finally remove the category itself
+            // 3. Finally remove the category
             _unitOfWork.Categories.Remove(category);
         }
     }

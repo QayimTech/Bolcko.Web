@@ -1,0 +1,9 @@
+<div class="text-center py-20">
+    <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">shopping_cart</span>
+    <h2 class="font-headline-lg text-on-surface mb-2">@SharedLocalizer["CartEmpty"]</h2>
+    <p class="text-on-surface-variant mb-8">@SharedLocalizer["CartEmptyDesc"]</p>
+    <a href="@Url.Action("Index", "Category", new { area = "Shop" })"
+       class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard inline-block">
+        @SharedLocalizer["BrowseProducts"]
+    </a>
+</div>

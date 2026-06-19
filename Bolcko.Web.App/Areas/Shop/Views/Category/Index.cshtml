@@ -22,33 +22,21 @@
                     <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">مجموعات التوريد</span>
                     <h1 class="font-headline-lg text-slate-800 mt-2">تصفح فئات المواد الإنشائية</h1>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)Model)
                     {
-                        <div onclick="location.href='@Url.Action("Index", new { id = cat.Id })'" 
-                             class="group relative aspect-square bg-[#0D111A] rounded-3xl overflow-hidden cursor-pointer border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                        <a href="@Url.Action("Index", new { id = cat.Id })" 
+                           class="group relative bg-white border border-slate-200 rounded-3xl p-8 text-center cursor-pointer shadow-sm hover:shadow-xl hover:border-[#E8A020]/30 transition-all duration-300 hover:-translate-y-2 flex flex-col items-center justify-center gap-4">
                             
-                            @if (!string.IsNullOrEmpty(cat.ImageUrl))
-                            {
-                                <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80" 
-                                     src="@(cat.ImageUrl.StartsWith("http") ? cat.ImageUrl : "/" + cat.ImageUrl.TrimStart('/'))" 
-                                     onerror="this.outerHTML='<div class=\'w-full h-full bg-[#151B26] flex items-center justify-center text-white/10 transition-transform duration-700 group-hover:scale-105\'><span class=\'material-symbols-outlined text-7xl\'>construction</span></div>'"
-                                     alt="@cat.Name" />
-                            }
-                            else
-                            {
-                                <div class="w-full h-full bg-[#151B26] flex items-center justify-center text-white/10 transition-transform duration-700 group-hover:scale-105">
-                                    <span class="material-symbols-outlined text-7xl">construction</span>
-                                </div>
-                            }
-                            
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#0D111A]/90 via-[#0D111A]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300"></div>
-                            <div class="absolute bottom-6 right-6 left-6 text-right text-white">
-                                <h4 class="font-headline-md text-white mb-1 group-hover:text-[#E8A020] transition-colors">@cat.Name</h4>
-                                <span class="text-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white/10 px-2.5 py-1 rounded-md">@cat.ProductCount منتج</span>
+                            <div class="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-white transition-colors duration-300">
+                                <span class="material-symbols-outlined text-[40px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
                             </div>
-                        </div>
+                            
+                            <div>
+                                <h4 class="font-headline-sm text-slate-800 group-hover:text-[#E8A020] transition-colors duration-300">@cat.Name</h4>
+                                <span class="inline-block mt-2 text-slate-400 font-bold uppercase text-[10px] tracking-wider bg-slate-50 px-3 py-1 rounded-full group-hover:bg-[#E8A020]/10 group-hover:text-[#E8A020] transition-colors">@cat.ProductCount منتج</span>
+                            </div>
+                        </a>
                     }
                 </div>
             </div>

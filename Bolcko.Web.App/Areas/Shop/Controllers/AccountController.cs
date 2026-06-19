@@ -106,11 +106,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             var orders = await _serviceManager.OrderService.GetUserOrdersAsync(user.Id);
-            var tenders = await _serviceManager.TenderService.GetOpenTendersAsync(); 
-            
+            var tenders = await _serviceManager.TenderService.GetTendersByUserAsync(user.Id); 
+            var projects = await _serviceManager.ProjectService.GetUserProjectsAsync(user.Id);
+
             ViewBag.User = user;
             ViewBag.Orders = orders;
             ViewBag.Tenders = tenders;
+            ViewBag.Projects = projects;
 
             return View();
         }

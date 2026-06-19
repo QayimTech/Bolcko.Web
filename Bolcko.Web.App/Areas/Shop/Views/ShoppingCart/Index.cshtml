@@ -2,73 +2,31 @@
 @{
     ViewData["Title"] = SharedLocalizer["ShoppingCartTitle"];
 }
+
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
-    <!-- Header -->
+
+    @* CSRF token for AJAX *@
+    <form id="ajaxTokenForm">@Html.AntiForgeryToken()</form>
+
     <header class="mb-12 border-r-4 border-primary-container pr-6">
         <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["ShoppingCartTitle"]</h1>
-        <p class="font-body-lg text-secondary">@string.Format(SharedLocalizer["CartItemCount"], Model.TotalItems)</p>
+        <p id="cart-item-count-text" class="font-body-lg text-secondary">
+            @string.Format(SharedLocalizer["CartItemCount"], Model.TotalItems)
+        </p>
     </header>
 
     @if (Model.Items.Any())
     {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-            <!-- Cart Items Section -->
+
             <div class="lg:col-span-8 space-y-6">
+
                 @foreach (var item in Model.Items)
                 {
-                    <div class="bg-white border border-outline-variant flex flex-col md:flex-row-reverse overflow-hidden shadow-hard">
-                        <div class="w-full md:w-48 h-48 bg-surface-variant flex-shrink-0">
-                            @if (!string.IsNullOrEmpty(item.ProductImage))
-                            {
-                                <img alt="@item.ProductName" class="w-full h-full object-cover" 
-                                     src="@(item.ProductImage.StartsWith("http") ? item.ProductImage : "/" + item.ProductImage.TrimStart('/'))"
-                                     onerror="this.src='https://placehold.co/400x400/e2e8f0/475569?text=@(Uri.EscapeDataString(item.ProductName))'" />
-                            }
-                            else
-                            {
-                                <div class="w-full h-full flex items-center justify-center bg-slate-100">
-                                    <span class="material-symbols-outlined text-4xl text-slate-300">image</span>
-                                </div>
-                            }
-                        </div>
-                        <div class="p-md flex-grow flex flex-col justify-between">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-headline-md text-on-surface uppercase">@item.ProductName</h3>
-                                    <form asp-action="RemoveItem" method="post">
-                                        <input type="hidden" name="itemId" value="@item.Id" />
-                                        <button type="submit" class="text-outline hover:text-error transition-colors">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                                    <p class="font-bold text-xs text-outline-variant uppercase">SKU: <span class="text-on-surface-variant">@item.ProductSku</span></p>
-                                </div>
-                                <div class="mt-3">
-                                    <span class="inline-block @(item.StockQuantity > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800") text-[10px] font-bold px-2 py-1 uppercase rounded-sm border @(item.StockQuantity > 0 ? "border-green-200" : "border-red-200")">
-                                        @(item.StockQuantity > 0 ? SharedLocalizer["InStock"].Value : SharedLocalizer["OutOfStock"].Value)
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mt-6 flex flex-wrap justify-between items-end">
-                                <form asp-action="UpdateItem" method="post" class="flex items-center border border-outline shadow-hard">
-                                    <input type="hidden" name="itemId" value="@item.Id" />
-                                    <button type="button" data-decrement="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-l border-outline">-</button>
-                                    <input id="quantity-@item.Id" type="number" name="quantity" value="@item.Quantity" min="0" class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
-                                    <button type="button" data-increment="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-r border-outline">+</button>
-                                    <button type="submit" class="px-4 py-1 bg-primary-container text-on-primary-container font-bold hover:opacity-90 transition-opacity">@SharedLocalizer["Update"]</button>
-                                </form>
-                                <div class="text-left">
-                                    <p class="font-bold text-xs text-outline uppercase mb-1">@SharedLocalizer["Subtotal"]</p>
-                                    <p class="font-headline-md text-on-surface">@item.TotalPrice.ToString("N2") <span class="text-sm">د.أ</span></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_CartItem", item)
                 }
 
-                <!-- Trust Badges -->
+                @* Trust Badges *@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter py-8">
                     <div class="flex items-center gap-4 p-4 border border-outline-variant bg-surface-container-low shadow-hard">
                         <span class="material-symbols-outlined text-primary text-3xl">verified</span>
@@ -85,80 +43,29 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Order Summary Section -->
             <div class="lg:col-span-4">
-                <div class="bg-white border-2 border-on-background p-md shadow-hard sticky top-24">
-                    <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">@SharedLocalizer["OrderSummary"]</h2>
-                    <div class="space-y-4 mb-8">
-                        <div class="flex justify-between items-center text-sm mb-4">
-                            <span class="text-secondary">@SharedLocalizer["Subtotal"]</span>
-                            <span class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") د.أ</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm mb-4">
-                            <span class="text-secondary">@SharedLocalizer["Tax"]</span>
-                            <span class="font-bold text-on-surface">@Model.Tax.ToString("N2") د.أ</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm mb-6 pb-6 border-b border-outline-variant">
-                            <span class="text-secondary">@SharedLocalizer["ShippingEstimated"]</span>
-                            <span class="font-bold text-on-surface">@Model.Shipping.ToString("N2") د.أ</span>
-                        </div>
-                        <div class="flex justify-between items-center mb-8">
-                            <span class="font-bold text-lg text-on-surface">@SharedLocalizer["Total"]</span>
-                            <span class="font-headline-md text-primary">@Model.Total.ToString("N2") د.أ</span>
-                        </div>
-                    </div>
-
-                    <!-- CTA -->
-                    <a href="@Url.Action("Checkout", "ShoppingCart", new { area = "Shop" })" class="w-full bg-primary-container text-on-primary-container font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
-                        @SharedLocalizer["CompleteOrder"]
-                        <span class="material-symbols-outlined">arrow_back</span>
-                    </a>
-
-                    <div class="mt-6 flex flex-col items-center gap-4 border-t border-outline-variant pt-6">
-                        <p class="text-xs text-outline-variant uppercase">@SharedLocalizer["SecurePaymentVia"]</p>
-                        <div class="flex gap-4 opacity-50 grayscale">
-                            <span class="material-symbols-outlined">credit_card</span>
-                            <span class="material-symbols-outlined">account_balance</span>
-                            <span class="material-symbols-outlined">payments</span>
-                        </div>
-                    </div>
-                </div>
+                @await Html.PartialAsync("_CartSummary", Model)
             </div>
+
         </div>
     }
     else
     {
-        <div class="text-center py-20">
-            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">shopping_cart</span>
-            <h2 class="font-headline-lg text-on-surface mb-2">@SharedLocalizer["CartEmpty"]</h2>
-            <p class="text-on-surface-variant mb-8">@SharedLocalizer["CartEmptyDesc"]</p>
-            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase tracking-wider transition-all hover:opacity-90 shadow-hard inline-block">
-                @SharedLocalizer["BrowseProducts"]
-            </a>
-        </div>
+        @await Html.PartialAsync("_CartEmpty")
     }
+
+    @await Html.PartialAsync("_RemoveModal")
+
 </main>
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            $('[data-increment]').click(function() {
-                var itemId = $(this).data('increment');
-                var input = $('#quantity-' + itemId);
-                var current = parseInt(input.val());
-                input.val(current + 1);
-            });
-            
-            $('[data-decrement]').click(function() {
-                var itemId = $(this).data('decrement');
-                var input = $('#quantity-' + itemId);
-                var current = parseInt(input.val());
-                if (current > 0) {
-                    input.val(current - 1);
-                }
-            });
-        });
+        window.CartConfig = {
+            updateUrl: '@Url.Action("UpdateItemAjax", "ShoppingCart", new { area = "Shop" })'
+        };
     </script>
+    <script src="~/js/cart.js"></script>
 }

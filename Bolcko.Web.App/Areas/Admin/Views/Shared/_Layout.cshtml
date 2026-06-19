@@ -43,11 +43,11 @@
                     <label class="block text-xs font-bold text-slate-700 mb-2 text-start">للتأكيد، اكتب "<span class="text-red-600">حذف</span>" أو "<span class="text-red-600">delete</span>" في الصندوق أدناه:</label>
                     <input type="text" id="deleteConfirmInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" autocomplete="off" />
                 </div>
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
+                <div class="flex flex-row-reverse gap-3">
+                    <button type="button" onclick="closeDeleteModal()" class="w-1/2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
                         إلغاء
                     </button>
-                    <button type="button" id="deleteConfirmBtn" class="flex-1 px-6 py-3 bg-red-600 text-white font-bold rounded-xl transition-colors opacity-50 cursor-not-allowed" disabled>
+                    <button type="button" id="deleteConfirmBtn" class="w-1/2 px-6 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl transition-colors cursor-not-allowed" data-enabled="false">
                         تأكيد الحذف
                     </button>
                 </div>
@@ -81,6 +81,20 @@
         @@keyframes slideUpFade {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
+        }
+        /* Explicit styles to prevent Tailwind JIT purging issues */
+        .btn-delete-disabled {
+            background-color: #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+        }
+        .btn-delete-enabled {
+            background-color: #dc2626 !important;
+            color: #ffffff !important;
+            cursor: pointer !important;
+        }
+        .btn-delete-enabled:hover {
+            background-color: #b91c1c !important;
         }
     </style>
 
@@ -157,9 +171,8 @@
             }
 
             input.value = '';
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            btn.classList.remove('hover:bg-red-700');
+            btn.dataset.enabled = 'false';
+            btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-disabled';
 
             modal.classList.remove('hidden');
             // small delay for transition
@@ -184,18 +197,26 @@
             const val = e.target.value.trim().toLowerCase();
             const btn = document.getElementById('deleteConfirmBtn');
             if(val === 'حذف' || val === 'delete') {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                btn.classList.add('hover:bg-red-700');
+                btn.dataset.enabled = 'true';
+                btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-enabled';
             } else {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                btn.classList.remove('hover:bg-red-700');
+                btn.dataset.enabled = 'false';
+                btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-disabled';
+            }
+        });
+
+        document.getElementById('deleteConfirmInput').addEventListener('keydown', function(e) {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                const btn = document.getElementById('deleteConfirmBtn');
+                if(btn.dataset.enabled === 'true') {
+                    btn.click();
+                }
             }
         });
 
         document.getElementById('deleteConfirmBtn').addEventListener('click', function() {
-            if(currentDeleteForm && !this.disabled) {
+            if(currentDeleteForm && this.dataset.enabled === 'true') {
                 currentDeleteForm.submit();
             }
         });

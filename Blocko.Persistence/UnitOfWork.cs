@@ -33,6 +33,8 @@ namespace Blocko.Persistence
             Addresses = new AddressRepository(_context);
             TenderItems = new GenericRepository<TenderItem>(_context);
             ShoppingCartItems = new GenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem>(_context);
+            OrderItems = new GenericRepository<Bolcko.Domain.Entities.Order.OrderItem>(_context);
+            ProductImages = new GenericRepository<Bolcko.Domain.Entities.Product.ProductImage>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -47,6 +49,8 @@ namespace Blocko.Persistence
         public IAddressRepository Addresses { get; private set; }
         public IGenericRepository<TenderItem> TenderItems { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

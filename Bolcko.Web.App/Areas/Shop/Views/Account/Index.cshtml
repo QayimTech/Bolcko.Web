@@ -1,11 +1,13 @@
 @using Bolcko.Domain.Entities.User
 @using Bolcko.Domain.Entities.Order
 @using Bolcko.Domain.Entities.Tender
+@using Bolcko.Domain.Entities.Project
 @{
     ViewData["Title"] = "حسابي";
     var user = ViewBag.User as User;
     var orders = ViewBag.Orders as List<Order> ?? new List<Order>();
     var tenders = ViewBag.Tenders as List<Tender> ?? new List<Tender>();
+    var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
 }
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">
     <div class="flex flex-col lg:flex-row-reverse gap-gutter">
@@ -78,7 +80,7 @@
                 </div>
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">architecture</span>
-                    <h3 class="text-2xl font-bold text-on-surface">0</h3>
+                    <h3 class="text-2xl font-bold text-on-surface">@projects.Count</h3>
                     <p class="text-xs text-on-surface-variant uppercase font-bold">مشاريع مسجلة</p>
                 </div>
             </div>
@@ -87,7 +89,7 @@
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
                 <div class="p-6 border-b border-outline-variant flex justify-between items-center">
                     <h2 class="font-bold text-on-surface uppercase">آخر الطلبات</h2>
-                    <a href="/Shop/Account/Orders" class="text-xs text-primary font-bold hover:underline">عرض الكل</a>
+                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="text-xs text-primary font-bold hover:underline">عرض الكل</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right">
@@ -113,7 +115,7 @@
                                             <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">@order.Status.ToString()</span>
                                         </td>
                                         <td class="p-4">
-                                            <button class="text-primary font-bold hover:underline">التفاصيل</button>
+                                            <a href="@Url.Action("OrderDetails", "Account", new { id = order.Id, area = "Shop" })" class="text-primary font-bold hover:underline">التفاصيل</a>
                                         </td>
                                     </tr>
                                 }

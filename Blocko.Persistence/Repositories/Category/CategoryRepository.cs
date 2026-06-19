@@ -9,6 +9,10 @@ namespace Blocko.Persistence.Repositories.Category
         public CategoryRepository(BlockoDbContext context) : base(context) { }
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetRootCategoriesAsync() => 
-            await _context.Categories.Where(c => c.ParentCategoryId == null).ToListAsync();
+            await _context.Categories
+                .Include(c => c.Products)
+                .Include(c => c.SubCategories)
+                .ThenInclude(sc => sc.Products)
+                .Where(c => c.ParentCategoryId == null).ToListAsync();
     }
 }
