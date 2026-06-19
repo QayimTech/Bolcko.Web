@@ -43,7 +43,7 @@ namespace Bolcko.Web.App.Extensions
                     RegistrationDate = DateTime.UtcNow
                 };
 
-                var result = await userManager.CreateAsync(newAdmin, "BolckoAdmin@2026!");d
+                var result = await userManager.CreateAsync(newAdmin, "BolckoAdmin@2026!");
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
