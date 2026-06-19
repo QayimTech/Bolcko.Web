@@ -1,3 +1,5 @@
+using Bolcko.Domain.Entities.Tender;
+
 namespace Bolcko.Domain.Interfaces
 {
     public interface IUnitOfWork : IDisposable
@@ -11,9 +13,14 @@ namespace Bolcko.Domain.Interfaces
         IMarketPriceRepository MarketPrices { get; }
         ISEORepository SEO { get; }
         IShoppingCartRepository ShoppingCarts { get; }
+        IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; }
         IAddressRepository Addresses { get; }
+        IGenericRepository<TenderItem> TenderItems { get; }
 
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

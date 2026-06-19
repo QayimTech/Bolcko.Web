@@ -134,9 +134,29 @@ namespace Blocko.Services.Implementations.Category
             var category = await _unitOfWork.Categories.GetByIdAsync(id);
             if (category != null)
             {
-                _unitOfWork.Categories.Remove(category);
+                await DeleteCategoryRecursiveAsync(category);
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        private async Task DeleteCategoryRecursiveAsync(Bolcko.Domain.Entities.Catalog.Category category)
+        {
+            // First load and delete subcategories recursively
+            var subCategories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == category.Id);
+            foreach(var sub in subCategories)
+            {
+                await DeleteCategoryRecursiveAsync(sub);
+            }
+            
+            // Delete products
+            var products = await _unitOfWork.Products.FindAsync(p => p.CategoryId == category.Id);
+            foreach(var p in products)
+            {
+                _unitOfWork.Products.Remove(p);
+            }
+
+            // Finally remove the category itself
+            _unitOfWork.Categories.Remove(category);
         }
     }
 }

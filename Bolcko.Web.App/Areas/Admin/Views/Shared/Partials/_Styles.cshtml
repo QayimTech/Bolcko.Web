@@ -38,25 +38,7 @@
         background: rgba(255, 255, 255, 0.2);
     }
 
-    /* RTL Support */
-    [dir="rtl"] #main-content {
-        margin-right: var(--sidebar-width);
-        margin-left: 0;
-    }
-    [dir="rtl"] body.sidebar-collapsed #main-content {
-        margin-right: var(--sidebar-collapsed-width);
-        margin-left: 0;
-    }
 
-    /* LTR Support */
-    [dir="ltr"] #main-content {
-        margin-left: var(--sidebar-width);
-        margin-right: 0;
-    }
-    [dir="ltr"] body.sidebar-collapsed #main-content {
-        margin-left: var(--sidebar-collapsed-width);
-        margin-right: 0;
-    }
 
     @@media (max-width: 1024px) {
         [dir="rtl"] #main-content, [dir="ltr"] #main-content {

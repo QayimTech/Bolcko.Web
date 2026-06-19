@@ -26,6 +26,9 @@ try
     // Web Specific Services (Clean & Expressive)
     builder.Services.AddBlockoIdentitySecurity();
     builder.Services.AddBlockoLocalization();
+    // Configure Market Settings
+    builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
+
     builder.Services.AddBlockoMvcInterface();
 
     // Add Session Services with secure configuration

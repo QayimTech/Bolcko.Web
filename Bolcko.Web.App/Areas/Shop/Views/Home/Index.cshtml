@@ -29,7 +29,7 @@
                     <a href="@Url.Action("Index", "Category")" 
                        class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.2)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
                         <span>@SharedLocalizer["BrowseProducts"]</span>
-                        <span class="material-symbols-outlined text-base">arrow_back</span>
+                        <span class="material-symbols-outlined text-base rtl:-scale-x-100">arrow_back</span>
                     </a>
                     <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" 
                        class="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
@@ -62,37 +62,25 @@
             <a class="font-bold text-[#E8A020] hover:underline underline-offset-4 flex items-center gap-1.5 transition-all text-sm" 
                href="@Url.Action("Index", "Category", new { area = "Shop" })">
                 <span>@SharedLocalizer["ViewAll"]</span>
-                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_back</span>
             </a>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="flex flex-wrap justify-start gap-4 rtl:justify-start" dir="rtl">
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
-                <div onclick="location.href='@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })'" 
-                     class="group relative aspect-square bg-white rounded-3xl overflow-hidden cursor-pointer border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" 
+                   class="group flex items-center gap-4 bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_25px_rgba(232,160,32,0.1)] hover:border-[#E8A020]/30 hover:bg-gradient-to-l hover:from-[#fffcf5] hover:to-white transition-all duration-300 hover:-translate-y-1 min-w-[200px]">
                     
-                    @if (!string.IsNullOrEmpty(cat.ImageUrl))
-                    {
-                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                             src="@(cat.ImageUrl.StartsWith("http") ? cat.ImageUrl : "/" + cat.ImageUrl.TrimStart('/'))" 
-                             onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
-                             alt="@cat.Name" />
-                    }
-                    else
-                    {
-                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                             src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" 
-                             onerror="this.src='https://placehold.co/800x800/f8fafc/475569?text=@(Uri.EscapeDataString(cat.Name))'"
-                             alt="@cat.Name" />
-                    }
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#0D111A]/90 via-[#0D111A]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300"></div>
-                    <div class="absolute bottom-6 right-6 left-6 text-right text-white">
-                        <h4 class="font-headline-md text-white mb-1 group-hover:text-[#E8A020] transition-colors">@cat.Name</h4>
-                        <span class="text-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white/10 px-2.5 py-1 rounded-md">@cat.ProductCount منتج</span>
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300 shadow-sm group-hover:shadow-md">
+                        <span class="material-symbols-outlined text-2xl">category</span>
                     </div>
-                </div>
+                    
+                    <div class="flex flex-col text-right">
+                        <span class="font-bold text-slate-800 text-base group-hover:text-[#E8A020] transition-colors duration-300">@cat.Name</span>
+                        <span class="text-[11px] text-slate-500 font-medium mt-0.5 bg-slate-100 px-2 py-0.5 rounded-md w-max group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors">@cat.ProductCount منتج</span>
+                    </div>
+                </a>
             }
         </div>
     </section>
@@ -107,10 +95,10 @@
                 </div>
                 <div class="flex gap-2">
                     <button class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
-                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                        <span class="material-symbols-outlined text-lg rtl:-scale-x-100">chevron_right</span>
                     </button>
                     <button class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
-                        <span class="material-symbols-outlined text-lg">chevron_left</span>
+                        <span class="material-symbols-outlined text-lg rtl:-scale-x-100">chevron_left</span>
                     </button>
                 </div>
             </div>
@@ -182,22 +170,22 @@
             <!-- Custom Quote Form Card -->
             <div class="bg-white/5 backdrop-blur-md border border-white/10 p-10 rounded-3xl shadow-2xl text-right relative">
                 <h3 class="font-headline-md text-white mb-8">@SharedLocalizer["RequestBulkQuote"]</h3>
-                <form class="flex flex-col gap-6">
+                <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="get" class="flex flex-col gap-6">
                     <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["CompanyName"]</label>
-                        <input class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" />
+                        <input name="CompanyName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ContactPerson"]</label>
-                            <input class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" />
+                            <input name="FullName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right" type="text" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ProjectType"]</label>
-                            <select class="w-full bg-[#151B26] border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right">
-                                <option>@SharedLocalizer["Residential"]</option>
-                                <option>@SharedLocalizer["Commercial"]</option>
-                                <option>@SharedLocalizer["Industrial"]</option>
+                            <select name="ProjectType" class="w-full bg-[#151B26] border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-right">
+                                <option value="Residential">@SharedLocalizer["Residential"]</option>
+                                <option value="Commercial">@SharedLocalizer["Commercial"]</option>
+                                <option value="Industrial">@SharedLocalizer["Industrial"]</option>
                             </select>
                         </div>
                     </div>

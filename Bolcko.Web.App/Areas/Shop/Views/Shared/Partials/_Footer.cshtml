@@ -1,3 +1,9 @@
+@using Microsoft.Extensions.Options
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IOptions<Bolcko.Web.App.Models.MarketSettings> MarketSettings
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+
 <footer class="bg-[#0D111A] text-white border-t border-white/5">
     <div class="w-full py-16 px-6 flex flex-col md:flex-row justify-between items-start max-w-7xl mx-auto gap-12 text-right">
         <div class="max-w-xs flex flex-col gap-6">
@@ -5,7 +11,7 @@
                 <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-10")' />
             </a>
             <p class="text-slate-400 text-sm leading-relaxed">
-                المورد الرائد لمواد البناء الثقيلة والمعدات المهنية منذ عام 1994. نبني المستقبل، لبنة لبنة وبجودة لا تضاهى.
+                @SharedLocalizer["FooterAbout"]
             </p>
             <div class="flex gap-4">
                 <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors">social_leaderboard</span>
@@ -15,34 +21,43 @@
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-12">
             <div class="flex flex-col gap-4">
-                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">التنقل</h5>
+                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Navigation"]</h5>
                 <nav class="flex flex-col gap-2.5 text-sm">
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">سياسة الخصوصية</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">شروط الخدمة</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">الدعم الفني</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Privacy", "Legal", new { area = "Shop" })">@SharedLocalizer["PrivacyPolicy"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Terms", "Legal", new { area = "Shop" })">@SharedLocalizer["TermsOfService"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Support", "Legal", new { area = "Shop" })">@SharedLocalizer["TechnicalSupport"]</a>
                 </nav>
             </div>
             <div class="flex flex-col gap-4">
-                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">تجاري</h5>
+                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Commercial"]</h5>
                 <nav class="flex flex-col gap-2.5 text-sm">
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">معلومات الشحن</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">طلبات الجملة</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">دخول الشركاء</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["ShippingInfo"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["WholesaleOrders"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["PartnerLogin"]</a>
                 </nav>
             </div>
             <div class="flex flex-col gap-4 col-span-2 md:col-span-1">
-                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">المقر الرئيسي</h5>
-                <address class="not-italic text-slate-400 text-sm leading-relaxed">
-                    طريق الصناعية 800<br />
-                    مبنى 12، جناح أ<br />
-                    الرياض، المملكة العربية السعودية
-                </address>
+                <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["MarketInfo"]</h5>
+                <div class="text-slate-400 text-sm leading-relaxed mt-2 flex flex-col gap-2">
+                    <p class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">public</span>
+                        @MarketSettings.Value.City، @MarketSettings.Value.Country
+                    </p>
+                    <p class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">storefront</span>
+                        @(MarketSettings.Value.IsOnlineOnly ? SharedLocalizer["OnlineOnly"] : SharedLocalizer["ShowroomsWarehouses"])
+                    </p>
+                    <p class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">payments</span>
+                        @SharedLocalizer["ApprovedCurrency"]: @MarketSettings.Value.Currency
+                    </p>
+                </div>
             </div>
         </div>
     </div>
     <div class="border-t border-white/5 w-full py-6 bg-[#090C12]">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-slate-500 text-xs">© 2026 LOCKO لمواد البناء. جميع الحقوق محفوظة.</p>
+            <p class="text-slate-500 text-xs">© 2026 BLOCKO. @SharedLocalizer["AllRightsReserved"]</p>
         </div>
     </div>
 </footer>

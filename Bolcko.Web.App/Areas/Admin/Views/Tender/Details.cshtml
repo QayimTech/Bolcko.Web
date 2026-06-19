@@ -1,0 +1,74 @@
+@model Bolcko.Domain.Entities.Tender.Tender
+@{
+    ViewData["Title"] = L["TenderDetails"];
+}
+
+<section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">@L["TenderDetails"] #RFQ-@Model.Id.ToString("D4")</h1>
+            <p class="text-on-surface-variant text-sm mt-1">@Model.TenderTitle</p>
+        </div>
+        <a href="@Url.Action("Index")" class="text-slate-500 hover:text-primary flex items-center gap-2 font-bold text-sm">
+            <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_back</span>
+            @L["BackToList"]
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard rounded-sm p-6 space-y-6">
+        <h2 class="font-bold text-lg border-b pb-2">@L["CustomerInfo"]</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-slate-500 block text-xs uppercase">@L["Customer"]</span>
+                <strong>@(Model.User?.UserName ?? Model.GuestName ?? "Guest")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-xs uppercase">@L["Email"]</span>
+                <strong>@(Model.User?.Email ?? Model.GuestEmail ?? "-")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-xs uppercase">@L["Phone"]</span>
+                <strong>@(Model.User?.PhoneNumber ?? Model.GuestPhone ?? "-")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-xs uppercase">@L["Company"]</span>
+                <strong>@(Model.GuestCompany ?? "-")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-xs uppercase">@L["City"]</span>
+                <strong>@(Model.GuestCity ?? "-")</strong>
+            </div>
+        </div>
+
+        <h2 class="font-bold text-lg border-b pb-2 mt-8">@L["RequestDetails"]</h2>
+        <div class="text-sm whitespace-pre-line">
+            <p><strong>@L["Notes"]:</strong> @Model.TenderDescription</p>
+        </div>
+
+        <h2 class="font-bold text-lg border-b pb-2 mt-8">@L["RequestedItems"]</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse min-w-[400px]">
+                <thead>
+                    <tr class="bg-slate-50 border-b">
+                        <th class="p-3 text-xs uppercase text-slate-500">@L["ProductName"]</th>
+                        <th class="p-3 text-xs uppercase text-slate-500">@L["Unit"]</th>
+                        <th class="p-3 text-xs uppercase text-slate-500">@L["Quantity"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(Model.Items != null)
+                    {
+                        @foreach(var item in Model.Items)
+                        {
+                            <tr class="border-b hover:bg-slate-50 transition-colors">
+                                <td class="p-3">@item.ProductName</td>
+                                <td class="p-3">@item.Unit</td>
+                                <td class="p-3 font-bold">@item.RequestedQuantity</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

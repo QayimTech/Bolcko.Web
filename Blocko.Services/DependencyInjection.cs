@@ -30,6 +30,7 @@ namespace Blocko.Services
 
             services.AddScoped<IServiceManager, ServiceManager>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IMarketPriceService, MarketPriceService>();
@@ -38,6 +39,7 @@ namespace Blocko.Services
             services.AddScoped(typeof(IPagedList<>), typeof(PagedList<>));
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
+            services.AddScoped<IProjectService, ProjectService>();
             services.AddHttpClient();
 
             return services;

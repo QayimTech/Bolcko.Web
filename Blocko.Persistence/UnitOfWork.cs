@@ -1,4 +1,5 @@
 using Bolcko.Domain.Interfaces;
+using Bolcko.Domain.Entities.Tender;
 using Blocko.Persistence.Repositories.Product;
 using Blocko.Persistence.Repositories.Category;
 using Blocko.Persistence.Repositories.Order;
@@ -8,12 +9,14 @@ using Blocko.Persistence.Repositories.MarketPrice;
 using Blocko.Persistence.Repositories.user;
 using Blocko.Persistence.Repositories.SEO;
 using Blocko.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Blocko.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly BlockoDbContext _context;
+        private IDbContextTransaction? _transaction;
 
         public UnitOfWork(BlockoDbContext context)
         {
@@ -28,6 +31,8 @@ namespace Blocko.Persistence
             SEO = new SEORepositroy(_context);
             ShoppingCarts = new ShoppingCartRepository(_context);
             Addresses = new AddressRepository(_context);
+            TenderItems = new GenericRepository<TenderItem>(_context);
+            ShoppingCartItems = new GenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -40,6 +45,8 @@ namespace Blocko.Persistence
         public ISEORepository SEO { get; private set; }
         public IShoppingCartRepository ShoppingCarts { get; private set; }
         public IAddressRepository Addresses { get; private set; }
+        public IGenericRepository<TenderItem> TenderItems { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; private set; }
 
         public async Task<int> CompleteAsync()
         {
@@ -48,12 +55,38 @@ namespace Blocko.Persistence
 
         public void Dispose()
         {
+            _transaction?.Dispose();
             _context.Dispose();
         }
 
         public Task<int> SaveChangesAsync()
         {
             return _context.SaveChangesAsync();
+        }
+
+        public async Task BeginTransactionAsync()
+        {
+            _transaction ??= await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
     }
 }

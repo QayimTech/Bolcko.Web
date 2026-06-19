@@ -6,8 +6,13 @@ namespace Bolcko.Domain.Entities.Tender
 {
     public class Tender : BaseEntity
     {
-        public int UserId { get; set; }
-        public Bolcko.Domain.Entities.User.User User { get; set; } = null!;
+        public int? UserId { get; set; }
+        public Bolcko.Domain.Entities.User.User? User { get; set; }
+        public string? GuestName { get; set; }
+        public string? GuestEmail { get; set; }
+        public string? GuestPhone { get; set; }
+        public string? GuestCompany { get; set; }
+        public string? GuestCity { get; set; }
         public string TenderTitle { get; set; } = string.Empty;
         public string? TenderDescription { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.UtcNow;

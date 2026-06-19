@@ -1,31 +1,60 @@
 @using Microsoft.Extensions.Localization
 @using Bolcko.Web.App
 @inject IStringLocalizer<SharedResource> SharedLocalizer
+@inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
+@{
+    var rootCategories = await CategoryService.GetRootCategoriesAsync();
+}
 
 <header class="bg-[#151B26]/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
         <div class="flex items-center gap-8">
             <a href="/" class="flex items-center gap-2 text-white hover:opacity-90 transition-opacity">
-                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-10")' />
+                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 md:h-10")' />
             </a>
             <nav class="hidden md:flex gap-6 items-center font-medium text-sm">
-                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
-                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("Index", "Project", new { area = "Shop" })">@SharedLocalizer["Projects"]</a>
+                <!-- Categories Dropdown Menu -->
+                <div class="relative group">
+                    <button type="button" class="flex items-center gap-1 text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200 font-medium text-sm focus:outline-none py-2">
+                        <span>@SharedLocalizer["Categories"]</span>
+                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                    </button>
+                    <div class="absolute start-0 top-full mt-1 w-64 bg-[#1B2235] border border-white/10 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden z-50 py-2">
+                        @if (rootCategories != null && rootCategories.Any())
+                        {
+                            @foreach (var cat in rootCategories)
+                            {
+                                <a href="@Url.Action("Details", "Category", new { area = "Shop", id = cat.Id })" class="block px-4 py-2.5 text-sm text-slate-200 hover:bg-white/5 hover:text-[#E8A020] transition-colors text-start">
+                                    @cat.Name
+                                </a>
+                            }
+                            <div class="border-t border-white/5 my-1.5"></div>
+                            <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="block px-4 py-2 text-xs font-bold text-[#E8A020] hover:underline text-start">
+                                @SharedLocalizer["ViewAllCategories"]
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="block px-4 py-2.5 text-sm text-slate-400 text-start">لا توجد تصنيفات حالياً</span>
+                        }
+                    </div>
+                </div>
                 <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
                 <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
             </nav>
         </div>
         <div class="flex-1 max-w-md mx-8 hidden lg:block">
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get" class="relative group">
-                <input name="query" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pe-4 ps-10 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] focus:bg-white/10 transition-all text-body-md text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" />
+                <input name="query" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pe-4 ps-12 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] focus:bg-white/10 transition-all text-body-md text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" />
                 <button type="submit" class="absolute start-3 top-3 text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer flex items-center justify-center">
-                    <span class="material-symbols-outlined">search</span>
+                    <span class="material-symbols-outlined rtl:-scale-x-100">search</span>
                 </button>
             </form>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 md:gap-4">
+            
             <!-- Language Switcher -->
-            <div class="flex items-center gap-2 border-e border-white/10 pe-4 me-4">
+            <div class="flex items-center gap-2 border-e border-white/10 pe-4 me-4 hidden md:flex">
                 <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2">
                     <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">AR</button>
                     <span class="text-white/20 text-xs">|</span>
@@ -47,7 +76,7 @@
                         {
                             <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="block px-4 py-3 text-sm text-slate-200 hover:bg-white/5 transition-colors text-start border-t border-white/5">@SharedLocalizer["AdminPanel"]</a>
                         }
-                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/10">
+                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/5">
                             <button type="submit" class="w-full text-start px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors">@SharedLocalizer["Logout"]</button>
                         </form>
                     </div>
@@ -64,6 +93,31 @@
                 <span class="material-symbols-outlined text-slate-300">shopping_cart</span>
                 @await Component.InvokeAsync("CartCount")
             </a>
+            
+            <!-- Mobile Hamburger Menu (Edge) -->
+            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors">
+                <span id="menuIcon" class="material-symbols-outlined">menu</span>
+            </button>
         </div>
     </div>
+    
+    <!-- Mobile Nav Menu -->
+    <nav id="mobileMenu" class="md:hidden bg-[#1B2235] border-t border-white/10 max-h-0 overflow-hidden transition-all duration-300">
+        <div class="flex flex-col gap-2 px-6 py-4">
+            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
+            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
+            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
+            
+            <div class="border-t border-white/10 my-2"></div>
+            
+            <!-- Language Switcher for Mobile -->
+            <div class="flex items-center gap-2 py-2">
+                <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2">
+                    <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">AR</button>
+                    <span class="text-white/20 text-xs">|</span>
+                    <button type="submit" name="culture" value="en" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">EN</button>
+                </form>
+            </div>
+        </div>
+    </nav>
 </header>

@@ -1,51 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
+<?xml version='1.0' encoding='utf-8'?>
+<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:schema id="root">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xs:element name="root" ns1:IsDataSet="true">
+      <xs:complexType>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="metadata">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" />
+              </xs:sequence>
+              <xs:attribute name="name" use="required" type="xsd:string" />
+              <xs:attribute name="type" type="xsd:string" />
+              <xs:attribute name="mimetype" type="xsd:string" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="assembly">
+            <xs:complexType>
+              <xs:attribute name="alias" type="xsd:string" />
+              <xs:attribute name="name" type="xsd:string" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
+                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
+              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
+              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
+              <xs:attribute ref="xml:space" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="resheader">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
+              </xs:sequence>
+              <xs:attribute name="name" use="required" type="xsd:string" />
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -117,9 +117,6 @@
   </data>
   <data name="PrivacyPolicy" xml:space="preserve">
     <value>سياسة الخصوصية</value>
-  </data>
-  <data name="TechnicalSupport" xml:space="preserve">
-    <value>الدعم الفني</value>
   </data>
   <data name="ManageCategoriesDescription" xml:space="preserve">
     <value>عرض وإدارة فئات المنتجات في النظام</value>
@@ -295,9 +292,6 @@
   <data name="SelectedImagesCount" xml:space="preserve">
     <value>تم اختيار {0} صورة</value>
   </data>
-  <data name="ManageOrders" xml:space="preserve">
-    <value>إدارة الطلبات</value>
-  </data>
   <data name="ManageOrdersDescription" xml:space="preserve">
     <value>عرض ومتابعة طلبات العملاء في النظام</value>
   </data>
@@ -310,17 +304,11 @@
   <data name="Date" xml:space="preserve">
     <value>التاريخ</value>
   </data>
-  <data name="Total" xml:space="preserve">
-    <value>الإجمالي</value>
-  </data>
   <data name="Status" xml:space="preserve">
     <value>الحالة</value>
   </data>
   <data name="NoOrdersAvailable" xml:space="preserve">
     <value>لا توجد طلبات حالياً</value>
-  </data>
-  <data name="ManageSEO" xml:space="preserve">
-    <value>إدارة SEO</value>
   </data>
   <data name="ManageSEODescription" xml:space="preserve">
     <value>إدارة الكلمات المفتاحية والأوصاف لمحركات البحث</value>
@@ -387,9 +375,6 @@
   </data>
   <data name="PageOrderLabel" xml:space="preserve">
     <value>رقم الترتيب</value>
-  </data>
-  <data name="ManageUsers" xml:space="preserve">
-    <value>إدارة المستخدمين</value>
   </data>
   <data name="UsersList" xml:space="preserve">
     <value>قائمة المستخدمين</value>
@@ -556,12 +541,6 @@
   <data name="SearchPlaceholder" xml:space="preserve">
     <value>بحث عن مواد البناء...</value>
   </data>
-  <data name="Logout" xml:space="preserve">
-    <value>تسجيل الخروج</value>
-  </data>
-  <data name="Dashboard" xml:space="preserve">
-    <value>لوحة التحكم</value>
-  </data>
   <data name="AdminPanel" xml:space="preserve">
     <value>لوحة الإدارة</value>
   </data>
@@ -576,15 +555,6 @@
   </data>
   <data name="CategoriesDesc" xml:space="preserve">
     <value>مجموعة متكاملة من فئات مواد البناء لتسهيل عملية البحث.</value>
-  </data>
-  <data name="ViewAll" xml:space="preserve">
-    <value>عرض الكل</value>
-  </data>
-  <data name="HomeHeroTitle" xml:space="preserve">
-    <value>المنصة الرائدة لتوريد مواد البناء</value>
-  </data>
-  <data name="HomeHeroDesc" xml:space="preserve">
-    <value>نوفر لك كافة احتياجات مشروعك من مواد البناء بجودة عالية وأسعار تنافسية مع خدمة توصيل موثوقة.</value>
   </data>
   <data name="RequestQuote" xml:space="preserve">
     <value>طلب تسعيرة</value>
@@ -601,20 +571,11 @@
   <data name="ShippingEstimated" xml:space="preserve">
     <value>الشحن المقدر</value>
   </data>
-  <data name="Total" xml:space="preserve">
-    <value>المجموع الكلي</value>
-  </data>
   <data name="ProceedToCheckout" xml:space="preserve">
     <value>إتمام عملية الشراء</value>
   </data>
   <data name="HomeHeroBadge" xml:space="preserve">
     <value>توريدات إنشائية معتمدة</value>
-  </data>
-  <data name="HomeHeroTitle" xml:space="preserve">
-    <value>الأساس المتين لكل مشروع عظيم.</value>
-  </data>
-  <data name="HomeHeroDesc" xml:space="preserve">
-    <value>توريدات صناعية وإنشائية عالية الدقة للمقاولين المحترفين. من الخرسانة والمواد الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</value>
   </data>
   <data name="ShippingBadge" xml:space="preserve">
     <value>شحن وتوصيل فوري</value>
@@ -799,4 +760,26 @@
   <data name="TemporarilyOutOfStock" xml:space="preserve">
     <value>نفذ من المخزن مؤقتاً</value>
   </data>
+<data name="HomeHeroTitle" xml:space="preserve"><value>الأساس المتين لكل مشروع عظيم.</value></data><data name="HomeHeroDesc" xml:space="preserve"><value>توريدات صناعية وإنشائية عالية الدقة للمقاولين المحترفين. من الخرسانة والمواد الخام إلى الأدوات الدقيقة، نوفر لك كل ما تحتاجه.</value></data><data name="ViewAllCategories" xml:space="preserve"><value>عرض جميع الفئات</value></data><data name="FooterAbout" xml:space="preserve"><value>المورد الرائد لمواد البناء الثقيلة والمعدات المهنية منذ عام 1994. نبني المستقبل، لبنة لبنة وبجودة لا تضاهى.</value></data><data name="Navigation" xml:space="preserve"><value>التنقل</value></data><data name="ShippingInfo" xml:space="preserve"><value>معلومات الشحن</value></data><data name="WholesaleOrders" xml:space="preserve"><value>طلبات الجملة</value></data><data name="PartnerLogin" xml:space="preserve"><value>دخول الشركاء</value></data><data name="MarketInfo" xml:space="preserve"><value>معلومات السوق</value></data><data name="OnlineOnly" xml:space="preserve"><value>منصة إلكترونية فقط</value></data><data name="ShowroomsWarehouses" xml:space="preserve"><value>يوجد معارض ومستودعات</value></data><data name="ApprovedCurrency" xml:space="preserve"><value>العملة المعتمدة</value></data><data name="TermsOfService" xml:space="preserve"><value>شروط الخدمة</value></data><data name="ContactDesc" xml:space="preserve"><value>نحن هنا للإجابة على جميع استفساراتك وتقديم الدعم لمشاريعك.</value></data><data name="Address" xml:space="preserve"><value>العنوان</value></data><data name="JordanAddress" xml:space="preserve"><value>عمان، المملكة الأردنية الهاشمية</value></data><data name="Phone" xml:space="preserve"><value>الهاتف</value></data><data name="YourNamePlaceholder" xml:space="preserve"><value>اسمك الكريم</value></data><data name="Message" xml:space="preserve"><value>الرسالة</value></data><data name="WriteMessagePlaceholder" xml:space="preserve"><value>اكتب رسالتك هنا...</value></data><data name="SendMessage" xml:space="preserve"><value>إرسال الرسالة</value></data><data name="Established1995" xml:space="preserve"><value>تأسست عام 1995</value></data><data name="HeroTitle" xml:space="preserve"><value>نبني المستقبل بالتميز الصناعي والخبرة العميقة</value></data><data name="HeroSubtitle" xml:space="preserve"><value>ثلاثة عقود من النزاهة الهندسية والخبرة العميقة في التوريدات الإنشائية. نحن العمود الفقري الموثوق لأكبر المشاريع التنموية في المنطقة.</value></data><data name="Capabilities" xml:space="preserve"><value>قدراتنا ومزايانا</value></data>
+  <data name="ConfirmDelivery" xml:space="preserve"><value>تأكيد الاستلام</value></data>
+  <data name="TrackOrder" xml:space="preserve"><value>تتبع الطلب</value></data>
+  <data name="OrderTracking" xml:space="preserve"><value>تتبع الطلب</value></data>
+  <data name="DeliveryConfirmed" xml:space="preserve"><value>تم تأكيد استلام الطلبية بنجاح. شكراً لثقتك بـ BLOCKO!</value></data>
+  <data name="ConfirmDeliveryPrompt" xml:space="preserve"><value>هل استلمت طلبيتك؟ أكّد الاستلام لإغلاق الطلب.</value></data>
+  <data name="OrderOnTheWay" xml:space="preserve"><value>طلبيتك في الطريق إليك!</value></data>
+  <data name="StatusPending" xml:space="preserve"><value>قيد الانتظار</value></data>
+  <data name="StatusProcessing" xml:space="preserve"><value>قيد المعالجة</value></data>
+  <data name="StatusShipped" xml:space="preserve"><value>تم الشحن</value></data>
+  <data name="StatusDelivered" xml:space="preserve"><value>تم التسليم</value></data>
+  <data name="StatusCancelled" xml:space="preserve"><value>ملغي</value></data>
+  <data name="AutoUpdating" xml:space="preserve"><value>يتحدث تلقائياً</value></data>
+  <data name="StatusUpdated" xml:space="preserve"><value>تحديث حالة الطلب!</value></data>
+  <data name="NewStatus" xml:space="preserve"><value>الحالة الجديدة</value></data>
+  <data name="BackToMyOrders" xml:space="preserve"><value>العودة لطلباتي</value></data>
+  <data name="OrderInfo" xml:space="preserve"><value>معلومات الطلب</value></data>
+  <data name="OrderDateLabel" xml:space="preserve"><value>تاريخ الطلب</value></data>
+  <data name="OrderItemsLabel" xml:space="preserve"><value>عناصر الطلب</value></data>
+  <data name="UnitPriceLabel" xml:space="preserve"><value>السعر للوحدة</value></data>
+  <data name="TotalAmountLabel" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="Logout" xml:space="preserve"><value>تسجيل الخروج</value></data>
 </root>

@@ -23,6 +23,18 @@ namespace Blocko.Services.Implementations.shoppingCart
                 cart = await _unitOfWork.ShoppingCarts.GetByUserIdAsync(userId.Value);
                 if (cart == null)
                 {
+                    // Fallback to session
+                    cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+                    if (cart != null && cart.UserId == 0)
+                    {
+                        cart.UserId = userId.Value;
+                        _unitOfWork.ShoppingCarts.Update(cart);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+                
+                if (cart == null)
+                {
                     cart = new ShoppingCart
                     {
                         SessionId = sessionId,
@@ -94,9 +106,19 @@ namespace Blocko.Services.Implementations.shoppingCart
             return MapToDto(cart);
         }
 
-        public async Task<ShoppingCartDto> UpdateCartItemAsync(string sessionId, int itemId, int quantity)
+        public async Task<ShoppingCartDto> UpdateCartItemAsync(string sessionId, int itemId, int quantity, int? userId = null)
         {
-            var cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            ShoppingCart? cart = null;
+            if (userId.HasValue) 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetByUserIdAsync(userId.Value);
+                if (cart == null) cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            else 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            
             if (cart == null)
                 throw new Exception("Cart not found");
 
@@ -107,6 +129,7 @@ namespace Blocko.Services.Implementations.shoppingCart
             if (quantity <= 0)
             {
                 cart.Items.Remove(item);
+                _unitOfWork.ShoppingCartItems.Remove(item);
             }
             else
             {
@@ -124,9 +147,19 @@ namespace Blocko.Services.Implementations.shoppingCart
             return MapToDto(cart);
         }
 
-        public async Task<ShoppingCartDto> RemoveFromCartAsync(string sessionId, int itemId)
+        public async Task<ShoppingCartDto> RemoveFromCartAsync(string sessionId, int itemId, int? userId = null)
         {
-            var cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            ShoppingCart? cart = null;
+            if (userId.HasValue) 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetByUserIdAsync(userId.Value);
+                if (cart == null) cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            else 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            
             if (cart == null)
                 throw new Exception("Cart not found");
 
@@ -134,6 +167,7 @@ namespace Blocko.Services.Implementations.shoppingCart
             if (item != null)
             {
                 cart.Items.Remove(item);
+                _unitOfWork.ShoppingCartItems.Remove(item);
                 cart.UpdatedAt = DateTime.UtcNow;
                 _unitOfWork.ShoppingCarts.Update(cart);
                 await _unitOfWork.CompleteAsync();
@@ -142,12 +176,27 @@ namespace Blocko.Services.Implementations.shoppingCart
             return MapToDto(cart);
         }
 
-        public async Task ClearCartAsync(string sessionId)
+        public async Task ClearCartAsync(string sessionId, int? userId = null)
         {
-            var cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            ShoppingCart? cart = null;
+            if (userId.HasValue) 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetByUserIdAsync(userId.Value);
+                if (cart == null) cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            else 
+            {
+                cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+            }
+            
             if (cart != null)
             {
+                var itemsToRemove = cart.Items.ToList();
                 cart.Items.Clear();
+                foreach (var item in itemsToRemove)
+                {
+                    _unitOfWork.ShoppingCartItems.Remove(item);
+                }
                 cart.UpdatedAt = DateTime.UtcNow;
                 _unitOfWork.ShoppingCarts.Update(cart);
                 await _unitOfWork.CompleteAsync();
@@ -161,6 +210,17 @@ namespace Blocko.Services.Implementations.shoppingCart
             if (userId.HasValue)
             {
                 cart = await _unitOfWork.ShoppingCarts.GetByUserIdAsync(userId.Value);
+                if (cart == null)
+                {
+                    cart = await _unitOfWork.ShoppingCarts.GetBySessionIdAsync(sessionId);
+                    if (cart != null && cart.UserId == 0)
+                    {
+                        cart.UserId = userId.Value;
+                        _unitOfWork.ShoppingCarts.Update(cart);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+                
                 if (cart == null)
                 {
                     cart = new ShoppingCart

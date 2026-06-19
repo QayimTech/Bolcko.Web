@@ -1,7 +1,7 @@
 @model Bolcko.Domain.Entities.Order.DTOs.OrderDto
 @{
-    ViewData["Title"] = "تفاصيل الطلب #" + Model.OrderNumber;
-    Layout = "_AdminLayout";
+    ViewData["Title"] = L["OrderDetails"];
+    Layout = "_Layout";
 }
 
 <div class="p-6 text-right">
@@ -10,12 +10,28 @@
         <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-800 rounded hover:bg-slate-300">عودة للقائمة</a>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="mb-6 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span class="font-bold text-sm">@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
             <h2 class="text-lg font-bold mb-4 border-b pb-2">معلومات عامة</h2>
             <p class="mb-2"><span class="font-bold">رقم الطلب:</span> @Model.OrderNumber</p>
             <p class="mb-2"><span class="font-bold">التاريخ:</span> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
-            <p class="mb-2"><span class="font-bold">الحالة:</span> @Model.Status</p>
+            <p class="mb-3"><span class="font-bold">الحالة:</span>
+                <span class="inline-block mr-2 px-3 py-1 text-[11px] font-bold uppercase rounded-full
+                    @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "bg-amber-100 text-amber-700" :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700")">
+                    @Model.Status
+                </span>
+            </p>
             <p class="mb-2"><span class="font-bold">العميل:</span> @(Model.UserName ?? "غير محدد")</p>
         </div>
 
@@ -24,6 +40,47 @@
             <p class="mb-2"><span class="font-bold">المبلغ الإجمالي:</span> @Model.TotalAmount.ToString("N2") د.أ</p>
             <p class="mb-2"><span class="font-bold">طريقة الدفع:</span> @(Model.PaymentMethod ?? "غير محدد")</p>
             <p class="mb-2"><span class="font-bold">حالة الدفع:</span> @Model.PaymentStatus</p>
+            
+            @if (Model.ShippingAddress != null)
+            {
+                <h3 class="font-bold mt-6 mb-2 border-b pb-1">عنوان التوصيل:</h3>
+                <p class="text-sm leading-relaxed">
+                    @Model.ShippingAddress.City, @Model.ShippingAddress.StateProvince<br />
+                    @Model.ShippingAddress.AddressLine1<br />
+                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.AddressLine2)) { <span>@Model.ShippingAddress.AddressLine2<br /></span> }
+                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.PostalCode)) { <span>الرمز البريدي: @Model.ShippingAddress.PostalCode</span> }
+                </p>
+            }
+            else
+            {
+                <p class="text-sm mt-4 text-slate-500 italic">لا يوجد عنوان توصيل مسجل لهذا الطلب.</p>
+            }
+        </div>
+
+        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">تحديث حالة الطلب</h2>
+            <form asp-action="UpdateStatus" method="post" class="flex flex-col sm:flex-row gap-4 items-end">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="flex-grow">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">اختر الحالة الجديدة:</label>
+                    <select name="status" class="w-full border border-slate-300 p-2 rounded focus:ring-primary focus:border-primary">
+                        @foreach (Bolcko.Domain.Enums.OrderStatus status in Enum.GetValues(typeof(Bolcko.Domain.Enums.OrderStatus)))
+                        {
+                            if (Model.Status == status)
+                            {
+                                <option value="@status" selected>@status</option>
+                            }
+                            else
+                            {
+                                <option value="@status">@status</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="bg-primary text-white font-bold py-2 px-6 rounded hover:bg-primary-dark transition-colors">
+                    حفظ التغييرات
+                </button>
+            </form>
         </div>
     </div>
 

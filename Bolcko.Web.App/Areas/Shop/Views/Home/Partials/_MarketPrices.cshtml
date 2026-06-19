@@ -35,8 +35,16 @@
     }
     @if (!Model.Any())
     {
-        <div class="col-span-3 text-center py-8 text-on-surface-variant italic">
-            لا توجد تحديثات للأسعار حالياً
+        <div class="col-span-1 md:col-span-3 bg-white border border-dashed border-outline-variant p-12 flex flex-col items-center justify-center text-center rounded-2xl">
+            <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-4 text-slate-300">
+                <span class="material-symbols-outlined text-3xl">query_stats</span>
+            </div>
+            <h3 class="font-bold text-on-surface mb-2">جاري تحديث الأسعار</h3>
+            <p class="text-sm text-on-surface-variant max-w-md mb-6">نحن نقوم بتحديث أسعار السوق المحلية لمواد البناء. يرجى التحقق لاحقاً للحصول على أحدث الأسعار.</p>
+            <button onclick="location.reload()" class="flex items-center gap-2 text-primary font-bold hover:bg-primary/5 px-4 py-2 rounded-lg transition-colors border border-primary/20">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+                <span>تحديث الصفحة</span>
+            </button>
         </div>
     }
 </div>

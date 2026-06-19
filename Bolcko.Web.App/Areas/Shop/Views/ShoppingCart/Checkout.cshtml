@@ -11,7 +11,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
         <!-- Checkout Form -->
         <div class="lg:col-span-8">
-            <form asp-action="PlaceOrder" asp-controller="ShoppingCart" method="post" class="space-y-8">
+            <form id="checkoutForm" asp-action="PlaceOrder" asp-controller="ShoppingCart" method="post" class="space-y-8">
                 <!-- Customer Info -->
                 <div class="bg-white border border-outline-variant p-8 shadow-hard">
                     <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل</h2>
@@ -155,7 +155,7 @@
                     }
                 </div>
                 
-                <button type="button" onclick="document.querySelector('form').submit()" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
+                <button type="submit" form="checkoutForm" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
                     تأكيد وإرسال الطلب
                     <span class="material-symbols-outlined">check_circle</span>
                 </button>

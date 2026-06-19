@@ -1,10 +1,13 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = "اتصل بنا";
+    ViewData["Title"] = SharedLocalizer["ContactUs"];
 }
 <main class="max-w-4xl mx-auto px-6 py-12 text-right">
     <header class="mb-12 border-r-4 border-primary-container pr-6">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">اتصل بنا</h1>
-        <p class="font-body-lg text-secondary">نحن هنا للإجابة على جميع استفساراتك وتقديم الدعم لمشاريعك.</p>
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["ContactUs"]</h1>
+        <p class="font-body-lg text-secondary">@SharedLocalizer["ContactDesc"]</p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -12,21 +15,21 @@
             <div class="flex items-start gap-4">
                 <span class="material-symbols-outlined text-primary text-3xl">location_on</span>
                 <div>
-                    <h3 class="font-bold text-lg mb-2">العنوان</h3>
-                    <p class="text-secondary">عمان، المملكة الأردنية الهاشمية</p>
+                    <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Address"]</h3>
+                    <p class="text-secondary">@SharedLocalizer["JordanAddress"]</p>
                 </div>
             </div>
             <div class="flex items-start gap-4">
                 <span class="material-symbols-outlined text-primary text-3xl">phone</span>
                 <div>
-                    <h3 class="font-bold text-lg mb-2">الهاتف</h3>
+                    <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Phone"]</h3>
                     <p class="text-secondary">+962 6 xxxx xxxx</p>
                 </div>
             </div>
             <div class="flex items-start gap-4">
                 <span class="material-symbols-outlined text-primary text-3xl">email</span>
                 <div>
-                    <h3 class="font-bold text-lg mb-2">البريد الإلكتروني</h3>
+                    <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Email"]</h3>
                     <p class="text-secondary">info@bolcko.com</p>
                 </div>
             </div>
@@ -35,19 +38,19 @@
         <div class="bg-white border border-outline-variant p-8 shadow-hard">
             <form class="space-y-6">
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم</label>
-                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسمك الكريم" />
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Name"]</label>
+                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="@SharedLocalizer["YourNamePlaceholder"]" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">البريد الإلكتروني</label>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Email"]</label>
                     <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@domain.com" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الرسالة</label>
-                    <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-32" placeholder="اكتب رسالتك هنا..."></textarea>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Message"]</label>
+                    <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-32" placeholder="@SharedLocalizer["WriteMessagePlaceholder"]"></textarea>
                 </div>
                 <button type="button" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all">
-                    إرسال الرسالة
+                    @SharedLocalizer["SendMessage"]
                 </button>
             </form>
         </div>

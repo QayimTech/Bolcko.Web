@@ -61,17 +61,34 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _serviceManager.CategoryService.UpdateCategoryAsync(categoryDto);
-                return RedirectToAction(nameof(Index));
+                try 
+                {
+                    await _serviceManager.CategoryService.UpdateCategoryAsync(categoryDto);
+                    TempData["SuccessMessage"] = "تم تحديث الفئة بنجاح.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "حدث خطأ أثناء التحديث: " + ex.Message;
+                }
             }
             ViewBag.ParentCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
             return View(categoryDto);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _serviceManager.CategoryService.DeleteCategoryAsync(id);
+            try
+            {
+                await _serviceManager.CategoryService.DeleteCategoryAsync(id);
+                TempData["SuccessMessage"] = "تم حذف الفئة بنجاح.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "لا يمكن حذف هذه الفئة لوجود منتجات أو فئات فرعية تابعة لها، الرجاء حذفها أولاً.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

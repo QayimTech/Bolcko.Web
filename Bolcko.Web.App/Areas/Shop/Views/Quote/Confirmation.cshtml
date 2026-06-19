@@ -5,7 +5,7 @@
     <div class="bg-white border border-outline-variant p-12 shadow-hard">
         <span class="material-symbols-outlined text-primary text-7xl mb-6" style="font-variation-settings: 'wght' 200">request_quote</span>
         <h1 class="font-headline-xl text-on-surface mb-4">تم إرسال طلب عرض السعر بنجاح!</h1>
-        <p class="text-body-lg text-secondary mb-8">رقم الطلب المرجعي هو: <span class="font-bold text-on-surface">#QT-44210</span></p>
+        <p class="text-body-lg text-secondary mb-8">رقم الطلب المرجعي هو: <span class="font-bold text-on-surface">#QT-@(ViewBag.TenderId?.ToString("D5") ?? "00000")</span></p>
         
         <div class="bg-surface-container-low p-6 border-r-4 border-primary text-right mb-12">
             <h3 class="font-bold text-on-surface mb-2">ما هي الخطوة التالية؟</h3>

@@ -33,5 +33,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             if (order == null) return NotFound();
             return View(order);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int id, Bolcko.Domain.Enums.OrderStatus status)
+        {
+            var result = await _serviceManager.OrderService.UpdateOrderStatusAsync(id, status);
+            if (!result) return NotFound();
+
+            TempData["SuccessMessage"] = "تم تحديث حالة الطلب بنجاح";
+            return RedirectToAction(nameof(Details), new { id });
+        }
     }
 }

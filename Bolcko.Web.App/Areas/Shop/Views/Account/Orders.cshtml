@@ -1,6 +1,7 @@
 @using Bolcko.Domain.Entities.User
-@using Bolcko.Domain.Entities.Order
-@model List<Order>
+@using Bolcko.Domain.Entities.Order.DTOs
+@using Bolcko.Domain.Enums
+@model IEnumerable<OrderDto>
 @{
     ViewData["Title"] = "طلباتي";
     var user = ViewBag.User as User;
@@ -88,22 +89,32 @@
                                         <td class="p-4 text-primary font-bold">@order.TotalAmount.ToString("N2") د.أ</td>
                                         <td class="p-4">
                                             @{
-                                                string statusClass = order.Status.ToString() switch
-                                                {
-                                                    "Pending" => "bg-amber-100 text-amber-800 border-amber-200",
-                                                    "Processing" => "bg-blue-100 text-blue-800 border-blue-200",
-                                                    "Completed" => "bg-green-100 text-green-800 border-green-200",
-                                                    "Cancelled" => "bg-red-100 text-red-800 border-red-200",
-                                                    _ => "bg-slate-100 text-slate-800 border-slate-200"
-                                                };
-                                            }
-                                            <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-sm border @statusClass">@order.Status.ToString()</span>
+                                                 string statusClass = order.Status switch
+                                                 {
+                                                     OrderStatus.Pending    => "bg-amber-100 text-amber-800 border-amber-200",
+                                                     OrderStatus.Processing => "bg-blue-100 text-blue-800 border-blue-200",
+                                                     OrderStatus.Delivered  => "bg-green-100 text-green-800 border-green-200",
+                                                     OrderStatus.Shipped    => "bg-indigo-100 text-indigo-800 border-indigo-200",
+                                                     OrderStatus.Cancelled  => "bg-red-100 text-red-800 border-red-200",
+                                                     _ => "bg-slate-100 text-slate-800 border-slate-200"
+                                                 };
+                                                 string statusLabel = order.Status switch
+                                                 {
+                                                     OrderStatus.Pending    => "قيد الانتظار",
+                                                     OrderStatus.Processing => "قيد المعالجة",
+                                                     OrderStatus.Shipped    => "تم الشحن",
+                                                     OrderStatus.Delivered  => "تم التسليم",
+                                                     OrderStatus.Cancelled  => "ملغي",
+                                                     _ => order.Status.ToString()
+                                                 };
+                                             }
+                                             <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-sm border @statusClass">@statusLabel</span>
                                         </td>
                                         <td class="p-4 text-secondary">@(string.IsNullOrEmpty(order.PaymentMethod) ? "غير محدد" : order.PaymentMethod)</td>
                                         <td class="p-4">
-                                            <a href="#" class="text-primary font-bold hover:underline flex items-center gap-1">
-                                                <span>التفاصيل</span>
-                                                <span class="material-symbols-outlined text-[16px]">visibility</span>
+                                            <a href="@Url.Action("OrderDetails", "Account", new { area = "Shop", id = order.Id })" class="text-primary font-bold hover:underline flex items-center gap-1">
+                                                <span>تتبع الطلب</span>
+                                                <span class="material-symbols-outlined text-[16px]">local_shipping</span>
                                             </a>
                                         </td>
                                     </tr>

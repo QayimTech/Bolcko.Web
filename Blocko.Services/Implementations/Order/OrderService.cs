@@ -16,64 +16,74 @@ namespace Blocko.Services.Implementations.order
 
         public async Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, CheckoutDto checkoutDto)
         {
-            var shippingAddress = new Address
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                UserId = userId,
-                AddressLine1 = checkoutDto.DetailedAddress,
-                City = checkoutDto.City,
-                StateProvince = checkoutDto.Area,
-                AddressType = Bolcko.Domain.Enums.AddressType.Shipping
-            };
-            
-            var billingAddress = new Address
-            {
-                UserId = userId,
-                AddressLine1 = checkoutDto.DetailedAddress,
-                City = checkoutDto.City,
-                StateProvince = checkoutDto.Area,
-                AddressType = Bolcko.Domain.Enums.AddressType.Billing
-            };
-
-            await _unitOfWork.Addresses.AddAsync(shippingAddress);
-            await _unitOfWork.Addresses.AddAsync(billingAddress);
-            await _unitOfWork.CompleteAsync(); // To get Address IDs
-
-            var order = new Order
-            {
-                OrderNumber = $"BLK-{DateTime.UtcNow:yyMMdd}-{new Random().Next(1000, 9999)}",
-                UserId = userId,
-                OrderDate = DateTime.UtcNow,
-                TotalAmount = cart.Total,
-                Status = Bolcko.Domain.Enums.OrderStatus.Pending,
-                PaymentMethod = checkoutDto.PaymentMethod,
-                PaymentStatus = "Pending",
-                ShippingAddressId = shippingAddress.Id,
-                BillingAddressId = billingAddress.Id,
-                Items = cart.Items.Select(i => new OrderItem
+                var shippingAddress = new Address
                 {
-                    ProductId = i.ProductId,
-                    Quantity = i.Quantity,
-                    UnitPrice = i.UnitPrice,
-                    Subtotal = i.TotalPrice
-                }).ToList()
-            };
+                    UserId = userId,
+                    AddressLine1 = checkoutDto.DetailedAddress,
+                    City = checkoutDto.City,
+                    StateProvince = checkoutDto.Area,
+                    AddressType = Bolcko.Domain.Enums.AddressType.Shipping
+                };
 
-            await _unitOfWork.Orders.AddAsync(order);
-
-            // Deduct stock
-            foreach (var item in cart.Items)
-            {
-                var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId);
-                if (product != null)
+                var billingAddress = new Address
                 {
-                    product.StockQuantity -= item.Quantity;
-                    if(product.StockQuantity < 0) product.StockQuantity = 0;
-                    _unitOfWork.Products.Update(product);
+                    UserId = userId,
+                    AddressLine1 = checkoutDto.DetailedAddress,
+                    City = checkoutDto.City,
+                    StateProvince = checkoutDto.Area,
+                    AddressType = Bolcko.Domain.Enums.AddressType.Billing
+                };
+
+                await _unitOfWork.Addresses.AddAsync(shippingAddress);
+                await _unitOfWork.Addresses.AddAsync(billingAddress);
+                await _unitOfWork.CompleteAsync(); // To get Address IDs
+
+                var order = new Order
+                {
+                    OrderNumber = $"BLK-{DateTime.UtcNow:yyMMdd}-{new Random().Next(1000, 9999)}",
+                    UserId = userId,
+                    OrderDate = DateTime.UtcNow,
+                    TotalAmount = cart.Total,
+                    Status = Bolcko.Domain.Enums.OrderStatus.Pending,
+                    PaymentMethod = checkoutDto.PaymentMethod,
+                    PaymentStatus = "Pending",
+                    ShippingAddressId = shippingAddress.Id,
+                    BillingAddressId = billingAddress.Id,
+                    Items = cart.Items.Select(i => new OrderItem
+                    {
+                        ProductId = i.ProductId,
+                        Quantity = i.Quantity,
+                        UnitPrice = i.UnitPrice,
+                        Subtotal = i.TotalPrice
+                    }).ToList()
+                };
+
+                await _unitOfWork.Orders.AddAsync(order);
+
+                // Deduct stock
+                foreach (var item in cart.Items)
+                {
+                    var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        product.StockQuantity -= item.Quantity;
+                        if (product.StockQuantity < 0) product.StockQuantity = 0;
+                        _unitOfWork.Products.Update(product);
+                    }
                 }
-            }
 
-            await _unitOfWork.CompleteAsync();
-            return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount };
+                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CommitTransactionAsync();
+                return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount };
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId)
@@ -144,6 +154,15 @@ namespace Blocko.Services.Implementations.order
                 Status = o.Status,
                 PaymentMethod = o.PaymentMethod,
                 PaymentStatus = o.PaymentStatus,
+                ShippingAddress = o.ShippingAddress != null ? new AddressDto
+                {
+                    AddressLine1 = o.ShippingAddress.AddressLine1,
+                    AddressLine2 = o.ShippingAddress.AddressLine2,
+                    City = o.ShippingAddress.City,
+                    StateProvince = o.ShippingAddress.StateProvince,
+                    PostalCode = o.ShippingAddress.PostalCode,
+                    Country = o.ShippingAddress.Country
+                } : null,
                 Items = o.Items?.Select(i => new OrderItemDto
                 {
                     ProductId = i.ProductId,
@@ -152,6 +171,17 @@ namespace Blocko.Services.Implementations.order
                     TotalPrice = i.Subtotal
                 }).ToList() ?? new List<OrderItemDto>()
             };
+        }
+
+        public async Task<bool> UpdateOrderStatusAsync(int id, Bolcko.Domain.Enums.OrderStatus status)
+        {
+            var order = await _unitOfWork.Orders.GetByIdAsync(id);
+            if (order == null) return false;
+
+            order.Status = status;
+            _unitOfWork.Orders.Update(order);
+            await _unitOfWork.CompleteAsync();
+            return true;
         }
     }
 }

@@ -10,7 +10,10 @@
 
     <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="post" class="space-y-8">
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="All" class="bg-red-50 border border-red-200 p-4 rounded text-red-700 text-sm mb-4"></div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="bg-red-50 border border-red-200 p-4 rounded text-red-700 text-sm mb-4"></div>
+        }
         <!-- Customer & Company Info -->
         <div class="bg-white border border-outline-variant p-8 shadow-hard">
             <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل والشركة</h2>
@@ -93,6 +96,9 @@
                         <span asp-validation-for="Products[0].Unit" class="text-error text-xs"></span>
                     </div>
                     <div class="col-span-1">
+                        <button type="button" class="remove-product text-red-500 hover:text-red-700 flex items-center justify-center">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -150,14 +156,19 @@
             </div>
         `;
         container.appendChild(newItem);
-        
-        // Add remove button listener to the new item
-        newItem.querySelector('.remove-product').addEventListener('click', function () {
-            container.removeChild(newItem);
-            reindexProducts();
-        });
-        
         productCount++;
+    });
+
+    // Event delegation for removing products
+    document.getElementById('productsContainer').addEventListener('click', function (e) {
+        const btn = e.target.closest('.remove-product');
+        if (btn) {
+            const item = btn.closest('.product-item');
+            if (item && document.querySelectorAll('.product-item').length > 1) {
+                item.remove();
+                reindexProducts();
+            }
+        }
     });
 
     // Function to reindex product fields after removal

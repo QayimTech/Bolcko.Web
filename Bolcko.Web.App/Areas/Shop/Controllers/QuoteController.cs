@@ -15,9 +15,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         [HttpGet]
-        public IActionResult Request()
+        [ActionName("Request")]
+        public IActionResult RequestGet([FromQuery] QuoteRequestDto? dto)
         {
-            return View(new QuoteRequestDto());
+            return View("Request", dto ?? new QuoteRequestDto());
         }
 
         [HttpPost]
@@ -29,14 +30,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return View(dto);
             }
 
-            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "1") : 1;
-            await _tenderService.CreateQuoteRequestAsync(dto, userId);
+            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "") : null;
+            var result = await _tenderService.CreateQuoteRequestAsync(dto, userId);
 
-            return RedirectToAction(nameof(Confirmation));
+            return RedirectToAction(nameof(Confirmation), new { id = result.Id });
         }
 
-        public IActionResult Confirmation()
+        public IActionResult Confirmation(int? id)
         {
+            ViewBag.TenderId = id;
             return View();
         }
     }

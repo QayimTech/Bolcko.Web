@@ -43,11 +43,44 @@ namespace Bolcko.Web.App.Extensions
                     RegistrationDate = DateTime.UtcNow
                 };
 
-                var result = await userManager.CreateAsync(newAdmin, "Admin@123");
+                var result = await userManager.CreateAsync(newAdmin, "BolckoAdmin@2026!");d
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
                 } 
+            }
+
+            // 3. Seed Market Prices
+            var dbContext = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
+            if (!dbContext.MarketPrices.Any())
+            {
+                dbContext.MarketPrices.AddRange(
+                    new Bolcko.Domain.Entities.Catalog.MarketPrice 
+                    { 
+                        MaterialName = "حديد تسليح سابك", 
+                        Price = 610.50m, 
+                        Currency = "د.أ", 
+                        UnitOfMeasure = "طن", 
+                        LastUpdated = DateTime.UtcNow 
+                    },
+                    new Bolcko.Domain.Entities.Catalog.MarketPrice 
+                    { 
+                        MaterialName = "أسمنت الراجحي", 
+                        Price = 75.00m, 
+                        Currency = "د.أ", 
+                        UnitOfMeasure = "طن", 
+                        LastUpdated = DateTime.UtcNow 
+                    },
+                    new Bolcko.Domain.Entities.Catalog.MarketPrice 
+                    { 
+                        MaterialName = "خرسانة جاهزة", 
+                        Price = 45.00m, 
+                        Currency = "د.أ", 
+                        UnitOfMeasure = "متر مكعب", 
+                        LastUpdated = DateTime.UtcNow 
+                    }
+                );
+                await dbContext.SaveChangesAsync();
             }
         }
     }

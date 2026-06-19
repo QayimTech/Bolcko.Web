@@ -1,0 +1,336 @@
+@using Bolcko.Domain.Entities.User
+@using Bolcko.Domain.Entities.Order.DTOs
+@model OrderDto
+@{
+    ViewData["Title"] = "تفاصيل الطلب";
+    var user = ViewBag.User as User;
+}
+<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
+                <div class="bg-on-surface p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-primary-container rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl text-on-primary-container">person</span>
+                    </div>
+                    <h2 class="font-bold">@(user?.FirstName + " " + user?.LastName)</h2>
+                    <p class="text-xs text-slate-400">@user?.UserType.ToString()</p>
+                </div>
+                <nav class="p-4">
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>لوحة التحكم</span>
+                                <span class="material-symbols-outlined text-sm">dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
+                                <span>طلباتي</span>
+                                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>عروض الأسعار</span>
+                                <span class="material-symbols-outlined text-sm">request_quote</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>مشاريعي</span>
+                                <span class="material-symbols-outlined text-sm">architecture</span>
+                            </a>
+                        </li>
+                        <li class="pt-4 mt-4 border-t border-outline-variant">
+                            <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
+                                    <span>تسجيل الخروج</span>
+                                    <span class="material-symbols-outlined text-sm">logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 space-y-8">
+            <header class="border-r-4 border-primary-container pr-6 mb-8">
+                <h1 class="font-headline-xl text-on-surface uppercase mb-2">تفاصيل الطلب</h1>
+                <p class="font-body-lg text-secondary">رقم الطلب: @Model.OrderNumber</p>
+            </header>
+
+            @{
+                var trackingSteps = new[]
+                {
+                    new { Key = "Pending",    Label = "قيد الانتظار", Icon = "hourglass_empty",   StepNum = 1 },
+                    new { Key = "Processing", Label = "قيد المعالجة", Icon = "settings",           StepNum = 2 },
+                    new { Key = "Shipped",    Label = "تم الشحن",      Icon = "local_shipping",    StepNum = 3 },
+                    new { Key = "Delivered",  Label = "تم التسليم",    Icon = "check_circle",      StepNum = 4 },
+                };
+                int currentStep = Model.Status switch
+                {
+                    Bolcko.Domain.Enums.OrderStatus.Pending    => 1,
+                    Bolcko.Domain.Enums.OrderStatus.Processing => 2,
+                    Bolcko.Domain.Enums.OrderStatus.Shipped    => 3,
+                    Bolcko.Domain.Enums.OrderStatus.Delivered  => 4,
+                    Bolcko.Domain.Enums.OrderStatus.Cancelled  => -1,
+                    _ => 1
+                };
+                bool isCancelled = Model.Status == Bolcko.Domain.Enums.OrderStatus.Cancelled;
+            }
+
+            @if (isCancelled)
+            {
+                <div class="bg-red-50 border border-red-200 rounded-xl p-5 mb-8 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-red-500 text-3xl">cancel</span>
+                    <div>
+                        <p class="font-bold text-red-700">تم إلغاء الطلب</p>
+                        <p class="text-sm text-red-500">تم إلغاء هذا الطلب. للاستفسار تواصل مع الدعم.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Order Tracking Stepper -->
+                <div class="bg-white border border-outline-variant shadow-hard rounded-xl p-6 mb-8 overflow-x-auto">
+                    <h3 class="font-bold text-on-surface mb-6 text-sm uppercase tracking-widest text-right">تتبع الطلب</h3>
+                    <div class="flex items-start justify-between min-w-[480px] relative">
+                        <!-- Connecting line background -->
+                        <div class="absolute top-5 right-[calc(12.5%+20px)] left-[calc(12.5%+20px)] h-0.5 bg-outline-variant z-0"></div>
+                        <!-- Connecting line progress -->
+                        @{
+                            var progressPercents = new[] { "0%", "33.3%", "66.6%", "100%" };
+                            string progressWidth = currentStep >= 4 ? "100%" : currentStep >= 3 ? "66.6%" : currentStep >= 2 ? "33.3%" : "0%";
+                        }
+                        <div class="absolute top-5 right-[calc(12.5%+20px)] left-[calc(12.5%+20px)] h-0.5 bg-primary z-0 transition-all duration-700" style="width: @progressWidth; position: absolute;"></div>
+
+                        @foreach (var step in trackingSteps)
+                        {
+                            bool isCompleted = currentStep > step.StepNum;
+                            bool isActive    = currentStep == step.StepNum;
+                            string circleClass = isCompleted ? "bg-primary text-white border-primary" :
+                                                 isActive    ? "bg-primary text-white border-primary ring-4 ring-primary/20" :
+                                                               "bg-white text-slate-400 border-outline-variant";
+                            string labelClass  = isCompleted || isActive ? "text-on-surface font-bold" : "text-secondary";
+                            <div class="flex flex-col items-center gap-2 z-10 flex-1">
+                                <div class="relative w-10 h-10 rounded-full border-2 flex items-center justify-center @circleClass transition-all duration-500 @(isActive ? "animate-pulse-once" : "")">
+                                    @if (isCompleted)
+                                    {
+                                        <span class="material-symbols-outlined text-lg">check</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="material-symbols-outlined text-lg">@step.Icon</span>
+                                    }
+                                    @if (isActive)
+                                    {
+                                        <span class="absolute inset-0 rounded-full bg-primary/20 animate-ping"></span>
+                                    }
+                                </div>
+                                <span class="text-xs text-center @labelClass whitespace-nowrap">@step.Label</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Order Info -->
+            <div class="bg-white border border-outline-variant shadow-hard overflow-hidden p-6 space-y-6">
+                <div class="flex justify-between items-center border-b border-outline-variant pb-4">
+                    <div>
+                        <h3 class="font-bold text-on-surface">معلومات الطلب</h3>
+                        <p class="text-sm text-secondary">تاريخ الطلب: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                    </div>
+                    <div>
+                        @{
+                            string statusClass = Model.Status switch
+                            {
+                                Bolcko.Domain.Enums.OrderStatus.Pending    => "bg-amber-100 text-amber-800 border-amber-200",
+                                Bolcko.Domain.Enums.OrderStatus.Processing => "bg-blue-100 text-blue-800 border-blue-200",
+                                Bolcko.Domain.Enums.OrderStatus.Delivered  => "bg-green-100 text-green-800 border-green-200",
+                                Bolcko.Domain.Enums.OrderStatus.Cancelled  => "bg-red-100 text-red-800 border-red-200",
+                                Bolcko.Domain.Enums.OrderStatus.Shipped    => "bg-indigo-100 text-indigo-800 border-indigo-200",
+                                _ => "bg-slate-100 text-slate-800 border-slate-200"
+                            };
+                            string statusLabel = Model.Status switch
+                            {
+                                Bolcko.Domain.Enums.OrderStatus.Pending    => "قيد الانتظار",
+                                Bolcko.Domain.Enums.OrderStatus.Processing => "قيد المعالجة",
+                                Bolcko.Domain.Enums.OrderStatus.Shipped    => "تم الشحن",
+                                Bolcko.Domain.Enums.OrderStatus.Delivered  => "تم التسليم",
+                                Bolcko.Domain.Enums.OrderStatus.Cancelled  => "ملغي",
+                                _ => Model.Status.ToString()
+                            };
+                        }
+                        <span class="px-3 py-1.5 text-xs font-bold rounded-full border @statusClass">@statusLabel</span>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div>
+                    <h3 class="font-bold text-on-surface mb-4">العناصر</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
+                                <tr>
+                                    <th class="p-3">المنتج</th>
+                                    <th class="p-3">الكمية</th>
+                                    <th class="p-3">السعر للوحدة</th>
+                                    <th class="p-3">الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr class="border-b border-outline-variant">
+                                        <td class="p-3">@item.ProductId</td>
+                                        <td class="p-3">@item.Quantity</td>
+                                        <td class="p-3">@item.UnitPrice.ToString("N2") د.أ</td>
+                                        <td class="p-3">@item.TotalPrice.ToString("N2") د.أ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div class="flex justify-between items-center border-t border-outline-variant pt-4">
+                    <h3 class="font-bold text-on-surface">الإجمالي</h3>
+                    <p class="text-primary font-headline-lg">@Model.TotalAmount.ToString("N2") د.أ</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+            {
+                <div id="successBanner" class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4 animate-fade-in">
+                    <span class="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
+                    <p class="text-green-800 font-semibold text-sm">@TempData["SuccessMessage"]</p>
+                </div>
+            }
+
+            @if (Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped && !isCancelled)
+            {
+                <!-- Confirm Delivery Card -->
+                <div class="bg-gradient-to-l from-indigo-50 to-white border border-indigo-100 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-indigo-600 text-2xl">local_shipping</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-on-surface">طلبيتك في الطريق إليك!</p>
+                            <p class="text-sm text-secondary mt-0.5">هل استلمت طلبيتك؟ أكّد الاستلام لإغلاق الطلب.</p>
+                        </div>
+                    </div>
+                    <form asp-area="Shop" asp-controller="Account" asp-action="ConfirmDelivery"
+                          asp-route-id="@Model.Id" method="post" id="confirmDeliveryForm">
+                        <button type="submit" id="confirmBtn"
+                                onclick="showLoader()"
+                                class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
+                            <span class="material-symbols-outlined text-lg">verified</span>
+                            <span>تأكيد الاستلام</span>
+                        </button>
+                    </form>
+                </div>
+            }
+
+            <!-- Back Button + Track Info -->
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <a href="@Url.Action("Orders", "Account", new { area = "Shop" })"
+                   class="flex items-center gap-2 text-primary font-bold hover:underline">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    العودة لطلباتي
+                </a>
+                @if (!isCancelled)
+                {
+                    <p id="autoUpdateIndicator" class="flex items-center gap-1.5 text-xs text-secondary">
+                        <span id="pulseIndicator" class="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"></span>
+                        يتحدث تلقائياً
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Full-Page Loader Overlay -->
+<div id="loaderOverlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-6 max-w-xs w-full mx-4">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 animate-spin"></div>
+            <div class="absolute inset-2 rounded-full border-4 border-transparent border-t-indigo-300 animate-spin" style="animation-duration: 0.6s; animation-direction: reverse;"></div>
+            <span class="absolute inset-0 flex items-center justify-center material-symbols-outlined text-indigo-600 text-2xl">verified</span>
+        </div>
+        <div class="text-center">
+            <p class="font-bold text-on-surface text-lg mb-1">جارٍ تأكيد استلامك</p>
+            <p class="text-sm text-secondary">يرجى الانتظار لحظة...</p>
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay:0s"></span>
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay:0.15s"></span>
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay:0.3s"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+@@keyframes fade-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+</style>
+
+<script>
+    function showLoader() {
+        document.getElementById('loaderOverlay').classList.remove('hidden');
+    }
+
+    // Auto-polling: check order status every 30 seconds
+    const orderId = @Model.Id;
+    const currentStatus = '@Model.Status.ToString()';
+    const statusUrl = '@Url.Action("GetOrderStatus", "Account", new { area = "Shop", id = Model.Id })';
+    let pollInterval;
+
+    function startPolling() {
+        pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch(statusUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!response.ok) return;
+                const data = await response.json();
+
+                if (data.status !== currentStatus) {
+                    // Status changed → show animated notification then reload
+                    clearInterval(pollInterval);
+                    showStatusChangedBanner(data.statusLabel);
+                    setTimeout(() => window.location.reload(), 2500);
+                }
+            } catch (e) {
+                // silently ignore network errors
+            }
+        }, 30000); // every 30 seconds
+    }
+
+    function showStatusChangedBanner(newStatusLabel) {
+        const banner = document.createElement('div');
+        banner.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 bg-indigo-600 text-white px-6 py-4 rounded-2xl shadow-2xl animate-fade-in';
+        banner.innerHTML = `
+            <span class="material-symbols-outlined text-2xl">notifications_active</span>
+            <div>
+                <p class="font-bold">تحديث حالة الطلب!</p>
+                <p class="text-sm opacity-90">الحالة الجديدة: ${newStatusLabel}</p>
+            </div>`;
+        document.body.appendChild(banner);
+    }
+
+    // Only poll if order is not in a final state
+    if (currentStatus !== 'Delivered' && currentStatus !== 'Cancelled') {
+        startPolling();
+    } else {
+        // Hide pulse indicator for final states
+        const indicator = document.getElementById('autoUpdateIndicator');
+        if (indicator) indicator.style.display = 'none';
+    }
+</script>

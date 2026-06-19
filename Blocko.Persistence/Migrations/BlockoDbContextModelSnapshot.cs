@@ -17,7 +17,7 @@ namespace Blocko.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -412,6 +412,21 @@ namespace Blocko.Persistence.Migrations
                     b.Property<int?>("AwardedSupplierId")
                         .HasColumnType("int");
 
+                    b.Property<string>("GuestCity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuestCompany")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuestEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuestName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuestPhone")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -438,7 +453,7 @@ namespace Blocko.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -456,8 +471,11 @@ namespace Blocko.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ProductName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("ProposedPricePerUnit")
                         .HasPrecision(18, 2)
@@ -473,6 +491,9 @@ namespace Blocko.Persistence.Migrations
 
                     b.Property<int>("TenderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -880,9 +901,7 @@ namespace Blocko.Persistence.Migrations
                 {
                     b.HasOne("Bolcko.Domain.Entities.User.User", "User")
                         .WithMany("Tenders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -891,9 +910,7 @@ namespace Blocko.Persistence.Migrations
                 {
                     b.HasOne("Bolcko.Domain.Entities.Product.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductId");
 
                     b.HasOne("Bolcko.Domain.Entities.Tender.Tender", "Tender")
                         .WithMany("Items")

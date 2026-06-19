@@ -13,6 +13,21 @@ $(document).ready(function () {
         }
     });
 
-    // Simple mobile menu toggle (if needed in future)
-    // Add logic here
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    let isMenuOpen = false;
+
+    mobileMenuBtn?.addEventListener('click', function () {
+        isMenuOpen = !isMenuOpen;
+        
+        if (isMenuOpen) {
+            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+            if (menuIcon) menuIcon.textContent = 'close';
+        } else {
+            mobileMenu.style.maxHeight = '0px';
+            if (menuIcon) menuIcon.textContent = 'menu';
+        }
+    });
 });

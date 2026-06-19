@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
@@ -12,6 +12,26 @@
 </head>
 <body class="bg-surface text-on-surface font-body-md min-h-screen">
     <partial name="Partials/_Header" />
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
+            <div class="flex items-center">
+                <span class="material-symbols-outlined text-red-500 me-2">error</span>
+                <p class="text-sm text-red-700 font-bold">@TempData["ErrorMessage"]</p>
+            </div>
+        </div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
+            <div class="flex items-center">
+                <span class="material-symbols-outlined text-emerald-500 me-2">check_circle</span>
+                <p class="text-sm text-emerald-700 font-bold">@TempData["SuccessMessage"]</p>
+            </div>
+        </div>
+    }
+
     <main role="main">
         @RenderBody()
     </main>

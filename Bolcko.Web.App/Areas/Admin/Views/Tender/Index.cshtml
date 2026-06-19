@@ -1,0 +1,62 @@
+@using Bolcko.Domain.Entities.Tender.DTOs
+@model IEnumerable<TenderDto>
+@{
+    ViewData["Title"] = L["ManageTenders"];
+}
+
+<section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">@L["ManageTenders"]</h1>
+            <p class="text-on-surface-variant text-sm mt-1">@L["ManageTendersDescription"]</p>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-sm transition-all hover:shadow-lg">
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-right border-collapse min-w-[800px]">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["TenderNumber"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["ProjectName"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Customer"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Date"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Total"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Status"]</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="px-6 py-4 font-mono text-xs font-bold text-primary">#RFQ-@item.Id.ToString("D4")</td>
+                            <td class="px-6 py-4 text-slate-900 font-bold whitespace-nowrap">@item.TenderTitle</td>
+                            <td class="px-6 py-4 text-slate-600">@item.UserName</td>
+                            <td class="px-6 py-4 text-slate-600">@item.RequestDate.ToString("yyyy-MM-dd")</td>
+                            <td class="px-6 py-4 text-primary font-black">@(item.TotalQuotedAmount?.ToString("N2") ?? "-") @L["Currency"]</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-700">
+                                    @item.Status.ToString()
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="@Url.Action("Details", new { id = item.Id })" class="text-slate-400 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400 italic">
+                                @L["NoTendersAvailable"]
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

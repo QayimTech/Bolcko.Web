@@ -11,5 +11,6 @@ namespace Blocko.Services.Interfaces.Order
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
         Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize);
         Task<OrderDto?> GetOrderByIdAsync(int id);
+        Task<bool> UpdateOrderStatusAsync(int id, Bolcko.Domain.Enums.OrderStatus status);
     }
 }

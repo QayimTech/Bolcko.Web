@@ -1,71 +1,85 @@
+@model Bolcko.Web.App.Areas.Admin.Models.AdminDashboardViewModel
 @{
-    ViewData["Title"] = L["Dashboard"];
+    ViewData["Title"] = "Dashboard";
 }
 
 <section class="p-8 space-y-8 flex-1 text-right">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        <div class="bg-white p-6 border border-slate-200 shadow-hard">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 border border-slate-200 shadow-sm">
             <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["TotalSales"]</p>
-            <h3 class="font-headline-md text-on-surface">248,500.00 @L["Currency"]</h3>
+            <h3 class="text-2xl font-bold text-slate-900">@Model.TotalSales.ToString("N2")</h3>
             <div class="flex items-center mt-4 text-emerald-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">trending_up</span> @L["SalesIncreaseRate"]
+                <span class="material-symbols-outlined text-sm ml-1">trending_up</span>
             </div>
         </div>
-        <div class="bg-white p-6 border border-slate-200 shadow-hard">
+        <div class="bg-white p-6 border border-slate-200 shadow-sm">
             <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["OpenTenders"]</p>
-            <h3 class="font-headline-md text-on-surface">42</h3>
+            <h3 class="text-2xl font-bold text-slate-900">@Model.OpenTenders</h3>
             <div class="flex items-center mt-4 text-amber-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">pending_actions</span> @L["TendersPendingApproval"]
+                <span class="material-symbols-outlined text-sm ml-1">pending_actions</span>
             </div>
         </div>
-        <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["InventoryValue"]</p>
-            <h3 class="font-headline-md text-on-surface">@L["InventoryValueQuantity"]</h3>
+        <div class="bg-white p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["TotalOrders"]</p>
+            <h3 class="text-2xl font-bold text-slate-900">@Model.TotalOrders</h3>
             <div class="flex items-center mt-4 text-on-surface-variant text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">inventory_2</span> @L["AvailableForBulk"]
+                <span class="material-symbols-outlined text-sm ml-1">shopping_cart</span>
             </div>
         </div>
-        <div class="bg-white p-6 border border-slate-200 shadow-hard">
-            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["SupplyRisk"]</p>
-            <h3 class="font-headline-md text-emerald-600">@L["LowRisk"]</h3>
+        <div class="bg-white p-6 border border-slate-200 shadow-sm">
+            <p class="text-xs font-bold text-[#8A95A8] uppercase tracking-widest mb-1">@L["TotalUsers"]</p>
+            <h3 class="text-2xl font-bold text-emerald-600">@Model.UserCount</h3>
             <div class="flex items-center mt-4 text-emerald-600 text-xs font-bold">
-                <span class="material-symbols-outlined text-sm ml-1">check_circle</span> @L["AllChannelsActive"]
+                <span class="material-symbols-outlined text-sm ml-1">people</span>
             </div>
         </div>
     </div>
 
     <!-- Main Data Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-gutter items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         <!-- Incoming Tenders (Wide) -->
-        <div class="xl:col-span-2 space-y-gutter">
-            <div class="bg-white border border-slate-200 overflow-hidden shadow-hard">
+        <div class="xl:col-span-2 space-y-6">
+            <div class="bg-white border border-slate-200 overflow-hidden shadow-sm">
                 <div class="bg-[#1B2235] px-6 py-4 flex justify-between items-center">
                     <h2 class="text-white font-bold text-sm uppercase tracking-widest">@L["IncomingRFQs"]</h2>
-                    <button class="text-[#E8A020] text-xs font-bold uppercase hover:underline">@L["ViewAll"]</button>
+                    <a href="@Url.Action("Index", "Tender")" class="text-[#E8A020] text-xs font-bold uppercase hover:underline">@L["ViewAll"]</a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-right">
+                    <table class="w-full text-right min-w-[600px]">
                         <thead class="bg-slate-100 text-[#1B2235] font-bold text-[10px] uppercase tracking-widest">
                             <tr>
-                                <th class="px-6 py-3">@L["ProjectName"]</th>
-                                <th class="px-6 py-3">@L["Customer"]</th>
-                                <th class="px-6 py-3">@L["EstimatedBudget"]</th>
-                                <th class="px-6 py-3">@L["ClosingDate"]</th>
-                                <th class="px-6 py-3">@L["Status"]</th>
-                                <th class="px-6 py-3">@L["Actions"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["ProjectName"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["Customer"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["EstimatedBudget"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["ClosingDate"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["Status"]</th>
+                                <th class="px-6 py-3 whitespace-nowrap">@L["Actions"]</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-[#1B2235]">@L["SampleProjectName"]</td>
-                                <td class="px-6 py-4">@L["SampleCustomerName"]</td>
-                                <td class="px-6 py-4">@L["SampleBudget"]</td>
-                                <td class="px-6 py-4 text-xs">@L["SampleClosingDate"]</td>
-                                <td class="px-6 py-4">
-                                    <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@L["UnderReview"]</span>
-                                </td>
-                                <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline">@L["Analyze"]</td>
-                            </tr>
+                            @foreach(var tender in Model.LatestTenders)
+                            {
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-bold text-[#1B2235] whitespace-nowrap">@tender.TenderTitle</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">@tender.UserName</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">@(tender.TotalQuotedAmount?.ToString("N2") ?? "-") @L["Currency"]</td>
+                                    <td class="px-6 py-4 text-xs whitespace-nowrap">@tender.RequestDate.ToString("yyyy-MM-dd")</td>
+                                    <td class="px-6 py-4">
+                                        <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded whitespace-nowrap">@tender.Status.ToString()</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-[#E8A020] font-bold text-xs cursor-pointer hover:underline whitespace-nowrap">
+                                        <a href="@Url.Action("Details", "Tender", new { id = tender.Id })">@L["Analyze"]</a>
+                                    </td>
+                                </tr>
+                            }
+                            @if(!Model.LatestTenders.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-slate-400 italic">
+                                        @L["NoTendersAvailable"]
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -73,28 +87,37 @@
         </div>
 
         <!-- Latest Orders (Side Rail) -->
-        <div class="space-y-gutter">
-            <div class="bg-white border border-slate-200 shadow-hard">
+        <div class="space-y-6">
+            <div class="bg-white border border-slate-200 shadow-sm">
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                     <h2 class="text-[#1B2235] font-bold text-sm uppercase tracking-widest">@L["LatestShopOrders"]</h2>
-                    <span class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-0.5">@L["Live"]</span>
+                    <a href="@Url.Action("Index", "Order")" class="bg-[#E8A020] text-[#1B2235] text-[10px] font-black px-2 py-0.5 hover:opacity-90">@L["ViewAll"]</a>
                 </div>
                 <div class="divide-y divide-slate-100">
-                    <div class="p-6 hover:bg-slate-50 transition-colors">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-9921</p>
-                                <p class="text-sm font-bold text-[#1B2235]">@L["SampleOrderItemName"]</p>
+                    @foreach(var order in Model.LatestOrders)
+                    {
+                        <div class="p-6 hover:bg-slate-50 transition-colors">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-xs font-bold text-[#8A95A8] mb-1">#ORD-@order.Id.ToString("D4")</p>
+                                    <p class="text-sm font-bold text-[#1B2235]">@order.UserName</p>
+                                </div>
+                                <p class="text-sm font-bold text-[#1B2235] whitespace-nowrap">@order.TotalAmount.ToString("N2") @L["Currency"]</p>
                             </div>
-                            <p class="text-sm font-bold text-[#1B2235]">842.00 @L["Currency"]</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-amber-600 uppercase">@order.Status.ToString()</span>
+                                <span class="text-[10px] text-[#8A95A8]">@order.OrderDate.ToString("yyyy-MM-dd")</span>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-bold text-amber-600 uppercase">@L["Processing"]</span>
-                            <span class="text-[10px] text-[#8A95A8]">@L["TwoMinutesAgo"]</span>
+                    }
+                    @if(!Model.LatestOrders.Any())
+                    {
+                        <div class="p-6 text-center text-slate-400 italic">
+                            @L["NoOrdersAvailable"]
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
-</section>
+</section>

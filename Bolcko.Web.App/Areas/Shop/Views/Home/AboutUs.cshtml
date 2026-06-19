@@ -1,5 +1,8 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = "من نحن";
+    ViewData["Title"] = SharedLocalizer["AboutUs"];
 }
 
 <main class="bg-[#faf8ff]">
@@ -19,23 +22,23 @@
             <div class="max-w-2xl">
                 <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E8A020] bg-[#E8A020]/10 px-3.5 py-1.5 rounded-full mb-8">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#E8A020] animate-pulse"></span>
-                    تأسست عام 1995
+                    @SharedLocalizer["Established1995"]
                 </span>
                 <h1 class="font-headline-xl text-white mb-8 leading-tight">
-                    نبني المستقبل بـ<span class="text-[#E8A020]">التميز</span> الصناعي والخبرة العميقة
+                    @SharedLocalizer["HeroTitle"]
                 </h1>
                 <p class="font-body-lg text-slate-300 max-w-xl mb-10 leading-relaxed">
-                    ثلاثة عقود من النزاهة الهندسية والخبرة العميقة في التوريدات الإنشائية. نحن العمود الفقري الموثوق لأكبر المشاريع التنموية في المنطقة.
+                    @SharedLocalizer["HeroSubtitle"]
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <a href="@Url.Action("Index", "Category", new { area = "Shop" })" 
                        class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.2)] transition-all duration-300 active:scale-95 flex items-center gap-2">
-                        <span>استعراض المنتجات</span>
+                        <span>@SharedLocalizer["BrowseProducts"]</span>
                         <span class="material-symbols-outlined text-base">arrow_back</span>
                     </a>
                     <a href="#capabilities" 
                        class="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 active:scale-95">
-                        قدراتنا ومزايانا
+                        @SharedLocalizer["Capabilities"]
                     </a>
                 </div>
             </div>

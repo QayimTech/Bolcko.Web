@@ -55,7 +55,7 @@
                                 <form asp-action="UpdateItem" method="post" class="flex items-center border border-outline shadow-hard">
                                     <input type="hidden" name="itemId" value="@item.Id" />
                                     <button type="button" data-decrement="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-l border-outline">-</button>
-                                    <input id="quantity-@item.Id" type="number" name="quantity" value="@item.Quantity" min="1" class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
+                                    <input id="quantity-@item.Id" type="number" name="quantity" value="@item.Quantity" min="0" class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
                                     <button type="button" data-increment="@item.Id" class="px-3 py-1 hover:bg-surface-container-high transition-colors font-bold border-r border-outline">+</button>
                                     <button type="submit" class="px-4 py-1 bg-primary-container text-on-primary-container font-bold hover:opacity-90 transition-opacity">@SharedLocalizer["Update"]</button>
                                 </form>
@@ -155,7 +155,7 @@
                 var itemId = $(this).data('decrement');
                 var input = $('#quantity-' + itemId);
                 var current = parseInt(input.val());
-                if (current > 1) {
+                if (current > 0) {
                     input.val(current - 1);
                 }
             });

@@ -38,7 +38,7 @@
                             <td class="px-6 py-4 text-xs">@user.RegistrationDate.ToString("yyyy/MM/dd")</td>
                             <td class="px-6 py-4 flex gap-2 items-center">
                                 <a href="@Url.Action("Edit", "User", new { area = "Admin", id = user.Id })" class="text-[#E8A020] font-bold text-xs hover:underline">@L["Edit"]</a>
-                                <form asp-action="Delete" method="post" class="inline-block" onsubmit="return confirm('@L["DeleteUserConfirm"]');">
+                                <form asp-action="Delete" method="post" class="inline-block" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'user');">
                                     <input type="hidden" name="id" value="@user.Id" />
                                     <button type="submit" class="text-red-500 font-bold text-xs hover:underline">@L["Delete"]</button>
                                 </form>

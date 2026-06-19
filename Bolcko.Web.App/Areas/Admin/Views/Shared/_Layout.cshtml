@@ -16,7 +16,7 @@
         <partial name="Partials/Aside" />
         
         <!-- Main Content Area -->
-        <div id="main-content" class="flex-1 flex flex-col min-h-screen sidebar-transition">
+        <div id="main-content" class="flex-1 flex flex-col min-h-screen sidebar-transition lg:ms-[280px]">
             <partial name="Partials/Header" />
             
             <main role="main" class="flex-1 p-4 md:p-6 lg:p-10">
@@ -28,37 +28,87 @@
             <partial name="Partials/Footer" />
         </div>
 
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteConfirmModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+            <div class="bg-white rounded-3xl p-8 max-w-md w-full relative z-10 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 mx-4 border border-red-100">
+                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-3xl">warning</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 text-center mb-2">تأكيد الحذف</h3>
+                <p id="deleteModalMessage" class="text-slate-500 text-sm text-center mb-6 leading-relaxed">
+                    هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+                </p>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-700 mb-2 text-start">للتأكيد، اكتب "<span class="text-red-600">حذف</span>" أو "<span class="text-red-600">delete</span>" في الصندوق أدناه:</label>
+                    <input type="text" id="deleteConfirmInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" autocomplete="off" />
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
+                        إلغاء
+                    </button>
+                    <button type="button" id="deleteConfirmBtn" class="flex-1 px-6 py-3 bg-red-600 text-white font-bold rounded-xl transition-colors opacity-50 cursor-not-allowed" disabled>
+                        تأكيد الحذف
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="fixed bottom-6 start-6 z-[100] flex flex-col gap-3">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-up-fade">
+                    <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                    <span class="font-bold text-sm">@TempData["SuccessMessage"]</span>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bg-rose-50 border border-rose-200 text-rose-800 px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-up-fade">
+                    <span class="material-symbols-outlined text-rose-600">error</span>
+                    <span class="font-bold text-sm">@TempData["ErrorMessage"]</span>
+                </div>
+            }
+        </div>
+
     </div>
+
+    <style>
+        .animate-slide-up-fade {
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @@keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         $(function () {
+            // Sidebar logic
             const $body    = $('body');
             const $sidebar = $('#admin-sidebar');
             const $overlay = $('#sidebar-overlay');
-            const isRTL    = $('html').attr('dir') === 'rtl';
-
-            // The class that visually hides the sidebar off-screen
-            const hideClass = isRTL ? 'translate-x-full' : '-translate-x-full';
+            const hideClasses = '-translate-x-full rtl:translate-x-full';
 
             function openSidebar() {
-                $sidebar.removeClass(hideClass);
+                $sidebar.removeClass(hideClasses);
                 $overlay.removeClass('hidden');
                 setTimeout(() => $overlay.removeClass('opacity-0'), 10);
                 $body.addClass('overflow-hidden');
             }
-
             function closeSidebar() {
-                $sidebar.addClass(hideClass);
+                $sidebar.addClass(hideClasses);
                 $overlay.addClass('opacity-0');
                 setTimeout(() => $overlay.addClass('hidden'), 300);
                 $body.removeClass('overflow-hidden');
             }
-
             $('#sidebar-toggle').on('click', function () {
                 if (window.innerWidth < 1024) {
-                    $sidebar.hasClass(hideClass) ? openSidebar() : closeSidebar();
+                    $sidebar.hasClass('-translate-x-full') ? openSidebar() : closeSidebar();
                 } else {
                     $body.toggleClass('sidebar-collapsed');
                     if ($body.hasClass('sidebar-collapsed')) {
@@ -72,19 +122,82 @@
                     }
                 }
             });
-
             $('#close-sidebar, #sidebar-overlay').on('click', closeSidebar);
-
             $(window).on('resize', function () {
                 if (window.innerWidth >= 1024) {
                     $overlay.addClass('hidden opacity-0');
                     $body.removeClass('overflow-hidden');
-                    $sidebar.removeClass(hideClass);
+                    $sidebar.removeClass(hideClasses);
                     $sidebar.css('width', '');
                 } else {
-                    if (!$sidebar.hasClass(hideClass)) closeSidebar();
+                    if (!$sidebar.hasClass('-translate-x-full')) closeSidebar();
                 }
             });
+
+            // Toast Auto-hide
+            setTimeout(function() {
+                $('#toast-container > div').fadeOut(500, function() { $(this).remove(); });
+            }, 6000);
+        });
+
+        // Delete Modal Logic
+        let currentDeleteForm = null;
+
+        function requireDeleteConfirm(form, typeMsg) {
+            currentDeleteForm = form;
+            const modal = document.getElementById('deleteConfirmModal');
+            const msgEl = document.getElementById('deleteModalMessage');
+            const input = document.getElementById('deleteConfirmInput');
+            const btn = document.getElementById('deleteConfirmBtn');
+            
+            if(typeMsg === 'category') {
+                msgEl.textContent = "هل أنت متأكد من الحذف؟ سيتم حذف جميع المنتجات أو الفئات الفرعية التي تنتمي إلى هذه الفئة بشكل نهائي!";
+            } else {
+                msgEl.textContent = "هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.";
+            }
+
+            input.value = '';
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.classList.remove('hover:bg-red-700');
+
+            modal.classList.remove('hidden');
+            // small delay for transition
+            setTimeout(() => {
+                modal.querySelector('.bg-white').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('.bg-white').classList.add('scale-100', 'opacity-100');
+                input.focus();
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.querySelector('.bg-white').classList.remove('scale-100', 'opacity-100');
+            modal.querySelector('.bg-white').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentDeleteForm = null;
+            }, 300);
+        }
+
+        document.getElementById('deleteConfirmInput').addEventListener('input', function(e) {
+            const val = e.target.value.trim().toLowerCase();
+            const btn = document.getElementById('deleteConfirmBtn');
+            if(val === 'حذف' || val === 'delete') {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.classList.add('hover:bg-red-700');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-red-700');
+            }
+        });
+
+        document.getElementById('deleteConfirmBtn').addEventListener('click', function() {
+            if(currentDeleteForm && !this.disabled) {
+                currentDeleteForm.submit();
+            }
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

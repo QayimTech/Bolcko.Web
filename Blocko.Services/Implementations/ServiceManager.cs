@@ -28,6 +28,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<ITenderService> _lazyTenderService;
         private readonly Lazy<ISEOService> _lazySEOService;
         private readonly Lazy<IShoppingCartService> _lazyShoppingCartService;
+        private readonly Lazy<IProjectService> _lazyProjectService;
 
         public ServiceManager(IUnitOfWork unitOfWork)
         {
@@ -39,6 +40,7 @@ namespace Blocko.Services.Implementations
             _lazyTenderService = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
             _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
             _lazyShoppingCartService = new Lazy<IShoppingCartService>(() => new ShoppingCartService(unitOfWork));
+            _lazyProjectService = new Lazy<IProjectService>(() => new ProjectService(unitOfWork));
         }
 
         public IUserService UserService => _lazyUserService.Value;
@@ -49,5 +51,6 @@ namespace Blocko.Services.Implementations
         public ITenderService TenderService => _lazyTenderService.Value;
         public ISEOService SEOService => _lazySEOService.Value;
         public IShoppingCartService ShoppingCartService => _lazyShoppingCartService.Value;
+        public IProjectService ProjectService => _lazyProjectService.Value;
     }
 }

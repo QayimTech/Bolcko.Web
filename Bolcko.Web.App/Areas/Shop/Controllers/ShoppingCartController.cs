@@ -29,39 +29,78 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             string sessionId = GetSessionId();
             int? userId = GetUserId();
 
-            await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId);
+            try
+            {
+                await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                var referer = Request.Headers["Referer"].ToString();
+                if (!string.IsNullOrEmpty(referer))
+                {
+                    return Redirect(referer);
+                }
+            }
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateItem(int itemId, int quantity)
         {
             string sessionId = GetSessionId();
+            int? userId = GetUserId();
+
             if (quantity < 1)
             {
                 return RedirectToAction(nameof(RemoveItem), new { itemId });
             }
-            await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity);
+            try
+            {
+                await _shoppingCartService.UpdateCartItemAsync(sessionId, itemId, quantity, userId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveItem(int itemId)
         {
             string sessionId = GetSessionId();
-            await _shoppingCartService.RemoveFromCartAsync(sessionId, itemId);
+            int? userId = GetUserId();
+
+            try 
+            {
+                await _shoppingCartService.RemoveFromCartAsync(sessionId, itemId, userId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
-            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
+            var userId = GetUserId();
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action(nameof(Checkout)) });
+            }
+
+            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), userId);
             ViewBag.Cart = cart;
             return View(new CheckoutDto());
         }
@@ -94,7 +133,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             var order = await _orderService.PlaceOrderAsync(userId.Value, cart, checkoutDto);
-            await _shoppingCartService.ClearCartAsync(sessionId);
+            await _shoppingCartService.ClearCartAsync(sessionId, userId);
 
             return RedirectToAction(nameof(Confirmation), new { orderId = order.Id });
         }

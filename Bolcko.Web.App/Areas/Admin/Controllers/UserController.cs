@@ -41,6 +41,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAdminUser(User user, string password, string role = "Admin")
         {
             // We rely on Roles for authorization; keep UserType only for domain semantics.
@@ -58,6 +59,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             {
                 ModelState.AddModelError("", error.Description);
             }
+            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
             return View(user);
         }
 
@@ -72,6 +74,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, User user, string? role, string? newPassword)
         {
             var existingUser = await _userManager.FindByIdAsync(id.ToString());
@@ -114,12 +117,21 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user != null)
+            try
             {
-                await _userManager.DeleteAsync(user);
+                var user = await _userManager.FindByIdAsync(id.ToString());
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    TempData["SuccessMessage"] = "تم حذف المستخدم بنجاح.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "لا يمكن حذف هذا المستخدم لأنه مرتبط ببيانات أخرى (مثل طلبات أو أسعار).";
             }
             return RedirectToAction("Index");
         }

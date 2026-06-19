@@ -5,7 +5,7 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
     public class TenderDto
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public string? UserName { get; set; }
         public string TenderTitle { get; set; } = string.Empty;
         public string? TenderDescription { get; set; }
