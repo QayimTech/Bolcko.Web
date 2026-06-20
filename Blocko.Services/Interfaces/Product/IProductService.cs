@@ -11,6 +11,7 @@ namespace Blocko.Services.Interfaces.Product
         Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync();
         Task<IEnumerable<ProductDto>> SearchProductsAsync(string? query);
+        Task<IPagedList<ProductDto>> SearchCatalogProductsPagedAsync(string? query, int? categoryId, int pageIndex, int pageSize);
         Task AddProductAsync(ProductDto productDto);
         Task UpdateProductAsync(ProductDto productDto, List<int>? deleteImageIds = null);
         Task DeleteProductAsync(int id);

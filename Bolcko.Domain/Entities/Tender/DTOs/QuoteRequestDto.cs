@@ -5,6 +5,8 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
 {
     public class QuoteRequestItemDto
     {
+        public int? ProductId { get; set; }
+
         [Required(ErrorMessage = "Product Name is required.")]
         public string ProductName { get; set; } = string.Empty;
 

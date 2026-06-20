@@ -13,6 +13,7 @@ namespace Bolcko.Domain.Entities.Tender
         public string? Unit { get; set; }
         public decimal RequestedQuantity { get; set; }
         public decimal? ProposedPricePerUnit { get; set; }
+        public decimal? TargetPricePerUnit { get; set; }
         public decimal? SubtotalItem { get; set; }
     }
 }

@@ -1,0 +1,254 @@
+@using Bolcko.Domain.Entities.User
+@using Bolcko.Domain.Entities.Tender
+@using Bolcko.Domain.Enums
+@model Bolcko.Domain.Entities.Tender.Tender
+@{
+    ViewData["Title"] = "تفاصيل عرض السعر";
+    var user = ViewBag.User as User;
+}
+
+<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
+                <div class="bg-on-surface p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-primary-container rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl text-on-primary-container">person</span>
+                    </div>
+                    <h2 class="font-bold">@(user?.FirstName + " " + user?.LastName)</h2>
+                    <p class="text-xs text-slate-400">@user?.UserType.ToString()</p>
+                </div>
+                <nav class="p-4">
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>لوحة التحكم</span>
+                                <span class="material-symbols-outlined text-sm">dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>طلباتي</span>
+                                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
+                                <span>عروض الأسعار</span>
+                                <span class="material-symbols-outlined text-sm">request_quote</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
+                                <span>مشاريعي</span>
+                                <span class="material-symbols-outlined text-sm">architecture</span>
+                            </a>
+                        </li>
+                        <li class="pt-4 mt-4 border-t border-outline-variant">
+                            <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
+                                    <span>تسجيل الخروج</span>
+                                    <span class="material-symbols-outlined text-sm">logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 space-y-8">
+            <header class="flex justify-between items-center border-r-4 border-primary-container pr-6 mb-8">
+                <div>
+                    <h1 class="font-headline-xl text-on-surface uppercase mb-2">عرض سعر #QT-@Model.Id.ToString("D5")</h1>
+                    <p class="font-body-lg text-secondary">حالة العرض: 
+                        @{
+                            string statusClass = Model.Status.ToString() switch
+                            {
+                                "Pending" => "bg-amber-100 text-amber-800 border-amber-200",
+                                "Priced" => "bg-sky-100 text-sky-800 border-sky-200",
+                                "Negotiation" => "bg-purple-100 text-purple-800 border-purple-200",
+                                "Accepted" => "bg-green-100 text-green-800 border-green-200",
+                                "Rejected" => "bg-red-100 text-red-800 border-red-200",
+                                _ => "bg-slate-100 text-slate-800 border-slate-200"
+                            };
+                            string statusLabel = Model.Status.ToString() switch
+                            {
+                                "Pending" => "قيد الانتظار وتحديد المواد",
+                                "Priced" => "تم تقديم الأسعار من الإدارة",
+                                "Negotiation" => "قيد التفاوض والمفاصلة",
+                                "Accepted" => "تم قبول الأسعار والموافقة",
+                                "Rejected" => "مرفوض",
+                                _ => Model.Status.ToString()
+                            };
+                        }
+                        <span class="px-3 py-1 text-xs font-bold uppercase rounded border @statusClass">@statusLabel</span>
+                    </p>
+                </div>
+                <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="text-slate-500 hover:text-primary flex items-center gap-1 font-bold text-sm">
+                    <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_back</span>
+                    الرجوع للقائمة
+                </a>
+            </header>
+
+            <!-- Tender details information -->
+            <div class="bg-white border border-outline-variant shadow-hard p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-outline-variant pb-6">
+                    <div>
+                        <h3 class="font-bold text-on-surface mb-2">تفاصيل العطاء</h3>
+                        <p class="text-sm text-slate-600"><span class="font-bold">العنوان:</span> @Model.TenderTitle</p>
+                        <p class="text-sm text-slate-600"><span class="font-bold">التاريخ:</span> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                        <p class="text-sm text-slate-600"><span class="font-bold">موقع المشروع:</span> @(Model.GuestCity ?? "غير محدد")</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-on-surface mb-2">ملاحظات العطاء</h3>
+                        <p class="text-sm text-slate-600">@Model.TenderDescription</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.NegotiationNotes))
+                {
+                    <div class="bg-surface-container-low border-r-4 border-primary p-4 rounded text-sm text-on-surface space-y-1">
+                        <span class="font-bold block text-primary">رسائل المفاوضات / ملاحظات الإدارة:</span>
+                        <p class="italic">"@Model.NegotiationNotes"</p>
+                    </div>
+                }
+
+                <!-- Items Table -->
+                <div>
+                    <h3 class="font-bold text-lg text-on-surface mb-4">المواد المطلوبة والأسعار</h3>
+                    <form id="negotiationForm" asp-area="Shop" asp-controller="Quote" asp-action="Negotiate" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
+                                    <tr class="border-b border-outline-variant">
+                                        <th class="p-4">اسم المادة</th>
+                                        <th class="p-4 text-center">الوحدة</th>
+                                        <th class="p-4 text-center">الكمية</th>
+                                        <th class="p-4 text-center">السعر المقدم (د.أ)</th>
+                                        @if (Model.Status == TenderStatus.Priced || Model.Status == TenderStatus.Negotiation)
+                                        {
+                                            <th class="p-4 text-center">سعرك المستهدف (د.أ)</th>
+                                        }
+                                        <th class="p-4 text-left">المجموع الفرعي</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        <tr class="border-b border-outline-variant hover:bg-surface-container-lowest">
+                                            <td class="p-4 font-bold">
+                                                @if (item.ProductId.HasValue)
+                                                {
+                                                    <a href="@Url.Action("Index", "Product", new { area = "Shop", id = item.ProductId })" target="_blank" class="flex items-center gap-1.5 hover:text-primary transition-colors group">
+                                                        @item.ProductName
+                                                        <span class="material-symbols-outlined text-[13px] text-slate-300 group-hover:text-primary transition-colors">open_in_new</span>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="flex items-center gap-1.5">
+                                                        <span class="material-symbols-outlined text-[13px] text-slate-400">draw</span>
+                                                        @item.ProductName
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="p-4 text-center">@item.Unit</td>
+                                            <td class="p-4 text-center font-semibold">@item.RequestedQuantity</td>
+                                            <td class="p-4 text-center text-primary font-bold">
+                                                @(item.ProposedPricePerUnit.HasValue ? item.ProposedPricePerUnit.Value.ToString("N2") : "قيد التسعير")
+                                            </td>
+                                            @if (Model.Status == TenderStatus.Priced || Model.Status == TenderStatus.Negotiation)
+                                            {
+                                                <td class="p-4 text-center">
+                                                    <input type="number" step="0.01" min="0.01" 
+                                                           name="targetPrices[@item.Id]" 
+                                                           value="@(item.TargetPricePerUnit.HasValue ? item.TargetPricePerUnit.Value.ToString("F2") : item.ProposedPricePerUnit?.ToString("F2"))" 
+                                                           class="w-24 bg-surface-container-low border border-outline p-2 focus:ring-0 focus:border-primary text-center" 
+                                                           @(Model.Status == TenderStatus.Negotiation ? "disabled" : "") />
+                                                </td>
+                                            }
+                                            <td class="p-4 text-left font-bold text-slate-800">
+                                                @(item.SubtotalItem.HasValue ? item.SubtotalItem.Value.ToString("N2") + " د.أ" : "-")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary Amount -->
+                        <div class="flex justify-between items-center border-t border-outline-variant pt-6 mt-6">
+                            <div>
+                                @if (Model.TotalQuotedAmount.HasValue)
+                                {
+                                    <span class="text-xs text-slate-500 block">إجمالي السعر المقدم</span>
+                                    <strong class="text-2xl text-primary font-black">@Model.TotalQuotedAmount.Value.ToString("N2") د.أ</strong>
+                                }
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex gap-4">
+                                @if (Model.Status == TenderStatus.Priced)
+                                {
+                                    <button type="button" onclick="openNegotiationModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded transition-colors flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                                        طلب فاوض/مفاصلة الأسعار
+                                    </button>
+                                    
+                                    <button type="button" onclick="confirmAcceptance()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded transition-colors flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        اعتماد وقبول عرض السعر
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Negotiation Feedback Overlay Modal -->
+                        <div id="negotiationModal" class="fixed inset-0 bg-[#151B26]/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+                            <div class="bg-white border border-outline-variant shadow-hard w-full max-w-lg p-8 space-y-6 text-right animate-in zoom-in duration-200">
+                                <h3 class="font-headline-md text-on-surface border-b border-outline-variant pb-2">طلب تفاوض على الأسعار</h3>
+                                <p class="text-sm text-secondary leading-relaxed">
+                                    قم بتحديد الأسعار المستهدفة لكل مادة في الجدول، واكتب ملاحظاتك أو سبب التفاوض للإدارة.
+                                </p>
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رسالة للشركة (ملاحظات التفاوض) <span class="text-error">*</span></label>
+                                    <textarea name="feedback" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-28" placeholder="مثال: نرجو تخفيض سعر حديد التسليح ليتناسب مع ميزانية المشروع..."></textarea>
+                                </div>
+                                <div class="flex justify-end gap-4 border-t border-outline-variant pt-4">
+                                    <button type="button" onclick="closeNegotiationModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-6 py-2 rounded transition-colors">إلغاء</button>
+                                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded transition-colors flex items-center gap-1">
+                                        <span>إرسال طلب التفاوض</span>
+                                        <span class="material-symbols-outlined text-sm">send</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Separate Acceptance Form -->
+                    <form id="acceptForm" asp-area="Shop" asp-controller="Quote" asp-action="Accept" asp-route-id="@Model.Id" method="post" class="hidden">
+                        @Html.AntiForgeryToken()
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function openNegotiationModal() {
+        $('#negotiationModal').removeClass('hidden');
+    }
+    function closeNegotiationModal() {
+        $('#negotiationModal').addClass('hidden');
+    }
+    function confirmAcceptance() {
+        if(confirm("هل أنت متأكد من رغبتك في قبول الأسعار المقدمة واعتماد هذا العرض؟ سيتم تحويله لطلب رسمي.")) {
+            $('#acceptForm').submit();
+        }
+    }
+</script>

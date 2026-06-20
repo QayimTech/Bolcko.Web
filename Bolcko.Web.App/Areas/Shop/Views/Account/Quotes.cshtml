@@ -81,8 +81,8 @@
                             {
                                 @foreach (var tender in Model)
                                 {
-                                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                                        <td class="p-4 font-bold">#QT-@tender.Id.ToString("D5")</td>
+                                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors cursor-pointer" onclick="location.href='@Url.Action("Details", "Quote", new { area = "Shop", id = tender.Id })'">
+                                        <td class="p-4 font-bold text-primary hover:underline">#QT-@tender.Id.ToString("D5")</td>
                                         <td class="p-4">@tender.RequestDate.ToString("yyyy/MM/dd HH:mm")</td>
                                         <td class="p-4">@tender.TenderTitle</td>
                                         <td class="p-4">@tender.ItemCount</td>
@@ -90,13 +90,24 @@
                                             @{
                                                 string statusClass = tender.Status.ToString() switch
                                                 {
-                                                    "Open" => "bg-amber-100 text-amber-800 border-amber-200",
-                                                    "Awarded" => "bg-green-100 text-green-800 border-green-200",
-                                                    "Closed" => "bg-slate-100 text-slate-800 border-slate-200",
+                                                    "Pending" => "bg-amber-100 text-amber-800 border-amber-200",
+                                                    "Priced" => "bg-sky-100 text-sky-800 border-sky-200",
+                                                    "Negotiation" => "bg-purple-100 text-purple-800 border-purple-200",
+                                                    "Accepted" => "bg-green-100 text-green-800 border-green-200",
+                                                    "Rejected" => "bg-red-100 text-red-800 border-red-200",
                                                     _ => "bg-slate-100 text-slate-800 border-slate-200"
                                                 };
+                                                string statusLabel = tender.Status.ToString() switch
+                                                {
+                                                    "Pending" => "قيد الانتظار",
+                                                    "Priced" => "تم تقديم الأسعار",
+                                                    "Negotiation" => "قيد التفاوض",
+                                                    "Accepted" => "مقبول",
+                                                    "Rejected" => "مرفوض",
+                                                    _ => tender.Status.ToString()
+                                                };
                                             }
-                                            <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-sm border @statusClass">@tender.Status.ToString()</span>
+                                            <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-sm border @statusClass">@statusLabel</span>
                                         </td>
                                     </tr>
                                 }

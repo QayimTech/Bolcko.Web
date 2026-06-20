@@ -39,5 +39,6 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             return View(products);
         }
+
     }
 }

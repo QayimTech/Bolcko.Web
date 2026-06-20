@@ -118,6 +118,7 @@ namespace Blocko.Persistence
             {
                 entity.Property(e => e.RequestedQuantity).HasPrecision(18, 2);
                 entity.Property(e => e.ProposedPricePerUnit).HasPrecision(18, 2);
+                entity.Property(e => e.TargetPricePerUnit).HasPrecision(18, 2);
                 entity.Property(e => e.SubtotalItem).HasPrecision(18, 2);
             });
 

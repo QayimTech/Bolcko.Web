@@ -36,7 +36,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-            return View(new ProductDto());
+            var newProduct = new ProductDto
+            {
+                Sku = "BLK-" + DateTime.UtcNow.ToString("yyMMddHHmmss")
+            };
+            return View(newProduct);
         }
 
         [HttpPost]

@@ -23,12 +23,13 @@ namespace Bolcko.Domain.Enums
         OnHold = 3
     }
 
-    public enum TenderStatus
+public enum TenderStatus
     {
-        Open = 1,
-        UnderReview = 2,
-        Awarded = 3,
-        Closed = 4
+        Pending = 1,
+        Priced = 2,
+        Negotiation = 3,
+        Accepted = 4,
+        Rejected = 5
     }
 
     public enum ProductStatus

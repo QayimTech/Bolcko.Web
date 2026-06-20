@@ -4,6 +4,7 @@ using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Product
 {
@@ -141,6 +142,36 @@ namespace Blocko.Services.Implementations.Product
                 ImageUrl = p.ImageUrl,
                 BulkPricingAvailable = p.BulkPricingAvailable
             });
+        }
+
+        public async Task<IPagedList<ProductDto>> SearchCatalogProductsPagedAsync(string? query, int? categoryId, int pageIndex, int pageSize)
+        {
+            var searchTerm = (query ?? string.Empty).Trim();
+            var hasSearch = !string.IsNullOrEmpty(searchTerm);
+            var pattern = $"%{searchTerm}%";
+
+            var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
+                pageIndex: pageIndex,
+                pageSize: pageSize,
+                predicate: p =>
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value || p.Category!.ParentCategoryId == categoryId.Value) &&
+                    (!hasSearch || EF.Functions.Like(p.Name, pattern) || (p.Sku != null && EF.Functions.Like(p.Sku, pattern))),
+                orderBy: q => q.OrderByDescending(p => p.Id),
+                includes: p => p.Category!
+            );
+
+            var dtos = pagedProducts.Items.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name,
+                UnitOfMeasure = p.UnitOfMeasure,
+                Sku = p.Sku,
+                ImageUrl = p.ImageUrl
+            });
+
+            return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
         }
 
         public async Task AddProductAsync(ProductDto productDto)

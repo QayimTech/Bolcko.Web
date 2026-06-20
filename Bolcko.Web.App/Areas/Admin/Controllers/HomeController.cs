@@ -51,7 +51,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 CategoryCount = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count(),
                 TotalSales = await _dbContext.Orders.SumAsync(o => o.TotalAmount),
                 TotalOrders = await _dbContext.Orders.CountAsync(),
-                OpenTenders = await _dbContext.Tenders.CountAsync(t => t.Status == Bolcko.Domain.Enums.TenderStatus.Open),
+                OpenTenders = await _dbContext.Tenders.CountAsync(t => t.Status == Bolcko.Domain.Enums.TenderStatus.Pending),
                 LatestTenders = latestTenders,
                 LatestOrders = latestOrdersPaged.Items
             };

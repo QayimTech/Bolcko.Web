@@ -1,198 +1,464 @@
 @model Bolcko.Domain.Entities.Tender.DTOs.QuoteRequestDto
 @{
     ViewData["Title"] = "طلب عرض سعر";
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
 }
-<main class="max-w-4xl mx-auto px-6 py-12 text-right">
-    <header class="mb-12 border-r-4 border-primary-container pr-6">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">طلب عرض سعر للكميات</h1>
-        <p class="font-body-lg text-secondary">يرجى تعبئة النموذج أدناه للحصول على تسعير مخصص لمشروعك.</p>
+
+<main class="max-w-5xl mx-auto px-6 py-12 text-right">
+    <header class="mb-12 border-r-4 border-[#E8A020] pr-6">
+        <h1 class="font-headline-xl text-[#151B26] uppercase mb-2">@(isAr ? "طلب عرض سعر للكميات والعطاءات" : "Request Tender & Quantities Quote")</h1>
+        <p class="font-body-lg text-[#575E74]">@(isAr ? "يرجى اختيار المواد والكميات المطلوبة لمشروعك للحصول على تسعير مخصص ومفاوضته لاحقاً." : "Please select materials and quantities for your project to receive and negotiate custom pricing.")</p>
     </header>
 
     <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="post" class="space-y-8">
         @Html.AntiForgeryToken()
-        @if (!ViewData.ModelState.IsValid)
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
         {
-            <div asp-validation-summary="All" class="bg-red-50 border border-red-200 p-4 rounded text-red-700 text-sm mb-4"></div>
+            <div asp-validation-summary="All" class="bg-red-50 border border-red-200 p-4 rounded-2xl text-red-700 text-sm mb-4"></div>
         }
+        
+        <!-- AJAX Server Error Summary -->
+        <div id="serverErrorSummary" class="hidden bg-red-50 border border-red-200 p-4 rounded-2xl text-red-700 text-sm mb-4">
+            <div class="font-bold mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">error</span>
+                @(isAr ? "يرجى تصحيح الأخطاء التالية:" : "Please correct the following errors:")
+            </div>
+            <ul id="serverErrorList" class="list-disc list-inside"></ul>
+        </div>
+
         <!-- Customer & Company Info -->
-        <div class="bg-white border border-outline-variant p-8 shadow-hard">
-            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات العميل والشركة</h2>
+        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
+            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "معلومات العميل والشركة" : "Customer & Company Info")</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">نوع المشروع</label>
-                    <select asp-for="ProjectType" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right">
-                        <option>مشروع سكني</option>
-                        <option>مشروع تجاري</option>
-                        <option>بنية تحتية</option>
-                        <option>غير ذلك</option>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "نوع المشروع" : "Project Type")</label>
+                    <select asp-for="ProjectType" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right">
+                        <option>@(isAr ? "مشروع سكني" : "Residential Project")</option>
+                        <option>@(isAr ? "مشروع تجاري" : "Commercial Project")</option>
+                        <option>@(isAr ? "بنية تحتية" : "Infrastructure")</option>
+                        <option>@(isAr ? "غير ذلك" : "Other")</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم الشركة <span class="text-error">*</span></label>
-                    <input asp-for="CompanyName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسم الشركة" required />
-                    <span asp-validation-for="CompanyName" class="text-error text-xs"></span>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "اسم الشركة" : "Company Name") <span class="text-[#BA1A1A]">*</span></label>
+                    <input asp-for="CompanyName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "أدخل اسم الشركة" : "Enter company name")" required />
+                    <span asp-validation-for="CompanyName" class="text-[#BA1A1A] text-xs"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الاسم الكامل للمسؤول <span class="text-error">*</span></label>
-                    <input asp-for="FullName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="أدخل اسمك الكامل" required minlength="3" />
-                    <span asp-validation-for="FullName" class="text-error text-xs"></span>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "الاسم الكامل للمسؤول" : "Full Name") <span class="text-[#BA1A1A]">*</span></label>
+                    <input asp-for="FullName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "أدخل اسمك الكامل" : "Enter full name")" required minlength="3" />
+                    <span asp-validation-for="FullName" class="text-[#BA1A1A] text-xs"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">البريد الإلكتروني <span class="text-error">*</span></label>
-                    <input asp-for="Email" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="email" placeholder="example@domain.com" required />
-                    <span asp-validation-for="Email" class="text-error text-xs"></span>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "البريد الإلكتروني" : "Email Address") <span class="text-[#BA1A1A]">*</span></label>
+                    <input asp-for="Email" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="email" placeholder="example@domain.com" required />
+                    <span asp-validation-for="Email" class="text-[#BA1A1A] text-xs"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رقم الهاتف <span class="text-error">*</span></label>
-                    <input asp-for="Phone" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="tel" placeholder="05xxxxxxxx" required />
-                    <span asp-validation-for="Phone" class="text-error text-xs"></span>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "رقم الهاتف" : "Phone Number") <span class="text-[#BA1A1A]">*</span></label>
+                    <input asp-for="Phone" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="tel" placeholder="07xxxxxxxx" required />
+                    <span asp-validation-for="Phone" class="text-[#BA1A1A] text-xs"></span>
                 </div>
             </div>
         </div>
 
         <!-- Project Info -->
-        <div class="bg-white border border-outline-variant p-8 shadow-hard">
-            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">معلومات المشروع</h2>
+        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
+            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "معلومات المشروع وموقعه" : "Project Info & Location")</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">اسم المشروع</label>
-                    <input asp-for="ProjectName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="مثلاً: مجمع سكني حطين" />
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "اسم المشروع" : "Project Name")</label>
+                    <input asp-for="ProjectName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني عمان" : "e.g. Amman Residential Complex")" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">موقع المشروع (المدينة) <span class="text-error">*</span></label>
-                    <select asp-for="City" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" required>
-                        <option value="عمان">عمان</option>
-                        <option value="الزرقاء">الزرقاء</option>
-                        <option value="إربد">إربد</option>
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "موقع المشروع (المدينة)" : "Project City") <span class="text-[#BA1A1A]">*</span></label>
+                    <select asp-for="City" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" required>
+                        <option value="عمان">@(isAr ? "عمان" : "Amman")</option>
+                        <option value="الزرقاء">@(isAr ? "الزرقاء" : "Zarqa")</option>
+                        <option value="إربد">@(isAr ? "إربد" : "Irbid")</option>
+                        <option value="العقبة">@(isAr ? "العقبة" : "Aqaba")</option>
+                        <option value="البلقاء">@(isAr ? "البلقاء" : "Balqa")</option>
+                        <option value="المفرق">@(isAr ? "المفرق" : "Mafraq")</option>
+                        <option value="جرش">@(isAr ? "جرش" : "Jerash")</option>
+                        <option value="عجلون">@(isAr ? "عجلون" : "Ajloun")</option>
+                        <option value="مأدبا">@(isAr ? "مأدبا" : "Madaba")</option>
+                        <option value="الكرك">@(isAr ? "الكرك" : "Karak")</option>
+                        <option value="الطفيلة">@(isAr ? "الطفيلة" : "Tafilah")</option>
+                        <option value="معان">@(isAr ? "معان" : "Ma'an")</option>
                     </select>
-                    <span asp-validation-for="City" class="text-error text-xs"></span>
+                    <span asp-validation-for="City" class="text-[#BA1A1A] text-xs"></span>
                 </div>
             </div>
         </div>
 
         <!-- Products List -->
-        <div class="bg-white border border-outline-variant p-8 shadow-hard">
-            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">المنتجات المطلوبة</h2>
-            <div id="productsContainer" class="space-y-4">
-                <!-- Initial Product Item -->
-                <div class="product-item grid grid-cols-12 gap-4 items-end border-b border-outline-variant pb-4">
-                    <div class="col-span-6">
-                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المنتج <span class="text-error">*</span></label>
-                        <input name="Products[0].ProductName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم المنتج أو SKU" value="أسمنت بورتلاندي 50 كجم" required />
-                        <span asp-validation-for="Products[0].ProductName" class="text-error text-xs"></span>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الكمية <span class="text-error">*</span></label>
-                        <input name="Products[0].Quantity" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="number" value="1000" min="1" required />
-                        <span asp-validation-for="Products[0].Quantity" class="text-error text-xs"></span>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الوحدة <span class="text-error">*</span></label>
-                        <select name="Products[0].Unit" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" required>
-                            <option>كيس</option>
-                            <option>طن</option>
-                            <option>متر مكعب</option>
-                        </select>
-                        <span asp-validation-for="Products[0].Unit" class="text-error text-xs"></span>
-                    </div>
-                    <div class="col-span-1">
-                        <button type="button" class="remove-product text-red-500 hover:text-red-700 flex items-center justify-center">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
+        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
+            <div class="flex justify-between items-center border-b border-[#D6C4AE] pb-4 mb-6">
+                <h2 class="font-headline-md text-[#151B26]">@(isAr ? "المواد المطلوبة للعطاء" : "Tender Items")</h2>
+                <div class="flex gap-2">
+                    <button type="button" onclick="openCatalogModal()" class="bg-[#E8A020] hover:bg-[#815500] hover:text-white text-[#151B26] font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5" title="@(isAr ? "تصفح الكتالوج بالصور لاختيار المواد" : "Browse catalog with images")">
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                        @(isAr ? "مادة من كتالوج الموقع" : "Add Catalog Item")
+                    </button>
+                    <button type="button" onclick="addProductItemRow('', 1, 'كيس', false)" class="bg-slate-100 hover:bg-slate-200 text-[#151B26] font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5" title="@(isAr ? "إضافة مادة غير موجودة في الكتالوج" : "Add an unlisted custom material")">
+                        <span class="material-symbols-outlined text-[16px]">draw</span>
+                        @(isAr ? "مادة مخصصة أخرى" : "Add Custom Material")
+                    </button>
                 </div>
             </div>
-            <button type="button" id="addProductBtn" class="text-primary font-bold text-sm flex items-center gap-1 hover:underline mt-4">
-                <span class="material-symbols-outlined text-sm">add_circle</span>
-                إضافة منتج آخر
-            </button>
+
+            <div id="productsContainer" class="space-y-4"></div>
+
+            <div id="emptyWarning" class="hidden text-center py-8 text-[#575E74] transition-colors rounded-2xl">
+                <span class="material-symbols-outlined text-5xl text-[#D6C4AE] mb-2 transition-colors" id="emptyWarningIcon">production_quantity_limits</span>
+                <p class="font-bold" id="emptyWarningTitle">@(isAr ? "لم تقم بإضافة أي مواد بعد!" : "No items added yet!")</p>
+                <p class="text-xs" id="emptyWarningDesc">@(isAr ? "اختر مادة من كتالوج الموقع أو أضف مواد مخصصة لبدء العطاء." : "Select catalog items or write custom products to request pricing.")</p>
+                
+                <div id="emptyWarningError" class="hidden mt-4 text-red-600 font-bold bg-red-50 p-3 rounded-xl border border-red-200 inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">error</span>
+                    <span>@(isAr ? "الرجاء إضافة مادة واحدة على الأقل لتقديم العطاء." : "Please add at least one item to submit.")</span>
+                </div>
+            </div>
         </div>
 
         <!-- Additional Notes -->
-        <div class="bg-white border border-outline-variant p-8 shadow-hard">
-            <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">ملاحظات إضافية والتفاصيل</h2>
-            <textarea asp-for="Notes" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-32" placeholder="أدخل أي متطلبات خاصة أو جداول زمنية للتوصيل"></textarea>
+        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
+            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "ملاحظات إضافية وجدول التوصيل" : "Additional Notes & Delivery Timeline")</h2>
+            <textarea asp-for="Notes" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right h-32" placeholder="@(isAr ? "مثال: يرجى شحن حديد التسليح أولاً، وتوفير الأسمنت والخلطات الخرسانية بالتوالي حسب مراحل البناء..." : "e.g. Please supply rebar first, followed by concrete/cements sequentially...")"></textarea>
         </div>
 
         <div class="flex justify-end">
-            <button type="submit" id="submitBtn" class="bg-primary text-white font-bold px-12 py-4 uppercase shadow-hard hover:opacity-90 transition-all flex items-center gap-2">
-                <span id="btnText">إرسال طلب عرض السعر</span>
-                <span id="btnSpinner" class="hidden material-symbols-outlined animate-spin">progress_activity</span>
-                <span class="material-symbols-outlined">send</span>
+            <button type="button" id="submitBtn" onclick="handleFormSubmit()"
+                class="bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold px-12 py-4 rounded-xl shadow-hard transition-all inline-flex items-center gap-2">
+                <span id="btnText">@(isAr ? "إرسال طلب العطاء والتسعير" : "Submit Tender Request")</span>
+                <span id="btnSendIcon" class="material-symbols-outlined">send</span>
+                <span id="btnSpinner" style="display:none" class="material-symbols-outlined animate-spin">progress_activity</span>
             </button>
         </div>
     </form>
 </main>
 
-<script>
-    let productCount = 1;
-
-    // Add product button click handler
-    document.getElementById('addProductBtn').addEventListener('click', function () {
-        const container = document.getElementById('productsContainer');
-        const newItem = document.createElement('div');
-        newItem.className = 'product-item grid grid-cols-12 gap-4 items-end border-b border-outline-variant pb-4';
-        newItem.innerHTML = `
-            <div class="col-span-6">
-                <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">المنتج <span class="text-error">*</span></label>
-                <input name="Products[${productCount}].ProductName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="text" placeholder="اسم المنتج أو SKU" required />
+<div id="catalogModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeCatalogModal()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[90%] max-w-4xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden text-right">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div>
+                <h3 class="font-bold text-lg text-slate-800">@(isAr ? "تصفح كتالوج المواد" : "Browse Material Catalog")</h3>
+                <p class="text-xs text-slate-500">@(isAr ? "ابحث عن المادة وأضفها إلى العطاء مباشرة" : "Search and add materials directly to your tender")</p>
             </div>
-            <div class="col-span-3">
-                <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الكمية <span class="text-error">*</span></label>
-                <input name="Products[${productCount}].Quantity" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" type="number" value="1" min="1" required />
+            <button type="button" onclick="closeCatalogModal()" class="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50" title="@(isAr ? "إغلاق النافذة" : "Close window")">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row gap-3">
+            <div class="flex-1 relative">
+                <span class="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none select-none">search</span>
+                <input type="text" id="modalSearchInput"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 focus:bg-white outline-none text-sm transition-all"
+                    placeholder="@(isAr ? "ابحث باسم المادة أو رمز SKU..." : "Search by name or SKU...")"
+                    oninput="filterCatalog()" />
             </div>
-            <div class="col-span-2">
-                <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">الوحدة <span class="text-error">*</span></label>
-                <select name="Products[${productCount}].Unit" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" required>
-                    <option>كيس</option>
-                    <option>طن</option>
-                    <option>متر مكعب</option>
+            <div class="md:w-64 relative">
+                <select id="modalCategoryFilter"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 focus:bg-white outline-none text-sm appearance-none transition-all"
+                    onchange="filterCatalog()">
+                    <option value="">@(isAr ? "جميع الفئات" : "All Categories")</option>
                 </select>
+                <span class="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none select-none">expand_more</span>
             </div>
-            <div class="col-span-1">
-                <button type="button" class="remove-product text-red-500 hover:text-red-700 flex items-center justify-center">
-                    <span class="material-symbols-outlined">delete</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50" id="modalScrollContainer">
+            <div id="modalProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            
+            <div id="loadMoreContainer" class="hidden mt-8 text-center">
+                <button type="button" onclick="loadMoreCatalog()" class="bg-white border border-[#E8A020] text-[#E8A020] hover:bg-[#E8A020] hover:text-white font-bold py-2 px-8 rounded-xl transition-colors inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    @(isAr ? "عرض المزيد من المنتجات" : "Load More Products")
                 </button>
             </div>
-        `;
-        container.appendChild(newItem);
-        productCount++;
+        </div>
+    </div>
+</div>
+
+<script>
+    let productCount = 0;
+    let categoriesList = @Html.Raw(ViewBag.CategoriesJson ?? "[]");
+    let catalogCurrentPage = 1;
+    let catalogIsLoading = false;
+    let catalogHasMore = true;
+    let catalogFilterTimeout;
+
+    $(document).ready(function() {
+        loadTenderCartItems();
+        $('#productsContainer').on('click', '.remove-product', function () {
+            $(this).closest('.product-item').remove();
+            reindexProducts();
+            toggleEmptyState();
+        });
     });
 
-    // Event delegation for removing products
-    document.getElementById('productsContainer').addEventListener('click', function (e) {
-        const btn = e.target.closest('.remove-product');
-        if (btn) {
-            const item = btn.closest('.product-item');
-            if (item && document.querySelectorAll('.product-item').length > 1) {
-                item.remove();
-                reindexProducts();
+    function handleFormSubmit() {
+        const $form = $('form');
+        let isDynamicValid = true;
+        $('.product-item .custom-req').each(function() {
+            if (!$(this).val()) {
+                $(this).addClass('border-red-500 bg-red-50');
+                $(this).siblings('.error-msg').removeClass('hidden');
+                isDynamicValid = false;
+            } else {
+                $(this).removeClass('border-red-500 bg-red-50');
+                $(this).siblings('.error-msg').addClass('hidden');
             }
-        }
-    });
+        });
 
-    // Function to reindex product fields after removal
-    function reindexProducts() {
-        const items = document.querySelectorAll('.product-item');
-        items.forEach((item, index) => {
-            const inputs = item.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                if (input.name) {
-                    input.name = input.name.replace(/Products\[\d+\]/, `Products[${index}]`);
+        if ($.fn.validate && !$form.data('validator')) {
+            $.validator.unobtrusive.parse($form);
+        }
+        let isStaticValid = true;
+        if ($form.data('validator')) {
+            isStaticValid = $form.validate().form();
+        }
+
+        if (!isDynamicValid || !isStaticValid) {
+            const $firstStatic = $form.find('.field-validation-error').first();
+            const $firstDynamic = $('.error-msg:not(.hidden)').first();
+            if ($firstStatic.length) $firstStatic[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            else if ($firstDynamic.length) $firstDynamic[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        if ($('.product-item').length === 0) {
+            const warningBox = $('#emptyWarning');
+            warningBox.removeClass('text-[#575E74]').addClass('bg-red-50/30 border border-red-200 text-red-600');
+            $('#emptyWarningIcon').removeClass('text-[#D6C4AE]').addClass('text-red-500');
+            $('#emptyWarningError').removeClass('hidden');
+            warningBox[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        $('#submitBtn').prop('disabled', true);
+        $('#btnText').hide();
+        $('#btnSendIcon').hide();
+        $('#btnSpinner').show();
+        
+        $.ajax({
+            url: $form.attr('action') || window.location.href,
+            type: 'POST',
+            data: $form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    sessionStorage.removeItem('TenderSessionCart');
+                    window.location.href = response.redirectUrl;
+                } else {
+                    $('#submitBtn').prop('disabled', false);
+                    $('#btnText').show();
+                    $('#btnSendIcon').show();
+                    $('#btnSpinner').hide();
+                    const errorSummary = $('#serverErrorSummary');
+                    errorSummary.removeClass('hidden');
+                    const errorList = $('#serverErrorList');
+                    errorList.empty();
+                    if (response.errors && response.errors.length > 0) response.errors.forEach(err => errorList.append(`<li>${err}</li>`));
+                    else errorList.append(`<li>${response.message}</li>`);
+                    errorSummary[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+            },
+            error: function() {
+                $('#submitBtn').prop('disabled', false);
+                $('#btnText').show();
+                $('#btnSendIcon').show();
+                $('#btnSpinner').hide();
+                const errorSummary = $('#serverErrorSummary');
+                errorSummary.removeClass('hidden');
+                $('#serverErrorList').html(`<li>@(isAr ? "حدث خطأ في الاتصال بالسيرفر." : "Server connection error.")</li>`);
+                errorSummary[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    function loadTenderCartItems() {
+        const tenderSessionKey = "TenderSessionCart";
+        let tenderCart = JSON.parse(sessionStorage.getItem(tenderSessionKey)) || [];
+        const serverProductsStr = '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Products ?? new List<Bolcko.Domain.Entities.Tender.DTOs.QuoteRequestItemDto>()))';
+        const serverProducts = JSON.parse(serverProductsStr || "[]");
+        if (serverProducts && serverProducts.length > 0) {
+            tenderCart = serverProducts.map(p => ({ productName: p.ProductName, quantity: p.Quantity, unit: p.Unit, productId: p.ProductId }));
+            sessionStorage.setItem(tenderSessionKey, JSON.stringify(tenderCart));
+        }
+        if (tenderCart.length > 0) {
+            $('#productsContainer').empty();
+            tenderCart.forEach(item => addProductItemRow(item.productName, item.quantity, item.unit, !!item.productId, item.productId));
+        }
+        toggleEmptyState();
+    }
+
+    function addProductItemRow(productName, quantity, unit, isCatalog, productId = null, imageUrl = '', sku = '') {
+        const container = $('#productsContainer');
+        const isAr = "@isAr" === "True";
+        const units = isAr ? ['كيس', 'طن', 'متر مكعب'] : ['Bag', 'Ton', 'Cubic Meter'];
+        let unitOptions = '';
+        units.forEach(u => unitOptions += `<option ${u === unit ? 'selected' : ''}>${u}</option>`);
+
+        let itemInputHtml = isCatalog ? `
+            <div class="col-span-6 flex gap-4 items-center">
+                ${imageUrl ? `<img src="${imageUrl.startsWith('http') ? imageUrl : '/' + imageUrl.replace(/^\/+/, '')}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm" />` : `<div class="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center"><span class="material-symbols-outlined text-slate-300">image</span></div>`}
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-[#E8A020] uppercase mb-1">${isAr ? 'مادة من الكتالوج' : 'Catalog Material'}</label>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">${productName}</h4>
+                    ${sku ? `<span class="text-xs text-slate-400">SKU: ${sku}</span>` : ''}
+                    <input type="hidden" name="Products[${productCount}].ProductName" class="product-name-input" value="${productName}" />
+                    <input type="hidden" name="Products[${productCount}].ProductId" class="product-id-input" value="${productId || ''}" />
+                </div>
+            </div>` : `
+            <div class="col-span-6">
+                <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'اسم المنتج المخصص' : 'Custom Product Name'} <span class="text-[#BA1A1A]">*</span></label>
+                <input name="Products[${productCount}].ProductName" class="product-name-input custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors" type="text" placeholder="${isAr ? 'اكتب اسم المادة المطلوبة ومواصفاتها' : 'Enter custom material specification'}" value="${productName}" />
+                <span class="hidden text-red-500 text-xs mt-1 error-msg block font-bold">@(isAr ? "هذا الحقل مطلوب" : "This field is required")</span>
+            </div>`;
+
+        const newItem = $(`
+            <div class="product-item grid grid-cols-12 gap-4 items-start border-b border-[#D6C4AE] pb-6">
+                ${itemInputHtml}
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'الكمية المطلوبة' : 'Quantity'} <span class="text-[#BA1A1A]">*</span></label>
+                    <input name="Products[${productCount}].Quantity" class="custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors" type="number" value="${quantity}" min="1" />
+                    <span class="hidden text-red-500 text-xs mt-1 error-msg block font-bold">@(isAr ? "مطلوب" : "Required")</span>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'الوحدة' : 'Unit'} <span class="text-[#BA1A1A]">*</span></label>
+                    <select name="Products[${productCount}].Unit" class="product-unit-select custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors">
+                        ${unitOptions}
+                    </select>
+                </div>
+                <div class="col-span-1 text-center pt-8">
+                    <button type="button" class="remove-product text-[#BA1A1A] hover:bg-red-50 p-2.5 rounded-full transition-colors flex items-center justify-center inline-block" title="${isAr ? 'حذف المادة' : 'Remove Item'}">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </div>
+        `);
+        container.append(newItem);
+        productCount++;
+        toggleEmptyState();
+    }
+
+    function reindexProducts() {
+        const items = $('.product-item');
+        items.each(function(index) {
+            $(this).find('input, select').each(function() {
+                if (this.name) this.name = this.name.replace(/Products\[\d+\]/, `Products[${index}]`);
             });
         });
         productCount = items.length;
     }
 
-    // Form submit handler for loading state
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
+    function toggleEmptyState() {
+        if($('.product-item').length === 0) {
+            $('#emptyWarning').removeClass('hidden bg-red-50/30 border border-red-200 text-red-600').addClass('text-[#575E74]');
+            $('#emptyWarningIcon').removeClass('text-red-500').addClass('text-[#D6C4AE]');
+            $('#emptyWarningError').addClass('hidden');
+        } else {
+            $('#emptyWarning').addClass('hidden');
+        }
+    }
+
+    function openCatalogModal() {
+        $('#catalogModal').removeClass('hidden');
+        const $catFilter = $('#modalCategoryFilter');
+        if ($catFilter.find('option').length === 1 && categoriesList.length > 0) {
+            categoriesList.forEach(c => $catFilter.append(`<option value="${c.id}">${c.name}</option>`));
+        }
+        catalogCurrentPage = 1;
+        catalogHasMore = true;
+        $('#modalProductsGrid').empty();
+        $('#modalSearchInput').val('');
+        $catFilter.val('');
+        fetchCatalogProducts();
+    }
+
+    function closeCatalogModal() {
+        $('#catalogModal').addClass('hidden');
+    }
+
+    function filterCatalog() {
+        if (catalogFilterTimeout) clearTimeout(catalogFilterTimeout);
+        catalogFilterTimeout = setTimeout(() => {
+            catalogCurrentPage = 1;
+            catalogHasMore = true;
+            fetchCatalogProducts(true);
+        }, 500);
+    }
+
+    function fetchCatalogProducts(isNewFilter = false) {
+        if (catalogIsLoading || !catalogHasMore) return;
+        const term = $('#modalSearchInput').val();
+        const catId = $('#modalCategoryFilter').val();
+        const grid = $('#modalProductsGrid');
         
-        submitBtn.disabled = true;
-        btnText.classList.add('hidden');
-        btnSpinner.classList.remove('hidden');
-    });
+        catalogIsLoading = true;
+        $('#loadMoreContainer').addClass('hidden');
+        
+        const loaderId = 'catalogLoader_' + Date.now();
+        
+        if (isNewFilter) {
+            // Overlay spinner on existing content instead of emptying it, avoiding the blink
+            grid.css('opacity', '0.5');
+            $('#modalScrollContainer').append(`<div id="${loaderId}" class="absolute inset-0 flex items-center justify-center bg-white/50 z-10"><span class="material-symbols-outlined animate-spin text-4xl text-[#E8A020]">progress_activity</span></div>`);
+        } else {
+            // Append loading spinner at the bottom
+            grid.append(`<div id="${loaderId}" class="col-span-full py-8 flex justify-center"><span class="material-symbols-outlined animate-spin text-3xl text-[#E8A020]">progress_activity</span></div>`);
+        }
+
+        $.get('@Url.Action("SearchCatalog", "Quote", new { area = "Shop" })', {
+            query: term,
+            categoryId: catId,
+            page: catalogCurrentPage
+        }, function(html) {
+            $('#' + loaderId).remove();
+            
+            if (isNewFilter) {
+                grid.empty();
+                grid.css('opacity', '1');
+            }
+            
+            if (html.trim() === '' || html.includes('empty-state-indicator')) {
+                // If this is the first page, show the empty state. Otherwise, just stop loading.
+                if (catalogCurrentPage === 1) {
+                    grid.append(html);
+                }
+                catalogHasMore = false;
+            } else {
+                grid.append(html);
+                catalogCurrentPage++;
+                
+                // Show "Load More" button if we got a full page of results
+                // We changed page size to 4. If we got 4 items, there MIGHT be more.
+                // A simple heuristic: if the html string is reasonably long, assume full page.
+                // Better yet, just always show it and hide it if next request is empty.
+                $('#loadMoreContainer').removeClass('hidden');
+            }
+        }).always(function() {
+            catalogIsLoading = false;
+        });
+    }
+
+    function loadMoreCatalog() {
+        fetchCatalogProducts();
+    }
+
+    function selectProductFromModal(id, name, unit, sku = '', imageUrl = '') {
+        addProductItemRow(name, 1, unit, true, id, imageUrl, sku);
+        closeCatalogModal();
+        
+        // Show small notification
+        const toast = $(`<div class="fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-xl font-bold z-[60] animate-in slide-in-from-bottom-5">تم الإضافة: ${name}</div>`);
+        $('body').append(toast);
+        setTimeout(() => toast.fadeOut(300, function() { $(this).remove(); }), 2000);
+    }
 </script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -112,6 +112,10 @@
                     <span class="text-xs font-bold">@SharedLocalizer["Login"]</span>
                 </a>
             }
+            <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors relative inline-block me-2" title="سلة العطاءات">
+                <span class="material-symbols-outlined text-slate-300">request_quote</span>
+                <span id="tender-badge" class="absolute -top-1 -end-1 bg-[#E8A020] text-[#151B26] text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
+            </a>
             <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors relative inline-block">
                 <span class="material-symbols-outlined text-slate-300">shopping_cart</span>
                 @await Component.InvokeAsync("CartCount")

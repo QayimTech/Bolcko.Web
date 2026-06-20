@@ -22,6 +22,7 @@ namespace Bolcko.Domain.Entities.Tender
         public int? AwardedSupplierId { get; set; }
         public decimal? TotalQuotedAmount { get; set; }
         public string? Notes { get; set; }
+        public string? NegotiationNotes { get; set; }
 
         public ICollection<TenderItem> Items { get; set; } = new List<TenderItem>();
     }

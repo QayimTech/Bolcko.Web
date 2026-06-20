@@ -69,14 +69,16 @@
             </div>
             
             <!-- Add to Cart Form -->
-            <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post">
+            <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="space-y-2">
                 <input type="hidden" name="productId" value="@Model.Id" />
                 <input type="hidden" name="quantity" value="1" />
-                <button type="submit" 
-                        class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
-                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                    <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>
-                </button>
+                <div class="flex gap-2">
+                    <button type="submit" 
+                            class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                        <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
