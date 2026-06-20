@@ -104,7 +104,7 @@
     <value>English</value>
   </data>
   <data name="BlockoAdminPanel" xml:space="preserve">
-    <value>Blocko Admin Panel</value>
+    <value>BLOCKO Admin Panel</value>
   </data>
   <data name="AllRightsReserved" xml:space="preserve">
     <value>All rights reserved.</value>
@@ -569,7 +569,7 @@
     <value>Proceed to Checkout</value>
   </data>
   <data name="HomeHeroBadge" xml:space="preserve">
-    <value>Certified Construction Supplies</value>
+    <value>Online Construction Platform</value>
   </data>
   <data name="ShippingBadge" xml:space="preserve">
     <value>Immediate Shipping &amp; Delivery</value>
@@ -608,7 +608,7 @@
     <value>Large projects require accurate pricing and dedicated support.</value>
   </data>
   <data name="BigProjectsDesc" xml:space="preserve">
-    <value>Scale your business efficiently. Bolcko's B2B portal and corporate services offer volume discounts, scheduled site deliveries, and dedicated account managers for major contracting firms.</value>
+    <value>Scale your business efficiently. BLOCKO's B2B portal and corporate services offer volume discounts, scheduled site deliveries, and dedicated account managers for major contracting firms.</value>
   </data>
   <data name="GuaranteedSupply" xml:space="preserve">
     <value>Guaranteed &amp; Sustainable Supply</value>
@@ -754,7 +754,7 @@
   <data name="TemporarilyOutOfStock" xml:space="preserve">
     <value>Temporarily Out of Stock</value>
   </data>
-<data name="HomeHeroTitle" xml:space="preserve"><value>The Solid Foundation for Every Great Project.</value></data><data name="HomeHeroDesc" xml:space="preserve"><value>High-precision industrial and construction supplies for professional contractors. From concrete and raw materials to precision tools, we provide everything you need.</value></data><data name="ViewAllCategories" xml:space="preserve"><value>View All Categories</value></data><data name="FooterAbout" xml:space="preserve"><value>The leading supplier of heavy construction materials and professional equipment since 1994. We build the future, brick by brick, with unmatched quality.</value></data><data name="Navigation" xml:space="preserve"><value>Navigation</value></data><data name="ShippingInfo" xml:space="preserve"><value>Shipping Information</value></data><data name="WholesaleOrders" xml:space="preserve"><value>Wholesale Orders</value></data><data name="PartnerLogin" xml:space="preserve"><value>Partner Login</value></data><data name="MarketInfo" xml:space="preserve"><value>Market Information</value></data><data name="OnlineOnly" xml:space="preserve"><value>Online Platform Only</value></data><data name="ShowroomsWarehouses" xml:space="preserve"><value>Showrooms and Warehouses Available</value></data><data name="ApprovedCurrency" xml:space="preserve"><value>Approved Currency</value></data><data name="TermsOfService" xml:space="preserve"><value>Terms of Service</value></data><data name="ContactDesc" xml:space="preserve"><value>We are here to answer all your inquiries and provide support for your projects.</value></data><data name="Address" xml:space="preserve"><value>Address</value></data><data name="JordanAddress" xml:space="preserve"><value>Amman, Hashemite Kingdom of Jordan</value></data><data name="Phone" xml:space="preserve"><value>Phone</value></data><data name="YourNamePlaceholder" xml:space="preserve"><value>Your Name</value></data><data name="Message" xml:space="preserve"><value>Message</value></data><data name="WriteMessagePlaceholder" xml:space="preserve"><value>Write your message here...</value></data><data name="SendMessage" xml:space="preserve"><value>Send Message</value></data><data name="Established1995" xml:space="preserve"><value>Established in 1995</value></data><data name="HeroTitle" xml:space="preserve"><value>Building the Future with Industrial Excellence &amp; Deep Experience</value></data><data name="HeroSubtitle" xml:space="preserve"><value>Three decades of engineering integrity and deep experience in construction supplies. We are the trusted backbone for the region's largest development projects.</value></data><data name="Capabilities" xml:space="preserve"><value>Our Capabilities &amp; Advantages</value></data>
+<data name="HomeHeroTitle" xml:space="preserve"><value>Your Digital Platform for Construction Supplies in Jordan.</value></data><data name="HomeHeroDesc" xml:space="preserve"><value>A digital platform connecting contractors and engineers with high-quality building materials — transparent pricing and direct delivery to your job site.</value></data><data name="ViewAllCategories" xml:space="preserve"><value>View All Categories</value></data><data name="FooterAbout" xml:space="preserve"><value>BLOCKO — your digital platform for construction supplies. Transparent pricing, direct delivery, and specialized technical support.</value></data><data name="Navigation" xml:space="preserve"><value>Navigation</value></data><data name="ShippingInfo" xml:space="preserve"><value>Shipping Information</value></data><data name="WholesaleOrders" xml:space="preserve"><value>Wholesale Orders</value></data><data name="PartnerLogin" xml:space="preserve"><value>Partner Login</value></data><data name="MarketInfo" xml:space="preserve"><value>Market Information</value></data><data name="OnlineOnly" xml:space="preserve"><value>Online Platform Only</value></data><data name="ShowroomsWarehouses" xml:space="preserve"><value>Showrooms and Warehouses Available</value></data><data name="ApprovedCurrency" xml:space="preserve"><value>Approved Currency</value></data><data name="TermsOfService" xml:space="preserve"><value>Terms of Service</value></data><data name="ContactDesc" xml:space="preserve"><value>We are here to answer all your inquiries and provide support for your projects.</value></data><data name="Address" xml:space="preserve"><value>Address</value></data><data name="JordanAddress" xml:space="preserve"><value>Amman, Hashemite Kingdom of Jordan</value></data><data name="Phone" xml:space="preserve"><value>Phone</value></data><data name="YourNamePlaceholder" xml:space="preserve"><value>Your Name</value></data><data name="Message" xml:space="preserve"><value>Message</value></data><data name="WriteMessagePlaceholder" xml:space="preserve"><value>Write your message here...</value></data><data name="SendMessage" xml:space="preserve"><value>Send Message</value></data><data name="Established1995" xml:space="preserve"><value>Online Platform</value></data><data name="HeroTitle" xml:space="preserve"><value>Your Digital Platform for Construction Supplies in Jordan</value></data><data name="HeroSubtitle" xml:space="preserve"><value>A digital platform connecting contractors and engineers with high-quality building materials — transparent pricing and direct delivery to your job site.</value></data><data name="Capabilities" xml:space="preserve"><value>Our Capabilities &amp; Advantages</value></data>
   <data name="ConfirmDelivery" xml:space="preserve"><value>Confirm Delivery</value></data>
   <data name="TrackOrder" xml:space="preserve"><value>Track Order</value></data>
   <data name="OrderTracking" xml:space="preserve"><value>Order Tracking</value></data>
@@ -776,4 +776,37 @@
   <data name="UnitPriceLabel" xml:space="preserve"><value>Unit Price</value></data>
   <data name="TotalAmountLabel" xml:space="preserve"><value>Total</value></data>
   <data name="Logout" xml:space="preserve"><value>Logout</value></data>
+  <data name="AboutHeroBadge" xml:space="preserve"><value>Online Platform</value></data>
+  <data name="AboutHeroTitlePre" xml:space="preserve"><value>Redefining how</value></data>
+  <data name="AboutHeroTitleHighlight" xml:space="preserve"><value>construction materials</value></data>
+  <data name="AboutHeroTitlePost" xml:space="preserve"><value>are purchased in Jordan</value></data>
+  <data name="AboutHeroDesc" xml:space="preserve"><value>BLOCKO is a digital platform connecting contractors and engineers with high-quality building materials — transparent pricing and direct delivery to your job site.</value></data>
+  <data name="WhyBlocko" xml:space="preserve"><value>Why BLOCKO?</value></data>
+  <data name="AboutWhoWeAre" xml:space="preserve"><value>Who We Are</value></data>
+  <data name="AboutIntroTitle" xml:space="preserve"><value>A</value></data>
+  <data name="AboutIntroTitleHighlight" xml:space="preserve"><value>Digital</value></data>
+  <data name="AboutIntroTitlePost" xml:space="preserve"><value>Platform for Construction Supplies</value></data>
+  <data name="AboutIntroP1" xml:space="preserve"><value>BLOCKO is a Jordanian digital platform specializing in construction materials and supplies. We enable contractors, companies, and individuals to browse, purchase, and request quotes for all types of materials — from steel and concrete to tools and equipment.</value></data>
+  <data name="AboutIntroP2" xml:space="preserve"><value>We believe the construction industry deserves a transparent and easy digital purchasing experience. That's why we built BLOCKO to be the platform every contractor relies on — with clear pricing, direct delivery, and specialized technical support.</value></data>
+  <data name="AboutStatOnline" xml:space="preserve"><value>100% Online Platform</value></data>
+  <data name="AboutStatDelivery" xml:space="preserve"><value>Delivery to Job Site</value></data>
+  <data name="AboutStatQuotes" xml:space="preserve"><value>Instant Quotes</value></data>
+  <data name="AboutStartTitle" xml:space="preserve"><value>Get Started Today</value></data>
+  <data name="AboutStartDesc" xml:space="preserve"><value>Create your free account, browse the catalog, and request a quote for your project. Our team is ready to support you every step of the way.</value></data>
+  <data name="AboutStartCTA" xml:space="preserve"><value>Create Your Free Account</value></data>
+  <data name="AboutMissionTitle" xml:space="preserve"><value>Our Mission</value></data>
+  <data name="AboutMissionDesc" xml:space="preserve"><value>Simplifying the purchase of construction materials in Jordan through a transparent digital platform that offers clear pricing, easy product comparison, and direct delivery to the job site.</value></data>
+  <data name="AboutVisionTitle" xml:space="preserve"><value>Our Vision</value></data>
+  <data name="AboutVisionDesc" xml:space="preserve"><value>To become the first platform every Jordanian contractor thinks of when they need building materials — a trusted platform that combines technology with industry expertise.</value></data>
+  <data name="AboutWhySubtitle" xml:space="preserve"><value>What Sets Us Apart from the Traditional Way</value></data>
+  <data name="AboutVal1Title" xml:space="preserve"><value>Transparent Pricing</value></data>
+  <data name="AboutVal1Desc" xml:space="preserve"><value>No surprises, no haggling. Clear, market-updated pricing for every product.</value></data>
+  <data name="AboutVal2Title" xml:space="preserve"><value>Order from Anywhere</value></data>
+  <data name="AboutVal2Desc" xml:space="preserve"><value>No showroom visits or long calls. Browse, compare, and order from your device anytime.</value></data>
+  <data name="AboutVal3Title" xml:space="preserve"><value>Specialized Technical Support</value></data>
+  <data name="AboutVal3Desc" xml:space="preserve"><value>A team ready to help you estimate quantities and choose the right materials for your project.</value></data>
+  <data name="AboutVal4Title" xml:space="preserve"><value>Project Quotes</value></data>
+  <data name="AboutVal4Desc" xml:space="preserve"><value>Request a custom quote for your big project and get volume discounts easily.</value></data>
+  <data name="AboutCTATitle" xml:space="preserve"><value>Start Your Next Project with BLOCKO</value></data>
+  <data name="AboutCTAQuote" xml:space="preserve"><value>Request a Quote</value></data>
 </root>

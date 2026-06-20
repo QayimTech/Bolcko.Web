@@ -4,35 +4,47 @@
     var isAr = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
 }
 
-<main class="max-w-5xl mx-auto px-6 py-12 text-right">
-    <header class="mb-12 border-r-4 border-[#E8A020] pr-6">
-        <h1 class="font-headline-xl text-[#151B26] uppercase mb-2">@(isAr ? "طلب عرض سعر للكميات والعطاءات" : "Request Tender & Quantities Quote")</h1>
-        <p class="font-body-lg text-[#575E74]">@(isAr ? "يرجى اختيار المواد والكميات المطلوبة لمشروعك للحصول على تسعير مخصص ومفاوضته لاحقاً." : "Please select materials and quantities for your project to receive and negotiate custom pricing.")</p>
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 text-start">
+    <header class="mb-10 border-s-4 border-[#E8A020] ps-6">
+        <h1 class="font-headline-xl text-[#151B26] mb-2">@(isAr ? "طلب عرض سعر للكميات والعطاءات" : "Request Tender & Quantities Quote")</h1>
+        <p class="font-body-lg text-slate-500">@(isAr ? "يرجى اختيار المواد والكميات المطلوبة لمشروعك للحصول على تسعير مخصص ومفاوضته لاحقاً." : "Please select materials and quantities for your project to receive and negotiate custom pricing.")</p>
     </header>
 
-    <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="post" class="space-y-8">
+    <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="post" class="space-y-6">
         @Html.AntiForgeryToken()
+
         @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
         {
-            <div asp-validation-summary="All" class="bg-red-50 border border-red-200 p-4 rounded-2xl text-red-700 text-sm mb-4"></div>
-        }
-        
-        <!-- AJAX Server Error Summary -->
-        <div id="serverErrorSummary" class="hidden bg-red-50 border border-red-200 p-4 rounded-2xl text-red-700 text-sm mb-4">
-            <div class="font-bold mb-1 flex items-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">error</span>
-                @(isAr ? "يرجى تصحيح الأخطاء التالية:" : "Please correct the following errors:")
+            <div class="bg-red-50 border border-red-200 p-5 rounded-2xl flex gap-3 items-start">
+                <span class="material-symbols-outlined text-red-500 text-xl mt-0.5 shrink-0">error</span>
+                <div>
+                    <p class="font-bold text-red-700 text-sm mb-1">@(isAr ? "يرجى تصحيح الأخطاء التالية:" : "Please correct the following errors:")</p>
+                    <ul class="text-red-600 text-xs list-disc list-inside space-y-0.5">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
             </div>
-            <ul id="serverErrorList" class="list-disc list-inside"></ul>
+        }
+
+        <!-- AJAX Server Error Summary -->
+        <div id="serverErrorSummary" class="hidden bg-red-50 border border-red-200 p-5 rounded-2xl flex gap-3 items-start">
+            <span class="material-symbols-outlined text-red-500 text-xl mt-0.5 shrink-0">error</span>
+            <div>
+                <p class="font-bold text-red-700 text-sm mb-1">@(isAr ? "يرجى تصحيح الأخطاء التالية:" : "Please correct the following errors:")</p>
+                <ul id="serverErrorList" class="text-red-600 text-xs list-disc list-inside space-y-0.5"></ul>
+            </div>
         </div>
 
         <!-- Customer & Company Info -->
-        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
-            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "معلومات العميل والشركة" : "Customer & Company Info")</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section class="bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm">
+            <h2 class="font-bold text-lg text-[#151B26] mb-6 pb-3 border-b border-slate-100">@(isAr ? "معلومات العميل والشركة" : "Customer & Company Info")</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "نوع المشروع" : "Project Type")</label>
-                    <select asp-for="ProjectType" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "نوع المشروع" : "Project Type")</label>
+                    <select asp-for="ProjectType" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all">
                         <option>@(isAr ? "مشروع سكني" : "Residential Project")</option>
                         <option>@(isAr ? "مشروع تجاري" : "Commercial Project")</option>
                         <option>@(isAr ? "بنية تحتية" : "Infrastructure")</option>
@@ -40,39 +52,39 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "اسم الشركة" : "Company Name") <span class="text-[#BA1A1A]">*</span></label>
-                    <input asp-for="CompanyName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "أدخل اسم الشركة" : "Enter company name")" required />
-                    <span asp-validation-for="CompanyName" class="text-[#BA1A1A] text-xs"></span>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "اسم الشركة" : "Company Name") <span class="text-red-500">*</span></label>
+                    <input asp-for="CompanyName" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" type="text" placeholder="@(isAr ? "أدخل اسم الشركة" : "Enter company name")" required />
+                    <span asp-validation-for="CompanyName" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "الاسم الكامل للمسؤول" : "Full Name") <span class="text-[#BA1A1A]">*</span></label>
-                    <input asp-for="FullName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "أدخل اسمك الكامل" : "Enter full name")" required minlength="3" />
-                    <span asp-validation-for="FullName" class="text-[#BA1A1A] text-xs"></span>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "الاسم الكامل للمسؤول" : "Full Name") <span class="text-red-500">*</span></label>
+                    <input asp-for="FullName" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" type="text" placeholder="@(isAr ? "أدخل اسمك الكامل" : "Enter full name")" required minlength="3" />
+                    <span asp-validation-for="FullName" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "البريد الإلكتروني" : "Email Address") <span class="text-[#BA1A1A]">*</span></label>
-                    <input asp-for="Email" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="email" placeholder="example@domain.com" required />
-                    <span asp-validation-for="Email" class="text-[#BA1A1A] text-xs"></span>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "البريد الإلكتروني" : "Email Address") <span class="text-red-500">*</span></label>
+                    <input asp-for="Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" type="email" placeholder="example@domain.com" required />
+                    <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "رقم الهاتف" : "Phone Number") <span class="text-[#BA1A1A]">*</span></label>
-                    <input asp-for="Phone" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="tel" placeholder="07xxxxxxxx" required />
-                    <span asp-validation-for="Phone" class="text-[#BA1A1A] text-xs"></span>
+                <div class="sm:col-span-2 sm:max-w-[calc(50%-0.625rem)]">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "رقم الهاتف" : "Phone Number") <span class="text-red-500">*</span></label>
+                    <input asp-for="Phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" type="tel" placeholder="07xxxxxxxx" required />
+                    <span asp-validation-for="Phone" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Project Info -->
-        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
-            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "معلومات المشروع وموقعه" : "Project Info & Location")</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section class="bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm">
+            <h2 class="font-bold text-lg text-[#151B26] mb-6 pb-3 border-b border-slate-100">@(isAr ? "معلومات المشروع وموقعه" : "Project Info & Location")</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "اسم المشروع" : "Project Name")</label>
-                    <input asp-for="ProjectName" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني عمان" : "e.g. Amman Residential Complex")" />
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "اسم المشروع" : "Project Name")</label>
+                    <input asp-for="ProjectName" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني عمان" : "e.g. Amman Residential Complex")" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">@(isAr ? "موقع المشروع (المدينة)" : "Project City") <span class="text-[#BA1A1A]">*</span></label>
-                    <select asp-for="City" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right" required>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">@(isAr ? "موقع المشروع (المدينة)" : "Project City") <span class="text-red-500">*</span></label>
+                    <select asp-for="City" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start transition-all" required>
                         <option value="عمان">@(isAr ? "عمان" : "Amman")</option>
                         <option value="الزرقاء">@(isAr ? "الزرقاء" : "Zarqa")</option>
                         <option value="إربد">@(isAr ? "إربد" : "Irbid")</option>
@@ -86,21 +98,21 @@
                         <option value="الطفيلة">@(isAr ? "الطفيلة" : "Tafilah")</option>
                         <option value="معان">@(isAr ? "معان" : "Ma'an")</option>
                     </select>
-                    <span asp-validation-for="City" class="text-[#BA1A1A] text-xs"></span>
+                    <span asp-validation-for="City" class="text-red-500 text-xs mt-1 block"></span>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Products List -->
-        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
-            <div class="flex justify-between items-center border-b border-[#D6C4AE] pb-4 mb-6">
-                <h2 class="font-headline-md text-[#151B26]">@(isAr ? "المواد المطلوبة للعطاء" : "Tender Items")</h2>
-                <div class="flex gap-2">
-                    <button type="button" onclick="openCatalogModal()" class="bg-[#E8A020] hover:bg-[#815500] hover:text-white text-[#151B26] font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5" title="@(isAr ? "تصفح الكتالوج بالصور لاختيار المواد" : "Browse catalog with images")">
+        <section class="bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-6">
+                <h2 class="font-bold text-lg text-[#151B26]">@(isAr ? "المواد المطلوبة للعطاء" : "Tender Items")</h2>
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" onclick="openCatalogModal()" class="bg-[#E8A020] hover:bg-[#d18f1c] text-[#151B26] font-bold text-xs px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-[16px]">add_circle</span>
                         @(isAr ? "مادة من كتالوج الموقع" : "Add Catalog Item")
                     </button>
-                    <button type="button" onclick="addProductItemRow('', 1, 'كيس', false)" class="bg-slate-100 hover:bg-slate-200 text-[#151B26] font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5" title="@(isAr ? "إضافة مادة غير موجودة في الكتالوج" : "Add an unlisted custom material")">
+                    <button type="button" onclick="addProductItemRow('', 1, 'كيس', false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-[16px]">draw</span>
                         @(isAr ? "مادة مخصصة أخرى" : "Add Custom Material")
                     </button>
@@ -109,27 +121,26 @@
 
             <div id="productsContainer" class="space-y-4"></div>
 
-            <div id="emptyWarning" class="hidden text-center py-8 text-[#575E74] transition-colors rounded-2xl">
-                <span class="material-symbols-outlined text-5xl text-[#D6C4AE] mb-2 transition-colors" id="emptyWarningIcon">production_quantity_limits</span>
-                <p class="font-bold" id="emptyWarningTitle">@(isAr ? "لم تقم بإضافة أي مواد بعد!" : "No items added yet!")</p>
-                <p class="text-xs" id="emptyWarningDesc">@(isAr ? "اختر مادة من كتالوج الموقع أو أضف مواد مخصصة لبدء العطاء." : "Select catalog items or write custom products to request pricing.")</p>
-                
-                <div id="emptyWarningError" class="hidden mt-4 text-red-600 font-bold bg-red-50 p-3 rounded-xl border border-red-200 inline-flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[20px]">error</span>
+            <div id="emptyWarning" class="hidden text-center py-10 text-slate-400 transition-colors rounded-2xl">
+                <span class="material-symbols-outlined text-5xl text-slate-300 mb-3 block" id="emptyWarningIcon">production_quantity_limits</span>
+                <p class="font-bold text-sm" id="emptyWarningTitle">@(isAr ? "لم تقم بإضافة أي مواد بعد!" : "No items added yet!")</p>
+                <p class="text-xs mt-1" id="emptyWarningDesc">@(isAr ? "اختر مادة من كتالوج الموقع أو أضف مواد مخصصة لبدء العطاء." : "Select catalog items or write custom products to request pricing.")</p>
+                <div id="emptyWarningError" class="hidden mt-4 text-red-600 font-bold bg-red-50 p-3 rounded-xl border border-red-200 inline-flex items-center gap-2 text-sm">
+                    <span class="material-symbols-outlined text-[18px]">error</span>
                     <span>@(isAr ? "الرجاء إضافة مادة واحدة على الأقل لتقديم العطاء." : "Please add at least one item to submit.")</span>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Additional Notes -->
-        <div class="bg-white border border-[#D6C4AE] p-8 shadow-hard rounded-3xl">
-            <h2 class="font-headline-md text-[#151B26] mb-6 border-b border-[#D6C4AE] pb-2">@(isAr ? "ملاحظات إضافية وجدول التوصيل" : "Additional Notes & Delivery Timeline")</h2>
-            <textarea asp-for="Notes" class="w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right h-32" placeholder="@(isAr ? "مثال: يرجى شحن حديد التسليح أولاً، وتوفير الأسمنت والخلطات الخرسانية بالتوالي حسب مراحل البناء..." : "e.g. Please supply rebar first, followed by concrete/cements sequentially...")"></textarea>
-        </div>
+        <section class="bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm">
+            <h2 class="font-bold text-lg text-[#151B26] mb-6 pb-3 border-b border-slate-100">@(isAr ? "ملاحظات إضافية وجدول التوصيل" : "Additional Notes & Delivery Timeline")</h2>
+            <textarea asp-for="Notes" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start h-32 transition-all" placeholder="@(isAr ? "مثال: يرجى شحن حديد التسليح أولاً، وتوفير الأسمنت والخلطات الخرسانية بالتوالي حسب مراحل البناء..." : "e.g. Please supply rebar first, followed by concrete/cements sequentially...")"></textarea>
+        </section>
 
         <div class="flex justify-end">
             <button type="button" id="submitBtn" onclick="handleFormSubmit()"
-                class="bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold px-12 py-4 rounded-xl shadow-hard transition-all inline-flex items-center gap-2">
+                class="bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold px-8 sm:px-12 py-4 rounded-xl shadow-lg transition-all inline-flex items-center gap-2 w-full sm:w-auto justify-center">
                 <span id="btnText">@(isAr ? "إرسال طلب العطاء والتسعير" : "Submit Tender Request")</span>
                 <span id="btnSendIcon" class="material-symbols-outlined">send</span>
                 <span id="btnSpinner" style="display:none" class="material-symbols-outlined animate-spin">progress_activity</span>
@@ -138,42 +149,44 @@
     </form>
 </main>
 
+<!-- Catalog Modal -->
 <div id="catalogModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeCatalogModal()"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[90%] max-w-4xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden text-right">
-        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+    <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:start-1/2 sm:-translate-y-1/2 sm:ltr:-translate-x-1/2 sm:rtl:translate-x-1/2 bg-white sm:w-[90%] sm:max-w-4xl sm:max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden text-start">
+        <!-- Modal Header -->
+        <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
             <div>
-                <h3 class="font-bold text-lg text-slate-800">@(isAr ? "تصفح كتالوج المواد" : "Browse Material Catalog")</h3>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800">@(isAr ? "تصفح كتالوج المواد" : "Browse Material Catalog")</h3>
                 <p class="text-xs text-slate-500">@(isAr ? "ابحث عن المادة وأضفها إلى العطاء مباشرة" : "Search and add materials directly to your tender")</p>
             </div>
-            <button type="button" onclick="closeCatalogModal()" class="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50" title="@(isAr ? "إغلاق النافذة" : "Close window")">
+            <button type="button" onclick="closeCatalogModal()" class="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        
-        <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row gap-3">
+
+        <!-- Modal Search -->
+        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3 shrink-0">
             <div class="flex-1 relative">
-                <span class="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none select-none">search</span>
+                <span class="material-symbols-outlined absolute top-1/2 start-3 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">search</span>
                 <input type="text" id="modalSearchInput"
-                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 focus:bg-white outline-none text-sm transition-all"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 ps-10 pe-4 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020]/30 focus:bg-white outline-none text-sm transition-all"
                     placeholder="@(isAr ? "ابحث باسم المادة أو رمز SKU..." : "Search by name or SKU...")"
                     oninput="filterCatalog()" />
             </div>
-            <div class="md:w-64 relative">
+            <div class="sm:w-56 relative">
                 <select id="modalCategoryFilter"
-                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20 focus:bg-white outline-none text-sm appearance-none transition-all"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020]/30 focus:bg-white outline-none text-sm appearance-none transition-all"
                     onchange="filterCatalog()">
                     <option value="">@(isAr ? "جميع الفئات" : "All Categories")</option>
                 </select>
-                <span class="material-symbols-outlined absolute top-1/2 left-3 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none select-none">expand_more</span>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50" id="modalScrollContainer">
-            <div id="modalProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-            
+        <!-- Modal Content -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50 relative" id="modalScrollContainer">
+            <div id="modalProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             <div id="loadMoreContainer" class="hidden mt-8 text-center">
-                <button type="button" onclick="loadMoreCatalog()" class="bg-white border border-[#E8A020] text-[#E8A020] hover:bg-[#E8A020] hover:text-white font-bold py-2 px-8 rounded-xl transition-colors inline-flex items-center gap-2">
+                <button type="button" onclick="loadMoreCatalog()" class="bg-white border border-[#E8A020] text-[#E8A020] hover:bg-[#E8A020] hover:text-white font-bold py-2.5 px-8 rounded-xl transition-colors inline-flex items-center gap-2 text-sm">
                     <span class="material-symbols-outlined text-[18px]">expand_more</span>
                     @(isAr ? "عرض المزيد من المنتجات" : "Load More Products")
                 </button>
@@ -204,11 +217,11 @@
         let isDynamicValid = true;
         $('.product-item .custom-req').each(function() {
             if (!$(this).val()) {
-                $(this).addClass('border-red-500 bg-red-50');
+                $(this).addClass('!border-red-400 !bg-red-50');
                 $(this).siblings('.error-msg').removeClass('hidden');
                 isDynamicValid = false;
             } else {
-                $(this).removeClass('border-red-500 bg-red-50');
+                $(this).removeClass('!border-red-400 !bg-red-50');
                 $(this).siblings('.error-msg').addClass('hidden');
             }
         });
@@ -231,51 +244,53 @@
 
         if ($('.product-item').length === 0) {
             const warningBox = $('#emptyWarning');
-            warningBox.removeClass('text-[#575E74]').addClass('bg-red-50/30 border border-red-200 text-red-600');
-            $('#emptyWarningIcon').removeClass('text-[#D6C4AE]').addClass('text-red-500');
+            warningBox.removeClass('text-slate-400').addClass('bg-red-50/50 border border-red-200 text-red-600');
+            $('#emptyWarningIcon').removeClass('text-slate-300').addClass('text-red-400');
             $('#emptyWarningError').removeClass('hidden');
             warningBox[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
-        $('#submitBtn').prop('disabled', true);
+        $('#submitBtn').prop('disabled', true).addClass('opacity-60');
         $('#btnText').hide();
         $('#btnSendIcon').hide();
         $('#btnSpinner').show();
-        
+
         $.ajax({
             url: $form.attr('action') || window.location.href,
             type: 'POST',
             data: $form.serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
             success: function(response) {
                 if (response.success) {
                     sessionStorage.removeItem('TenderSessionCart');
                     window.location.href = response.redirectUrl;
                 } else {
-                    $('#submitBtn').prop('disabled', false);
-                    $('#btnText').show();
-                    $('#btnSendIcon').show();
-                    $('#btnSpinner').hide();
-                    const errorSummary = $('#serverErrorSummary');
-                    errorSummary.removeClass('hidden');
-                    const errorList = $('#serverErrorList');
-                    errorList.empty();
-                    if (response.errors && response.errors.length > 0) response.errors.forEach(err => errorList.append(`<li>${err}</li>`));
-                    else errorList.append(`<li>${response.message}</li>`);
-                    errorSummary[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    resetSubmitBtn();
+                    showServerErrors(response.errors || [response.message]);
                 }
             },
             error: function() {
-                $('#submitBtn').prop('disabled', false);
-                $('#btnText').show();
-                $('#btnSendIcon').show();
-                $('#btnSpinner').hide();
-                const errorSummary = $('#serverErrorSummary');
-                errorSummary.removeClass('hidden');
-                $('#serverErrorList').html(`<li>@(isAr ? "حدث خطأ في الاتصال بالسيرفر." : "Server connection error.")</li>`);
-                errorSummary[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                resetSubmitBtn();
+                showServerErrors(["@(isAr ? "حدث خطأ في الاتصال بالسيرفر. يرجى المحاولة مرة أخرى." : "Server connection error. Please try again.")"]);
             }
         });
+    }
+
+    function resetSubmitBtn() {
+        $('#submitBtn').prop('disabled', false).removeClass('opacity-60');
+        $('#btnText').show();
+        $('#btnSendIcon').show();
+        $('#btnSpinner').hide();
+    }
+
+    function showServerErrors(errors) {
+        const summary = $('#serverErrorSummary');
+        const list = $('#serverErrorList');
+        list.empty();
+        errors.forEach(err => { if (err) list.append(`<li>${err}</li>`); });
+        summary.removeClass('hidden');
+        summary[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function loadTenderCartItems() {
@@ -301,45 +316,65 @@
         let unitOptions = '';
         units.forEach(u => unitOptions += `<option ${u === unit ? 'selected' : ''}>${u}</option>`);
 
-        let itemInputHtml = isCatalog ? `
-            <div class="col-span-6 flex gap-4 items-center">
-                ${imageUrl ? `<img src="${imageUrl.startsWith('http') ? imageUrl : '/' + imageUrl.replace(/^\/+/, '')}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm" />` : `<div class="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center"><span class="material-symbols-outlined text-slate-300">image</span></div>`}
-                <div class="flex-1">
-                    <label class="block text-[10px] font-bold text-[#E8A020] uppercase mb-1">${isAr ? 'مادة من الكتالوج' : 'Catalog Material'}</label>
-                    <h4 class="font-bold text-slate-800 text-sm mb-1">${productName}</h4>
-                    ${sku ? `<span class="text-xs text-slate-400">SKU: ${sku}</span>` : ''}
-                    <input type="hidden" name="Products[${productCount}].ProductName" class="product-name-input" value="${productName}" />
-                    <input type="hidden" name="Products[${productCount}].ProductId" class="product-id-input" value="${productId || ''}" />
+        let itemHtml;
+        if (isCatalog) {
+            itemHtml = `
+            <div class="product-item bg-slate-50 border border-slate-200 rounded-xl p-4 relative">
+                <button type="button" class="remove-product absolute top-3 end-3 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition-colors" title="${isAr ? 'حذف' : 'Remove'}">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                </button>
+                <div class="flex gap-4 items-start mb-4">
+                    ${imageUrl ? `<img src="${imageUrl.startsWith('http') ? imageUrl : '/' + imageUrl.replace(/^\\/+/, '')}" class="w-14 h-14 rounded-lg object-cover border border-slate-200 shrink-0" />` : `<div class="w-14 h-14 rounded-lg bg-slate-200 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">image</span></div>`}
+                    <div class="min-w-0 flex-1">
+                        <span class="text-[10px] font-bold text-[#E8A020] uppercase">${isAr ? 'مادة من الكتالوج' : 'Catalog Material'}</span>
+                        <h4 class="font-bold text-slate-800 text-sm truncate">${productName}</h4>
+                        ${sku ? `<span class="text-[11px] text-slate-400">SKU: ${sku}</span>` : ''}
+                        <input type="hidden" name="Products[${productCount}].ProductName" class="product-name-input" value="${productName}" />
+                        <input type="hidden" name="Products[${productCount}].ProductId" class="product-id-input" value="${productId || ''}" />
+                    </div>
                 </div>
-            </div>` : `
-            <div class="col-span-6">
-                <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'اسم المنتج المخصص' : 'Custom Product Name'} <span class="text-[#BA1A1A]">*</span></label>
-                <input name="Products[${productCount}].ProductName" class="product-name-input custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors" type="text" placeholder="${isAr ? 'اكتب اسم المادة المطلوبة ومواصفاتها' : 'Enter custom material specification'}" value="${productName}" />
-                <span class="hidden text-red-500 text-xs mt-1 error-msg block font-bold">@(isAr ? "هذا الحقل مطلوب" : "This field is required")</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">${isAr ? 'الكمية' : 'Qty'} <span class="text-red-500">*</span></label>
+                        <input name="Products[${productCount}].Quantity" class="custom-req w-full bg-white border border-slate-200 rounded-lg p-2.5 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start text-sm transition-all" type="number" value="${quantity}" min="1" />
+                        <span class="hidden text-red-500 text-[11px] mt-0.5 error-msg block">${isAr ? 'مطلوب' : 'Required'}</span>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">${isAr ? 'الوحدة' : 'Unit'} <span class="text-red-500">*</span></label>
+                        <select name="Products[${productCount}].Unit" class="product-unit-select custom-req w-full bg-white border border-slate-200 rounded-lg p-2.5 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start text-sm transition-all">
+                            ${unitOptions}
+                        </select>
+                    </div>
+                </div>
             </div>`;
+        } else {
+            itemHtml = `
+            <div class="product-item bg-slate-50 border border-slate-200 rounded-xl p-4 relative">
+                <button type="button" class="remove-product absolute top-3 end-3 text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition-colors" title="${isAr ? 'حذف' : 'Remove'}">
+                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                </button>
+                <div class="mb-3 pe-8">
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">${isAr ? 'اسم المنتج المخصص' : 'Custom Product Name'} <span class="text-red-500">*</span></label>
+                    <input name="Products[${productCount}].ProductName" class="product-name-input custom-req w-full bg-white border border-slate-200 rounded-lg p-2.5 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start text-sm transition-all" type="text" placeholder="${isAr ? 'اكتب اسم المادة المطلوبة ومواصفاتها' : 'Enter custom material specification'}" value="${productName}" />
+                    <span class="hidden text-red-500 text-[11px] mt-0.5 error-msg block">${isAr ? 'هذا الحقل مطلوب' : 'This field is required'}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">${isAr ? 'الكمية' : 'Qty'} <span class="text-red-500">*</span></label>
+                        <input name="Products[${productCount}].Quantity" class="custom-req w-full bg-white border border-slate-200 rounded-lg p-2.5 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start text-sm transition-all" type="number" value="${quantity}" min="1" />
+                        <span class="hidden text-red-500 text-[11px] mt-0.5 error-msg block">${isAr ? 'مطلوب' : 'Required'}</span>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">${isAr ? 'الوحدة' : 'Unit'} <span class="text-red-500">*</span></label>
+                        <select name="Products[${productCount}].Unit" class="product-unit-select custom-req w-full bg-white border border-slate-200 rounded-lg p-2.5 focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] text-start text-sm transition-all">
+                            ${unitOptions}
+                        </select>
+                    </div>
+                </div>
+            </div>`;
+        }
 
-        const newItem = $(`
-            <div class="product-item grid grid-cols-12 gap-4 items-start border-b border-[#D6C4AE] pb-6">
-                ${itemInputHtml}
-                <div class="col-span-3">
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'الكمية المطلوبة' : 'Quantity'} <span class="text-[#BA1A1A]">*</span></label>
-                    <input name="Products[${productCount}].Quantity" class="custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors" type="number" value="${quantity}" min="1" />
-                    <span class="hidden text-red-500 text-xs mt-1 error-msg block font-bold">@(isAr ? "مطلوب" : "Required")</span>
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-[#575E74] uppercase mb-2">${isAr ? 'الوحدة' : 'Unit'} <span class="text-[#BA1A1A]">*</span></label>
-                    <select name="Products[${productCount}].Unit" class="product-unit-select custom-req w-full bg-[#F1F3FF] border border-[#847562] rounded-xl p-3 focus:ring-0 focus:border-[#E8A020] text-right transition-colors">
-                        ${unitOptions}
-                    </select>
-                </div>
-                <div class="col-span-1 text-center pt-8">
-                    <button type="button" class="remove-product text-[#BA1A1A] hover:bg-red-50 p-2.5 rounded-full transition-colors flex items-center justify-center inline-block" title="${isAr ? 'حذف المادة' : 'Remove Item'}">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </div>
-        `);
-        container.append(newItem);
+        container.append(itemHtml);
         productCount++;
         toggleEmptyState();
     }
@@ -356,8 +391,8 @@
 
     function toggleEmptyState() {
         if($('.product-item').length === 0) {
-            $('#emptyWarning').removeClass('hidden bg-red-50/30 border border-red-200 text-red-600').addClass('text-[#575E74]');
-            $('#emptyWarningIcon').removeClass('text-red-500').addClass('text-[#D6C4AE]');
+            $('#emptyWarning').removeClass('hidden bg-red-50/50 border border-red-200 text-red-600').addClass('text-slate-400');
+            $('#emptyWarningIcon').removeClass('text-red-400').addClass('text-slate-300');
             $('#emptyWarningError').addClass('hidden');
         } else {
             $('#emptyWarning').addClass('hidden');
@@ -366,6 +401,7 @@
 
     function openCatalogModal() {
         $('#catalogModal').removeClass('hidden');
+        document.body.style.overflow = 'hidden';
         const $catFilter = $('#modalCategoryFilter');
         if ($catFilter.find('option').length === 1 && categoriesList.length > 0) {
             categoriesList.forEach(c => $catFilter.append(`<option value="${c.id}">${c.name}</option>`));
@@ -380,6 +416,7 @@
 
     function closeCatalogModal() {
         $('#catalogModal').addClass('hidden');
+        document.body.style.overflow = '';
     }
 
     function filterCatalog() {
@@ -396,18 +433,16 @@
         const term = $('#modalSearchInput').val();
         const catId = $('#modalCategoryFilter').val();
         const grid = $('#modalProductsGrid');
-        
+
         catalogIsLoading = true;
         $('#loadMoreContainer').addClass('hidden');
-        
+
         const loaderId = 'catalogLoader_' + Date.now();
-        
+
         if (isNewFilter) {
-            // Overlay spinner on existing content instead of emptying it, avoiding the blink
             grid.css('opacity', '0.5');
             $('#modalScrollContainer').append(`<div id="${loaderId}" class="absolute inset-0 flex items-center justify-center bg-white/50 z-10"><span class="material-symbols-outlined animate-spin text-4xl text-[#E8A020]">progress_activity</span></div>`);
         } else {
-            // Append loading spinner at the bottom
             grid.append(`<div id="${loaderId}" class="col-span-full py-8 flex justify-center"><span class="material-symbols-outlined animate-spin text-3xl text-[#E8A020]">progress_activity</span></div>`);
         }
 
@@ -417,26 +452,18 @@
             page: catalogCurrentPage
         }, function(html) {
             $('#' + loaderId).remove();
-            
+
             if (isNewFilter) {
                 grid.empty();
                 grid.css('opacity', '1');
             }
-            
+
             if (html.trim() === '' || html.includes('empty-state-indicator')) {
-                // If this is the first page, show the empty state. Otherwise, just stop loading.
-                if (catalogCurrentPage === 1) {
-                    grid.append(html);
-                }
+                if (catalogCurrentPage === 1) grid.append(html);
                 catalogHasMore = false;
             } else {
                 grid.append(html);
                 catalogCurrentPage++;
-                
-                // Show "Load More" button if we got a full page of results
-                // We changed page size to 4. If we got 4 items, there MIGHT be more.
-                // A simple heuristic: if the html string is reasonably long, assume full page.
-                // Better yet, just always show it and hide it if next request is empty.
                 $('#loadMoreContainer').removeClass('hidden');
             }
         }).always(function() {
@@ -451,12 +478,13 @@
     function selectProductFromModal(id, name, unit, sku = '', imageUrl = '') {
         addProductItemRow(name, 1, unit, true, id, imageUrl, sku);
         closeCatalogModal();
-        
-        // Show small notification
-        const toast = $(`<div class="fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-xl font-bold z-[60] animate-in slide-in-from-bottom-5">تم الإضافة: ${name}</div>`);
+
+        const toast = $(`<div class="fixed bottom-4 start-4 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-xl font-bold z-[60] text-sm flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">check_circle</span>${isAr ? 'تم الإضافة' : 'Added'}: ${name}</div>`);
         $('body').append(toast);
-        setTimeout(() => toast.fadeOut(300, function() { $(this).remove(); }), 2000);
+        setTimeout(() => toast.fadeOut(300, function() { $(this).remove(); }), 2500);
     }
+
+    const isAr = "@isAr" === "True";
 </script>
 
 @section Scripts {
