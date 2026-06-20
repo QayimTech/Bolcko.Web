@@ -208,10 +208,10 @@
     const indicator = document.getElementById('dropzone-active-indicator');
 
     let selectedFiles = [];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-    function renderPreviews(files) {
+    function renderPreviews() {
         preview.innerHTML = '';
-        selectedFiles = Array.from(files);
 
         if (!selectedFiles.length) {
             preview.classList.add('hidden');
@@ -242,27 +242,56 @@
         });
 
         preview.classList.remove('hidden');
-        badge.textContent = "@L["SelectedImagesCount"]".replace("{0}", selectedFiles.length);
+        badge.innerHTML = '@Html.Raw(L["SelectedImagesCount"])'.replace("{0}", selectedFiles.length);
         badge.classList.remove('hidden');
 
-        // Rebuild DataTransfer on remove clicks (delegated)
-        preview.addEventListener('click', function (e) {
-            const btn = e.target.closest('.remove-preview');
-            if (!btn) return;
-            const idxToRemove = parseInt(btn.dataset.idx);
-            selectedFiles.splice(idxToRemove, 1);
-            const dt = new DataTransfer();
-            selectedFiles.forEach(f => dt.items.add(f));
-            input.files = dt.files;
-            renderPreviews(dt.files);
-        }, { once: true });
+        // Sync with input
+        const dt = new DataTransfer();
+        selectedFiles.forEach(f => dt.items.add(f));
+        input.files = dt.files;
     }
+
+    // Rebuild DataTransfer on remove clicks (delegated)
+    preview.addEventListener('click', function (e) {
+        const btn = e.target.closest('.remove-preview');
+        if (!btn) return;
+        const idxToRemove = parseInt(btn.dataset.idx);
+        selectedFiles.splice(idxToRemove, 1);
+        renderPreviews();
+    });
 
     function formatBytes(b) {
         return b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : (b / 1024).toFixed(0) + ' KB';
     }
 
-    input.addEventListener('change', () => renderPreviews(input.files));
+    function handleFiles(files) {
+        const newFiles = Array.from(files);
+        let validFiles = [];
+        let hasOversized = false;
+        
+        newFiles.forEach(f => {
+            if (f.type.startsWith('image/')) {
+                if (f.size <= MAX_FILE_SIZE) {
+                    validFiles.push(f);
+                } else {
+                    hasOversized = true;
+                }
+            }
+        });
+
+        if (hasOversized) {
+            alert('@Html.Raw(L["ImageSizeExceedsLimit"] ?? "بعض الصور تتجاوز الحجم المسموح به (5 ميجابايت).")');
+        }
+
+        if (validFiles.length > 0) {
+            selectedFiles = [...selectedFiles, ...validFiles];
+            renderPreviews();
+        }
+    }
+
+    input.addEventListener('change', () => {
+        handleFiles(input.files);
+    });
 
     // Drag & Drop
     dropzone.addEventListener('dragover', e => {
@@ -278,12 +307,7 @@
         e.preventDefault();
         indicator.classList.add('hidden');
         indicator.classList.remove('flex');
-        const dt = new DataTransfer();
-        Array.from(e.dataTransfer.files).forEach(f => {
-            if (f.type.startsWith('image/')) dt.items.add(f);
-        });
-        input.files = dt.files;
-        renderPreviews(dt.files);
+        handleFiles(e.dataTransfer.files);
     });
 })();
 

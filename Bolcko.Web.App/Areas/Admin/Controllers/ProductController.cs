@@ -45,7 +45,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductDto productDto, IFormFileCollection uploadImages)
+        public async Task<IActionResult> Create(ProductDto productDto, List<IFormFile> uploadImages)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ProductDto productDto, IFormFileCollection uploadImages, List<int>? deleteImageIds)
+        public async Task<IActionResult> Edit(ProductDto productDto, List<IFormFile> uploadImages, List<int>? deleteImageIds)
         {
             if (ModelState.IsValid)
             {
