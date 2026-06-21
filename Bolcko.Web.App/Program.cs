@@ -2,6 +2,7 @@ using Blocko.Persistence;
 using Blocko.Services;
 using Bolcko.Web.App.Extensions;
 using Bolcko.Web.App.Middleware;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -71,6 +72,16 @@ try
 
     // Core Security Pipeline (Routing -> Auth -> Authorization)
     app.UseBlockoSecurityPipeline();
+
+    // --- Automatic Database Migration ---
+    // This will apply any pending migrations to the database automatically when the app starts
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<BlockoDbContext>();
+        Log.Information("Applying database migrations...");
+        await db.Database.MigrateAsync();
+        Log.Information("Database migrations applied successfully.");
+    }
 
     // Seed initial data (only in Development for safety)
     // In Production, the /Setup page handles first-run admin creation
