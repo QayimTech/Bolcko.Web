@@ -1,6 +1,7 @@
 using Blocko.Persistence;
 using Blocko.Services;
 using Bolcko.Web.App.Extensions;
+using Bolcko.Web.App.Middleware;
 using Serilog;
 using Serilog.Events;
 
@@ -59,6 +60,9 @@ try
     app.UseHttpsRedirection();
     app.UseStaticFiles();
 
+    // First-run setup guard: redirects to /Setup if no Admin exists yet
+    app.UseFirstRunSetup();
+
     // Use Session Middleware (before routing/authorization)
     app.UseSession();
 
@@ -69,6 +73,7 @@ try
     app.UseBlockoSecurityPipeline();
 
     // Seed initial data (only in Development for safety)
+    // In Production, the /Setup page handles first-run admin creation
     if (app.Environment.IsDevelopment())
     {
         await app.SeedIdentityDataAsync();

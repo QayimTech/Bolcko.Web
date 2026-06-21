@@ -22,7 +22,7 @@ namespace Blocko.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<BlockoDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(BlockoDbContext).Assembly.FullName)));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

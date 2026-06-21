@@ -1,0 +1,98 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "تم الإعداد - Bolcko";
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            min-height: 100vh;
+            font-family: 'Tajawal', sans-serif;
+            background: #0a0f1e;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(16,185,129,.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .wrap {
+            text-align: center;
+            padding: 2rem;
+            animation: fadeUp .6s ease both;
+        }
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .check-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 60px rgba(16,185,129,.4);
+            animation: pop .5s cubic-bezier(.34,1.56,.64,1) .2s both;
+        }
+        @@keyframes pop {
+            from { transform: scale(0); }
+            to   { transform: scale(1); }
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: .75rem;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 380px;
+            margin: 0 auto 2rem;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+            text-decoration: none;
+            padding: .85rem 2.5rem;
+            border-radius: 12px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 20px rgba(59,130,246,.4);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(59,130,246,.55);
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="check-circle">✅</div>
+    <h1>تم إعداد النظام بنجاح!</h1>
+    <p>تم إنشاء حساب المدير. يمكنك الآن تسجيل الدخول والبدء باستخدام لوحة التحكم.</p>
+    <a href="/Admin/Account/Login" class="btn">🔐 تسجيل الدخول</a>
+</div>
+</body>
+</html>
