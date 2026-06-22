@@ -21,8 +21,19 @@ namespace Blocko.Persistence
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Check appsettings.json or Environment variables.");
+            // 1. Explicitly check for Render Environment Variable
+            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+
+            // 2. If null/empty (local machine), fallback to appsettings.json
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Check appsettings.json or Environment variables.");
+            }
 
             services.AddDbContext<BlockoDbContext>(options =>
                 options.UseNpgsql(connectionString,
