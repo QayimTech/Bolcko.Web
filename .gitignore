@@ -366,3 +366,4 @@ FodyWeavers.xsd
 
 # Local Development Settings (contains sensitive local DB credentials)
 appsettings.Development.json
+/Bolcko.Web.App/Properties/launchSettings.json

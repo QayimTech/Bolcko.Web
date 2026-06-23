@@ -85,11 +85,10 @@ try
 
     // Seed initial data (only in Development for safety)
     // In Production, the /Setup page handles first-run admin creation
-    if (app.Environment.IsDevelopment())
-    {
-        await app.SeedIdentityDataAsync();
-        Log.Information("Development identity data seeded");
-    }
+
+    await app.SeedIdentityDataAsync();
+    Log.Information("Development identity data seeded");
+
 
     // --- 3. Endpoint Mapping ---
     app.MapBlockoAppEndpoints();
