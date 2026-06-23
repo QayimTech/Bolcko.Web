@@ -39,6 +39,10 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    // Force password change if this is the first login (seeded admin)
+                    if (user.MustChangePassword)
+                        return RedirectToAction("ChangePassword", "Account", new { area = "Admin" });
+
                     return string.IsNullOrEmpty(returnUrl) ? RedirectToAction("Index", "Home", new { area = "Admin" }) : LocalRedirect(returnUrl);
                 }
             }
@@ -53,6 +57,47 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Account", new { area = "Admin" });
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            // If user doesn't need to change password, redirect to dashboard
+            if (User.Identity?.IsAuthenticated != true)
+                return RedirectToAction("Login");
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string newPassword, string confirmPassword)
+        {
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "كلمتا المرور غير متطابقتين";
+                return View();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            // Remove old password and set new one
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+            if (result.Succeeded)
+            {
+                // Clear the force-change flag
+                user.MustChangePassword = false;
+                await _userManager.UpdateAsync(user);
+
+                TempData["SuccessMessage"] = "تم تغيير كلمة المرور بنجاح. مرحباً بك!";
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
+
+            ViewBag.Error = string.Join("، ", result.Errors.Select(e => e.Description));
+            return View();
         }
     }
 }

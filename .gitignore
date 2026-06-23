@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 *.json
 /Bolcko.Web.App/appsettings.json
+
+# Local Development Settings (contains sensitive local DB credentials)
+appsettings.Development.json

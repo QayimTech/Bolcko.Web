@@ -39,17 +39,21 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
+                // Block Admin/DashboardUser from logging in via Shop — they must use the Admin login page
+                if (await _userManager.IsInRoleAsync(user, "Admin") ||
+                    await _userManager.IsInRoleAsync(user, "DashboardUser"))
+                {
+                    ViewBag.Error = "هذا الحساب مخصص للإدارة فقط. يرجى تسجيل الدخول من لوحة التحكم.";
+                    return View();
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: rememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    // Redirect by role (not by UserType) to keep authorization consistent
-                    if (await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin"))
-                        return RedirectToAction("Index", "Home", new { area = "Admin" });
-
                     return RedirectToAction("Index");
                 }
             }
-            
+
             ViewBag.Error = "بيانات الدخول غير صحيحة";
             return View();
         }

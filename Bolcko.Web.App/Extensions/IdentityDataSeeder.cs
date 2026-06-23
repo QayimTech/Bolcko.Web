@@ -40,6 +40,7 @@ namespace Bolcko.Web.App.Extensions
                     LastName = "Admin",
                     UserType = UserType.Admin,
                     EmailConfirmed = true,
+                    MustChangePassword = true, // Force password change on first login
                     RegistrationDate = DateTime.UtcNow
                 };
 
@@ -47,7 +48,7 @@ namespace Bolcko.Web.App.Extensions
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
-                } 
+                }
             }
 
             // 3. Seed Market Prices
