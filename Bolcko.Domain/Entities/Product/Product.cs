@@ -22,5 +22,9 @@ namespace Bolcko.Domain.Entities.Product
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public bool BulkPricingAvailable { get; set; }
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+
+        // New properties based on user request
+        public string? Brand { get; set; }
+        public string? CountryOfOrigin { get; set; }
     }
 }

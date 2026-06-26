@@ -18,7 +18,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             _serviceManager = serviceManager;
         }
 
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(int? id, int page = 1, int pageSize = 12)
         {
             if (id == null)
             {
@@ -31,7 +31,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             if (category == null) return NotFound();
 
             var subCategories = await _serviceManager.CategoryService.GetSubCategoriesAsync(id.Value);
-            var products = await _serviceManager.ProductService.GetProductsByCategoryAsync(id.Value);
+            var products = await _serviceManager.ProductService.SearchCatalogProductsPagedAsync(null, id.Value, page, pageSize);
 
             ViewBag.Category = category;
             ViewBag.SubCategories = subCategories;

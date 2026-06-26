@@ -33,6 +33,9 @@ try
 
     builder.Services.AddBlockoMvcInterface();
 
+    // Add Hangfire Services
+    builder.Services.AddBlockoHangfire(builder.Configuration);
+
     // Add Session Services with secure configuration
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options =>
@@ -72,6 +75,9 @@ try
 
     // Core Security Pipeline (Routing -> Auth -> Authorization)
     app.UseBlockoSecurityPipeline();
+
+    // Hangfire Dashboard (must be after auth)
+    app.UseBlockoHangfireDashboard();
 
     // --- Automatic Database Migration ---
     // This will apply any pending migrations to the database automatically when the app starts

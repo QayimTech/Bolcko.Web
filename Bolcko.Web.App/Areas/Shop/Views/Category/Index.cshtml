@@ -81,17 +81,17 @@
                     <div>
                         <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">تصفح منتجات الفئة</span>
                         <h1 class="font-headline-lg text-slate-800 mt-2">@category?.Name</h1>
-                        <p class="text-slate-400 text-xs mt-1">@(((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Count()) منتج متاح للطلب</p>
+                        <p class="text-slate-400 text-xs mt-1">@(((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).TotalCount) منتج متاح للطلب</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                    @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model)
+                    @foreach (var product in ((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Items)
                     {
                         <partial name="Partials/_ProductCard" model="product" />
                     }
                     
-                    @if (!((IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Any())
+                    @if (!((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).Items.Any())
                     {
                         <div class="col-span-3 py-24 text-center bg-white border border-slate-100 rounded-3xl text-slate-400 italic shadow-sm">
                             <span class="material-symbols-outlined text-5xl mb-3 text-slate-300">inventory_2</span>
@@ -99,6 +99,13 @@
                         </div>
                     }
                 </div>
+                
+                @if (((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).TotalPages > 1)
+                {
+                    <div class="mt-8 bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                        <partial name="Partials/_Pagination" model="Model" />
+                    </div>
+                }
             </div>
         }
     </div>

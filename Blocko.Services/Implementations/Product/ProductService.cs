@@ -164,11 +164,17 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                Description = p.Description,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
+                RetailPrice = p.RetailPrice,
+                StockQuantity = p.StockQuantity,
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
-                ImageUrl = p.ImageUrl
+                ImageUrl = p.ImageUrl,
+                Brand = p.Brand,
+                CountryOfOrigin = p.CountryOfOrigin,
+                BulkPricingAvailable = p.BulkPricingAvailable
             });
 
             return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);

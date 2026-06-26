@@ -1,4 +1,5 @@
 using Blocko.Persistence.Common;
+using FluentValidation;
 using Blocko.Services.Implementations;
 using Blocko.Services.Implementations.Category;
 using Blocko.Services.Implementations.Images;
@@ -40,6 +41,11 @@ namespace Blocko.Services
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<Bolcko.Domain.Interfaces.IBulkImportService, Blocko.Services.Imports.BulkImportService>();
+
+            // Register Validators
+            services.AddValidatorsFromAssembly(typeof(Blocko.Services.Validation.ProductImportDtoValidator).Assembly);
+
             services.AddHttpClient();
 
             return services;

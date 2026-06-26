@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
+using Hangfire;
+using Bolcko.Domain.Interfaces;
+using System.IO;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -11,10 +14,20 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _webHostEnvironment;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IBulkImportService _bulkImportService;
 
-        public CategoryController(IServiceManager serviceManager)
+        public CategoryController(
+            IServiceManager serviceManager,
+            Microsoft.AspNetCore.Hosting.IWebHostEnvironment webHostEnvironment,
+            IBackgroundJobClient backgroundJobClient,
+            IBulkImportService bulkImportService)
         {
             _serviceManager = serviceManager;
+            _webHostEnvironment = webHostEnvironment;
+            _backgroundJobClient = backgroundJobClient;
+            _bulkImportService = bulkImportService;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -83,12 +96,85 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.CategoryService.DeleteCategoryAsync(id);
-                TempData["SuccessMessage"] = "تم حذف الفئة بنجاح.";
+                TempData["SuccessMessage"] = "Category deleted successfully.";
             }
-            catch (Exception ex)
+            catch
             {
-                TempData["ErrorMessage"] = "لا يمكن حذف هذه الفئة لوجود منتجات أو فئات فرعية تابعة لها، الرجاء حذفها أولاً.";
+                TempData["ErrorMessage"] = "Failed to delete category.";
             }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult DownloadTemplate()
+        {
+            using (var workbook = new ClosedXML.Excel.XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Categories");
+                
+                // Headers
+                worksheet.Cell(1, 1).Value = "Name";
+                worksheet.Cell(1, 2).Value = "ParentCategoryName";
+                worksheet.Cell(1, 3).Value = "Description";
+                worksheet.Cell(1, 4).Value = "DisplayOrder";
+
+                // Example row
+                worksheet.Cell(2, 1).Value = "Electronics";
+                worksheet.Cell(2, 2).Value = ""; 
+                worksheet.Cell(2, 3).Value = "Electronic items and gadgets";
+                worksheet.Cell(2, 4).Value = 1;
+
+                // Style headers
+                worksheet.Range("A1:D1").Style.Font.Bold = true;
+                worksheet.Range("A1:D1").Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
+                worksheet.Columns().AdjustToContents();
+
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Category_Import_Template.xlsx");
+                }
+            }
+        }
+
+        // Redirect old /Category/BulkImport links to the unified import page
+        [HttpGet]
+        public IActionResult BulkImport()
+            => RedirectToAction("BulkImport", "Import", new { area = "Admin" });
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(52428800)] // 50 MB
+        public async Task<IActionResult> BulkImport(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["ErrorMessage"] = "الرجاء اختيار ملف Excel للرفع.";
+                return View();
+            }
+
+            if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] = "يدعم النظام ملفات .xlsx فقط.";
+                return View();
+            }
+
+            var tempFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "App_Data", "Imports");
+            Directory.CreateDirectory(tempFolder);
+
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+            var filePath = Path.Combine(tempFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var jobId = _backgroundJobClient.Enqueue<IBulkImportService>(svc => svc.ProcessCategoryImportAsync(filePath));
+
+            TempData["SuccessMessage"] = $"✅ تم بدء عملية الاستيراد (Job ID: {jobId}). الفئات ستُضاف في الخلفية. يمكنك المتابعة على /hangfire";
             return RedirectToAction(nameof(Index));
         }
     }

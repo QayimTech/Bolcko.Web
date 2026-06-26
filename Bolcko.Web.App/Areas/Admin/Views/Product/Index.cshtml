@@ -11,10 +11,16 @@
             <h1 class="font-headline-md text-on-surface">@L["ManageProducts"]</h1>
             <p class="text-on-surface-variant text-sm mt-1">@L["ManageProductsDescription"]</p>
         </div>
-        <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
-            <span class="material-symbols-outlined">add</span>
-            @L["AddNewProduct"]
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="@Url.Action("BulkImport")" class="bg-emerald-600 text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
+                <span class="material-symbols-outlined">upload_file</span>
+                Import Excel
+            </a>
+            <a href="@Url.Action("Create")" class="bg-[#E8A020] text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-[#d18f1c] transition-all">
+                <span class="material-symbols-outlined">add</span>
+                @L["AddNewProduct"]
+            </a>
+        </div>
     </div>
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">

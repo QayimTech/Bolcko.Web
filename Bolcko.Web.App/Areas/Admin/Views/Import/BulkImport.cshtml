@@ -1,0 +1,370 @@
+@{
+    ViewBag.Title = "الاستيراد الموحد";
+}
+
+<div class="max-w-5xl mx-auto space-y-8 pb-12">
+
+    @* ── Page Header ── *@
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-emerald-600 text-3xl">cloud_upload</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 mb-1">الاستيراد الموحد للفئات والمنتجات</h1>
+                <p class="text-slate-500 text-sm leading-relaxed max-w-xl">
+                    ارفع ملفاً واحداً بصيغة Excel أو JSON لإنشاء الفئات والمنتجات معاً بضغطة زر. 
+                    يقوم النظام بمعالجة البيانات وتوليد رموز SKU تلقائياً.
+                </p>
+            </div>
+        </div>
+        <a href="/hangfire" target="_blank"
+           class="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-50 hover:bg-violet-100 border border-violet-200 text-violet-700 rounded-xl text-sm font-bold transition-colors whitespace-nowrap">
+            <span class="material-symbols-outlined text-xl">monitoring</span>
+            مراقبة المهام
+            <span class="text-[10px] font-black bg-violet-200 text-violet-800 px-2 py-0.5 rounded-full uppercase">Live</span>
+        </a>
+    </div>
+
+    @* ── Upload Section ── *@
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        
+        @* Format Selector Header *@
+        <div class="px-6 py-6 sm:px-8 border-b border-slate-100 bg-slate-50/50">
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400">settings</span>
+                الخطوة 1: اختر صيغة الملف
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="formatSelector">
+                <button type="button" data-format="excel"
+                        class="format-btn active-format flex items-center gap-4 px-6 py-5 rounded-2xl border-2 transition-all text-start group"
+                        onclick="selectFormat('excel', this)">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-emerald-600 text-2xl">table_view</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-slate-800 text-base">Excel (.xlsx)</p>
+                        <p class="text-slate-500 text-xs mt-1 truncate">ورقة واحدة: المنتجات والتصنيفات</p>
+                    </div>
+                </button>
+
+                <button type="button" data-format="json"
+                        class="format-btn flex items-center gap-4 px-6 py-5 rounded-2xl border-2 border-slate-100 transition-all text-start group hover:border-blue-200 hover:bg-blue-50/30"
+                        onclick="selectFormat('json', this)">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-blue-600 text-2xl">data_object</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-slate-800 text-base">JSON (.json)</p>
+                        <p class="text-slate-500 text-xs mt-1 truncate">مصفوفتان categories و products</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        @* Upload Form *@
+        <form asp-controller="Import" asp-action="BulkImport" method="post" enctype="multipart/form-data" id="importForm" class="p-6 sm:p-8">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="format" id="formatInput" value="excel" />
+
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400">upload</span>
+                الخطوة 2: رفع الملف
+            </h2>
+
+            @* Drop Zone *@
+            <div id="dropZone"
+                 class="relative border-2 border-dashed border-slate-300 rounded-2xl p-12 sm:p-16 text-center cursor-pointer
+                        hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-300 group mb-6 bg-slate-50/30"
+                 onclick="document.getElementById('fileInput').click()">
+
+                <input type="file" id="fileInput" name="file" accept=".xlsx,.json" required class="hidden"
+                       onchange="handleFileSelect(this)" />
+
+                <div id="dropZoneContent" class="flex flex-col items-center justify-center">
+                    <div class="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-5 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span id="dropIcon" class="material-symbols-outlined text-emerald-500 text-4xl">file_upload</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-xl mb-2">اسحب وأفلت الملف هنا</h3>
+                    <p class="text-slate-500 mb-4">أو انقر لاختيار ملف من جهازك</p>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">
+                        يدعم <span id="acceptHint" class="text-emerald-600">.xlsx</span>
+                        <span class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
+                        أقصى حجم 100 ميغابايت
+                    </span>
+                </div>
+
+                <div id="fileSelected" class="hidden flex-col items-center justify-center">
+                    <div class="w-20 h-20 bg-emerald-100 border-4 border-white shadow-md rounded-full flex items-center justify-center mb-5 animate-bounce">
+                        <span class="material-symbols-outlined text-emerald-600 text-4xl">task_alt</span>
+                    </div>
+                    <p id="selectedFileName" class="font-bold text-slate-800 text-xl mb-2"></p>
+                    <p class="text-emerald-600 text-sm font-bold bg-emerald-50 px-4 py-1.5 rounded-full">الملف جاهز ومُحدد</p>
+                    <button type="button" onclick="resetFile(event)"
+                            class="mt-6 text-sm font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl transition-all">
+                        إلغاء واختيار ملف آخر
+                    </button>
+                </div>
+            </div>
+
+            @* Actions / Status *@
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <div id="statusContainer" class="flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-100 text-slate-400 font-bold rounded-2xl transition-all duration-300 shadow-inner">
+                    <span class="material-symbols-outlined text-xl">hourglass_empty</span>
+                    <span class="text-sm">في انتظار اختيار الملف...</span>
+                </div>
+                <a id="downloadTemplateBtn" href="@Url.Action("DownloadTemplate", "Import", new { area = "Admin", format = "excel" })"
+                   class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl transition-all text-sm shadow-sm group">
+                    <span class="material-symbols-outlined text-xl group-hover:-translate-y-1 transition-transform">download</span>
+                    تحميل القالب الفارغ
+                </a>
+            </div>
+        </form>
+    </div>
+
+    @* ── Info Cards Grid ── *@
+    <div class="pt-6">
+        <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-500">lightbulb</span>
+            تعليمات وإرشادات الاستيراد
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            @* Feature: SKU *@
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
+                        <span class="material-symbols-outlined">auto_awesome</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-emerald-900 text-base mb-1">توليد تلقائي لرموز SKU</h4>
+                        <p class="text-emerald-700 text-sm leading-relaxed mb-3">
+                            لست بحاجة لكتابة رمز SKU لكل منتج يدوياً. سيقوم النظام بتوليده بناءً على اسم المنتج إذا تركته فارغاً.
+                        </p>
+                        <div class="inline-flex items-center gap-2 bg-white border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-800">
+                            <span class="text-emerald-400">مثال:</span> IPHONE-A1B2C3
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Feature: Translation *@
+            <div class="bg-blue-50/50 border border-blue-100 rounded-3xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+                        <span class="material-symbols-outlined">translate</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-blue-900 text-base mb-1">دعم ثنائي اللغة (عربي/إنجليزي)</h4>
+                        <p class="text-blue-700 text-sm leading-relaxed mb-3">
+                            يتعرف النظام على أسماء الأعمدة سواء كانت باللغة العربية أو الإنجليزية بمرونة تامة.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">الاسم <span class="text-blue-400">=</span> Name</span>
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">السعر <span class="text-blue-400">=</span> Price</span>
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">التصنيف <span class="text-blue-400">=</span> CategoryName</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Structure Details *@
+            <div class="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <h4 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400">schema</span>
+                    هيكل البيانات المطلوب
+                </h4>
+                
+                <div id="excelInfo" class="space-y-6">
+                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                        <h5 class="text-sm font-bold text-emerald-700 mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">table_view</span> ورقة واحدة — المنتجات
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                            @foreach (var c in new[] { 
+                                ("الصورة / Image", false), 
+                                ("اسم المنتج / Name", true), 
+                                ("البراند / Brand", false), 
+                                ("بلد المنشأ / Country", false), 
+                                ("الوصف / Description", false), 
+                                ("التصنيف / CategoryName", true),
+                                ("الفئة الأم / ParentCat", false),
+                                ("أيقونة الفئة / CatIcon", false),
+                                ("السعر / Price", true) 
+                            })
+                            {
+                                <div class="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-slate-100">
+                                    <code class="text-xs font-mono text-slate-600 truncate max-w-[150px]" title="@c.Item1">@c.Item1</code>
+                                    @if (c.Item2) { <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md flex-shrink-0">مطلوب</span> }
+                                    else { <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md flex-shrink-0">اختياري</span> }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div id="jsonInfo" class="hidden">
+                    <pre class="text-xs bg-slate-800 text-emerald-400 rounded-2xl p-5 overflow-auto leading-relaxed shadow-inner" dir="ltr"><code>{
+  "categories": [
+    {
+      "name": "إلكترونيات",
+      "parentCategoryName": "",
+      "description": "...",
+      "displayOrder": 1
+    }
+  ],
+  "products": [
+    {
+      "name": "iPhone 15",
+      "categoryName": "إلكترونيات",
+      "price": 3999,
+      "brand": "Apple",
+      "countryOfOrigin": "USA",
+      "description": "...",
+      "stock": 50,
+      "imageBase64": "data:image/jpeg;base64,..."
+    }
+  ]
+}</code></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<style>
+    .active-format {
+        border-color: #10b981 !important;
+        background-color: rgba(16, 185, 129, 0.05);
+    }
+</style>
+<script>
+    const formatInput = document.getElementById('formatInput');
+    const dropIcon    = document.getElementById('dropIcon');
+    const acceptHint  = document.getElementById('acceptHint');
+    const dlBtn       = document.getElementById('downloadTemplateBtn');
+
+    function selectFormat(fmt, btn) {
+        // Reset all buttons
+        document.querySelectorAll('.format-btn').forEach(b => {
+            b.classList.remove('active-format');
+            b.classList.add('border-slate-200');
+        });
+        btn.classList.add('active-format');
+        btn.classList.remove('border-slate-200');
+
+        formatInput.value = fmt;
+
+        const fileInput = document.getElementById('fileInput');
+
+        if (fmt === 'excel') {
+            fileInput.accept  = '.xlsx';
+            dropIcon.textContent = 'table_view';
+            dropIcon.className   = 'material-symbols-outlined text-emerald-500 text-3xl';
+            acceptHint.textContent = '.xlsx';
+            acceptHint.className   = 'font-bold text-emerald-600';
+            document.getElementById('excelInfo').classList.remove('hidden');
+            document.getElementById('jsonInfo').classList.add('hidden');
+            dlBtn.href = dlBtn.href.replace('format=json', 'format=excel');
+        } else {
+            fileInput.accept  = '.json';
+            dropIcon.textContent = 'data_object';
+            dropIcon.className   = 'material-symbols-outlined text-blue-500 text-3xl';
+            acceptHint.textContent = '.json';
+            acceptHint.className   = 'font-bold text-blue-600';
+            document.getElementById('excelInfo').classList.add('hidden');
+            document.getElementById('jsonInfo').classList.remove('hidden');
+            dlBtn.href = dlBtn.href.replace('format=excel', 'format=json');
+        }
+
+        resetFile();
+    }
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────────
+    const zone = document.getElementById('dropZone');
+
+    ['dragenter', 'dragover'].forEach(e => zone.addEventListener(e, ev => {
+        ev.preventDefault();
+        zone.classList.add('border-emerald-400', 'bg-emerald-50');
+    }));
+
+    ['dragleave', 'drop'].forEach(e => zone.addEventListener(e, ev => {
+        ev.preventDefault();
+        zone.classList.remove('border-emerald-400', 'bg-emerald-50');
+        if (e === 'drop' && ev.dataTransfer.files.length) {
+            const input = document.getElementById('fileInput');
+            input.files = ev.dataTransfer.files;
+            handleFileSelect(input);
+        }
+    }));
+
+    async function handleFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        document.getElementById('dropZoneContent').classList.add('hidden');
+        document.getElementById('fileSelected').classList.remove('hidden');
+        document.getElementById('selectedFileName').textContent = file.name;
+
+        // Auto Upload Logic
+        const statusContainer = document.getElementById('statusContainer');
+        statusContainer.classList.remove('bg-slate-100', 'text-slate-400', 'bg-red-500', 'bg-emerald-500');
+        statusContainer.classList.add('bg-amber-500', 'text-white');
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> جاري الرفع (Pending)...';
+
+        // Submit via AJAX
+        const form = document.getElementById('importForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    statusContainer.classList.remove('bg-amber-500', 'cursor-help');
+                    statusContainer.classList.add('bg-emerald-500');
+                    statusContainer.title = '';
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> ' + result.message;
+                } else {
+                    statusContainer.classList.remove('bg-amber-500');
+                    statusContainer.classList.add('bg-red-500', 'cursor-help');
+                    statusContainer.title = result.message;
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> فشل الرفع (تلميح لمعرفة السبب)';
+                }
+            } else {
+                statusContainer.classList.remove('bg-amber-500');
+                statusContainer.classList.add('bg-red-500', 'cursor-help');
+                statusContainer.title = 'فشل في الاتصال بالخادم';
+                statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> فشل الرفع (تلميح لمعرفة السبب)';
+            }
+        } catch (error) {
+            statusContainer.classList.remove('bg-amber-500');
+            statusContainer.classList.add('bg-red-500', 'cursor-help');
+            statusContainer.title = 'حدث خطأ غير متوقع أثناء الرفع';
+            statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> فشل الرفع (تلميح لمعرفة السبب)';
+        }
+    }
+
+    function resetFile(e) {
+        if (e) e.stopPropagation();
+        document.getElementById('fileInput').value = '';
+        document.getElementById('dropZoneContent').classList.remove('hidden');
+        document.getElementById('fileSelected').classList.add('hidden');
+        
+        const statusContainer = document.getElementById('statusContainer');
+        statusContainer.classList.remove('bg-amber-500', 'bg-emerald-500', 'bg-red-500', 'text-white', 'cursor-help');
+        statusContainer.classList.add('bg-slate-100', 'text-slate-400');
+        statusContainer.title = '';
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span> في انتظار الملف...';
+    }
+</script>
+}

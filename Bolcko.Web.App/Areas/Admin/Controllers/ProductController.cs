@@ -6,7 +6,8 @@ using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
+using Hangfire;
+using Bolcko.Domain.Interfaces;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -16,11 +17,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     {
         private readonly IServiceManager _serviceManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public ProductController(IServiceManager serviceManager, IWebHostEnvironment webHostEnvironment)
+        public ProductController(
+            IServiceManager serviceManager,
+            IWebHostEnvironment webHostEnvironment,
+            IBackgroundJobClient backgroundJobClient)
         {
             _serviceManager = serviceManager;
             _webHostEnvironment = webHostEnvironment;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -205,5 +211,10 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // Redirect old /Product/BulkImport links to the unified import page
+        [HttpGet]
+        public IActionResult BulkImport()
+            => RedirectToAction("BulkImport", "Import", new { area = "Admin" });
     }
 }
