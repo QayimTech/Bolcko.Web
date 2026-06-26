@@ -1,12 +1,12 @@
 @using Bolcko.Domain.Entities.User
-@using Bolcko.Domain.Entities.Order
-@using Bolcko.Domain.Entities.Tender
+@using Bolcko.Domain.Entities.Order.DTOs
+@using Bolcko.Domain.Entities.Tender.DTOs
 @using Bolcko.Domain.Entities.Project
 @{
     ViewData["Title"] = "حسابي";
     var user = ViewBag.User as User;
-    var orders = ViewBag.Orders as List<Order> ?? new List<Order>();
-    var tenders = ViewBag.Tenders as List<Tender> ?? new List<Tender>();
+    var orders = ViewBag.Orders as List<OrderDto> ?? new List<OrderDto>();
+    var tenders = ViewBag.Tenders as List<TenderDto> ?? new List<TenderDto>();
     var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
 }
 <main class="max-w-7xl mx-auto px-6 py-12 text-right">

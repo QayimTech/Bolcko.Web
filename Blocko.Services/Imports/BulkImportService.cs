@@ -565,11 +565,12 @@ namespace Blocko.Services.Imports
             if (colIdx.TryGetValue(key, out var colNum))
             {
                 var cell = row.Cell(colNum);
-                var val = cell.GetString().Trim();
-                if (string.IsNullOrWhiteSpace(val) && cell.HasFormula)
+                if (cell.HasFormula)
                 {
-                    val = "=" + cell.FormulaA1;
+                    var f = cell.FormulaA1;
+                    if (!string.IsNullOrWhiteSpace(f)) return "=" + f;
                 }
+                var val = cell.GetString().Trim();
                 return val;
             }
             return string.Empty;

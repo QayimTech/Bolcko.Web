@@ -114,9 +114,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var projects = await _serviceManager.ProjectService.GetUserProjectsAsync(user.Id);
 
             ViewBag.User = user;
-            ViewBag.Orders = orders;
-            ViewBag.Tenders = tenders;
-            ViewBag.Projects = projects;
+            ViewBag.Orders = orders.ToList();
+            ViewBag.Tenders = tenders.ToList();
+            ViewBag.Projects = projects.ToList();
 
             return View();
         }
