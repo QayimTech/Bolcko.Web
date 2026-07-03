@@ -20,6 +20,9 @@ namespace Bolcko.Web.App.Extensions
             // Map SignalR Hubs
             endpoints.MapHub<Bolcko.Web.App.Hubs.NotificationHub>("/notificationHub");
 
+            // Map API Controllers (must be before MVC routes)
+            endpoints.MapControllers();
+
             // Root Redirect
             endpoints.MapGet("/", context =>
             {

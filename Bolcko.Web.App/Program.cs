@@ -50,6 +50,7 @@ try
     });
 
     var app = builder.Build();
+    app.UseDeveloperExceptionPage();
 
     // --- 2. Middleware Pipeline (Strict Engineering Order) ---
 
@@ -100,7 +101,6 @@ try
 
     // --- 3. Endpoint Mapping ---
     app.MapBlockoAppEndpoints();
-
     app.Run();
 }
 catch (Exception ex)
