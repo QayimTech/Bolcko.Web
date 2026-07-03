@@ -32,6 +32,7 @@ try
     builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
 
     builder.Services.AddBlockoMvcInterface();
+    builder.Services.AddBlockoSwagger();
     builder.Services.AddSignalR();
     builder.Services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, Bolcko.Web.App.Services.NotificationService>();
 
@@ -51,6 +52,8 @@ try
 
     var app = builder.Build();
     app.UseDeveloperExceptionPage();
+
+    app.UseBlockoSwagger();
 
     // --- 2. Middleware Pipeline (Strict Engineering Order) ---
 
