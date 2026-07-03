@@ -17,6 +17,9 @@ namespace Bolcko.Web.App.Extensions
 
         public static IApplicationBuilder MapBlockoAppEndpoints(this IEndpointRouteBuilder endpoints)
         {
+            // Map SignalR Hubs
+            endpoints.MapHub<Bolcko.Web.App.Hubs.NotificationHub>("/notificationHub");
+
             // Root Redirect
             endpoints.MapGet("/", context =>
             {

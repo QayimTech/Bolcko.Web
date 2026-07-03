@@ -6,13 +6,24 @@ using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
 using Bolcko.Domain.Entities.ShoppingCart.DTOs;
 using Bolcko.Domain.Entities.User;
+using Blocko.Services.Interfaces.Notifications;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Blocko.Services.Implementations.order
 {
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public OrderService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly INotificationService _notificationService;
+
+        public OrderService(IUnitOfWork unitOfWork, INotificationService notificationService)
+        {
+            _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
+        }
 
         public async Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, CheckoutDto checkoutDto)
         {
@@ -77,6 +88,17 @@ namespace Blocko.Services.Implementations.order
 
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync();
+
+                // Send notification to Admins
+                try
+                {
+                    await _notificationService.SendNotificationToRoleAsync("Admin", "New Order Received", $"Order #{order.OrderNumber} has been placed. Total: {order.TotalAmount}");
+                }
+                catch
+                {
+                    // Fail silently so order placement doesn't crash if hub fails
+                }
+
                 return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount };
             }
             catch
@@ -181,6 +203,20 @@ namespace Blocko.Services.Implementations.order
             order.Status = status;
             _unitOfWork.Orders.Update(order);
             await _unitOfWork.CompleteAsync();
+
+            // Send notification to the user
+            try
+            {
+                var title = $"Order #{order.OrderNumber} Updated";
+                var message = $"Your order status has been updated to: {status}";
+                var actionUrl = $"/Shop/Order/Details/{order.Id}";
+                await _notificationService.SendNotificationToUserAsync(order.UserId, title, message, actionUrl);
+            }
+            catch
+            {
+                // Fail silently
+            }
+
             return true;
         }
     }

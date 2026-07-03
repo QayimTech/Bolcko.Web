@@ -42,6 +42,7 @@ namespace Blocko.Services
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<Bolcko.Domain.Interfaces.IBulkImportService, Blocko.Services.Imports.BulkImportService>();
+            services.AddScoped<Blocko.Services.Interfaces.Auth.ITokenService, Blocko.Services.Implementations.Auth.TokenService>();
 
             // Register Validators
             services.AddValidatorsFromAssembly(typeof(Blocko.Services.Validation.ProductImportDtoValidator).Assembly);

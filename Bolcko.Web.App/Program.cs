@@ -26,12 +26,14 @@ try
     builder.Services.AddPersistence(builder.Configuration);
     builder.Services.AddServices(builder.Configuration);
     // Web Specific Services (Clean & Expressive)
-    builder.Services.AddBlockoIdentitySecurity();
+    builder.Services.AddBlockoIdentitySecurity(builder.Configuration);
     builder.Services.AddBlockoLocalization();
     // Configure Market Settings
     builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
 
     builder.Services.AddBlockoMvcInterface();
+    builder.Services.AddSignalR();
+    builder.Services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, Bolcko.Web.App.Services.NotificationService>();
 
     // Add Hangfire Services
     builder.Services.AddBlockoHangfire(builder.Configuration);

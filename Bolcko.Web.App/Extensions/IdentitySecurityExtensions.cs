@@ -1,13 +1,20 @@
+using System;
+using System.Text;
+using System.Threading.Tasks;
 using Bolcko.Domain.Entities.User;
 using Blocko.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
 
 namespace Bolcko.Web.App.Extensions
 {
     public static class IdentitySecurityExtensions
     {
-        public static IServiceCollection AddBlockoIdentitySecurity(this IServiceCollection services)
+        public static IServiceCollection AddBlockoIdentitySecurity(this IServiceCollection services, IConfiguration config)
         {
             services.AddIdentity<User, IdentityRole<int>>(options =>
             {
@@ -49,6 +56,41 @@ namespace Bolcko.Web.App.Extensions
                     else
                         context.Response.Redirect("/Shop/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     return Task.CompletedTask;
+                };
+            });
+
+            // JWT Authentication
+            services.AddAuthentication(options =>
+            {
+                // By default, continue using Identity Cookies for Web MVC
+                // options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                // options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+                    ValidateIssuer = true,
+                    ValidIssuer = config["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = config["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

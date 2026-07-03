@@ -30,13 +30,13 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IShoppingCartService> _lazyShoppingCartService;
         private readonly Lazy<IProjectService> _lazyProjectService;
 
-        public ServiceManager(IUnitOfWork unitOfWork)
+        public ServiceManager(IUnitOfWork unitOfWork, Blocko.Services.Interfaces.Notifications.INotificationService notificationService)
         {
             _lazyUserService = new Lazy<IUserService>(() => new UserService(unitOfWork));
             _lazyProductService = new Lazy<IProductService>(() => new ProductService(unitOfWork));
             _lazyCategoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork));
             _lazyMarketPriceService = new Lazy<IMarketPriceService>(() => new MarketPriceService(unitOfWork));
-            _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork));
+            _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork, notificationService));
             _lazyTenderService = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
             _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
             _lazyShoppingCartService = new Lazy<IShoppingCartService>(() => new ShoppingCartService(unitOfWork));
