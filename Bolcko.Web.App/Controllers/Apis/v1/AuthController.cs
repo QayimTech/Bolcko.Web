@@ -55,7 +55,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 return ErrorResponse("Failed to create user", result.Errors.Select(e => e.Description).ToList(), 500);
 
             // Automatically sign in or just return success
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "Customer");
 
             var token = await _tokenService.GenerateTokenAsync(user);
 
