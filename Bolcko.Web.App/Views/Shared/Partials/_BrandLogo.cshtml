@@ -1,45 +1,79 @@
-@model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
+﻿@model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
 @{
     bool isIconOnly = Model.IsIconOnly;
-    bool isAdmin = Model.IsAdmin;
-    string theme = Model.Theme ?? "light";
-    string height = Model.Height ?? "h-10";
+    bool isAdmin    = Model.IsAdmin;
+    string theme    = Model.Theme ?? "light";
+    string heightCls = Model.Height ?? "h-10";
 
-    string textFill = theme == "dark" ? "#FFFFFF" : "#0F172A";
-    string subtitleFill = theme == "dark" ? "#8A95A8" : "#64748B";
+    // Dynamic width class derived directly from the height class to prevent horizontal squishing
+    // e.g. "h-10" -> "w-10", "h-6 lg:h-9" -> "w-6 lg:w-9"
+    string widthCls = heightCls.Replace("h-", "w-");
+
+    // Detect language culture
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+    // Dynamic classes based on theme
+    string textColorClass = theme == "dark" ? "text-white" : "text-slate-900";
+    string subtitleColorClass = theme == "dark" ? "text-slate-400" : "text-slate-500";
 }
 
-<div class="flex items-center gap-3" dir="ltr">
-    @if (isIconOnly)
+@*
+    BLOCKO Bilingual Premium Logo
+    - Icon: Yellow rounded square with B cutout (SVG Mask based for true transparency).
+    - Text: Space Grotesk (for English) or Noto Kufi Arabic (for Arabic).
+    - Layout Order: Always [Icon] then [Text] in HTML.
+      - In LTR (English): Icon on Left, Text on Right -> reads B + LOCKO = BLOCKO.
+      - In RTL (Arabic): Icon on Right, Text on Left -> reads B + لوكو = بلوكو.
+*@
+
+<div class="flex items-center gap-2.5 select-none @heightCls" @(isAdmin ? "dir=ltr" : "")>
+    <!-- B Icon (Always first in HTML) -->
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" class="@heightCls @widthCls flex-shrink-0 hover:scale-105 transition-transform duration-200">
+        <defs>
+            <mask id="brand-b-mask">
+                <rect width="56" height="56" fill="white" />
+                <path d="M 24.5,12 H 30 A 5,5 0 0 1 35,17 V 19 A 5,5 0 0 1 30,24 H 24.5 Z" fill="black" />
+                <path d="M 24.5,32 H 31 A 6,6 0 0 1 37,38 V 43 A 6,6 0 0 1 31,49 H 24.5 Z" fill="black" />
+            </mask>
+        </defs>
+        <rect width="56" height="56" rx="12" fill="#E8A020" mask="url(#brand-b-mask)" />
+    </svg>
+
+    @if (!isIconOnly)
     {
-        <svg viewBox="0 0 76 70" class="@height aspect-square w-auto" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <rect x="15" y="12" width="46" height="46" rx="8" fill="#E8A020"/>
-            <path d="M29.5 22.5h11c4.1 0 7.5 2.7 7.5 6.1 0 2.2-1.2 4.1-3.2 5.1 2.5 1 4.2 3.2 4.2 5.6 0 3.4-3.4 6.1-7.5 6.1h-11v-22.9z" fill="#FFFFFF"/>
-            <rect x="34.5" y="27" width="5" height="5.5" rx="1" fill="#E8A020"/>
-            <rect x="34.5" y="35.8" width="5" height="6.5" rx="1" fill="#E8A020"/>
-        </svg>
-    }
-    else if (isAdmin)
-    {
-        <svg viewBox="0 0 420 85" class="@height w-auto" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <rect x="15" y="12" width="46" height="46" rx="8" fill="#E8A020"/>
-            <path d="M29.5 22.5h11c4.1 0 7.5 2.7 7.5 6.1 0 2.2-1.2 4.1-3.2 5.1 2.5 1 4.2 3.2 4.2 5.6 0 3.4-3.4 6.1-7.5 6.1h-11v-22.9z" fill="#FFFFFF"/>
-            <rect x="34.5" y="27" width="5" height="5.5" rx="1" fill="#E8A020"/>
-            <rect x="34.5" y="35.8" width="5" height="6.5" rx="1" fill="#E8A020"/>
-            @Html.Raw($"<text x=\"72\" y=\"47\" font-family=\"'Space Grotesk', sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"{textFill}\" letter-spacing=\"1\">BLOCKO</text>")
-            @Html.Raw($"<text x=\"255\" y=\"47\" font-family=\"'Space Grotesk', sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"#E8A020\" letter-spacing=\"1\">ADMIN</text>")
-            @Html.Raw($"<text x=\"18\" y=\"72\" font-family=\"'Space Grotesk', sans-serif\" font-weight=\"600\" font-size=\"7.5\" fill=\"{subtitleFill}\" letter-spacing=\"4\">DASHBOARD MANAGEMENT</text>")
-        </svg>
-    }
-    else
-    {
-        <svg viewBox="0 0 300 85" class="@height w-auto" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <rect x="15" y="12" width="46" height="46" rx="8" fill="#E8A020"/>
-            <path d="M29.5 22.5h11c4.1 0 7.5 2.7 7.5 6.1 0 2.2-1.2 4.1-3.2 5.1 2.5 1 4.2 3.2 4.2 5.6 0 3.4-3.4 6.1-7.5 6.1h-11v-22.9z" fill="#FFFFFF"/>
-            <rect x="34.5" y="27" width="5" height="5.5" rx="1" fill="#E8A020"/>
-            <rect x="34.5" y="35.8" width="5" height="6.5" rx="1" fill="#E8A020"/>
-            @Html.Raw($"<text x=\"72\" y=\"47\" font-family=\"'Space Grotesk', sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"{textFill}\" letter-spacing=\"1\">BLOCKO</text>")
-            @Html.Raw($"<text x=\"18\" y=\"72\" font-family=\"'Space Grotesk', sans-serif\" font-weight=\"600\" font-size=\"7.5\" fill=\"{subtitleFill}\" letter-spacing=\"4\">CONSTRUCTION SUPPLIES</text>")
-        </svg>
+        @if (isAdmin)
+        {
+            <!-- Admin Sidebar Text (Forced LTR) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="ltr">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-extrabold text-[17px] tracking-[1.5px] uppercase font-display leading-none @textColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">LOCKO</span>
+                    <span class="font-bold text-[11px] text-[#E8A020] tracking-[1px] uppercase leading-none ms-1" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">ADMIN</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">DASHBOARD MANAGEMENT</span>
+            </div>
+        }
+        else if (isArabic)
+        {
+            <!-- Arabic Shop Text (RTL friendly, naturally aligns to the left of the Icon) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="rtl">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-black text-[18px] tracking-[0.5px] uppercase leading-none @textColorClass" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">بلوكو</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[0.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">التوريدات الإنشائية</span>
+            </div>
+        }
+        else
+        {
+            <!-- English Shop Text (LTR friendly, naturally aligns to the right of the Icon) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="ltr">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-extrabold text-[17px] tracking-[1.5px] uppercase font-display leading-none @textColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">BLOCKO</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">CONSTRUCTION SUPPLIES</span>
+            </div>
+        }
     }
 </div>

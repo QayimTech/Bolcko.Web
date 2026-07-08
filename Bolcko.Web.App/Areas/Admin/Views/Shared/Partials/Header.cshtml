@@ -63,12 +63,12 @@
 
         <!-- User Info -->
         <div class="flex items-center gap-3">
-            <div class="text-end hidden sm:block">
-                <p class="text-[11px] font-black text-slate-900 leading-none">@User.Identity?.Name</p>
-                <p class="text-[9px] text-[#E8A020] font-bold uppercase tracking-tighter mt-1">@L["SystemAdmin"]</p>
-            </div>
             <div class="w-10 h-10 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-[#E8A020] shadow-sm">
                 <span class="material-symbols-outlined">person</span>
+            </div>
+            <div class="text-start hidden sm:block">
+                <p class="text-[11px] font-black text-slate-900 leading-none">@User.Identity?.Name</p>
+                <p class="text-[9px] text-[#E8A020] font-bold uppercase tracking-tighter mt-1">@L["SystemAdmin"]</p>
             </div>
         </div>
     </div>

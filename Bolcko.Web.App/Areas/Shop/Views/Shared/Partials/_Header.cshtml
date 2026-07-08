@@ -1,150 +1,287 @@
-@using Microsoft.Extensions.Localization
+﻿@using Microsoft.Extensions.Localization
 @using Bolcko.Web.App
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
 @{
     var rootCategories = await CategoryService.GetRootCategoriesAsync();
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
 
-<header class="bg-[#151B26]/95 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
-    <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
-        <div class="flex items-center gap-8">
-            <a href="/" class="flex items-center gap-2 text-white hover:opacity-90 transition-opacity">
-                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 md:h-10")' />
+<header class="bg-[#151B26] border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
+    <!-- Spotlight Search Modal (Premium overlay for tablet/mobile search) -->
+    <div id="spotlight-search" class="fixed inset-0 bg-[#0B0F19]/90 backdrop-blur-md z-[150] flex items-start justify-center pt-24 px-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-[#151B26] border border-white/10 rounded-2xl w-full max-w-lg shadow-[0_25px_70px_-10px_rgba(0,0,0,0.7)] transform scale-95 transition-all duration-300 overflow-hidden">
+            <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get" class="flex items-center gap-3 p-4 border-b border-white/5">
+                <span class="material-symbols-outlined text-[#E8A020]">search</span>
+                <input id="spotlight-input" name="query" class="flex-1 bg-transparent border-none text-white placeholder-slate-400 focus:outline-none text-sm text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" autocomplete="off" />
+                <button type="button" id="spotlight-close-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </form>
+            <div class="p-4 bg-[#1B2235] text-slate-400 text-[10px] font-medium flex items-center justify-between">
+                <span>@(isArabic ? "اضغط Enter للبحث أو Esc للإغلاق" : "Press Enter to search, Esc to close")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Symmetrical Flex Row Layout (Flex-based spacing prevents columns from overlapping) -->
+    <div class="flex justify-between items-center w-full px-6 py-3.5 max-w-7xl mx-auto gap-4">
+        
+        <!-- Column 1: Logo & Nav Links (Opaque text, flex-shrink-0 prevents squash) -->
+        <div class="flex items-center gap-6 flex-shrink-0">
+            <a href="/" class="flex items-center flex-shrink-0 text-white hover:opacity-90 transition-opacity">
+                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 lg:h-9")' />
             </a>
-            <nav class="hidden md:flex gap-6 items-center font-medium text-sm">
+            <nav class="hidden lg:flex items-center gap-1 flex-shrink-0 ms-2">
                 <!-- Categories Dropdown Menu -->
                 <div class="relative group">
-                    <button type="button" class="flex items-center gap-1 text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200 font-medium text-sm focus:outline-none py-2">
-                        <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                    <button type="button" class="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-100 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all focus:outline-none py-2">
+                        <span class="material-symbols-outlined text-[15px]">grid_view</span>
                         <span>@SharedLocalizer["Categories"]</span>
-                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                        <span class="material-symbols-outlined text-[13px]">expand_more</span>
                     </button>
-                    <!-- Mega Menu Dropdown -->
-                    <div class="absolute start-0 top-full mt-4 w-[500px] bg-[#1B2235]/95 backdrop-blur-xl border border-white/10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden z-50">
-                        <div class="p-4">
-                            <div class="flex items-center justify-between mb-4 px-2">
-                                <h3 class="text-white font-bold text-sm uppercase tracking-wider">تصفح الأقسام</h3>
-                                <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="text-xs font-bold text-[#E8A020] hover:underline flex items-center gap-1">
+                    <!-- Mega Menu Dropdown (Solid background to prevent page text bleed through) -->
+                    <div class="absolute start-0 top-full mt-2 w-[480px] bg-[#161d2d] border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100]">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-white font-bold text-xs uppercase tracking-widest">@(isArabic ? "تصفح الأقسام" : "Browse Categories")</h3>
+                                <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="text-[11px] font-bold text-[#E8A020] hover:underline flex items-center gap-1 transition-colors">
                                     @SharedLocalizer["ViewAllCategories"]
                                     <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
                                 </a>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-1.5">
                                 @if (rootCategories != null && rootCategories.Any())
                                 {
                                     @foreach (var cat in rootCategories)
                                     {
-                                        <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-[#E8A020] group/cat transition-all duration-200">
-                                            <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover/cat:bg-[#E8A020]/20 group-hover/cat:text-[#E8A020] group-hover/cat:border-[#E8A020]/30 transition-all shadow-sm">
-                                                <span class="material-symbols-outlined text-[20px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                                        <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" class="flex items-center gap-3 p-2.5 rounded-xl text-slate-200 hover:bg-white/5 hover:text-[#E8A020] group/cat transition-all duration-200">
+                                            <div class="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 group-hover/cat:bg-[#E8A020]/15 group-hover/cat:text-[#E8A020] group-hover/cat:border-[#E8A020]/20 transition-all flex-shrink-0">
+                                                <span class="material-symbols-outlined text-[18px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
                                             </div>
-                                            <span class="font-bold text-sm">@cat.Name</span>
+                                            <span class="font-bold text-xs">@cat.Name</span>
                                         </a>
                                     }
                                 }
                                 else
                                 {
-                                    <span class="block col-span-2 px-4 py-4 text-sm text-slate-400 text-center bg-white/5 rounded-xl border border-dashed border-white/10">لا توجد تصنيفات حالياً</span>
+                                    <span class="col-span-2 px-4 py-6 text-xs text-slate-400 text-center bg-white/3 rounded-xl border border-dashed border-white/10 block">@(isArabic ? "لا توجد تصنيفات حالياً" : "No categories found")</span>
                                 }
                             </div>
                         </div>
-                        <div class="bg-gradient-to-r from-[#151B26] to-[#1B2235] p-4 border-t border-white/5">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-full bg-[#E8A020]/20 flex items-center justify-center text-[#E8A020]">
-                                    <span class="material-symbols-outlined">support_agent</span>
-                                </div>
-                                <div>
-                                    <h4 class="text-white text-sm font-bold">هل تحتاج مساعدة في اختيار المواد؟</h4>
-                                    <p class="text-slate-400 text-xs mt-0.5">تواصل مع خبرائنا الآن للحصول على استشارة.</p>
-                                </div>
+                        <div class="border-t border-white/5 px-5 py-4 flex items-center gap-3 bg-[#111622] rounded-b-2xl">
+                            <div class="w-10 h-10 rounded-full bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020] flex-shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">support_agent</span>
+                            </div>
+                            <div>
+                                <p class="text-white text-xs font-bold">@(isArabic ? "هل تحتاج مساعدة في اختيار المواد؟" : "Need help choosing materials?")</p>
+                                <p class="text-slate-400 text-[10px] mt-0.5">@(isArabic ? "تواصل مع خبرائنا للحصول على استشارة مجانية." : "Contact our experts for a free consultation.")</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
-                <a class="text-slate-300 hover:text-[#E8A020] hover:translate-y-[-1px] transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
             </nav>
         </div>
-        <div class="flex-1 max-w-md mx-8 hidden lg:block">
-            <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get" class="relative group">
-                <input name="query" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pe-4 ps-12 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] focus:bg-white/10 transition-all text-body-md text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" />
-                <button type="submit" class="absolute start-3 top-3 text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer flex items-center justify-center">
-                    <span class="material-symbols-outlined rtl:-scale-x-100">search</span>
+
+        <!-- Column 2: Centered Search Bar (max-w-xs with mx-auto keeps it centered on lg+ without overlap) -->
+        <div class="flex-1 max-w-xs mx-auto hidden lg:block">
+            <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
+                  class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-2 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
+                <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer" aria-label="@(isArabic ? "بحث" : "Search")">
+                    <span class="material-symbols-outlined text-[18px]">search</span>
                 </button>
+                <input name="query"
+                       class="flex-1 min-w-0 bg-transparent border-none text-white placeholder-slate-500 focus:outline-none text-xs text-start"
+                       placeholder="@SharedLocalizer["SearchPlaceholder"]"
+                       type="text" autocomplete="off" />
             </form>
         </div>
-        <div class="flex items-center gap-2 md:gap-4">
-            
-            <!-- Language Switcher -->
-            <div class="flex items-center gap-2 border-e border-white/10 pe-4 me-4 hidden md:flex">
-                <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2">
-                    <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">AR</button>
-                    <span class="text-white/20 text-xs">|</span>
-                    <button type="submit" name="culture" value="en" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">EN</button>
-                </form>
+
+        <!-- Column 3: Actions row (Aligned to end, flex-shrink-0) -->
+        <div class="flex items-center gap-1.5 justify-end flex-shrink-0">
+
+            <!-- Mobile/Tablet Search Button (Icon only, visible on < lg) -->
+            <div class="relative group block lg:hidden">
+                <button type="button" id="search-toggle-btn" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center" aria-label="Open Search">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                </button>
+                <div class="absolute top-full mt-2.5 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @(isArabic ? "البحث" : "Search")
+                </div>
             </div>
 
+            <!-- Language Switcher Pill (Visible on md+) -->
+            <div class="relative group hidden md:block">
+                <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white transition-all text-[11px] font-bold focus:outline-none whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[14px] text-slate-400">language</span>
+                    <span>@(isArabic ? "العربية" : "English")</span>
+                    <span class="material-symbols-outlined text-[11px] text-slate-500">expand_more</span>
+                </button>
+                <div class="absolute end-0 top-full mt-2 w-36 bg-[#161d2d] border border-white/10 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden z-[100]">
+                    <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post">
+                        <button type="submit" name="culture" value="ar"
+                                class="w-full flex items-center gap-2.5 text-start px-4 py-2.5 text-xs font-bold transition-colors @(isArabic ? "text-[#E8A020] bg-[#E8A020]/5" : "text-slate-300 hover:bg-white/5 hover:text-white")">
+                            <span class="text-base">🇯🇴</span> العربية
+                        </button>
+                        <button type="submit" name="culture" value="en"
+                                class="w-full flex items-center gap-2.5 text-start px-4 py-2.5 text-xs font-bold border-t border-white/5 transition-colors @(!isArabic ? "text-[#E8A020] bg-[#E8A020]/5" : "text-slate-300 hover:bg-white/5 hover:text-white")">
+                            <span class="text-base">🇺🇸</span> English
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="hidden md:block w-px h-5 bg-white/10 mx-1"></div>
+
+            <!-- User Account -->
             @if (User.Identity.IsAuthenticated)
             {
                 <div class="relative group" onclick="this.classList.toggle('active')" tabindex="0">
-                    <button type="button" class="flex items-center gap-2 p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors focus:outline-none" aria-haspopup="true" aria-expanded="false">
-                        <span class="material-symbols-outlined text-slate-300">person</span>
-                        <span class="text-sm font-medium hidden md:block">@User.Identity.Name</span>
-                        <span class="material-symbols-outlined text-xs">expand_more</span>
+                    <button type="button" class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true">
+                        <span class="material-symbols-outlined text-[20px] text-slate-400">person</span>
+                        <span class="text-xs font-bold hidden md:block max-w-[120px] truncate">@User.Identity.Name</span>
+                        <span class="material-symbols-outlined text-[12px] text-slate-500">expand_more</span>
                     </button>
-                    <div class="absolute end-0 top-full mt-2 w-48 bg-[#1B2235] border border-white/10 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-50">
-                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="block px-4 py-3 text-sm text-slate-200 hover:bg-white/5 transition-colors text-start">@SharedLocalizer["Dashboard"]</a>
+                    <div class="absolute end-0 top-full mt-2 w-48 bg-[#161d2d] border border-white/10 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100]">
+                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start">
+                            <span class="material-symbols-outlined text-[16px]">dashboard</span> @SharedLocalizer["Dashboard"]
+                        </a>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="block px-4 py-3 text-sm text-slate-200 hover:bg-white/5 transition-colors text-start border-t border-white/5">@SharedLocalizer["AdminPanel"]</a>
+                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start border-t border-white/5">
+                                <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> @SharedLocalizer["AdminPanel"]
+                            </a>
                         }
                         <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/5">
-                            <button type="submit" class="w-full text-start px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors">@SharedLocalizer["Logout"]</button>
+                            <button type="submit" class="w-full flex items-center gap-3 text-start px-4 py-3 text-xs font-bold text-red-400 hover:bg-white/5 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">logout</span> @SharedLocalizer["Logout"]
+                            </button>
                         </form>
                     </div>
                 </div>
             }
             else
             {
-                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="flex items-center gap-1.5 p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors">
-                    <span class="material-symbols-outlined text-slate-300">person</span>
-                    <span class="text-xs font-bold">@SharedLocalizer["Login"]</span>
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[20px] text-slate-400">person</span>
+                    <span class="text-xs font-bold hidden md:block">@SharedLocalizer["Login"]</span>
                 </a>
             }
-            <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors relative inline-block me-2" title="سلة العطاءات">
-                <span class="material-symbols-outlined text-slate-300">request_quote</span>
-                <span id="tender-badge" class="absolute -top-1 -end-1 bg-[#E8A020] text-[#151B26] text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
-            </a>
-            <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors relative inline-block">
-                <span class="material-symbols-outlined text-slate-300">shopping_cart</span>
-                @await Component.InvokeAsync("CartCount")
-            </a>
-            
-            <!-- Mobile Hamburger Menu (Edge) -->
-            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl text-slate-200 hover:bg-white/5 transition-colors">
-                <span id="menuIcon" class="material-symbols-outlined">menu</span>
+
+            <!-- Quote Requests -->
+            <div class="relative group">
+                <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">request_quote</span>
+                    <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
+                </a>
+                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @(isArabic ? "طلبات الأسعار" : "Quote Requests")
+                </div>
+            </div>
+
+            <!-- Shopping Cart -->
+            <div class="relative group">
+                <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                    @await Component.InvokeAsync("CartCount")
+                </a>
+                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @(isArabic ? "سلة المشتريات" : "Shopping Cart")
+                </div>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all ms-1" aria-label="Toggle Menu">
+                <span id="menuIcon" class="material-symbols-outlined text-[22px]">menu</span>
             </button>
         </div>
     </div>
-    
+
     <!-- Mobile Nav Menu -->
-    <nav id="mobileMenu" class="md:hidden bg-[#1B2235] border-t border-white/10 max-h-0 overflow-hidden transition-all duration-300">
-        <div class="flex flex-col gap-2 px-6 py-4">
-            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("Index", "Category")">@SharedLocalizer["Categories"]</a>
-            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
-            <a class="text-slate-300 hover:text-[#E8A020] py-2 transition-all" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
+    <nav id="mobileMenu" class="lg:hidden bg-[#1B2235] border-t border-white/10 max-h-0 overflow-hidden transition-all duration-300">
+        <div class="flex flex-col gap-1 px-5 py-4">
+            <!-- Mobile Search -->
+            <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
+                  class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 mb-2 focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] transition-all group">
+                <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">search</span>
+                </button>
+                <input name="query" class="flex-1 min-w-0 bg-transparent border-none text-white placeholder-slate-500 focus:outline-none text-sm text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" />
+            </form>
+
+            <a class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 transition-all text-sm font-semibold" href="@Url.Action("Index", "Category")">
+                <span class="material-symbols-outlined text-[16px]">grid_view</span> @SharedLocalizer["Categories"]
+            </a>
+            <a class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 transition-all text-sm font-semibold" href="@Url.Action("AboutUs","Home")">
+                <span class="material-symbols-outlined text-[16px]">info</span> @SharedLocalizer["AboutUs"]
+            </a>
+            <a class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 transition-all text-sm font-semibold" href="@Url.Action("Contact", "Home", new { area = "Shop" })">
+                <span class="material-symbols-outlined text-[16px]">mail</span> @SharedLocalizer["ContactUs"]
+            </a>
             
             <div class="border-t border-white/10 my-2"></div>
             
-            <!-- Language Switcher for Mobile -->
-            <div class="flex items-center gap-2 py-2">
-                <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2">
-                    <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">AR</button>
-                    <span class="text-white/20 text-xs">|</span>
-                    <button type="submit" name="culture" value="en" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">EN</button>
-                </form>
-            </div>
+            <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="flex gap-2 px-3 py-2">
+                <button type="submit" name="culture" value="ar" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">🇯🇴 AR</button>
+                <span class="text-white/20 text-xs self-center">|</span>
+                <button type="submit" name="culture" value="en" class="text-xs font-bold @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "text-[#E8A020]" : "text-slate-400 hover:text-slate-200") transition-colors">🇺🇸 EN</button>
+            </form>
         </div>
     </nav>
 </header>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchToggle = document.getElementById("search-toggle-btn");
+        const spotlightSearch = document.getElementById("spotlight-search");
+        const spotlightInput = document.getElementById("spotlight-input");
+        const spotlightClose = document.getElementById("spotlight-close-btn");
+
+        if (searchToggle && spotlightSearch) {
+            searchToggle.addEventListener("click", function(e) {
+                e.preventDefault();
+                spotlightSearch.classList.remove("opacity-0", "pointer-events-none");
+                const modalContent = spotlightSearch.querySelector(".transform");
+                if (modalContent) {
+                    modalContent.classList.remove("scale-95");
+                    modalContent.classList.add("scale-100");
+                }
+                setTimeout(() => spotlightInput.focus(), 150);
+            });
+        }
+
+        function closeSpotlight() {
+            if (spotlightSearch) {
+                spotlightSearch.classList.add("opacity-0", "pointer-events-none");
+                const modalContent = spotlightSearch.querySelector(".transform");
+                if (modalContent) {
+                    modalContent.classList.remove("scale-100");
+                    modalContent.classList.add("scale-95");
+                }
+                spotlightInput.value = "";
+            }
+        }
+
+        if (spotlightClose) {
+            spotlightClose.addEventListener("click", function(e) {
+                e.preventDefault();
+                closeSpotlight();
+            });
+        }
+
+        if (spotlightSearch) {
+            spotlightSearch.addEventListener("click", function(e) {
+                if (e.target === spotlightSearch) {
+                    closeSpotlight();
+                }
+            });
+        }
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && spotlightSearch && !spotlightSearch.classList.contains("opacity-0")) {
+                closeSpotlight();
+            }
+        });
+    });
+</script>

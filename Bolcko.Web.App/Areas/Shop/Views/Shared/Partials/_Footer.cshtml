@@ -23,6 +23,8 @@
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Navigation"]</h5>
                 <nav class="flex flex-col gap-2.5 text-sm">
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Privacy", "Legal", new { area = "Shop" })">@SharedLocalizer["PrivacyPolicy"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Terms", "Legal", new { area = "Shop" })">@SharedLocalizer["TermsOfService"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Support", "Legal", new { area = "Shop" })">@SharedLocalizer["TechnicalSupport"]</a>
