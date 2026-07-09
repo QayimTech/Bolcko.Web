@@ -3,14 +3,14 @@
 @using Bolcko.Domain.Entities.Tender.DTOs
 @using Bolcko.Domain.Entities.Project
 @{
-    ViewData["Title"] = "حسابي";
+    ViewData["Title"] = SharedLocalizer["Dashboard"];
     var user = ViewBag.User as User;
     var orders = ViewBag.Orders as List<OrderDto> ?? new List<OrderDto>();
     var tenders = ViewBag.Tenders as List<TenderDto> ?? new List<TenderDto>();
     var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
-    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+    <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
@@ -24,33 +24,33 @@
                 <nav class="p-4">
                     <ul class="space-y-2">
                         <li>
-                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
-                                <span>لوحة التحكم</span>
+                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-s-4 border-primary font-bold text-on-surface">
+                                <span>@SharedLocalizer["MyDashboard"]</span>
                                 <span class="material-symbols-outlined text-sm">dashboard</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>طلباتي</span>
+                                <span>@SharedLocalizer["MyOrders"]</span>
                                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>عروض الأسعار</span>
+                                <span>@SharedLocalizer["QuoteRequests"]</span>
                                 <span class="material-symbols-outlined text-sm">request_quote</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>مشاريعي</span>
+                                <span>@SharedLocalizer["MyProjects"]</span>
                                 <span class="material-symbols-outlined text-sm">architecture</span>
                             </a>
                         </li>
                         <li class="pt-4 mt-4 border-t border-outline-variant">
                             <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
-                                    <span>تسجيل الخروج</span>
+                                    <span>@SharedLocalizer["Logout"]</span>
                                     <span class="material-symbols-outlined text-sm">logout</span>
                                 </button>
                             </form>
@@ -62,44 +62,44 @@
 
         <!-- Main Content -->
         <div class="flex-1 space-y-8">
-            <header class="border-r-4 border-primary-container pr-6 mb-8">
-                <h1 class="font-headline-xl text-on-surface uppercase mb-2">لوحة التحكم</h1>
-                <p class="font-body-lg text-secondary">مرحباً بك مجدداً، @user?.FirstName. إليك ملخص لنشاطك الأخير.</p>
+            <header class="border-s-4 border-primary-container ps-6 mb-8">
+                <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["MyDashboard"]</h1>
+                <p class="font-body-lg text-secondary">@string.Format(SharedLocalizer["DashboardWelcome"].Value, user?.FirstName)</p>
             </header>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">shopping_bag</span>
                     <h3 class="text-2xl font-bold text-on-surface">@orders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">إجمالي الطلبات</p>
+                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["TotalOrders"]</p>
                 </div>
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">request_quote</span>
                     <h3 class="text-2xl font-bold text-on-surface">@tenders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">عروض أسعار نشطة</p>
+                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["ActiveQuotes"]</p>
                 </div>
                 <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-2">architecture</span>
                     <h3 class="text-2xl font-bold text-on-surface">@projects.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">مشاريع مسجلة</p>
+                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["RegisteredProjects"]</p>
                 </div>
             </div>
 
             <!-- Recent Orders Table -->
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
                 <div class="p-6 border-b border-outline-variant flex justify-between items-center">
-                    <h2 class="font-bold text-on-surface uppercase">آخر الطلبات</h2>
-                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="text-xs text-primary font-bold hover:underline">عرض الكل</a>
+                    <h2 class="font-bold text-on-surface uppercase">@SharedLocalizer["RecentOrders"]</h2>
+                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="text-xs text-primary font-bold hover:underline">@SharedLocalizer["ViewAll"]</a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-right">
+                    <table class="w-full text-start">
                         <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                             <tr>
-                                <th class="p-4">رقم الطلب</th>
-                                <th class="p-4">التاريخ</th>
-                                <th class="p-4">المبلغ</th>
-                                <th class="p-4">الحالة</th>
-                                <th class="p-4">الإجراء</th>
+                                <th class="p-4">@SharedLocalizer["OrderNo"]</th>
+                                <th class="p-4">@SharedLocalizer["Date"]</th>
+                                <th class="p-4">@SharedLocalizer["Amount"]</th>
+                                <th class="p-4">@SharedLocalizer["Status"]</th>
+                                <th class="p-4">@SharedLocalizer["Action"]</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
@@ -110,12 +110,12 @@
                                     <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                                         <td class="p-4 font-bold">#BLK-@order.Id.ToString("D5")</td>
                                         <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd")</td>
-                                        <td class="p-4">@order.TotalAmount.ToString("N2") د.أ</td>
+                                        <td class="p-4">@order.TotalAmount.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
                                         <td class="p-4">
                                             <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">@order.Status.ToString()</span>
                                         </td>
                                         <td class="p-4">
-                                            <a href="@Url.Action("OrderDetails", "Account", new { id = order.Id, area = "Shop" })" class="text-primary font-bold hover:underline">التفاصيل</a>
+                                            <a href="@Url.Action("OrderDetails", "Account", new { id = order.Id, area = "Shop" })" class="text-primary font-bold hover:underline">@SharedLocalizer["OrderDetails"]</a>
                                         </td>
                                     </tr>
                                 }
@@ -123,7 +123,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">لا توجد طلبات سابقة</td>
+                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">@SharedLocalizer["NoOrdersFound"]</td>
                                 </tr>
                             }
                         </tbody>

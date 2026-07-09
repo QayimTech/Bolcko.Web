@@ -2,25 +2,25 @@
 @{
     bool isRoot = ViewBag.IsRoot ?? false;
     var category = ViewBag.Category as Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto;
-    ViewData["Title"] = isRoot ? "كافة الفئات" : (category?.Name ?? "الفئة");
+    ViewData["Title"] = isRoot ? SharedLocalizer["AllCategories"].Value : (category?.Name ?? SharedLocalizer["Category"].Value);
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
     <!-- Breadcrumbs -->
     <nav class="flex items-center gap-2 mb-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-        <a class="hover:text-[#E8A020] transition-colors" href="/">الرئيسية</a>
+        <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
         <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_left</span>
         <span class="text-slate-800 font-bold">@ViewData["Title"]</span>
     </nav>
 
-    <div class="flex flex-col lg:flex-row-reverse gap-12 items-start">
+    <div class="flex flex-col lg:flex-row gap-12 items-start">
         @if (isRoot)
         {
             <!-- Root Categories Grid -->
             <div class="flex-grow w-full animate-fade-in">
-                <div class="mb-10 text-right">
-                    <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">مجموعات التوريد</span>
-                    <h1 class="font-headline-lg text-slate-800 mt-2">تصفح فئات المواد الإنشائية</h1>
+                <div class="mb-10 text-start">
+                    <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">@SharedLocalizer["SupplyGroups"]</span>
+                    <h1 class="font-headline-lg text-slate-800 mt-2">@SharedLocalizer["BrowseMaterialsCategories"]</h1>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)Model)
@@ -34,7 +34,7 @@
                             
                             <div>
                                 <h4 class="font-headline-sm text-slate-800 group-hover:text-[#E8A020] transition-colors duration-300">@cat.Name</h4>
-                                <span class="inline-block mt-2 text-slate-400 font-bold uppercase text-[10px] tracking-wider bg-slate-50 px-3 py-1 rounded-full group-hover:bg-[#E8A020]/10 group-hover:text-[#E8A020] transition-colors">@cat.ProductCount منتج</span>
+                                <span class="inline-block mt-2 text-slate-400 font-bold uppercase text-[10px] tracking-wider bg-slate-50 px-3 py-1 rounded-full group-hover:bg-[#E8A020]/10 group-hover:text-[#E8A020] transition-colors">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
                             </div>
                         </a>
                     }
@@ -47,13 +47,13 @@
             <aside class="w-full lg:w-72 flex-shrink-0 space-y-6">
                 <div class="border border-slate-100 p-6 rounded-3xl bg-white shadow-[0_4px_25px_rgba(0,0,0,0.015)]">
                     <h3 class="font-bold text-slate-800 text-sm uppercase mb-4 flex items-center justify-between border-b border-slate-50 pb-4">
-                        تصفية الفئات
+                        @SharedLocalizer["FilterCategories"]
                         <span class="material-symbols-outlined text-slate-400 text-lg">filter_list</span>
                     </h3>
                     
                     <!-- Sub-categories -->
                     <div>
-                        <h4 class="font-bold text-[#E8A020] mb-3 uppercase text-[10px] tracking-wider">الفئات الفرعية المتاحة</h4>
+                        <h4 class="font-bold text-[#E8A020] mb-3 uppercase text-[10px] tracking-wider">@SharedLocalizer["AvailableSubcategories"]</h4>
                         <div class="space-y-1.5">
                             @if (ViewBag.SubCategories != null && ((IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.SubCategories).Any())
                             {
@@ -68,7 +68,7 @@
                             }
                             else
                             {
-                                <p class="text-xs text-slate-400 italic py-2">لا توجد فئات فرعية مخصصة</p>
+                                <p class="text-xs text-slate-400 italic py-2">@SharedLocalizer["NoSubcategoriesAvailable"]</p>
                             }
                         </div>
                     </div>
@@ -77,11 +77,11 @@
 
             <!-- Product Grid -->
             <div class="flex-grow w-full">
-                <div class="flex justify-between items-end mb-8 border-b border-slate-50 pb-6 text-right">
+                <div class="flex justify-between items-end mb-8 border-b border-slate-50 pb-6 text-start">
                     <div>
-                        <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">تصفح منتجات الفئة</span>
+                        <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">@SharedLocalizer["BrowseCategoryProducts"]</span>
                         <h1 class="font-headline-lg text-slate-800 mt-2">@category?.Name</h1>
-                        <p class="text-slate-400 text-xs mt-1">@(((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).TotalCount) منتج متاح للطلب</p>
+                        <p class="text-slate-400 text-xs mt-1">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, ((Bolcko.Domain.Common.IPagedList<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)Model).TotalCount)</p>
                     </div>
                 </div>
 
@@ -95,7 +95,7 @@
                     {
                         <div class="col-span-3 py-24 text-center bg-white border border-slate-100 rounded-3xl text-slate-400 italic shadow-sm">
                             <span class="material-symbols-outlined text-5xl mb-3 text-slate-300">inventory_2</span>
-                            <p class="text-xs">عذراً، لا توجد منتجات مسجلة في هذه الفئة حالياً</p>
+                            <p class="text-xs">@SharedLocalizer["NoProductsInCategory"]</p>
                         </div>
                     }
                 </div>

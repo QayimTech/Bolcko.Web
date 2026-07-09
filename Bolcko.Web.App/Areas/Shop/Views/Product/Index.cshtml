@@ -3,17 +3,17 @@
     ViewData["Title"] = SharedLocalizer["ProductDetails"];
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
     @if (Model != null)
     {
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            <a class="hover:text-[#E8A020] transition-colors" href="/">الرئيسية</a>
-            <span class="material-symbols-outlined text-xs">chevron_left</span>
+            <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_left</span>
             @if (!string.IsNullOrEmpty(Model.CategoryName))
             {
                 <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
-                <span class="material-symbols-outlined text-xs">chevron_left</span>
+                <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_left</span>
             }
             <span class="text-slate-800 font-bold">@Model.Name</span>
         </nav>
@@ -120,7 +120,7 @@
                 <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
                     <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-50 pb-6">
                         <span class="text-4xl font-extrabold text-slate-900">@Model.RetailPrice.ToString("N2")</span>
-                        <span class="text-sm font-bold text-slate-400">د.أ / @Model.UnitOfMeasure</span>
+                        <span class="text-sm font-bold text-slate-400">@SharedLocalizer["JordanDinarShort"] / @Model.UnitOfMeasure</span>
                         <span class="text-sm font-medium">@SharedLocalizer["VatIncluded"]</span>
                     </div>
                     
@@ -171,7 +171,7 @@
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div>
-                            <h3 class="font-bold text-slate-800 mb-3 border-r-4 border-[#E8A020] pr-3">@SharedLocalizer["ProductDetails"]</h3>
+                            <h3 class="font-bold text-slate-800 mb-3 border-s-4 border-[#E8A020] ps-3">@SharedLocalizer["ProductDetails"]</h3>
                             <p class="font-body-md text-slate-500 leading-relaxed">
                                 @Model.Description
                             </p>

@@ -2,11 +2,11 @@
 @using Bolcko.Domain.Entities.Order.DTOs
 @model OrderDto
 @{
-    ViewData["Title"] = "تفاصيل الطلب";
+    ViewData["Title"] = SharedLocalizer["OrderDetails"];
     var user = ViewBag.User as User;
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
-    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+    <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
@@ -21,32 +21,32 @@
                     <ul class="space-y-2">
                         <li>
                             <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>لوحة التحكم</span>
+                                <span>@SharedLocalizer["MyDashboard"]</span>
                                 <span class="material-symbols-outlined text-sm">dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
-                                <span>طلباتي</span>
+                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-s-4 border-primary font-bold text-on-surface">
+                                <span>@SharedLocalizer["MyOrders"]</span>
                                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>عروض الأسعار</span>
+                                <span>@SharedLocalizer["QuoteRequests"]</span>
                                 <span class="material-symbols-outlined text-sm">request_quote</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>مشاريعي</span>
+                                <span>@SharedLocalizer["MyProjects"]</span>
                                 <span class="material-symbols-outlined text-sm">architecture</span>
                             </a>
                         </li>
                         <li class="pt-4 mt-4 border-t border-outline-variant">
                             <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
-                                    <span>تسجيل الخروج</span>
+                                    <span>@SharedLocalizer["Logout"]</span>
                                     <span class="material-symbols-outlined text-sm">logout</span>
                                 </button>
                             </form>
@@ -58,18 +58,18 @@
 
         <!-- Main Content -->
         <div class="flex-1 space-y-8">
-            <header class="border-r-4 border-primary-container pr-6 mb-8">
-                <h1 class="font-headline-xl text-on-surface uppercase mb-2">تفاصيل الطلب</h1>
-                <p class="font-body-lg text-secondary">رقم الطلب: @Model.OrderNumber</p>
+            <header class="border-s-4 border-primary-container ps-6 mb-8">
+                <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["OrderDetails"]</h1>
+                <p class="font-body-lg text-secondary">@string.Format(SharedLocalizer["OrderNumberLabel"].Value, Model.OrderNumber)</p>
             </header>
 
             @{
                 var trackingSteps = new[]
                 {
-                    new { Key = "Pending",    Label = "قيد الانتظار", Icon = "hourglass_empty",   StepNum = 1 },
-                    new { Key = "Processing", Label = "قيد المعالجة", Icon = "settings",           StepNum = 2 },
-                    new { Key = "Shipped",    Label = "تم الشحن",      Icon = "local_shipping",    StepNum = 3 },
-                    new { Key = "Delivered",  Label = "تم التسليم",    Icon = "check_circle",      StepNum = 4 },
+                    new { Key = "Pending",    Label = SharedLocalizer["StatusPending"].Value, Icon = "hourglass_empty",   StepNum = 1 },
+                    new { Key = "Processing", Label = SharedLocalizer["StatusProcessing"].Value, Icon = "settings",           StepNum = 2 },
+                    new { Key = "Shipped",    Label = SharedLocalizer["StatusShipped"].Value, Icon = "local_shipping",    StepNum = 3 },
+                    new { Key = "Delivered",  Label = SharedLocalizer["StatusDelivered"].Value, Icon = "check_circle",      StepNum = 4 },
                 };
                 int currentStep = Model.Status switch
                 {
@@ -88,8 +88,8 @@
                 <div class="bg-red-50 border border-red-200 rounded-xl p-5 mb-8 flex items-center gap-4">
                     <span class="material-symbols-outlined text-red-500 text-3xl">cancel</span>
                     <div>
-                        <p class="font-bold text-red-700">تم إلغاء الطلب</p>
-                        <p class="text-sm text-red-500">تم إلغاء هذا الطلب. للاستفسار تواصل مع الدعم.</p>
+                        <p class="font-bold text-red-700">@SharedLocalizer["OrderCancelledTitle"]</p>
+                        <p class="text-sm text-red-500">@SharedLocalizer["OrderCancelledDesc"]</p>
                     </div>
                 </div>
             }
@@ -97,16 +97,16 @@
             {
                 <!-- Order Tracking Stepper -->
                 <div class="bg-white border border-outline-variant shadow-hard rounded-xl p-6 mb-8 overflow-x-auto">
-                    <h3 class="font-bold text-on-surface mb-6 text-sm uppercase tracking-widest text-right">تتبع الطلب</h3>
+                    <h3 class="font-bold text-on-surface mb-6 text-sm uppercase tracking-widest text-start">@SharedLocalizer["OrderTracking"]</h3>
                     <div class="flex items-start justify-between min-w-[480px] relative">
                         <!-- Connecting line background -->
-                        <div class="absolute top-5 right-[calc(12.5%+20px)] left-[calc(12.5%+20px)] h-0.5 bg-outline-variant z-0"></div>
+                        <div class="absolute top-5 start-[calc(12.5%+20px)] end-[calc(12.5%+20px)] h-0.5 bg-outline-variant z-0"></div>
                         <!-- Connecting line progress -->
                         @{
                             var progressPercents = new[] { "0%", "33.3%", "66.6%", "100%" };
                             string progressWidth = currentStep >= 4 ? "100%" : currentStep >= 3 ? "66.6%" : currentStep >= 2 ? "33.3%" : "0%";
                         }
-                        <div class="absolute top-5 right-[calc(12.5%+20px)] left-[calc(12.5%+20px)] h-0.5 bg-primary z-0 transition-all duration-700" style="width: @progressWidth; position: absolute;"></div>
+                        <div class="absolute top-5 start-[calc(12.5%+20px)] end-[calc(12.5%+20px)] h-0.5 bg-primary z-0 transition-all duration-700" style="width: @progressWidth; position: absolute;"></div>
 
                         @foreach (var step in trackingSteps)
                         {
@@ -142,8 +142,8 @@
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden p-6 space-y-6">
                 <div class="flex justify-between items-center border-b border-outline-variant pb-4">
                     <div>
-                        <h3 class="font-bold text-on-surface">معلومات الطلب</h3>
-                        <p class="text-sm text-secondary">تاريخ الطلب: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                        <h3 class="font-bold text-on-surface">@SharedLocalizer["OrderInfo"]</h3>
+                        <p class="text-sm text-secondary">@SharedLocalizer["OrderDateLabel"]: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
                     </div>
                     <div>
                         @{
@@ -158,11 +158,11 @@
                             };
                             string statusLabel = Model.Status switch
                             {
-                                Bolcko.Domain.Enums.OrderStatus.Pending    => "قيد الانتظار",
-                                Bolcko.Domain.Enums.OrderStatus.Processing => "قيد المعالجة",
-                                Bolcko.Domain.Enums.OrderStatus.Shipped    => "تم الشحن",
-                                Bolcko.Domain.Enums.OrderStatus.Delivered  => "تم التسليم",
-                                Bolcko.Domain.Enums.OrderStatus.Cancelled  => "ملغي",
+                                Bolcko.Domain.Enums.OrderStatus.Pending    => SharedLocalizer["StatusPending"].Value,
+                                Bolcko.Domain.Enums.OrderStatus.Processing => SharedLocalizer["StatusProcessing"].Value,
+                                Bolcko.Domain.Enums.OrderStatus.Shipped    => SharedLocalizer["StatusShipped"].Value,
+                                Bolcko.Domain.Enums.OrderStatus.Delivered  => SharedLocalizer["StatusDelivered"].Value,
+                                Bolcko.Domain.Enums.OrderStatus.Cancelled  => SharedLocalizer["StatusCancelled"].Value,
                                 _ => Model.Status.ToString()
                             };
                         }
@@ -172,15 +172,15 @@
 
                 <!-- Order Items -->
                 <div>
-                    <h3 class="font-bold text-on-surface mb-4">العناصر</h3>
+                    <h3 class="font-bold text-on-surface mb-4">@SharedLocalizer["OrderItems"]</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right">
+                        <table class="w-full text-start">
                             <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                                 <tr>
-                                    <th class="p-3">المنتج</th>
-                                    <th class="p-3">الكمية</th>
-                                    <th class="p-3">السعر للوحدة</th>
-                                    <th class="p-3">الإجمالي</th>
+                                    <th class="p-3">@SharedLocalizer["ProductNameHeader"]</th>
+                                    <th class="p-3">@SharedLocalizer["ProductQuantityHeader"]</th>
+                                    <th class="p-3">@SharedLocalizer["UnitPriceHeader"]</th>
+                                    <th class="p-3">@SharedLocalizer["TotalPriceHeader"]</th>
                                 </tr>
                             </thead>
                             <tbody class="text-sm">
@@ -189,8 +189,8 @@
                                     <tr class="border-b border-outline-variant">
                                         <td class="p-3">@item.ProductId</td>
                                         <td class="p-3">@item.Quantity</td>
-                                        <td class="p-3">@item.UnitPrice.ToString("N2") د.أ</td>
-                                        <td class="p-3">@item.TotalPrice.ToString("N2") د.أ</td>
+                                        <td class="p-3">@item.UnitPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
+                                        <td class="p-3">@item.TotalPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
                                     </tr>
                                 }
                             </tbody>
@@ -200,8 +200,8 @@
 
                 <!-- Total -->
                 <div class="flex justify-between items-center border-t border-outline-variant pt-4">
-                    <h3 class="font-bold text-on-surface">الإجمالي</h3>
-                    <p class="text-primary font-headline-lg">@Model.TotalAmount.ToString("N2") د.أ</p>
+                    <h3 class="font-bold text-on-surface">@SharedLocalizer["TotalLabel"]</h3>
+                    <p class="text-primary font-headline-lg">@Model.TotalAmount.ToString("N2") @SharedLocalizer["JordanDinarShort"]</p>
                 </div>
             </div>
 
@@ -216,14 +216,14 @@
             @if (Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped && !isCancelled)
             {
                 <!-- Confirm Delivery Card -->
-                <div class="bg-gradient-to-l from-indigo-50 to-white border border-indigo-100 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined text-indigo-600 text-2xl">local_shipping</span>
                         </div>
-                        <div class="text-right">
-                            <p class="font-bold text-on-surface">طلبيتك في الطريق إليك!</p>
-                            <p class="text-sm text-secondary mt-0.5">هل استلمت طلبيتك؟ أكّد الاستلام لإغلاق الطلب.</p>
+                        <div class="text-start">
+                            <p class="font-bold text-on-surface">@SharedLocalizer["ConfirmDeliveryHeader"]</p>
+                            <p class="text-sm text-secondary mt-0.5">@SharedLocalizer["ConfirmDeliveryText"]</p>
                         </div>
                     </div>
                     <form asp-area="Shop" asp-controller="Account" asp-action="ConfirmDelivery"
@@ -232,7 +232,7 @@
                                 onclick="showLoader()"
                                 class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap">
                             <span class="material-symbols-outlined text-lg">verified</span>
-                            <span>تأكيد الاستلام</span>
+                            <span>@SharedLocalizer["ConfirmDeliveryBtn"]</span>
                         </button>
                     </form>
                 </div>
@@ -243,13 +243,13 @@
                 <a href="@Url.Action("Orders", "Account", new { area = "Shop" })"
                    class="flex items-center gap-2 text-primary font-bold hover:underline">
                     <span class="material-symbols-outlined">arrow_back</span>
-                    العودة لطلباتي
+                    @SharedLocalizer["BackToOrders"]
                 </a>
                 @if (!isCancelled)
                 {
                     <p id="autoUpdateIndicator" class="flex items-center gap-1.5 text-xs text-secondary">
                         <span id="pulseIndicator" class="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"></span>
-                        يتحدث تلقائياً
+                        @SharedLocalizer["AutoUpdateText"]
                     </p>
                 }
             </div>
@@ -267,8 +267,8 @@
             <span class="absolute inset-0 flex items-center justify-center material-symbols-outlined text-indigo-600 text-2xl">verified</span>
         </div>
         <div class="text-center">
-            <p class="font-bold text-on-surface text-lg mb-1">جارٍ تأكيد استلامك</p>
-            <p class="text-sm text-secondary">يرجى الانتظار لحظة...</p>
+            <p class="font-bold text-on-surface text-lg mb-1">@SharedLocalizer["ConfirmingDeliveryOverlay"]</p>
+            <p class="text-sm text-secondary">@SharedLocalizer["PleaseWait"]</p>
         </div>
         <div class="flex gap-1.5">
             <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay:0s"></span>
@@ -319,8 +319,8 @@
         banner.innerHTML = `
             <span class="material-symbols-outlined text-2xl">notifications_active</span>
             <div>
-                <p class="font-bold">تحديث حالة الطلب!</p>
-                <p class="text-sm opacity-90">الحالة الجديدة: ${newStatusLabel}</p>
+                <p class="font-bold">@SharedLocalizer["OrderStatusUpdatedTitle"]</p>
+                <p class="text-sm opacity-90">${newStatusLabel}</p>
             </div>`;
         document.body.appendChild(banner);
     }

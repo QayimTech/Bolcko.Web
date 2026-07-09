@@ -1,4 +1,4 @@
-﻿@model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
+@model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
 @{
     bool isIconOnly = Model.IsIconOnly;
     bool isAdmin    = Model.IsAdmin;
@@ -61,7 +61,7 @@
                     <span class="font-black text-[18px] tracking-[0.5px] uppercase leading-none @textColorClass" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">بلوكو</span>
                     <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
                 </div>
-                <span class="text-[6.5px] font-bold tracking-[0.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">التوريدات الإنشائية</span>
+                <span class="text-[6.5px] font-bold tracking-[0.5px] uppercase mt-1.5 @subtitleColorClass hidden sm:block" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">التوريدات الإنشائية</span>
             </div>
         }
         else
@@ -72,7 +72,7 @@
                     <span class="font-extrabold text-[17px] tracking-[1.5px] uppercase font-display leading-none @textColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">BLOCKO</span>
                     <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
                 </div>
-                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">CONSTRUCTION SUPPLIES</span>
+                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass hidden sm:block" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">CONSTRUCTION SUPPLIES</span>
             </div>
         }
     }

@@ -1,36 +1,37 @@
 @{
-    ViewData["Title"] = "تأكيد طلب عرض السعر";
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    ViewData["Title"] = isAr ? "تأكيد طلب عرض السعر" : "Quote Request Confirmed";
 }
 <main class="max-w-3xl mx-auto px-6 py-24 text-center">
     <div class="bg-white border border-outline-variant p-12 shadow-hard">
         <span class="material-symbols-outlined text-primary text-7xl mb-6" style="font-variation-settings: 'wght' 200">request_quote</span>
-        <h1 class="font-headline-xl text-on-surface mb-4">تم إرسال طلب عرض السعر بنجاح!</h1>
-        <p class="text-body-lg text-secondary mb-8">رقم الطلب المرجعي هو: <span class="font-bold text-on-surface">#QT-@(ViewBag.TenderId?.ToString("D5") ?? "00000")</span></p>
+        <h1 class="font-headline-xl text-on-surface mb-4">@(isAr ? "تم إرسال طلب عرض السعر بنجاح!" : "Quote request submitted successfully!")</h1>
+        <p class="text-body-lg text-secondary mb-8">@(isAr ? "رقم الطلب المرجعي هو:" : "Reference request number is:") <span class="font-bold text-on-surface">#QT-@(ViewBag.TenderId?.ToString("D5") ?? "00000")</span></p>
         
-        <div class="bg-surface-container-low p-6 border-r-4 border-primary text-right mb-12">
-            <h3 class="font-bold text-on-surface mb-2">ما هي الخطوة التالية؟</h3>
+        <div class="bg-surface-container-low p-6 border-s-4 border-primary text-start mb-12">
+            <h3 class="font-bold text-on-surface mb-2">@(isAr ? "ما هي الخطوة التالية؟" : "What is the next step?")</h3>
             <ul class="space-y-3 text-sm text-on-surface-variant">
                 <li class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm text-primary">circle</span>
-                    سيقوم فريق التسعير المختص بدراسة طلبك وتجهيز أفضل عرض مخصص لك.
+                    @(isAr ? "سيقوم فريق التسعير المختص بدراسة طلبك وتجهيز أفضل عرض مخصص لك." : "Our pricing team will analyze your request and prepare the best custom offer.")
                 </li>
                 <li class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm text-primary">circle</span>
-                    ستصلك نسخة من عرض السعر عبر البريد الإلكتروني خلال 24-48 ساعة عمل.
+                    @(isAr ? "ستصلك نسخة من عرض السعر عبر البريد الإلكتروني خلال 24-48 ساعة عمل." : "You will receive a copy of the quote via email within 24-48 business hours.")
                 </li>
                 <li class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm text-primary">circle</span>
-                    سيتواصل معك مدير حسابك المخصص لمناقشة التفاصيل اللوجستية والخصومات المتاحة.
+                    @(isAr ? "سيتواصل معك مدير حسابك المخصص لمناقشة التفاصيل اللوجستية والخصومات المتاحة." : "Your dedicated account manager will contact you to discuss logistics and available discounts.")
                 </li>
             </ul>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="bg-primary-container text-on-primary-container font-bold px-8 py-4 uppercase shadow-hard hover:opacity-90 transition-all">
-                تصفح المزيد من المنتجات
+                @(isAr ? "تصفح المزيد من المنتجات" : "Browse More Products")
             </a>
             <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="bg-on-surface text-white font-bold px-8 py-4 uppercase shadow-hard hover:bg-slate-800 transition-all">
-                العودة للرئيسية
+                @(isAr ? "العودة للرئيسية" : "Back to Home")
             </a>
         </div>
     </div>

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
+using Bolcko.Web.App.Extensions;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
@@ -7,10 +10,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly ITranslationService _translationService;
 
-        public ProductController(IServiceManager serviceManager)
+        public ProductController(IServiceManager serviceManager, ITranslationService translationService)
         {
             _serviceManager = serviceManager;
+            _translationService = translationService;
         }
 
         public async Task<IActionResult> Index(int id)
@@ -20,14 +25,21 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 return NotFound();
             }
+
+            var culture = CultureInfo.CurrentCulture.Name;
+            await product.TranslateAsync(_translationService, culture);
+
             return View(product);
         }
 
         public async Task<IActionResult> Search(string query)
         {
             var products = await _serviceManager.ProductService.SearchProductsAsync(query);
+            var culture = CultureInfo.CurrentCulture.Name;
+            var translatedProducts = await products.TranslateAsync(_translationService, culture);
+
             ViewBag.Query = query;
-            return View(products);
+            return View(translatedProducts);
         }
     }
 }

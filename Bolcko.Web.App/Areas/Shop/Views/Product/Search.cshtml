@@ -1,13 +1,13 @@
 @model IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>
 @{
-    ViewData["Title"] = "نتائج البحث";
+    ViewData["Title"] = SharedLocalizer["SearchResults"];
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
-    <header class="mb-12 border-r-4 border-primary-container pr-6">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">نتائج البحث</h1>
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+    <header class="mb-12 border-s-4 border-primary-container ps-6">
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["SearchResults"]</h1>
         <p class="font-body-lg text-secondary">
-            @(string.IsNullOrEmpty(ViewBag.Query) ? "جميع المنتجات" : $"نتائج البحث عن: {ViewBag.Query}")
+            @(string.IsNullOrEmpty(ViewBag.Query) ? SharedLocalizer["AllProducts"].Value : string.Format(SharedLocalizer["SearchResultsFor"].Value, ViewBag.Query))
         </p>
     </header>
 
@@ -15,10 +15,10 @@
     {
         <div class="bg-surface-container-low p-12 text-center shadow-hard border border-outline-variant">
             <span class="material-symbols-outlined text-outline text-6xl mb-4">search_off</span>
-            <h2 class="font-headline-md text-on-surface mb-2">لم يتم العثور على نتائج</h2>
-            <p class="text-secondary mb-8">عذراً، لم نتمكن من العثور على أي منتجات تطابق بحثك. جرب استخدام كلمات مختلفة.</p>
+            <h2 class="font-headline-md text-on-surface mb-2">@SharedLocalizer["NoSearchResultsFound"]</h2>
+            <p class="text-secondary mb-8">@SharedLocalizer["NoSearchResultsDesc"]</p>
             <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="bg-primary text-white font-bold px-8 py-3 uppercase shadow-hard hover:opacity-90 transition-all inline-block">
-                العودة للرئيسية
+                @SharedLocalizer["BackToHome"]
             </a>
         </div>
     }

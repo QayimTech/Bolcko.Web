@@ -809,4 +809,114 @@
   <data name="AboutVal4Desc" xml:space="preserve"><value>Request a custom quote for your big project and get volume discounts easily.</value></data>
   <data name="AboutCTATitle" xml:space="preserve"><value>Start Your Next Project with BLOCKO</value></data>
   <data name="AboutCTAQuote" xml:space="preserve"><value>Request a Quote</value></data>
+  <data name="CheckoutTitle" xml:space="preserve"><value>Checkout</value></data>
+  <data name="ShippingDeliveryInfo" xml:space="preserve"><value>Please enter shipping details to complete your order.</value></data>
+  <data name="CustomerInfo" xml:space="preserve"><value>Customer Information</value></data>
+  <data name="FullName" xml:space="preserve"><value>Full Name</value></data>
+  <data name="EnterFullName" xml:space="preserve"><value>Enter your full name</value></data>
+  <data name="ShippingAddress" xml:space="preserve"><value>Shipping Address</value></data>
+  <data name="City" xml:space="preserve"><value>City</value></data>
+  <data name="Amman" xml:space="preserve"><value>Amman</value></data>
+  <data name="Zarqa" xml:space="preserve"><value>Zarqa</value></data>
+  <data name="Irbid" xml:space="preserve"><value>Irbid</value></data>
+  <data name="Area" xml:space="preserve"><value>Area / District</value></data>
+  <data name="EnterArea" xml:space="preserve"><value>Area name</value></data>
+  <data name="DetailedAddress" xml:space="preserve"><value>Detailed Address (Project Site)</value></data>
+  <data name="EnterDetailedAddress" xml:space="preserve"><value>Enter detailed description of the location</value></data>
+  <data name="Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Jordan" xml:space="preserve"><value>Jordan</value></data>
+  <data name="PostalCode" xml:space="preserve"><value>Postal Code</value></data>
+  <data name="ProjectInfo" xml:space="preserve"><value>Project Information &amp; Notes (Optional)</value></data>
+  <data name="EnterProjectName" xml:space="preserve"><value>e.g., Al-Yasmin Villa</value></data>
+  <data name="Notes" xml:space="preserve"><value>Additional Notes</value></data>
+  <data name="EnterNotes" xml:space="preserve"><value>Add any delivery or special requests notes</value></data>
+  <data name="PaymentMethod" xml:space="preserve"><value>Payment Method</value></data>
+  <data name="CodLabel" xml:space="preserve"><value>Cash on Delivery (COD)</value></data>
+  <data name="CodDesc" xml:space="preserve"><value>Pay cash when your order is delivered.</value></data>
+  <data name="ConfirmAndSendOrder" xml:space="preserve"><value>Confirm &amp; Place Order</value></data>
+  <data name="AcceptTermsText" xml:space="preserve"><value>By placing the order, you agree to the terms and conditions of BLOCKO.</value></data>
+  <data name="UnitsCount" xml:space="preserve"><value>{0} units</value></data>
+  <data name="OrderConfirmed" xml:space="preserve"><value>Order placed successfully!</value></data>
+  <data name="YourOrderNumberIs" xml:space="preserve"><value>Your order number is: {0}</value></data>
+  <data name="TotalAmount" xml:space="preserve"><value>Total Amount: {0}</value></data>
+  <data name="WhatHappensNow" xml:space="preserve"><value>What happens now?</value></data>
+  <data name="Step1Text" xml:space="preserve"><value>Our team will review your order and verify materials availability.</value></data>
+  <data name="Step2Text" xml:space="preserve"><value>We will contact you by phone to confirm the exact delivery time to your site.</value></data>
+  <data name="Step3Text" xml:space="preserve"><value>You will receive SMS and email notifications when the order status is updated.</value></data>
+  <data name="ContinueShopping" xml:space="preserve"><value>Continue Shopping</value></data>
+  <data name="LoginTitle" xml:space="preserve"><value>Login to Your Account</value></data>
+  <data name="OrCreateNewAccount" xml:space="preserve"><value>Or create a new account</value></data>
+  <data name="RememberMe" xml:space="preserve"><value>Remember Me</value></data>
+  <data name="ForgotPasswordQuestion" xml:space="preserve"><value>Forgot password?</value></data>
+  <data name="ForgotPasswordTitle" xml:space="preserve"><value>Forgot Password</value></data>
+  <data name="ForgotPasswordInstructions" xml:space="preserve"><value>Enter your email address and we will send you a password reset link.</value></data>
+  <data name="DebugResetLinkTitle" xml:space="preserve"><value>Development &amp; Testing environment (Debug Link):</value></data>
+  <data name="DebugResetLinkNote" xml:space="preserve"><value>Note: This link is displayed only for fast development inspection purposes without opening logs.</value></data>
+  <data name="BackToLogin" xml:space="preserve"><value>Back to Login</value></data>
+  <data name="SendResetLink" xml:space="preserve"><value>Send Reset Link</value></data>
+  <data name="LoginBtnText" xml:space="preserve"><value>Login</value></data>
+  <data name="RegisterTitle" xml:space="preserve"><value>Register New Account</value></data>
+  <data name="AlreadyHaveAccount" xml:space="preserve"><value>Already have an account?</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="PhoneNumber" xml:space="preserve"><value>Phone Number</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm Password</value></data>
+  <data name="CustomerOption" xml:space="preserve"><value>Customer</value></data>
+  <data name="RegisterWarningText" xml:space="preserve"><value>* Registration is currently only available for customers. For companies/contractors, please contact management.</value></data>
+  <data name="IConfirmAcceptTerms" xml:space="preserve"><value>I agree to the Terms and Conditions and Privacy Policy</value></data>
+  <data name="TermsAndConditions" xml:space="preserve"><value>Terms and Conditions</value></data>
+  <data name="RegisterBtnText" xml:space="preserve"><value>Register</value></data>
+  <data name="MyDashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="MyOrders" xml:space="preserve"><value>My Orders</value></data>
+  <data name="QuoteRequests" xml:space="preserve"><value>Quote Requests</value></data>
+  <data name="MyProjects" xml:space="preserve"><value>My Projects</value></data>
+  <data name="DashboardWelcome" xml:space="preserve"><value>Welcome back, {0}. Here is a summary of your recent activity.</value></data>
+  <data name="TotalOrders" xml:space="preserve"><value>Total Orders</value></data>
+  <data name="ActiveQuotes" xml:space="preserve"><value>Active Quotes</value></data>
+  <data name="RegisteredProjects" xml:space="preserve"><value>Registered Projects</value></data>
+  <data name="RecentOrders" xml:space="preserve"><value>Recent Orders</value></data>
+  <data name="ViewAll" xml:space="preserve"><value>View All</value></data>
+  <data name="OrderNo" xml:space="preserve"><value>Order No</value></data>
+  <data name="Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Action" xml:space="preserve"><value>Action</value></data>
+  <data name="OrderDetails" xml:space="preserve"><value>Order Details</value></data>
+  <data name="NoOrdersFound" xml:space="preserve"><value>No previous orders found</value></data>
+  <data name="JordanDinarShort" xml:space="preserve"><value>JOD</value></data>
+  <data name="OrdersDescription" xml:space="preserve"><value>List of all your past and current orders and their status.</value></data>
+  <data name="TotalAmountHeader" xml:space="preserve"><value>Total Amount</value></data>
+  <data name="PaymentMethodHeader" xml:space="preserve"><value>Payment Method</value></data>
+  <data name="TrackOrderAction" xml:space="preserve"><value>Track Order</value></data>
+  <data name="NoRecentOrdersDesc" xml:space="preserve"><value>You have not placed any orders yet.</value></data>
+  <data name="OrderNumberLabel" xml:space="preserve"><value>Order Number: {0}</value></data>
+  <data name="OrderCancelledTitle" xml:space="preserve"><value>Order Cancelled</value></data>
+  <data name="OrderCancelledDesc" xml:space="preserve"><value>This order has been cancelled. For inquiries please contact support.</value></data>
+  <data name="OrderItems" xml:space="preserve"><value>Items</value></data>
+  <data name="ProductNameHeader" xml:space="preserve"><value>Product</value></data>
+  <data name="ProductQuantityHeader" xml:space="preserve"><value>Quantity</value></data>
+  <data name="UnitPriceHeader" xml:space="preserve"><value>Unit Price</value></data>
+  <data name="TotalPriceHeader" xml:space="preserve"><value>Total</value></data>
+  <data name="TotalLabel" xml:space="preserve"><value>Total</value></data>
+  <data name="ConfirmDeliveryHeader" xml:space="preserve"><value>Your order is on the way!</value></data>
+  <data name="ConfirmDeliveryText" xml:space="preserve"><value>Did you receive your order? Confirm delivery to close the order.</value></data>
+  <data name="ConfirmDeliveryBtn" xml:space="preserve"><value>Confirm Delivery</value></data>
+  <data name="BackToOrders" xml:space="preserve"><value>Back to Orders</value></data>
+  <data name="AutoUpdateText" xml:space="preserve"><value>Updates automatically</value></data>
+  <data name="ConfirmingDeliveryOverlay" xml:space="preserve"><value>Confirming delivery</value></data>
+  <data name="PleaseWait" xml:space="preserve"><value>Please wait a moment...</value></data>
+  <data name="OrderStatusUpdatedTitle" xml:space="preserve"><value>Order Status Updated!</value></data>
+  <data name="OrderStatusUpdatedDesc" xml:space="preserve"><value>New Status: {0}</value></data>
+  <data name="BrowseMaterialsCategories" xml:space="preserve"><value>Browse construction materials categories</value></data>
+  <data name="SupplyGroups" xml:space="preserve"><value>Supply Groups</value></data>
+  <data name="FilterCategories" xml:space="preserve"><value>Filter Categories</value></data>
+  <data name="AvailableSubcategories" xml:space="preserve"><value>Available Subcategories</value></data>
+  <data name="NoSubcategoriesAvailable" xml:space="preserve"><value>No subcategories assigned</value></data>
+  <data name="BrowseCategoryProducts" xml:space="preserve"><value>Browse Category Products</value></data>
+  <data name="ProductsAvailableForOrder" xml:space="preserve"><value>{0} products available for order</value></data>
+  <data name="NoProductsInCategory" xml:space="preserve"><value>Sorry, there are no products registered in this category at this time</value></data>
+  <data name="AllCategories" xml:space="preserve"><value>All Categories</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Search Results</value></data>
+  <data name="AllProducts" xml:space="preserve"><value>All Products</value></data>
+  <data name="SearchResultsFor" xml:space="preserve"><value>Search results for: {0}</value></data>
+  <data name="NoSearchResultsFound" xml:space="preserve"><value>No results found</value></data>
+  <data name="NoSearchResultsDesc" xml:space="preserve"><value>Sorry, we couldn't find any products matching your search. Try using different keywords.</value></data>
+  <data name="BackToHome" xml:space="preserve"><value>Back to Home</value></data>
 </root>

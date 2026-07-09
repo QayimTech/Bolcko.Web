@@ -781,7 +781,6 @@
   <data name="OrderItemsLabel" xml:space="preserve"><value>عناصر الطلب</value></data>
   <data name="UnitPriceLabel" xml:space="preserve"><value>السعر للوحدة</value></data>
   <data name="TotalAmountLabel" xml:space="preserve"><value>الإجمالي</value></data>
-  <data name="Logout" xml:space="preserve"><value>تسجيل الخروج</value></data>
   <data name="AboutHeroBadge" xml:space="preserve"><value>منصة إلكترونية</value></data>
   <data name="AboutHeroTitlePre" xml:space="preserve"><value>نعيد تعريف طريقة</value></data>
   <data name="AboutHeroTitleHighlight" xml:space="preserve"><value>شراء مواد البناء</value></data>
@@ -815,4 +814,113 @@
   <data name="AboutVal4Desc" xml:space="preserve"><value>اطلب تسعيرة مخصصة لمشروعك الكبير واحصل على خصومات الكميات بسهولة.</value></data>
   <data name="AboutCTATitle" xml:space="preserve"><value>ابدأ مشروعك القادم مع BLOCKO</value></data>
   <data name="AboutCTAQuote" xml:space="preserve"><value>اطلب عرض سعر</value></data>
+  <data name="CheckoutTitle" xml:space="preserve"><value>إتمام الطلب</value></data>
+  <data name="ShippingDeliveryInfo" xml:space="preserve"><value>يرجى إدخال معلومات التوصيل لإكمال طلبك.</value></data>
+  <data name="CustomerInfo" xml:space="preserve"><value>معلومات العميل</value></data>
+  <data name="FullName" xml:space="preserve"><value>الاسم الكامل</value></data>
+  <data name="EnterFullName" xml:space="preserve"><value>أدخل اسمك الكامل</value></data>
+  <data name="ShippingAddress" xml:space="preserve"><value>عنوان التوصيل</value></data>
+  <data name="City" xml:space="preserve"><value>المدينة</value></data>
+  <data name="Amman" xml:space="preserve"><value>عمان</value></data>
+  <data name="Zarqa" xml:space="preserve"><value>الزرقاء</value></data>
+  <data name="Irbid" xml:space="preserve"><value>إربد</value></data>
+  <data name="Area" xml:space="preserve"><value>المنطقة</value></data>
+  <data name="EnterArea" xml:space="preserve"><value>اسم الحي</value></data>
+  <data name="DetailedAddress" xml:space="preserve"><value>العنوان بالتفصيل (موقع المشروع)</value></data>
+  <data name="EnterDetailedAddress" xml:space="preserve"><value>أدخل وصفاً دقيقاً للموقع</value></data>
+  <data name="Country" xml:space="preserve"><value>الدولة</value></data>
+  <data name="Jordan" xml:space="preserve"><value>الأردن</value></data>
+  <data name="PostalCode" xml:space="preserve"><value>الرمز البريدي</value></data>
+  <data name="ProjectInfo" xml:space="preserve"><value>معلومات المشروع وملاحظات (اختياري)</value></data>
+  <data name="EnterProjectName" xml:space="preserve"><value>مثلاً: فيلا الياسمين</value></data>
+  <data name="Notes" xml:space="preserve"><value>ملاحظات إضافية</value></data>
+  <data name="EnterNotes" xml:space="preserve"><value>أضف أي ملاحظات حول التوصيل أو الطلب</value></data>
+  <data name="PaymentMethod" xml:space="preserve"><value>طريقة الدفع</value></data>
+  <data name="CodLabel" xml:space="preserve"><value>الدفع عند الاستلام (COD)</value></data>
+  <data name="CodDesc" xml:space="preserve"><value>ادفع نقداً عند توصيل طلبك.</value></data>
+  <data name="ConfirmAndSendOrder" xml:space="preserve"><value>تأكيد وإرسال الطلب</value></data>
+  <data name="AcceptTermsText" xml:space="preserve"><value>بضغطك على تأكيد الطلب، فإنك توافق على شروط وأحكام BLOCKO.</value></data>
+  <data name="UnitsCount" xml:space="preserve"><value>{0} وحدة</value></data>
+  <data name="OrderConfirmed" xml:space="preserve"><value>تم استلام طلبك بنجاح!</value></data>
+  <data name="YourOrderNumberIs" xml:space="preserve"><value>رقم الطلب الخاص بك هو: {0}</value></data>
+  <data name="TotalAmount" xml:space="preserve"><value>إجمالي المبلغ: {0}</value></data>
+  <data name="WhatHappensNow" xml:space="preserve"><value>ماذا يحدث الآن؟</value></data>
+  <data name="Step1Text" xml:space="preserve"><value>سيقوم فريقنا بمراجعة طلبك والتأكد من توفر المواد.</value></data>
+  <data name="Step2Text" xml:space="preserve"><value>سنتواصل معك هاتفياً لتأكيد موعد التوصيل الدقيق لموقعك.</value></data>
+  <data name="Step3Text" xml:space="preserve"><value>ستصلك رسالة نصية وبريد إلكتروني عند تحديث حالة الطلب.</value></data>
+  <data name="ContinueShopping" xml:space="preserve"><value>متابعة التسوق</value></data>
+  <data name="LoginTitle" xml:space="preserve"><value>تسجيل الدخول إلى حسابك</value></data>
+  <data name="OrCreateNewAccount" xml:space="preserve"><value>أو إنشاء حساب جديد</value></data>
+  <data name="RememberMe" xml:space="preserve"><value>تذكرني</value></data>
+  <data name="ForgotPasswordQuestion" xml:space="preserve"><value>نسيت كلمة المرور؟</value></data>
+  <data name="ForgotPasswordTitle" xml:space="preserve"><value>نسيت كلمة المرور</value></data>
+  <data name="ForgotPasswordInstructions" xml:space="preserve"><value>أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.</value></data>
+  <data name="DebugResetLinkTitle" xml:space="preserve"><value>بيئة التطوير والتجريب (Debug Link):</value></data>
+  <data name="DebugResetLinkNote" xml:space="preserve"><value>ملاحظة: هذا الرابط معروض فقط لغايات الفحص والتجربة السريعة دون الحاجة لفتح الملفات.</value></data>
+  <data name="BackToLogin" xml:space="preserve"><value>العودة لتسجيل الدخول</value></data>
+  <data name="SendResetLink" xml:space="preserve"><value>إرسال رابط إعادة التعيين</value></data>
+  <data name="LoginBtnText" xml:space="preserve"><value>دخول</value></data>
+  <data name="RegisterTitle" xml:space="preserve"><value>إنشاء حساب جديد</value></data>
+  <data name="AlreadyHaveAccount" xml:space="preserve"><value>لديك حساب بالفعل؟</value></data>
+  <data name="Username" xml:space="preserve"><value>اسم المستخدم</value></data>
+  <data name="PhoneNumber" xml:space="preserve"><value>رقم الهاتف</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>تأكيد كلمة المرور</value></data>
+  <data name="CustomerOption" xml:space="preserve"><value>مشتري (Customer)</value></data>
+  <data name="RegisterWarningText" xml:space="preserve"><value>* التسجيل متاح حالياً للعملاء فقط. للشركات والمقاولين يرجى التواصل مع الإدارة.</value></data>
+  <data name="IConfirmAcceptTerms" xml:space="preserve"><value>أوافق على الشروط والأحكام و سياسة الخصوصية</value></data>
+  <data name="TermsAndConditions" xml:space="preserve"><value>الشروط والأحكام</value></data>
+  <data name="RegisterBtnText" xml:space="preserve"><value>إنشاء الحساب</value></data>
+  <data name="MyDashboard" xml:space="preserve"><value>لوحة التحكم</value></data>
+  <data name="MyOrders" xml:space="preserve"><value>طلباتي</value></data>
+  <data name="QuoteRequests" xml:space="preserve"><value>عروض الأسعار</value></data>
+  <data name="MyProjects" xml:space="preserve"><value>مشاريعي</value></data>
+  <data name="DashboardWelcome" xml:space="preserve"><value>مرحباً بك مجدداً، {0}. إليك ملخص لنشاطك الأخير.</value></data>
+  <data name="TotalOrders" xml:space="preserve"><value>إجمالي الطلبات</value></data>
+  <data name="ActiveQuotes" xml:space="preserve"><value>عروض أسعار نشطة</value></data>
+  <data name="RegisteredProjects" xml:space="preserve"><value>مشاريع مسجلة</value></data>
+  <data name="RecentOrders" xml:space="preserve"><value>آخر الطلبات</value></data>
+  <data name="OrderNo" xml:space="preserve"><value>رقم الطلب</value></data>
+  <data name="Amount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="Action" xml:space="preserve"><value>الإجراء</value></data>
+  <data name="OrderDetails" xml:space="preserve"><value>تفاصيل الطلب</value></data>
+  <data name="NoOrdersFound" xml:space="preserve"><value>لا توجد طلبات سابقة</value></data>
+  <data name="JordanDinarShort" xml:space="preserve"><value>د.أ</value></data>
+  <data name="OrdersDescription" xml:space="preserve"><value>قائمة بجميع طلباتك السابقة والحالية وحالتها.</value></data>
+  <data name="TotalAmountHeader" xml:space="preserve"><value>المبلغ الإجمالي</value></data>
+  <data name="PaymentMethodHeader" xml:space="preserve"><value>طريقة الدفع</value></data>
+  <data name="TrackOrderAction" xml:space="preserve"><value>تتبع الطلب</value></data>
+  <data name="NoRecentOrdersDesc" xml:space="preserve"><value>لم تقم بإجراء أي طلبات حتى الآن.</value></data>
+  <data name="OrderNumberLabel" xml:space="preserve"><value>رقم الطلب: {0}</value></data>
+  <data name="OrderCancelledTitle" xml:space="preserve"><value>تم إلغاء الطلب</value></data>
+  <data name="OrderCancelledDesc" xml:space="preserve"><value>تم إلغاء هذا الطلب. للاستفسار تواصل مع الدعم.</value></data>
+  <data name="OrderItems" xml:space="preserve"><value>العناصر</value></data>
+  <data name="ProductNameHeader" xml:space="preserve"><value>المنتج</value></data>
+  <data name="ProductQuantityHeader" xml:space="preserve"><value>الكمية</value></data>
+  <data name="UnitPriceHeader" xml:space="preserve"><value>السعر للوحدة</value></data>
+  <data name="TotalPriceHeader" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="TotalLabel" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="ConfirmDeliveryHeader" xml:space="preserve"><value>طلبيتك في الطريق إليك!</value></data>
+  <data name="ConfirmDeliveryText" xml:space="preserve"><value>هل استلمت طلبيتك؟ أكّد الاستلام لإغلاق الطلب.</value></data>
+  <data name="ConfirmDeliveryBtn" xml:space="preserve"><value>تأكيد الاستلام</value></data>
+  <data name="BackToOrders" xml:space="preserve"><value>العودة لطلباتي</value></data>
+  <data name="AutoUpdateText" xml:space="preserve"><value>يتحدث تلقائياً</value></data>
+  <data name="ConfirmingDeliveryOverlay" xml:space="preserve"><value>جارٍ تأكيد استلامك</value></data>
+  <data name="PleaseWait" xml:space="preserve"><value>يرجى الانتظار لحظة...</value></data>
+  <data name="OrderStatusUpdatedTitle" xml:space="preserve"><value>تحديث حالة الطلب!</value></data>
+  <data name="OrderStatusUpdatedDesc" xml:space="preserve"><value>الحالة الجديدة: {0}</value></data>
+  <data name="BrowseMaterialsCategories" xml:space="preserve"><value>تصفح فئات المواد الإنشائية</value></data>
+  <data name="SupplyGroups" xml:space="preserve"><value>مجموعات التوريد</value></data>
+  <data name="FilterCategories" xml:space="preserve"><value>تصفية الفئات</value></data>
+  <data name="AvailableSubcategories" xml:space="preserve"><value>الفئات الفرعية المتاحة</value></data>
+  <data name="NoSubcategoriesAvailable" xml:space="preserve"><value>لا توجد فئات فرعية مخصصة</value></data>
+  <data name="BrowseCategoryProducts" xml:space="preserve"><value>تصفح منتجات الفئة</value></data>
+  <data name="ProductsAvailableForOrder" xml:space="preserve"><value>{0} منتج متاح للطلب</value></data>
+  <data name="NoProductsInCategory" xml:space="preserve"><value>عذراً، لا توجد منتجات مسجلة في هذه الفئة حالياً</value></data>
+  <data name="AllCategories" xml:space="preserve"><value>كافة الفئات</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>نتائج البحث</value></data>
+  <data name="AllProducts" xml:space="preserve"><value>جميع المنتجات</value></data>
+  <data name="SearchResultsFor" xml:space="preserve"><value>نتائج البحث عن: {0}</value></data>
+  <data name="NoSearchResultsFound" xml:space="preserve"><value>لم يتم العثور على نتائج</value></data>
+  <data name="NoSearchResultsDesc" xml:space="preserve"><value>عذراً، لم نتمكن من العثور على أي منتجات تطابق بحثك. جرب استخدام كلمات مختلفة.</value></data>
+  <data name="BackToHome" xml:space="preserve"><value>العودة للرئيسية</value></data>
 </root>
