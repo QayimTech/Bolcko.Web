@@ -17,15 +17,36 @@ namespace Blocko.Services.Implementations.Category
         public async Task<IEnumerable<MarketPrice>> GetAllMarketPricesAsync()
         {
             var prices = await _unitOfWork.MarketPrices.GetAllAsync();
+            var today = DateTime.UtcNow.Date;
+            bool changesMade = false;
+
             foreach (var price in prices)
             {
-                // Simulate a live API real-time price fluctuation within a realistic scale (+- 0.5%)
-                double percentChange = (_random.NextDouble() * 1.0 - 0.5) / 100.0; // range from -0.005 to +0.005
-                decimal delta = price.Price * (decimal)percentChange;
-                price.Price = Math.Round(price.Price + delta, 2);
-                price.LastUpdated = DateTime.UtcNow;
-                price.Source = "بث حي ومباشر (API Live)";
+                // Only update prices once a day
+                if (price.LastUpdated.Date < today)
+                {
+                    double maxPercent = 0.003; // default: +- 0.3%
+                    if (price.MaterialName.Contains("حديد")) maxPercent = 0.005; // steel: +- 0.5%
+                    else if (price.MaterialName.Contains("أسمنت")) maxPercent = 0.002; // cement: +- 0.2%
+                    else if (price.MaterialName.Contains("خرسانة")) maxPercent = 0.001; // concrete: +- 0.1%
+
+                    // range from -maxPercent to +maxPercent
+                    double percentChange = (_random.NextDouble() * 2.0 - 1.0) * maxPercent; 
+                    decimal delta = price.Price * (decimal)percentChange;
+                    price.Price = Math.Round(price.Price + delta, 2);
+                    price.LastUpdated = DateTime.UtcNow;
+                    price.Source = "بث حي ومباشر (API Live)";
+                    
+                    _unitOfWork.MarketPrices.Update(price);
+                    changesMade = true;
+                }
             }
+
+            if (changesMade)
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+
             return prices;
         }
 
@@ -34,13 +55,47 @@ namespace Blocko.Services.Implementations.Category
             var price = await _unitOfWork.MarketPrices.GetLatestPriceByMaterialAsync(materialName);
             if (price != null)
             {
-                double percentChange = (_random.NextDouble() * 1.0 - 0.5) / 100.0;
-                decimal delta = price.Price * (decimal)percentChange;
-                price.Price = Math.Round(price.Price + delta, 2);
-                price.LastUpdated = DateTime.UtcNow;
-                price.Source = "بث حي ومباشر (API Live)";
+                var today = DateTime.UtcNow.Date;
+                if (price.LastUpdated.Date < today)
+                {
+                    double maxPercent = 0.003; // default: +- 0.3%
+                    if (price.MaterialName.Contains("حديد")) maxPercent = 0.005; 
+                    else if (price.MaterialName.Contains("أسمنت")) maxPercent = 0.002; 
+                    else if (price.MaterialName.Contains("خرسانة")) maxPercent = 0.001; 
+
+                    double percentChange = (_random.NextDouble() * 2.0 - 1.0) * maxPercent;
+                    decimal delta = price.Price * (decimal)percentChange;
+                    price.Price = Math.Round(price.Price + delta, 2);
+                    price.LastUpdated = DateTime.UtcNow;
+                    price.Source = "بث حي ومباشر (API Live)";
+                    
+                    _unitOfWork.MarketPrices.Update(price);
+                    await _unitOfWork.CompleteAsync();
+                }
             }
             return price;
+        }
+
+        public async Task<MarketPrice?> GetMarketPriceByIdAsync(int id)
+        {
+            return await _unitOfWork.MarketPrices.GetByIdAsync(id);
+        }
+
+        public async Task UpdateMarketPriceAsync(MarketPrice marketPrice)
+        {
+            var existing = await _unitOfWork.MarketPrices.GetByIdAsync(marketPrice.Id);
+            if (existing != null)
+            {
+                existing.MaterialName = marketPrice.MaterialName;
+                existing.Price = marketPrice.Price;
+                existing.UnitOfMeasure = marketPrice.UnitOfMeasure;
+                existing.Currency = marketPrice.Currency;
+                existing.LastUpdated = DateTime.UtcNow; // Manual updates refresh the timestamp
+                existing.Source = "تعديل إداري يدوياً";
+
+                _unitOfWork.MarketPrices.Update(existing);
+                await _unitOfWork.CompleteAsync();
+            }
         }
     }
 }

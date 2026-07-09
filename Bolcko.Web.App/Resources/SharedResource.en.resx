@@ -919,4 +919,5 @@
   <data name="NoSearchResultsFound" xml:space="preserve"><value>No results found</value></data>
   <data name="NoSearchResultsDesc" xml:space="preserve"><value>Sorry, we couldn't find any products matching your search. Try using different keywords.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Back to Home</value></data>
+  <data name="ManageMarketPrices" xml:space="preserve"><value>Market Prices</value></data>
 </root>

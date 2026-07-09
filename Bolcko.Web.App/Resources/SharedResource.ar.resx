@@ -923,4 +923,5 @@
   <data name="NoSearchResultsFound" xml:space="preserve"><value>لم يتم العثور على نتائج</value></data>
   <data name="NoSearchResultsDesc" xml:space="preserve"><value>عذراً، لم نتمكن من العثور على أي منتجات تطابق بحثك. جرب استخدام كلمات مختلفة.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>العودة للرئيسية</value></data>
+  <data name="ManageMarketPrices" xml:space="preserve"><value>أسعار السوق</value></data>
 </root>
