@@ -1,0 +1,156 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
+@model IEnumerable<DeliveryJob>
+@{
+    ViewData["Title"] = "لوحة المندوب";
+    Layout = "_Layout";
+    var driver = ViewBag.Driver as DeliveryDriver;
+    var availableJobs = ViewBag.AvailableJobs as IEnumerable<DeliveryJob> ?? new List<DeliveryJob>();
+    var myBids = ViewBag.MyBids as IEnumerable<DeliveryBid> ?? new List<DeliveryBid>();
+    var activeJobs = Model.Where(j => j.Status != DeliveryJobStatus.Delivered && j.Status != DeliveryJobStatus.Cancelled).ToList();
+}
+
+<div class="p-6 text-right" dir="rtl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">مرحباً، @driver?.User?.FirstName 👋</h1>
+            <p class="text-slate-500 text-sm">لوحة تحكم المندوب</p>
+        </div>
+        <form asp-action="ToggleAvailability" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="px-4 py-2 @(driver?.IsAvailable == true ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-400 hover:bg-slate-500") text-white rounded-lg font-medium text-sm transition-colors">
+                @(driver?.IsAvailable == true ? "🟢 متاح" : "🔴 غير متاح")
+            </button>
+        </form>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["Error"]</div>
+    }
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+            <p class="text-3xl font-bold text-blue-600">@activeJobs.Count</p>
+            <p class="text-xs text-slate-500 mt-1">مهام نشطة</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+            <p class="text-3xl font-bold text-amber-600">@myBids.Count(b => b.Status == DeliveryBidStatus.Pending)</p>
+            <p class="text-xs text-slate-500 mt-1">عروض قيد الانتظار</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+            <p class="text-3xl font-bold text-emerald-600">@Model.Count(j => j.Status == DeliveryJobStatus.Delivered)</p>
+            <p class="text-xs text-slate-500 mt-1">مهام مكتملة</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+            <p class="text-3xl font-bold text-amber-500">⭐ @(driver?.AverageRating.ToString("N1") ?? "—")</p>
+            <p class="text-xs text-slate-500 mt-1">متوسط التقييم</p>
+        </div>
+    </div>
+
+    <!-- Active Jobs -->
+    @if (activeJobs.Any())
+    {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">🚚 مهامي النشطة</h2>
+            @foreach (var job in activeJobs)
+            {
+                var statusText = job.Status switch
+                {
+                    DeliveryJobStatus.Assigned => "تم التعيين - في انتظار استلام الطلب",
+                    DeliveryJobStatus.PickedUp => "تم الاستلام - في الطريق",
+                    DeliveryJobStatus.InTransit => "في الطريق لموقع العميل",
+                    _ => job.Status.ToString()
+                };
+                <div class="border border-slate-100 rounded-xl p-4 mb-3 hover:bg-slate-50">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-bold">طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())</p>
+                            <p class="text-sm text-slate-500">📍 @job.DropoffLocation</p>
+                            <p class="text-sm text-emerald-600 font-medium">💰 @job.DeliveryFee.ToString("N2") د.أ</p>
+                        </div>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">@statusText</span>
+                    </div>
+                    <form asp-action="UpdateStatus" method="post" class="flex gap-2 items-center flex-wrap">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="jobId" value="@job.Id" />
+                        @if (job.Status == DeliveryJobStatus.Assigned)
+                        {
+                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.PickedUp)"
+                                    class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
+                                ✔ استلمت الطلب
+                            </button>
+                        }
+                        else if (job.Status == DeliveryJobStatus.PickedUp)
+                        {
+                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.InTransit)"
+                                    class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">
+                                🚗 في الطريق
+                            </button>
+                        }
+                        else if (job.Status == DeliveryJobStatus.InTransit)
+                        {
+                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.Delivered)"
+                                    class="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700">
+                                ✅ تم التسليم
+                            </button>
+                        }
+                    </form>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Available Jobs -->
+    @if (availableJobs.Any())
+    {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">📋 الطلبات المتاحة للتوصيل</h2>
+            @foreach (var job in availableJobs)
+            {
+                var hasBid = myBids.Any(b => b.DeliveryJobId == job.Id);
+                <div class="border border-slate-100 rounded-xl p-4 mb-3 hover:bg-blue-50/50">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-bold">طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())</p>
+                            <p class="text-sm text-slate-500">📦 من: @job.PickupLocation</p>
+                            <p class="text-sm text-slate-500">📍 إلى: @job.DropoffLocation</p>
+                            <p class="text-sm text-blue-600 font-medium">💰 رسوم مقترحة: @job.DeliveryFee.ToString("N2") د.أ</p>
+                        </div>
+                        @if (hasBid)
+                        {
+                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ قدمت عرضاً</span>
+                        }
+                    </div>
+                    @if (!hasBid)
+                    {
+                        <form asp-action="PlaceBid" method="post" class="flex gap-2 items-center">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="jobId" value="@job.Id" />
+                            <input name="bidAmount" type="number" step="0.01" min="1" value="@job.DeliveryFee"
+                                   placeholder="عرض السعر (د.أ)"
+                                   class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                                📤 تقديم عرض
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else if (!activeJobs.Any())
+    {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+            <p class="text-5xl mb-4">🎯</p>
+            <p class="text-slate-500">لا توجد طلبات متاحة للتوصيل حالياً.</p>
+            <p class="text-slate-400 text-sm mt-2">سيتم إشعارك فور توفر طلب جديد.</p>
+        </div>
+    }
+</div>

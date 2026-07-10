@@ -1,0 +1,105 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
+@using Bolcko.Domain.Common
+@model IPagedList<DeliveryJob>
+@{
+    ViewData["Title"] = "مركز التوزيع والإرسال";
+    Layout = "_Layout";
+}
+
+<div class="p-6 text-right" dir="rtl">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">🚚 مركز التوزيع والإرسال</h1>
+        <div class="flex gap-2">
+            <a asp-action="Drivers" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">إدارة المناديب</a>
+            <a asp-action="Companies" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium">شركات التوصيل</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["Error"]</div>
+    }
+
+    <!-- Jobs Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+            <h2 class="font-bold text-slate-700">جميع مهام التوصيل</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-right">رقم المهمة</th>
+                        <th class="px-4 py-3 text-right">رقم الطلب</th>
+                        <th class="px-4 py-3 text-right">موقع التسليم</th>
+                        <th class="px-4 py-3 text-right">المندوب</th>
+                        <th class="px-4 py-3 text-right">رسوم التوصيل</th>
+                        <th class="px-4 py-3 text-right">الحالة</th>
+                        <th class="px-4 py-3 text-right">إجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var job in Model.Items)
+                    {
+                        var statusClass = job.Status switch
+                        {
+                            DeliveryJobStatus.Available => "bg-amber-100 text-amber-700",
+                            DeliveryJobStatus.Assigned => "bg-blue-100 text-blue-700",
+                            DeliveryJobStatus.PickedUp => "bg-purple-100 text-purple-700",
+                            DeliveryJobStatus.InTransit => "bg-indigo-100 text-indigo-700",
+                            DeliveryJobStatus.Delivered => "bg-emerald-100 text-emerald-700",
+                            DeliveryJobStatus.Cancelled => "bg-red-100 text-red-700",
+                            _ => "bg-slate-100 text-slate-700"
+                        };
+                        var statusText = job.Status switch
+                        {
+                            DeliveryJobStatus.Available => "متاح",
+                            DeliveryJobStatus.Assigned => "تم التعيين",
+                            DeliveryJobStatus.PickedUp => "تم الاستلام",
+                            DeliveryJobStatus.InTransit => "في الطريق",
+                            DeliveryJobStatus.Delivered => "تم التسليم",
+                            DeliveryJobStatus.Cancelled => "ملغي",
+                            _ => job.Status.ToString()
+                        };
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3 font-mono">#@job.Id</td>
+                            <td class="px-4 py-3">@(job.Order?.OrderNumber ?? "-")</td>
+                            <td class="px-4 py-3 text-slate-600">@job.DropoffLocation</td>
+                            <td class="px-4 py-3">
+                                @if (job.Driver?.User != null)
+                                {
+                                    <span class="font-medium">@job.Driver.User.FirstName @job.Driver.User.LastName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400">—</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3 font-medium">@job.DeliveryFee.ToString("N2") د.أ</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 text-xs font-bold rounded-full @statusClass">@statusText</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <a asp-action="JobDetails" asp-route-id="@job.Id"
+                                   class="text-blue-600 hover:underline text-sm">التفاصيل</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-slate-400">لا توجد مهام توصيل حتى الآن</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
+    </div>
+</div>
+

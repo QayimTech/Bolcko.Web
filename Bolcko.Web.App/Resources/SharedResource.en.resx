@@ -91,6 +91,9 @@
   <data name="ManageUsers" xml:space="preserve">
     <value>Manage Users</value>
   </data>
+  <data name="SystemSettings" xml:space="preserve">
+    <value>System Settings</value>
+  </data>
   <data name="BackToStore" xml:space="preserve">
     <value>Back to Store</value>
   </data>

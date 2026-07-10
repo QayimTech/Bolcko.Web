@@ -1,0 +1,106 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Common
+@model IPagedList<DeliveryCompany>
+@{
+    ViewData["Title"] = "شركات التوصيل";
+    Layout = "_Layout";
+}
+
+<div class="p-6 text-right" dir="rtl">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">🏢 شركات التوصيل</h1>
+        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm">عودة</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+    }
+
+    <!-- Add Company Form -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+        <h2 class="font-bold text-lg mb-4 border-b pb-2">➕ إضافة شركة توصيل جديدة</h2>
+        <form asp-action="CreateCompany" method="post">
+            @Html.AntiForgeryToken()
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">اسم الشركة *</label>
+                    <input name="name" type="text" required placeholder="شركة التوصيل السريع"
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">البريد الإلكتروني</label>
+                    <input name="email" type="email" placeholder="info@delivery.com"
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">رقم الهاتف</label>
+                    <input name="phoneNumber" type="tel" placeholder="0791234567"
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">رقم السجل التجاري</label>
+                    <input name="commercialRegister" type="text" placeholder="12345678"
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">سعر التوصيل الأساسي (د.أ)</label>
+                    <input name="baseRate" type="number" step="0.01" min="0" value="5.00" required
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                </div>
+            </div>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">
+                إضافة الشركة
+            </button>
+        </form>
+    </div>
+
+    <!-- Companies Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+            <h2 class="font-bold text-slate-700">الشركات المسجلة</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-right">اسم الشركة</th>
+                        <th class="px-4 py-3 text-right">البريد</th>
+                        <th class="px-4 py-3 text-right">الهاتف</th>
+                        <th class="px-4 py-3 text-right">السعر الأساسي</th>
+                        <th class="px-4 py-3 text-right">عدد المناديب</th>
+                        <th class="px-4 py-3 text-right">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var company in Model.Items)
+                    {
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3 font-medium">@company.Name</td>
+                            <td class="px-4 py-3 text-slate-500">@(company.Email ?? "—")</td>
+                            <td class="px-4 py-3 text-slate-500">@(company.PhoneNumber ?? "—")</td>
+                            <td class="px-4 py-3 font-medium">@company.BaseDeliveryRate.ToString("N2") د.أ</td>
+                            <td class="px-4 py-3">@company.Drivers.Count() مندوب</td>
+                            <td class="px-4 py-3">
+                                @if (company.IsActive)
+                                {
+                                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✔ نشطة</span>
+                                }
+                                else
+                                {
+                                    <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">غير نشطة</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">لا توجد شركات توصيل مسجلة بعد</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
+    </div>
+</div>
+

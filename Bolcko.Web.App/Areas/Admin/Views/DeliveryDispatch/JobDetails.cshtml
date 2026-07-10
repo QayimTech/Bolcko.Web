@@ -1,0 +1,190 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
+@model DeliveryJob
+@{
+    ViewData["Title"] = "تفاصيل مهمة التوصيل";
+    Layout = "_Layout";
+}
+
+<div class="p-6 text-right" dir="rtl">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">🚚 تفاصيل مهمة التوصيل #@Model.Id</h1>
+        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm">عودة</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["Error"]</div>
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Job Info -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">معلومات المهمة</h2>
+            <p class="mb-2"><span class="font-bold">رقم الطلب:</span> @(Model.Order?.OrderNumber ?? "-")</p>
+            <p class="mb-2"><span class="font-bold">موقع الاستلام:</span> @Model.PickupLocation</p>
+            <p class="mb-2"><span class="font-bold">موقع التسليم:</span> @Model.DropoffLocation</p>
+            <p class="mb-2"><span class="font-bold">رسوم التوصيل:</span> @Model.DeliveryFee.ToString("N2") د.أ</p>
+            <p class="mb-2"><span class="font-bold">الحالة:</span>
+                @{
+                    var statusText = Model.Status switch
+                    {
+                        DeliveryJobStatus.Available => "متاح",
+                        DeliveryJobStatus.Assigned => "تم التعيين",
+                        DeliveryJobStatus.PickedUp => "تم الاستلام",
+                        DeliveryJobStatus.InTransit => "في الطريق",
+                        DeliveryJobStatus.Delivered => "تم التسليم",
+                        DeliveryJobStatus.Cancelled => "ملغي",
+                        _ => Model.Status.ToString()
+                    };
+                }
+                <span class="font-medium">@statusText</span>
+            </p>
+            @if (Model.AssignedAt.HasValue)
+            {
+                <p class="mb-2"><span class="font-bold">وقت التعيين:</span> @Model.AssignedAt.Value.ToString("yyyy/MM/dd HH:mm")</p>
+            }
+            @if (Model.DeliveredAt.HasValue)
+            {
+                <p class="mb-2"><span class="font-bold">وقت التسليم:</span> @Model.DeliveredAt.Value.ToString("yyyy/MM/dd HH:mm")</p>
+            }
+        </div>
+
+        <!-- Driver Info / Assign Driver -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">المندوب المعين</h2>
+            @if (Model.Driver != null)
+            {
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-lg">
+                        @(Model.Driver.User?.FirstName?.FirstOrDefault().ToString() ?? "م")
+                    </div>
+                    <div>
+                        <p class="font-bold">@Model.Driver.User?.FirstName @Model.Driver.User?.LastName</p>
+                        <p class="text-sm text-slate-500">@Model.Driver.User?.PhoneNumber</p>
+                        <p class="text-sm text-slate-500">@Model.Driver.VehicleType</p>
+                        <p class="text-sm text-amber-500">⭐ @Model.Driver.AverageRating.ToString("N1") (@Model.Driver.TotalRatings تقييم)</p>
+                    </div>
+                </div>
+
+                if (Model.Driver.Company != null)
+                {
+                    <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <p class="font-bold text-sm text-slate-700 mb-1">🏢 شركة التوصيل: @Model.Driver.Company.Name</p>
+                        @if (!string.IsNullOrEmpty(Model.Driver.Company.Email))
+                        {
+                            <p class="text-xs text-slate-500 mb-3">📧 البريد الإلكتروني: @Model.Driver.Company.Email</p>
+                            
+                            <form asp-action="SendCompanyEmail" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="jobId" value="@Model.Id" />
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm">
+                                    <span class="material-symbols-outlined text-base">send</span>
+                                    إرسال مستندات التوصيل (PDF & Excel)
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <p class="text-xs text-amber-600 font-bold">⚠️ البريد الإلكتروني غير مهيأ لهذه الشركة</p>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-slate-400 mb-4">لم يتم تعيين مندوب بعد.</p>
+            }
+
+            @if (Model.Status == DeliveryJobStatus.Available || Model.Status == DeliveryJobStatus.Assigned)
+            {
+                <!-- Update Status -->
+                <form asp-action="UpdateJobStatus" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="jobId" value="@Model.Id" />
+                    <label class="block text-sm font-bold mb-1">تحديث حالة المهمة</label>
+                    <div class="flex gap-2">
+                        <select name="status" class="border border-slate-300 rounded px-3 py-2 text-sm flex-1">
+                            <option value="@((int)DeliveryJobStatus.Assigned)">تم التعيين</option>
+                            <option value="@((int)DeliveryJobStatus.PickedUp)">تم استلام الطلب</option>
+                            <option value="@((int)DeliveryJobStatus.InTransit)">في الطريق</option>
+                            <option value="@((int)DeliveryJobStatus.Delivered)">تم التسليم</option>
+                            <option value="@((int)DeliveryJobStatus.Cancelled)">إلغاء</option>
+                        </select>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">تحديث</button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <!-- Bids Section -->
+    @if (Model.Bids != null && Model.Bids.Any())
+    {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">عروض الأسعار المقدمة (@Model.Bids.Count())</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+                        <tr>
+                            <th class="px-4 py-3 text-right">المندوب</th>
+                            <th class="px-4 py-3 text-right">مبلغ العرض</th>
+                            <th class="px-4 py-3 text-right">التقييم</th>
+                            <th class="px-4 py-3 text-right">التاريخ</th>
+                            <th class="px-4 py-3 text-right">الحالة</th>
+                            <th class="px-4 py-3 text-right">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach (var bid in Model.Bids.OrderBy(b => b.BidAmount))
+                        {
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-4 py-3 font-medium">@(bid.Driver?.User?.FirstName ?? "-") @(bid.Driver?.User?.LastName ?? "")</td>
+                                <td class="px-4 py-3 font-bold text-blue-700">@bid.BidAmount.ToString("N2") د.أ</td>
+                                <td class="px-4 py-3 text-amber-500">⭐ @(bid.Driver?.AverageRating.ToString("N1") ?? "-")</td>
+                                <td class="px-4 py-3 text-slate-500">@bid.CreatedAt.ToString("MM/dd HH:mm")</td>
+                                <td class="px-4 py-3">
+                                    @{
+                                        var bidStatusClass = bid.Status == DeliveryBidStatus.Accepted ? "text-emerald-700 bg-emerald-100" :
+                                                             bid.Status == DeliveryBidStatus.Rejected ? "text-red-700 bg-red-100" :
+                                                             "text-amber-700 bg-amber-100";
+                                        var bidStatusText = bid.Status == DeliveryBidStatus.Accepted ? "مقبول" :
+                                                            bid.Status == DeliveryBidStatus.Rejected ? "مرفوض" : "قيد الانتظار";
+                                    }
+                                    <span class="px-2 py-1 text-xs font-bold rounded-full @bidStatusClass">@bidStatusText</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if (bid.Status == DeliveryBidStatus.Pending && Model.Status == DeliveryJobStatus.Available)
+                                    {
+                                        <form asp-action="AcceptBid" method="post" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="bidId" value="@bid.Id" />
+                                            <input type="hidden" name="jobId" value="@Model.Id" />
+                                            <button type="submit" class="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700">✔ قبول</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- Rating Section -->
+    @if (Model.Rating != null)
+    {
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <h2 class="font-bold text-lg mb-4 border-b pb-2">تقييم العميل</h2>
+            <p class="text-amber-500 text-2xl mb-2">
+                @for (int i = 0; i < Model.Rating.RatingValue; i++) { <span>⭐</span> }
+            </p>
+            <p class="text-slate-700">@(Model.Rating.Comment ?? "لا يوجد تعليق")</p>
+        </div>
+    }
+</div>

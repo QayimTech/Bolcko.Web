@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
+// Configure QuestPDF license
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 // Configure Serilog first
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()

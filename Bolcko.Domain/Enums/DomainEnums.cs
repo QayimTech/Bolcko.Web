@@ -4,7 +4,9 @@ namespace Bolcko.Domain.Enums
     {
         Customer = 1,
         DashboardUser = 2,
-        Admin = 3
+        Admin = 3,
+        DeliveryDriver = 4,
+        DeliveryCompanyUser = 5
     }
 
     public enum OrderStatus
@@ -52,5 +54,22 @@ public enum TenderStatus
         COD = 1,
         BankTransfer = 2,
         CreditCard = 3
+    }
+
+    public enum DeliveryJobStatus
+    {
+        Available = 1,
+        Assigned = 2,
+        PickedUp = 3,
+        InTransit = 4,
+        Delivered = 5,
+        Cancelled = 6
+    }
+
+    public enum DeliveryBidStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Rejected = 3
     }
 }

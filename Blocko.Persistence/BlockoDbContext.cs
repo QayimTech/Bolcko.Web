@@ -5,6 +5,7 @@ using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Project;
 using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.ShoppingCart;
+using Bolcko.Domain.Entities.Delivery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +31,17 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; set; }  
         public DbSet<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Setting.AppSetting> AppSettings { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Setting.ShippingRate> ShippingRates { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Setting.Coupon> Coupons { get; set; }
+        
+        // Delivery
+        public DbSet<DeliveryCompany> DeliveryCompanies { get; set; }
+        public DbSet<DeliveryDriver> DeliveryDrivers { get; set; }
+        public DbSet<DeliveryJob> DeliveryJobs { get; set; }
+        public DbSet<DeliveryBid> DeliveryBids { get; set; }
+        public DbSet<DeliveryRating> DeliveryRatings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -151,6 +163,85 @@ namespace Blocko.Persistence
                     .WithMany()
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Bolcko.Domain.Entities.Setting.ShippingRate>(entity =>
+            {
+                entity.Property(e => e.Rate).HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<Bolcko.Domain.Entities.Setting.Coupon>(entity =>
+            {
+                entity.Property(e => e.DiscountValue).HasPrecision(18, 2);
+            });
+
+            // Delivery configurations
+            modelBuilder.Entity<DeliveryCompany>(entity =>
+            {
+                entity.Property(e => e.BaseDeliveryRate).HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<DeliveryDriver>(entity =>
+            {
+                entity.Property(e => e.AverageRating).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.User)
+                    .WithMany()
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.Drivers)
+                    .HasForeignKey(d => d.DeliveryCompanyId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<DeliveryJob>(entity =>
+            {
+                entity.Property(e => e.DeliveryFee).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.Order)
+                    .WithMany()
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Driver)
+                    .WithMany(p => p.Jobs)
+                    .HasForeignKey(d => d.DriverId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<DeliveryBid>(entity =>
+            {
+                entity.Property(e => e.BidAmount).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.DeliveryJob)
+                    .WithMany(p => p.Bids)
+                    .HasForeignKey(d => d.DeliveryJobId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Driver)
+                    .WithMany(p => p.Bids)
+                    .HasForeignKey(d => d.DriverId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DeliveryRating>(entity =>
+            {
+                entity.HasOne(d => d.DeliveryJob)
+                    .WithOne(p => p.Rating)
+                    .HasForeignKey<DeliveryRating>(d => d.DeliveryJobId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Driver)
+                    .WithMany(p => p.Ratings)
+                    .HasForeignKey(d => d.DriverId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany()
+                    .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

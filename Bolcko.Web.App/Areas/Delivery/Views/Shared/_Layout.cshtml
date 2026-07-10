@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? "لوحة المندوب") - بولكو للتوصيل</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <partial name="Partials/_Styles" />
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 min-h-screen" style="font-family: 'Noto Kufi Arabic', sans-serif;">
+
+    <!-- Driver Navbar -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-lg">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🚚</span>
+            <span class="font-bold text-lg">بولكو — لوحة المناديب</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a asp-area="Delivery" asp-controller="Home" asp-action="Index"
+               class="text-sm text-slate-300 hover:text-white transition-colors">الرئيسية</a>
+            <form asp-area="Delivery" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="text-sm text-red-400 hover:text-red-300 transition-colors">
+                    تسجيل الخروج
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto py-6 px-4">
+        @RenderBody()
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

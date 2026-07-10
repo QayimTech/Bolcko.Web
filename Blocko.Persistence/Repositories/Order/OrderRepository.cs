@@ -14,6 +14,7 @@ namespace Blocko.Persistence.Repositories.Order
         public async Task<Bolcko.Domain.Entities.Order.Order?> GetOrderByIdWithItemsAsync(int id) =>
             await _context.Orders
                 .Include(o => o.Items)
+                    .ThenInclude(i => i.Product)
                 .Include(o => o.ShippingAddress)
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == id);

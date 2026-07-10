@@ -66,19 +66,21 @@
             </a>
         </div>
         
-        <div class="flex flex-wrap justify-start gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
                 <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" 
-                   class="group flex items-center gap-4 bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_25px_rgba(232,160,32,0.1)] hover:border-[#E8A020]/30 hover:bg-gradient-to-l hover:from-[#fffcf5] hover:to-white transition-all duration-300 hover:-translate-y-1 min-w-[200px]">
+                   class="group flex flex-col items-center text-center bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
                     
-                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300 shadow-sm group-hover:shadow-md">
-                        <span class="material-symbols-outlined text-2xl">@(string.IsNullOrWhiteSpace(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                    <div class="absolute inset-0 bg-gradient-to-b from-[#fffaf0] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    <div class="relative w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-500 shadow-sm group-hover:shadow-md mb-4 transform group-hover:scale-110">
+                        <span class="material-symbols-outlined text-3xl">@(string.IsNullOrWhiteSpace(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
                     </div>
                     
-                    <div class="flex flex-col text-start">
-                        <span class="font-bold text-slate-800 text-base group-hover:text-[#E8A020] transition-colors duration-300">@cat.Name</span>
-                        <span class="text-[11px] text-slate-500 font-medium mt-0.5 bg-slate-100 px-2 py-0.5 rounded-md w-max group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
+                    <div class="relative flex flex-col items-center w-full min-w-0">
+                        <h3 class="font-bold text-slate-800 text-[13px] sm:text-sm group-hover:text-[#E8A020] transition-colors duration-300 line-clamp-2 w-full px-1" title="@cat.Name">@cat.Name</h3>
+                        <span class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-2 bg-slate-100 px-2 py-0.5 rounded-lg group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
                     </div>
                 </a>
             }

@@ -3,7 +3,8 @@
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
 @{
-    var rootCategories = await CategoryService.GetRootCategoriesAsync();
+    var allCategories = await CategoryService.GetAllCategoriesAsync();
+    var rootCategories = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ToList();
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
 
@@ -33,53 +34,21 @@
                 <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 lg:h-9")' />
             </a>
             <nav class="hidden lg:flex items-center gap-1 flex-shrink-0 ms-2">
-                <!-- Categories Dropdown Menu -->
-                <div class="relative group">
-                    <button type="button" class="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-100 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all focus:outline-none py-2">
+                <!-- Categories Mega Menu Trigger -->
+                <div class="relative" id="mega-menu-trigger">
+                    <button type="button" id="mega-menu-btn"
+                            class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-100 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all focus:outline-none"
+                            aria-expanded="false" aria-controls="mega-menu-panel">
                         <span class="material-symbols-outlined text-[15px]">grid_view</span>
                         <span>@SharedLocalizer["Categories"]</span>
-                        <span class="material-symbols-outlined text-[13px]">expand_more</span>
+                        <span class="material-symbols-outlined text-[13px] transition-transform duration-200" id="mega-menu-chevron">expand_more</span>
                     </button>
-                    <!-- Mega Menu Dropdown (Solid background to prevent page text bleed through) -->
-                    <div class="absolute start-0 top-full mt-2 w-[480px] bg-[#161d2d] border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100]">
-                        <div class="p-5">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-white font-bold text-xs uppercase tracking-widest">@(isArabic ? "تصفح الأقسام" : "Browse Categories")</h3>
-                                <a href="@Url.Action("Index", "Category", new { area = "Shop" })" class="text-[11px] font-bold text-[#E8A020] hover:underline flex items-center gap-1 transition-colors">
-                                    @SharedLocalizer["ViewAllCategories"]
-                                    <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
-                                </a>
-                            </div>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                @if (rootCategories != null && rootCategories.Any())
-                                {
-                                    @foreach (var cat in rootCategories)
-                                    {
-                                        <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" class="flex items-center gap-3 p-2.5 rounded-xl text-slate-200 hover:bg-white/5 hover:text-[#E8A020] group/cat transition-all duration-200">
-                                            <div class="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 group-hover/cat:bg-[#E8A020]/15 group-hover/cat:text-[#E8A020] group-hover/cat:border-[#E8A020]/20 transition-all flex-shrink-0">
-                                                <span class="material-symbols-outlined text-[18px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
-                                            </div>
-                                            <span class="font-bold text-xs">@cat.Name</span>
-                                        </a>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="col-span-2 px-4 py-6 text-xs text-slate-400 text-center bg-white/3 rounded-xl border border-dashed border-white/10 block">@(isArabic ? "لا توجد تصنيفات حالياً" : "No categories found")</span>
-                                }
-                            </div>
-                        </div>
-                        <div class="border-t border-white/5 px-5 py-4 flex items-center gap-3 bg-[#111622] rounded-b-2xl">
-                            <div class="w-10 h-10 rounded-full bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020] flex-shrink-0">
-                                <span class="material-symbols-outlined text-[20px]">support_agent</span>
-                            </div>
-                            <div>
-                                <p class="text-white text-xs font-bold">@(isArabic ? "هل تحتاج مساعدة في اختيار المواد؟" : "Need help choosing materials?")</p>
-                                <p class="text-slate-400 text-[10px] mt-0.5">@(isArabic ? "تواصل مع خبرائنا للحصول على استشارة مجانية." : "Contact our experts for a free consultation.")</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+
+                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">local_shipping</span>
+                    <span>تتبع الطلب</span>
+                </a>
             </nav>
         </div>
 
@@ -199,6 +168,123 @@
     </div>
 
 </header>
+
+<!-- =========================================================== -->
+<!-- MEGA MENU PANEL (Desktop only, JS-positioned overlay) -->
+<!-- =========================================================== -->
+<div id="mega-menu-panel"
+     class="fixed"
+     style="display:none; z-index:9999;"
+     aria-hidden="true">
+    <div id="mega-menu-inner"
+         class="bg-[#161d2d] border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] rounded-2xl overflow-hidden"
+         style="width: 820px;">
+        <!-- Flex Row: Sidebar + Content -->
+        <div class="flex">
+            <!-- LEFT SIDEBAR: Root Categories -->
+            <div class="flex flex-col bg-[#111826] border-e border-white/5 overflow-y-auto custom-scrollbar flex-shrink-0"
+                 style="width: 240px; max-height: 65vh;">
+                @if (rootCategories != null && rootCategories.Any())
+                {
+                    bool isFirst = true;
+                    @foreach (var cat in rootCategories)
+                    {
+                        <button type="button"
+                                class="root-cat-item w-full text-start px-4 py-3.5 border-b border-white/5 cursor-pointer transition-all duration-150 flex items-center justify-between group/rcat @(isFirst ? "bg-[#1d2640] text-[#E8A020] active-root" : "text-slate-300 hover:bg-[#1a2035] hover:text-white")"
+                                data-cat-id="@cat.Id"
+                                onmouseenter="megaMenuActivate(this, '@cat.Id')">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-150 @(isFirst ? "bg-[#E8A020]/20 text-[#E8A020]" : "bg-white/5 text-slate-400 group-hover/rcat:bg-[#E8A020]/15 group-hover/rcat:text-[#E8A020]")">
+                                    <span class="material-symbols-outlined text-[16px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                                </div>
+                                <span class="font-semibold text-[12px] truncate leading-tight">@cat.Name</span>
+                            </div>
+                            <span class="material-symbols-outlined text-[14px] flex-shrink-0 ms-1 opacity-50 group-hover/rcat:opacity-100 transition-opacity @(isFirst ? "opacity-100" : "")">chevron_right</span>
+                        </button>
+                        isFirst = false;
+                    }
+                }
+                else
+                {
+                    <div class="p-6 text-xs text-slate-400 text-center">@(isArabic ? "لا توجد تصنيفات" : "No categories")</div>
+                }
+            </div>
+
+            <!-- RIGHT CONTENT: Subcategory Panes -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar" style="max-height: 65vh;">
+                @if (rootCategories != null && rootCategories.Any())
+                {
+                    bool isFirst = true;
+                    @foreach (var rootCat in rootCategories)
+                    {
+                        var subCats = allCategories.Where(c => c.ParentCategoryId == rootCat.Id).OrderBy(c => c.DisplayOrder).ToList();
+                        <div id="mm-pane-@rootCat.Id" class="subcats-pane @(isFirst ? "" : "hidden") p-6">
+                            <!-- Pane Header -->
+                            <div class="flex items-center justify-between mb-5 pb-4 border-b border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020]">
+                                        <span class="material-symbols-outlined text-[18px]">@(string.IsNullOrEmpty(rootCat.ImageUrl) ? "category" : rootCat.ImageUrl)</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-white font-bold text-sm leading-tight">@rootCat.Name</h3>
+                                        <p class="text-slate-500 text-[10px] mt-0.5">@(subCats.Count) @(isArabic ? "فئة فرعية" : "subcategories")</p>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("Index", "Category", new { area = "Shop", id = rootCat.Id })"
+                                   class="flex items-center gap-1.5 text-[11px] font-bold text-[#E8A020] hover:text-amber-300 bg-[#E8A020]/10 hover:bg-[#E8A020]/20 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
+                                    @(isArabic ? "عرض الكل" : "View All")
+                                    <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                            </div>
+                            <!-- Subcategory Grid -->
+                            @if (subCats.Any())
+                            {
+                                <div class="grid grid-cols-2 xl:grid-cols-3 gap-2">
+                                    @foreach (var subCat in subCats)
+                                    {
+                                        <a href="@Url.Action("Index", "Category", new { area = "Shop", id = subCat.Id })"
+                                           class="group/sub flex items-center gap-2.5 py-2 px-3 rounded-xl hover:bg-white/5 transition-all">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover/sub:bg-[#E8A020] transition-colors flex-shrink-0"></span>
+                                            <span class="text-[12px] text-slate-300 group-hover/sub:text-white font-medium truncate leading-tight" title="@subCat.Name">@subCat.Name</span>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex flex-col items-center justify-center py-12 opacity-40">
+                                    <span class="material-symbols-outlined text-5xl text-slate-500 mb-3">inbox</span>
+                                    <span class="text-xs text-slate-400 font-medium">@(isArabic ? "لا توجد فئات فرعية" : "No subcategories")</span>
+                                </div>
+                            }
+                        </div>
+                        isFirst = false;
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Footer Bar -->
+        <div class="border-t border-white/5 px-5 py-3.5 flex items-center justify-between bg-[#0f1520]">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020] flex-shrink-0">
+                    <span class="material-symbols-outlined text-[16px]">support_agent</span>
+                </div>
+                <div>
+                    <p class="text-white text-[11px] font-bold">@(isArabic ? "هل تحتاج مساعدة؟" : "Need help?")</p>
+                    <p class="text-slate-400 text-[10px]">@(isArabic ? "تواصل مع خبرائنا للحصول على استشارة مجانية." : "Contact our experts for a free consultation.")</p>
+                </div>
+            </div>
+            <a href="@Url.Action("Index", "Category", new { area = "Shop" })"
+               class="text-[11px] font-bold text-slate-400 hover:text-white flex items-center gap-1 hover:gap-2 transition-all">
+                @(isArabic ? "جميع الأقسام" : "All Categories")
+                <span class="material-symbols-outlined text-[13px] rtl:-scale-x-100">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- Mega Menu Backdrop (for click outside to close) -->
+<div id="mega-menu-backdrop" class="fixed inset-0 z-[98]" style="display:none;" aria-hidden="true"></div>
 
 <!-- =========================================================== -->
 <!-- MOBILE FULL-SCREEN DRAWER  (lg:hidden) -->
@@ -414,4 +500,117 @@
         if (e.key === "Escape" && spotlightEl && !spotlightEl.classList.contains("opacity-0")) closeSpotlight();
     });
 })();
+
+// =========================================================
+// MEGA MENU — JS-positioned fixed panel (RTL-safe)
+// =========================================================
+(function () {
+    var btn          = document.getElementById("mega-menu-btn");
+    var panel        = document.getElementById("mega-menu-panel");
+    var inner        = document.getElementById("mega-menu-inner");
+    var backdrop     = document.getElementById("mega-menu-backdrop");
+    var chevron      = document.getElementById("mega-menu-chevron");
+    var isOpen       = false;
+    var closeTimer   = null;  // delay timer to survive the hover-gap
+    var isRTL        = document.documentElement.dir === "rtl";
+    var CLOSE_DELAY  = 120;   // ms — enough time to move from btn to panel
+
+    if (!btn || !panel) return;
+
+    function positionPanel() {
+        var btnRect = btn.getBoundingClientRect();
+        var panelW  = inner ? inner.offsetWidth : 820;
+        var vpW     = window.innerWidth;
+
+        // Sit 4px below the bottom of the trigger button
+        panel.style.top = (btnRect.bottom + 4) + "px";
+
+        if (isRTL) {
+            var rightOffset = vpW - btnRect.right;
+            var leftEdge    = vpW - rightOffset - panelW;
+            if (leftEdge < 12) rightOffset = vpW - panelW - 12;
+            panel.style.right = rightOffset + "px";
+            panel.style.left  = "auto";
+        } else {
+            var leftOffset = btnRect.left;
+            if (leftOffset + panelW > vpW - 12) leftOffset = vpW - panelW - 12;
+            if (leftOffset < 12) leftOffset = 12;
+            panel.style.left  = leftOffset + "px";
+            panel.style.right = "auto";
+        }
+    }
+
+    function openMenu() {
+        clearTimeout(closeTimer);
+        if (isOpen) return;
+        isOpen = true;
+        positionPanel();
+        panel.style.display = "block";
+        panel.removeAttribute("aria-hidden");
+        btn.setAttribute("aria-expanded", "true");
+        if (chevron) chevron.style.transform = "rotate(180deg)";
+        btn.classList.add("text-[#E8A020]", "bg-white/5");
+    }
+
+    function scheduleClose() {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(closeMenu, CLOSE_DELAY);
+    }
+
+    function closeMenu() {
+        clearTimeout(closeTimer);
+        if (!isOpen) return;
+        isOpen = false;
+        panel.style.display = "none";
+        panel.setAttribute("aria-hidden", "true");
+        btn.setAttribute("aria-expanded", "false");
+        if (chevron) chevron.style.transform = "";
+        btn.classList.remove("text-[#E8A020]", "bg-white/5");
+    }
+
+    // --- Button events ---
+    btn.addEventListener("click",       function (e) { e.stopPropagation(); isOpen ? closeMenu() : openMenu(); });
+    btn.addEventListener("mouseenter",  function ()  { openMenu(); });
+    btn.addEventListener("mouseleave",  function ()  { scheduleClose(); });
+
+    // --- Panel events: cancel close when cursor enters panel ---
+    panel.addEventListener("mouseenter", function () { clearTimeout(closeTimer); });
+    panel.addEventListener("mouseleave", function () { scheduleClose(); });
+
+    // --- Keyboard + resize ---
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && isOpen) closeMenu(); });
+    window.addEventListener("resize",   function ()  { if (isOpen) positionPanel(); });
+
+    // --- Click outside ---
+    document.addEventListener("click",   function (e) {
+        if (isOpen && !panel.contains(e.target) && e.target !== btn) closeMenu();
+    });
+
+    // -------------------------------------------------------
+    // Active state for root category sidebar items
+    // -------------------------------------------------------
+    window.megaMenuActivate = function (element, catId) {
+        document.querySelectorAll(".root-cat-item").forEach(function (el) {
+            var active = el === element;
+            // Background
+            el.classList.toggle("bg-[#1d2640]",  active);
+            el.classList.toggle("text-[#E8A020]", active);
+            el.classList.toggle("active-root",    active);
+            el.classList.toggle("text-slate-300", !active);
+            // Icon box
+            var icon = el.querySelector(".w-8");
+            if (icon) {
+                icon.classList.toggle("bg-[#E8A020]/20", active);
+                icon.classList.toggle("text-[#E8A020]",  active);
+                icon.classList.toggle("bg-white/5",      !active);
+                icon.classList.toggle("text-slate-400",  !active);
+            }
+        });
+        // Switch visible pane
+        document.querySelectorAll(".subcats-pane").forEach(function (p) { p.classList.add("hidden"); });
+        var pane = document.getElementById("mm-pane-" + catId);
+        if (pane) pane.classList.remove("hidden");
+    };
+})();
 </script>
+

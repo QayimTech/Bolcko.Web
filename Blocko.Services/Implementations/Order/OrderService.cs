@@ -52,17 +52,60 @@ namespace Blocko.Services.Implementations.order
                 await _unitOfWork.Addresses.AddAsync(billingAddress);
                 await _unitOfWork.CompleteAsync(); // To get Address IDs
 
+                decimal shippingFeeVal = 5.00m;
+                var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(checkoutDto.City);
+                if (rateObj != null)
+                {
+                    shippingFeeVal = rateObj.Rate;
+                }
+                else
+                {
+                    var generalSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee");
+                    if (generalSetting != null && decimal.TryParse(generalSetting.Value, out decimal parsed))
+                    {
+                        shippingFeeVal = parsed;
+                    }
+                }
+
+                // Coupon Calculations
+                decimal discountAmt = 0.00m;
+                string? appliedCoupon = null;
+                if (!string.IsNullOrEmpty(checkoutDto.Notes) && checkoutDto.Notes.StartsWith("COUPON:"))
+                {
+                    var code = checkoutDto.Notes.Replace("COUPON:", "").Trim();
+                    var coupon = await _unitOfWork.Coupons.GetByCodeAsync(code);
+                    if (coupon != null && coupon.IsActive && (coupon.ExpiryDate == null || coupon.ExpiryDate > DateTime.UtcNow))
+                    {
+                        appliedCoupon = coupon.Code;
+                        if (coupon.DiscountType.Equals("Percentage", StringComparison.OrdinalIgnoreCase))
+                        {
+                            discountAmt = Math.Round(cart.Subtotal * (coupon.DiscountValue / 100m), 2);
+                        }
+                        else
+                        {
+                            discountAmt = coupon.DiscountValue;
+                        }
+                        coupon.UsageCount++;
+                        _unitOfWork.Coupons.Update(coupon);
+                    }
+                }
+
+                var finalTotal = cart.Subtotal + cart.Tax + shippingFeeVal - discountAmt;
+                if (finalTotal < 0) finalTotal = 0;
+
                 var order = new Order
                 {
                     OrderNumber = $"BLK-{DateTime.UtcNow:yyMMdd}-{new Random().Next(1000, 9999)}",
                     UserId = userId,
                     OrderDate = DateTime.UtcNow,
-                    TotalAmount = cart.Total,
+                    TotalAmount = finalTotal,
                     Status = Bolcko.Domain.Enums.OrderStatus.Pending,
                     PaymentMethod = checkoutDto.PaymentMethod,
                     PaymentStatus = "Pending",
                     ShippingAddressId = shippingAddress.Id,
                     BillingAddressId = billingAddress.Id,
+                    AppliedCouponCode = appliedCoupon,
+                    DiscountAmount = discountAmt,
                     Items = cart.Items.Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
@@ -99,7 +142,7 @@ namespace Blocko.Services.Implementations.order
                     // Fail silently so order placement doesn't crash if hub fails
                 }
 
-                return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount };
+                return new OrderDto { Id = order.Id, OrderNumber = order.OrderNumber, TotalAmount = order.TotalAmount, AppliedCouponCode = order.AppliedCouponCode, DiscountAmount = order.DiscountAmount };
             }
             catch
             {
@@ -176,6 +219,8 @@ namespace Blocko.Services.Implementations.order
                 Status = o.Status,
                 PaymentMethod = o.PaymentMethod,
                 PaymentStatus = o.PaymentStatus,
+                AppliedCouponCode = o.AppliedCouponCode,
+                DiscountAmount = o.DiscountAmount,
                 ShippingAddress = o.ShippingAddress != null ? new AddressDto
                 {
                     AddressLine1 = o.ShippingAddress.AddressLine1,
@@ -188,6 +233,7 @@ namespace Blocko.Services.Implementations.order
                 Items = o.Items?.Select(i => new OrderItemDto
                 {
                     ProductId = i.ProductId,
+                    ProductName = i.Product?.Name ?? $"منتج #{i.ProductId}",
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPrice,
                     TotalPrice = i.Subtotal

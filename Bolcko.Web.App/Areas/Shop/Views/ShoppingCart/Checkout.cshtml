@@ -40,10 +40,20 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["City"]</label>
-                            <select asp-for="City" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start">
-                                <option value="عمان">@SharedLocalizer["Amman"]</option>
-                                <option value="الزرقاء">@SharedLocalizer["Zarqa"]</option>
-                                <option value="إربد">@SharedLocalizer["Irbid"]</option>
+                            <select asp-for="City" id="checkout-city-select" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start">
+                                @if (ViewBag.ShippingRates != null)
+                                {
+                                    foreach (var rate in (IEnumerable<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
+                                    {
+                                        <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@rate.CityName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="عمان" data-rate="3.00">@SharedLocalizer["Amman"]</option>
+                                    <option value="الزرقاء" data-rate="4.00">@SharedLocalizer["Zarqa"]</option>
+                                    <option value="إربد" data-rate="5.00">@SharedLocalizer["Irbid"]</option>
+                                }
                             </select>
                         </div>
                         <div>
@@ -138,19 +148,19 @@
                         
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-outline-variant text-sm">@SharedLocalizer["Subtotal"]</span>
-                            <span class="font-bold">@cart.Subtotal.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
+                            <span class="font-bold"><span id="checkout-subtotal-val">@cart.Subtotal.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-outline-variant text-sm">@SharedLocalizer["ShippingEstimated"]</span>
-                            <span class="font-bold">@cart.Shipping.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
+                            <span class="font-bold"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center border-b border-outline-variant pb-4">
                             <span class="text-outline-variant text-sm">@SharedLocalizer["Tax"]</span>
-                            <span class="font-bold">@cart.Tax.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
+                            <span class="font-bold"><span id="checkout-tax-val">@cart.Tax.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center pt-4">
                             <span class="text-outline-variant font-bold">@SharedLocalizer["Total"]</span>
-                            <span class="font-headline-md text-primary">@cart.Total.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
+                            <span class="font-headline-md text-primary"><span id="checkout-total-val">@cart.Total.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                     }
                 </div>
@@ -165,3 +175,25 @@
         </div>
     </div>
 </main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $('#checkout-city-select').on('change', function () {
+                var selectedOption = $(this).find('option:selected');
+                var rate = parseFloat(selectedOption.data('rate')) || 0.0;
+                
+                // Read current values
+                var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
+                var tax = parseFloat($('#checkout-tax-val').text()) || 0.0;
+                
+                // Update UI values
+                $('#checkout-shipping-val').text(rate.toFixed(2));
+                
+                var total = subtotal + tax + rate;
+                $('#checkout-total-val').text(total.toFixed(2));
+            });
+        });
+    </script>
+}

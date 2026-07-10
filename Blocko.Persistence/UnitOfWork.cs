@@ -1,5 +1,6 @@
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Entities.Tender;
+using Bolcko.Domain.Entities.Delivery;
 using Blocko.Persistence.Repositories.Product;
 using Blocko.Persistence.Repositories.Category;
 using Blocko.Persistence.Repositories.Order;
@@ -35,6 +36,16 @@ namespace Blocko.Persistence
             ShoppingCartItems = new GenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem>(_context);
             OrderItems = new GenericRepository<Bolcko.Domain.Entities.Order.OrderItem>(_context);
             ProductImages = new GenericRepository<Bolcko.Domain.Entities.Product.ProductImage>(_context);
+            AppSettings = new Blocko.Persistence.Repositories.Setting.AppSettingRepository(_context);
+            ShippingRates = new Blocko.Persistence.Repositories.Setting.ShippingRateRepository(_context);
+            Coupons = new Blocko.Persistence.Repositories.Setting.CouponRepository(_context);
+            
+            // Delivery
+            DeliveryCompanies = new GenericRepository<DeliveryCompany>(_context);
+            DeliveryDrivers = new GenericRepository<DeliveryDriver>(_context);
+            DeliveryJobs = new GenericRepository<DeliveryJob>(_context);
+            DeliveryBids = new GenericRepository<DeliveryBid>(_context);
+            DeliveryRatings = new GenericRepository<DeliveryRating>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -51,6 +62,16 @@ namespace Blocko.Persistence
         public IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; private set; }
+        public IAppSettingRepository AppSettings { get; private set; }
+        public IShippingRateRepository ShippingRates { get; private set; }
+        public ICouponRepository Coupons { get; private set; }
+
+        // Delivery
+        public IGenericRepository<DeliveryCompany> DeliveryCompanies { get; private set; }
+        public IGenericRepository<DeliveryDriver> DeliveryDrivers { get; private set; }
+        public IGenericRepository<DeliveryJob> DeliveryJobs { get; private set; }
+        public IGenericRepository<DeliveryBid> DeliveryBids { get; private set; }
+        public IGenericRepository<DeliveryRating> DeliveryRatings { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

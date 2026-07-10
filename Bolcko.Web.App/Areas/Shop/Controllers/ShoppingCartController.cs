@@ -146,6 +146,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), userId);
             ViewBag.Cart = cart;
+
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            ViewBag.ShippingRates = await uow.ShippingRates.GetAllAsync();
+
             return View(new CheckoutDto());
         }
 

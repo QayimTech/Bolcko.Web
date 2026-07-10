@@ -1,0 +1,220 @@
+@{
+    ViewData["Title"] = "إعدادات النظام";
+}
+
+<section class="p-8 max-w-4xl mx-auto text-right animate-in slide-in-from-bottom duration-500">
+    <div class="mb-8">
+        <h1 class="font-headline-md text-on-surface">إعدادات النظام والاتصال</h1>
+        <p class="text-on-surface-variant text-sm mt-1">تعديل الإعدادات العامة للمتجر وتحديث أرقام وهواتف التواصل لصفحة (اتصل بنا).</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="mb-6 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span class="font-bold text-sm">@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="bg-white border border-slate-200 shadow-hard p-8 rounded-sm">
+        <form asp-action="Save" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2">تكاليف الشحن العامة والمحافظات</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رسوم التوصيل المقدرة العامة (د.أ)</label>
+                    <input name="shippingFee" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="@ViewBag.ShippingFee" required />
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 border border-slate-100 mt-4 rounded-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xs font-bold text-slate-600 uppercase tracking-widest text-start">تكاليف توصيل المحافظات المحددة</h4>
+                    <button type="button" id="btn-add-city" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-all">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        إضافة محافظة جديدة
+                    </button>
+                </div>
+                
+                <div id="city-rates-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @if (ViewBag.ShippingRates != null)
+                    {
+                        foreach (var rate in (List<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
+                        {
+                            <div class="city-rate-row bg-white p-4 border border-slate-200 rounded relative group">
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1 text-start">توصيل إلى (@rate.CityName)</label>
+                                <input name="cityRates[@rate.CityName]" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="@rate.Rate.ToString("F2")" required />
+                                <button type="button" onclick="removeCityRow(this)" class="absolute top-2 left-2 text-slate-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2 pt-6">معلومات التواصل (Contact Us)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">البريد الإلكتروني للتواصل</label>
+                    <input name="contactEmail" type="email" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="@ViewBag.ContactEmail" required />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رقم هاتف الاتصال</label>
+                    <input name="contactPhone" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="@ViewBag.ContactPhone" required />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">عنوان المقر / الشركة في الأردن</label>
+                <input name="contactAddress" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="@ViewBag.ContactAddress" required />
+            </div>
+
+            <div class="mt-10 pt-4 border-t">
+                <button type="submit" class="w-full bg-primary text-white py-3.5 font-bold hover:opacity-90 transition-all shadow-hard">
+                    حفظ كافة الإعدادات
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Custom Modal for Adding City -->
+<div id="cityModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-slate-900 bg-opacity-55 backdrop-blur-sm transition-all duration-300 animate-in fade-in">
+    <div class="bg-white border border-slate-200 p-8 w-full max-w-md shadow-2xl rounded-sm transform scale-95 transition-all duration-300">
+        <h3 class="text-base font-bold text-slate-800 border-b pb-3 mb-4 text-start">إضافة محافظة جديدة للتوصيل</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اسم المحافظة</label>
+                <input id="modalCityName" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" placeholder="مثال: العقبة، الطفيلة" />
+                <span id="modalErrorMsg" class="text-red-600 text-xs mt-1 block hidden font-bold"></span>
+            </div>
+            <div class="flex items-center gap-3 pt-4 justify-end">
+                <button type="button" id="modalCloseBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 transition-all">إلغاء</button>
+                <button type="button" id="modalConfirmBtn" class="bg-primary text-white text-xs font-bold px-5 py-2.5 shadow-hard hover:opacity-90 transition-all">إضافة</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal for Confirmation / Alerts -->
+<div id="alertModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-slate-900 bg-opacity-55 backdrop-blur-sm transition-all duration-300 animate-in fade-in">
+    <div class="bg-white border border-slate-200 p-6 w-full max-w-sm shadow-2xl rounded-sm">
+        <div class="flex items-center gap-3 text-red-600 mb-3">
+            <span class="material-symbols-outlined text-2xl">warning</span>
+            <h4 class="text-sm font-bold" id="alertTitle">تنبيه</h4>
+        </div>
+        <p class="text-xs text-slate-600 text-start leading-relaxed" id="alertMessage"></p>
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" id="alertCloseBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2">موافق</button>
+            <button type="button" id="alertConfirmBtn" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 hidden">تأكيد الحذف</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var pendingDeleteRow = null;
+
+        function removeCityRow(btn) {
+            pendingDeleteRow = $(btn).closest('.city-rate-row');
+            var cityName = pendingDeleteRow.find('label').text().replace("توصيل إلى (", "").replace(")", "");
+            
+            showCustomAlert("حذف محافظة", `هل أنت متأكد من حذف محافظة (${cityName}) وتكلفة التوصيل الخاصة بها؟`, true);
+        }
+
+        function showCustomAlert(title, message, isConfirm = false) {
+            $('#alertTitle').text(title);
+            $('#alertMessage').text(message);
+            
+            if (isConfirm) {
+                $('#alertConfirmBtn').removeClass('hidden');
+                $('#alertCloseBtn').text('إلغاء');
+            } else {
+                $('#alertConfirmBtn').addClass('hidden');
+                $('#alertCloseBtn').text('موافق');
+            }
+            
+            $('#alertModal').removeClass('hidden').addClass('flex');
+        }
+
+        $(function () {
+            // Close alert modal
+            $('#alertCloseBtn').on('click', function () {
+                $('#alertModal').addClass('hidden').removeClass('flex');
+                pendingDeleteRow = null;
+            });
+
+            // Confirm delete
+            $('#alertConfirmBtn').on('click', function () {
+                if (pendingDeleteRow) {
+                    pendingDeleteRow.remove();
+                }
+                $('#alertModal').addClass('hidden').removeClass('flex');
+                pendingDeleteRow = null;
+            });
+
+            // Open Add City modal
+            $('#btn-add-city').on('click', function () {
+                $('#modalCityName').val('');
+                $('#modalErrorMsg').addClass('hidden').text('');
+                $('#cityModal').removeClass('hidden').addClass('flex');
+                setTimeout(() => $('#modalCityName').focus(), 150);
+            });
+
+            // Close Add City modal
+            $('#modalCloseBtn').on('click', function () {
+                $('#cityModal').addClass('hidden').removeClass('flex');
+            });
+
+            // Confirm Add City
+            $('#modalConfirmBtn').on('click', function () {
+                var cityName = $('#modalCityName').val();
+                if (!cityName) {
+                    $('#modalErrorMsg').text('الرجاء إدخال اسم المحافظة!').removeClass('hidden');
+                    return;
+                }
+                cityName = cityName.trim();
+                if (cityName === "") {
+                    $('#modalErrorMsg').text('الرجاء إدخال اسم محافظة صحيح!').removeClass('hidden');
+                    return;
+                }
+
+                // Check duplicates
+                var exists = false;
+                $('input[name^="cityRates"]').each(function () {
+                    var currentName = $(this).attr('name').match(/\[(.*?)\]/)[1];
+                    if (currentName.toLowerCase() === cityName.toLowerCase()) {
+                        exists = true;
+                    }
+                });
+
+                if (exists) {
+                    $('#modalErrorMsg').text('هذه المحافظة مضافة بالفعل!').removeClass('hidden');
+                    return;
+                }
+
+                var html = `
+                    <div class="city-rate-row bg-white p-4 border border-slate-200 rounded relative group">
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1 text-start">توصيل إلى (${cityName})</label>
+                        <input name="cityRates[${cityName}]" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="5.00" required />
+                        <button type="button" onclick="removeCityRow(this)" class="absolute top-2 left-2 text-slate-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
+                            <span class="material-symbols-outlined text-base">delete</span>
+                        </button>
+                    </div>
+                `;
+                $('#city-rates-container').append(html);
+                $('#cityModal').addClass('hidden').removeClass('flex');
+            });
+
+            // Trigger click on enter key
+            $('#modalCityName').on('keypress', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#modalConfirmBtn').click();
+                }
+            });
+        });
+    </script>
+}

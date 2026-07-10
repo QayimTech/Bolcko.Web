@@ -45,6 +45,8 @@ namespace Blocko.Services
             services.AddScoped<Blocko.Services.Interfaces.Auth.ITokenService, Blocko.Services.Implementations.Auth.TokenService>();
             services.AddMemoryCache();
             services.AddScoped<ITranslationService, TranslationService>();
+            services.AddScoped<Blocko.Services.Interfaces.Delivery.IDeliveryService, Blocko.Services.Implementations.Delivery.DeliveryService>();
+            services.AddScoped<Blocko.Services.Interfaces.Delivery.IDeliveryDocumentService, Blocko.Services.Implementations.Delivery.DeliveryDocumentService>();
 
             // Register Validators
             services.AddValidatorsFromAssembly(typeof(Blocko.Services.Validation.ProductImportDtoValidator).Assembly);

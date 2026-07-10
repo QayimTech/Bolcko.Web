@@ -19,6 +19,9 @@
         <!-- Sidebar -->
         <partial name="Partials/Aside" />
         
+
+
+
         <!-- Main Content Area -->
         <div id="main-content" class="flex-1 flex flex-col min-h-screen sidebar-transition">
             <partial name="Partials/Header" />
@@ -103,7 +106,64 @@
     </style>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js" integrity="sha512-r7HM2f9rC8F1EVSnC/0DHiWv2Klh654A9bNleWd2/2U0DmsW9z20Z48+95jI5+3bJ7b7eR0PZ4379g/76zN14w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Audio Notification Support -->
+    <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
+
+    <script>
+        // Global SignalR setup
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveNotification", function (notification) {
+            // Play notification sound
+            const sound = document.getElementById("notification-sound");
+            if (sound) {
+                sound.play().catch(e => console.log("Audio play blocked by browser policy. Interaction required."));
+            }
+
+            // Create and append dynamic premium toast notification
+            const toastHtml = `
+                <div class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020]" style="min-width: 320px; max-width: 400px;">
+                    <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020]">
+                        <span class="material-symbols-outlined text-[22px]">local_shipping</span>
+                    </div>
+                    <div class="flex-grow text-start">
+                        <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'إشعار جديد'}</strong>
+                        <p class="text-xs text-slate-200 mt-1 font-medium leading-relaxed">${notification.message}</p>
+                    </div>
+                </div>
+            `;
+            
+            let container = $('#toast-container');
+            if (container.length === 0) {
+                $('body').append('<div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>');
+                container = $('#toast-container');
+            }
+            
+            const $toast = $(toastHtml);
+            container.append($toast);
+
+            // Trigger animation
+            setTimeout(() => {
+                $toast.removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
+            }, 10);
+
+            // Auto fade out toast
+            setTimeout(function() {
+                $toast.removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
+                setTimeout(() => {
+                    $toast.remove();
+                }, 500);
+            }, 8000);
+        });
+
+        connection.start().catch(err => console.error("SignalR Connection Error: ", err.toString()));
+    </script>
     <script>
         $(function () {
             // Sidebar logic

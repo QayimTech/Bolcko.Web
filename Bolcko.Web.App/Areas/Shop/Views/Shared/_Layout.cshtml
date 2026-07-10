@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BLOCKO</title>
+    @await Component.InvokeAsync("SeoMeta", new { defaultTitle = ViewData["Title"] + " - BLOCKO" })
     <link rel="apple-touch-icon" sizes="180x180" href="~/favicons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/favicons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="~/favicons/favicon-16x16.png">
@@ -41,8 +41,63 @@
     </main>
     <partial name="Partials/_Footer" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js" integrity="sha512-r7HM2f9rC8F1EVSnC/0DHiWv2Klh654A9bNleWd2/2U0DmsW9z20Z48+95jI5+3bJ7b7eR0PZ4379g/76zN14w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/tender-cart.js" asp-append-version="true"></script>
+
+    <!-- Audio Notification Support -->
+    <audio id="shop-notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
+
+    <!-- Glassmorphic Premium Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        $(function () {
+            const shopConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .withAutomaticReconnect()
+                .build();
+
+            shopConnection.on("ReceiveNotification", function (notification) {
+                // Play sound
+                const sound = document.getElementById("shop-notification-sound");
+                if (sound) {
+                    sound.play().catch(e => console.log("Audio play blocked. Interaction required."));
+                }
+
+                // Add premium glassmorphism toast
+                const toastHtml = `
+                    <div class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020]" style="min-width: 320px; max-width: 400px;">
+                        <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020]">
+                            <span class="material-symbols-outlined text-[22px]">notifications_active</span>
+                        </div>
+                        <div class="flex-grow text-start">
+                            <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'تحديث الطلب'}</strong>
+                            <p class="text-xs text-slate-200 mt-1 font-medium leading-relaxed">${notification.message}</p>
+                        </div>
+                    </div>
+                `;
+                
+                const $toast = $(toastHtml);
+                $('#toast-container').append($toast);
+
+                // Trigger animation
+                setTimeout(() => {
+                    $toast.removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
+                }, 10);
+
+                // Auto hide
+                setTimeout(function() {
+                    $toast.removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
+                    setTimeout(() => {
+                        $toast.remove();
+                    }, 500);
+                }, 6000);
+            });
+
+            shopConnection.start().catch(err => console.log("SignalR Connection skipped or failed."));
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

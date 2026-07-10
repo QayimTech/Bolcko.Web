@@ -5,6 +5,7 @@ using Blocko.Services.Interfaces.Category;
 using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces.ShoppingCart;
+using Blocko.Services.Interfaces.Delivery;
 using Blocko.Services.Implementations.Product;
 using Blocko.Services.Implementations.Category;
 using Blocko.Services.Implementations.Tender;
@@ -15,6 +16,7 @@ using Blocko.Services.Implementations.user;
 using Blocko.Services.Interfaces.SEO;
 using Blocko.Services.Implementations.SEO;
 using Blocko.Services.Implementations.order;
+using Blocko.Services.Implementations.Delivery;
 
 namespace Blocko.Services.Implementations
 {
@@ -29,8 +31,13 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<ISEOService> _lazySEOService;
         private readonly Lazy<IShoppingCartService> _lazyShoppingCartService;
         private readonly Lazy<IProjectService> _lazyProjectService;
+        private readonly Lazy<IDeliveryService> _lazyDeliveryService;
 
-        public ServiceManager(IUnitOfWork unitOfWork, Blocko.Services.Interfaces.Notifications.INotificationService notificationService)
+        public ServiceManager(
+            IUnitOfWork unitOfWork, 
+            Blocko.Services.Interfaces.Notifications.INotificationService notificationService,
+            IDeliveryDocumentService deliveryDocumentService,
+            IEmailSender emailSender)
         {
             _lazyUserService = new Lazy<IUserService>(() => new UserService(unitOfWork));
             _lazyProductService = new Lazy<IProductService>(() => new ProductService(unitOfWork));
@@ -41,6 +48,7 @@ namespace Blocko.Services.Implementations
             _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
             _lazyShoppingCartService = new Lazy<IShoppingCartService>(() => new ShoppingCartService(unitOfWork));
             _lazyProjectService = new Lazy<IProjectService>(() => new ProjectService(unitOfWork));
+            _lazyDeliveryService = new Lazy<IDeliveryService>(() => new DeliveryService(unitOfWork, notificationService, deliveryDocumentService, emailSender));
         }
 
         public IUserService UserService => _lazyUserService.Value;
@@ -52,5 +60,6 @@ namespace Blocko.Services.Implementations
         public ISEOService SEOService => _lazySEOService.Value;
         public IShoppingCartService ShoppingCartService => _lazyShoppingCartService.Value;
         public IProjectService ProjectService => _lazyProjectService.Value;
+        public IDeliveryService DeliveryService => _lazyDeliveryService.Value;
     }
 }

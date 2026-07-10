@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
@@ -15,12 +16,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class ImportController : Controller
     {
         private readonly IBackgroundJobClient _jobs;
-        private readonly IWebHostEnvironment _env;
+        private readonly IWebHostEnvironment  _env;
+        private readonly IBulkImportService   _importService;
 
-        public ImportController(IBackgroundJobClient jobs, IWebHostEnvironment env)
+        public ImportController(
+            IBackgroundJobClient jobs,
+            IWebHostEnvironment  env,
+            IBulkImportService   importService)
         {
-            _jobs = jobs;
-            _env  = env;
+            _jobs          = jobs;
+            _env           = env;
+            _importService = importService;
         }
 
         // ─── GET: /Admin/Import/BulkImport ──────────────────────────────────
@@ -78,19 +84,67 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             await using (var stream = new FileStream(filePath, FileMode.Create))
                 await file.CopyToAsync(stream);
 
-            // Enqueue background job
-            string jobId;
-            if (isJson)
-                jobId = _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessUnifiedJsonImportAsync(filePath));
-            else
-                jobId = _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessUnifiedExcelImportAsync(filePath));
+            // ── Excel: run inline so we get a detailed result back ───────────
+            if (isExcel)
+            {
+                ImportResult result;
+                try
+                {
+                    result = await _importService.ProcessUnifiedExcelImportAsync(filePath);
+                }
+                catch (Exception ex)
+                {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = $"خطأ أثناء الاستيراد: {ex.Message}" });
 
-            var successMsg = $"تم استلام الملف وبدأت عملية الاستيراد بنجاح (Job #{jobId}). يمكنك متابعة التقدم من الشاشة.";
+                    TempData["ErrorMessage"] = $"❌ خطأ أثناء الاستيراد: {ex.Message}";
+                    return RedirectToAction(nameof(BulkImport));
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new
+                    {
+                        success = !result.HasError,
+                        message = result.Summary,
+                        result  = new
+                        {
+                            totalRows = result.TotalRows,
+                            imported  = result.Imported,
+                            updated   = result.Updated,
+                            skipped   = result.Skipped,
+                            rows      = result.Rows
+                                .Where(r => r.Status != ImportRowStatus.Imported)
+                                .Select(r => new
+                                {
+                                    rowNumber = r.RowNumber,
+                                    name      = r.Name,
+                                    status    = r.Status.ToString(),
+                                    reason    = r.Reason
+                                })
+                        }
+                    });
+                }
+
+                if (result.HasError)
+                {
+                    TempData["ErrorMessage"] = $"❌ {result.Summary}";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = $"✅ {result.Summary}";
+                }
+                return RedirectToAction(nameof(BulkImport));
+            }
+
+            // ── JSON: keep as background job (returns immediately) ───────────
+            string jobId = _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessUnifiedJsonImportAsync(filePath));
+            var msg      = $"تم استلام ملف JSON وبدأت المعالجة في الخلفية (Job #{jobId}). تابع من شاشة المهام.";
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return Json(new { success = true, message = successMsg });
+                return Json(new { success = true, message = msg, result = (object?)null });
 
-            TempData["SuccessMessage"] = $"✅ {successMsg}";
+            TempData["SuccessMessage"] = $"✅ {msg}";
             return RedirectToAction(nameof(BulkImport));
         }
 
@@ -109,33 +163,50 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         {
             using var wb = new ClosedXML.Excel.XLWorkbook();
 
-            // ── Sheet: Products ────────────────────────────────────────
+            // ── Sheet: Products ─────────────────────────────────────────────
             var prodWs = wb.Worksheets.Add("المنتجات");
-            prodWs.Cell(1, 1).Value = "الصورة";
-            prodWs.Cell(1, 2).Value = "اسم المنتج";
-            prodWs.Cell(1, 3).Value = "البراند";
-            prodWs.Cell(1, 4).Value = "بلد المنشأ";
-            prodWs.Cell(1, 5).Value = "الوصف";
-            prodWs.Cell(1, 6).Value = "التصنيف";
-            prodWs.Cell(1, 7).Value = "الفئة الأم";
-            prodWs.Cell(1, 8).Value = "أيقونة الفئة";
-            prodWs.Cell(1, 9).Value = "السعر";
+            prodWs.Cell(1,  1).Value = "الصورة";
+            prodWs.Cell(1,  2).Value = "اسم المنتج (عربي)";
+            prodWs.Cell(1,  3).Value = "Product Name (English)";
+            prodWs.Cell(1,  4).Value = "البراند";
+            prodWs.Cell(1,  5).Value = "اسم المورد";
+            prodWs.Cell(1,  6).Value = "بلد المنشأ";
+            prodWs.Cell(1,  7).Value = "الوصف (العربي)";
+            prodWs.Cell(1,  8).Value = "Description (English)";
+            prodWs.Cell(1,  9).Value = "التصنيف الرئيسي";
+            prodWs.Cell(1, 10).Value = "التصنيف الفرعي";
+            prodWs.Cell(1, 11).Value = "أيقونة الفئة";
+            prodWs.Cell(1, 12).Value = "السعر";
+            prodWs.Cell(1, 13).Value = "الكمية";
+            prodWs.Cell(1, 14).Value = "الوحدة";
+            prodWs.Cell(1, 15).Value = "الوزن";
+            prodWs.Cell(1, 16).Value = "المقاس (Meters)";
+            prodWs.Cell(1, 17).Value = "كود المنتج";
+            prodWs.Cell(1, 18).Value = "صلاح المنتج";
 
-            // Note row
-            prodWs.Cell(2, 1).Value = "← أضف صورة أو أكثر هنا";
-            prodWs.Cell(2, 2).Value = "iPhone 15";
-            prodWs.Cell(2, 3).Value = "Apple";
-            prodWs.Cell(2, 4).Value = "China";
-            prodWs.Cell(2, 5).Value = "هاتف آيفون 15 الأصلي";
-            prodWs.Cell(2, 6).Value = "هواتف";
-            prodWs.Cell(2, 7).Value = "إلكترونيات";
-            prodWs.Cell(2, 8).Value = "smartphone";
-            prodWs.Cell(2, 9).Value = 3999.00;
+            // Sample row
+            prodWs.Cell(2,  1).Value = "← أضف صورة";
+            prodWs.Cell(2,  2).Value = "آيفون 15";
+            prodWs.Cell(2,  3).Value = "iPhone 15";
+            prodWs.Cell(2,  4).Value = "Apple";
+            prodWs.Cell(2,  5).Value = "مورد الإلكترونيات";
+            prodWs.Cell(2,  6).Value = "China";
+            prodWs.Cell(2,  7).Value = "هاتف آيفون 15 الأصلي";
+            prodWs.Cell(2,  8).Value = "Original iPhone 15";
+            prodWs.Cell(2,  9).Value = "هواتف";
+            prodWs.Cell(2, 10).Value = "إلكترونيات";
+            prodWs.Cell(2, 11).Value = "smartphone";
+            prodWs.Cell(2, 12).Value = 3999.00;
+            prodWs.Cell(2, 13).Value = 50;
+            prodWs.Cell(2, 14).Value = "قطعة";
+            prodWs.Cell(2, 15).Value = 0.174;
+            prodWs.Cell(2, 16).Value = "14.6 x 7.1 x 0.78 cm";
+            prodWs.Cell(2, 17).Value = "IPHONE15-001";
+            prodWs.Cell(2, 18).Value = "Active";
 
-            StyleHeader(prodWs, 9);
+            StyleHeader(prodWs, 18);
 
-            // Note at top about SKU
-            prodWs.Cell(4, 1).Value = "ملاحظة: النظام سيقوم بإنشاء التصنيفات الجديدة تلقائياً وتوليد رمز SKU.";
+            prodWs.Cell(4, 1).Value = "ملاحظة: إذا تركت كود المنتج فارغاً سيتم توليده تلقائياً. اسم المنتج (عربي) والسعر والتصنيف الرئيسي إلزامية.";
             prodWs.Cell(4, 1).Style.Font.Italic = true;
             prodWs.Cell(4, 1).Style.Font.FontColor = ClosedXML.Excel.XLColor.Gray;
 
@@ -167,6 +238,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
   "products": [
     {
       "name": "iPhone 15",
+      "nameEn": "iPhone 15",
       "categoryName": "هواتف",
       "brand": "Apple",
       "countryOfOrigin": "China",

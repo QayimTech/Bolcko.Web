@@ -88,6 +88,202 @@ namespace Blocko.Persistence.Migrations
                     b.ToTable("MarketPrices");
                 });
 
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryBid", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DeliveryJobId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryJobId");
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("DeliveryBids");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryCompany", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BaseDeliveryRate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("CommercialRegister")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliveryCompanies");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryDriver", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AverageRating")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int?>("DeliveryCompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TotalRatings")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VehiclePlateNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("VehicleType")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryCompanyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DeliveryDrivers");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryJob", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("DeliveryFee")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int?>("DriverId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DropoffLocation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PickedUpAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PickupLocation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("DeliveryJobs");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DeliveryJobId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RatingValue")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DeliveryJobId")
+                        .IsUnique();
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("DeliveryRatings");
+                });
+
             modelBuilder.Entity("Bolcko.Domain.Entities.Order.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -96,8 +292,14 @@ namespace Blocko.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppliedCouponCode")
+                        .HasColumnType("text");
+
                     b.Property<int>("BillingAddressId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
@@ -344,6 +546,84 @@ namespace Blocko.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SEOMetadata");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Setting.AppSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("AppSettings");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Setting.Coupon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("DiscountType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Coupons");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Setting.ShippingRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ShippingRates");
                 });
 
             modelBuilder.Entity("Bolcko.Domain.Entities.ShoppingCart.ShoppingCart", b =>
@@ -797,6 +1077,88 @@ namespace Blocko.Persistence.Migrations
                     b.Navigation("ParentCategory");
                 });
 
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryBid", b =>
+                {
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryJob", "DeliveryJob")
+                        .WithMany("Bids")
+                        .HasForeignKey("DeliveryJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryDriver", "Driver")
+                        .WithMany("Bids")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeliveryJob");
+
+                    b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryDriver", b =>
+                {
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryCompany", "Company")
+                        .WithMany("Drivers")
+                        .HasForeignKey("DeliveryCompanyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Bolcko.Domain.Entities.User.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryJob", b =>
+                {
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryDriver", "Driver")
+                        .WithMany("Jobs")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Bolcko.Domain.Entities.Order.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryRating", b =>
+                {
+                    b.HasOne("Bolcko.Domain.Entities.User.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryJob", "DeliveryJob")
+                        .WithOne("Rating")
+                        .HasForeignKey("Bolcko.Domain.Entities.Delivery.DeliveryRating", "DeliveryJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryDriver", "Driver")
+                        .WithMany("Ratings")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("DeliveryJob");
+
+                    b.Navigation("Driver");
+                });
+
             modelBuilder.Entity("Bolcko.Domain.Entities.Order.Order", b =>
                 {
                     b.HasOne("Bolcko.Domain.Entities.User.Address", "BillingAddress")
@@ -1004,6 +1366,27 @@ namespace Blocko.Persistence.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("SubCategories");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryCompany", b =>
+                {
+                    b.Navigation("Drivers");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryDriver", b =>
+                {
+                    b.Navigation("Bids");
+
+                    b.Navigation("Jobs");
+
+                    b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryJob", b =>
+                {
+                    b.Navigation("Bids");
+
+                    b.Navigation("Rating");
                 });
 
             modelBuilder.Entity("Bolcko.Domain.Entities.Order.Order", b =>

@@ -51,10 +51,14 @@
                         ("ManageSEO",          "search_check",    "SEO",      "Index"),
                         ("ManageOrders",       "shopping_bag",    "Order",    "Index"),
                         ("ManageMarketPrices", "payments",        "MarketPrice","Index"),
+                        ("SystemSettings",     "settings",        "Settings", "Index"),
                     };
 
                     if (isAdmin)
+                    {
                         menuItems.Add(("ManageUsers", "manage_accounts", "User", "Index"));
+                        menuItems.Add(("مركز التوزيع", "local_shipping", "DeliveryDispatch", "Index"));
+                    }
                 }
 
                 @foreach (var item in menuItems)
@@ -68,7 +72,7 @@
                         </span>
 
                         <span class="sidebar-text text-sm font-bold truncate">
-                            @L[item.Key]
+                            @(item.Key.Any(c => c >= 0x600 && c <= 0x6FF) ? item.Key : L[item.Key])
                         </span>
 
                         @if (isActive)

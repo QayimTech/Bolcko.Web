@@ -91,6 +91,9 @@
   <data name="ManageUsers" xml:space="preserve">
     <value>إدارة المستخدمين</value>
   </data>
+  <data name="SystemSettings" xml:space="preserve">
+    <value>إعدادات النظام</value>
+  </data>
   <data name="BackToStore" xml:space="preserve">
     <value>العودة للمتجر</value>
   </data>

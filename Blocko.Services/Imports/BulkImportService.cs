@@ -14,6 +14,8 @@ using System.Text.Json;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Catalog;
 
+using Microsoft.Extensions.Caching.Memory;
+
 namespace Blocko.Services.Imports
 {
     public class BulkImportService : IBulkImportService
@@ -22,77 +24,132 @@ namespace Blocko.Services.Imports
         private readonly IValidator<ProductImportDto> _productValidator;
         private readonly IValidator<CategoryImportDto> _categoryValidator;
         private readonly ILogger<BulkImportService> _logger;
+        private readonly IMemoryCache _memoryCache;
 
         // ─── Arabic ↔ English column name map ───────────────────────────────
         private static readonly Dictionary<string, string> _colMap = new(StringComparer.OrdinalIgnoreCase)
         {
-            // Categories
-            ["الاسم"]              = "Name",
-            ["اسم الفئة"]          = "Name",
-            ["الفئة الأم"]         = "ParentCategoryName",
-            ["اسم الفئة الأم"]     = "ParentCategoryName",
-            ["الوصف"]              = "Description",
-            ["ترتيب العرض"]        = "DisplayOrder",
-            // Products
-            ["اسم المنتج"]         = "Name",
-            ["اسم_المنتج"]         = "Name",
-            ["اسم الفئة للمنتج"]   = "CategoryName",
-            ["اسم_الفئة"]          = "CategoryName",
-            ["السعر"]              = "Price",
-            ["الكمية"]             = "Stock",
-            ["وحدة القياس"]        = "UnitOfMeasure",
-            ["الوزن"]              = "Weight",
-            ["الأبعاد"]            = "Dimensions",
-            ["الحالة"]             = "Status",
-            ["صورة"]               = "Image",
-            ["الصورة"]             = "Image",
-            ["التصنيف"]            = "CategoryName",
-            ["البراند"]            = "Brand",
-            ["بلد المنشأ"]         = "CountryOfOrigin",
-            ["أيقونة الفئة"]       = "CategoryIcon",
-            ["الايكون"]             = "CategoryIcon",
-            // Also accept English as-is
-            ["name"]               = "Name",
-            ["parentcategoryname"] = "ParentCategoryName",
-            ["description"]        = "Description",
-            ["displayorder"]       = "DisplayOrder",
-            ["categoryname"]       = "CategoryName",
-            ["price"]              = "Price",
-            ["retailprice"]        = "Price",
-            ["stock"]              = "Stock",
-            ["stockquantity"]      = "Stock",
-            ["unitofmeasure"]      = "UnitOfMeasure",
-            ["weight"]             = "Weight",
-            ["dimensions"]         = "Dimensions",
-            ["status"]             = "Status",
-            ["image"]              = "Image",
-            ["brand"]              = "Brand",
-            ["countryoforigin"]    = "CountryOfOrigin",
+            // ── Product name ─────────────────────────────────────────────────
+            ["الاسم"]                        = "Name",
+            ["اسم المنتج"]                   = "Name",
+            ["اسم_المنتج"]                   = "Name",
+            ["اسم المنتج (عربي)"]            = "Name",
+            ["اسم المنتج (العربي)"]          = "Name",
+            ["اسم المنتج (العربية)"]         = "Name",
+            ["اسم المنتج (Arabic)"]          = "Name",
+            ["Product Name (English)"]       = "NameEn",
+            ["product name english"]         = "NameEn",
+            ["name_en"]                      = "NameEn",
+            ["الاسم الانجليزي"]              = "NameEn",
+            // ── Description ──────────────────────────────────────────────────
+            ["الوصف"]                        = "Description",
+            ["الوصف (العربي)"]               = "Description",
+            ["الوصف (العربية)"]              = "Description",
+            ["الوصف (Arabic)"]               = "Description",
+            ["Description (English)"]        = "DescriptionEn",
+            ["description english"]          = "DescriptionEn",
+            ["description_en"]               = "DescriptionEn",
+            ["الوصف الانجليزي"]              = "DescriptionEn",
+            // ── Category ─────────────────────────────────────────────────────
+            ["التصنيف"]                      = "CategoryName",
+            ["التصنيف الرئيسي"]             = "CategoryName",
+            ["الفئة"]                        = "CategoryName",
+            ["اسم الفئة للمنتج"]             = "CategoryName",
+            ["اسم_الفئة"]                    = "CategoryName",
+            ["categoryname"]                 = "CategoryName",
+
+            ["التصنيف الفرعي"]              = "ParentCategoryName",
+            ["الفئة الأم"]                   = "ParentCategoryName",
+            ["اسم الفئة الأم"]               = "ParentCategoryName",
+            ["parentcategoryname"]           = "ParentCategoryName",
+
+            ["التصنيف الدقيق (Micro)"]       = "MicroCategoryName",
+            ["التصنيف الدقيق"]               = "MicroCategoryName",
+            ["microcategoryname"]            = "MicroCategoryName",
+            // ── SKU / Product code ────────────────────────────────────────────
+            ["كود المنتج"]                   = "Sku",
+            ["كود_المنتج"]                   = "Sku",
+            ["sku"]                          = "Sku",
+            ["product code"]                 = "Sku",
+            // ── Price ─────────────────────────────────────────────────────────
+            ["السعر"]                        = "Price",
+            ["price"]                        = "Price",
+            ["retailprice"]                  = "Price",
+            // ── Stock ─────────────────────────────────────────────────────────
+            ["الكمية"]                       = "Stock",
+            ["stock"]                        = "Stock",
+            ["stockquantity"]                = "Stock",
+            // ── Unit of measure ───────────────────────────────────────────────
+            ["وحدة القياس"]                  = "UnitOfMeasure",
+            ["الوحدة"]                       = "UnitOfMeasure",
+            ["unitofmeasure"]                = "UnitOfMeasure",
+            ["unit"]                         = "UnitOfMeasure",
+            // ── Weight ────────────────────────────────────────────────────────
+            ["الوزن"]                        = "Weight",
+            ["weight"]                       = "Weight",
+            // ── Dimensions / Size ─────────────────────────────────────────────
+            ["الأبعاد"]                      = "Dimensions",
+            ["المقاس"]                       = "Dimensions",
+            ["المقاس (Meters)"]              = "Dimensions",
+            ["المقاس (mm)"]                  = "Dimensions",
+            ["الحجم"]                        = "Dimensions",
+            ["dimensions"]                   = "Dimensions",
+            // ── Status ────────────────────────────────────────────────────────
+            ["الحالة"]                       = "Status",
+            ["صلاح المنتج"]                  = "Status",
+            ["صلاحية المنتج"]                = "Status",
+            ["متاح للبيع"]                   = "Status",
+            ["status"]                       = "Status",
+            // ── Image ─────────────────────────────────────────────────────────
+            ["صورة"]                         = "Image",
+            ["الصورة"]                       = "Image",
+            ["image"]                        = "Image",
+            // ── Brand / Supplier ──────────────────────────────────────────────
+            ["البراند"]                      = "Brand",
+            ["brand"]                        = "Brand",
+            ["اسم المورد"]                   = "Brand",
+            ["المورد"]                       = "Brand",
+            // ── Country of origin ─────────────────────────────────────────────
+            ["بلد المنشأ"]                   = "CountryOfOrigin",
+            ["countryoforigin"]              = "CountryOfOrigin",
+            // ── Category metadata ─────────────────────────────────────────────
+            ["أيقونة الفئة"]                 = "CategoryIcon",
+            ["الايكون"]                      = "CategoryIcon",
+            ["category icon"]                = "CategoryIcon",
+            // ── Category sheet columns ─────────────────────────────────────────
+            ["اسم الفئة"]                    = "Name",
+            ["ترتيب العرض"]                  = "DisplayOrder",
+            ["displayorder"]                 = "DisplayOrder",
+            ["description"]                  = "Description",
+            ["name"]                         = "Name",
         };
 
         public BulkImportService(
             IUnitOfWork unitOfWork,
             IValidator<ProductImportDto> productValidator,
             IValidator<CategoryImportDto> categoryValidator,
-            ILogger<BulkImportService> logger)
+            ILogger<BulkImportService> logger,
+            IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
             _productValidator = productValidator;
             _categoryValidator = categoryValidator;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  UNIFIED EXCEL IMPORT  (one file → two sheets)
+        //  UNIFIED EXCEL IMPORT
         // ════════════════════════════════════════════════════════════════════
-        public async Task ProcessUnifiedExcelImportAsync(string filePath)
+        public async Task<ImportResult> ProcessUnifiedExcelImportAsync(string filePath)
         {
+            var result = new ImportResult();
             _logger.LogInformation("Starting unified Excel import from {FilePath}", filePath);
 
             if (!File.Exists(filePath))
             {
                 _logger.LogError("File not found: {FilePath}", filePath);
-                return;
+                return result;
             }
 
             try
@@ -112,28 +169,31 @@ namespace Blocko.Services.Imports
                 if (productSheet != null)
                 {
                     _logger.LogInformation("Processing product sheet: {Name}", productSheet.Name);
-                    await ImportProductsFromWorksheet(productSheet);
+                    await ImportProductsFromWorksheet(productSheet, result);
                 }
 
-                _logger.LogInformation("Unified Excel import completed.");
+                _logger.LogInformation("Unified Excel import completed. {Summary}", result.Summary);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing unified Excel import");
             }
+
+            return result;
         }
 
         // ════════════════════════════════════════════════════════════════════
         //  UNIFIED JSON IMPORT
         // ════════════════════════════════════════════════════════════════════
-        public async Task ProcessUnifiedJsonImportAsync(string filePath)
+        public async Task<ImportResult> ProcessUnifiedJsonImportAsync(string filePath)
         {
+            var result = new ImportResult();
             _logger.LogInformation("Starting unified JSON import from {FilePath}", filePath);
 
             if (!File.Exists(filePath))
             {
                 _logger.LogError("File not found: {FilePath}", filePath);
-                return;
+                return result;
             }
 
             try
@@ -163,42 +223,52 @@ namespace Blocko.Services.Imports
                 if (root.TryGetProperty("products", out var prodArray) ||
                     root.TryGetProperty("المنتجات", out prodArray))
                 {
+                    int rowNum = 1;
                     foreach (var prodEl in prodArray.EnumerateArray())
                     {
+                        rowNum++;
+                        result.TotalRows++;
                         var dto = new ProductImportDto
                         {
+                            Sku              = GetJsonString(prodEl, "sku", "كود المنتج", "product code"),
                             Name             = GetJsonString(prodEl, "name", "الاسم", "اسم المنتج"),
+                            NameEn           = GetJsonString(prodEl, "nameEn", "Product Name (English)"),
                             CategoryName     = GetJsonString(prodEl, "categoryName", "اسم الفئة", "categoryname"),
                             Description      = GetJsonString(prodEl, "description", "الوصف"),
+                            DescriptionEn    = GetJsonString(prodEl, "descriptionEn", "Description (English)"),
                             RetailPrice      = GetJsonDecimal(prodEl, "price", "السعر", "retailPrice"),
                             StockQuantity    = GetJsonInt(prodEl, "stock", "الكمية", "stockQuantity"),
-                            UnitOfMeasure    = GetJsonString(prodEl, "unitOfMeasure", "وحدة القياس") ?? "Unit",
-                            Status           = GetJsonString(prodEl, "status", "الحالة") ?? "Active",
-                            Brand            = GetJsonString(prodEl, "brand", "البراند"),
+                            UnitOfMeasure    = GetJsonString(prodEl, "unitOfMeasure", "وحدة القياس", "الوحدة") is { Length: > 0 } u ? u : "Unit",
+                            Status           = GetJsonString(prodEl, "status", "الحالة") is { Length: > 0 } s ? s : "Active",
+                            Brand            = GetJsonString(prodEl, "brand", "البراند", "اسم المورد"),
                             CountryOfOrigin  = GetJsonString(prodEl, "countryOfOrigin", "بلد المنشأ"),
                             ImageBase64      = GetJsonString(prodEl, "imageBase64", "الصورة")
                         };
 
-                        // Handle base64 image
                         if (!string.IsNullOrWhiteSpace(dto.ImageBase64))
-                        {
                             ParseBase64Image(dto);
-                        }
 
-                        await SaveProductAsync(dto);
+                        var (status, reason) = await SaveProductAsync(dto);
+                        result.Rows.Add(new ImportRowResult { RowNumber = rowNum, Name = dto.Name, Status = status, Reason = reason });
+
+                        if (status == ImportRowStatus.Imported) result.Imported++;
+                        else if (status == ImportRowStatus.Updated)  result.Updated++;
+                        else result.Skipped++;
                     }
                 }
 
-                _logger.LogInformation("Unified JSON import completed.");
+                _logger.LogInformation("Unified JSON import completed. {Summary}", result.Summary);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing unified JSON import");
             }
+
+            return result;
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  LEGACY  (backward-compat, kept for Hangfire jobs already enqueued)
+        //  LEGACY  (backward-compat)
         // ════════════════════════════════════════════════════════════════════
         public async Task ProcessCategoryImportAsync(string filePath)
         {
@@ -219,7 +289,7 @@ namespace Blocko.Services.Imports
             {
                 using var workbook = new XLWorkbook(filePath);
                 var ws = workbook.Worksheets.FirstOrDefault();
-                if (ws != null) await ImportProductsFromWorksheet(ws);
+                if (ws != null) await ImportProductsFromWorksheet(ws, new ImportResult());
             }
             catch (Exception ex) { _logger.LogError(ex, "Legacy product import error"); }
         }
@@ -247,37 +317,71 @@ namespace Blocko.Services.Imports
             }
         }
 
-        private async Task ImportProductsFromWorksheet(IXLWorksheet ws)
+        private async Task ImportProductsFromWorksheet(IXLWorksheet ws, ImportResult result)
         {
             var colIndex = BuildColumnIndex(ws);
 
+            if (!colIndex.ContainsKey("Name"))
+            {
+                result.HasError = true;
+                result.ErrorMessage = "فشل: لم يتم العثور على عمود 'الاسم' أو 'اسم المنتج' في ملف الاكسل. يرجى التأكد من أسماء الأعمدة.";
+                return;
+            }
+            if (!colIndex.ContainsKey("CategoryName"))
+            {
+                result.HasError = true;
+                result.ErrorMessage = "فشل: لم يتم العثور على عمود 'التصنيف' أو 'الفئة' في ملف الاكسل. يرجى التأكد من أسماء الأعمدة.";
+                return;
+            }
+
+            int rowNum = 1;
+
             foreach (var row in ws.RangeUsed().RowsUsed().Skip(1))
             {
+                rowNum++;
+
                 var dto = new ProductImportDto
                 {
-                    Name          = GetCell(row, colIndex, "Name"),
-                    CategoryName  = GetCell(row, colIndex, "CategoryName"),
-                    Description   = GetCell(row, colIndex, "Description"),
-                    UnitOfMeasure = GetCell(row, colIndex, "UnitOfMeasure") is { Length: > 0 } uom ? uom : "Unit",
-                    Status        = GetCell(row, colIndex, "Status") is { Length: > 0 } st ? st : "Active",
-                    Brand         = GetCell(row, colIndex, "Brand"),
+                    Sku             = GetCell(row, colIndex, "Sku"),
+                    Name            = GetCell(row, colIndex, "Name"),
+                    NameEn          = GetCell(row, colIndex, "NameEn"),
+                    CategoryName    = GetCell(row, colIndex, "CategoryName"),
+                    Description     = GetCell(row, colIndex, "Description"),
+                    DescriptionEn   = GetCell(row, colIndex, "DescriptionEn"),
+                    UnitOfMeasure   = GetCell(row, colIndex, "UnitOfMeasure") is { Length: > 0 } uom ? uom : "Unit",
+                    Status          = GetCell(row, colIndex, "Status")  is { Length: > 0 } st  ? st  : "Active",
+                    Brand           = GetCell(row, colIndex, "Brand"),
                     CountryOfOrigin = GetCell(row, colIndex, "CountryOfOrigin"),
                     ParentCategoryName = GetCell(row, colIndex, "ParentCategoryName"),
-                    CategoryIcon  = GetCell(row, colIndex, "CategoryIcon")
+                    MicroCategoryName  = GetCell(row, colIndex, "MicroCategoryName"),
+                    CategoryIcon    = GetCell(row, colIndex, "CategoryIcon")
                 };
-
-                if (decimal.TryParse(GetCell(row, colIndex, "Price"), out var price)) dto.RetailPrice = price;
-                if (int.TryParse(GetCell(row, colIndex, "Stock"), out var qty)) dto.StockQuantity = qty;
-                if (decimal.TryParse(GetCell(row, colIndex, "Weight"), out var w)) dto.Weight = w;
-                dto.Dimensions = GetCell(row, colIndex, "Dimensions");
 
                 if (string.IsNullOrWhiteSpace(dto.Name)) continue;
 
-                // Extract embedded pictures in this row
-                var pics = ws.Pictures.Where(p => 
-                    p.TopLeftCell.Address.RowNumber <= row.RowNumber() && 
-                    p.BottomRightCell.Address.RowNumber >= row.RowNumber()).ToList();
-                
+                result.TotalRows++;
+
+                if (decimal.TryParse(GetCell(row, colIndex, "Price"), out var price)) dto.RetailPrice = price;
+                if (int.TryParse(GetCell(row, colIndex, "Stock"), out var qty))  dto.StockQuantity = qty;
+                if (decimal.TryParse(GetCell(row, colIndex, "Weight"), out var w)) dto.Weight = w;
+                dto.Dimensions = GetCell(row, colIndex, "Dimensions");
+
+                var pics = new List<ClosedXML.Excel.Drawings.IXLPicture>();
+                foreach (var p in ws.Pictures)
+                {
+                    try
+                    {
+                        if (p.TopLeftCell?.Address != null && p.TopLeftCell.Address.RowNumber == row.RowNumber())
+                        {
+                            pics.Add(p);
+                        }
+                    }
+                    catch
+                    {
+                        // Safely ignore pictures that cause ClosedXML internal exceptions
+                    }
+                }
+
                 if (pics.Any())
                 {
                     var firstPic = pics.First();
@@ -300,32 +404,35 @@ namespace Blocko.Services.Imports
                         }
                     }
                 }
-                
-                // Fallback: Check if the user placed an image URL, Base64, or =IMAGE() formula in the image column
+
+                // Fallback: image column URL or base64
                 if (dto.ImageData == null)
                 {
                     var imgStr = GetCell(row, colIndex, "Image");
-                    
+
                     if (!string.IsNullOrWhiteSpace(imgStr))
                     {
-                        // Check if it's an Excel formula like =IMAGE("url")
-                        if (imgStr.StartsWith("=IMAGE(", StringComparison.OrdinalIgnoreCase) || imgStr.StartsWith("IMAGE(", StringComparison.OrdinalIgnoreCase))
+                        if (imgStr.StartsWith("=IMAGE(", StringComparison.OrdinalIgnoreCase) ||
+                            imgStr.StartsWith("IMAGE(",  StringComparison.OrdinalIgnoreCase))
                         {
-                            var match = System.Text.RegularExpressions.Regex.Match(imgStr, "IMAGE\\([\"']?(http.*?)[\"']?\\)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                            if (match.Success)
-                            {
-                                imgStr = match.Groups[1].Value;
-                            }
+                            var match = Regex.Match(imgStr, @"IMAGE\([""']?(http.*?)[""']?\)", RegexOptions.IgnoreCase);
+                            if (match.Success) imgStr = match.Groups[1].Value;
                         }
 
-                        if (imgStr.StartsWith("http", StringComparison.OrdinalIgnoreCase) || imgStr.StartsWith("data:image", StringComparison.OrdinalIgnoreCase))
+                        if (imgStr.StartsWith("http",       StringComparison.OrdinalIgnoreCase) ||
+                            imgStr.StartsWith("data:image", StringComparison.OrdinalIgnoreCase))
                         {
-                            dto.ImageBase64 = imgStr; // We will handle HTTP URLs in SaveProductImageAsync
+                            dto.ImageBase64 = imgStr;
                         }
                     }
                 }
 
-                await SaveProductAsync(dto);
+                var (status, reason) = await SaveProductAsync(dto);
+                result.Rows.Add(new ImportRowResult { RowNumber = rowNum, Name = dto.Name, Status = status, Reason = reason });
+
+                if (status == ImportRowStatus.Imported) result.Imported++;
+                else if (status == ImportRowStatus.Updated)  result.Updated++;
+                else result.Skipped++;
             }
         }
 
@@ -344,9 +451,7 @@ namespace Blocko.Services.Imports
             var existing = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.Name)).FirstOrDefault();
 
             if (existing == null)
-            {
                 existing = new Category { Name = dto.Name! };
-            }
 
             existing.Description  = dto.Description;
             existing.DisplayOrder = dto.DisplayOrder;
@@ -365,87 +470,139 @@ namespace Blocko.Services.Imports
             await _unitOfWork.SaveChangesAsync();
         }
 
-        private async Task SaveProductAsync(ProductImportDto dto)
+        /// <summary>Returns (status, reason) for the product row.</summary>
+        private async Task<(ImportRowStatus status, string reason)> SaveProductAsync(ProductImportDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name)) return;
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return (ImportRowStatus.Skipped, "اسم المنتج فارغ");
 
-            // Auto-generate SKU if not provided
-            if (string.IsNullOrWhiteSpace(dto.Sku))
+            // Use sheet SKU if provided; otherwise auto-generate
+            bool hasSku = !string.IsNullOrWhiteSpace(dto.Sku);
+            if (!hasSku)
                 dto.Sku = GenerateSku(dto.Name);
-
-            // Ensure SKU is unique
-            var existing = (await _unitOfWork.Products.FindAsync(p => p.Sku == dto.Sku)).FirstOrDefault();
-            if (existing != null)
-                dto.Sku = GenerateSku(dto.Name); // re-generate on collision
+            else
+            {
+                // Ensure uniqueness when using a provided SKU (only for truly new products)
+                // Collision check is deferred below after we know if it's an existing product
+            }
 
             var validation = await _productValidator.ValidateAsync(dto);
             if (!validation.IsValid)
             {
-                _logger.LogWarning("Product '{Name}' failed validation: {Errors}",
-                    dto.Name, string.Join(", ", validation.Errors.Select(e => e.ErrorMessage)));
-                return;
+                var errors = string.Join("، ", validation.Errors.Select(e => e.ErrorMessage));
+                _logger.LogWarning("Product '{Name}' failed validation: {Errors}", dto.Name, errors);
+                return (ImportRowStatus.Skipped, $"فشل التحقق: {errors}");
             }
 
-            var category = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.CategoryName)).FirstOrDefault();
-            if (category == null)
+            // ── Resolve/auto-create category hierarchy ──────────────────────
+            if (string.IsNullOrWhiteSpace(dto.CategoryName))
             {
-                if (string.IsNullOrWhiteSpace(dto.CategoryName))
-                {
-                    _logger.LogWarning("Category name is missing for product '{Name}'", dto.Name);
-                    return;
-                }
-
-                // Auto-create category if it does not exist
-                category = new Category { Name = dto.CategoryName };
-                await _unitOfWork.Categories.AddAsync(category);
-                await _unitOfWork.SaveChangesAsync(); // save immediately to get Id
-                _logger.LogInformation("Auto-created category '{Cat}' for product '{Name}'", dto.CategoryName, dto.Name);
+                _logger.LogWarning("Category name is missing for product '{Name}'", dto.Name);
+                return (ImportRowStatus.Skipped, "اسم التصنيف الرئيسي مفقود");
             }
 
-            bool categoryUpdated = false;
-
-            if (!string.IsNullOrWhiteSpace(dto.CategoryIcon) && category.ImageUrl != dto.CategoryIcon)
+            // 1. Resolve/Create Level 1 (Main Category)
+            var mainCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.CategoryName)).FirstOrDefault();
+            if (mainCategory == null)
             {
-                category.ImageUrl = dto.CategoryIcon;
-                categoryUpdated = true;
+                mainCategory = new Category { Name = dto.CategoryName };
+                await _unitOfWork.Categories.AddAsync(mainCategory);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Auto-created main category '{Cat}'", dto.CategoryName);
             }
 
+            Category leafCategory = mainCategory;
+
+            // 2. Resolve/Create Level 2 (Sub-category)
             if (!string.IsNullOrWhiteSpace(dto.ParentCategoryName))
             {
-                var parent = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName)).FirstOrDefault();
-                if (parent == null)
+                var subCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
+                if (subCategory == null)
                 {
-                    parent = new Category { Name = dto.ParentCategoryName };
-                    await _unitOfWork.Categories.AddAsync(parent);
+                    subCategory = new Category 
+                    { 
+                        Name = dto.ParentCategoryName,
+                        ParentCategoryId = mainCategory.Id
+                    };
+                    await _unitOfWork.Categories.AddAsync(subCategory);
                     await _unitOfWork.SaveChangesAsync();
+                    _logger.LogInformation("Auto-created sub-category '{Cat}' under parent '{Parent}'", dto.ParentCategoryName, dto.CategoryName);
                 }
-                
-                if (category.ParentCategoryId != parent.Id)
+                leafCategory = subCategory;
+
+                // 3. Resolve/Create Level 3 (Micro-category)
+                if (!string.IsNullOrWhiteSpace(dto.MicroCategoryName))
                 {
-                    category.ParentCategoryId = parent.Id;
-                    categoryUpdated = true;
+                    var microCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.MicroCategoryName && c.ParentCategoryId == subCategory.Id)).FirstOrDefault();
+                    if (microCategory == null)
+                    {
+                        microCategory = new Category
+                        {
+                            Name = dto.MicroCategoryName,
+                            ParentCategoryId = subCategory.Id
+                        };
+                        await _unitOfWork.Categories.AddAsync(microCategory);
+                        await _unitOfWork.SaveChangesAsync();
+                        _logger.LogInformation("Auto-created micro-category '{Cat}' under sub-category '{Parent}'", dto.MicroCategoryName, dto.ParentCategoryName);
+                    }
+                    leafCategory = microCategory;
                 }
             }
 
-            if (categoryUpdated)
+            if (!string.IsNullOrWhiteSpace(dto.CategoryIcon) && leafCategory.ImageUrl != dto.CategoryIcon)
             {
-                _unitOfWork.Categories.Update(category);
+                leafCategory.ImageUrl = dto.CategoryIcon;
+                _unitOfWork.Categories.Update(leafCategory);
                 await _unitOfWork.SaveChangesAsync();
             }
 
-            Enum.TryParse<Bolcko.Domain.Enums.ProductStatus>(dto.Status, true, out var status);
+            // ── Parse Status ─────────────────────────────────────────────────
+            var statusStr = dto.Status?.Trim();
+            var status = Bolcko.Domain.Enums.ProductStatus.InStock;
+            if (!string.IsNullOrWhiteSpace(statusStr))
+            {
+                if (statusStr.Equals("Active", StringComparison.OrdinalIgnoreCase) ||
+                    statusStr.Equals("نعم", StringComparison.OrdinalIgnoreCase) ||
+                    statusStr.Equals("متاح", StringComparison.OrdinalIgnoreCase) ||
+                    statusStr.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                    statusStr.Equals("InStock", StringComparison.OrdinalIgnoreCase) ||
+                    statusStr.Equals("1", StringComparison.OrdinalIgnoreCase))
+                {
+                    status = Bolcko.Domain.Enums.ProductStatus.InStock;
+                }
+                else if (statusStr.Equals("Inactive", StringComparison.OrdinalIgnoreCase) ||
+                         statusStr.Equals("لا", StringComparison.OrdinalIgnoreCase) ||
+                         statusStr.Equals("غير متاح", StringComparison.OrdinalIgnoreCase) ||
+                         statusStr.Equals("false", StringComparison.OrdinalIgnoreCase) ||
+                         statusStr.Equals("OutOfStock", StringComparison.OrdinalIgnoreCase) ||
+                         statusStr.Equals("0", StringComparison.OrdinalIgnoreCase))
+                {
+                    status = Bolcko.Domain.Enums.ProductStatus.OutOfStock;
+                }
+            }
 
-            // Find by name+category for upsert (since SKU is auto-generated each run for new items)
-            var product = (await _unitOfWork.Products.FindAsync(
-                p => p.Name == dto.Name && p.CategoryId == category.Id)).FirstOrDefault();
+            // ── Upsert: find by SKU (if sheet provided one) or by name+category ─
+            Product? product = null;
+            bool isNew;
 
-            bool isNew = product == null;
+            if (hasSku)
+            {
+                product = (await _unitOfWork.Products.FindAsync(p => p.Sku == dto.Sku)).FirstOrDefault();
+            }
+
+            if (product == null)
+            {
+                product = (await _unitOfWork.Products.FindAsync(
+                    p => p.Name == dto.Name && p.CategoryId == leafCategory.Id)).FirstOrDefault();
+            }
+
+            isNew = product == null;
             if (isNew)
                 product = new Product { Sku = dto.Sku, CreatedAt = DateTime.UtcNow };
 
             product!.Name               = dto.Name;
             product.Description         = dto.Description;
-            product.CategoryId          = category.Id;
+            product.CategoryId          = leafCategory.Id;
             product.RetailPrice         = dto.RetailPrice;
             product.UnitOfMeasure       = dto.UnitOfMeasure;
             product.StockQuantity       = dto.StockQuantity;
@@ -462,8 +619,24 @@ namespace Blocko.Services.Imports
 
             await _unitOfWork.SaveChangesAsync();
 
+            // Cache the English translations in MemoryCache to support zero DB changes dynamic translation
+            if (!string.IsNullOrWhiteSpace(dto.NameEn))
+            {
+                var cacheKey = $"translation_en_{dto.Name.Trim().GetHashCode()}";
+                _memoryCache.Set(cacheKey, dto.NameEn.Trim(), TimeSpan.FromDays(30));
+            }
+            if (!string.IsNullOrWhiteSpace(dto.DescriptionEn) && !string.IsNullOrWhiteSpace(dto.Description))
+            {
+                var cacheKey = $"translation_en_{dto.Description.Trim().GetHashCode()}";
+                _memoryCache.Set(cacheKey, dto.DescriptionEn.Trim(), TimeSpan.FromDays(30));
+            }
+
             // Save image
             await SaveProductImageAsync(product, dto);
+
+            return isNew
+                ? (ImportRowStatus.Imported, string.Empty)
+                : (ImportRowStatus.Updated,  string.Empty);
         }
 
         private async Task SaveProductImageAsync(Product product, ProductImportDto dto)
@@ -502,7 +675,6 @@ namespace Blocko.Services.Imports
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products");
             Directory.CreateDirectory(uploadsFolder);
 
-            // Save primary image
             if (imageBytes != null)
             {
                 var fileName  = $"{Guid.NewGuid()}.{ext}";
@@ -511,19 +683,18 @@ namespace Blocko.Services.Imports
                 product.ImageUrl = $"/uploads/products/{fileName}";
             }
 
-            // Save additional images
             if (dto.AdditionalImages != null && dto.AdditionalImages.Any())
             {
                 int order = 1;
                 foreach (var addImg in dto.AdditionalImages)
                 {
-                    var addFileName = $"{Guid.NewGuid()}.{addImg.Ext}";
+                    var addFileName  = $"{Guid.NewGuid()}.{addImg.Ext}";
                     var addImagePath = Path.Combine(uploadsFolder, addFileName);
                     await File.WriteAllBytesAsync(addImagePath, addImg.Data);
-                    
+
                     product.Images.Add(new ProductImage
                     {
-                        Url = $"/uploads/products/{addFileName}",
+                        Url          = $"/uploads/products/{addFileName}",
                         DisplayOrder = order++
                     });
                 }
@@ -536,14 +707,13 @@ namespace Blocko.Services.Imports
         // ── SKU Generation ───────────────────────────────────────────────────
         private static string GenerateSku(string name)
         {
-            // Transliterate Latin chars from name; use "PRD" for purely Arabic names
-            var ascii = Regex.Replace(name ?? "", @"[^A-Za-z0-9]", "").ToUpperInvariant();
+            var ascii  = Regex.Replace(name ?? "", @"[^A-Za-z0-9]", "").ToUpperInvariant();
             var prefix = ascii.Length >= 3 ? ascii[..Math.Min(6, ascii.Length)] : "PRD";
             var suffix = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
             return $"{prefix}-{suffix}";
         }
 
-        // ── Column index builder (reads header row, maps Arabic/English) ─────
+        // ── Column index builder ─────────────────────────────────────────────
         private static Dictionary<string, int> BuildColumnIndex(IXLWorksheet ws)
         {
             var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -570,8 +740,7 @@ namespace Blocko.Services.Imports
                     var f = cell.FormulaA1;
                     if (!string.IsNullOrWhiteSpace(f)) return "=" + f;
                 }
-                var val = cell.GetString().Trim();
-                return val;
+                return cell.GetString().Trim();
             }
             return string.Empty;
         }

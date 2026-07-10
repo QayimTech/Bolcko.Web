@@ -17,7 +17,7 @@ namespace Bolcko.Web.App.Extensions
             // - Admin: full access (Users/SEO/Everything)
             // - DashboardUser: محدود (Products/Orders/Categories)
             // - Customer: متجر
-            string[] roles = { "Admin", "DashboardUser", "Customer" };
+            string[] roles = { "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))

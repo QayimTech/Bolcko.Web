@@ -21,7 +21,12 @@ namespace Blocko.Services.Implementations.user
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            _logger.LogInformation("Sending email to {Email} with subject {Subject}", email, subject);
+            await SendEmailAsync(email, subject, htmlMessage, System.Linq.Enumerable.Empty<(byte[] content, string fileName, string contentType)>());
+        }
+
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage, IEnumerable<(byte[] content, string fileName, string contentType)> attachments)
+        {
+            _logger.LogInformation("Sending email to {Email} with subject {Subject} and {Count} attachments", email, subject, attachments.Count());
 
             // Attempt to read SMTP settings from configuration if available
             var smtpHost = _configuration["Smtp:Host"];
@@ -49,6 +54,12 @@ namespace Blocko.Services.Implementations.user
                         };
                         mailMessage.To.Add(email);
 
+                        foreach (var att in attachments)
+                        {
+                            var attachment = new Attachment(new MemoryStream(att.content), att.fileName, att.contentType);
+                            mailMessage.Attachments.Add(attachment);
+                        }
+
                         await client.SendMailAsync(mailMessage);
                         _logger.LogInformation("Email sent successfully via SMTP to {Email}", email);
                         return;
@@ -75,11 +86,19 @@ namespace Blocko.Services.Implementations.user
                     Directory.CreateDirectory(directoryPath);
                 }
 
-                var fileName = $"{System.DateTime.UtcNow:yyyyMMdd_HHmmss}_{email.Replace("@", "_").Replace(".", "_")}.html";
-                var filePath = Path.Combine(directoryPath, fileName);
+                var baseName = $"{System.DateTime.UtcNow:yyyyMMdd_HHmmss}_{email.Replace("@", "_").Replace(".", "_")}";
+                var filePath = Path.Combine(directoryPath, $"{baseName}.html");
                 
                 await File.WriteAllTextAsync(filePath, htmlMessage);
                 _logger.LogInformation("Email saved locally to {FilePath} because SMTP is not configured.", filePath);
+
+                // Save attachments locally as well for inspection
+                foreach (var att in attachments)
+                {
+                    var attPath = Path.Combine(directoryPath, $"{baseName}_{att.fileName}");
+                    await File.WriteAllBytesAsync(attPath, att.content);
+                    _logger.LogInformation("Email attachment saved locally to {FilePath}", attPath);
+                }
             }
             catch (System.Exception ex)
             {

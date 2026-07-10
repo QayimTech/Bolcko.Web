@@ -40,7 +40,7 @@
             @* Name + Delete *@
             <div class="flex justify-between items-start">
                 <h3 class="font-headline-md text-on-surface uppercase">@Model.ProductName</h3>
-                <form asp-action="RemoveItem" method="post">
+                <form asp-action="RemoveItem" asp-controller="ShoppingCart" asp-area="Shop" method="post">
                     <input type="hidden" name="itemId" value="@Model.Id" />
                     <button type="submit" class="text-outline hover:text-error transition-colors">
                         <span class="material-symbols-outlined">delete</span>

@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "تسجيل كمندوب";
+}
+<div class="max-w-lg mx-auto p-6" dir="rtl">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">📝 تسجيل كمندوب توصيل</h1>
+        <p class="text-slate-500 text-sm mb-6">قم بتعبئة البيانات التالية لتقديم طلب الانضمام كمندوب مستقل. سيتم مراجعة طلبك من قبل الإدارة.</p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">❌ @TempData["Error"]</div>
+        }
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-4">
+                <label class="block text-sm font-bold mb-1">نوع المركبة *</label>
+                <select name="vehicleType" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="">-- اختر نوع المركبة --</option>
+                    <option value="دراجة نارية">دراجة نارية</option>
+                    <option value="سيارة صغيرة">سيارة صغيرة</option>
+                    <option value="فان">فان</option>
+                    <option value="شاحنة صغيرة">شاحنة صغيرة</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-bold mb-1">رقم لوحة المركبة</label>
+                <input name="vehiclePlateNumber" type="text" placeholder="ب ج د 1234"
+                       class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-bold mb-1">رقم رخصة القيادة</label>
+                <input name="licenseNumber" type="text" placeholder="123456789"
+                       class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors">
+                تقديم الطلب
+            </button>
+        </form>
+    </div>
+</div>
