@@ -563,3 +563,4 @@ appsettings.Development.json
 # User Secrets
 secrets.json
 *.json
+/Bolcko.Web.App/wwwroot/images/products
