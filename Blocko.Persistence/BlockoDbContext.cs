@@ -34,6 +34,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Setting.AppSetting> AppSettings { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.ShippingRate> ShippingRates { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.Coupon> Coupons { get; set; }
+        public DbSet<Bolcko.Domain.Entities.User.Notification> Notifications { get; set; }
         
         // Delivery
         public DbSet<DeliveryCompany> DeliveryCompanies { get; set; }
@@ -241,6 +242,14 @@ namespace Blocko.Persistence
                 entity.HasOne(d => d.Customer)
                     .WithMany()
                     .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Bolcko.Domain.Entities.User.Notification>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                    .WithMany()
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

@@ -11,18 +11,18 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-slate-800">🚚 مركز التوزيع والإرسال</h1>
         <div class="flex gap-2">
-            <a asp-action="Drivers" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">إدارة المناديب</a>
-            <a asp-action="Companies" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium">شركات التوصيل</a>
+            <a asp-action="Drivers" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-all">إدارة المناديب</a>
+            <a asp-action="Companies" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-all">شركات التوصيل</a>
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["SuccessMessage"]</div>
     }
-    @if (TempData["Error"] != null)
+    @if (TempData["ErrorMessage"] != null)
     {
-        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["Error"]</div>
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["ErrorMessage"]</div>
     }
 
     <!-- Jobs Table -->

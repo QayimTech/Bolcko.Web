@@ -11,11 +11,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     {
         private readonly IServiceManager _serviceManager;
         private readonly Bolcko.Domain.Interfaces.IUnitOfWork _uow;
+        private readonly IWebHostEnvironment _env;
 
-        public SettingsController(IServiceManager serviceManager, Bolcko.Domain.Interfaces.IUnitOfWork uow)
+        public SettingsController(IServiceManager serviceManager, Bolcko.Domain.Interfaces.IUnitOfWork uow, IWebHostEnvironment env)
         {
             _serviceManager = serviceManager;
             _uow = uow;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -25,10 +27,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var contactPhone = await _uow.AppSettings.GetByKeyAsync("ContactPhone");
             var contactAddress = await _uow.AppSettings.GetByKeyAsync("ContactAddress");
 
+            // Load Notification Settings
+            var soundEnabled = await _uow.AppSettings.GetByKeyAsync("NotificationSoundEnabled");
+            var soundUrl = await _uow.AppSettings.GetByKeyAsync("NotificationSoundUrl");
+            var emailEnabled = await _uow.AppSettings.GetByKeyAsync("NotificationEmailEnabled");
+
             ViewBag.ShippingFee = shippingFee?.Value ?? "5.00";
             ViewBag.ContactEmail = contactEmail?.Value ?? "info@bolcko.com";
             ViewBag.ContactPhone = contactPhone?.Value ?? "+962 6 555 5555";
             ViewBag.ContactAddress = contactAddress?.Value ?? "عمان، الأردن";
+
+            ViewBag.NotificationSoundEnabled = soundEnabled?.Value ?? "true";
+            ViewBag.NotificationSoundUrl = soundUrl?.Value ?? "https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav";
+            ViewBag.NotificationEmailEnabled = emailEnabled?.Value ?? "true";
 
             var rates = await _uow.ShippingRates.GetAllAsync();
             
@@ -51,12 +62,49 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(string shippingFee, string contactEmail, string contactPhone, string contactAddress, Dictionary<string, decimal> cityRates)
+        public async Task<IActionResult> Save(
+            string shippingFee, 
+            string contactEmail, 
+            string contactPhone, 
+            string contactAddress, 
+            bool notificationSoundEnabled,
+            string notificationSoundUrl,
+            IFormFile? notificationSoundFile,
+            bool notificationEmailEnabled,
+            Dictionary<string, decimal> cityRates)
         {
             await SaveSettingAsync("ShippingFee", shippingFee, "رسوم الشحن والتوصيل المقدرة");
             await SaveSettingAsync("ContactEmail", contactEmail, "بريد التواصل الإلكتروني الأساسي");
             await SaveSettingAsync("ContactPhone", contactPhone, "رقم هاتف التواصل الأساسي");
             await SaveSettingAsync("ContactAddress", contactAddress, "عنوان المقر الأساسي للتواصل");
+
+            string finalSoundUrl = notificationSoundUrl ?? "/sounds/default-notification.wav";
+
+            // Handle file upload
+            if (notificationSoundFile != null && notificationSoundFile.Length > 0)
+            {
+                var soundsFolder = Path.Combine(_env.WebRootPath, "sounds");
+                if (!Directory.Exists(soundsFolder))
+                {
+                    Directory.CreateDirectory(soundsFolder);
+                }
+
+                var ext = Path.GetExtension(notificationSoundFile.FileName);
+                var fileName = $"notification-sound-{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
+                var filePath = Path.Combine(soundsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await notificationSoundFile.CopyToAsync(stream);
+                }
+
+                finalSoundUrl = $"/sounds/{fileName}";
+            }
+
+            // Save Notification Settings
+            await SaveSettingAsync("NotificationSoundEnabled", notificationSoundEnabled ? "true" : "false", "تشغيل التنبيه الصوتي للإشعارات");
+            await SaveSettingAsync("NotificationSoundUrl", finalSoundUrl, "رابط ملف الصوت للتنبيهات");
+            await SaveSettingAsync("NotificationEmailEnabled", notificationEmailEnabled ? "true" : "false", "إرسال إشعارات البريد لشركات التوصيل");
 
             // Sync dynamic shipping rates
             var existingRates = await _uow.ShippingRates.GetAllAsync();

@@ -1,0 +1,133 @@
+@model List<Bolcko.Domain.Entities.User.Notification>
+@{
+    ViewData["Title"] = "الإشعارات";
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+    bool isAdmin = User.IsInRole("Admin");
+    Layout = isAdmin ? "~/Areas/Admin/Views/Shared/_Layout.cshtml" : "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mx-auto px-4 py-8 text-start @(isAdmin ? "bg-slate-50" : "bg-[#0b0f19] text-white") rounded-3xl shadow-sm border @(isAdmin ? "border-slate-200" : "border-white/5")">
+    <div class="flex justify-between items-center mb-8 pb-4 border-b @(isAdmin ? "border-slate-200" : "border-white/10")">
+        <div>
+            <h1 class="text-2xl font-black @(isAdmin ? "text-slate-800" : "text-white") flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#E8A020]">notifications</span>
+                مركز الإشعارات
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">تصفح كافة التنبيهات وتحديثات الطلبات في مكان واحد.</p>
+        </div>
+        <button onclick="markAllNotificationsAsReadPage()" class="px-5 py-2.5 bg-[#E8A020]/10 hover:bg-[#E8A020]/20 text-[#E8A020] text-xs font-black rounded-2xl transition-all active:scale-95">
+            تحديد الكل كمقروء
+        </button>
+    </div>
+
+    <div class="space-y-4">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-20">
+                <span class="material-symbols-outlined text-5xl text-slate-500 mb-4">notifications_off</span>
+                <p class="text-slate-400 text-sm font-bold">لا يوجد إشعارات لعرضها حالياً.</p>
+            </div>
+        }
+        else
+        {
+            <div class="divide-y @(isAdmin ? "divide-slate-200" : "divide-white/5") rounded-2xl overflow-hidden shadow-sm">
+                @foreach (var n in Model)
+                {
+                    var bgClass = n.IsRead 
+                        ? (isAdmin ? "bg-white" : "bg-white/2") 
+                        : (isAdmin ? "bg-indigo-50/50" : "bg-[#E8A020]/5");
+
+                    var textClass = isAdmin ? "text-slate-800" : "text-slate-200";
+                    var subText = isAdmin ? "text-slate-500" : "text-slate-400";
+                    var hoverClass = isAdmin ? "hover:bg-slate-50" : "hover:bg-white/5";
+
+                    var actionHref = !string.IsNullOrEmpty(n.ActionUrl) ? n.ActionUrl : "#";
+
+                    string icon = "notifications";
+                    var tl = (n.Title ?? "").ToLower();
+                    var ml = (n.Message ?? "").ToLower();
+                    if (tl.Contains("طلب") || tl.Contains("order") || ml.Contains("طلب") || ml.Contains("order")) icon = "shopping_cart";
+                    else if (tl.Contains("توصيل") || tl.Contains("سائق") || tl.Contains("مندوب") || tl.Contains("delivery")) icon = "local_shipping";
+
+                    <div id="notif-row-@n.Id" class="block p-5 @bgClass @hoverClass transition-all group flex items-start justify-between gap-4">
+                        <a href="@actionHref" onclick="markAsReadPage(@n.Id, event, '@n.ActionUrl')" class="flex gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 @(isAdmin ? "bg-indigo-100 text-indigo-600" : "bg-white/5 text-slate-300")">
+                                <span class="material-symbols-outlined text-xl">@icon</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold @textClass flex items-center gap-2">
+                                    @n.Title
+                                    @if (!n.IsRead)
+                                    {
+                                        <span class="w-2 h-2 rounded-full bg-[#E8A020] shrink-0"></span>
+                                    }
+                                </h4>
+                                <p class="text-xs @subText mt-1 leading-relaxed">@n.Message</p>
+                                <span class="text-[10px] font-bold text-slate-400 mt-2 block">@n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                        </a>
+                        <div class="flex gap-2">
+                            @if (!n.IsRead)
+                            {
+                                <button id="btn-read-@n.Id" onclick="markSingleAsReadPage(@n.Id)" class="p-2 bg-[#E8A020]/10 hover:bg-[#E8A020]/20 text-[#E8A020] rounded-xl transition-all" title="تحديد كمقروء">
+                                    <span class="material-symbols-outlined text-sm">done</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="flex justify-between items-center mt-8 pt-4 border-t @(isAdmin ? "border-slate-200" : "border-white/10")">
+                    <a href="?page=@(ViewBag.CurrentPage - 1)" class="px-4 py-2 bg-white/5 border border-white/10 text-xs font-bold rounded-xl hover:bg-white/10 transition-all @(ViewBag.HasPreviousPage ? "" : "pointer-events-none opacity-40")">
+                        السابق
+                    </a>
+                    <span class="text-xs font-bold text-slate-400">
+                        الصفحة @ViewBag.CurrentPage من @ViewBag.TotalPages
+                    </span>
+                    <a href="?page=@(ViewBag.CurrentPage + 1)" class="px-4 py-2 bg-white/5 border border-white/10 text-xs font-bold rounded-xl hover:bg-white/10 transition-all @(ViewBag.HasNextPage ? "" : "pointer-events-none opacity-40")">
+                        التالي
+                    </a>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    function markAsReadPage(id, event, actionUrl) {
+        if (!actionUrl || actionUrl === 'null' || actionUrl === '') {
+            event?.preventDefault();
+        }
+        $.post('/Notification/MarkAsRead?id=' + id, function () {
+            // update UI status
+            $(`#notif-row-${id}`).removeClass('bg-indigo-50/50 bg-[#E8A020]/5').addClass('@(isAdmin ? "bg-white" : "bg-white/2")');
+            $(`#notif-row-${id} .bg-amber-500, #notif-row-${id} .bg-[#E8A020]`).remove();
+            $(`#btn-read-${id}`).remove();
+            if (typeof window.fetchNotifications === 'function') {
+                window.fetchNotifications();
+            }
+        });
+    }
+
+    function markSingleAsReadPage(id) {
+        $.post('/Notification/MarkAsRead?id=' + id, function () {
+            $(`#notif-row-${id}`).removeClass('bg-indigo-50/50 bg-[#E8A020]/5').addClass('@(isAdmin ? "bg-white" : "bg-white/2")');
+            $(`#btn-read-${id}`).remove();
+            $(`#notif-row-${id} h4 span`).remove();
+            if (typeof window.fetchNotifications === 'function') {
+                window.fetchNotifications();
+            }
+        });
+    }
+
+    function markAllNotificationsAsReadPage() {
+        $.post('/Notification/MarkAllAsRead', function () {
+            location.reload();
+        });
+    }
+</script>

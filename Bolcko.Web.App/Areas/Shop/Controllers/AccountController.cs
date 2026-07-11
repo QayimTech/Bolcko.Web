@@ -81,6 +81,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (password != confirmPassword)
             {
+                ModelState.AddModelError("ConfirmPassword", "كلمات المرور غير متطابقة");
                 ViewBag.Error = "كلمات المرور غير متطابقة";
                 return View(user);
             }
@@ -95,6 +96,19 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 
                 return RedirectToAction("Index");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                var key = "";
+                if (error.Code.Contains("Password"))
+                    key = "Password";
+                else if (error.Code.Contains("Email"))
+                    key = "Email";
+                else if (error.Code.Contains("UserName"))
+                    key = "Username";
+                
+                ModelState.AddModelError(key, error.Description);
             }
 
             ViewBag.Error = string.Join(", ", result.Errors.Select(e => e.Description));

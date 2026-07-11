@@ -37,6 +37,7 @@ try
     builder.Services.AddBlockoMvcInterface();
     builder.Services.AddBlockoSwagger();
     builder.Services.AddSignalR();
+    builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, Bolcko.Web.App.Hubs.CustomUserIdProvider>();
     builder.Services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, Bolcko.Web.App.Services.NotificationService>();
 
     // Add Hangfire Services
@@ -49,7 +50,7 @@ try
         options.IdleTimeout = TimeSpan.FromMinutes(30);
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 

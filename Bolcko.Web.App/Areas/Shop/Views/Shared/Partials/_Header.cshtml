@@ -103,9 +103,31 @@
             <!-- Divider -->
             <div class="hidden md:block w-px h-5 bg-white/10 mx-1"></div>
 
-            <!-- User Account -->
+            <!-- User Account & Notifications -->
             @if (User.Identity.IsAuthenticated)
             {
+                <!-- Notifications Center -->
+                <div class="relative group hidden sm:block" id="notification-center-dropdown">
+                    <button type="button"
+                            class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all focus:outline-none"
+                            aria-label="Notifications" onclick="toggleNotificationDropdown(event)">
+                        <span class="material-symbols-outlined text-[20px]">notifications</span>
+                        <!-- Badge -->
+                        <span id="notification-badge" class="absolute top-1.5 end-1.5 w-2 h-2 bg-[#E8A020] rounded-full hidden"></span>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div id="notification-menu" class="absolute end-0 top-full mt-2 w-80 sm:w-96 bg-[#161d2d] border border-white/10 rounded-2xl shadow-xl overflow-hidden z-[110] hidden opacity-0 transition-all duration-200 transform translate-y-1 text-on-surface">
+                        <div class="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+                            <h3 class="text-xs font-bold text-white m-0 uppercase tracking-widest">الإشعارات</h3>
+                            <button type="button" class="text-[11px] font-bold text-[#E8A020] hover:underline" onclick="markAllNotificationsAsRead()">تحديد الكل كمقروء</button>
+                        </div>
+                        <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-white/5 custom-scrollbar">
+                            <!-- Notifications will be injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <div class="relative group" onclick="this.classList.toggle('active')" tabindex="0">
                     <button type="button" class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true">
                         <span class="material-symbols-outlined text-[20px] text-slate-400">person</span>

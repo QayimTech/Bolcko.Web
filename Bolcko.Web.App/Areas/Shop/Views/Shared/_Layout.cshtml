@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+@inject Bolcko.Domain.Interfaces.IUnitOfWork Uow
+@{
+    var soundEnabledSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundEnabled");
+    var soundUrlSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundUrl");
+    
+    bool soundEnabled = (soundEnabledSetting?.Value ?? "true") == "true";
+    string soundUrl = soundUrlSetting?.Value ?? "https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav";
+}
 <html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
@@ -12,10 +20,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <partial name="Partials/_Styles" />
+    <partial name="~/Areas/Shop/Views/Shared/Partials/_Styles.cshtml" />
 </head>
 <body class="bg-surface text-on-surface font-body-md min-h-screen">
-    <partial name="Partials/_Header" />
+    <partial name="~/Areas/Shop/Views/Shared/Partials/_Header.cshtml" />
     
     @if (TempData["ErrorMessage"] != null)
     {
@@ -39,14 +47,22 @@
     <main role="main">
         @RenderBody()
     </main>
-    <partial name="Partials/_Footer" />
+    <partial name="~/Areas/Shop/Views/Shared/Partials/_Footer.cshtml" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js" integrity="sha512-r7HM2f9rC8F1EVSnC/0DHiWv2Klh654A9bNleWd2/2U0DmsW9z20Z48+95jI5+3bJ7b7eR0PZ4379g/76zN14w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.12/dist/browser/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/tender-cart.js" asp-append-version="true"></script>
 
     <!-- Audio Notification Support -->
-    <audio id="shop-notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
+    @if (soundEnabled)
+    {
+        var resolvedSoundUrl = soundUrl;
+        if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))
+        {
+            resolvedSoundUrl = "/" + resolvedSoundUrl;
+        }
+        <audio id="shop-notification-sound" src="@resolvedSoundUrl" preload="auto"></audio>
+    }
 
     <!-- Glassmorphic Premium Toast Container -->
     <div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
@@ -59,17 +75,30 @@
                 .build();
 
             shopConnection.on("ReceiveNotification", function (notification) {
-                // Play sound
-                const sound = document.getElementById("shop-notification-sound");
-                if (sound) {
-                    sound.play().catch(e => console.log("Audio play blocked. Interaction required."));
+                // Play sound via AudioContext engine (bypasses browser autoplay restriction)
+                if (typeof window.playNotificationSound === 'function') {
+                    window.playNotificationSound();
                 }
+
+                // Determine appropriate icon based on title/content
+                let iconName = "notifications_active";
+                const titleLower = (notification.title || "").toLowerCase();
+                const msgLower = (notification.message || "").toLowerCase();
+                if (titleLower.includes("order") || titleLower.includes("طلب") || msgLower.includes("order") || msgLower.includes("طلب")) {
+                    iconName = "shopping_cart";
+                } else if (titleLower.includes("delivery") || titleLower.includes("توصيل") || titleLower.includes("سائق") || titleLower.includes("مندوب")) {
+                    iconName = "local_shipping";
+                }
+
+                const isClickable = !!notification.actionUrl;
+                const clickAttr = isClickable ? `onclick="window.location.href='${notification.actionUrl}'"` : '';
+                const cursorClass = isClickable ? 'cursor-pointer hover:bg-[#161d2d]/90 hover:border-indigo-500/60 transition-all duration-300' : '';
 
                 // Add premium glassmorphism toast
                 const toastHtml = `
-                    <div class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020]" style="min-width: 320px; max-width: 400px;">
-                        <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020]">
-                            <span class="material-symbols-outlined text-[22px]">notifications_active</span>
+                    <div ${clickAttr} class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020] ${cursorClass}" style="min-width: 320px; max-width: 400px;">
+                        <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020] shrink-0">
+                            <span class="material-symbols-outlined text-[22px]">${iconName}</span>
                         </div>
                         <div class="flex-grow text-start">
                             <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'تحديث الطلب'}</strong>
@@ -92,10 +121,90 @@
                     setTimeout(() => {
                         $toast.remove();
                     }, 500);
-                }, 6000);
+                }, 10000);
+
+                // Update Notification Center Dropdown
+                if (typeof window.fetchNotifications === 'function') {
+                    window.fetchNotifications();
+                }
             });
 
-            shopConnection.start().catch(err => console.log("SignalR Connection skipped or failed."));
+            // Floating developer diagnostics panel to track connection issues on localhost
+            function initSignalRDiagnostics(conn, prefix) {
+                // Check if debug=true is in the query string
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('debug') !== 'true') {
+                    // If not in debug mode, just start connection silently
+                    conn.start()
+                        .then(() => console.log("SignalR Connected successfully!"))
+                        .catch(err => console.error("SignalR Connection Error: ", err));
+                    return;
+                }
+
+                const panelHtml = `
+                    <div id="${prefix}-debug-panel" style="position:fixed; bottom:20px; right:20px; z-index:999999; background:rgba(15,23,42,0.95); border:1px solid #334155; color:#fff; padding:12px 16px; border-radius:12px; font-family:monospace; font-size:11px; box-shadow:0 10px 25px rgba(0,0,0,0.5); pointer-events:auto; display:flex; flex-direction:column; gap:4px; min-width:240px; border-left:4px solid #ef4444;">
+                        <div style="font-weight:bold; color:#E8A020; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>SignalR Diagnostics</span>
+                            <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-weight:bold; font-size:14px; padding:0 4px;">×</button>
+                        </div>
+                        <div>Status: <span id="${prefix}-sig-status" style="color:#ef4444; font-weight:bold;">Connecting...</span></div>
+                        <div>Transport: <span id="${prefix}-sig-transport">-</span></div>
+                        <div>Auth: <span id="${prefix}-sig-auth">-</span></div>
+                        <div>User ID: <span id="${prefix}-sig-userid">-</span></div>
+                        <div>Roles: <span id="${prefix}-sig-roles">-</span></div>
+                        <div style="max-height:80px; overflow-y:auto; color:#f87171; margin-top:4px; font-size:10px;" id="${prefix}-sig-error"></div>
+                    </div>
+                `;
+                $('body').append(panelHtml);
+
+                function updateAuthStatus() {
+                    conn.invoke("GetConnectionStatus")
+                        .then(status => {
+                            $(`#${prefix}-sig-auth`).text(status.isAuthenticated ? 'Authenticated' : 'Unauthenticated')
+                                .css('color', status.isAuthenticated ? '#22c55e' : '#ef4444');
+                            $(`#${prefix}-sig-userid`).text(status.userId || 'N/A');
+                            $(`#${prefix}-sig-roles`).text(status.roles && status.roles.length ? status.roles.join(', ') : 'None');
+                        })
+                        .catch(err => {
+                            $(`#${prefix}-sig-error`).text('Auth check failed: ' + err.message);
+                        });
+                }
+
+                conn.onclose(err => {
+                    $(`#${prefix}-sig-status`).text('Disconnected').css('color', '#ef4444');
+                    $(`#${prefix}-debug-panel`).css('border-left-color', '#ef4444');
+                    if (err) $(`#${prefix}-sig-error`).text(err.message);
+                });
+
+                conn.onreconnecting(err => {
+                    $(`#${prefix}-sig-status`).text('Reconnecting...').css('color', '#eab308');
+                    $(`#${prefix}-debug-panel`).css('border-left-color', '#eab308');
+                    if (err) $(`#${prefix}-sig-error`).text(err.message);
+                });
+
+                conn.onreconnected(() => {
+                    $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
+                    $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
+                    const transport = conn.connection?.transport?.name || 'WebSocket';
+                    $(`#${prefix}-sig-transport`).text(transport);
+                    updateAuthStatus();
+                });
+
+                conn.start()
+                    .then(() => {
+                        $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
+                        $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
+                        const transport = conn.connection?.transport?.name || 'WebSocket';
+                        $(`#${prefix}-sig-transport`).text(transport);
+                        updateAuthStatus();
+                    })
+                    .catch(err => {
+                        $(`#${prefix}-sig-status`).text('Failed').css('color', '#ef4444');
+                        $(`#${prefix}-sig-error`).text(err.message);
+                    });
+            }
+
+            initSignalRDiagnostics(shopConnection, "shop");
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

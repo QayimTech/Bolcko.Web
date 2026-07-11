@@ -17,7 +17,7 @@
     }
 
     <div class="bg-white border border-slate-200 shadow-hard p-8 rounded-sm">
-        <form asp-action="Save" method="post" class="space-y-6">
+        <form asp-action="Save" method="post" enctype="multipart/form-data" class="space-y-6">
             @Html.AntiForgeryToken()
 
             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2">تكاليف الشحن العامة والمحافظات</h3>
@@ -50,6 +50,39 @@
                                 </button>
                             </div>
                         }
+                    }
+                </div>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2 pt-6">إعدادات الإشعارات (Notification Settings)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 border border-slate-100 rounded-xl">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">تشغيل التنبيه الصوتي</label>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" name="notificationSoundEnabled" value="true" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" @(ViewBag.NotificationSoundEnabled == "true" ? "checked" : "") />
+                        <span class="text-sm text-slate-700 font-bold">تفعيل صوت الإشعار</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">إرسال إشعارات البريد</label>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" name="notificationEmailEnabled" value="true" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" @(ViewBag.NotificationEmailEnabled == "true" ? "checked" : "") />
+                        <span class="text-sm text-slate-700 font-bold">تفعيل رسائل البريد لشركات التوصيل</span>
+                    </div>
+                </div>
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">ملف الصوت للتنبيهات (WAV / MP3)</label>
+                    <div class="flex items-center gap-2">
+                        <input id="notificationSoundFileInput" name="notificationSoundFile" type="file" accept=".wav,.mp3" dir="ltr" class="flex-1 bg-white border border-slate-200 px-4 py-2.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" />
+                        <input type="hidden" id="notificationSoundUrlInput" name="notificationSoundUrl" value="@ViewBag.NotificationSoundUrl" />
+                        <button type="button" onclick="testNotificationSound()" class="flex-shrink-0 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 font-bold py-2.5 px-4 rounded transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">play_arrow</span>
+                            <span class="text-xs">تجربة الصوت الحالي</span>
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ViewBag.NotificationSoundUrl))
+                    {
+                        <p class="text-[10px] text-slate-400 mt-1.5 text-start">الملف الحالي: <span class="font-mono text-indigo-400">@ViewBag.NotificationSoundUrl</span></p>
                     }
                 </div>
             </div>
@@ -216,5 +249,50 @@
                 }
             });
         });
+
+        function testNotificationSound() {
+            var fileInput = document.getElementById('notificationSoundFileInput');
+            
+            // If a file was selected, preview it locally using FileReader (no upload needed)
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                var file = fileInput.files[0];
+                var objectUrl = URL.createObjectURL(file);
+                var audio = new Audio(objectUrl);
+                audio.play().catch(function(e) {
+                    showTailwindError('تعذر تشغيل الملف المحدد. تأكد أنه ملف صوتي صحيح (.wav أو .mp3)');
+                });
+                audio.onended = function() { URL.revokeObjectURL(objectUrl); };
+                return;
+            }
+            
+            // Fallback: play the current saved sound
+            var savedUrl = $('#notificationSoundUrlInput').val() || '/sounds/default-notification.wav';
+            var audio = new Audio(savedUrl);
+            audio.play().catch(function(e) {
+                showTailwindError('تعذر تشغيل الصوت الحالي. يرجى اختيار ملف صوتي جديد من جهازك.');
+            });
+        }
+
+        function showTailwindError(msg) {
+            $('#audio-error-toast').remove();
+            var toastHtml = `
+                <div id="audio-error-toast" class="fixed bottom-6 end-6 bg-red-50 border-s-4 border-red-500 p-4 rounded-md shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] z-[99999] flex items-center gap-3 transform translate-y-4 opacity-0 transition-all duration-300 pointer-events-none text-start">
+                    <span class="material-symbols-outlined text-red-500">error</span>
+                    <p class="text-sm text-red-700 font-bold m-0">${msg}</p>
+                </div>
+            `;
+            $('body').append(toastHtml);
+            
+            setTimeout(function() {
+                $('#audio-error-toast').removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
+            }, 10);
+
+            setTimeout(function() {
+                $('#audio-error-toast').removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
+                setTimeout(function() {
+                    $('#audio-error-toast').remove();
+                }, 300);
+            }, 5000);
+        }
     </script>
 }

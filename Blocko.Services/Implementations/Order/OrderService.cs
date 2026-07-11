@@ -135,7 +135,7 @@ namespace Blocko.Services.Implementations.order
                 // Send notification to Admins
                 try
                 {
-                    await _notificationService.SendNotificationToRoleAsync("Admin", "New Order Received", $"Order #{order.OrderNumber} has been placed. Total: {order.TotalAmount}");
+                    await _notificationService.SendNotificationToRoleAsync("Admin", "طلب جديد متاح", $"تم استلام طلب جديد رقم {order.OrderNumber} بقيمة {order.TotalAmount:N2} د.أ. اضغط للتفاصيل.", $"/Admin/Order/Details/{order.Id}");
                 }
                 catch
                 {
@@ -253,9 +253,14 @@ namespace Blocko.Services.Implementations.order
             // Send notification to the user
             try
             {
-                var title = $"Order #{order.OrderNumber} Updated";
-                var message = $"Your order status has been updated to: {status}";
-                var actionUrl = $"/Shop/Order/Details/{order.Id}";
+                var arStatus = status == Bolcko.Domain.Enums.OrderStatus.Pending ? "قيد الانتظار" :
+                               status == Bolcko.Domain.Enums.OrderStatus.Processing ? "قيد المعالجة" :
+                               status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "تم الشحن" :
+                               status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "تم التوصيل" : "ملغي";
+
+                var title = $"تحديث حالة الطلب #{order.OrderNumber}";
+                var message = $"تم تحديث حالة طلبك إلى: {arStatus}. اضغط هنا للتفاصيل.";
+                var actionUrl = $"/Shop/Account/OrderDetails/{order.Id}";
                 await _notificationService.SendNotificationToUserAsync(order.UserId, title, message, actionUrl);
             }
             catch

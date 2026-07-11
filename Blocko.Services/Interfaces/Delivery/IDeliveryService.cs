@@ -32,7 +32,7 @@ namespace Blocko.Services.Interfaces.Delivery
         Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedDriverJobsAsync(int driverId, int pageIndex, int pageSize);
         Task AssignJobToDriverAsync(int jobId, int driverId, decimal fee);
         Task UpdateJobStatusAsync(int jobId, DeliveryJobStatus status);
-        Task SendDeliveryDocumentsToCompanyAsync(int jobId);
+        Task SendDeliveryDocumentsToCompanyAsync(int jobId, string? overrideEmail = null, bool includePdf = true, bool includeExcel = true, string? customMessage = null);
 
         // Bids
         Task<DeliveryBid> PlaceBidAsync(int jobId, int driverId, decimal bidAmount);

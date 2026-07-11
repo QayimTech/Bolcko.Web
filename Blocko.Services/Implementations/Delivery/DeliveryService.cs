@@ -222,13 +222,13 @@ namespace Blocko.Services.Implementations.Delivery
             await _unitOfWork.CompleteAsync();
 
             // Notify driver
-            await _notificationService.SendNotificationToUserAsync(driver.UserId, "تم تعيين مهمة توصيل لك", $"تم تعيين الطلب رقم {job.OrderId} لك للتوصيل.");
+            await _notificationService.SendNotificationToUserAsync(driver.UserId, "تم تعيين مهمة توصيل لك", $"تم تعيين الطلب رقم {job.OrderId} لك للتوصيل.", "/Delivery/Home");
             
             // Notify customer
             var order = await _unitOfWork.Orders.GetByIdAsync(job.OrderId);
             if (order != null)
             {
-                await _notificationService.SendNotificationToUserAsync(order.UserId, "جاري توصيل طلبك", $"تم تعيين المندوب لتوصيل طلبك رقم {order.OrderNumber}.");
+                await _notificationService.SendNotificationToUserAsync(order.UserId, "جاري توصيل طلبك", $"تم تعيين المندوب لتوصيل طلبك رقم {order.OrderNumber}.", $"/Shop/Account/OrderDetails/{order.Id}");
             }
 
             // Automatically send documents to the company (swallow any exceptions so assignment succeeds)
@@ -283,11 +283,11 @@ namespace Blocko.Services.Implementations.Delivery
                     _ => $"تم تحديث حالة التوصيل إلى: {status}"
                 };
 
-                await _notificationService.SendNotificationToUserAsync(job.Order.UserId, "تحديث حالة التوصيل", message);
+                await _notificationService.SendNotificationToUserAsync(job.Order.UserId, "تحديث حالة التوصيل", message, $"/Shop/Account/OrderDetails/{job.OrderId}");
             }
         }
 
-        public async Task SendDeliveryDocumentsToCompanyAsync(int jobId)
+        public async Task SendDeliveryDocumentsToCompanyAsync(int jobId, string? overrideEmail = null, bool includePdf = true, bool includeExcel = true, string? customMessage = null)
         {
             var job = await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
                 .Include(j => j.Order)
@@ -307,36 +307,71 @@ namespace Blocko.Services.Implementations.Delivery
                 throw new ArgumentException("Job not found");
 
             var driver = job.Driver;
-            if (driver == null || driver.DeliveryCompanyId == null)
+            if (driver == null)
+                throw new ArgumentException("No driver assigned to this job");
+
+            string? recipientEmail = overrideEmail;
+            if (string.IsNullOrWhiteSpace(recipientEmail))
             {
-                // Driver is a freelancer or not assigned, no company to notify
-                return;
+                recipientEmail = driver.Company?.Email;
             }
 
-            var company = driver.Company;
-            if (company == null || string.IsNullOrWhiteSpace(company.Email))
+            if (string.IsNullOrWhiteSpace(recipientEmail))
             {
-                // Company has no email configured
-                return;
+                throw new ArgumentException("البريد الإلكتروني للشركة غير مهيأ، يرجى إدخال البريد يدوياً.");
             }
+
+            var companyName = driver.Company?.Name ?? "سائق مستقل";
 
             // Generate attachments
-            byte[] excelBytes = _deliveryDocumentService.GenerateExcelSheet(job);
-            byte[] pdfBytes = _deliveryDocumentService.GeneratePdfDocument(job);
+            var attachments = new List<(byte[] content, string fileName, string contentType)>();
+
+            if (includeExcel)
+            {
+                byte[] excelBytes = _deliveryDocumentService.GenerateExcelSheet(job);
+                attachments.Add((excelBytes, $"DeliveryJob_{job.Id}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            }
+
+            if (includePdf)
+            {
+                byte[] pdfBytes = _deliveryDocumentService.GeneratePdfDocument(job);
+                attachments.Add((pdfBytes, $"DeliveryJob_{job.Id}.pdf", "application/pdf"));
+            }
+
+            // Construct email message with custom note
+            string customNoteHtml = "";
+            if (!string.IsNullOrWhiteSpace(customMessage))
+            {
+                customNoteHtml = $@"
+        <div style='background-color: #EFF6FF; border-right: 4px solid #3B82F6; padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: right;'>
+            <strong style='color: #1E40AF; display: block; margin-bottom: 5px;'>📝 ملاحظة من الإدارة:</strong>
+            <p style='margin: 0; color: #1E3A8A;'>{System.Net.WebUtility.HtmlEncode(customMessage)}</p>
+        </div>";
+            }
+
+            string attachmentsNote = "";
+            if (includePdf && includeExcel)
+                attachmentsNote = "يرجى الاطلاع على ملف الـ PDF وملف الـ Excel المرفقين.";
+            else if (includePdf)
+                attachmentsNote = "يرجى الاطلاع على ملف الـ PDF المرفق.";
+            else if (includeExcel)
+                attachmentsNote = "يرجى الاطلاع على ملف الـ Excel المرفق.";
 
             // Construct email
             string subject = $"📦 تفاصيل طلب التوصيل رقم {job.OrderId} - بولكو";
             string htmlMessage = $@"
-<div dir='rtl' style='font-family: Arial, sans-serif; line-height: 1.6; color: #1E293B;'>
+<div dir='rtl' style='font-family: Arial, sans-serif; line-height: 1.6; color: #1E293B; text-align: right;'>
     <div style='background-color: #E8A020; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;'>
         <h1 style='color: #FFFFFF; margin: 0;'>بولكو للوازم البناء والتوصيل</h1>
     </div>
     <div style='padding: 20px; border: 1px solid #E2E8F0; border-top: none; border-radius: 0 0 8px 8px;'>
-        <p>مرحباً <strong>{company.Name}</strong>،</p>
-        <p>تم تعيين مهمة توصيل جديدة للمندوب التابع لكم <strong>{driver.User?.FirstName} {driver.User?.LastName}</strong>.</p>
+        <p>مرحباً <strong>{companyName}</strong>،</p>
+        <p>تم تعيين مهمة توصيل جديدة للمندوب <strong>{driver.User?.FirstName} {driver.User?.LastName}</strong>.</p>
         
+        {customNoteHtml}
+
         <h3 style='border-bottom: 2px solid #E8A020; padding-bottom: 8px;'>تفاصيل المهمة:</h3>
-        <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px;'>
+        <table style='width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: right;'>
             <tr>
                 <td style='padding: 8px; border: 1px solid #E2E8F0; background-color: #F8FAFC; width: 30%;'><strong>رقم المهمة:</strong></td>
                 <td style='padding: 8px; border: 1px solid #E2E8F0;'>#{job.Id}</td>
@@ -359,9 +394,10 @@ namespace Blocko.Services.Implementations.Delivery
             </tr>
         </table>
 
-        <p style='background-color: #FEF08A; padding: 12px; border-radius: 6px; font-weight: bold; text-align: center; color: #854D0E;'>
-            يرجى الاطلاع على ملف الـ PDF وملف الـ Excel المرفقين للحصول على التفاصيل الكاملة للمستلم وقائمة المواد المطلوب تسليمها.
-        </p>
+        {(string.IsNullOrEmpty(attachmentsNote) ? "" : $@"
+        <p style='background-color: #FEF08A; padding: 12px; border-radius: 6px; font-weight: bold; text-align: center; color: #854D0E; margin-bottom: 20px;'>
+            {attachmentsNote} للحصول على التفاصيل الكاملة للمستلم وقائمة المواد المطلوب تسليمها.
+        </p>")}
 
         <p style='margin-top: 30px; font-size: 12px; color: #94A3B8; text-align: center;'>
             هذا البريد تم إنشاؤه تلقائياً من نظام بولكو - يرجى عدم الرد.
@@ -369,13 +405,7 @@ namespace Blocko.Services.Implementations.Delivery
     </div>
 </div>";
 
-            var attachments = new List<(byte[] content, string fileName, string contentType)>
-            {
-                (pdfBytes, $"DeliveryJob_{job.Id}.pdf", "application/pdf"),
-                (excelBytes, $"DeliveryJob_{job.Id}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            };
-
-            await _emailSender.SendEmailAsync(company.Email, subject, htmlMessage, attachments);
+            await _emailSender.SendEmailAsync(recipientEmail, subject, htmlMessage, attachments);
         }
         #endregion
 
@@ -395,7 +425,7 @@ namespace Blocko.Services.Implementations.Delivery
             await _unitOfWork.CompleteAsync();
 
             // Notify Admin
-            await _notificationService.SendNotificationToRoleAsync("Admin", "عرض سعر جديد", $"قدم المندوب عرض سعر بقيمة {bidAmount} للطلب رقم {jobId}.");
+            await _notificationService.SendNotificationToRoleAsync("Admin", "عرض سعر جديد", $"قدم المندوب عرض سعر بقيمة {bidAmount:N2} د.أ للطلب رقم {jobId}. اضغط للتفاصيل.", $"/Admin/DeliveryDispatch/JobDetails/{jobId}");
 
             return bid;
         }

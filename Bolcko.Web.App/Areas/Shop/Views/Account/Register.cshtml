@@ -1,3 +1,4 @@
+@model Bolcko.Domain.Entities.User.User
 @{
     ViewData["Title"] = SharedLocalizer["Register"];
 }
@@ -9,35 +10,55 @@
             <p class="mt-2 text-sm text-on-surface-variant">@SharedLocalizer["AlreadyHaveAccount"] <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">@SharedLocalizer["Login"]</a></p>
         </div>
         
+        @if (ViewBag.Error != null)
+        {
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm text-center">
+                @ViewBag.Error
+            </div>
+        }
+        
         <form class="mt-8 space-y-6" asp-area="Shop" asp-controller="Account" asp-action="Register" method="post">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["FirstName"]</label>
-                    <input type="text" name="FirstName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["FirstName"]" />
+                    <input type="text" name="FirstName" value="@Model?.FirstName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["FirstName"]" />
+                    <span asp-validation-for="FirstName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["LastName"]</label>
-                    <input type="text" name="LastName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["LastName"]" />
+                    <input type="text" name="LastName" value="@Model?.LastName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["LastName"]" />
+                    <span asp-validation-for="LastName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Username"]</label>
-                    <input type="text" name="Username" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="username" />
+                    <input type="text" name="Username" value="@Model?.UserName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="username" />
+                    <span asp-validation-for="UserName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["PhoneNumber"]</label>
-                    <input type="tel" name="PhoneNumber" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="05xxxxxxxx" />
+                    <input type="tel" name="PhoneNumber" value="@Model?.PhoneNumber" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="05xxxxxxxx" />
+                    <span asp-validation-for="PhoneNumber" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Email"]</label>
-                    <input type="email" name="Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="example@mail.com" />
+                    <input type="email" name="Email" value="@Model?.Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="example@mail.com" />
+                    <span asp-validation-for="Email" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Password"]</label>
                     <input type="password" name="Password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="********" />
+                    @if (ViewData.ModelState["Password"]?.Errors.Any() == true)
+                    {
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["Password"].Errors.First().ErrorMessage</span>
+                    }
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["ConfirmPassword"]</label>
                     <input type="password" name="ConfirmPassword" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="********" />
+                    @if (ViewData.ModelState["ConfirmPassword"]?.Errors.Any() == true)
+                    {
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["ConfirmPassword"].Errors.First().ErrorMessage</span>
+                    }
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["UserType"]</label>

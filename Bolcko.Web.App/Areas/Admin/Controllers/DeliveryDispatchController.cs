@@ -40,11 +40,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.CreateJobForOrderAsync(orderId, deliveryFee);
-                TempData["Success"] = "تم طرح طلب التوصيل في السوق بنجاح!";
+                TempData["SuccessMessage"] = "تم طرح طلب التوصيل في السوق بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("Index");
         }
@@ -56,11 +56,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.AssignJobToDriverAsync(jobId, driverId, fee);
-                TempData["Success"] = "تم تعيين المندوب للطلب بنجاح!";
+                TempData["SuccessMessage"] = "تم تعيين المندوب للطلب بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("JobDetails", new { id = jobId });
         }
@@ -72,11 +72,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.AcceptBidAsync(bidId);
-                TempData["Success"] = "تم قبول العرض وتعيين المندوب بنجاح!";
+                TempData["SuccessMessage"] = "تم قبول العرض وتعيين المندوب بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("JobDetails", new { id = jobId });
         }
@@ -88,11 +88,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.UpdateJobStatusAsync(jobId, status);
-                TempData["Success"] = "تم تحديث حالة التوصيل بنجاح!";
+                TempData["SuccessMessage"] = "تم تحديث حالة التوصيل بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("JobDetails", new { id = jobId });
         }
@@ -114,11 +114,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.ApproveDriverAsync(driverId);
-                TempData["Success"] = "تم تفعيل حساب المندوب بنجاح!";
+                TempData["SuccessMessage"] = "تم تفعيل حساب المندوب بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("Drivers");
         }
@@ -140,27 +140,27 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.CreateCompanyAsync(name, email, phoneNumber, commercialRegister, baseRate);
-                TempData["Success"] = $"تم إضافة شركة التوصيل '{name}' بنجاح!";
+                TempData["SuccessMessage"] = $"تم إضافة شركة التوصيل '{name}' بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
             }
             return RedirectToAction("Companies");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendCompanyEmail(int jobId)
+        public async Task<IActionResult> SendCompanyEmail(int jobId, string? email, bool includePdf, bool includeExcel, string? customMessage)
         {
             try
             {
-                await _serviceManager.DeliveryService.SendDeliveryDocumentsToCompanyAsync(jobId);
-                TempData["Success"] = "تم إرسال مستندات التوصيل (PDF & Excel) إلى شركة التوصيل بنجاح!";
+                await _serviceManager.DeliveryService.SendDeliveryDocumentsToCompanyAsync(jobId, email, includePdf, includeExcel, customMessage);
+                TempData["SuccessMessage"] = "تم إرسال مستندات التوصيل المطلوبة بنجاح!";
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"حدث خطأ أثناء الإرسال: {ex.Message}";
+                TempData["ErrorMessage"] = $"حدث خطأ أثناء الإرسال: {ex.Message}";
             }
             return RedirectToAction("JobDetails", new { id = jobId });
         }

@@ -13,6 +13,9 @@ namespace Blocko.Persistence.Repositories.Category
                 .Include(c => c.Products)
                 .Include(c => c.SubCategories)
                 .ThenInclude(sc => sc.Products)
-                .Where(c => c.ParentCategoryId == null).ToListAsync();
+                .Where(c => c.ParentCategoryId == null)
+                .OrderByDescending(c => c.Products.Count())
+                .Take(10)
+                .ToListAsync();
     }
 }

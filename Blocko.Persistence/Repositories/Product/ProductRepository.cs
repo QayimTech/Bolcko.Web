@@ -12,7 +12,11 @@ namespace Blocko.Persistence.Repositories.Product
             await _context.Products.Where(p => p.CategoryId == categoryId).ToListAsync();
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> GetFeaturedProductsAsync() => 
-            await _context.Products.Take(10).ToListAsync();
+            await _context.Products
+                .Include(p => p.Images)
+                .OrderByDescending(p => _context.OrderItems.Where(oi => oi.ProductId == p.Id).Sum(oi => (int?)oi.Quantity) ?? 0)
+                .Take(10)
+                .ToListAsync();
 
         public async Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAsync(int id) =>
             await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
