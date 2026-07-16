@@ -5,6 +5,8 @@ using Bolcko.Web.App.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 // Configure QuestPDF license
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
@@ -28,6 +30,15 @@ try
     // --- 1. Services Registration (DI) ---
     builder.Services.AddPersistence(builder.Configuration);
     builder.Services.AddServices(builder.Configuration, builder.Environment.ContentRootPath);
+    
+    // Configure Data Protection to store keys on the filesystem instead of ephemeral memory,
+    // which prevents CryptographicExceptions and request rejection during long file uploads on Render.
+    var keysFolder = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Keys");
+    Directory.CreateDirectory(keysFolder);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
+        .SetApplicationName("BolckoApp");
+
     // Web Specific Services (Clean & Expressive)
     builder.Services.AddBlockoIdentitySecurity(builder.Configuration);
     builder.Services.AddBlockoLocalization();
