@@ -25,7 +25,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Index()
         {
             var culture = CultureInfo.CurrentCulture.Name;
+            var isAr = culture.StartsWith("ar");
             
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            
+            var titleSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroTitleAr" : "HomeHeroTitleEn");
+            var descSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroDescAr" : "HomeHeroDescEn");
+
+            ViewBag.HomeHeroTitle = titleSetting?.Value;
+            ViewBag.HomeHeroDesc = descSetting?.Value;
+
             var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
             var translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
 
@@ -40,8 +49,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         public async Task<IActionResult> GetMarketPrices()
         {
+            var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
             var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-            return PartialView("Partials/_MarketPrices", prices);
+            var translatedPrices = await prices.TranslateAsync(_translationService, culture);
+            return PartialView("Partials/_MarketPrices", translatedPrices);
         }
 
         public IActionResult AboutUs()

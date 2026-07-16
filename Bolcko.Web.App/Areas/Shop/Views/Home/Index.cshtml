@@ -22,8 +22,8 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-[#E8A020] animate-pulse"></span>
                     @SharedLocalizer["HomeHeroBadge"]
                 </span>
-                <h1 class="font-headline-xl text-white leading-tight">@SharedLocalizer["HomeHeroTitle"]</h1>
-                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">@SharedLocalizer["HomeHeroDesc"]</p>
+                <h1 class="font-headline-xl text-white leading-tight">@(ViewBag.HomeHeroTitle ?? SharedLocalizer["HomeHeroTitle"].Value)</h1>
+                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">@(ViewBag.HomeHeroDesc ?? SharedLocalizer["HomeHeroDesc"].Value)</p>
                 
                 <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-start">
                     <a href="@Url.Action("Index", "Category")" 
@@ -175,19 +175,19 @@
                 <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="get" class="flex flex-col gap-6">
                     <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["CompanyName"]</label>
-                        <input name="CompanyName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start" type="text" />
+                        <input name="CompanyName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold" type="text" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ContactPerson"]</label>
-                            <input name="FullName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start" type="text" />
+                            <input name="FullName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold" type="text" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ProjectType"]</label>
-                            <select name="ProjectType" class="w-full bg-[#151B26] border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start">
-                                <option value="Residential">@SharedLocalizer["Residential"]</option>
-                                <option value="Commercial">@SharedLocalizer["Commercial"]</option>
-                                <option value="Industrial">@SharedLocalizer["Industrial"]</option>
+                            <select name="ProjectType" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold appearance-none" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-position: left 0.75rem center; background-repeat: no-repeat; background-size: 1.2em; padding-left: 2.5rem;">
+                                <option value="Residential" class="bg-[#151B26] text-white">@SharedLocalizer["Residential"]</option>
+                                <option value="Commercial" class="bg-[#151B26] text-white">@SharedLocalizer["Commercial"]</option>
+                                <option value="Industrial" class="bg-[#151B26] text-white">@SharedLocalizer["Industrial"]</option>
                             </select>
                         </div>
                     </div>

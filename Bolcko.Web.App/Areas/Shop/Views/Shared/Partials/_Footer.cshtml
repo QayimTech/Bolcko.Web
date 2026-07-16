@@ -23,7 +23,7 @@
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Navigation"]</h5>
                 <nav class="flex flex-col gap-2.5 text-sm">
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("AboutUs","Home")">@SharedLocalizer["AboutUs"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("AboutUs","Home", new { area = "Shop" })">@SharedLocalizer["AboutUs"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Privacy", "Legal", new { area = "Shop" })">@SharedLocalizer["PrivacyPolicy"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Terms", "Legal", new { area = "Shop" })">@SharedLocalizer["TermsOfService"]</a>
@@ -33,25 +33,42 @@
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Commercial"]</h5>
                 <nav class="flex flex-col gap-2.5 text-sm">
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["ShippingInfo"]</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["WholesaleOrders"]</a>
-                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="#">@SharedLocalizer["PartnerLogin"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ShippingInfo"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Request", "Quote", new { area = "Shop" })">@SharedLocalizer["WholesaleOrders"]</a>
+                    <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Login", "Account", new { area = "Shop" })">@SharedLocalizer["PartnerLogin"]</a>
                 </nav>
             </div>
             <div class="flex flex-col gap-4 col-span-2 md:col-span-1">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["MarketInfo"]</h5>
+                @{
+                    var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+                    var dbCityAr = await uow.AppSettings.GetByKeyAsync("MarketCityAr");
+                    var dbCityEn = await uow.AppSettings.GetByKeyAsync("MarketCityEn");
+                    var dbCountryAr = await uow.AppSettings.GetByKeyAsync("MarketCountryAr");
+                    var dbCountryEn = await uow.AppSettings.GetByKeyAsync("MarketCountryEn");
+                    var dbIsOnlineOnly = await uow.AppSettings.GetByKeyAsync("MarketIsOnlineOnly");
+                    var dbCurrencyAr = await uow.AppSettings.GetByKeyAsync("MarketCurrencyAr");
+                    var dbCurrencyEn = await uow.AppSettings.GetByKeyAsync("MarketCurrencyEn");
+
+                    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+                    
+                    var city = isAr ? (dbCityAr?.Value ?? "عمان") : (dbCityEn?.Value ?? "Amman");
+                    var country = isAr ? (dbCountryAr?.Value ?? "الأردن") : (dbCountryEn?.Value ?? "Jordan");
+                    var currency = isAr ? (dbCurrencyAr?.Value ?? "دينار أردني") : (dbCurrencyEn?.Value ?? "JOD");
+                    var isOnline = (dbIsOnlineOnly?.Value ?? "true") == "true";
+                }
                 <div class="text-slate-400 text-sm leading-relaxed mt-2 flex flex-col gap-2">
                     <p class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">public</span>
-                        @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? $"{MarketSettings.Value.City}، {MarketSettings.Value.Country}" : $"{MarketSettings.Value.City}, {MarketSettings.Value.Country}")
+                        <span>@city، @country</span>
                     </p>
                     <p class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">storefront</span>
-                        @(MarketSettings.Value.IsOnlineOnly ? SharedLocalizer["OnlineOnly"] : SharedLocalizer["ShowroomsWarehouses"])
+                        <span>@(isOnline ? SharedLocalizer["OnlineOnly"] : SharedLocalizer["ShowroomsWarehouses"])</span>
                     </p>
                     <p class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">payments</span>
-                        @SharedLocalizer["ApprovedCurrency"]: @MarketSettings.Value.Currency
+                        <span>@SharedLocalizer["ApprovedCurrency"]: @currency</span>
                     </p>
                 </div>
             </div>

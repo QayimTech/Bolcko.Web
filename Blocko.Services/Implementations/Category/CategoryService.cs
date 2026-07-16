@@ -69,7 +69,7 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetSubCategoriesAsync(int parentId)
         {
-            var categories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
+            var categories = await _unitOfWork.Categories.GetSubCategoriesWithProductsAsync(parentId);
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
@@ -84,7 +84,7 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            var category = await _unitOfWork.Categories.GetCategoryWithParentAsync(id);
             if (category == null) return null;
 
             return new CategoryDto

@@ -1,20 +1,22 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> SharedLocalizer
 @model Bolcko.Domain.Entities.Order.DTOs.OrderDto
 @{
-    ViewData["Title"] = "تتبع حالة الطلب";
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isAr ? "تتبع حالة الطلب" : "Track Order Status";
 }
 
 <main class="max-w-4xl mx-auto px-6 py-16 text-center animate-in fade-in duration-500">
     <header class="mb-12">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">تتبع حالة طلبك</h1>
-        <p class="font-body-lg text-secondary">أدخل رقم الطلب لمعرفة أين وصلت شحنتك فورياً</p>
+        <h1 class="font-headline-xl text-on-surface uppercase mb-2">@(isAr ? "تتبع حالة طلبك" : "Track Your Order")</h1>
+        <p class="font-body-lg text-secondary">@(isAr ? "أدخل رقم الطلب لمعرفة أين وصلت شحنتك فورياً" : "Enter order number to instantly track your delivery status")</p>
     </header>
 
     <div class="bg-white border border-outline-variant p-8 shadow-hard rounded-sm max-w-xl mx-auto mb-10">
         <form asp-action="TrackOrder" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
             <div>
-                <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 text-start">رقم الطلب الخاص بك</label>
-                <input name="orderNumber" type="text" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-center font-mono text-sm" placeholder="مثال: BLK-260710-1234 أو #ORD-0004" required />
+                <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 text-start">@(isAr ? "رقم الطلب الخاص بك" : "Your Order Number")</label>
+                <input name="orderNumber" type="text" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-center font-mono text-sm" placeholder="@(isAr ? "مثال: BLK-260710-1234 أو #ORD-0004" : "e.g. BLK-260710-1234 or #ORD-0004")" required />
             </div>
             
             @if (ViewBag.Error != null)
@@ -25,7 +27,7 @@
             }
 
             <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
-                <span>تتبع الآن</span>
+                <span>@(isAr ? "تتبع الآن" : "Track Now")</span>
                 <span class="material-symbols-outlined text-sm">local_shipping</span>
             </button>
         </form>
@@ -37,8 +39,8 @@
         <div class="bg-white border-2 border-on-background p-8 shadow-hard text-start mt-12 animate-in slide-in-from-bottom duration-500">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-8">
                 <div>
-                    <h2 class="font-headline-md text-on-surface">تفاصيل طلب رقم: <span class="font-mono text-primary">@Model.OrderNumber</span></h2>
-                    <p class="text-xs text-outline-variant mt-1">تاريخ الطلب: @Model.OrderDate.ToString("yyyy/MM/dd - HH:mm")</p>
+                    <h2 class="font-headline-md text-on-surface">@(isAr ? "تفاصيل طلب رقم:" : "Order Details:") <span class="font-mono text-primary">@Model.OrderNumber</span></h2>
+                    <p class="text-xs text-outline-variant mt-1">@(isAr ? "تاريخ الطلب:" : "Order Date:") @Model.OrderDate.ToString("yyyy/MM/dd - HH:mm")</p>
                 </div>
                 <div class="mt-3 md:mt-0">
                     <span class="px-4 py-1.5 text-xs font-bold uppercase rounded-full 
@@ -46,10 +48,10 @@
                           Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" : 
                           Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" : 
                           Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")">
-                        @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "قيد الانتظار" : 
-                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "قيد المعالجة" : 
-                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "تم الشحن" : 
-                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "تم التوصيل" : "ملغي")
+                        @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? (isAr ? "قيد الانتظار" : "Pending") : 
+                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? (isAr ? "قيد المعالجة" : "Processing") : 
+                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? (isAr ? "تم الشحن" : "Shipped") : 
+                          Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? (isAr ? "تم التوصيل" : "Delivered") : (isAr ? "ملغي" : "Cancelled"))
                     </span>
                 </div>
             </div>
@@ -71,7 +73,7 @@
                         @(activeStep >= 1 ? "bg-amber-500 text-white shadow-lg ring-4 ring-amber-100" : "bg-slate-200 text-slate-500")">
                         <span class="material-symbols-outlined">receipt_long</span>
                     </div>
-                    <span class="text-xs font-bold mt-2 @(activeStep >= 1 ? "text-amber-600" : "text-slate-500")">قيد الانتظار</span>
+                    <span class="text-xs font-bold mt-2 @(activeStep >= 1 ? "text-amber-600" : "text-slate-500")">@(isAr ? "قيد الانتظار" : "Pending")</span>
                 </div>
 
                 <!-- Step 2: Processing -->
@@ -80,7 +82,7 @@
                         @(activeStep >= 2 ? "bg-blue-600 text-white shadow-lg ring-4 ring-blue-100" : "bg-slate-200 text-slate-500")">
                         <span class="material-symbols-outlined">package_2</span>
                     </div>
-                    <span class="text-xs font-bold mt-2 @(activeStep >= 2 ? "text-blue-600" : "text-slate-500")">قيد المعالجة</span>
+                    <span class="text-xs font-bold mt-2 @(activeStep >= 2 ? "text-blue-600" : "text-slate-500")">@(isAr ? "قيد المعالجة" : "Processing")</span>
                 </div>
 
                 <!-- Step 3: Shipped -->
@@ -89,7 +91,7 @@
                         @(activeStep >= 3 ? "bg-purple-600 text-white shadow-lg ring-4 ring-purple-100" : "bg-slate-200 text-slate-500")">
                         <span class="material-symbols-outlined">local_shipping</span>
                     </div>
-                    <span class="text-xs font-bold mt-2 @(activeStep >= 3 ? "text-purple-600" : "text-slate-500")">تم الشحن</span>
+                    <span class="text-xs font-bold mt-2 @(activeStep >= 3 ? "text-purple-600" : "text-slate-500")">@(isAr ? "تم الشحن" : "Shipped")</span>
                 </div>
 
                 <!-- Step 4: Delivered -->
@@ -98,35 +100,35 @@
                         @(activeStep >= 4 ? "bg-emerald-600 text-white shadow-lg ring-4 ring-emerald-100" : "bg-slate-200 text-slate-500")">
                         <span class="material-symbols-outlined">task_alt</span>
                     </div>
-                    <span class="text-xs font-bold mt-2 @(activeStep >= 4 ? "text-emerald-600" : "text-slate-500")">تم التوصيل</span>
+                    <span class="text-xs font-bold mt-2 @(activeStep >= 4 ? "text-emerald-600" : "text-slate-500")">@(isAr ? "تم التوصيل" : "Delivered")</span>
                 </div>
             </div>
 
             <!-- Order Items & Costs summary -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t">
                 <div>
-                    <h3 class="font-bold text-sm mb-4 text-slate-800">تفاصيل المنتجات المطلوبة</h3>
+                    <h3 class="font-bold text-sm mb-4 text-slate-800">@(isAr ? "تفاصيل المنتجات المطلوبة" : "Ordered Materials Details")</h3>
                     <div class="space-y-3">
                         @foreach (var item in Model.Items)
                         {
                             <div class="flex justify-between items-center border-b pb-2 text-xs">
                                 <span>@item.ProductName <strong class="text-primary font-bold">x @item.Quantity</strong></span>
-                                <span class="font-bold">@item.TotalPrice.ToString("N2") د.أ</span>
+                                <span class="font-bold">@item.TotalPrice.ToString("N2") @(isAr ? "د.أ" : "JOD")</span>
                             </div>
                         }
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-6 border border-slate-200">
-                    <h3 class="font-bold text-sm mb-4 text-slate-800">ملخص الحساب</h3>
+                    <h3 class="font-bold text-sm mb-4 text-slate-800">@(isAr ? "ملخص الحساب" : "Payment Summary")</h3>
                     <div class="space-y-2 text-xs">
                         <div class="flex justify-between">
-                            <span class="text-slate-500">طريقة الدفع:</span>
-                            <span class="font-bold">@Model.PaymentMethod</span>
+                            <span class="text-slate-500">@(isAr ? "طريقة الدفع:" : "Payment Method:")</span>
+                            <span class="font-bold">@(Model.PaymentMethod == "CashOnDelivery" ? (isAr ? "الدفع عند الاستلام" : "Cash on Delivery") : Model.PaymentMethod)</span>
                         </div>
                         <div class="flex justify-between border-t pt-2">
-                            <span class="text-slate-500 font-bold">المجموع الكلي:</span>
-                            <span class="text-sm font-black text-primary">@Model.TotalAmount.ToString("N2") د.أ</span>
+                            <span class="text-slate-500 font-bold">@(isAr ? "المجموع الكلي:" : "Total Amount:")</span>
+                            <span class="text-sm font-black text-primary">@Model.TotalAmount.ToString("N2") @(isAr ? "د.أ" : "JOD")</span>
                         </div>
                     </div>
                 </div>

@@ -72,5 +72,31 @@ namespace Bolcko.Web.App.Extensions
             }
             return list;
         }
+
+        public static async Task<Bolcko.Domain.Entities.Catalog.MarketPrice> TranslateAsync(this Bolcko.Domain.Entities.Catalog.MarketPrice price, ITranslationService translationService, string targetCulture)
+        {
+            if (price == null) return null!;
+            price.MaterialName = await translationService.TranslateAsync(price.MaterialName, targetCulture);
+            if (!string.IsNullOrEmpty(price.UnitOfMeasure))
+            {
+                price.UnitOfMeasure = await translationService.TranslateAsync(price.UnitOfMeasure, targetCulture);
+            }
+            if (!string.IsNullOrEmpty(price.Currency))
+            {
+                price.Currency = await translationService.TranslateAsync(price.Currency, targetCulture);
+            }
+            return price;
+        }
+
+        public static async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice>> TranslateAsync(this IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> prices, ITranslationService translationService, string targetCulture)
+        {
+            if (prices == null) return null!;
+            var list = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+            foreach (var p in prices)
+            {
+                list.Add(await p.TranslateAsync(translationService, targetCulture));
+            }
+            return list;
+        }
     }
 }

@@ -3,14 +3,23 @@
 }
 
 <div class="max-w-4xl mx-auto px-6 py-20">
-    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">الدعم الفني</h1>
+    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
     <div class="prose prose-slate max-w-none prose-p:text-on-surface-variant leading-relaxed text-center py-12">
-        <span class="material-symbols-outlined text-6xl text-primary mb-4 block">support_agent</span>
-        <h2 class="text-2xl font-bold text-on-surface mb-4">نحن هنا لمساعدتك</h2>
-        <p>فريق الدعم الفني لدينا متاح للإجابة على جميع استفساراتك المتعلقة بالموقع أو طلبات الجملة والمشاريع الكبيرة.</p>
-        <div class="mt-8 flex justify-center gap-4">
-            <a href="mailto:support@blocko.com" class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-md hover:opacity-90 transition-opacity">تواصل عبر البريد</a>
-            <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-outline-variant px-6 py-3 rounded-xl font-bold hover:bg-surface-container transition-colors">نموذج الاتصال</a>
-        </div>
+        @if (ViewBag.Content != null)
+        {
+            <div class="text-start">
+                @Html.Raw(ViewBag.Content)
+            </div>
+        }
+        else
+        {
+            <span class="material-symbols-outlined text-6xl text-primary mb-4 block">support_agent</span>
+            <h2 class="text-2xl font-bold text-on-surface mb-4">نحن هنا لمساعدتك</h2>
+            <p>فريق الدعم الفني لدينا متاح للإجابة على جميع استفساراتك المتعلقة بالموقع أو طلبات الجملة والمشاريع الكبيرة.</p>
+            <div class="mt-8 flex justify-center gap-4">
+                <a href="mailto:support@blocko.com" class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-md hover:opacity-90 transition-opacity">تواصل عبر البريد</a>
+                <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-outline-variant px-6 py-3 rounded-xl font-bold hover:bg-surface-container transition-colors">نموذج الاتصال</a>
+            </div>
+        }
     </div>
 </div>

@@ -1,11 +1,16 @@
 @using Microsoft.Extensions.Localization
 @using Bolcko.Web.App
+@using Bolcko.Web.App.Extensions
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
+@inject Blocko.Services.Interfaces.ITranslationService TranslationService
 @{
-    var allCategories = await CategoryService.GetAllCategoriesAsync();
+    var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var rawCategories = await CategoryService.GetAllCategoriesAsync();
+    var allCategoriesList = await rawCategories.TranslateAsync(TranslationService, culture);
+    var allCategories = allCategoriesList.ToList();
     var rootCategories = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ToList();
-    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isArabic = culture.StartsWith("ar");
 }
 
 <header class="bg-[#151B26] border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
@@ -45,15 +50,15 @@
                     </button>
                 </div>
 
-                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[16px]">local_shipping</span>
-                    <span>تتبع الطلب</span>
+                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="flex items-center gap-1 px-2 py-2 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-[11px] font-bold transition-all whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[15px]">local_shipping</span>
+                    <span class="truncate">@SharedLocalizer["TrackOrder"]</span>
                 </a>
             </nav>
         </div>
 
         <!-- Column 2: Centered Search Bar (max-w-xs with mx-auto keeps it centered on lg+ without overlap) -->
-        <div class="flex-1 max-w-xs mx-auto hidden lg:block">
+        <div class="flex-1 max-w-[200px] xl:max-w-xs mx-auto hidden lg:block">
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
                   class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-2 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
                 <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer" aria-label="@(isArabic ? "بحث" : "Search")">
@@ -79,12 +84,12 @@
                 </div>
             </div>
 
-            <!-- Language Switcher Pill (Visible on md+) -->
-            <div class="relative group hidden md:block">
-                <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white transition-all text-[11px] font-bold focus:outline-none whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[14px] text-slate-400">language</span>
+            <!-- Language Switcher Pill (Visible on lg+) -->
+            <div class="relative group hidden lg:block">
+                <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white transition-all text-[11px] font-bold focus:outline-none whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[13px] text-slate-400">language</span>
                     <span>@(isArabic ? "العربية" : "English")</span>
-                    <span class="material-symbols-outlined text-[11px] text-slate-500">expand_more</span>
+                    <span class="material-symbols-outlined text-[10px] text-slate-500">expand_more</span>
                 </button>
                 <div class="absolute end-0 top-full mt-2 w-36 bg-[#161d2d] border border-white/10 shadow-2xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden z-[100]">
                     <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post">
@@ -101,7 +106,7 @@
             </div>
 
             <!-- Divider -->
-            <div class="hidden md:block w-px h-5 bg-white/10 mx-1"></div>
+            <div class="hidden lg:block w-px h-5 bg-white/10 mx-1"></div>
 
             <!-- User Account & Notifications -->
             @if (User.Identity.IsAuthenticated)
@@ -129,10 +134,10 @@
                 </div>
 
                 <div class="relative group" onclick="this.classList.toggle('active')" tabindex="0">
-                    <button type="button" class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true">
-                        <span class="material-symbols-outlined text-[20px] text-slate-400">person</span>
-                        <span class="text-xs font-bold hidden md:block max-w-[120px] truncate">@User.Identity.Name</span>
-                        <span class="material-symbols-outlined text-[12px] text-slate-500">expand_more</span>
+                    <button type="button" class="flex items-center gap-1 px-1.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true">
+                        <span class="material-symbols-outlined text-[18px] text-slate-400">person</span>
+                        <span class="text-[11px] font-bold hidden xl:block max-w-[90px] truncate">@User.Identity.Name</span>
+                        <span class="material-symbols-outlined text-[10px] text-slate-500">expand_more</span>
                     </button>
                     <div class="absolute end-0 top-full mt-2 w-48 bg-[#161d2d] border border-white/10 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100]">
                         <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start">
