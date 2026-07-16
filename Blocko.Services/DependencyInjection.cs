@@ -38,7 +38,12 @@ namespace Blocko.Services
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ITenderService, TenderService>();
             services.AddScoped(typeof(IPagedList<>), typeof(PagedList<>));
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IImageService, ImageService>(sp =>
+                new ImageService(
+                    sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ImageSettings>>(),
+                    sp.GetRequiredService<System.Net.Http.HttpClient>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ImageService>>(),
+                    contentRootPath));
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<Bolcko.Domain.Interfaces.IBulkImportService>(sp =>
