@@ -11,6 +11,10 @@ using System.IO;
 // Configure QuestPDF license
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
+// Prevent inotify limit issues on Linux containers (e.g. Render) by enabling polling file watcher
+System.Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "1");
+System.Environment.SetEnvironmentVariable("DOTNET_HS_POLLING_FILE_WATCHER", "1");
+
 // Configure Serilog first
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
