@@ -425,6 +425,8 @@ namespace Blocko.Services.Imports
                 if (dto.ImageData == null)
                 {
                     var imgStr = GetCell(row, colIndex, "Image");
+                    _logger.LogInformation("Product '{ProductName}' - Read image column value: '{ImageValue}', LocalFolderExists: {LocalFolderExists} ({FolderPath})", 
+                        dto.Name, imgStr, !string.IsNullOrWhiteSpace(localImageFolderPath) && Directory.Exists(localImageFolderPath), localImageFolderPath);
 
                     if (!string.IsNullOrWhiteSpace(imgStr))
                     {
@@ -944,58 +946,62 @@ namespace Blocko.Services.Imports
         // ════════════════════════════════════════════════════════════════════
         //  BACKGROUND JOB RUNNERS & SEO HELPERS
         // ════════════════════════════════════════════════════════════════════
-        public async Task ProcessUnifiedExcelImportJobAsync(string importId, string filePath, string? zipFilePath = null)
+        public async Task ProcessUnifiedExcelImportJobAsync(string importId, string filePath, string? zipFileOrFolderPath = null)
         {
-            _logger.LogInformation("Starting background Excel import job (ImportId: {ImportId}, Path: {Path})", importId, filePath);
+            _logger.LogInformation("Starting background Excel import job (ImportId: {ImportId}, Path: {Path}, ZipOrFolder: {ZipOrFolder})", importId, filePath, zipFileOrFolderPath);
             var result = new ImportResult();
             string? extractedImagesFolderPath = null;
 
             try
             {
-                if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath))
+                if (!string.IsNullOrWhiteSpace(zipFileOrFolderPath))
                 {
-                    // Use ContentRootPath-relative temp folder so it persists in the same
-                    // filesystem mount as the main app (important on Linux/Render containers).
-                    extractedImagesFolderPath = Path.Combine(
-                        _contentRootPath, "App_Data", "Imports", "Extracted", Guid.NewGuid().ToString());
-                    Directory.CreateDirectory(extractedImagesFolderPath);
-                    _logger.LogInformation("Extracting images ZIP to {Path}", extractedImagesFolderPath);
-
-                    using (var zipStream = File.OpenRead(zipFilePath))
-                    using (var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Read))
+                    if (Directory.Exists(zipFileOrFolderPath))
                     {
-                        foreach (var entry in archive.Entries)
+                        // It's already extracted by the controller! Just use it directly.
+                        extractedImagesFolderPath = zipFileOrFolderPath;
+                        _logger.LogInformation("Using pre-extracted images folder: {Path}", extractedImagesFolderPath);
+                    }
+                    else if (File.Exists(zipFileOrFolderPath))
+                    {
+                        // Fallback in case it's a file path
+                        extractedImagesFolderPath = Path.Combine(
+                            _contentRootPath, "App_Data", "Imports", "Extracted", Guid.NewGuid().ToString());
+                        Directory.CreateDirectory(extractedImagesFolderPath);
+                        _logger.LogInformation("Extracting images ZIP to {Path}", extractedImagesFolderPath);
+
+                        using (var zipStream = File.OpenRead(zipFileOrFolderPath))
+                        using (var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Read))
                         {
-                            // Skip directories and hidden files
-                            if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
-                                continue;
-
-                            // Flatten all nested paths — we only need the filename
-                            var fileName = Path.GetFileName(entry.FullName);
-                            if (string.IsNullOrWhiteSpace(fileName)) continue;
-
-                            var entryPath = Path.Combine(extractedImagesFolderPath, fileName);
-
-                            // Handle duplicate filenames in the ZIP
-                            int counter = 1;
-                            var baseName = Path.GetFileNameWithoutExtension(fileName);
-                            var fileExt  = Path.GetExtension(fileName);
-                            while (File.Exists(entryPath))
+                            foreach (var entry in archive.Entries)
                             {
-                                entryPath = Path.Combine(extractedImagesFolderPath, $"{baseName}_{counter}{fileExt}");
-                                counter++;
-                            }
+                                if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
+                                    continue;
 
-                            using (var entryStream = entry.Open())
-                            using (var fileStream  = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
-                            {
-                                await entryStream.CopyToAsync(fileStream);
+                                var fileName = Path.GetFileName(entry.FullName);
+                                if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+                                var entryPath = Path.Combine(extractedImagesFolderPath, fileName);
+
+                                int counter = 1;
+                                var baseName = Path.GetFileNameWithoutExtension(fileName);
+                                var fileExt  = Path.GetExtension(fileName);
+                                while (File.Exists(entryPath))
+                                {
+                                    entryPath = Path.Combine(extractedImagesFolderPath, $"{baseName}_{counter}{fileExt}");
+                                    counter++;
+                                }
+
+                                using (var entryStream = entry.Open())
+                                using (var fileStream  = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
+                                {
+                                    await entryStream.CopyToAsync(fileStream);
+                                }
                             }
                         }
+                        _logger.LogInformation("ZIP extraction complete. Files: {Count}",
+                            Directory.GetFiles(extractedImagesFolderPath).Length);
                     }
-
-                    _logger.LogInformation("ZIP extraction complete. Files: {Count}",
-                        Directory.GetFiles(extractedImagesFolderPath).Length);
                 }
 
                 result = await ProcessUnifiedExcelImportAsync(filePath, extractedImagesFolderPath);
@@ -1013,7 +1019,7 @@ namespace Blocko.Services.Imports
                 try
                 {
                     if (File.Exists(filePath)) File.Delete(filePath);
-                    if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath)) File.Delete(zipFilePath);
+                    if (!string.IsNullOrWhiteSpace(zipFileOrFolderPath) && File.Exists(zipFileOrFolderPath)) File.Delete(zipFileOrFolderPath);
                     if (!string.IsNullOrWhiteSpace(extractedImagesFolderPath) && Directory.Exists(extractedImagesFolderPath))
                         Directory.Delete(extractedImagesFolderPath, true);
                 }
