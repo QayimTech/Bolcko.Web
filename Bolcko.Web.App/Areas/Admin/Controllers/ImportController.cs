@@ -124,7 +124,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return Json(new { success = false, message = "معرف المهمة غير صالح" });
             }
 
-            var resultsFolder = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "Imports", "Results");
+            // Use ContentRootPath to match the path used by the Hangfire background job writer
+            var resultsFolder = Path.Combine(_env.ContentRootPath, "App_Data", "Imports", "Results");
             var resultFilePath = Path.Combine(resultsFolder, $"{jobId}.json");
 
             if (System.IO.File.Exists(resultFilePath))

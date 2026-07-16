@@ -26,6 +26,7 @@ namespace Blocko.Services.Imports
         private readonly ILogger<BulkImportService> _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IImageService _imageService;
+        private readonly string _contentRootPath;
         private readonly Dictionary<string, Category> _categoryCache = new(StringComparer.OrdinalIgnoreCase);
 
         // ─── Arabic ↔ English column name map ───────────────────────────────
@@ -64,15 +65,23 @@ namespace Blocko.Services.Imports
             ["اسم_الفئة"]                    = "CategoryName",
             ["categoryname"]                 = "CategoryName",
             ["category_hierarchy"]           = "CategoryName",
+            ["categoryid"]                   = "CategoryName",   // sheet alias
 
+            // ── Parent category (the real parent/root) ────────────────────────
             ["التصنيف الفرعي"]              = "ParentCategoryName",
             ["الفئة الأم"]                   = "ParentCategoryName",
             ["اسم الفئة الأم"]               = "ParentCategoryName",
             ["parentcategoryname"]           = "ParentCategoryName",
+            ["parentcat"]                    = "ParentCategoryName",  // sheet alias
+            ["parent_category"]              = "ParentCategoryName",
+            ["parent cat"]                   = "ParentCategoryName",
 
+            // ── Micro / leaf category ─────────────────────────────────────────
             ["التصنيف الدقيق (Micro)"]       = "MicroCategoryName",
             ["التصنيف الدقيق"]               = "MicroCategoryName",
             ["microcategoryname"]            = "MicroCategoryName",
+            ["microcat"]                     = "MicroCategoryName",  // sheet alias
+            ["micro_category"]               = "MicroCategoryName",
             // ── SKU / Product code ────────────────────────────────────────────
             ["كود المنتج"]                   = "Sku",
             ["كود_المنتج"]                   = "Sku",
@@ -155,7 +164,8 @@ namespace Blocko.Services.Imports
             IValidator<CategoryImportDto> categoryValidator,
             ILogger<BulkImportService> logger,
             IMemoryCache memoryCache,
-            IImageService imageService)
+            IImageService imageService,
+            string contentRootPath)
         {
             _unitOfWork = unitOfWork;
             _productValidator = productValidator;
@@ -163,6 +173,7 @@ namespace Blocko.Services.Imports
             _logger = logger;
             _memoryCache = memoryCache;
             _imageService = imageService;
+            _contentRootPath = contentRootPath;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -546,46 +557,67 @@ namespace Blocko.Services.Imports
             }
 
             // ── Resolve/auto-create category hierarchy ──────────────────────
-            if (string.IsNullOrWhiteSpace(dto.CategoryName))
+            // Sheet convention:
+            //   ParentCat   = Level 1 root (e.g. "أدوات صحية")
+            //   CategoryName = Level 2 sub  (e.g. "محول فلتر")
+            //   MicroCat    = Level 3 leaf  (optional)
+            //
+            // Legacy convention (no ParentCat column):
+            //   CategoryName = Level 1 root
+            //
+            // We detect which mode we're in by checking if ParentCategoryName is set.
+
+            bool hasParentCol = !string.IsNullOrWhiteSpace(dto.ParentCategoryName);
+
+            // Determine the true Level-1 root name
+            string rootCatName = hasParentCol
+                ? dto.ParentCategoryName!.Trim()   // ParentCat column is the real root
+                : dto.CategoryName?.Trim() ?? string.Empty;
+
+            // Determine the Level-2 sub name (only when ParentCat column exists)
+            string? subCatName = hasParentCol
+                ? dto.CategoryName?.Trim()         // CategoryName column is the sub
+                : null;
+
+            if (string.IsNullOrWhiteSpace(rootCatName))
             {
                 _logger.LogWarning("Category name is missing for product '{Name}'", dto.Name);
                 return (ImportRowStatus.Skipped, "اسم التصنيف الرئيسي مفقود");
             }
 
-            // 1. Resolve/Create Level 1 (Main Category)
-            var mainKey = dto.CategoryName.Trim();
-            if (!_categoryCache.TryGetValue(mainKey, out var mainCategory))
+            // 1. Resolve/Create Level 1 (Root Category — no parent)
+            if (!_categoryCache.TryGetValue(rootCatName, out var mainCategory))
             {
-                mainCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.CategoryName && c.ParentCategoryId == null)).FirstOrDefault();
+                mainCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == rootCatName && c.ParentCategoryId == null)).FirstOrDefault();
                 if (mainCategory == null)
                 {
-                    mainCategory = new Category { Name = dto.CategoryName };
+                    mainCategory = new Category { Name = rootCatName };
                     await _unitOfWork.Categories.AddAsync(mainCategory);
                     await _unitOfWork.SaveChangesAsync();
-                    _logger.LogInformation("Auto-created main category '{Cat}'", dto.CategoryName);
+                    _logger.LogInformation("Auto-created root category '{Cat}'", rootCatName);
                 }
-                _categoryCache[mainKey] = mainCategory;
+                _categoryCache[rootCatName] = mainCategory;
             }
 
             Category leafCategory = mainCategory;
 
             // 2. Resolve/Create Level 2 (Sub-category)
-            if (!string.IsNullOrWhiteSpace(dto.ParentCategoryName))
+            if (!string.IsNullOrWhiteSpace(subCatName))
             {
-                var subKey = $"{mainKey} > {dto.ParentCategoryName.Trim()}";
+                var subKey = $"{rootCatName} > {subCatName}";
                 if (!_categoryCache.TryGetValue(subKey, out var subCategory))
                 {
-                    subCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
+                    subCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == subCatName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
                     if (subCategory == null)
                     {
-                        subCategory = new Category 
-                        { 
-                            Name = dto.ParentCategoryName,
+                        subCategory = new Category
+                        {
+                            Name = subCatName,
                             ParentCategoryId = mainCategory.Id
                         };
                         await _unitOfWork.Categories.AddAsync(subCategory);
                         await _unitOfWork.SaveChangesAsync();
-                        _logger.LogInformation("Auto-created sub-category '{Cat}' under parent '{Parent}'", dto.ParentCategoryName, dto.CategoryName);
+                        _logger.LogInformation("Auto-created sub-category '{Sub}' under root '{Root}'", subCatName, rootCatName);
                     }
                     _categoryCache[subKey] = subCategory;
                 }
@@ -607,12 +639,34 @@ namespace Blocko.Services.Imports
                             };
                             await _unitOfWork.Categories.AddAsync(microCategory);
                             await _unitOfWork.SaveChangesAsync();
-                            _logger.LogInformation("Auto-created micro-category '{Cat}' under sub-category '{Parent}'", dto.MicroCategoryName, dto.ParentCategoryName);
+                            _logger.LogInformation("Auto-created micro-category '{Micro}' under sub '{Sub}'", dto.MicroCategoryName, subCatName);
                         }
                         _categoryCache[microKey] = microCategory;
                     }
                     leafCategory = microCategory;
                 }
+            }
+            else if (!hasParentCol && !string.IsNullOrWhiteSpace(dto.MicroCategoryName))
+            {
+                // Legacy: CategoryName = root, MicroCategoryName = sub
+                var microKey = $"{rootCatName} > {dto.MicroCategoryName.Trim()}";
+                if (!_categoryCache.TryGetValue(microKey, out var microCategory))
+                {
+                    microCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.MicroCategoryName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
+                    if (microCategory == null)
+                    {
+                        microCategory = new Category
+                        {
+                            Name = dto.MicroCategoryName,
+                            ParentCategoryId = mainCategory.Id
+                        };
+                        await _unitOfWork.Categories.AddAsync(microCategory);
+                        await _unitOfWork.SaveChangesAsync();
+                        _logger.LogInformation("Auto-created sub-category '{Sub}' under root '{Root}' (legacy mode)", dto.MicroCategoryName, rootCatName);
+                    }
+                    _categoryCache[microKey] = microCategory;
+                }
+                leafCategory = microCategory;
             }
 
             if (!string.IsNullOrWhiteSpace(dto.CategoryIcon) && leafCategory.ImageUrl != dto.CategoryIcon)
@@ -900,7 +954,10 @@ namespace Blocko.Services.Imports
             {
                 if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath))
                 {
-                    extractedImagesFolderPath = Path.Combine(Path.GetTempPath(), "BolckoImports", Guid.NewGuid().ToString());
+                    // Use ContentRootPath-relative temp folder so it persists in the same
+                    // filesystem mount as the main app (important on Linux/Render containers).
+                    extractedImagesFolderPath = Path.Combine(
+                        _contentRootPath, "App_Data", "Imports", "Extracted", Guid.NewGuid().ToString());
                     Directory.CreateDirectory(extractedImagesFolderPath);
                     _logger.LogInformation("Extracting images ZIP to {Path}", extractedImagesFolderPath);
 
@@ -909,28 +966,36 @@ namespace Blocko.Services.Imports
                     {
                         foreach (var entry in archive.Entries)
                         {
+                            // Skip directories and hidden files
                             if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
                                 continue;
 
+                            // Flatten all nested paths — we only need the filename
                             var fileName = Path.GetFileName(entry.FullName);
+                            if (string.IsNullOrWhiteSpace(fileName)) continue;
+
                             var entryPath = Path.Combine(extractedImagesFolderPath, fileName);
 
+                            // Handle duplicate filenames in the ZIP
                             int counter = 1;
-                            var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
-                            var fileExt = Path.GetExtension(fileName);
+                            var baseName = Path.GetFileNameWithoutExtension(fileName);
+                            var fileExt  = Path.GetExtension(fileName);
                             while (File.Exists(entryPath))
                             {
-                                entryPath = Path.Combine(extractedImagesFolderPath, $"{originalFileNameWithoutExt}_{counter}{fileExt}");
+                                entryPath = Path.Combine(extractedImagesFolderPath, $"{baseName}_{counter}{fileExt}");
                                 counter++;
                             }
 
                             using (var entryStream = entry.Open())
-                            using (var fileStream = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
+                            using (var fileStream  = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
                             {
                                 await entryStream.CopyToAsync(fileStream);
                             }
                         }
                     }
+
+                    _logger.LogInformation("ZIP extraction complete. Files: {Count}",
+                        Directory.GetFiles(extractedImagesFolderPath).Length);
                 }
 
                 result = await ProcessUnifiedExcelImportAsync(filePath, extractedImagesFolderPath);
@@ -1087,7 +1152,10 @@ namespace Blocko.Services.Imports
             if (string.IsNullOrWhiteSpace(importId)) return;
             try
             {
-                var folder = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "Imports", "Results");
+                // Use ContentRootPath so the web request reader (GetImportStatus) and
+                // the Hangfire background job both resolve the same physical directory,
+                // regardless of the process working directory (critical on Linux/Render).
+                var folder = Path.Combine(_contentRootPath, "App_Data", "Imports", "Results");
                 Directory.CreateDirectory(folder);
                 var path = Path.Combine(folder, $"{importId}.json");
                 var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });

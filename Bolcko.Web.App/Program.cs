@@ -27,7 +27,7 @@ try
 
     // --- 1. Services Registration (DI) ---
     builder.Services.AddPersistence(builder.Configuration);
-    builder.Services.AddServices(builder.Configuration);
+    builder.Services.AddServices(builder.Configuration, builder.Environment.ContentRootPath);
     // Web Specific Services (Clean & Expressive)
     builder.Services.AddBlockoIdentitySecurity(builder.Configuration);
     builder.Services.AddBlockoLocalization();
