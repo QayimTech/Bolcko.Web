@@ -47,65 +47,104 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [RequestSizeLimit(524_288_000)] // 500 MB
         public async Task<IActionResult> BulkImport(IFormFile? file, IFormFile? imagesZip, string format = "excel", string googleSheetUrl = "", string localImageFolder = "")
         {
-            _logger.LogInformation("=== BulkImport background start ===");
-            _logger.LogInformation("Format: {Format}", format);
-            
-            bool isJson  = format.Equals("json",  StringComparison.OrdinalIgnoreCase);
-            bool isExcel = format.Equals("excel", StringComparison.OrdinalIgnoreCase);
+            _logger.LogInformation("=== BulkImport request received. Format={Format}, FileSize={FileSize}, ZipSize={ZipSize} ===",
+                format,
+                file?.Length ?? 0,
+                imagesZip?.Length ?? 0);
+
             bool isGoogleSheet = format.Equals("google-sheet", StringComparison.OrdinalIgnoreCase);
-            
+
             var importId = Guid.NewGuid().ToString();
-            string? tempZipPath = null;
-            string? tempFilePath = null;
+
+            // Base folder: ContentRootPath ensures the same physical path is seen
+            // by both this web process and the Hangfire in-process worker.
+            var importFolder  = Path.Combine(_env.ContentRootPath, "App_Data", "Imports");
+            Directory.CreateDirectory(importFolder);
+
+            string? tempFilePath          = null;
+            string? extractedImagesFolder = null;
 
             try
             {
-                // Create imports directory if not exists
-                var tempFolder = Path.Combine(_env.ContentRootPath, "App_Data", "Imports");
-                Directory.CreateDirectory(tempFolder);
-
-                // Save ZIP file if provided
+                // ── 1. Extract ZIP immediately (in this request) ────────────────
+                // We MUST extract here, not inside the Hangfire job, because on
+                // cloud hosts (Render) the container can hibernate between the
+                // enqueue and the job execution, leaving only DB rows — not files.
                 if (imagesZip != null && imagesZip.Length > 0)
                 {
-                    _logger.LogInformation("Saving images ZIP to temp folder");
-                    tempZipPath = Path.Combine(tempFolder, $"{importId}_images.zip");
-                    await using (var stream = new FileStream(tempZipPath, FileMode.Create))
+                    extractedImagesFolder = Path.Combine(importFolder, "Extracted", importId);
+                    Directory.CreateDirectory(extractedImagesFolder);
+
+                    _logger.LogInformation("Extracting images ZIP ({Size} bytes) to {Folder}",
+                        imagesZip.Length, extractedImagesFolder);
+
+                    await using var zipStream = imagesZip.OpenReadStream();
+                    using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
+
+                    int extracted = 0;
+                    foreach (var entry in archive.Entries)
                     {
-                        await imagesZip.CopyToAsync(stream);
+                        // Skip directories and hidden/system files
+                        if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
+                            continue;
+
+                        var fileName = Path.GetFileName(entry.FullName);
+                        if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+                        var destPath = Path.Combine(extractedImagesFolder, fileName);
+
+                        // Handle duplicate filenames inside the ZIP
+                        if (System.IO.File.Exists(destPath))
+                        {
+                            var baseName = Path.GetFileNameWithoutExtension(fileName);
+                            var ext2     = Path.GetExtension(fileName);
+                            int ctr      = 1;
+                            while (System.IO.File.Exists(destPath))
+                                destPath = Path.Combine(extractedImagesFolder, $"{baseName}_{ctr++}{ext2}");
+                        }
+
+                        await using var entryStream = entry.Open();
+                        await using var fileStream  = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                        await entryStream.CopyToAsync(fileStream);
+                        extracted++;
                     }
+
+                    _logger.LogInformation("ZIP extraction complete: {Count} images extracted", extracted);
                 }
 
+                // ── 2. Handle Google Sheet ──────────────────────────────────────
                 if (isGoogleSheet)
                 {
                     if (string.IsNullOrWhiteSpace(googleSheetUrl))
-                    {
                         return Json(new { success = false, message = "الرجاء إدخال رابط Google Sheet." });
-                    }
 
-                    // Enqueue Google Sheet import job
-                    _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessGoogleSheetImportJobAsync(importId, googleSheetUrl, tempZipPath));
+                    _jobs.Enqueue<IBulkImportService>(svc =>
+                        svc.ProcessGoogleSheetImportJobAsync(importId, googleSheetUrl, extractedImagesFolder));
+
                     return Json(new { success = true, message = "بدأت المعالجة في الخلفية لشيت جوجل.", jobId = importId });
                 }
 
+                // ── 3. Handle Excel upload ──────────────────────────────────────
                 if (file == null || file.Length == 0)
-                {
                     return Json(new { success = false, message = "الرجاء اختيار ملف للرفع." });
-                }
 
-                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-                if (ext != ".xlsx")
-                {
+                var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (fileExt != ".xlsx")
                     return Json(new { success = false, message = "الرجاء رفع ملف بصيغة Excel (.xlsx) فقط." });
-                }
 
-                // Save data file
-                tempFilePath = Path.Combine(tempFolder, $"{importId}_data{ext}");
+                tempFilePath = Path.Combine(importFolder, $"{importId}_data{fileExt}");
                 await using (var stream = new FileStream(tempFilePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
 
-                _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessUnifiedExcelImportJobAsync(importId, tempFilePath, tempZipPath));
+                _logger.LogInformation("Excel file saved to {Path}. Enqueueing background job.", tempFilePath);
+
+                // Pass extractedImagesFolder (not the raw ZIP path) so the job
+                // uses already-extracted images — no re-extraction needed in the job.
+                _jobs.Enqueue<IBulkImportService>(svc =>
+                    svc.ProcessUnifiedExcelImportJobAsync(importId, tempFilePath, extractedImagesFolder));
+
                 return Json(new { success = true, message = "بدأت معالجة ملف Excel في الخلفية.", jobId = importId });
             }
             catch (Exception ex)
@@ -114,6 +153,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"فشل بدء المعالجة: {ex.Message}" });
             }
         }
+
 
         // ─── GET: /Admin/Import/GetImportStatus?jobId=xxx ───────────────────
         [HttpGet]
