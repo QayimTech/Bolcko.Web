@@ -34,6 +34,18 @@ try
     // Configure Market Settings
     builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
 
+    // Increase form and request size limits for bulk import
+    const long MaxRequestSizeInBytes = 500 * 1024 * 1024; // 500 MB
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = MaxRequestSizeInBytes;
+    });
+    // Configure Kestrel server limits
+    builder.WebHost.ConfigureKestrel(serverOptions =>
+    {
+        serverOptions.Limits.MaxRequestBodySize = MaxRequestSizeInBytes;
+    });
+
     builder.Services.AddBlockoMvcInterface();
     builder.Services.AddBlockoSwagger();
     builder.Services.AddSignalR();
@@ -96,6 +108,17 @@ try
         var db = scope.ServiceProvider.GetRequiredService<BlockoDbContext>();
         Log.Information("Applying database migrations...");
         await db.Database.MigrateAsync();
+
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"DeliveryJobs\" ADD COLUMN IF NOT EXISTS \"DeliveryToken\" text;");
+            Log.Information("DeliveryToken column verified/added successfully via raw SQL.");
+        }
+        catch (Exception sqlEx)
+        {
+            Log.Warning(sqlEx, "Failed to apply raw SQL alter table for DeliveryToken column.");
+        }
+
         Log.Information("Database migrations applied successfully.");
     }
 

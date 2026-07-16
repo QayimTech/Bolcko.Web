@@ -17,9 +17,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _serviceManager = serviceManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
         {
-            var seoList = await _serviceManager.SEOService.GetAllSEOAsync();
+            var seoList = await _serviceManager.SEOService.GetPagedSEOAsync(page, pageSize);
             return View(seoList);
         }
 

@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 using System.Text.Json;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Catalog;
-
+using Blocko.Services.Interfaces.Image;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Blocko.Services.Imports
@@ -25,6 +25,8 @@ namespace Blocko.Services.Imports
         private readonly IValidator<CategoryImportDto> _categoryValidator;
         private readonly ILogger<BulkImportService> _logger;
         private readonly IMemoryCache _memoryCache;
+        private readonly IImageService _imageService;
+        private readonly Dictionary<string, Category> _categoryCache = new(StringComparer.OrdinalIgnoreCase);
 
         // ─── Arabic ↔ English column name map ───────────────────────────────
         private static readonly Dictionary<string, string> _colMap = new(StringComparer.OrdinalIgnoreCase)
@@ -37,15 +39,19 @@ namespace Blocko.Services.Imports
             ["اسم المنتج (العربي)"]          = "Name",
             ["اسم المنتج (العربية)"]         = "Name",
             ["اسم المنتج (Arabic)"]          = "Name",
+            ["product_name_ar"]              = "Name",
             ["Product Name (English)"]       = "NameEn",
             ["product name english"]         = "NameEn",
             ["name_en"]                      = "NameEn",
             ["الاسم الانجليزي"]              = "NameEn",
+            ["product_name_en"]              = "NameEn",
             // ── Description ──────────────────────────────────────────────────
             ["الوصف"]                        = "Description",
             ["الوصف (العربي)"]               = "Description",
             ["الوصف (العربية)"]              = "Description",
             ["الوصف (Arabic)"]               = "Description",
+            ["description_ar"]               = "Description",
+            ["short_description_ar"]         = "Description",
             ["Description (English)"]        = "DescriptionEn",
             ["description english"]          = "DescriptionEn",
             ["description_en"]               = "DescriptionEn",
@@ -57,6 +63,7 @@ namespace Blocko.Services.Imports
             ["اسم الفئة للمنتج"]             = "CategoryName",
             ["اسم_الفئة"]                    = "CategoryName",
             ["categoryname"]                 = "CategoryName",
+            ["category_hierarchy"]           = "CategoryName",
 
             ["التصنيف الفرعي"]              = "ParentCategoryName",
             ["الفئة الأم"]                   = "ParentCategoryName",
@@ -75,10 +82,12 @@ namespace Blocko.Services.Imports
             ["السعر"]                        = "Price",
             ["price"]                        = "Price",
             ["retailprice"]                  = "Price",
+            ["sale_price"]                   = "Price",
             // ── Stock ─────────────────────────────────────────────────────────
             ["الكمية"]                       = "Stock",
             ["stock"]                        = "Stock",
             ["stockquantity"]                = "Stock",
+            ["stock_quantity"]               = "Stock",
             // ── Unit of measure ───────────────────────────────────────────────
             ["وحدة القياس"]                  = "UnitOfMeasure",
             ["الوحدة"]                       = "UnitOfMeasure",
@@ -104,14 +113,16 @@ namespace Blocko.Services.Imports
             ["صورة"]                         = "Image",
             ["الصورة"]                       = "Image",
             ["image"]                        = "Image",
+            ["image_path"]                   = "Image",
             // ── Brand / Supplier ──────────────────────────────────────────────
             ["البراند"]                      = "Brand",
             ["brand"]                        = "Brand",
             ["اسم المورد"]                   = "Brand",
             ["المورد"]                       = "Brand",
-            // ── Country of origin ─────────────────────────────────────────────
+            // ── Country of origin ─────────────────────────────────────────────────
             ["بلد المنشأ"]                   = "CountryOfOrigin",
             ["countryoforigin"]              = "CountryOfOrigin",
+            ["origin"]                        = "CountryOfOrigin",
             // ── Category metadata ─────────────────────────────────────────────
             ["أيقونة الفئة"]                 = "CategoryIcon",
             ["الايكون"]                      = "CategoryIcon",
@@ -122,6 +133,20 @@ namespace Blocko.Services.Imports
             ["displayorder"]                 = "DisplayOrder",
             ["description"]                  = "Description",
             ["name"]                         = "Name",
+
+            // ── SEO Metadata ───────────────────────────────────────────────────
+            ["عنوان seo"]                    = "MetaTitle",
+            ["seo title"]                    = "MetaTitle",
+            ["metatitle"]                    = "MetaTitle",
+            ["عنوان الصفحة"]                 = "MetaTitle",
+            ["وصف seo"]                     = "MetaDescription",
+            ["seo description"]              = "MetaDescription",
+            ["metadescription"]              = "MetaDescription",
+            ["وصف الميتا"]                   = "MetaDescription",
+            ["الكلمات الدلالية seo"]         = "MetaKeywords",
+            ["seo keywords"]                 = "MetaKeywords",
+            ["metakeywords"]                 = "MetaKeywords",
+            ["الكلمات المفتاحية"]             = "MetaKeywords",
         };
 
         public BulkImportService(
@@ -129,19 +154,21 @@ namespace Blocko.Services.Imports
             IValidator<ProductImportDto> productValidator,
             IValidator<CategoryImportDto> categoryValidator,
             ILogger<BulkImportService> logger,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _productValidator = productValidator;
             _categoryValidator = categoryValidator;
             _logger = logger;
             _memoryCache = memoryCache;
+            _imageService = imageService;
         }
 
         // ════════════════════════════════════════════════════════════════════
         //  UNIFIED EXCEL IMPORT
         // ════════════════════════════════════════════════════════════════════
-        public async Task<ImportResult> ProcessUnifiedExcelImportAsync(string filePath)
+        public async Task<ImportResult> ProcessUnifiedExcelImportAsync(string filePath, string? localImageFolderPath = null)
         {
             var result = new ImportResult();
             _logger.LogInformation("Starting unified Excel import from {FilePath}", filePath);
@@ -169,7 +196,7 @@ namespace Blocko.Services.Imports
                 if (productSheet != null)
                 {
                     _logger.LogInformation("Processing product sheet: {Name}", productSheet.Name);
-                    await ImportProductsFromWorksheet(productSheet, result);
+                    await ImportProductsFromWorksheet(productSheet, result, localImageFolderPath);
                 }
 
                 _logger.LogInformation("Unified Excel import completed. {Summary}", result.Summary);
@@ -183,115 +210,56 @@ namespace Blocko.Services.Imports
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  UNIFIED JSON IMPORT
+        //  GOOGLE SHEETS IMPORT
         // ════════════════════════════════════════════════════════════════════
-        public async Task<ImportResult> ProcessUnifiedJsonImportAsync(string filePath)
+        public async Task<ImportResult> ProcessGoogleSheetImportAsync(string googleSheetUrl, string? localImageFolderPath = null)
         {
             var result = new ImportResult();
-            _logger.LogInformation("Starting unified JSON import from {FilePath}", filePath);
-
-            if (!File.Exists(filePath))
-            {
-                _logger.LogError("File not found: {FilePath}", filePath);
-                return result;
-            }
+            _logger.LogInformation("Starting Google Sheets import from {Url}", googleSheetUrl);
 
             try
             {
-                var json = await File.ReadAllTextAsync(filePath);
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-
-                // ── Categories ────────────────────────────────────────────
-                if (root.TryGetProperty("categories", out var catArray) ||
-                    root.TryGetProperty("الفئات", out catArray))
+                // Extract sheet ID from URL
+                var sheetId = ExtractGoogleSheetId(googleSheetUrl);
+                if (string.IsNullOrWhiteSpace(sheetId))
                 {
-                    foreach (var catEl in catArray.EnumerateArray())
-                    {
-                        var dto = new CategoryImportDto
-                        {
-                            Name               = GetJsonString(catEl, "name", "الاسم", "اسم الفئة"),
-                            ParentCategoryName = GetJsonString(catEl, "parentCategoryName", "الفئة الأم", "parentcategoryname"),
-                            Description        = GetJsonString(catEl, "description", "الوصف"),
-                            DisplayOrder       = GetJsonInt(catEl, "displayOrder", "ترتيب العرض")
-                        };
-                        await SaveCategoryAsync(dto);
-                    }
+                    result.HasError = true;
+                    result.ErrorMessage = "Invalid Google Sheet URL";
+                    return result;
                 }
 
-                // ── Products ──────────────────────────────────────────────
-                if (root.TryGetProperty("products", out var prodArray) ||
-                    root.TryGetProperty("المنتجات", out prodArray))
-                {
-                    int rowNum = 1;
-                    foreach (var prodEl in prodArray.EnumerateArray())
-                    {
-                        rowNum++;
-                        result.TotalRows++;
-                        var dto = new ProductImportDto
-                        {
-                            Sku              = GetJsonString(prodEl, "sku", "كود المنتج", "product code"),
-                            Name             = GetJsonString(prodEl, "name", "الاسم", "اسم المنتج"),
-                            NameEn           = GetJsonString(prodEl, "nameEn", "Product Name (English)"),
-                            CategoryName     = GetJsonString(prodEl, "categoryName", "اسم الفئة", "categoryname"),
-                            Description      = GetJsonString(prodEl, "description", "الوصف"),
-                            DescriptionEn    = GetJsonString(prodEl, "descriptionEn", "Description (English)"),
-                            RetailPrice      = GetJsonDecimal(prodEl, "price", "السعر", "retailPrice"),
-                            StockQuantity    = GetJsonInt(prodEl, "stock", "الكمية", "stockQuantity"),
-                            UnitOfMeasure    = GetJsonString(prodEl, "unitOfMeasure", "وحدة القياس", "الوحدة") is { Length: > 0 } u ? u : "Unit",
-                            Status           = GetJsonString(prodEl, "status", "الحالة") is { Length: > 0 } s ? s : "Active",
-                            Brand            = GetJsonString(prodEl, "brand", "البراند", "اسم المورد"),
-                            CountryOfOrigin  = GetJsonString(prodEl, "countryOfOrigin", "بلد المنشأ"),
-                            ImageBase64      = GetJsonString(prodEl, "imageBase64", "الصورة")
-                        };
+                // Download as Excel
+                var exportUrl = $"https://docs.google.com/spreadsheets/d/{sheetId}/export?format=xlsx";
+                using var httpClient = new System.Net.Http.HttpClient();
+                var excelBytes = await httpClient.GetByteArrayAsync(exportUrl);
 
-                        if (!string.IsNullOrWhiteSpace(dto.ImageBase64))
-                            ParseBase64Image(dto);
+                // Save to temp file
+                var tempFolder = Path.Combine(Path.GetTempPath(), "BolckoImports");
+                Directory.CreateDirectory(tempFolder);
+                var tempFilePath = Path.Combine(tempFolder, $"{Guid.NewGuid()}.xlsx");
+                await File.WriteAllBytesAsync(tempFilePath, excelBytes);
 
-                        var (status, reason) = await SaveProductAsync(dto);
-                        result.Rows.Add(new ImportRowResult { RowNumber = rowNum, Name = dto.Name, Status = status, Reason = reason });
+                // Process using existing Excel import
+                result = await ProcessUnifiedExcelImportAsync(tempFilePath, localImageFolderPath);
 
-                        if (status == ImportRowStatus.Imported) result.Imported++;
-                        else if (status == ImportRowStatus.Updated)  result.Updated++;
-                        else result.Skipped++;
-                    }
-                }
-
-                _logger.LogInformation("Unified JSON import completed. {Summary}", result.Summary);
+                // Cleanup temp file
+                try { File.Delete(tempFilePath); } catch { /* ignore cleanup errors */ }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing unified JSON import");
+                _logger.LogError(ex, "Error processing Google Sheets import");
+                result.HasError = true;
+                result.ErrorMessage = ex.Message;
             }
 
             return result;
         }
 
-        // ════════════════════════════════════════════════════════════════════
-        //  LEGACY  (backward-compat)
-        // ════════════════════════════════════════════════════════════════════
-        public async Task ProcessCategoryImportAsync(string filePath)
+        private static string? ExtractGoogleSheetId(string url)
         {
-            if (!File.Exists(filePath)) return;
-            try
-            {
-                using var workbook = new XLWorkbook(filePath);
-                var ws = workbook.Worksheets.FirstOrDefault();
-                if (ws != null) await ImportCategoriesFromWorksheet(ws);
-            }
-            catch (Exception ex) { _logger.LogError(ex, "Legacy category import error"); }
-        }
-
-        public async Task ProcessProductImportAsync(string filePath)
-        {
-            if (!File.Exists(filePath)) return;
-            try
-            {
-                using var workbook = new XLWorkbook(filePath);
-                var ws = workbook.Worksheets.FirstOrDefault();
-                if (ws != null) await ImportProductsFromWorksheet(ws, new ImportResult());
-            }
-            catch (Exception ex) { _logger.LogError(ex, "Legacy product import error"); }
+            if (string.IsNullOrWhiteSpace(url)) return null;
+            var match = System.Text.RegularExpressions.Regex.Match(url, @"spreadsheets/d/([a-zA-Z0-9-_]+)");
+            return match.Success ? match.Groups[1].Value : null;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -300,16 +268,25 @@ namespace Blocko.Services.Imports
 
         private async Task ImportCategoriesFromWorksheet(IXLWorksheet ws)
         {
+            var range = ws.RangeUsed();
+            if (range == null)
+            {
+                _logger.LogWarning("Worksheet '{Name}' is empty.", ws.Name);
+                return;
+            }
             var colIndex = BuildColumnIndex(ws);
 
-            foreach (var row in ws.RangeUsed().RowsUsed().Skip(1))
+            foreach (var row in range.RowsUsed().Skip(1))
             {
                 var dto = new CategoryImportDto
                 {
                     Name               = GetCell(row, colIndex, "Name"),
                     ParentCategoryName = GetCell(row, colIndex, "ParentCategoryName"),
                     Description        = GetCell(row, colIndex, "Description"),
-                    DisplayOrder       = int.TryParse(GetCell(row, colIndex, "DisplayOrder"), out var ord) ? ord : 0
+                    DisplayOrder       = int.TryParse(GetCell(row, colIndex, "DisplayOrder"), out var ord) ? ord : 0,
+                    MetaTitle          = GetCell(row, colIndex, "MetaTitle"),
+                    MetaDescription    = GetCell(row, colIndex, "MetaDescription"),
+                    MetaKeywords       = GetCell(row, colIndex, "MetaKeywords")
                 };
 
                 if (string.IsNullOrWhiteSpace(dto.Name)) continue;
@@ -317,9 +294,28 @@ namespace Blocko.Services.Imports
             }
         }
 
-        private async Task ImportProductsFromWorksheet(IXLWorksheet ws, ImportResult result)
+        private async Task ImportProductsFromWorksheet(IXLWorksheet ws, ImportResult result, string? localImageFolderPath = null)
         {
+            var range = ws.RangeUsed();
+            if (range == null)
+            {
+                result.HasError = true;
+                result.ErrorMessage = "فشل: ورقة العمل فارغة أو لا تحتوي على خلايا مستخدمة.";
+                return;
+            }
             var colIndex = BuildColumnIndex(ws);
+
+            // Log all column names and the mapped index to help with debugging!
+            var headerRow = range.RowsUsed().FirstOrDefault();
+            if (headerRow != null)
+            {
+                var columnNames = new List<string>();
+                foreach (var cell in headerRow.CellsUsed())
+                {
+                    columnNames.Add($"[Column {cell.Address.ColumnNumber}] = '{cell.GetString().Trim()}'");
+                }
+                _logger.LogInformation("Excel file column names: {Columns}", string.Join(", ", columnNames));
+            }
 
             if (!colIndex.ContainsKey("Name"))
             {
@@ -336,13 +332,16 @@ namespace Blocko.Services.Imports
 
             int rowNum = 1;
 
-            foreach (var row in ws.RangeUsed().RowsUsed().Skip(1))
+            foreach (var row in range.RowsUsed().Skip(1))
             {
                 rowNum++;
 
+                var rawSku = GetCell(row, colIndex, "Sku");
+                var cleanSku = CleanAndExtractSku(rawSku);
+
                 var dto = new ProductImportDto
                 {
-                    Sku             = GetCell(row, colIndex, "Sku"),
+                    Sku             = cleanSku,
                     Name            = GetCell(row, colIndex, "Name"),
                     NameEn          = GetCell(row, colIndex, "NameEn"),
                     CategoryName    = GetCell(row, colIndex, "CategoryName"),
@@ -354,14 +353,20 @@ namespace Blocko.Services.Imports
                     CountryOfOrigin = GetCell(row, colIndex, "CountryOfOrigin"),
                     ParentCategoryName = GetCell(row, colIndex, "ParentCategoryName"),
                     MicroCategoryName  = GetCell(row, colIndex, "MicroCategoryName"),
-                    CategoryIcon    = GetCell(row, colIndex, "CategoryIcon")
+                    CategoryIcon    = GetCell(row, colIndex, "CategoryIcon"),
+                    MetaTitle       = GetCell(row, colIndex, "MetaTitle"),
+                    MetaDescription = GetCell(row, colIndex, "MetaDescription"),
+                    MetaKeywords    = GetCell(row, colIndex, "MetaKeywords")
                 };
 
                 if (string.IsNullOrWhiteSpace(dto.Name)) continue;
 
                 result.TotalRows++;
 
-                if (decimal.TryParse(GetCell(row, colIndex, "Price"), out var price)) dto.RetailPrice = price;
+                var rawPrice = GetCell(row, colIndex, "Price");
+                var cleanPrice = CleanAndParsePrice(rawPrice);
+                if (cleanPrice.HasValue) dto.RetailPrice = cleanPrice.Value;
+
                 if (int.TryParse(GetCell(row, colIndex, "Stock"), out var qty))  dto.StockQuantity = qty;
                 if (decimal.TryParse(GetCell(row, colIndex, "Weight"), out var w)) dto.Weight = w;
                 dto.Dimensions = GetCell(row, colIndex, "Dimensions");
@@ -405,7 +410,7 @@ namespace Blocko.Services.Imports
                     }
                 }
 
-                // Fallback: image column URL or base64
+                // Fallback: image column URL, base64, OR local file path
                 if (dto.ImageData == null)
                 {
                     var imgStr = GetCell(row, colIndex, "Image");
@@ -423,6 +428,35 @@ namespace Blocko.Services.Imports
                             imgStr.StartsWith("data:image", StringComparison.OrdinalIgnoreCase))
                         {
                             dto.ImageBase64 = imgStr;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(localImageFolderPath))
+                        {
+                            // Try loading from local folder with case-insensitive matching
+                            try
+                            {
+                                var directoryFiles = Directory.GetFiles(localImageFolderPath);
+                                _logger.LogInformation("Looking for image {ImageName} in {Folder}, found {FileCount} files: {Files}", 
+                                    imgStr, localImageFolderPath, directoryFiles.Length, string.Join(", ", directoryFiles.Select(Path.GetFileName)));
+                                
+                                var matchingFile = directoryFiles.FirstOrDefault(f => 
+                                    string.Equals(Path.GetFileName(f), imgStr, StringComparison.OrdinalIgnoreCase));
+                                
+                                if (matchingFile != null)
+                                {
+                                    dto.ImageData = await File.ReadAllBytesAsync(matchingFile);
+                                    dto.ImageExtension = Path.GetExtension(matchingFile).TrimStart('.').ToLower();
+                                    dto.ImageMimeType = $"image/{dto.ImageExtension}";
+                                    _logger.LogInformation("Found matching image: {Path}", matchingFile);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("Could not find image {ImageName} in {Folder}", imgStr, localImageFolderPath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to load local image from {Folder} for {ImageName}", localImageFolderPath, imgStr);
+                            }
                         }
                     }
                 }
@@ -458,7 +492,15 @@ namespace Blocko.Services.Imports
 
             if (!string.IsNullOrWhiteSpace(dto.ParentCategoryName))
             {
-                var parent = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName)).FirstOrDefault();
+                var parentKey = dto.ParentCategoryName.Trim();
+                if (!_categoryCache.TryGetValue(parentKey, out var parent))
+                {
+                    parent = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName)).FirstOrDefault();
+                    if (parent != null)
+                    {
+                        _categoryCache[parentKey] = parent;
+                    }
+                }
                 if (parent != null) existing.ParentCategoryId = parent.Id;
             }
 
@@ -468,6 +510,15 @@ namespace Blocko.Services.Imports
                 _unitOfWork.Categories.Update(existing);
 
             await _unitOfWork.SaveChangesAsync();
+
+            // Cache the saved category
+            _categoryCache[existing.Name.Trim()] = existing;
+
+            // Save SEO metadata for category details page
+            if (!string.IsNullOrWhiteSpace(dto.MetaTitle) || !string.IsNullOrWhiteSpace(dto.MetaDescription) || !string.IsNullOrWhiteSpace(dto.MetaKeywords))
+            {
+                await SaveSeoMetadataAsync($"/Category/Index/{existing.Id}", dto.MetaTitle, dto.MetaDescription, dto.MetaKeywords);
+            }
         }
 
         /// <summary>Returns (status, reason) for the product row.</summary>
@@ -502,13 +553,18 @@ namespace Blocko.Services.Imports
             }
 
             // 1. Resolve/Create Level 1 (Main Category)
-            var mainCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.CategoryName)).FirstOrDefault();
-            if (mainCategory == null)
+            var mainKey = dto.CategoryName.Trim();
+            if (!_categoryCache.TryGetValue(mainKey, out var mainCategory))
             {
-                mainCategory = new Category { Name = dto.CategoryName };
-                await _unitOfWork.Categories.AddAsync(mainCategory);
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Auto-created main category '{Cat}'", dto.CategoryName);
+                mainCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.CategoryName && c.ParentCategoryId == null)).FirstOrDefault();
+                if (mainCategory == null)
+                {
+                    mainCategory = new Category { Name = dto.CategoryName };
+                    await _unitOfWork.Categories.AddAsync(mainCategory);
+                    await _unitOfWork.SaveChangesAsync();
+                    _logger.LogInformation("Auto-created main category '{Cat}'", dto.CategoryName);
+                }
+                _categoryCache[mainKey] = mainCategory;
             }
 
             Category leafCategory = mainCategory;
@@ -516,34 +572,44 @@ namespace Blocko.Services.Imports
             // 2. Resolve/Create Level 2 (Sub-category)
             if (!string.IsNullOrWhiteSpace(dto.ParentCategoryName))
             {
-                var subCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
-                if (subCategory == null)
+                var subKey = $"{mainKey} > {dto.ParentCategoryName.Trim()}";
+                if (!_categoryCache.TryGetValue(subKey, out var subCategory))
                 {
-                    subCategory = new Category 
-                    { 
-                        Name = dto.ParentCategoryName,
-                        ParentCategoryId = mainCategory.Id
-                    };
-                    await _unitOfWork.Categories.AddAsync(subCategory);
-                    await _unitOfWork.SaveChangesAsync();
-                    _logger.LogInformation("Auto-created sub-category '{Cat}' under parent '{Parent}'", dto.ParentCategoryName, dto.CategoryName);
+                    subCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.ParentCategoryName && c.ParentCategoryId == mainCategory.Id)).FirstOrDefault();
+                    if (subCategory == null)
+                    {
+                        subCategory = new Category 
+                        { 
+                            Name = dto.ParentCategoryName,
+                            ParentCategoryId = mainCategory.Id
+                        };
+                        await _unitOfWork.Categories.AddAsync(subCategory);
+                        await _unitOfWork.SaveChangesAsync();
+                        _logger.LogInformation("Auto-created sub-category '{Cat}' under parent '{Parent}'", dto.ParentCategoryName, dto.CategoryName);
+                    }
+                    _categoryCache[subKey] = subCategory;
                 }
                 leafCategory = subCategory;
 
                 // 3. Resolve/Create Level 3 (Micro-category)
                 if (!string.IsNullOrWhiteSpace(dto.MicroCategoryName))
                 {
-                    var microCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.MicroCategoryName && c.ParentCategoryId == subCategory.Id)).FirstOrDefault();
-                    if (microCategory == null)
+                    var microKey = $"{subKey} > {dto.MicroCategoryName.Trim()}";
+                    if (!_categoryCache.TryGetValue(microKey, out var microCategory))
                     {
-                        microCategory = new Category
+                        microCategory = (await _unitOfWork.Categories.FindAsync(c => c.Name == dto.MicroCategoryName && c.ParentCategoryId == subCategory.Id)).FirstOrDefault();
+                        if (microCategory == null)
                         {
-                            Name = dto.MicroCategoryName,
-                            ParentCategoryId = subCategory.Id
-                        };
-                        await _unitOfWork.Categories.AddAsync(microCategory);
-                        await _unitOfWork.SaveChangesAsync();
-                        _logger.LogInformation("Auto-created micro-category '{Cat}' under sub-category '{Parent}'", dto.MicroCategoryName, dto.ParentCategoryName);
+                            microCategory = new Category
+                            {
+                                Name = dto.MicroCategoryName,
+                                ParentCategoryId = subCategory.Id
+                            };
+                            await _unitOfWork.Categories.AddAsync(microCategory);
+                            await _unitOfWork.SaveChangesAsync();
+                            _logger.LogInformation("Auto-created micro-category '{Cat}' under sub-category '{Parent}'", dto.MicroCategoryName, dto.ParentCategoryName);
+                        }
+                        _categoryCache[microKey] = microCategory;
                     }
                     leafCategory = microCategory;
                 }
@@ -634,6 +700,12 @@ namespace Blocko.Services.Imports
             // Save image
             await SaveProductImageAsync(product, dto);
 
+            // Save SEO metadata for product details page
+            if (!string.IsNullOrWhiteSpace(dto.MetaTitle) || !string.IsNullOrWhiteSpace(dto.MetaDescription) || !string.IsNullOrWhiteSpace(dto.MetaKeywords))
+            {
+                await SaveSeoMetadataAsync($"/Product/Index/{product.Id}", dto.MetaTitle, dto.MetaDescription, dto.MetaKeywords);
+            }
+
             return isNew
                 ? (ImportRowStatus.Imported, string.Empty)
                 : (ImportRowStatus.Updated,  string.Empty);
@@ -641,67 +713,84 @@ namespace Blocko.Services.Imports
 
         private async Task SaveProductImageAsync(Product product, ProductImportDto dto)
         {
-            byte[]? imageBytes = null;
-            string ext = "jpg";
+            _logger.LogInformation("Starting to save image for product {ProductId} ({ProductName})", product.Id, product.Name);
+            try
+            {
+                string? imageUrl = null;
 
-            if (dto.ImageData is { Length: > 0 })
-            {
-                imageBytes = dto.ImageData;
-                ext = dto.ImageExtension ?? "jpg";
-            }
-            else if (!string.IsNullOrWhiteSpace(dto.ImageBase64))
-            {
-                if (dto.ImageBase64!.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                if (dto.ImageData is { Length: > 0 })
                 {
-                    try
+                    _logger.LogInformation("Saving product image from ImageData (size: {Size} bytes)", dto.ImageData.Length);
+                    using var ms = new MemoryStream(dto.ImageData);
+                    imageUrl = await _imageService.SaveImageAsync(ms, $"image.{dto.ImageExtension ?? "jpg"}", "products");
+                    _logger.LogInformation("Saved product image to: {Url}", imageUrl);
+                }
+                else if (!string.IsNullOrWhiteSpace(dto.ImageBase64))
+                {
+                    if (dto.ImageBase64!.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                     {
-                        using var httpClient = new System.Net.Http.HttpClient();
-                        imageBytes = await httpClient.GetByteArrayAsync(dto.ImageBase64);
-                        var uri = new Uri(dto.ImageBase64);
-                        ext = Path.GetExtension(uri.AbsolutePath).TrimStart('.') ?? "jpg";
-                        if (string.IsNullOrWhiteSpace(ext)) ext = "jpg";
+                        try
+                        {
+                            _logger.LogInformation("Downloading and saving image from URL: {Url}", dto.ImageBase64);
+                            imageUrl = await _imageService.DownloadAndCompressImageAsync(dto.ImageBase64, "products");
+                            _logger.LogInformation("Downloaded and saved image to: {Url}", imageUrl);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to download image from {Url}", dto.ImageBase64);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger.LogWarning(ex, "Failed to download image from {Url}", dto.ImageBase64);
+                        _logger.LogInformation("Decoding base64 image");
+                        var (imageBytes, ext) = DecodeBase64Image(dto.ImageBase64!);
+                        if (imageBytes != null)
+                        {
+                            using var ms = new MemoryStream(imageBytes);
+                            imageUrl = await _imageService.SaveImageAsync(ms, $"image.{ext}", "products");
+                            _logger.LogInformation("Saved base64 image to: {Url}", imageUrl);
+                        }
                     }
                 }
-                else
+
+                if (!string.IsNullOrWhiteSpace(imageUrl))
                 {
-                    (imageBytes, ext) = DecodeBase64Image(dto.ImageBase64!);
+                    product.ImageUrl = imageUrl;
                 }
-            }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products");
-            Directory.CreateDirectory(uploadsFolder);
-
-            if (imageBytes != null)
-            {
-                var fileName  = $"{Guid.NewGuid()}.{ext}";
-                var imagePath = Path.Combine(uploadsFolder, fileName);
-                await File.WriteAllBytesAsync(imagePath, imageBytes);
-                product.ImageUrl = $"/uploads/products/{fileName}";
-            }
-
-            if (dto.AdditionalImages != null && dto.AdditionalImages.Any())
-            {
-                int order = 1;
-                foreach (var addImg in dto.AdditionalImages)
+                if (dto.AdditionalImages != null && dto.AdditionalImages.Any())
                 {
-                    var addFileName  = $"{Guid.NewGuid()}.{addImg.Ext}";
-                    var addImagePath = Path.Combine(uploadsFolder, addFileName);
-                    await File.WriteAllBytesAsync(addImagePath, addImg.Data);
-
-                    product.Images.Add(new ProductImage
+                    int order = 1;
+                    foreach (var addImg in dto.AdditionalImages)
                     {
-                        Url          = $"/uploads/products/{addFileName}",
-                        DisplayOrder = order++
-                    });
+                        _logger.LogInformation("Saving additional image {Order}", order);
+                        try
+                        {
+                            using var ms = new MemoryStream(addImg.Data);
+                            var addImageUrl = await _imageService.SaveImageAsync(ms, $"image.{addImg.Ext}", "products");
+                            if (!string.IsNullOrWhiteSpace(addImageUrl))
+                            {
+                                product.Images.Add(new ProductImage
+                                {
+                                    Url          = addImageUrl,
+                                    DisplayOrder = order++
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to save additional image for product {ProductName}", product.Name);
+                        }
+                    }
                 }
-            }
 
-            _unitOfWork.Products.Update(product);
-            await _unitOfWork.SaveChangesAsync();
+                _unitOfWork.Products.Update(product);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save image for product {ProductName} (ID: {ProductId})", product.Name, product.Id);
+            }
         }
 
         // ── SKU Generation ───────────────────────────────────────────────────
@@ -717,7 +806,9 @@ namespace Blocko.Services.Imports
         private static Dictionary<string, int> BuildColumnIndex(IXLWorksheet ws)
         {
             var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            var headerRow = ws.RangeUsed().RowsUsed().FirstOrDefault();
+            var range = ws.RangeUsed();
+            if (range == null) return map;
+            var headerRow = range.RowsUsed().FirstOrDefault();
             if (headerRow == null) return map;
 
             foreach (var cell in headerRow.CellsUsed())
@@ -756,54 +847,7 @@ namespace Blocko.Services.Imports
             return null;
         }
 
-        // ── JSON helpers ─────────────────────────────────────────────────────
-        private static string GetJsonString(JsonElement el, params string[] keys)
-        {
-            foreach (var k in keys)
-                if (el.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.String)
-                    return v.GetString() ?? string.Empty;
-            return string.Empty;
-        }
-
-        private static int GetJsonInt(JsonElement el, params string[] keys)
-        {
-            foreach (var k in keys)
-                if (el.TryGetProperty(k, out var v) && v.TryGetInt32(out var i))
-                    return i;
-            return 0;
-        }
-
-        private static decimal GetJsonDecimal(JsonElement el, params string[] keys)
-        {
-            foreach (var k in keys)
-                if (el.TryGetProperty(k, out var v) && v.TryGetDecimal(out var d))
-                    return d;
-            return 0;
-        }
-
         // ── Base64 image decoder ─────────────────────────────────────────────
-        private static void ParseBase64Image(ProductImportDto dto)
-        {
-            try
-            {
-                var b64 = dto.ImageBase64!;
-                var ext = "jpg";
-
-                if (b64.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
-                {
-                    var semi  = b64.IndexOf(';');
-                    var slash = b64.IndexOf('/');
-                    if (semi > slash) ext = b64[(slash + 1)..semi];
-                    var comma = b64.IndexOf(',');
-                    if (comma > -1) b64 = b64[(comma + 1)..];
-                }
-
-                dto.ImageData      = Convert.FromBase64String(b64);
-                dto.ImageExtension = ext;
-                dto.ImageMimeType  = $"image/{ext}";
-            }
-            catch { /* ignore malformed base64 */ }
-        }
 
         private static (byte[]? bytes, string ext) DecodeBase64Image(string b64)
         {
@@ -821,6 +865,239 @@ namespace Blocko.Services.Imports
                 return (Convert.FromBase64String(b64), ext);
             }
             catch { return (null, "jpg"); }
+        }
+
+        private decimal? CleanAndParsePrice(string? priceStr)
+        {
+            if (string.IsNullOrWhiteSpace(priceStr)) return null;
+            // تنظيف القيمة من العملة مثل JD أو د.أ أو المسافات والرموز غير الرقمية
+            var cleaned = System.Text.RegularExpressions.Regex.Replace(priceStr, @"[^\d\.]", "");
+            if (decimal.TryParse(cleaned, out var price))
+            {
+                return price;
+            }
+            return null;
+        }
+
+        private string? CleanAndExtractSku(string? skuStr)
+        {
+            if (string.IsNullOrWhiteSpace(skuStr)) return null;
+            // إذا كان يحتوي على فواصل، خذ الجزء الأول ونظفه
+            var parts = skuStr.Split(new[] { ',', ';', '-' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length > 0 ? parts[0].Trim() : null;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  BACKGROUND JOB RUNNERS & SEO HELPERS
+        // ════════════════════════════════════════════════════════════════════
+        public async Task ProcessUnifiedExcelImportJobAsync(string importId, string filePath, string? zipFilePath = null)
+        {
+            _logger.LogInformation("Starting background Excel import job (ImportId: {ImportId}, Path: {Path})", importId, filePath);
+            var result = new ImportResult();
+            string? extractedImagesFolderPath = null;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath))
+                {
+                    extractedImagesFolderPath = Path.Combine(Path.GetTempPath(), "BolckoImports", Guid.NewGuid().ToString());
+                    Directory.CreateDirectory(extractedImagesFolderPath);
+                    _logger.LogInformation("Extracting images ZIP to {Path}", extractedImagesFolderPath);
+
+                    using (var zipStream = File.OpenRead(zipFilePath))
+                    using (var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Read))
+                    {
+                        foreach (var entry in archive.Entries)
+                        {
+                            if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
+                                continue;
+
+                            var fileName = Path.GetFileName(entry.FullName);
+                            var entryPath = Path.Combine(extractedImagesFolderPath, fileName);
+
+                            int counter = 1;
+                            var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                            var fileExt = Path.GetExtension(fileName);
+                            while (File.Exists(entryPath))
+                            {
+                                entryPath = Path.Combine(extractedImagesFolderPath, $"{originalFileNameWithoutExt}_{counter}{fileExt}");
+                                counter++;
+                            }
+
+                            using (var entryStream = entry.Open())
+                            using (var fileStream = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
+                            {
+                                await entryStream.CopyToAsync(fileStream);
+                            }
+                        }
+                    }
+                }
+
+                result = await ProcessUnifiedExcelImportAsync(filePath, extractedImagesFolderPath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing background Excel import job");
+                result.HasError = true;
+                result.ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                await WriteResultFileAsync(importId, result);
+
+                try
+                {
+                    if (File.Exists(filePath)) File.Delete(filePath);
+                    if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath)) File.Delete(zipFilePath);
+                    if (!string.IsNullOrWhiteSpace(extractedImagesFolderPath) && Directory.Exists(extractedImagesFolderPath))
+                        Directory.Delete(extractedImagesFolderPath, true);
+                }
+                catch (Exception cleanupEx)
+                {
+                    _logger.LogWarning(cleanupEx, "Failed to clean up files after background Excel import job");
+                }
+            }
+        }
+
+        public async Task ProcessGoogleSheetImportJobAsync(string importId, string googleSheetUrl, string? zipFilePath = null)
+        {
+            _logger.LogInformation("Starting background Google Sheets import job (ImportId: {ImportId}, Url: {Url})", importId, googleSheetUrl);
+            var result = new ImportResult();
+            string? extractedImagesFolderPath = null;
+            string? tempExcelPath = null;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath))
+                {
+                    extractedImagesFolderPath = Path.Combine(Path.GetTempPath(), "BolckoImports", Guid.NewGuid().ToString());
+                    Directory.CreateDirectory(extractedImagesFolderPath);
+                    _logger.LogInformation("Extracting images ZIP to {Path}", extractedImagesFolderPath);
+
+                    using (var zipStream = File.OpenRead(zipFilePath))
+                    using (var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Read))
+                    {
+                        foreach (var entry in archive.Entries)
+                        {
+                            if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
+                                continue;
+
+                            var fileName = Path.GetFileName(entry.FullName);
+                            var entryPath = Path.Combine(extractedImagesFolderPath, fileName);
+
+                            int counter = 1;
+                            var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                            var fileExt = Path.GetExtension(fileName);
+                            while (File.Exists(entryPath))
+                            {
+                                entryPath = Path.Combine(extractedImagesFolderPath, $"{originalFileNameWithoutExt}_{counter}{fileExt}");
+                                counter++;
+                            }
+
+                            using (var entryStream = entry.Open())
+                            using (var fileStream = new FileStream(entryPath, FileMode.Create, FileAccess.Write))
+                            {
+                                await entryStream.CopyToAsync(fileStream);
+                            }
+                        }
+                    }
+                }
+
+                var sheetId = ExtractGoogleSheetId(googleSheetUrl);
+                if (string.IsNullOrWhiteSpace(sheetId))
+                {
+                    result.HasError = true;
+                    result.ErrorMessage = "Invalid Google Sheet URL";
+                }
+                else
+                {
+                    var exportUrl = $"https://docs.google.com/spreadsheets/d/{sheetId}/export?format=xlsx";
+                    using var httpClient = new System.Net.Http.HttpClient();
+                    var excelBytes = await httpClient.GetByteArrayAsync(exportUrl);
+
+                    var tempFolder = Path.Combine(Path.GetTempPath(), "BolckoImports");
+                    Directory.CreateDirectory(tempFolder);
+                    tempExcelPath = Path.Combine(tempFolder, $"{Guid.NewGuid()}.xlsx");
+                    await File.WriteAllBytesAsync(tempExcelPath, excelBytes);
+
+                    result = await ProcessUnifiedExcelImportAsync(tempExcelPath, extractedImagesFolderPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing background Google Sheets import job");
+                result.HasError = true;
+                result.ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                await WriteResultFileAsync(importId, result);
+
+                try
+                {
+                    if (tempExcelPath != null && File.Exists(tempExcelPath)) File.Delete(tempExcelPath);
+                    if (!string.IsNullOrWhiteSpace(zipFilePath) && File.Exists(zipFilePath)) File.Delete(zipFilePath);
+                    if (!string.IsNullOrWhiteSpace(extractedImagesFolderPath) && Directory.Exists(extractedImagesFolderPath))
+                        Directory.Delete(extractedImagesFolderPath, true);
+                }
+                catch (Exception cleanupEx)
+                {
+                    _logger.LogWarning(cleanupEx, "Failed to clean up files after background Google Sheets import job");
+                }
+            }
+        }
+
+        private async Task SaveSeoMetadataAsync(string pageName, string? title, string? desc, string? keywords)
+        {
+            if (string.IsNullOrWhiteSpace(pageName)) return;
+            try
+            {
+                var existingSeo = (await _unitOfWork.SEO.FindAsync(s => s.PageName == pageName)).FirstOrDefault();
+                if (existingSeo == null)
+                {
+                    existingSeo = new Bolcko.Domain.Entities.SEO.SEOMetadata
+                    {
+                        PageName = pageName,
+                        PageTitle = title,
+                        MetaDescription = desc,
+                        MetaKeywords = keywords,
+                        LastUpdated = DateTime.UtcNow
+                    };
+                    await _unitOfWork.SEO.AddAsync(existingSeo);
+                }
+                else
+                {
+                    existingSeo.PageTitle = !string.IsNullOrWhiteSpace(title) ? title : existingSeo.PageTitle;
+                    existingSeo.MetaDescription = !string.IsNullOrWhiteSpace(desc) ? desc : existingSeo.MetaDescription;
+                    existingSeo.MetaKeywords = !string.IsNullOrWhiteSpace(keywords) ? keywords : existingSeo.MetaKeywords;
+                    existingSeo.LastUpdated = DateTime.UtcNow;
+                    _unitOfWork.SEO.Update(existingSeo);
+                }
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Saved SEO metadata for page: {PageName}", pageName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save SEO metadata for page {PageName}", pageName);
+            }
+        }
+
+        private async Task WriteResultFileAsync(string importId, ImportResult result)
+        {
+            if (string.IsNullOrWhiteSpace(importId)) return;
+            try
+            {
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "Imports", "Results");
+                Directory.CreateDirectory(folder);
+                var path = Path.Combine(folder, $"{importId}.json");
+                var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(path, json);
+                _logger.LogInformation("Saved import result file: {Path}", path);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to write import result file for {ImportId}", importId);
+            }
         }
     }
 }

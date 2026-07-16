@@ -13,7 +13,7 @@
             <div>
                 <h1 class="text-2xl font-bold text-slate-800 mb-1">الاستيراد الموحد للفئات والمنتجات</h1>
                 <p class="text-slate-500 text-sm leading-relaxed max-w-xl">
-                    ارفع ملفاً واحداً بصيغة Excel أو JSON لإنشاء الفئات والمنتجات معاً بضغطة زر.
+                    ارفع ملفاً واحداً بصيغة Excel لإنشاء الفئات والمنتجات معاً بضغطة زر.
                     يقوم النظام بمعالجة البيانات وتوليد رموز SKU تلقائياً.
                 </p>
             </div>
@@ -33,7 +33,7 @@
         <div class="px-6 py-6 sm:px-8 border-b border-slate-100 bg-slate-50/50">
             <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <span class="material-symbols-outlined text-slate-400">settings</span>
-                الخطوة 1: اختر صيغة الملف
+                الخطوة 1: اختر طريقة الاستيراد
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="formatSelector">
                 <button type="button" data-format="excel"
@@ -48,15 +48,15 @@
                     </div>
                 </button>
 
-                <button type="button" data-format="json"
-                        class="format-btn flex items-center gap-4 px-6 py-5 rounded-2xl border-2 border-slate-100 transition-all text-start group hover:border-blue-200 hover:bg-blue-50/30"
-                        onclick="selectFormat('json', this)">
-                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                        <span class="material-symbols-outlined text-blue-600 text-2xl">data_object</span>
+                <button type="button" data-format="google-sheet"
+                        class="format-btn flex items-center gap-4 px-6 py-5 rounded-2xl border-2 border-slate-100 transition-all text-start group hover:border-amber-200 hover:bg-amber-50/30"
+                        onclick="selectFormat('google-sheet', this)">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-amber-600 text-2xl">cloud</span>
                     </div>
                     <div class="min-w-0">
-                        <p class="font-bold text-slate-800 text-base">JSON (.json)</p>
-                        <p class="text-slate-500 text-xs mt-1 truncate">مصفوفتان categories و products</p>
+                        <p class="font-bold text-slate-800 text-base">Google Sheet</p>
+                        <p class="text-slate-500 text-xs mt-1 truncate">استيراد مباشر من رابط Google Sheets</p>
                     </div>
                 </button>
             </div>
@@ -69,16 +69,16 @@
 
             <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <span class="material-symbols-outlined text-slate-400">upload</span>
-                الخطوة 2: رفع الملف
+                الخطوة 2: تقديم البيانات
             </h2>
 
-            @* Drop Zone *@
+            @* Drop Zone (for Excel/JSON) *@
             <div id="dropZone"
                  class="relative border-2 border-dashed border-slate-300 rounded-2xl p-12 sm:p-16 text-center cursor-pointer
                         hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-300 group mb-6 bg-slate-50/30"
                  onclick="document.getElementById('fileInput').click()">
 
-                <input type="file" id="fileInput" name="file" accept=".xlsx,.json" required class="hidden"
+                <input type="file" id="fileInput" name="file" accept=".xlsx" required class="hidden"
                        onchange="handleFileSelect(this)" />
 
                 <div id="dropZoneContent" class="flex flex-col items-center justify-center">
@@ -107,12 +107,42 @@
                 </div>
             </div>
 
+            @* Google Sheet URL Input (hidden by default) *@
+            <div id="googleSheetSection" class="hidden mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">رابط Google Sheet</label>
+                <input type="url" id="googleSheetUrl" name="googleSheetUrl" 
+                       placeholder="https://docs.google.com/spreadsheets/d/..." 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all text-sm" />
+            </div>
+
+            @* Images Zip File Input (optional) *@
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">ملف الصور المضغوط (اختياري - .zip)</label>
+                <input type="file" id="imagesZip" name="imagesZip" accept=".zip" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-sm" />
+                <p class="text-xs text-slate-400 mt-2">ارفع ملف ZIP يحتوي على الصور التي تريد استخدامها مع المنتجات. سيتم مطابقة أسماء الملفات مع عمود "الصورة".</p>
+            </div>
+
+            @* Local Image Folder Input (optional) *@
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">مجلد الصور المحلي (اختياري)</label>
+                <input type="text" id="localImageFolder" name="localImageFolder" 
+                       placeholder="C:\Images\Products أو /home/user/images" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-sm" />
+                <p class="text-xs text-slate-400 mt-2">إذا كان عمود "الصورة" يحتوي على أسماء ملفات، سيتم تحميلها من هذا المجلد. يتجاوز ملف ZIP إذا تم اختيار كليهما.</p>
+            </div>
+
             @* Actions / Status *@
             <div class="flex flex-col sm:flex-row items-center gap-4">
                 <div id="statusContainer" class="flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-100 text-slate-400 font-bold rounded-2xl transition-all duration-300 shadow-inner">
                     <span class="material-symbols-outlined text-xl">hourglass_empty</span>
-                    <span class="text-sm">في انتظار اختيار الملف...</span>
+                    <span class="text-sm">في انتظار تقديم البيانات...</span>
                 </div>
+                <button type="button" onclick="submitImport()"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl transition-all text-sm shadow-sm group">
+                    <span class="material-symbols-outlined text-xl group-hover:-translate-y-1 transition-transform">cloud_upload</span>
+                    استيراد البيانات
+                </button>
                 <a id="downloadTemplateBtn" href="@Url.Action("DownloadTemplate", "Import", new { area = "Admin", format = "excel" })"
                    class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl transition-all text-sm shadow-sm group">
                     <span class="material-symbols-outlined text-xl group-hover:-translate-y-1 transition-transform">download</span>
@@ -289,31 +319,7 @@
                     </div>
                 </div>
 
-                <div id="jsonInfo" class="hidden">
-                    <pre class="text-xs bg-slate-800 text-emerald-400 rounded-2xl p-5 overflow-auto leading-relaxed shadow-inner" dir="ltr"><code>{
-  "categories": [
-    {
-      "name": "إلكترونيات",
-      "parentCategoryName": "",
-      "description": "...",
-      "displayOrder": 1
-    }
-  ],
-  "products": [
-    {
-      "name": "iPhone 15",
-      "nameEn": "iPhone 15",
-      "categoryName": "إلكترونيات",
-      "price": 3999,
-      "brand": "Apple",
-      "countryOfOrigin": "USA",
-      "description": "...",
-      "stock": 50,
-      "imageBase64": "data:image/jpeg;base64,..."
-    }
-  ]
-}</code></pre>
-                </div>
+                <!-- jsonInfo removed to reduce over-engineering -->
             </div>
 
         </div>
@@ -344,25 +350,26 @@
 
         formatInput.value = fmt;
         const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const googleSheetSection = document.getElementById('googleSheetSection');
 
         if (fmt === 'excel') {
             fileInput.accept       = '.xlsx';
+            fileInput.required     = true;
             dropIcon.textContent   = 'table_view';
             dropIcon.className     = 'material-symbols-outlined text-emerald-500 text-3xl';
             acceptHint.textContent = '.xlsx';
             acceptHint.className   = 'font-bold text-emerald-600';
             document.getElementById('excelInfo').classList.remove('hidden');
-            document.getElementById('jsonInfo').classList.add('hidden');
-            dlBtn.href = dlBtn.href.replace('format=json', 'format=excel');
-        } else {
-            fileInput.accept       = '.json';
-            dropIcon.textContent   = 'data_object';
-            dropIcon.className     = 'material-symbols-outlined text-blue-500 text-3xl';
-            acceptHint.textContent = '.json';
-            acceptHint.className   = 'font-bold text-blue-600';
-            document.getElementById('excelInfo').classList.add('hidden');
-            document.getElementById('jsonInfo').classList.remove('hidden');
-            dlBtn.href = dlBtn.href.replace('format=excel', 'format=json');
+            dropZone.classList.remove('hidden');
+            googleSheetSection.classList.add('hidden');
+            dlBtn.href = dlBtn.href.replace('format-sheet', 'format=excel');
+        } else if (fmt === 'google-sheet') {
+            fileInput.required     = false;
+            dropZone.classList.add('hidden');
+            googleSheetSection.classList.remove('hidden');
+            document.getElementById('excelInfo').classList.remove('hidden');
+            dlBtn.href = dlBtn.href.replace('format=excel', 'format=google-sheet');
         }
         resetFile();
     }
@@ -385,20 +392,19 @@
         }
     }));
 
-    async function handleFileSelect(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
+    let pollInterval = null;
 
-        document.getElementById('dropZoneContent').classList.add('hidden');
-        document.getElementById('fileSelected').classList.remove('hidden');
-        document.getElementById('selectedFileName').textContent = file.name;
+    async function submitImport() {
+        if (pollInterval) clearInterval(pollInterval);
+        
+        const format = document.getElementById('formatInput').value;
 
         // Hide any previous results
         document.getElementById('resultsPanel').classList.add('hidden');
 
         const statusContainer = document.getElementById('statusContainer');
         statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
-        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">جاري الرفع والمعالجة...</span>';
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">جاري رفع البيانات وبدء المهمة...</span>';
 
         const form     = document.getElementById('importForm');
         const formData = new FormData(form);
@@ -413,17 +419,17 @@
             const data = await response.json();
 
             if (data.success) {
-                statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
-                statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span class="text-sm">' + data.message + '</span>';
+                if (data.jobId) {
+                    startPolling(data.jobId, data.message);
+                } else {
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span class="text-sm">' + data.message + '</span>';
 
-                // Show results if we have them (Excel import)
-                if (data.result) {
-                    showResults(data.result);
+                    if (data.result) {
+                        showResults(data.result);
+                    }
+                    setTimeout(() => resetFile(), 500);
                 }
-
-                // Reset form so a new file can be selected immediately
-                setTimeout(() => resetFile(), 500);
-
             } else {
                 statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
                 statusContainer.title     = data.message;
@@ -431,10 +437,67 @@
             }
         } catch (error) {
             statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner cursor-help';
-            statusContainer.title     = 'حدث خطأ غير متوقع أثناء الرفع';
+            statusContainer.title     = 'حدث خطأ غير متوقع';
             statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> <span class="text-sm">خطأ في الاتصال بالخادم</span>';
         }
     }
+
+    function startPolling(jobId, initialMessage) {
+        const statusContainer = document.getElementById('statusContainer');
+        statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">' + initialMessage + '</span>';
+
+        pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch('@Url.Action("GetImportStatus", "Import", new { area = "Admin" })?jobId=' + jobId);
+                const data = await response.json();
+
+                if (!data.success) {
+                    clearInterval(pollInterval);
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.title     = data.message;
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> <span class="text-sm">' + data.message + '</span>';
+                    return;
+                }
+
+                if (data.completed) {
+                    clearInterval(pollInterval);
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span class="text-sm">' + (data.message || 'اكتمل الاستيراد بنجاح!') + '</span>';
+
+                    if (data.result) {
+                        showResults(data.result);
+                    }
+                    setTimeout(() => resetFile(), 500);
+                } else {
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">' + data.message + '</span>';
+                }
+            } catch (error) {
+                console.warn('Error polling job status:', error);
+            }
+        }, 2000);
+    }
+
+    async function handleFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+
+        document.getElementById('dropZoneContent').classList.add('hidden');
+        document.getElementById('fileSelected').classList.remove('hidden');
+        document.getElementById('selectedFileName').textContent = file.name;
+        // Don't auto-submit, let user click "استيراد البيانات" after adding zip too!
+    }
+
+    // Add event listener for Google Sheet URL input to submit when Enter is pressed
+    document.addEventListener('DOMContentLoaded', function() {
+        const googleSheetUrlInput = document.getElementById('googleSheetUrl');
+        googleSheetUrlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitImport();
+            }
+        });
+    });
 
     function showResults(result) {
         document.getElementById('statTotal').textContent    = result.totalRows;
@@ -481,6 +544,7 @@
     function resetFile(e) {
         if (e) e.stopPropagation();
         document.getElementById('fileInput').value = '';
+        document.getElementById('imagesZip').value = '';
         document.getElementById('dropZoneContent').classList.remove('hidden');
         document.getElementById('fileSelected').classList.add('hidden');
 

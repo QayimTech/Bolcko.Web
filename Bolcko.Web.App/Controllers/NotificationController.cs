@@ -81,25 +81,33 @@ namespace Bolcko.Web.App.Controllers
                 return Unauthorized();
             }
 
-            var notifications = await _context.Notifications
-                .Where(n => n.UserId == userId)
-                .OrderByDescending(n => n.CreatedAt)
-                .Take(5)
-                .Select(n => new
-                {
-                    n.Id,
-                    n.Title,
-                    n.Message,
-                    n.ActionUrl,
-                    n.IsRead,
-                    CreatedAt = n.CreatedAt.ToString("yyyy-MM-dd HH:mm")
-                })
-                .ToListAsync();
+            try
+            {
+                var notifications = await _context.Notifications
+                    .Where(n => n.UserId == userId)
+                    .OrderByDescending(n => n.CreatedAt)
+                    .Take(5)
+                    .Select(n => new
+                    {
+                        n.Id,
+                        n.Title,
+                        n.Message,
+                        n.ActionUrl,
+                        n.IsRead,
+                        CreatedAt = n.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    })
+                    .ToListAsync();
 
-            var unreadCount = await _context.Notifications
-                .CountAsync(n => n.UserId == userId && !n.IsRead);
+                var unreadCount = await _context.Notifications
+                    .CountAsync(n => n.UserId == userId && !n.IsRead);
 
-            return Json(new { success = true, notifications, unreadCount });
+                return Json(new { success = true, notifications, unreadCount });
+            }
+            catch (System.OperationCanceledException)
+            {
+                // Gracefully return empty status if operation is canceled by browser navigation
+                return Json(new { success = false, notifications = new List<object>(), unreadCount = 0 });
+            }
         }
 
         [HttpPost]

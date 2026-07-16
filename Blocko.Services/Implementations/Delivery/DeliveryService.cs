@@ -29,7 +29,7 @@ namespace Blocko.Services.Implementations.Delivery
 
 
         #region Companies
-        public async Task<DeliveryCompany> CreateCompanyAsync(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate)
+        public async Task<DeliveryCompany> CreateCompanyAsync(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate, string? managerUserId = null)
         {
             var company = new DeliveryCompany
             {
@@ -38,6 +38,7 @@ namespace Blocko.Services.Implementations.Delivery
                 PhoneNumber = phoneNumber,
                 CommercialRegister = commercialRegister,
                 BaseDeliveryRate = baseRate,
+                ManagerUserId = managerUserId,
                 IsActive = true
             };
 
@@ -54,6 +55,118 @@ namespace Blocko.Services.Implementations.Delivery
         public async Task<DeliveryCompany?> GetCompanyByIdAsync(int companyId)
         {
             return await _unitOfWork.DeliveryCompanies.GetByIdAsync(companyId);
+        }
+
+        public async Task ToggleCompanyStatusAsync(int companyId)
+        {
+            var company = await _unitOfWork.DeliveryCompanies.GetByIdAsync(companyId);
+            if (company != null)
+            {
+                company.IsActive = !company.IsActive;
+                _unitOfWork.DeliveryCompanies.Update(company);
+                await _unitOfWork.CompleteAsync();
+            }
+        }
+
+        public async Task<DeliveryCompany?> GetCompanyByManagerUserIdAsync(string managerUserId)
+        {
+            return await _unitOfWork.DeliveryCompanies.GetAllAsQueryable()
+                .Include(c => c.Drivers)
+                .FirstOrDefaultAsync(c => c.ManagerUserId == managerUserId);
+        }
+
+        public async Task<IEnumerable<DeliveryJob>> GetCompanyJobsAsync(int companyId)
+        {
+            return await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
+                .Include(j => j.Order)
+                .Include(j => j.Order.User)
+                .Include(j => j.Order.ShippingAddress)
+                .Where(j => j.DeliveryCompanyId == companyId)
+                .ToListAsync();
+        }
+
+        public async Task UpdateCompanyJobCollectedAmountAsync(int jobId, decimal collectedAmount, string? returnReason = null)
+        {
+            var job = await _unitOfWork.DeliveryJobs.GetByIdAsync(jobId);
+            if (job != null)
+            {
+                job.CollectedAmount = collectedAmount;
+                job.ReturnReason = returnReason;
+                if (collectedAmount == 0 && !string.IsNullOrEmpty(returnReason))
+                {
+                    job.Status = DeliveryJobStatus.Returned;
+                }
+                else
+                {
+                    job.Status = DeliveryJobStatus.Delivered;
+                    job.DeliveredAt = DateTime.UtcNow;
+                }
+
+                _unitOfWork.DeliveryJobs.Update(job);
+                await _unitOfWork.CompleteAsync();
+            }
+        }
+        public async Task AcceptCompanyPickupAsync(int jobId)
+        {
+            var job = await _unitOfWork.DeliveryJobs.GetByIdAsync(jobId);
+            if (job != null)
+            {
+                job.Status = DeliveryJobStatus.PickedUp;
+                job.PickedUpAt = DateTime.UtcNow;
+                job.DeliveryToken = System.Guid.NewGuid().ToString("N");
+                
+                _unitOfWork.DeliveryJobs.Update(job);
+                await _unitOfWork.CompleteAsync();
+            }
+        }
+
+        public async Task<DeliveryJob?> GetJobByTokenAsync(string token)
+        {
+            if (string.IsNullOrEmpty(token)) return null;
+            return await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
+                .Include(j => j.Order)
+                .Include(j => j.Order.User)
+                .Include(j => j.Order.ShippingAddress)
+                .FirstOrDefaultAsync(j => j.DeliveryToken == token);
+        }
+
+        public async Task AssignOrderToCompanyAsync(int orderId, int companyId, decimal deliveryFee)
+        {
+            var order = await _unitOfWork.Orders.GetAllAsQueryable()
+                .Include(o => o.ShippingAddress)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+                
+            if (order == null) throw new System.Exception("الطلب غير موجود");
+
+            var job = await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
+                .FirstOrDefaultAsync(j => j.OrderId == orderId);
+
+            if (job != null)
+            {
+                job.DeliveryCompanyId = companyId;
+                job.DeliveryFee = deliveryFee;
+                job.Status = DeliveryJobStatus.Assigned;
+                job.AssignedAt = DateTime.UtcNow;
+                
+                _unitOfWork.DeliveryJobs.Update(job);
+            }
+            else
+            {
+                job = new DeliveryJob
+                {
+                    OrderId = orderId,
+                    DeliveryCompanyId = companyId,
+                    DeliveryFee = deliveryFee,
+                    Status = DeliveryJobStatus.Assigned,
+                    AssignedAt = DateTime.UtcNow,
+                    PickupLocation = "مستودع بلوكو الرئيسي",
+                    DropoffLocation = $"{order.ShippingAddress?.AddressLine1 ?? ""}, {order.ShippingAddress?.City ?? ""}"
+                };
+                
+                await _unitOfWork.DeliveryJobs.AddAsync(job);
+            }
+            
+            await _unitOfWork.CompleteAsync();
         }
         #endregion
 
@@ -530,7 +643,8 @@ namespace Blocko.Services.Implementations.Delivery
             return await _unitOfWork.DeliveryCompanies.GetPagedAsync(
                 pageIndex, 
                 pageSize, 
-                orderBy: q => q.OrderByDescending(c => c.Id));
+                orderBy: q => q.OrderByDescending(c => c.Id),
+                includes: new System.Linq.Expressions.Expression<System.Func<DeliveryCompany, object>>[] { c => c.Drivers });
         }
 
         public async Task<Bolcko.Domain.Common.IPagedList<DeliveryDriver>> GetPagedDriversAsync(int pageIndex, int pageSize)

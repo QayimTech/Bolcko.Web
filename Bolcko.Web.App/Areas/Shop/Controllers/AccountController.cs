@@ -50,6 +50,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: rememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
+                        await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Delivery" });
+                    }
                     return RedirectToAction("Index");
                 }
             }
@@ -121,6 +126,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             if (user == null)
             {
                 return RedirectToAction("Login");
+            }
+
+            if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
+                await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Delivery" });
             }
 
             var orders = await _serviceManager.OrderService.GetUserOrdersAsync(user.Id);
@@ -331,6 +342,21 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             ViewBag.UserId = userId;
             ViewBag.Token = token;
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Track(int orderId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var order = await _serviceManager.OrderService.GetOrderByIdAsync(orderId);
+            if (order == null || order.UserId != user.Id) return NotFound();
+
+            var job = await _serviceManager.DeliveryService.GetJobByOrderIdAsync(orderId);
+
+            ViewBag.Order = order;
+            return View(job);
         }
     }
 }

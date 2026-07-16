@@ -11,5 +11,10 @@ namespace Bolcko.Domain.Entities.Catalog.DTOs
         public byte[]? ImageData { get; set; }
         public string? ImageMimeType { get; set; }
         public string? ImageExtension { get; set; }
+
+        // SEO Metadata from sheet
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? MetaKeywords { get; set; }
     }
 }

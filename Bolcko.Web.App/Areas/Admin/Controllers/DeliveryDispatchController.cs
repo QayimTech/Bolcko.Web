@@ -1,6 +1,8 @@
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Enums;
+using Bolcko.Domain.Entities.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
@@ -10,10 +12,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class DeliveryDispatchController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public DeliveryDispatchController(IServiceManager serviceManager)
+        public DeliveryDispatchController(
+            IServiceManager serviceManager,
+            UserManager<User> userManager,
+            RoleManager<IdentityRole<int>> roleManager)
         {
             _serviceManager = serviceManager;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // ============================
@@ -45,6 +54,28 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignToCompany(int orderId, int companyId, decimal deliveryFee)
+        {
+            try
+            {
+                await _serviceManager.DeliveryService.AssignOrderToCompanyAsync(orderId, companyId, deliveryFee);
+                TempData["SuccessMessage"] = "تم إسناد الطلب لشركة التوصيل بنجاح!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
+            }
+            // Redirect to the referring page (usually Order Details or Dispatch Index)
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer))
+            {
+                return Redirect(referer);
             }
             return RedirectToAction("Index");
         }
@@ -135,12 +166,57 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCompany(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate)
+        public async Task<IActionResult> CreateCompany(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate, string username, string password)
         {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                TempData["ErrorMessage"] = "يجب إدخال اسم المستخدم وكلمة المرور لمدير الشركة!";
+                return RedirectToAction("Companies");
+            }
+
             try
             {
-                await _serviceManager.DeliveryService.CreateCompanyAsync(name, email, phoneNumber, commercialRegister, baseRate);
-                TempData["SuccessMessage"] = $"تم إضافة شركة التوصيل '{name}' بنجاح!";
+                // 1. Ensure the DeliveryCompanyUser role exists
+                const string roleName = "DeliveryCompanyUser";
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
+                }
+
+                // 2. Check if user already exists
+                var existingUser = await _userManager.FindByNameAsync(username.Trim());
+                if (existingUser != null)
+                {
+                    TempData["ErrorMessage"] = "اسم المستخدم لمدير الشركة موجود بالفعل بالسيستم!";
+                    return RedirectToAction("Companies");
+                }
+
+                // 3. Create the user in Identity
+                var user = new User
+                {
+                    UserName = username.Trim(),
+                    Email = email?.Trim() ?? $"{username.Trim()}@bolcko-delivery.com",
+                    FirstName = "مدير",
+                    LastName = name,
+                    UserType = UserType.Customer, // Internal routing compatibility
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var createResult = await _userManager.CreateAsync(user, password);
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    TempData["ErrorMessage"] = $"فشل إنشاء حساب المدير: {errors}";
+                    return RedirectToAction("Companies");
+                }
+
+                // 4. Assign user to DeliveryCompanyUser role
+                await _userManager.AddToRoleAsync(user, roleName);
+
+                // 5. Create the DeliveryCompany linked to this user
+                await _serviceManager.DeliveryService.CreateCompanyAsync(name, email, phoneNumber, commercialRegister, baseRate, user.Id.ToString());
+                TempData["SuccessMessage"] = $"تم إضافة شركة التوصيل '{name}' وحساب المدير بنجاح!";
             }
             catch (Exception ex)
             {
@@ -148,7 +224,21 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
             return RedirectToAction("Companies");
         }
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleCompanyStatus(int companyId)
+        {
+            try
+            {
+                await _serviceManager.DeliveryService.ToggleCompanyStatusAsync(companyId);
+                TempData["SuccessMessage"] = "تم تحديث حالة تفعيل شركة التوصيل بنجاح!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"حدث خطأ: {ex.Message}";
+            }
+            return RedirectToAction("Companies");
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendCompanyEmail(int jobId, string? email, bool includePdf, bool includeExcel, string? customMessage)

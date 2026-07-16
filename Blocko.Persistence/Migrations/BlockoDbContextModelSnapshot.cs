@@ -142,6 +142,9 @@ namespace Blocko.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ManagerUserId")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -210,8 +213,14 @@ namespace Blocko.Persistence.Migrations
                     b.Property<DateTime?>("AssignedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal?>("CollectedAmount")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime?>("DeliveredAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DeliveryCompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("DeliveryFee")
                         .HasPrecision(18, 2)
@@ -224,6 +233,9 @@ namespace Blocko.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsReconciled")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
@@ -234,10 +246,18 @@ namespace Blocko.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("ReconciledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReturnReason")
+                        .HasColumnType("text");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliveryCompanyId");
 
                     b.HasIndex("DriverId");
 
@@ -1151,6 +1171,10 @@ namespace Blocko.Persistence.Migrations
 
             modelBuilder.Entity("Bolcko.Domain.Entities.Delivery.DeliveryJob", b =>
                 {
+                    b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryCompany", "Company")
+                        .WithMany()
+                        .HasForeignKey("DeliveryCompanyId");
+
                     b.HasOne("Bolcko.Domain.Entities.Delivery.DeliveryDriver", "Driver")
                         .WithMany("Jobs")
                         .HasForeignKey("DriverId")
@@ -1161,6 +1185,8 @@ namespace Blocko.Persistence.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("Driver");
 
