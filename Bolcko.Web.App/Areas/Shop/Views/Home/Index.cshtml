@@ -256,7 +256,7 @@
 
             <div id="market-prices-container">
                 @{
-                    // Invoke GetMarketPrices logic directly inline from DB as fallback to prevent any AJAX issues.
+                    // Render prices inline from DB, completely zero-spinner fallback
                     var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
                     var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
                     var serviceManager = (Blocko.Services.Interfaces.IServiceManager)Context.RequestServices.GetService(typeof(Blocko.Services.Interfaces.IServiceManager))!;
