@@ -266,8 +266,8 @@
         document.addEventListener("DOMContentLoaded", function() {
             // Load market prices in background asynchronously using the centralized ApiClient
             setTimeout(function() {
-                if (window.ApiClient && typeof window.ApiClient.get === 'function') {
-                    window.ApiClient.get('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })')
+                if (window.MarketPricesService && typeof window.MarketPricesService.fetchPricesHtml === 'function') {
+                    window.MarketPricesService.fetchPricesHtml('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })')
                         .then(function(html) {
                             const container = document.getElementById('market-prices-container');
                             if (container && html) {
