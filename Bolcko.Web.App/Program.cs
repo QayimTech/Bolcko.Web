@@ -1,168 +1,87 @@
-using Blocko.Persistence;
-using Blocko.Services;
 using Bolcko.Web.App.Extensions;
-using Bolcko.Web.App.Middleware;
-using Microsoft.EntityFrameworkCore;
+using QuestPDF;
 using Serilog;
-using Serilog.Events;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
 
-// Configure QuestPDF license
+// ============================================================================
+// BOLCKO E-COMMERCE PLATFORM
+// Main Application Entry Point
+// ============================================================================
+// Architecture: Clean Architecture with Extension Method Organization
+// Principles: SOLID, DRY, Single Responsibility Principle
+// ============================================================================
+
+// Configure QuestPDF License (Community Edition)
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// Prevent inotify limit issues on Linux containers (e.g. Render) by enabling polling file watcher
-System.Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "1");
-System.Environment.SetEnvironmentVariable("DOTNET_HS_POLLING_FILE_WATCHER", "1");
-
-// Configure Serilog first
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/bolcko-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+// Configure File System Watcher for Container Environments
+// Resolves inotify limit issues on Linux containers (e.g., Render)
+ConfigureFileSystemWatcher();
 
 try
 {
-    Log.Information("Starting Bolcko.Web application");
+    Log.Information("Starting Bolcko.Web application...");
 
     var builder = WebApplication.CreateBuilder(args);
-    builder.Host.UseSerilog(); // Use Serilog for logging
 
-    // --- 1. Services Registration (DI) ---
-    builder.Services.AddPersistence(builder.Configuration);
-    builder.Services.AddServices(builder.Configuration, builder.Environment.ContentRootPath);
+    // =========================================================================
+    // STEP 1: Configure Logging
+    // =========================================================================
+    builder.ConfigureSerilogLogging();
+
+    // =========================================================================
+    // STEP 2: Configure Core Application Services
+    // =========================================================================
+    const long maxRequestSize = 500 * 1024 * 1024; // 500 MB for bulk imports
+
+    builder.Services.AddCoreServices(
+        builder.Configuration, 
+        builder.Environment.ContentRootPath);
+
+    builder.Services.AddWebLayerServices(builder.Configuration);
     
-    // Configure Data Protection to store keys on the filesystem instead of ephemeral memory,
-    // which prevents CryptographicExceptions and request rejection during long file uploads on Render.
-    var keysFolder = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Keys");
-    Directory.CreateDirectory(keysFolder);
-    builder.Services.AddDataProtection()
-        .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
-        .SetApplicationName("BolckoApp");
+    builder.Services.AddConfigurationSettings(builder.Configuration);
+    
+    builder.Services.ConfigureRequestSizeLimits(maxRequestSize);
+    
+    builder.ConfigureKestrelLimits(maxRequestSize);
+    
+    builder.Services.AddSessionServices();
 
-    // Web Specific Services (Clean & Expressive)
-    builder.Services.AddBlockoIdentitySecurity(builder.Configuration);
-    builder.Services.AddBlockoLocalization();
-    // Configure Market Settings
-    builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
-
-    // Increase form and request size limits for bulk import
-    const long MaxRequestSizeInBytes = 500 * 1024 * 1024; // 500 MB
-    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
-    {
-        options.MultipartBodyLengthLimit = MaxRequestSizeInBytes;
-    });
-    // Configure Kestrel server limits
-    builder.WebHost.ConfigureKestrel(serverOptions =>
-    {
-        serverOptions.Limits.MaxRequestBodySize = MaxRequestSizeInBytes;
-    });
-
-    builder.Services.AddBlockoMvcInterface();
-    builder.Services.AddBlockoSwagger();
-    builder.Services.AddSignalR();
-    builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, Bolcko.Web.App.Hubs.CustomUserIdProvider>();
-    builder.Services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, Bolcko.Web.App.Services.NotificationService>();
-
-    // Add Hangfire Services
-    builder.Services.AddBlockoHangfire(builder.Configuration);
-
-    // Add Session Services with secure configuration
-    builder.Services.AddDistributedMemoryCache();
-    builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromMinutes(30);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-    });
-
+    // =========================================================================
+    // STEP 3: Build Application
+    // =========================================================================
     var app = builder.Build();
-    app.UseDeveloperExceptionPage();
 
-    app.UseBlockoSwagger();
+    // =========================================================================
+    // STEP 4: Configure Middleware Pipeline
+    // =========================================================================
+    // Order is critical - each middleware builds upon the previous
+    
+    app.UseSwaggerDocumentation();
+    app.UseEnvironmentSpecificMiddleware();
+    app.UseSecurityMiddleware();
+    app.UseStaticFilesWithCaching();
+    app.UseFirstRunSetupMiddleware();
+    app.UseSessionMiddleware();
+    app.UseLocalizationMiddleware();
+    app.UseSecurityPipeline();
+    app.UseHangfireDashboardMiddleware();
 
-    // --- Auto-apply pending EF Core migrations on startup (Code First) ---
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
-        db.Database.Migrate();
-    }
+    // =========================================================================
+    // STEP 5: Initialize Database
+    // =========================================================================
+    await app.InitializeDatabaseAsync();
 
+    // =========================================================================
+    // STEP 6: Map Endpoints
+    // =========================================================================
+    app.MapApplicationEndpoints();
+    app.MapSitemapEndpoint();
 
-    // --- 2. Middleware Pipeline (Strict Engineering Order) ---
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Home/Error");
-        app.UseHsts();
-    }
-
-    app.UseHttpsRedirection();
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        OnPrepareResponse = ctx =>
-        {
-            // Set Cache-Control header to enable caching on Edge servers (Cloudflare CDN) and client browsers
-            const int durationInSeconds = 60 * 60 * 24 * 365; // Cache for 1 year
-            ctx.Context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.CacheControl] = 
-                "public, max-age=" + durationInSeconds;
-        }
-    });
-
-    // First-run setup guard: redirects to /Setup if no Admin exists yet
-    app.UseFirstRunSetup();
-
-    // Use Session Middleware (before routing/authorization)
-    app.UseSession();
-
-    // Localization should be handled early
-    app.UseBlockoRequestLocalization();
-
-    // Core Security Pipeline (Routing -> Auth -> Authorization)
-    app.UseBlockoSecurityPipeline();
-
-    // Hangfire Dashboard (must be after auth)
-    app.UseBlockoHangfireDashboard();
-
-    // --- Automatic Database Migration ---
-    // This will apply any pending migrations to the database automatically when the app starts
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<BlockoDbContext>();
-        Log.Information("Applying database migrations...");
-        await db.Database.MigrateAsync();
-
-        try
-        {
-            await db.Database.ExecuteSqlRawAsync("ALTER TABLE \"DeliveryJobs\" ADD COLUMN IF NOT EXISTS \"DeliveryToken\" text;");
-            Log.Information("DeliveryToken column verified/added successfully via raw SQL.");
-        }
-        catch (Exception sqlEx)
-        {
-            Log.Warning(sqlEx, "Failed to apply raw SQL alter table for DeliveryToken column.");
-        }
-
-        Log.Information("Database migrations applied successfully.");
-    }
-
-    // Seed initial data (only in Development for safety)
-    // In Production, the /Setup page handles first-run admin creation
-
-    await app.SeedIdentityDataAsync();
-    Log.Information("Development identity data seeded");
-
-
-    // --- 3. Endpoint Mapping ---
-    app.MapBlockoAppEndpoints();
+    // =========================================================================
+    // STEP 7: Run Application
+    // =========================================================================
+    Log.Information("Bolcko.Web application configured successfully. Starting...");
     app.Run();
 }
 catch (Exception ex)
@@ -172,4 +91,18 @@ catch (Exception ex)
 finally
 {
     await Log.CloseAndFlushAsync();
+}
+
+// ============================================================================
+// Helper Methods
+// ============================================================================
+
+/// <summary>
+/// Configures file system watcher for container environments
+/// Prevents inotify limit issues on Linux containers
+/// </summary>
+static void ConfigureFileSystemWatcher()
+{
+    Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "1");
+    Environment.SetEnvironmentVariable("DOTNET_HS_POLLING_FILE_WATCHER", "1");
 }
