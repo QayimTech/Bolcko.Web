@@ -28,6 +28,7 @@ namespace Blocko.Persistence.Repositories.Category
 
         public async Task<Bolcko.Domain.Entities.Catalog.Category?> GetCategoryWithParentAsync(int id) =>
             await _context.Categories
+                .AsNoTracking()
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(c => c.Id == id);
     }
