@@ -10,11 +10,13 @@ namespace Blocko.Persistence.Repositories.Category
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetRootCategoriesAsync() => 
             await _context.Categories
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Include(c => c.Products)
                 .Include(c => c.SubCategories)
                 .ThenInclude(sc => sc.Products)
                 .Where(c => c.ParentCategoryId == null)
-                .OrderByDescending(c => c.Products.Count())
+                .OrderBy(c => c.DisplayOrder) // Order by static display order rather than dynamic subquery counting on every page load
                 .Take(10)
                 .ToListAsync();
 

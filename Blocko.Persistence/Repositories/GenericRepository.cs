@@ -21,17 +21,17 @@ namespace Blocko.Persistence.Repositories
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _context.Set<T>().ToListAsync();
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
         public IQueryable<T> GetAllAsQueryable()
         {
-            return _context.Set<T>().AsQueryable();
+            return _context.Set<T>().AsNoTracking().AsQueryable();
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
+            return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
         }
 
         public async Task AddAsync(T entity)

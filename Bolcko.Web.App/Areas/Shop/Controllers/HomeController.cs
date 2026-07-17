@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Bolcko.Web.App.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Blocko.Services.Interfaces;
 using Bolcko.Web.App.Extensions;
 using System.Globalization;
@@ -96,13 +97,23 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            // Search order either by OrderNumber or Id
-            var orders = await uow.Orders.GetAllAsync();
-            var order = orders.FirstOrDefault(o => 
-                o.OrderNumber.Equals(orderNumber.Trim(), StringComparison.OrdinalIgnoreCase) || 
-                $"ORD-{o.Id:D4}".Equals(orderNumber.Trim(), StringComparison.OrdinalIgnoreCase) ||
-                o.Id.ToString() == orderNumber.Trim()
-            );
+            // Search order either by OrderNumber or Id directly in the database to prevent loading all orders in memory
+            var trimmedNum = orderNumber.Trim();
+            var parsedId = 0;
+            var isNumeric = int.TryParse(trimmedNum, out parsedId);
+            
+            // Try to extract ID from standard ORD-XXXX format
+            if (trimmedNum.StartsWith("ORD-", StringComparison.OrdinalIgnoreCase) && trimmedNum.Length > 4)
+            {
+                int.TryParse(trimmedNum.Substring(4), out parsedId);
+                isNumeric = true;
+            }
+
+            var order = await uow.Orders.GetAllAsQueryable()
+                .FirstOrDefaultAsync(o => 
+                    o.OrderNumber == trimmedNum || 
+                    (isNumeric && o.Id == parsedId)
+                );
 
             if (order == null)
             {
