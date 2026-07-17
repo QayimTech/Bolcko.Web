@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -19,12 +19,6 @@ namespace Blocko.Persistence.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "NameEn",
                 table: "Products",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DeliveryToken",
-                table: "DeliveryJobs",
                 type: "text",
                 nullable: true);
 
@@ -51,10 +45,6 @@ namespace Blocko.Persistence.Migrations
             migrationBuilder.DropColumn(
                 name: "NameEn",
                 table: "Products");
-
-            migrationBuilder.DropColumn(
-                name: "DeliveryToken",
-                table: "DeliveryJobs");
 
             migrationBuilder.DropColumn(
                 name: "DescriptionEn",
