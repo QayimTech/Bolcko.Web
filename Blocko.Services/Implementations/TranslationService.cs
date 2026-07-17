@@ -94,17 +94,26 @@ namespace Blocko.Services.Implementations
             text = text.Trim();
             targetLanguage = targetLanguage.ToLower().Split('-')[0]; // Simplify "en-US" to "en"
 
-            // Optimization: If target is Arabic and text already has Arabic characters, skip API completely
+            // Optimization 1: If target is Arabic and text already has Arabic characters, skip API completely
             if (targetLanguage == "ar" && System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]"))
             {
+                return text;
+            }
+
+            // Optimization 2: If target is Arabic and text is purely English/Latin (like brand names, models, or descriptions),
+            // bypass Google Translate API completely to prevent rate limit block latency (returns original text directly).
+            if (targetLanguage == "ar")
+            {
+                // Check if we have a direct override first
+                if (EnToArOverrides.TryGetValue(text, out var arVal))
+                    return arVal;
+                
                 return text;
             }
 
             // 1. Check local overrides first
             if (targetLanguage == "en" && ArToEnOverrides.TryGetValue(text, out var enVal))
                 return enVal;
-            if (targetLanguage == "ar" && EnToArOverrides.TryGetValue(text, out var arVal))
-                return arVal;
 
             // 2. Check memory cache to prevent duplicate external HTTP calls
             string cacheKey = $"translation_{targetLanguage}_{text.GetHashCode()}";
