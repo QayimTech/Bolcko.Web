@@ -11,6 +11,8 @@ namespace Blocko.Services.DTOs.Api
 
         public ApiResponse()
         {
+            Message = string.Empty;
+            Data = default!;
             Errors = new List<string>();
         }
 

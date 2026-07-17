@@ -352,7 +352,7 @@ namespace Blocko.Services.Imports
 
                 var dto = new ProductImportDto
                 {
-                    Sku             = cleanSku,
+                    Sku             = cleanSku ?? string.Empty,
                     Name            = GetCell(row, colIndex, "Name"),
                     NameEn          = GetCell(row, colIndex, "NameEn"),
                     CategoryName    = GetCell(row, colIndex, "CategoryName"),
