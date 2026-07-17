@@ -29,18 +29,59 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var isAr = culture.StartsWith("ar");
             
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)HttpContext.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
+
+            // 1. Settings Cache
+            var titleKey = $"HomeHeroTitle_{culture}";
+            var descKey = $"HomeHeroDesc_{culture}";
             
-            var titleSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroTitleAr" : "HomeHeroTitleEn");
-            var descSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroDescAr" : "HomeHeroDescEn");
+            if (!cache.TryGetValue(titleKey, out object? titleObj) || titleObj is not string titleVal ||
+                !cache.TryGetValue(descKey, out object? descObj) || descObj is not string descVal)
+            {
+                var titleSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroTitleAr" : "HomeHeroTitleEn");
+                var descSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroDescAr" : "HomeHeroDescEn");
+                titleVal = titleSetting?.Value ?? string.Empty;
+                descVal = descSetting?.Value ?? string.Empty;
+                
+                using (var entry = cache.CreateEntry(titleKey))
+                {
+                    entry.Value = titleVal;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                }
+                using (var entry = cache.CreateEntry(descKey))
+                {
+                    entry.Value = descVal;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                }
+            }
+            ViewBag.HomeHeroTitle = titleVal;
+            ViewBag.HomeHeroDesc = descVal;
 
-            ViewBag.HomeHeroTitle = titleSetting?.Value;
-            ViewBag.HomeHeroDesc = descSetting?.Value;
+            // 2. Featured Products Cache
+            var productsKey = $"Home_FeaturedProducts_{culture}";
+            if (!cache.TryGetValue(productsKey, out object? productsObj) || productsObj is not IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto> translatedProducts)
+            {
+                var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
+                translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
+                using (var entry = cache.CreateEntry(productsKey))
+                {
+                    entry.Value = translatedProducts;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                }
+            }
 
-            var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
-            var translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
-
-            var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-            var translatedCategories = await rootCategories.TranslateAsync(_translationService, culture);
+            // 3. Root Categories Cache
+            var categoriesKey = $"Home_RootCategories_{culture}";
+            if (!cache.TryGetValue(categoriesKey, out object? categoriesObj) || categoriesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> translatedCategories)
+            {
+                var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
+                translatedCategories = await rootCategories.TranslateAsync(_translationService, culture);
+                using (var entry = cache.CreateEntry(categoriesKey))
+                {
+                    entry.Value = translatedCategories;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                }
+            }
             
             ViewBag.FeaturedProducts = translatedProducts;
             ViewBag.Categories = translatedCategories;
@@ -51,8 +92,20 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> GetMarketPrices()
         {
             var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
-            var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-            var translatedPrices = await prices.TranslateAsync(_translationService, culture);
+            var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)HttpContext.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
+            
+            var cacheKey = $"Home_MarketPrices_{culture}";
+            if (!cache.TryGetValue(cacheKey, out object? pricesObj) || pricesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> translatedPrices)
+            {
+                var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+                translatedPrices = await prices.TranslateAsync(_translationService, culture);
+                using (var entry = cache.CreateEntry(cacheKey))
+                {
+                    entry.Value = translatedPrices;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                }
+            }
+            
             return PartialView("Partials/_MarketPrices", translatedPrices);
         }
 
