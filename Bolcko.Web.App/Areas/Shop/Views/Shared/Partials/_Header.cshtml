@@ -1,11 +1,15 @@
 @using Microsoft.Extensions.Localization
 @using Bolcko.Web.App
+@using Bolcko.Web.App.Extensions
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
+@inject Blocko.Services.Interfaces.ITranslationService TranslationService
 @{
-    var allCategories = await CategoryService.GetAllCategoriesAsync();
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var rawCategories = await CategoryService.GetAllCategoriesAsync();
+    var allCategories = (await rawCategories.TranslateAsync(TranslationService, currentCulture)).ToList();
     var rootCategories = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ToList();
-    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isArabic = currentCulture.StartsWith("ar");
 }
 
 <header class="bg-[#151B26] border-b border-white/10 sticky top-0 z-50 transition-all duration-300">
@@ -47,7 +51,7 @@
 
                 <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
                     <span class="material-symbols-outlined text-[16px]">local_shipping</span>
-                    <span>تتبع الطلب</span>
+                    <span>@SharedLocalizer["TrackOrder"]</span>
                 </a>
             </nav>
         </div>
@@ -199,7 +203,7 @@
                                 </div>
                                 <span class="font-semibold text-[12px] truncate leading-tight">@cat.Name</span>
                             </div>
-                            <span class="material-symbols-outlined text-[14px] flex-shrink-0 ms-1 opacity-50 group-hover/rcat:opacity-100 transition-opacity @(isFirst ? "opacity-100" : "")">chevron_right</span>
+                            <span class="material-symbols-outlined text-[14px] flex-shrink-0 ms-1 opacity-50 group-hover/rcat:opacity-100 transition-opacity rtl:-scale-x-100 @(isFirst ? "opacity-100" : "")">chevron_right</span>
                         </button>
                         isFirst = false;
                     }
@@ -265,18 +269,18 @@
         </div>
 
         <!-- Footer Bar -->
-        <div class="border-t border-white/5 px-5 py-3.5 flex items-center justify-between bg-[#0f1520]">
-            <div class="flex items-center gap-3">
+        <div class="border-t border-white/5 ps-6 pe-6 py-3.5 flex items-center justify-between gap-4 overflow-hidden bg-[#0f1520]">
+            <div class="flex items-center gap-3 min-w-0">
                 <div class="w-8 h-8 rounded-full bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020] flex-shrink-0">
                     <span class="material-symbols-outlined text-[16px]">support_agent</span>
                 </div>
-                <div>
-                    <p class="text-white text-[11px] font-bold">@(isArabic ? "هل تحتاج مساعدة؟" : "Need help?")</p>
-                    <p class="text-slate-400 text-[10px]">@(isArabic ? "تواصل مع خبرائنا للحصول على استشارة مجانية." : "Contact our experts for a free consultation.")</p>
+                <div class="min-w-0">
+                    <p class="text-white text-[11px] font-bold truncate">@(isArabic ? "هل تحتاج مساعدة؟" : "Need help?")</p>
+                    <p class="text-slate-400 text-[10px] truncate">@(isArabic ? "تواصل مع خبرائنا للحصول على استشارة مجانية." : "Contact our experts for a free consultation.")</p>
                 </div>
             </div>
             <a href="@Url.Action("Index", "Category", new { area = "Shop" })"
-               class="text-[11px] font-bold text-slate-400 hover:text-white flex items-center gap-1 hover:gap-2 transition-all">
+               class="text-[11px] font-bold text-slate-400 hover:text-white flex items-center gap-1 hover:gap-2 transition-all flex-shrink-0 whitespace-nowrap">
                 @(isArabic ? "جميع الأقسام" : "All Categories")
                 <span class="material-symbols-outlined text-[13px] rtl:-scale-x-100">arrow_forward</span>
             </a>

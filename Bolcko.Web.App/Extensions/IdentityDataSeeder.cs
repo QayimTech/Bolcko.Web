@@ -51,7 +51,31 @@ namespace Bolcko.Web.App.Extensions
                 }
             }
 
-            // 3. Seed Market Prices
+            // 3. Seed QA Test Account (Shop customer login)
+            var qaEmail = "Qa@blocko.com";
+            var qaUser = await userManager.FindByEmailAsync(qaEmail);
+
+            if (qaUser == null)
+            {
+                var newQaUser = new User
+                {
+                    UserName = qaEmail,
+                    Email = qaEmail,
+                    FirstName = "QA",
+                    LastName = "Tester",
+                    UserType = UserType.Customer,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var qaResult = await userManager.CreateAsync(newQaUser, "Qa@blocko@123");
+                if (qaResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newQaUser, "Customer");
+                }
+            }
+
+            // 4. Seed Market Prices
             var dbContext = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
             if (!dbContext.MarketPrices.Any())
             {
