@@ -227,9 +227,9 @@
                 <div>
                     <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 font-bold text-xs uppercase tracking-wider rounded-full mb-3">
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        @SharedLocalizer["LiveAndUpdated"]
+                        @(SharedLocalizer["LiveAndUpdated"].ResourceNotFound ? "مباشر ومُحدّث" : SharedLocalizer["LiveAndUpdated"])
                     </span>
-                    <h2 class="font-headline-lg text-on-surface font-black">@SharedLocalizer["LocalMarketMaterialPrices"]</h2>
+                    <h2 class="font-headline-lg text-on-surface font-black">@(SharedLocalizer["LocalMarketMaterialPrices"].ResourceNotFound ? "أسعار المواد في السوق المحلي" : SharedLocalizer["LocalMarketMaterialPrices"])</h2>
                 </div>
                 <p class="text-on-surface-variant max-w-md text-xs md:text-sm leading-relaxed">
                     @SharedLocalizer["MarketPricesDesc"]
