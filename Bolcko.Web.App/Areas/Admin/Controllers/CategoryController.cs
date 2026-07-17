@@ -142,40 +142,5 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult BulkImport()
             => RedirectToAction("BulkImport", "Import", new { area = "Admin" });
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [RequestSizeLimit(52428800)] // 50 MB
-        public async Task<IActionResult> BulkImport(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                TempData["ErrorMessage"] = "الرجاء اختيار ملف Excel للرفع.";
-                return View();
-            }
-
-            if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["ErrorMessage"] = "يدعم النظام ملفات .xlsx فقط.";
-                return View();
-            }
-
-            var tempFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "App_Data", "Imports");
-            Directory.CreateDirectory(tempFolder);
-
-            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-            var filePath = Path.Combine(tempFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var jobId = _backgroundJobClient.Enqueue<IBulkImportService>(svc => svc.ProcessCategoryImportAsync(filePath));
-
-            TempData["SuccessMessage"] = $"✅ تم بدء عملية الاستيراد (Job ID: {jobId}). الفئات ستُضاف في الخلفية. يمكنك المتابعة على /hangfire";
-            return RedirectToAction(nameof(Index));
-        }
     }
 }

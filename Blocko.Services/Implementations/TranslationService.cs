@@ -41,7 +41,11 @@ namespace Blocko.Services.Implementations
             { "رمل ناعم", "Fine Sand" },
             { "حصمة فولية", "Pea Gravel" },
             { "إسمنت مقاوم الكبريتات", "Sulfate Resistant Cement" },
-            { "حديد تسليح تركي", "Turkish Rebar" }
+            { "حديد تسليح تركي", "Turkish Rebar" },
+            { "د.أ", "JOD" },
+            { "أسمنت الراجحي", "Al Rajhi Cement" },
+            { "طن", "Ton" },
+            { "متر مكعب", "Cubic Meter" }
         };
 
         private static readonly Dictionary<string, string> EnToArOverrides = new(StringComparer.OrdinalIgnoreCase)
@@ -69,7 +73,11 @@ namespace Blocko.Services.Implementations
             { "Fine Sand", "رمل ناعم" },
             { "Pea Gravel", "حصمة فولية" },
             { "Sulfate Resistant Cement", "إسمنت مقاوم الكبريتات" },
-            { "Turkish Rebar", "حديد تسليح تركي" }
+            { "Turkish Rebar", "حديد تسليح تركي" },
+            { "JOD", "د.أ" },
+            { "Al Rajhi Cement", "أسمنت الراجحي" },
+            { "Ton", "طن" },
+            { "Cubic Meter", "متر مكعب" }
         };
 
         public TranslationService(IHttpClientFactory httpClientFactory, IMemoryCache memoryCache)
@@ -86,24 +94,32 @@ namespace Blocko.Services.Implementations
             text = text.Trim();
             targetLanguage = targetLanguage.ToLower().Split('-')[0]; // Simplify "en-US" to "en"
 
-            // 1. Check local overrides first
+            // 1. Check local overrides first (Highest priority, instant response)
             if (targetLanguage == "en" && ArToEnOverrides.TryGetValue(text, out var enVal))
                 return enVal;
             if (targetLanguage == "ar" && EnToArOverrides.TryGetValue(text, out var arVal))
                 return arVal;
 
-            // 2. Check memory cache to prevent duplicate external HTTP calls
+            // 2. Optimization: If target is Arabic and text already has Arabic characters, skip API completely
+            if (targetLanguage == "ar" && System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]"))
+            {
+                return text;
+            }
+
+            // 3. Check memory cache to prevent duplicate external HTTP calls
             string cacheKey = $"translation_{targetLanguage}_{text.GetHashCode()}";
             if (_memoryCache.TryGetValue(cacheKey, out string? cachedTranslation) && cachedTranslation != null)
             {
                 return cachedTranslation;
             }
 
-            // 3. Fallback to Google Translate public NMT API
+            // 4. Fallback to Google Translate public NMT API (Only for English targets or missing translations)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromSeconds(3); // Set brief timeout to avoid loading blocks
+                // Strict 600ms timeout - if Google API is slow/blocked, fail fast and return original text.
+                // This prevents the page from hanging when 20-40 parallel translation calls are in-flight.
+                client.Timeout = TimeSpan.FromMilliseconds(600);
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
@@ -135,7 +151,7 @@ namespace Blocko.Services.Implementations
                             string translatedText = builder.ToString().Trim();
                             if (!string.IsNullOrEmpty(translatedText))
                             {
-                                // Cache the translation (e.g. 24 hours, or permanent since translations are static)
+                                // Cache the translation (e.g. 7 days, since translations are static)
                                 _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
                                 return translatedText;
                             }
@@ -143,11 +159,14 @@ namespace Blocko.Services.Implementations
                     }
                 }
             }
-            catch
+            catch (Exception)
             {
-                // Fallback to original text on any exception (no network, API failure, etc.)
+                // Fallback and prevent spamming the blocked API again for the next 30 minutes
+                _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
             }
 
+            // Also cache non-success responses to avoid API spamming
+            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
             return text;
         }
     }

@@ -280,7 +280,11 @@
         });
 
         if (hasOversized) {
-            alert('@Html.Raw(L["ImageSizeExceedsLimit"] ?? "بعض الصور تتجاوز الحجم المسموح به (5 ميجابايت).")');
+            window.BlockoModal.show({ 
+                title: 'تجاوز الحجم المسموح', 
+                message: '@Html.Raw(L["ImageSizeExceedsLimit"] ?? "بعض الصور تتجاوز الحجم المسموح به (5 ميجابايت).")', 
+                icon: 'warning' 
+            });
         }
 
         if (validFiles.length > 0) {

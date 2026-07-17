@@ -12,7 +12,7 @@ namespace Blocko.Persistence.Repositories.Setting
 
         public async Task<AppSetting?> GetByKeyAsync(string key)
         {
-            return await _context.AppSettings.FirstOrDefaultAsync(s => s.Key == key);
+            return await _context.AppSettings.AsNoTracking().FirstOrDefaultAsync(s => s.Key == key);
         }
     }
 }

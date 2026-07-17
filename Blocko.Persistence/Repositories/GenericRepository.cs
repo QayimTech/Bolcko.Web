@@ -21,17 +21,17 @@ namespace Blocko.Persistence.Repositories
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _context.Set<T>().ToListAsync();
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
         public IQueryable<T> GetAllAsQueryable()
         {
-            return _context.Set<T>().AsQueryable();
+            return _context.Set<T>().AsNoTracking().AsQueryable();
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
+            return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
         }
 
         public async Task AddAsync(T entity)
@@ -51,26 +51,34 @@ namespace Blocko.Persistence.Repositories
 
         public async Task<IPagedList<T>> GetPagedAsync(int pageIndex, int pageSize, Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _context.Set<T>();
-
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
+            // 1. Start with base query using AsNoTracking to optimize performance
+            IQueryable<T> baseQuery = _context.Set<T>().AsNoTracking();
 
             if (predicate != null)
             {
-                query = query.Where(predicate);
+                baseQuery = baseQuery.Where(predicate);
             }
 
-            var totalCount = await query.CountAsync();
+            // 2. Calculate the count instantly without heavy Includes or sorting overhead
+            var totalCount = await baseQuery.CountAsync();
+
+            // 3. Build data query and apply includes with AsSplitQuery to avoid Cartesian Explosion
+            IQueryable<T> dataQuery = baseQuery;
+
+            foreach (var include in includes)
+            {
+                dataQuery = dataQuery.Include(include);
+            }
+
+            // Apply split query layout dynamically to prevent connection pooling and memory exhaustion on heavy datasets
+            dataQuery = dataQuery.AsSplitQuery();
 
             if (orderBy != null)
             {
-                query = orderBy(query);
+                dataQuery = orderBy(dataQuery);
             }
 
-            var items = await query
+            var items = await dataQuery
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

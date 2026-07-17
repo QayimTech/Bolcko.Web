@@ -40,8 +40,9 @@ namespace Bolcko.Web.App.Extensions
             {
                 options.Cookie.Name = "Blocko.Auth";
                 options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                // Lax is needed so WebSocket upgrade requests carry the auth cookie
+                options.Cookie.SameSite = SameSiteMode.Lax;
                 
                 options.LoginPath = "/Shop/Account/Login";
                 options.AccessDeniedPath = "/Shop/Account/AccessDenied";
@@ -61,12 +62,12 @@ namespace Bolcko.Web.App.Extensions
                 };
             });
 
-            // JWT Authentication
+            // JWT Authentication - IMPORTANT: Explicitly restore Identity cookie as default
+            // because calling AddAuthentication() after AddIdentity() resets the defaults
             services.AddAuthentication(options =>
             {
-                // By default, continue using Identity Cookies for Web MVC
-                // options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                // options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
             })
             .AddJwtBearer(options =>
             {

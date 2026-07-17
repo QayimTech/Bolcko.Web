@@ -85,28 +85,77 @@
                         }
                     </select>
                 </div>
-                <button type="submit" class="bg-primary text-white font-bold py-3.5 px-8 hover:opacity-90 transition-all shadow-hard w-full sm:w-auto">
+                <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 transition-all shadow-hard w-full sm:w-auto">
                     حفظ حالة الطلب
                 </button>
             </form>
         </div>
 
         <!-- Delivery Dispatch Section -->
-        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">🚚 خيارات التوصيل والإرسال</h2>
-            <form asp-controller="DeliveryDispatch" asp-action="CreateJob" method="post" class="flex flex-col sm:flex-row gap-4 items-end">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="orderId" value="@Model.Id" />
-                <div class="flex-grow w-full">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">أدخل رسوم التوصيل المقترحة (د.أ):</label>
-                    <input name="deliveryFee" type="number" step="0.01" min="0" value="5.00" required
-                           class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
-                </div>
-                <button type="submit" class="bg-blue-600 text-white font-bold py-3.5 px-8 hover:bg-blue-700 transition-all shadow-hard w-full sm:w-auto">
-                    طرح الطلب للتوصيل
-                </button>
-            </form>
+        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-base font-bold mb-4 border-b pb-2">🚚 خيار 1: إسناد لشركة توصيل (مباشر)</h2>
+                <form asp-controller="DeliveryDispatch" asp-action="AssignToCompany" method="post" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.Id" />
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اختر شركة الشحن:</label>
+                        <select name="companyId" id="companySelect" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
+                            @foreach (var company in ViewBag.DeliveryCompanies as IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany>)
+                            {
+                                <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (السعر الأساسي: @company.BaseDeliveryRate.ToString("N2") د.أ)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رسوم التوصيل المقترحة (د.أ):</label>
+                        <input name="deliveryFee" id="companyDeliveryFee" type="number" step="0.01" min="0" value="5.00" required
+                               class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
+                    </div>
+
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-8 transition-all w-full">
+                        إسناد لشركة الشحن
+                    </button>
+                </form>
+            </div>
+
+            <div class="border-t md:border-t-0 md:border-r md:pr-6 pt-6 md:pt-0">
+                <h2 class="text-base font-bold mb-4 border-b pb-2">🚚 خيار 2: طرح الطلب للمناديب الأحرار</h2>
+                <form asp-controller="DeliveryDispatch" asp-action="CreateJob" method="post" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.Id" />
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">أدخل رسوم التوصيل المقترحة (د.أ):</label>
+                        <input name="deliveryFee" type="number" step="0.01" min="0" value="5.00" required
+                               class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
+                    </div>
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 transition-all w-full">
+                        طرح الطلب للتوصيل الحر
+                    </button>
+                </form>
+            </div>
         </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var select = document.getElementById("companySelect");
+                var feeInput = document.getElementById("companyDeliveryFee");
+                
+                function updateFee() {
+                    if(select.selectedOptions.length > 0) {
+                        var rate = select.selectedOptions[0].getAttribute("data-rate");
+                        if(rate) {
+                            feeInput.value = parseFloat(rate).toFixed(2);
+                        }
+                    }
+                }
+                
+                select.addEventListener("change", updateFee);
+                updateFee();
+            });
+        </script>
     </div>
 
     <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg mb-6">

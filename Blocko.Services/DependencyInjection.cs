@@ -25,7 +25,7 @@ namespace Blocko.Services
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, string contentRootPath)
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
@@ -38,10 +38,23 @@ namespace Blocko.Services
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ITenderService, TenderService>();
             services.AddScoped(typeof(IPagedList<>), typeof(PagedList<>));
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IImageService, ImageService>(sp =>
+                new ImageService(
+                    sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ImageSettings>>(),
+                    sp.GetRequiredService<System.Net.Http.HttpClient>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ImageService>>(),
+                    contentRootPath));
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();
-            services.AddScoped<Bolcko.Domain.Interfaces.IBulkImportService, Blocko.Services.Imports.BulkImportService>();
+            services.AddScoped<Bolcko.Domain.Interfaces.IBulkImportService>(sp =>
+                new Blocko.Services.Imports.BulkImportService(
+                    sp.GetRequiredService<Bolcko.Domain.Interfaces.IUnitOfWork>(),
+                    sp.GetRequiredService<FluentValidation.IValidator<Bolcko.Domain.Entities.Product.DTOs.ProductImportDto>>(),
+                    sp.GetRequiredService<FluentValidation.IValidator<Bolcko.Domain.Entities.Catalog.DTOs.CategoryImportDto>>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Blocko.Services.Imports.BulkImportService>>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+                    sp.GetRequiredService<Blocko.Services.Interfaces.Image.IImageService>(),
+                    contentRootPath));
             services.AddScoped<Blocko.Services.Interfaces.Auth.ITokenService, Blocko.Services.Implementations.Auth.TokenService>();
             services.AddMemoryCache();
             services.AddScoped<ITranslationService, TranslationService>();

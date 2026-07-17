@@ -10,9 +10,27 @@ namespace Blocko.Persistence.Repositories.Category
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetRootCategoriesAsync() => 
             await _context.Categories
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Include(c => c.Products)
                 .Include(c => c.SubCategories)
                 .ThenInclude(sc => sc.Products)
-                .Where(c => c.ParentCategoryId == null).ToListAsync();
+                .Where(c => c.ParentCategoryId == null)
+                .OrderBy(c => c.DisplayOrder) // Order by static display order rather than dynamic subquery counting on every page load
+                .Take(10)
+                .ToListAsync();
+
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetSubCategoriesWithProductsAsync(int parentId) =>
+            await _context.Categories
+                .AsNoTracking()
+                .Include(c => c.Products)
+                .Where(c => c.ParentCategoryId == parentId)
+                .ToListAsync();
+
+        public async Task<Bolcko.Domain.Entities.Catalog.Category?> GetCategoryWithParentAsync(int id) =>
+            await _context.Categories
+                .AsNoTracking()
+                .Include(c => c.ParentCategory)
+                .FirstOrDefaultAsync(c => c.Id == id);
     }
 }

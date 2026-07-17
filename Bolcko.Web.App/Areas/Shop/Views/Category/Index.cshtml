@@ -10,6 +10,11 @@
     <nav class="flex items-center gap-2 mb-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
         <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
         <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_left</span>
+        @if (!isRoot && category != null && category.ParentCategoryId != null)
+        {
+            <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", new { id = category.ParentCategoryId })">@category.ParentCategoryName</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_left</span>
+        }
         <span class="text-slate-800 font-bold">@ViewData["Title"]</span>
     </nav>
 

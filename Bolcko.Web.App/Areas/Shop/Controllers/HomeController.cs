@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Bolcko.Web.App.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Blocko.Services.Interfaces;
 using Bolcko.Web.App.Extensions;
 using System.Globalization;
@@ -25,12 +26,62 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Index()
         {
             var culture = CultureInfo.CurrentCulture.Name;
+            var isAr = culture.StartsWith("ar");
             
-            var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
-            var translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)HttpContext.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
 
-            var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
-            var translatedCategories = await rootCategories.TranslateAsync(_translationService, culture);
+            // 1. Settings Cache
+            var titleKey = $"HomeHeroTitle_{culture}";
+            var descKey = $"HomeHeroDesc_{culture}";
+            
+            if (!cache.TryGetValue(titleKey, out object? titleObj) || titleObj is not string titleVal ||
+                !cache.TryGetValue(descKey, out object? descObj) || descObj is not string descVal)
+            {
+                var titleSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroTitleAr" : "HomeHeroTitleEn");
+                var descSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "HomeHeroDescAr" : "HomeHeroDescEn");
+                titleVal = titleSetting?.Value ?? string.Empty;
+                descVal = descSetting?.Value ?? string.Empty;
+                
+                using (var entry = cache.CreateEntry(titleKey))
+                {
+                    entry.Value = titleVal;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                }
+                using (var entry = cache.CreateEntry(descKey))
+                {
+                    entry.Value = descVal;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                }
+            }
+            ViewBag.HomeHeroTitle = titleVal;
+            ViewBag.HomeHeroDesc = descVal;
+
+            // 2. Featured Products Cache
+            var productsKey = $"Home_FeaturedProducts_{culture}";
+            if (!cache.TryGetValue(productsKey, out object? productsObj) || productsObj is not IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto> translatedProducts)
+            {
+                var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
+                translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
+                using (var entry = cache.CreateEntry(productsKey))
+                {
+                    entry.Value = translatedProducts;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                }
+            }
+
+            // 3. Root Categories Cache
+            var categoriesKey = $"Home_RootCategories_{culture}";
+            if (!cache.TryGetValue(categoriesKey, out object? categoriesObj) || categoriesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> translatedCategories)
+            {
+                var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
+                translatedCategories = await rootCategories.TranslateAsync(_translationService, culture);
+                using (var entry = cache.CreateEntry(categoriesKey))
+                {
+                    entry.Value = translatedCategories;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                }
+            }
             
             ViewBag.FeaturedProducts = translatedProducts;
             ViewBag.Categories = translatedCategories;
@@ -40,8 +91,59 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         public async Task<IActionResult> GetMarketPrices()
         {
-            var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-            return PartialView("Partials/_MarketPrices", prices);
+            var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
+            var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)HttpContext.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
+            
+            var cacheKey = $"Home_MarketPrices_{culture}";
+            if (!cache.TryGetValue(cacheKey, out object? pricesObj) || pricesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> translatedPrices)
+            {
+                try
+                {
+                    // Retrieve market prices directly from DB. Keep it lightweight and fast.
+                    var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+                    if (prices != null)
+                    {
+                        var pricesList = prices.ToList();
+                        
+                        // We will skip translation APIs completely for market prices to prevent any API hangs.
+                        // Instead, assign values directly based on language.
+                        var isAr = culture.StartsWith("ar");
+                        foreach (var p in pricesList)
+                        {
+                            // If Arabic, keep MaterialName as stored in DB. Otherwise, if English, use English mappings if available or direct fallback.
+                            if (!isAr)
+                            {
+                                if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
+                                else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
+                                else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
+                                else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
+                                else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
+                                else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
+                                
+                                p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
+                                p.Currency = "JOD";
+                            }
+                        }
+
+                        translatedPrices = pricesList;
+                        using (var entry = cache.CreateEntry(cacheKey))
+                        {
+                            entry.Value = translatedPrices;
+                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30); // Cache for 30 minutes
+                        }
+                    }
+                    else
+                    {
+                        translatedPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                    }
+                }
+                catch
+                {
+                    translatedPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                }
+            }
+            
+            return PartialView("Partials/_MarketPrices", translatedPrices);
         }
 
         public IActionResult AboutUs()
@@ -85,13 +187,23 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            // Search order either by OrderNumber or Id
-            var orders = await uow.Orders.GetAllAsync();
-            var order = orders.FirstOrDefault(o => 
-                o.OrderNumber.Equals(orderNumber.Trim(), StringComparison.OrdinalIgnoreCase) || 
-                $"ORD-{o.Id:D4}".Equals(orderNumber.Trim(), StringComparison.OrdinalIgnoreCase) ||
-                o.Id.ToString() == orderNumber.Trim()
-            );
+            // Search order either by OrderNumber or Id directly in the database to prevent loading all orders in memory
+            var trimmedNum = orderNumber.Trim();
+            var parsedId = 0;
+            var isNumeric = int.TryParse(trimmedNum, out parsedId);
+            
+            // Try to extract ID from standard ORD-XXXX format
+            if (trimmedNum.StartsWith("ORD-", StringComparison.OrdinalIgnoreCase) && trimmedNum.Length > 4)
+            {
+                int.TryParse(trimmedNum.Substring(4), out parsedId);
+                isNumeric = true;
+            }
+
+            var order = await uow.Orders.GetAllAsQueryable()
+                .FirstOrDefaultAsync(o => 
+                    o.OrderNumber == trimmedNum || 
+                    (isNumeric && o.Id == parsedId)
+                );
 
             if (order == null)
             {

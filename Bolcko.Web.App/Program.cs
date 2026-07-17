@@ -1,112 +1,113 @@
-using Blocko.Persistence;
-using Blocko.Services;
 using Bolcko.Web.App.Extensions;
-using Bolcko.Web.App.Middleware;
-using Microsoft.EntityFrameworkCore;
+using Bolcko.Web.App.Services;
+using Hangfire;
+using QuestPDF;
 using Serilog;
-using Serilog.Events;
 
-// Configure QuestPDF license
+// ============================================================================
+// BOLCKO E-COMMERCE PLATFORM
+// Main Application Entry Point
+// ============================================================================
+// Architecture: Clean Architecture with Extension Method Organization
+// Principles: SOLID, DRY, Single Responsibility Principle
+// ============================================================================
+
+// Configure QuestPDF License (Community Edition)
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// Configure Serilog first
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/bolcko-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+// Configure File System Watcher for Container Environments
+// Resolves inotify limit issues on Linux containers (e.g., Render)
+ConfigureFileSystemWatcher();
 
 try
 {
-    Log.Information("Starting Bolcko.Web application");
+    Log.Information("Starting Bolcko.Web application...");
 
     var builder = WebApplication.CreateBuilder(args);
-    builder.Host.UseSerilog(); // Use Serilog for logging
 
-    // --- 1. Services Registration (DI) ---
-    builder.Services.AddPersistence(builder.Configuration);
-    builder.Services.AddServices(builder.Configuration);
-    // Web Specific Services (Clean & Expressive)
-    builder.Services.AddBlockoIdentitySecurity(builder.Configuration);
-    builder.Services.AddBlockoLocalization();
-    // Configure Market Settings
-    builder.Services.Configure<Bolcko.Web.App.Models.MarketSettings>(builder.Configuration.GetSection("MarketSettings"));
+    // =========================================================================
+    // STEP 1: Configure Logging
+    // =========================================================================
+    builder.ConfigureSerilogLogging();
 
-    builder.Services.AddBlockoMvcInterface();
-    builder.Services.AddBlockoSwagger();
-    builder.Services.AddSignalR();
-    builder.Services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, Bolcko.Web.App.Services.NotificationService>();
+    // =========================================================================
+    // STEP 2: Configure Core Application Services
+    // =========================================================================
+    const long maxRequestSize = 500 * 1024 * 1024; // 500 MB for bulk imports
 
-    // Add Hangfire Services
-    builder.Services.AddBlockoHangfire(builder.Configuration);
+    builder.Services.AddCoreServices(
+        builder.Configuration, 
+        builder.Environment.ContentRootPath);
 
-    // Add Session Services with secure configuration
-    builder.Services.AddDistributedMemoryCache();
-    builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromMinutes(30);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-    });
+    builder.Services.AddWebLayerServices(builder.Configuration);
+    
+    builder.Services.AddConfigurationSettings(builder.Configuration);
+    
+    builder.Services.ConfigureRequestSizeLimits(maxRequestSize);
+    
+    builder.ConfigureKestrelLimits(maxRequestSize);
+    
+    builder.Services.AddSessionServices();
 
+    // Register our LogCleanupService for dependency injection
+    builder.Services.AddTransient<LogCleanupService>();
+
+    // =========================================================================
+    // STEP 2b: Configure Performance Optimizations (NEW)
+    // =========================================================================
+    builder.Services.AddAdvancedCompression();
+    builder.Services.AddMarkupMinification();
+    builder.Services.AddAdvancedResponseCaching();
+
+    // =========================================================================
+    // STEP 3: Build Application
+    // =========================================================================
     var app = builder.Build();
-    app.UseDeveloperExceptionPage();
 
-    app.UseBlockoSwagger();
+    // =========================================================================
+    // STEP 4: Configure Middleware Pipeline
+    // =========================================================================
+    // Order is critical - each middleware builds upon the previous
+    
+    // Performance middleware (MUST be first)
+    app.UseAdvancedCompression();
+    app.UseAdvancedResponseCaching();
+    
+    app.UseSwaggerDocumentation();
+    app.UseEnvironmentSpecificMiddleware();
+    app.UseSecurityMiddleware();
+    app.UsePerformanceAndSecurityHeaders();
+    app.UseStaticFilesWithCaching();
+    app.UseFirstRunSetupMiddleware();
+    app.UseSessionMiddleware();
+    app.UseLocalizationMiddleware();
+    app.UseSecurityPipeline();
+    app.UseHangfireDashboardMiddleware();
+    
+    // HTML Minification (MUST be last in pipeline before endpoints)
+    app.UseMarkupMinification();
 
-    // --- 2. Middleware Pipeline (Strict Engineering Order) ---
+    // =========================================================================
+    // STEP 5: Initialize Database
+    // =========================================================================
+    await app.InitializeDatabaseAsync();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Home/Error");
-        app.UseHsts();
-    }
+    // Schedule recurring log cleanup job (runs daily at midnight UTC)
+    RecurringJob.AddOrUpdate<LogCleanupService>(
+        "daily-log-cleanup", 
+        service => service.CleanOldLogsAsync(10), 
+        Cron.Daily);
 
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
+    // =========================================================================
+    // STEP 6: Map Endpoints
+    // =========================================================================
+    app.MapApplicationEndpoints();
+    app.MapSitemapEndpoint();
 
-    // First-run setup guard: redirects to /Setup if no Admin exists yet
-    app.UseFirstRunSetup();
-
-    // Use Session Middleware (before routing/authorization)
-    app.UseSession();
-
-    // Localization should be handled early
-    app.UseBlockoRequestLocalization();
-
-    // Core Security Pipeline (Routing -> Auth -> Authorization)
-    app.UseBlockoSecurityPipeline();
-
-    // Hangfire Dashboard (must be after auth)
-    app.UseBlockoHangfireDashboard();
-
-    // --- Automatic Database Migration ---
-    // This will apply any pending migrations to the database automatically when the app starts
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<BlockoDbContext>();
-        Log.Information("Applying database migrations...");
-        await db.Database.MigrateAsync();
-        Log.Information("Database migrations applied successfully.");
-    }
-
-    // Seed initial data (only in Development for safety)
-    // In Production, the /Setup page handles first-run admin creation
-
-    await app.SeedIdentityDataAsync();
-    Log.Information("Development identity data seeded");
-
-
-    // --- 3. Endpoint Mapping ---
-    app.MapBlockoAppEndpoints();
+    // =========================================================================
+    // STEP 7: Run Application
+    // =========================================================================
+    Log.Information("Bolcko.Web application configured successfully. Starting...");
     app.Run();
 }
 catch (Exception ex)
@@ -116,4 +117,18 @@ catch (Exception ex)
 finally
 {
     await Log.CloseAndFlushAsync();
+}
+
+// ============================================================================
+// Helper Methods
+// ============================================================================
+
+/// <summary>
+/// Configures file system watcher for container environments
+/// Prevents inotify limit issues on Linux containers
+/// </summary>
+static void ConfigureFileSystemWatcher()
+{
+    Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "1");
+    Environment.SetEnvironmentVariable("DOTNET_HS_POLLING_FILE_WATCHER", "1");
 }

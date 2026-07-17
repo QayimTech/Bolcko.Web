@@ -41,5 +41,10 @@ namespace Bolcko.Domain.Entities.Product.DTOs
 
         // Image from JSON base64 string (e.g. "data:image/jpeg;base64,...")
         public string? ImageBase64 { get; set; }
+
+        // SEO Metadata from sheet
+        public string? MetaTitle { get; set; }
+        public string? MetaDescription { get; set; }
+        public string? MetaKeywords { get; set; }
     }
 }

@@ -20,7 +20,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -45,7 +47,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -67,7 +71,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -94,7 +100,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -113,7 +121,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -132,7 +142,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -164,7 +176,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -185,7 +199,9 @@ namespace Blocko.Services.Implementations.Product
             var product = new Bolcko.Domain.Entities.Product.Product
             {
                 Name = productDto.Name,
+                NameEn = productDto.NameEn,
                 Description = productDto.Description,
+                DescriptionEn = productDto.DescriptionEn,
                 CategoryId = productDto.CategoryId,
                 RetailPrice = productDto.RetailPrice,
                 StockQuantity = productDto.StockQuantity,
@@ -211,7 +227,9 @@ namespace Blocko.Services.Implementations.Product
             if (product != null)
             {
                 product.Name = productDto.Name;
+                product.NameEn = productDto.NameEn;
                 product.Description = productDto.Description;
+                product.DescriptionEn = productDto.DescriptionEn;
                 product.CategoryId = productDto.CategoryId;
                 product.RetailPrice = productDto.RetailPrice;
                 product.StockQuantity = productDto.StockQuantity;

@@ -1,0 +1,84 @@
+@* Performance Optimizations Partial View
+   Include this in the <head> section of your layout
+   These optimizations follow Google's PageSpeed Insights best practices *@
+
+@* 1. Preconnect to required origins (establishes early connections) *@
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+@* 2. Preload Critical Resources (LCP optimization) *@
+@* Preload hero image if on homepage *@
+@if (Context.Request.Path == "/" || Context.Request.Path == "/Shop/Home" || Context.Request.Path == "/Shop/Home/Index")
+{
+    <link rel="preload" as="image" 
+          href="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200" 
+          imagesrcset="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=640 640w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1024 1024w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200 1200w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1920 1920w"
+          imagesizes="100vw"
+          fetchpriority="high">
+}
+
+@* 3. Critical CSS (Above the fold styles) - Prevents CLS and optimizes FCP *@
+<style>
+    /* Critical CSS - Above the fold content */
+    :root {
+        --primary-color: #E8A020;
+        --bg-dark: #0D111A;
+        --text-light: #ffffff;
+    }
+    
+    /* Prevent layout shifts */
+    html {
+        font-display: swap;
+        box-sizing: border-box;
+    }
+    *, *::before, *::after {
+        box-sizing: inherit;
+    }
+    
+    /* CLS prevention for media */
+    img, video, picture, iframe {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Optimize hero section rendering */
+    .hero-section {
+        min-height: 60vh;
+        contain: layout style;
+    }
+    
+    /* Font display optimization for all web fonts */
+    @@font-face {
+        font-family: 'Noto Kufi Arabic';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Inter';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Work Sans';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Space Grotesk';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Material Symbols Outlined';
+        font-display: swap;
+    }
+    
+    /* Reduce motion for accessibility */
+    @@media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>

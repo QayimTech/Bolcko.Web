@@ -1,0 +1,118 @@
+/**
+ * BLOCKO Centralized API Client (Fetch Wrapper)
+ * Decoupled static file to support browser caching.
+ */
+(function (window) {
+    'use strict';
+
+    const activeRequests = new Map();
+
+    function getAntiforgeryToken() {
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (tokenInput) return tokenInput.value;
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) return metaToken.content;
+        return '';
+    }
+
+    function handleGlobalErrors(status, statusText) {
+        switch (status) {
+            case 401:
+                window.location.reload();
+                break;
+            case 403:
+                if (typeof window.showNotificationToast === 'function') {
+                    window.showNotificationToast({ title: 'Access Denied', content: 'You do not have permission to perform this action.' });
+                }
+                break;
+            case 500:
+                if (typeof window.showNotificationToast === 'function') {
+                    window.showNotificationToast({ title: 'Server Error', content: 'Something went wrong on our servers. Please try again.' });
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    async function request(url, options = {}) {
+        const method = (options.method || 'GET').toUpperCase();
+        const deduplicate = options.deduplicate !== false;
+        const maxRetries = options.retries !== undefined ? options.retries : (method === 'GET' ? 3 : 0);
+        const retryDelay = options.retryDelay || 1000;
+
+        if (deduplicate) {
+            const requestKey = `${method}:${url}`;
+            if (activeRequests.has(requestKey)) {
+                const oldController = activeRequests.get(requestKey);
+                oldController.abort();
+                activeRequests.delete(requestKey);
+            }
+
+            const controller = new AbortController();
+            options.signal = controller.signal;
+            activeRequests.set(requestKey, controller);
+        }
+
+        options.headers = options.headers || {};
+        
+        if (['POST', 'PUT', 'DELETE'].includes(method)) {
+            const token = getAntiforgeryToken();
+            if (token) {
+                options.headers['RequestVerificationToken'] = token;
+                options.headers['X-CSRF-TOKEN'] = token;
+            }
+        }
+
+        if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+            options.headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(options.body);
+        }
+
+        let attempt = 0;
+        while (attempt <= maxRetries) {
+            try {
+                attempt++;
+                const response = await fetch(url, options);
+
+                if (deduplicate) {
+                    activeRequests.delete(`${method}:${url}`);
+                }
+
+                if (!response.ok) {
+                    handleGlobalErrors(response.status, response.statusText);
+                    throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return await response.json();
+                }
+                return await response.text();
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw error;
+                }
+
+                const isNetworkError = error.message.includes('Failed to fetch') || error.message.includes('NetworkError');
+                if (attempt <= maxRetries && isNetworkError) {
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                } else {
+                    if (deduplicate) {
+                        activeRequests.delete(`${method}:${url}`);
+                    }
+                    throw error;
+                }
+            }
+        }
+    }
+
+    window.ApiClient = Object.freeze({
+        get: (url, options = {}) => request(url, { ...options, method: 'GET' }),
+        post: (url, body, options = {}) => request(url, { ...options, method: 'POST', body }),
+        put: (url, body, options = {}) => request(url, { ...options, method: 'PUT', body }),
+        delete: (url, options = {}) => request(url, { ...options, method: 'DELETE' })
+    });
+
+})(window);

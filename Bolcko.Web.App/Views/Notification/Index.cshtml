@@ -1,0 +1,216 @@
+@model List<Bolcko.Domain.Entities.User.Notification>
+@{
+    ViewData["Title"] = "الإشعارات";
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+    bool isAdmin = User.IsInRole("Admin");
+    Layout = isAdmin ? "~/Areas/Admin/Views/Shared/_Layout.cshtml" : "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .notif-container {
+        direction: rtl;
+        text-align: right;
+    }
+    .notif-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
+    }
+    .notif-header {
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .notif-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .notif-row:last-child {
+        border-bottom: none;
+    }
+    .notif-row.unread {
+        background-color: #fcf8f2; /* بيج خفيف جداً يميل للأصفر الذهبي للإشعارات غير المقروءة */
+    }
+    .notif-row:hover {
+        background-color: #f8fafc;
+    }
+    .notif-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f5f9;
+        color: #64748b;
+        flex-shrink: 0;
+    }
+    .notif-row.unread .notif-icon-box {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    .badge-unread {
+        width: 8px;
+        height: 8px;
+        background-color: #E8A020;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .btn-action-read {
+        background-color: #E8A020;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 700;
+        font-size: 11px;
+        transition: all 0.2s ease;
+    }
+    .btn-action-read:hover {
+        background-color: #d6901c;
+    }
+    .btn-mark-all {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+    .btn-mark-all:hover {
+        background-color: #f1f5f9;
+        color: #1e293b;
+    }
+</style>
+
+<div class="container mx-auto px-4 py-8 notif-container">
+    <div class="notif-card p-6 md:p-8">
+        <!-- Header -->
+        <div class="notif-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 mb-6">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[#E8A020] text-3xl">notifications</span>
+                    مركز الإشعارات
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">تصفح كافة التنبيهات وتحديثات الطلبات في مكان واحد.</p>
+            </div>
+            @if (Model != null && Model.Any(n => !n.IsRead))
+            {
+                <button onclick="markAllNotificationsAsReadPage()" class="btn-mark-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">done_all</span>
+                    تحديد الكل كمقروء
+                </button>
+            }
+        </div>
+
+        <!-- Notification List -->
+        <div class="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="text-center py-20 bg-white">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-4 block">notifications_off</span>
+                    <p class="text-slate-400 text-xs font-bold">لا توجد إشعارات حالياً.</p>
+                </div>
+            }
+            else
+            {
+                <div class="bg-white">
+                    @foreach (var n in Model)
+                    {
+                        var rowClass = n.IsRead ? "" : "unread";
+                        var actionHref = !string.IsNullOrEmpty(n.ActionUrl) ? n.ActionUrl : "#";
+
+                        string icon = "notifications";
+                        var tl = (n.Title ?? "").ToLower();
+                        var ml = (n.Message ?? "").ToLower();
+                        if (tl.Contains("طلب") || tl.Contains("order") || ml.Contains("طلب") || ml.Contains("order")) icon = "shopping_cart";
+                        else if (tl.Contains("توصيل") || tl.Contains("سائق") || tl.Contains("مندوب") || tl.Contains("delivery")) icon = "local_shipping";
+
+                        <div id="notif-row-@n.Id" class="notif-row @rowClass flex items-start gap-4 justify-between">
+                            <a href="@actionHref" onclick="markAsReadPage(@n.Id, event, '@n.ActionUrl')" class="flex gap-4 flex-grow text-slate-700 hover:text-slate-900 transition-colors">
+                                <div class="notif-icon-box">
+                                    <span class="material-symbols-outlined text-xl">@icon</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <h4 class="text-xs md:text-sm font-bold text-slate-800 flex items-center gap-2">
+                                        @n.Title
+                                        @if (!n.IsRead)
+                                        {
+                                            <span class="badge-unread"></span>
+                                        }
+                                    </h4>
+                                    <p class="text-xs text-slate-500 leading-relaxed max-w-2xl">@n.Message</p>
+                                    <span class="text-[10px] text-slate-400 block font-bold pt-1">@n.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                </div>
+                            </a>
+                            <div class="flex-shrink-0">
+                                @if (!n.IsRead)
+                                {
+                                    <button id="btn-read-@n.Id" onclick="markSingleAsReadPage(@n.Id)" class="btn-action-read text-[10px]" title="تحديد كمقروء">
+                                        تحديد كمقروء
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-100">
+                <a href="?page=@(ViewBag.CurrentPage - 1)" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold rounded-xl transition-all @(ViewBag.HasPreviousPage ? "" : "pointer-events-none opacity-40")">
+                    السابق
+                </a>
+                <span class="text-xs font-bold text-slate-400">
+                    الصفحة @ViewBag.CurrentPage من @ViewBag.TotalPages
+                </span>
+                <a href="?page=@(ViewBag.CurrentPage + 1)" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold rounded-xl transition-all @(ViewBag.HasNextPage ? "" : "pointer-events-none opacity-40")">
+                    التالي
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function markAsReadPage(id, event, actionUrl) {
+        if (!actionUrl || actionUrl === 'null' || actionUrl === '') {
+            event?.preventDefault();
+        }
+        $.post('/Notification/MarkAsRead?id=' + id, function () {
+            // update UI status
+            $(`#notif-row-${id}`).removeClass('unread');
+            $(`#notif-row-${id} .badge-unread`).remove();
+            $(`#btn-read-${id}`).remove();
+            if (typeof window.fetchNotifications === 'function') {
+                window.fetchNotifications();
+            }
+        });
+    }
+
+    function markSingleAsReadPage(id) {
+        $.post('/Notification/MarkAsRead?id=' + id, function () {
+            $(`#notif-row-${id}`).removeClass('unread');
+            $(`#btn-read-${id}`).remove();
+            $(`#notif-row-${id} .badge-unread`).remove();
+            if (typeof window.fetchNotifications === 'function') {
+                window.fetchNotifications();
+            }
+        });
+    }
+
+    function markAllNotificationsAsReadPage() {
+        $.post('/Notification/MarkAllAsRead', function () {
+            location.reload();
+        });
+    }
+</script>

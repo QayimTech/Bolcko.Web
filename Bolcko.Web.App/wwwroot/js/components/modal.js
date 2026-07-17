@@ -1,0 +1,106 @@
+/**
+ * BLOCKO UI Modal Component
+ * Decoupled static file to support browser caching.
+ */
+(function (window) {
+    'use strict';
+
+    class BlockoModal {
+        show(params = {}) {
+            const title = params.title || 'تنبيه';
+            const message = params.message || '';
+            const icon = params.icon || 'info';
+            const confirmText = params.confirmText || 'موافق';
+            const cancelText = params.cancelText || '';
+            
+            let iconColor = 'text-[#E8A020] bg-[#E8A020]/10 border-[#E8A020]/20';
+            if (icon === 'error') iconColor = 'text-red-500 bg-red-500/10 border-red-500/20';
+            if (icon === 'success') iconColor = 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+            
+            let iconSymbol = 'info';
+            if (icon === 'error') iconSymbol = 'cancel';
+            if (icon === 'warning') iconSymbol = 'warning';
+            if (icon === 'success') iconSymbol = 'check_circle';
+
+            const modalId = 'blocko-modal-' + Date.now();
+            const isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+
+            const modalHtml = `
+                <div id="${modalId}" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 pointer-events-auto" dir="${isRtl ? 'rtl' : 'ltr'}">
+                    <div class="absolute inset-0 bg-[#0D111A]/60 backdrop-blur-sm"></div>
+                    <div class="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-2xl max-w-sm w-full transform scale-95 opacity-0 transition-all duration-300 flex flex-col gap-5 text-start">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 ${iconColor}">
+                                <span class="material-symbols-outlined text-[26px]">${iconSymbol}</span>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-base font-black text-slate-900 leading-snug">${title}</h3>
+                                <p class="text-xs text-slate-500 mt-2 font-medium leading-relaxed">${message}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-3 mt-2">
+                            ${cancelText ? `
+                                <button id="${modalId}-cancel" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
+                                    ${cancelText}
+                                </button>
+                            ` : ''}
+                            <button id="${modalId}-confirm" class="px-5 py-2 text-xs font-bold text-white bg-[#0D111A] hover:bg-[#1E293B] rounded-xl transition-colors shadow-sm">
+                                ${confirmText}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const container = document.createElement('div');
+            container.innerHTML = modalHtml.trim();
+            const modalNode = container.firstChild;
+            document.body.appendChild(modalNode);
+
+            const card = modalNode.querySelector('.relative');
+            setTimeout(() => {
+                modalNode.classList.remove('opacity-0');
+                modalNode.classList.add('opacity-100');
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            const dismiss = () => {
+                modalNode.classList.remove('opacity-100');
+                modalNode.classList.add('opacity-0');
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => modalNode.remove(), 300);
+            };
+
+            modalNode.querySelector(`#${modalId}-confirm`).addEventListener('click', () => {
+                dismiss();
+                if (typeof params.onConfirm === 'function') params.onConfirm();
+            });
+
+            if (cancelText) {
+                modalNode.querySelector(`#${modalId}-cancel`).addEventListener('click', () => {
+                    dismiss();
+                    if (typeof params.onCancel === 'function') params.onCancel();
+                });
+            }
+        }
+
+        confirm(message, title = 'تأكيد العملية') {
+            return new Promise((resolve) => {
+                this.show({
+                    title: title,
+                    message: message,
+                    icon: 'warning',
+                    confirmText: 'تأكيد',
+                    cancelText: 'إلغاء',
+                    onConfirm: () => resolve(true),
+                    onCancel: () => resolve(false)
+                });
+            });
+        }
+    }
+
+    window.BlockoModal = Object.freeze(new BlockoModal());
+
+})(window);

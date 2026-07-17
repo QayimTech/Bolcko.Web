@@ -7,7 +7,9 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "اسم المنتج مطلوب")]
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
         public string? Description { get; set; }
+        public string? DescriptionEn { get; set; }
         [Required(ErrorMessage = "الفئة مطلوبة")]
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }

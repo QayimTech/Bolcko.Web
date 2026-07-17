@@ -63,7 +63,8 @@ public enum TenderStatus
         PickedUp = 3,
         InTransit = 4,
         Delivered = 5,
-        Cancelled = 6
+        Cancelled = 6,
+        Returned = 7
     }
 
     public enum DeliveryBidStatus

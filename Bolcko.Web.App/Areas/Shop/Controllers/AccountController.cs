@@ -50,6 +50,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: rememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
+                        await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Delivery" });
+                    }
                     return RedirectToAction("Index");
                 }
             }
@@ -81,6 +86,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (password != confirmPassword)
             {
+                ModelState.AddModelError("ConfirmPassword", "كلمات المرور غير متطابقة");
                 ViewBag.Error = "كلمات المرور غير متطابقة";
                 return View(user);
             }
@@ -97,6 +103,19 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return RedirectToAction("Index");
             }
 
+            foreach (var error in result.Errors)
+            {
+                var key = "";
+                if (error.Code.Contains("Password"))
+                    key = "Password";
+                else if (error.Code.Contains("Email"))
+                    key = "Email";
+                else if (error.Code.Contains("UserName"))
+                    key = "Username";
+                
+                ModelState.AddModelError(key, error.Description);
+            }
+
             ViewBag.Error = string.Join(", ", result.Errors.Select(e => e.Description));
             return View(user);
         }
@@ -107,6 +126,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             if (user == null)
             {
                 return RedirectToAction("Login");
+            }
+
+            if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
+                await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Delivery" });
             }
 
             var orders = await _serviceManager.OrderService.GetUserOrdersAsync(user.Id);
@@ -317,6 +342,21 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             ViewBag.UserId = userId;
             ViewBag.Token = token;
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Track(int orderId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var order = await _serviceManager.OrderService.GetOrderByIdAsync(orderId);
+            if (order == null || order.UserId != user.Id) return NotFound();
+
+            var job = await _serviceManager.DeliveryService.GetJobByOrderIdAsync(orderId);
+
+            ViewBag.Order = order;
+            return View(job);
         }
     }
 }

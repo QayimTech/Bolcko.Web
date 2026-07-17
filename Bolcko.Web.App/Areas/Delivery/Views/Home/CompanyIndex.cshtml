@@ -1,0 +1,342 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
+@model IEnumerable<DeliveryJob>
+@{
+    ViewData["Title"] = "بوابة شركة التوصيل اللوجستية";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var company = ViewBag.Company as DeliveryCompany;
+    
+    // تقسيم الشحنات حسب الحالة
+    var pendingPickup = Model.Where(j => j.Status == DeliveryJobStatus.Assigned || j.Status == DeliveryJobStatus.Available);
+    var outForDelivery = Model.Where(j => j.Status == DeliveryJobStatus.PickedUp || jobIsActive(j));
+    var archivedJobs = Model.Where(j => j.Status == DeliveryJobStatus.Delivered || j.Status == DeliveryJobStatus.Returned || j.Status == DeliveryJobStatus.Cancelled);
+
+    bool jobIsActive(DeliveryJob j) {
+        return j.Status == DeliveryJobStatus.InTransit;
+    }
+}
+
+<div class="container mx-auto px-4 py-8 text-right" dir="rtl">
+    <!-- Header -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 mb-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#E8A020] text-3xl">domain</span>
+                @company?.Name - لوحة المتابعة اللوجستية
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">تابع الشحنات المسندة لشركتك، وسجل التحصيلات المالية والمرتجعات للتسوية الفورية.</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs">
+            <span class="px-3 py-1.5 bg-emerald-50 text-emerald-700 font-black rounded-lg border border-emerald-200">الشركة نشطة</span>
+            <span class="px-3 py-1.5 bg-slate-100 text-slate-600 font-bold rounded-lg border border-slate-200">السعر الأساسي: @company?.BaseDeliveryRate.ToString("N2") د.أ</span>
+        </div>
+    </div>
+
+    <!-- Alert notifications -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl flex items-center gap-3 shadow-sm animate-slide-up-fade">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span class="text-xs font-bold">@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl flex items-center gap-3 shadow-sm animate-slide-up-fade">
+            <span class="material-symbols-outlined text-rose-600">error</span>
+            <span class="text-xs font-bold">@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Financial Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">إجمالي الشحنات</span>
+                <span class="material-symbols-outlined text-indigo-500">local_shipping</span>
+            </div>
+            <div class="text-3xl font-black text-slate-800">@ViewBag.TotalJobs</div>
+            <span class="text-[10px] text-slate-500 mt-1 block">نشطة حالياً: @ViewBag.ActiveJobs</span>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">أجور الشحن المستحقة</span>
+                <span class="material-symbols-outlined text-emerald-500">payments</span>
+            </div>
+            <div class="text-3xl font-black text-emerald-600">@ViewBag.TotalFees.ToString("N2") <span class="text-xs font-black">د.أ</span></div>
+            <span class="text-[10px] text-slate-500 mt-1 block">عن الشحنات المستلمة والمرتجعة</span>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">إجمالي المبالغ المحصلة</span>
+                <span class="material-symbols-outlined text-amber-500">monetization_on</span>
+            </div>
+            <div class="text-3xl font-black text-amber-600">@ViewBag.TotalCollected.ToString("N2") <span class="text-xs font-black">د.أ</span></div>
+            <span class="text-[10px] text-slate-500 mt-1 block">مبالغ الـ COD من الزبائن</span>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-[#E8A020] border-2 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-[10px] text-indigo-600 font-black uppercase tracking-wider">المستحقات المعلقة للمتجر</span>
+                <span class="material-symbols-outlined text-indigo-600">account_balance_wallet</span>
+            </div>
+            <div class="text-3xl font-black text-indigo-700">@ViewBag.UnreconciledAmount.ToString("N2") <span class="text-xs font-black">د.أ</span></div>
+            <span class="text-[10px] text-slate-400 mt-1 block">بانتظار التحويل للمتجر (التصفية)</span>
+        </div>
+    </div>
+
+    <!-- TABS Navigation -->
+    <div class="flex border-b border-slate-200 mb-6 bg-slate-50 p-2 rounded-2xl gap-2">
+        <button onclick="switchTab('pickup')" id="tab-pickup" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-slate-800 shadow-sm">
+            <span class="material-symbols-outlined text-sm">download</span>
+            بانتظار الاستلام (@pendingPickup.Count())
+        </button>
+        <button onclick="switchTab('delivery')" id="tab-delivery" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700">
+            <span class="material-symbols-outlined text-sm">local_shipping</span>
+            قيد التوصيل في الشارع (@outForDelivery.Count())
+        </button>
+        <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700">
+            <span class="material-symbols-outlined text-sm">archive</span>
+            الشحنات المنجزة (@archivedJobs.Count())
+        </button>
+    </div>
+
+    <!-- TABS Content -->
+    
+    <!-- Tab A: Pending Pickup -->
+    <div id="content-pickup" class="tab-content bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-slate-100 text-slate-600 font-bold text-[10px] uppercase border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4">رقم الشحنة</th>
+                        <th class="px-6 py-4">الزبون والعنوان</th>
+                        <th class="px-6 py-4">المبلغ المطلوب (COD)</th>
+                        <th class="px-6 py-4">أجر التوصيل</th>
+                        <th class="px-6 py-4 text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs">
+                    @foreach (var job in pendingPickup)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-900">شحنة #@job.Id</td>
+                            <td class="px-6 py-4">
+                                <span class="block font-bold text-slate-800">@(job.Order?.User?.FirstName) @(job.Order?.User?.LastName)</span>
+                                <span class="block text-slate-400 text-[10px] mt-0.5">@(job.Order?.ShippingAddress?.AddressLine1), @(job.Order?.ShippingAddress?.City)</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@(job.Order?.TotalAmount.ToString("N2")) د.أ</td>
+                            <td class="px-6 py-4 font-bold text-slate-700">@job.DeliveryFee.ToString("N2") د.أ</td>
+                            <td class="px-6 py-4 text-center">
+                                <form asp-action="AcceptPickup" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="jobId" value="@job.Id" />
+                                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-[10px] transition-all">
+                                        تأكيد الاستلام من المخزن
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!pendingPickup.Any())
+                    {
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">لا توجد شحنات بانتظار الاستلام حالياً.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab B: Out for Delivery -->
+    <div id="content-delivery" class="tab-content bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-slate-100 text-slate-600 font-bold text-[10px] uppercase border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4">رقم الشحنة</th>
+                        <th class="px-6 py-4">الزبون والعنوان</th>
+                        <th class="px-6 py-4">المبلغ المطلوب (COD)</th>
+                        <th class="px-6 py-4">مشاركة التتبع</th>
+                        <th class="px-6 py-4 text-center">خيارات التحديث</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs">
+                    @foreach (var job in outForDelivery)
+                    {
+                        var quickLink = $"{Context.Request.Scheme}://{Context.Request.Host}/Delivery/Home/DriverUpdate?token={job.DeliveryToken}";
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-900">شحنة #@job.Id</td>
+                            <td class="px-6 py-4">
+                                <span class="block font-bold text-slate-800">@(job.Order?.User?.FirstName) @(job.Order?.User?.LastName)</span>
+                                <span class="block text-slate-400 text-[10px] mt-0.5">@(job.Order?.User?.PhoneNumber ?? "—") | @(job.Order?.ShippingAddress?.AddressLine1), @(job.Order?.ShippingAddress?.City)</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@(job.Order?.TotalAmount.ToString("N2")) د.أ</td>
+                            <td class="px-6 py-4">
+                                <button onclick="copyDriverLink('@quickLink')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-[10px] transition-all flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">link</span>
+                                    رابط السائق السريع
+                                </button>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="openReconcileModal(@job.Id, @(job.Order?.TotalAmount ?? 0))" class="px-3 py-1.5 bg-[#E8A020] hover:bg-[#d6901c] text-white font-bold rounded-xl text-[10px] transition-all">
+                                    تحديث الحالة والتحصيل
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!outForDelivery.Any())
+                    {
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">لا توجد شحنات قيد التوصيل حالياً.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab C: Archive (Completed) -->
+    <div id="content-archive" class="tab-content bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-slate-100 text-slate-600 font-bold text-[10px] uppercase border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4">رقم الشحنة</th>
+                        <th class="px-6 py-4">الزبون والعنوان</th>
+                        <th class="px-6 py-4">المبلغ المطلوب (COD)</th>
+                        <th class="px-6 py-4">المحصل فعلياً</th>
+                        <th class="px-6 py-4">الحالة والمالية</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs">
+                    @foreach (var job in archivedJobs)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-slate-900">شحنة #@job.Id</td>
+                            <td class="px-6 py-4">
+                                <span class="block font-bold text-slate-800">@(job.Order?.User?.FirstName) @(job.Order?.User?.LastName)</span>
+                                <span class="block text-slate-400 text-[10px]">@(job.Order?.ShippingAddress?.AddressLine1), @(job.Order?.ShippingAddress?.City)</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@(job.Order?.TotalAmount.ToString("N2")) د.أ</td>
+                            <td class="px-6 py-4 font-bold @(job.CollectedAmount == 0 ? "text-rose-600" : "text-emerald-600")">
+                                @(job.CollectedAmount.HasValue ? $"{job.CollectedAmount.Value.ToString("N2")} د.أ" : "—")
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col gap-1">
+                                    @if (job.Status == DeliveryJobStatus.Delivered)
+                                    {
+                                        <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-fit">✔ تم التوصيل</span>
+                                    }
+                                    else if (job.Status == DeliveryJobStatus.Returned)
+                                    {
+                                        <span class="bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-fit">✖ مرتجع كامل</span>
+                                    }
+                                    
+                                    @if (job.IsReconciled)
+                                    {
+                                        <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-[9px] font-black inline-block w-fit">💰 تمت التسوية المالية</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[9px] font-bold inline-block w-fit">⏳ بانتظار التسوية</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!archivedJobs.Any())
+                    {
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">لا توجد شحنات منجزة بالأرشيف.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reconcile Modal -->
+<div id="reconcileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-xl overflow-hidden transform scale-95 transition-transform duration-300">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <h3 class="font-black text-slate-800 text-xs uppercase tracking-wider">تحديث حالة التوصيل والتحصيل</h3>
+            <button onclick="closeReconcileModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+        <form asp-action="UpdateCompanyCollection" method="post" class="p-6 space-y-4 text-right" dir="rtl">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="jobId" id="modalJobId" />
+
+            <div>
+                <p class="text-xs text-slate-400 mb-2">قيمة الطلب الإجمالية المطلوبة: <span id="modalOrderAmount" class="font-bold text-slate-800">0</span> د.أ</p>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">المبلغ المحصل فعلياً (د.أ)</label>
+                <input name="collectedAmount" id="modalCollectedInput" type="number" step="0.01" min="0" required
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all" />
+                <p class="text-[10px] text-slate-400 mt-1">أدخل (0) في حال كان الطلب مرتجعاً بالكامل.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">السبب / ملاحظات المرتجع (اختياري)</label>
+                <textarea name="returnReason" id="modalReasonInput" rows="2" placeholder="اكتب سبب الارتجاع في حال المرتجع الكامل أو الجزئي..."
+                          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3">
+                <button type="button" onclick="closeReconcileModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">إلغاء</button>
+                <button type="submit" class="px-6 py-2.5 bg-[#E8A020] hover:bg-[#d6901c] text-white text-xs font-black rounded-xl shadow-md transition-all active:scale-95">حفظ وتحديث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        // إخفاء كل المحتويات وإلغاء تنشيط كل الأزرار
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+            b.classList.add('text-slate-400');
+        });
+
+        // تنشيط التبويب المحدد
+        document.getElementById('content-' + tabId).classList.remove('hidden');
+        const activeBtn = document.getElementById('tab-' + tabId);
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+    }
+
+    function copyDriverLink(link) {
+        navigator.clipboard.writeText(link).then(() => {
+            window.BlockoModal.show({ 
+                title: 'تم النسخ بنجاح', 
+                message: 'تم نسخ رابط تحديث المندوب بنجاح! يمكنك إرساله للسائق عبر الواتساب.', 
+                icon: 'success' 
+            });
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    function openReconcileModal(jobId, orderAmount) {
+        const modal = document.getElementById('reconcileModal');
+        document.getElementById('modalJobId').value = jobId;
+        document.getElementById('modalOrderAmount').textContent = orderAmount.toFixed(2);
+        document.getElementById('modalCollectedInput').value = orderAmount.toFixed(2);
+        document.getElementById('modalReasonInput').value = '';
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }, 50);
+    }
+
+    function closeReconcileModal() {
+        const modal = document.getElementById('reconcileModal');
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>

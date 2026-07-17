@@ -35,6 +35,17 @@ namespace Blocko.Persistence
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Check appsettings.json or Environment variables.");
             }
 
+            // Apply pooling limits to prevent connection exhaustion on low-tier cloud DB plans (e.g. Render Postgres)
+            if (!connectionString.Contains("Pooling=", StringComparison.OrdinalIgnoreCase))
+            {
+                var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+                builder.Pooling = true;
+                builder.MaxPoolSize = 15; // Safe maximum pool limit for concurrent scaling
+                builder.MinPoolSize = 0;
+                builder.ConnectionIdleLifetime = 15; // Recycle connections quickly
+                connectionString = builder.ToString();
+            }
+
             services.AddDbContext<BlockoDbContext>(options =>
                 options.UseNpgsql(connectionString,
                     b => b.MigrationsAssembly(typeof(BlockoDbContext).Assembly.FullName)));

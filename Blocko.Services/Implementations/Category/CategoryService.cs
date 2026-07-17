@@ -4,6 +4,7 @@ using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Category
 {
@@ -14,12 +15,20 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
-            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var categories = await _unitOfWork.Categories.GetAllAsQueryable()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(c => c.ParentCategory)
+                .Include(c => c.Products)
+                .ToListAsync();
+
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
                 DisplayOrder = c.DisplayOrder,
@@ -41,7 +50,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
                 DisplayOrder = c.DisplayOrder,
@@ -59,7 +70,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -69,12 +82,14 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetSubCategoriesAsync(int parentId)
         {
-            var categories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
+            var categories = await _unitOfWork.Categories.GetSubCategoriesWithProductsAsync(parentId);
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -84,14 +99,16 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            var category = await _unitOfWork.Categories.GetCategoryWithParentAsync(id);
             if (category == null) return null;
 
             return new CategoryDto
             {
                 Id = category.Id,
                 Name = category.Name,
+                NameEn = category.NameEn,
                 Description = category.Description,
+                DescriptionEn = category.DescriptionEn,
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
                 DisplayOrder = category.DisplayOrder,
@@ -105,7 +122,9 @@ namespace Blocko.Services.Implementations.Category
             var category = new Bolcko.Domain.Entities.Catalog.Category
             {
                 Name = categoryDto.Name,
+                NameEn = categoryDto.NameEn,
                 Description = categoryDto.Description,
+                DescriptionEn = categoryDto.DescriptionEn,
                 ParentCategoryId = categoryDto.ParentCategoryId,
                 DisplayOrder = categoryDto.DisplayOrder,
                 ImageUrl = categoryDto.ImageUrl
@@ -120,7 +139,9 @@ namespace Blocko.Services.Implementations.Category
             if (category != null)
             {
                 category.Name = categoryDto.Name;
+                category.NameEn = categoryDto.NameEn;
                 category.Description = categoryDto.Description;
+                category.DescriptionEn = categoryDto.DescriptionEn;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
                 category.DisplayOrder = categoryDto.DisplayOrder;
                 category.ImageUrl = categoryDto.ImageUrl;

@@ -54,9 +54,17 @@ namespace Bolcko.Web.App.Extensions
         public bool Authorize(DashboardContext context)
         {
             var httpContext = context.GetHttpContext();
+            if (httpContext == null) return false;
+
+            // Allow bypass in local development for easier debugging
+            var env = httpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+            if (env != null && env.EnvironmentName == "Development")
+            {
+                return true;
+            }
 
             // Allow only if authenticated and in Admin role
-            return httpContext?.User?.Identity?.IsAuthenticated == true && 
+            return httpContext.User?.Identity?.IsAuthenticated == true && 
                    httpContext.User.IsInRole("Admin");
         }
     }

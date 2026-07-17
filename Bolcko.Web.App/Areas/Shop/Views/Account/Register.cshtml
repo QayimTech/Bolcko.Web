@@ -1,3 +1,4 @@
+@model Bolcko.Domain.Entities.User.User
 @{
     ViewData["Title"] = SharedLocalizer["Register"];
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
@@ -26,19 +27,29 @@
             <p class="mt-2 text-sm text-on-surface-variant">@SharedLocalizer["AlreadyHaveAccount"] <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">@SharedLocalizer["Login"]</a></p>
         </div>
 
+        @if (ViewBag.Error != null)
+        {
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm text-center">
+                @ViewBag.Error
+            </div>
+        }
+
         <form id="register-form" class="mt-8 space-y-6" asp-area="Shop" asp-controller="Account" asp-action="Register" method="post">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="reg-FirstName" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["FirstName"]</label>
-                    <input id="reg-FirstName" type="text" name="FirstName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["FirstName"]" />
+                    <input id="reg-FirstName" type="text" name="FirstName" value="@Model?.FirstName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["FirstName"]" />
+                    <span asp-validation-for="FirstName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label for="reg-LastName" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["LastName"]</label>
-                    <input id="reg-LastName" type="text" name="LastName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["LastName"]" />
+                    <input id="reg-LastName" type="text" name="LastName" value="@Model?.LastName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["LastName"]" />
+                    <span asp-validation-for="LastName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label for="reg-Username" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Username"]</label>
-                    <input id="reg-Username" type="text" name="Username" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="username" />
+                    <input id="reg-Username" type="text" name="Username" value="@Model?.UserName" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="username" />
+                    <span asp-validation-for="UserName" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label for="reg-PhoneNumber" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["PhoneNumber"]</label>
@@ -69,11 +80,13 @@
                                class="flex-1 min-w-0 bg-transparent p-3 focus:ring-0 focus:outline-none text-start"
                                placeholder="79xxxxxxx" autocomplete="tel-national" />
                     </div>
-                    <input type="hidden" name="PhoneNumber" id="reg-PhoneNumber-full" />
+                    <input type="hidden" name="PhoneNumber" id="reg-PhoneNumber-full" value="@Model?.PhoneNumber" />
+                    <span asp-validation-for="PhoneNumber" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div class="md:col-span-2">
                     <label for="reg-Email" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Email"]</label>
-                    <input id="reg-Email" type="email" name="Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="example@mail.com" />
+                    <input id="reg-Email" type="email" name="Email" value="@Model?.Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="example@mail.com" />
+                    <span asp-validation-for="Email" class="text-xs text-red-600 mt-1 block"></span>
                 </div>
                 <div>
                     <label for="reg-Password" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Password"]</label>
@@ -83,6 +96,10 @@
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
                     </div>
+                    @if (ViewData.ModelState["Password"]?.Errors.Any() == true)
+                    {
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["Password"].Errors.First().ErrorMessage</span>
+                    }
                 </div>
                 <div>
                     <label for="reg-ConfirmPassword" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["ConfirmPassword"]</label>
@@ -92,6 +109,10 @@
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
                     </div>
+                    @if (ViewData.ModelState["ConfirmPassword"]?.Errors.Any() == true)
+                    {
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["ConfirmPassword"].Errors.First().ErrorMessage</span>
+                    }
                 </div>
                 <div class="md:col-span-2">
                     <label for="reg-UserType" class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["UserType"]</label>
@@ -163,7 +184,13 @@
 
             function syncPhoneHidden() {
                 var digits = (phoneInput.value || '').replace(/\D/g, '').replace(/^0+/, '');
-                phoneHidden.value = digits ? (ccDial.textContent + digits) : '';
+                if (digits) {
+                    phoneHidden.value = ccDial.textContent + digits;
+                }
+                // If the visible input is empty, leave the hidden field untouched — this
+                // preserves a server-rendered repopulated value after a failed submit.
+                // The visible input's own `required` attribute blocks submission of a
+                // genuinely empty phone number anyway.
             }
 
             if (ccBtn && ccList) {
@@ -201,8 +228,10 @@
             }
 
             if (phoneInput) {
+                // Note: no initial sync call here — it would overwrite the server-rendered
+                // hidden value (repopulated from Model on a failed submit) with an empty
+                // string before the user has typed anything.
                 phoneInput.addEventListener('input', syncPhoneHidden);
-                syncPhoneHidden();
             }
 
             if (form) {

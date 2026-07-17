@@ -8,16 +8,15 @@ namespace Bolcko.Domain.Interfaces
         /// Processes a unified Excel file. Returns a detailed ImportResult with per-row outcomes.
         /// Columns may be Arabic or English. SKU taken from sheet if present, else auto-generated.
         /// </summary>
-        Task<ImportResult> ProcessUnifiedExcelImportAsync(string filePath);
+        Task<ImportResult> ProcessUnifiedExcelImportAsync(string filePath, string? localImageFolderPath = null);
 
         /// <summary>
-        /// Processes a unified JSON file containing categories and products arrays.
-        /// SKU is auto-generated. Supports imageBase64 field for images.
+        /// Imports data from a Google Sheet URL, optionally loading images from a local folder.
         /// </summary>
-        Task<ImportResult> ProcessUnifiedJsonImportAsync(string filePath);
+        Task<ImportResult> ProcessGoogleSheetImportAsync(string googleSheetUrl, string? localImageFolderPath = null);
 
-        // Legacy — kept for backward compatibility with already-enqueued Hangfire jobs
-        Task ProcessProductImportAsync(string filePath);
-        Task ProcessCategoryImportAsync(string filePath);
+        // Background Job Runners
+        Task ProcessUnifiedExcelImportJobAsync(string importId, string filePath, string? zipFilePath = null);
+        Task ProcessGoogleSheetImportJobAsync(string importId, string googleSheetUrl, string? zipFilePath = null);
     }
 }

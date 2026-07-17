@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <!-- Minimal corner radius (rx=9) to maximize the square fill like LinkedIn and SoundCloud -->
+  <rect x="0" y="0" width="80" height="80" rx="9" fill="#E8A020" />
+  
+  <!-- Thickened and scaled blocks for high-visibility at 16x16 sizes -->
+  <!-- Left vertical block (Made thicker and wider) -->
+  <rect x="14" y="12" width="15" height="56" rx="5" fill="#FFFFFF" />
+  <!-- Right top block (hollow) (Thicker borders) -->
+  <rect x="38" y="15" width="26" height="20" rx="4" fill="none" stroke="#FFFFFF" stroke-width="8.5" />
+  <!-- Right bottom block (hollow) (Thicker borders) -->
+  <rect x="38" y="45" width="26" height="20" rx="4" fill="none" stroke="#FFFFFF" stroke-width="8.5" />
+</svg>

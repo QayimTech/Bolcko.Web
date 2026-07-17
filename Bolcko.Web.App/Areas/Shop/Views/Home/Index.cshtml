@@ -11,9 +11,18 @@
         
         <div class="absolute inset-0 opacity-20 mix-blend-overlay">
             <img class="w-full h-full object-cover" 
-                 src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" 
+                 src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200"
+                 srcset="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=640 640w,
+                         https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1024 1024w,
+                         https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200 1200w,
+                         https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1920 1920w"
+                 sizes="100vw"
+                 width="2070"
+                 height="1000"
+                 fetchpriority="high"
+                 loading="eager"
                  onerror="this.src='https://placehold.co/1920x1080/0d111a/ffffff?text=BLOCKO+Construction'"
-                 alt="Construction site" />
+                 alt="Construction site">
         </div>
         
         <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -22,8 +31,8 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-[#E8A020] animate-pulse"></span>
                     @SharedLocalizer["HomeHeroBadge"]
                 </span>
-                <h1 class="font-headline-xl text-white leading-tight">@SharedLocalizer["HomeHeroTitle"]</h1>
-                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">@SharedLocalizer["HomeHeroDesc"]</p>
+                <h1 class="font-headline-xl text-white leading-tight">@(ViewBag.HomeHeroTitle ?? SharedLocalizer["HomeHeroTitle"].Value)</h1>
+                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">@(ViewBag.HomeHeroDesc ?? SharedLocalizer["HomeHeroDesc"].Value)</p>
                 
                 <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-start">
                     <a href="@Url.Action("Index", "Category")" 
@@ -114,28 +123,6 @@
         </div>
     </section>
 
-    <!-- Live Market Prices Section -->
-    <section class="bg-[#faf8ff] py-14">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 text-start">
-                <div>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        @SharedLocalizer["LiveUpdated"]
-                    </span>
-                    <h2 class="font-headline-lg border-s-4 border-[#E8A020] ps-4 mt-2">@SharedLocalizer["LocalMarketPrices"]</h2>
-                </div>
-                <p class="text-slate-500 text-sm max-w-md leading-relaxed">@SharedLocalizer["MarketPricesDesc"]</p>
-            </div>
-            
-            <div id="market-prices-container">
-                <!-- Loaded via AJAX -->
-                <div class="flex justify-center py-16">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E8A020]"></div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- B2B Quote Section -->
     <section class="bg-[#0D111A] py-14 relative overflow-hidden">
@@ -175,19 +162,19 @@
                 <form asp-action="Request" asp-controller="Quote" asp-area="Shop" method="get" class="flex flex-col gap-6">
                     <div>
                         <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["CompanyName"]</label>
-                        <input name="CompanyName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start" type="text" />
+                        <input name="CompanyName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold" type="text" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ContactPerson"]</label>
-                            <input name="FullName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start" type="text" />
+                            <input name="FullName" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold" type="text" />
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ProjectType"]</label>
-                            <select name="ProjectType" class="w-full bg-[#151B26] border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start">
-                                <option value="Residential">@SharedLocalizer["Residential"]</option>
-                                <option value="Commercial">@SharedLocalizer["Commercial"]</option>
-                                <option value="Industrial">@SharedLocalizer["Industrial"]</option>
+                            <select name="ProjectType" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold appearance-none" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-position: left 0.75rem center; background-repeat: no-repeat; background-size: 1.2em; padding-left: 2.5rem;">
+                                <option value="Residential" class="bg-[#151B26] text-white">@SharedLocalizer["Residential"]</option>
+                                <option value="Commercial" class="bg-[#151B26] text-white">@SharedLocalizer["Commercial"]</option>
+                                <option value="Industrial" class="bg-[#151B26] text-white">@SharedLocalizer["Industrial"]</option>
                             </select>
                         </div>
                     </div>
@@ -237,15 +224,73 @@
             </div>
         </div>
     </section>
+
+    <!-- Section: Market Prices rendered via deferred lightweight AJAX with a clean skeleton placeholder -->
+    <section class="w-full py-16 px-6 bg-surface-container-lowest border-t border-outline-variant relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 font-bold text-xs uppercase tracking-wider rounded-full mb-3">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        @(SharedLocalizer["LiveAndUpdated"].ResourceNotFound ? "مباشر ومُحدّث" : SharedLocalizer["LiveAndUpdated"])
+                    </span>
+                    <h2 class="font-headline-lg text-on-surface font-black">@(SharedLocalizer["LocalMarketMaterialPrices"].ResourceNotFound ? "أسعار المواد في السوق المحلي" : SharedLocalizer["LocalMarketMaterialPrices"])</h2>
+                </div>
+                <p class="text-on-surface-variant max-w-md text-xs md:text-sm leading-relaxed">
+                    @SharedLocalizer["MarketPricesDesc"]
+                </p>
+            </div>
+
+            <div id="market-prices-container">
+                <!-- Sleek, premium skeleton placeholders matching the exact card design -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter animate-pulse">
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between">
+                            <div class="flex items-center gap-4 w-2/3">
+                                <div class="w-12 h-12 bg-slate-100 rounded-lg shrink-0"></div>
+                                <div class="flex-grow flex flex-col gap-2">
+                                    <div class="h-4 bg-slate-100 rounded w-5/6"></div>
+                                    <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+                                </div>
+                            </div>
+                            <div class="w-1/4 flex flex-col items-end gap-2">
+                                <div class="h-5 bg-slate-100 rounded w-2/3"></div>
+                                <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
 
 @section Scripts {
+    <script src="~/js/services/market-prices-service.js" asp-append-version="true" defer></script>
     <script>
-        $(document).ready(function() {
-            // Load market prices via AJAX
-            $.get('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })', function(data) {
-                $('#market-prices-container').html(data);
-            });
+        document.addEventListener("DOMContentLoaded", function() {
+            // Load market prices in background asynchronously using the centralized ApiClient
+            setTimeout(function() {
+                if (window.MarketPricesService && typeof window.MarketPricesService.fetchPricesHtml === 'function') {
+                    window.MarketPricesService.fetchPricesHtml('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })')
+                        .then(function(html) {
+                            const container = document.getElementById('market-prices-container');
+                            if (container && html) {
+                                container.innerHTML = html;
+                            }
+                        })
+                        .catch(function(err) {
+                            if (err.name !== 'AbortError') {
+                                console.warn('Deferred market prices fetch cancelled or failed: ', err);
+                                const container = document.getElementById('market-prices-container');
+                                if (container) {
+                                    container.style.display = 'none';
+                                }
+                            }
+                        });
+                }
+            }, 100);
         });
     </script>
 }

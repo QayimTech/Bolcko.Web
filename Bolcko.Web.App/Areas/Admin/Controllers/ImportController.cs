@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,15 +20,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         private readonly IBackgroundJobClient _jobs;
         private readonly IWebHostEnvironment  _env;
         private readonly IBulkImportService   _importService;
+        private readonly ILogger<ImportController> _logger;
 
         public ImportController(
             IBackgroundJobClient jobs,
             IWebHostEnvironment  env,
-            IBulkImportService   importService)
+            IBulkImportService   importService,
+            ILogger<ImportController> logger)
         {
             _jobs          = jobs;
             _env           = env;
             _importService = importService;
+            _logger = logger;
         }
 
         // ─── GET: /Admin/Import/BulkImport ──────────────────────────────────
@@ -39,122 +44,176 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         // ─── POST: /Admin/Import/BulkImport ─────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequestSizeLimit(104_857_600)] // 100 MB
-        public async Task<IActionResult> BulkImport(IFormFile file, string format = "excel")
+        [RequestSizeLimit(524_288_000)] // 500 MB
+        public async Task<IActionResult> BulkImport(IFormFile? file, IFormFile? imagesZip, string format = "excel", string googleSheetUrl = "", string localImageFolder = "")
         {
-            if (file == null || file.Length == 0)
+            _logger.LogInformation("=== BulkImport request received. Format={Format}, FileSize={FileSize}, ZipSize={ZipSize} ===",
+                format,
+                file?.Length ?? 0,
+                imagesZip?.Length ?? 0);
+
+            bool isGoogleSheet = format.Equals("google-sheet", StringComparison.OrdinalIgnoreCase);
+
+            var importId = Guid.NewGuid().ToString();
+
+            // Base folder: ContentRootPath ensures the same physical path is seen
+            // by both this web process and the Hangfire in-process worker.
+            var importFolder  = Path.Combine(_env.ContentRootPath, "App_Data", "Imports");
+            Directory.CreateDirectory(importFolder);
+
+            string? tempFilePath          = null;
+            string? extractedImagesFolder = null;
+
+            try
             {
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                // ── 1. Extract ZIP immediately (in this request) ────────────────
+                // We MUST extract here, not inside the Hangfire job, because on
+                // cloud hosts (Render) the container can hibernate between the
+                // enqueue and the job execution, leaving only DB rows — not files.
+                if (imagesZip != null && imagesZip.Length > 0)
+                {
+                    extractedImagesFolder = Path.Combine(importFolder, "Extracted", importId);
+                    Directory.CreateDirectory(extractedImagesFolder);
+
+                    _logger.LogInformation("Extracting images ZIP ({Size} bytes) to {Folder}",
+                        imagesZip.Length, extractedImagesFolder);
+
+                    await using var zipStream = imagesZip.OpenReadStream();
+                    using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
+
+                    int extracted = 0;
+                    foreach (var entry in archive.Entries)
+                    {
+                        // Skip directories and hidden/system files
+                        if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.'))
+                            continue;
+
+                        var fileName = Path.GetFileName(entry.FullName);
+                        if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+                        var destPath = Path.Combine(extractedImagesFolder, fileName);
+
+                        // Handle duplicate filenames inside the ZIP
+                        if (System.IO.File.Exists(destPath))
+                        {
+                            var baseName = Path.GetFileNameWithoutExtension(fileName);
+                            var ext2     = Path.GetExtension(fileName);
+                            int ctr      = 1;
+                            while (System.IO.File.Exists(destPath))
+                                destPath = Path.Combine(extractedImagesFolder, $"{baseName}_{ctr++}{ext2}");
+                        }
+
+                        await using var entryStream = entry.Open();
+                        await using var fileStream  = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                        await entryStream.CopyToAsync(fileStream);
+                        extracted++;
+                    }
+
+                    _logger.LogInformation("ZIP extraction complete: {Count} images extracted", extracted);
+                }
+
+                // ── 2. Handle Google Sheet ──────────────────────────────────────
+                if (isGoogleSheet)
+                {
+                    if (string.IsNullOrWhiteSpace(googleSheetUrl))
+                        return Json(new { success = false, message = "الرجاء إدخال رابط Google Sheet." });
+
+                    _jobs.Enqueue<IBulkImportService>(svc =>
+                        svc.ProcessGoogleSheetImportJobAsync(importId, googleSheetUrl, extractedImagesFolder));
+
+                    return Json(new { success = true, message = "بدأت المعالجة في الخلفية لشيت جوجل.", jobId = importId });
+                }
+
+                // ── 3. Handle Excel upload ──────────────────────────────────────
+                if (file == null || file.Length == 0)
                     return Json(new { success = false, message = "الرجاء اختيار ملف للرفع." });
 
-                TempData["ErrorMessage"] = "الرجاء اختيار ملف للرفع.";
-                return RedirectToAction(nameof(BulkImport));
+                var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (fileExt != ".xlsx")
+                    return Json(new { success = false, message = "الرجاء رفع ملف بصيغة Excel (.xlsx) فقط." });
+
+                tempFilePath = Path.Combine(importFolder, $"{importId}_data{fileExt}");
+                await using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                _logger.LogInformation("Excel file saved to {Path}. Enqueueing background job.", tempFilePath);
+
+                // Pass extractedImagesFolder (not the raw ZIP path) so the job
+                // uses already-extracted images — no re-extraction needed in the job.
+                _jobs.Enqueue<IBulkImportService>(svc =>
+                    svc.ProcessUnifiedExcelImportJobAsync(importId, tempFilePath, extractedImagesFolder));
+
+                return Json(new { success = true, message = "بدأت معالجة ملف Excel في الخلفية.", jobId = importId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to start background import job");
+                return Json(new { success = false, message = $"فشل بدء المعالجة: {ex.Message}" });
+            }
+        }
+
+
+        // ─── GET: /Admin/Import/GetImportStatus?jobId=xxx ───────────────────
+        [HttpGet]
+        public IActionResult GetImportStatus(string jobId)
+        {
+            if (string.IsNullOrWhiteSpace(jobId))
+            {
+                return Json(new { success = false, message = "معرف المهمة غير صالح" });
             }
 
-            bool isJson  = format.Equals("json",  StringComparison.OrdinalIgnoreCase);
-            bool isExcel = format.Equals("excel", StringComparison.OrdinalIgnoreCase);
+            // Use ContentRootPath to match the path used by the Hangfire background job writer
+            var resultsFolder = Path.Combine(_env.ContentRootPath, "App_Data", "Imports", "Results");
+            var resultFilePath = Path.Combine(resultsFolder, $"{jobId}.json");
 
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-            if (isJson && ext != ".json")
+            if (System.IO.File.Exists(resultFilePath))
             {
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = "عند اختيار JSON يجب أن يكون الملف بصيغة .json" });
-
-                TempData["ErrorMessage"] = "عند اختيار JSON يجب أن يكون الملف بصيغة .json";
-                return RedirectToAction(nameof(BulkImport));
-            }
-
-            if (isExcel && ext != ".xlsx")
-            {
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = "عند اختيار Excel يجب أن يكون الملف بصيغة .xlsx" });
-
-                TempData["ErrorMessage"] = "عند اختيار Excel يجب أن يكون الملف بصيغة .xlsx";
-                return RedirectToAction(nameof(BulkImport));
-            }
-
-            // Save to temp folder
-            var tempFolder = Path.Combine(_env.ContentRootPath, "App_Data", "Imports");
-            Directory.CreateDirectory(tempFolder);
-
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var filePath = Path.Combine(tempFolder, fileName);
-
-            await using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream);
-
-            // ── Excel: run inline so we get a detailed result back ───────────
-            if (isExcel)
-            {
-                ImportResult result;
                 try
                 {
-                    result = await _importService.ProcessUnifiedExcelImportAsync(filePath);
-                }
-                catch (Exception ex)
-                {
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                        return Json(new { success = false, message = $"خطأ أثناء الاستيراد: {ex.Message}" });
+                    var jsonContent = System.IO.File.ReadAllText(resultFilePath);
+                    var result = System.Text.Json.JsonSerializer.Deserialize<ImportResult>(jsonContent);
+                    
+                    // Cleanup results file to prevent file accumulation
+                    try { System.IO.File.Delete(resultFilePath); } catch { }
 
-                    TempData["ErrorMessage"] = $"❌ خطأ أثناء الاستيراد: {ex.Message}";
-                    return RedirectToAction(nameof(BulkImport));
-                }
-
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
                     return Json(new
                     {
-                        success = !result.HasError,
-                        message = result.Summary,
-                        result  = new
+                        success = true,
+                        completed = true,
+                        message = result?.Summary,
+                        result = new
                         {
-                            totalRows = result.TotalRows,
-                            imported  = result.Imported,
-                            updated   = result.Updated,
-                            skipped   = result.Skipped,
-                            rows      = result.Rows
+                            totalRows = result?.TotalRows ?? 0,
+                            imported = result?.Imported ?? 0,
+                            updated = result?.Updated ?? 0,
+                            skipped = result?.Skipped ?? 0,
+                            rows = (result?.Rows ?? new List<ImportRowResult>())
                                 .Where(r => r.Status != ImportRowStatus.Imported)
                                 .Select(r => new
                                 {
                                     rowNumber = r.RowNumber,
-                                    name      = r.Name,
-                                    status    = r.Status.ToString(),
-                                    reason    = r.Reason
+                                    name = r.Name,
+                                    status = r.Status.ToString(),
+                                    reason = r.Reason
                                 })
                         }
                     });
                 }
-
-                if (result.HasError)
+                catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = $"❌ {result.Summary}";
+                    return Json(new { success = false, message = $"خطأ في قراءة النتيجة: {ex.Message}" });
                 }
-                else
-                {
-                    TempData["SuccessMessage"] = $"✅ {result.Summary}";
-                }
-                return RedirectToAction(nameof(BulkImport));
             }
 
-            // ── JSON: keep as background job (returns immediately) ───────────
-            string jobId = _jobs.Enqueue<IBulkImportService>(svc => svc.ProcessUnifiedJsonImportAsync(filePath));
-            var msg      = $"تم استلام ملف JSON وبدأت المعالجة في الخلفية (Job #{jobId}). تابع من شاشة المهام.";
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return Json(new { success = true, message = msg, result = (object?)null });
-
-            TempData["SuccessMessage"] = $"✅ {msg}";
-            return RedirectToAction(nameof(BulkImport));
+            return Json(new { success = true, completed = false, message = "جاري المعالجة في الخلفية..." });
         }
 
-        // ─── GET: /Admin/Import/DownloadTemplate?format=excel ───────────────
+        // ─── GET: /Admin/Import/DownloadTemplate ────────────────────────────
         [HttpGet]
-        public IActionResult DownloadTemplate(string format = "excel")
+        public IActionResult DownloadTemplate()
         {
-            if (format.Equals("json", StringComparison.OrdinalIgnoreCase))
-                return DownloadJsonTemplate();
-
             return DownloadExcelTemplate();
         }
 
@@ -217,44 +276,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 "Bolcko_Import_Template.xlsx");
         }
 
-        private IActionResult DownloadJsonTemplate()
-        {
-            const string template = """
-{
-  "categories": [
-    {
-      "name": "إلكترونيات",
-      "parentCategoryName": "",
-      "description": "أجهزة إلكترونية",
-      "displayOrder": 1
-    },
-    {
-      "name": "هواتف",
-      "parentCategoryName": "إلكترونيات",
-      "description": "هواتف ذكية",
-      "displayOrder": 2
-    }
-  ],
-  "products": [
-    {
-      "name": "iPhone 15",
-      "nameEn": "iPhone 15",
-      "categoryName": "هواتف",
-      "brand": "Apple",
-      "countryOfOrigin": "China",
-      "price": 3999.00,
-      "description": "هاتف آيفون 15 الأصلي",
-      "stock": 50,
-      "unitOfMeasure": "قطعة",
-      "status": "Active",
-      "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRgAB..."
-    }
-  ]
-}
-""";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(template);
-            return File(bytes, "application/json", "Bolcko_Import_Template.json");
-        }
+        // DownloadJsonTemplate removed to reduce module over-engineering.
 
         private static void StyleHeader(ClosedXML.Excel.IXLWorksheet ws, int colCount)
         {

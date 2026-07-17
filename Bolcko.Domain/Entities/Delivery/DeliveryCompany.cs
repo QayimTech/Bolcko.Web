@@ -12,6 +12,8 @@ namespace Bolcko.Domain.Entities.Delivery
         // Base rate the company charges (can be overridden per job)
         public decimal BaseDeliveryRate { get; set; }
 
+        public string? ManagerUserId { get; set; }
+
         public bool IsActive { get; set; } = true;
         
         public ICollection<DeliveryDriver> Drivers { get; set; } = new List<DeliveryDriver>();
