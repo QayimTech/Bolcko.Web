@@ -41,7 +41,11 @@ namespace Blocko.Services.Implementations
             { "رمل ناعم", "Fine Sand" },
             { "حصمة فولية", "Pea Gravel" },
             { "إسمنت مقاوم الكبريتات", "Sulfate Resistant Cement" },
-            { "حديد تسليح تركي", "Turkish Rebar" }
+            { "حديد تسليح تركي", "Turkish Rebar" },
+            { "د.أ", "JOD" },
+            { "أسمنت الراجحي", "Al Rajhi Cement" },
+            { "طن", "Ton" },
+            { "متر مكعب", "Cubic Meter" }
         };
 
         private static readonly Dictionary<string, string> EnToArOverrides = new(StringComparer.OrdinalIgnoreCase)
@@ -69,7 +73,11 @@ namespace Blocko.Services.Implementations
             { "Fine Sand", "رمل ناعم" },
             { "Pea Gravel", "حصمة فولية" },
             { "Sulfate Resistant Cement", "إسمنت مقاوم الكبريتات" },
-            { "Turkish Rebar", "حديد تسليح تركي" }
+            { "Turkish Rebar", "حديد تسليح تركي" },
+            { "JOD", "د.أ" },
+            { "Al Rajhi Cement", "أسمنت الراجحي" },
+            { "Ton", "طن" },
+            { "Cubic Meter", "متر مكعب" }
         };
 
         public TranslationService(IHttpClientFactory httpClientFactory, IMemoryCache memoryCache)
@@ -85,6 +93,12 @@ namespace Blocko.Services.Implementations
 
             text = text.Trim();
             targetLanguage = targetLanguage.ToLower().Split('-')[0]; // Simplify "en-US" to "en"
+
+            // Optimization: If target is Arabic and text already has Arabic characters, skip API completely
+            if (targetLanguage == "ar" && System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]"))
+            {
+                return text;
+            }
 
             // 1. Check local overrides first
             if (targetLanguage == "en" && ArToEnOverrides.TryGetValue(text, out var enVal))
@@ -103,7 +117,7 @@ namespace Blocko.Services.Implementations
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromSeconds(3); // Set brief timeout to avoid loading blocks
+                client.Timeout = TimeSpan.FromMilliseconds(500); // Set ultra-brief timeout to avoid holding requests on rate limiting
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
