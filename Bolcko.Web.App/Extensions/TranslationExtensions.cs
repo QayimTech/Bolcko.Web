@@ -18,6 +18,7 @@ namespace Bolcko.Web.App.Extensions
             var isAr = targetCulture.StartsWith("ar");
             if (!isAr)
             {
+                // English culture: prefer stored NameEn/DescriptionEn, fallback to API only if missing
                 if (!string.IsNullOrEmpty(product.NameEn))
                 {
                     product.Name = product.NameEn;
@@ -25,35 +26,40 @@ namespace Bolcko.Web.App.Extensions
                     {
                         product.Description = product.DescriptionEn;
                     }
+                    // Translate CategoryName and UnitOfMeasure only if they contain Arabic characters
+                    if (!string.IsNullOrEmpty(product.CategoryName) && ContainsArabic(product.CategoryName))
+                        product.CategoryName = await translationService.TranslateAsync(product.CategoryName, targetCulture);
+                    if (!string.IsNullOrEmpty(product.UnitOfMeasure) && ContainsArabic(product.UnitOfMeasure))
+                        product.UnitOfMeasure = await translationService.TranslateAsync(product.UnitOfMeasure, targetCulture);
                 }
                 else
                 {
                     product.Name = await translationService.TranslateAsync(product.Name, targetCulture);
                     if (!string.IsNullOrEmpty(product.Description))
-                    {
                         product.Description = await translationService.TranslateAsync(product.Description, targetCulture);
-                    }
+                    if (!string.IsNullOrEmpty(product.CategoryName))
+                        product.CategoryName = await translationService.TranslateAsync(product.CategoryName, targetCulture);
+                    if (!string.IsNullOrEmpty(product.UnitOfMeasure))
+                        product.UnitOfMeasure = await translationService.TranslateAsync(product.UnitOfMeasure, targetCulture);
                 }
             }
             else
             {
-                product.Name = await translationService.TranslateAsync(product.Name, targetCulture);
-                if (!string.IsNullOrEmpty(product.Description))
-                {
+                // Arabic culture: DB values are already in Arabic - skip API calls completely
+                // TranslationService already has an Arabic short-circuit, but this avoids even the cache lookup overhead
+                // Only call translate if text is NOT already Arabic (edge case: English product in Arabic store)
+                if (!string.IsNullOrEmpty(product.Name) && !ContainsArabic(product.Name))
+                    product.Name = await translationService.TranslateAsync(product.Name, targetCulture);
+                if (!string.IsNullOrEmpty(product.Description) && !ContainsArabic(product.Description))
                     product.Description = await translationService.TranslateAsync(product.Description, targetCulture);
-                }
+                // CategoryName and UnitOfMeasure are almost always Arabic in DB - skip
             }
 
-            if (!string.IsNullOrEmpty(product.CategoryName))
-            {
-                product.CategoryName = await translationService.TranslateAsync(product.CategoryName, targetCulture);
-            }
-            if (!string.IsNullOrEmpty(product.UnitOfMeasure))
-            {
-                product.UnitOfMeasure = await translationService.TranslateAsync(product.UnitOfMeasure, targetCulture);
-            }
             return product;
         }
+
+        private static bool ContainsArabic(string text) =>
+            System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]");
 
         public static async Task<IEnumerable<ProductDto>> TranslateAsync(this IEnumerable<ProductDto> products, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
         {

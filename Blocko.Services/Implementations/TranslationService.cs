@@ -117,8 +117,9 @@ namespace Blocko.Services.Implementations
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                // Safe stable timeout of 2000ms for API availability, falling back to original text if exceeded
-                client.Timeout = TimeSpan.FromMilliseconds(2000); 
+                // Strict 600ms timeout - if Google API is slow/blocked, fail fast and return original text.
+                // This prevents the page from hanging when 20-40 parallel translation calls are in-flight.
+                client.Timeout = TimeSpan.FromMilliseconds(600);
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
