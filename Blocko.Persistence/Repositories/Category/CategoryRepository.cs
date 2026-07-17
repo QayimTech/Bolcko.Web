@@ -22,6 +22,7 @@ namespace Blocko.Persistence.Repositories.Category
 
         public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.Category>> GetSubCategoriesWithProductsAsync(int parentId) =>
             await _context.Categories
+                .AsNoTracking()
                 .Include(c => c.Products)
                 .Where(c => c.ParentCategoryId == parentId)
                 .ToListAsync();
