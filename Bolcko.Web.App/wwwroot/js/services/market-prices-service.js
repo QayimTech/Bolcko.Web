@@ -24,7 +24,7 @@
         }
     }
 
-    // Export instances globally to be consumed by UI views
-    window.MarketPricesService = new MarketPricesService();
+    // Export instances globally to be consumed by UI views and freeze to protect integrity
+    window.MarketPricesService = Object.freeze(new MarketPricesService());
 
 })(window);

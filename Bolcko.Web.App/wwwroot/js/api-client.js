@@ -135,12 +135,12 @@
         }
     }
 
-    // Export API wrapper functions globally
-    window.ApiClient = {
+    // Export API wrapper functions globally and freeze to prevent tampering
+    window.ApiClient = Object.freeze({
         get: (url, options = {}) => request(url, { ...options, method: 'GET' }),
         post: (url, body, options = {}) => request(url, { ...options, method: 'POST', body }),
         put: (url, body, options = {}) => request(url, { ...options, method: 'PUT', body }),
         delete: (url, options = {}) => request(url, { ...options, method: 'DELETE' })
-    };
+    });
 
 })(window);
