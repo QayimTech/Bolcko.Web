@@ -1,4 +1,6 @@
 using Bolcko.Web.App.Extensions;
+using Bolcko.Web.App.Services;
+using Hangfire;
 using QuestPDF;
 using Serilog;
 
@@ -47,6 +49,9 @@ try
     
     builder.Services.AddSessionServices();
 
+    // Register our LogCleanupService for dependency injection
+    builder.Services.AddTransient<LogCleanupService>();
+
     // =========================================================================
     // STEP 2b: Configure Performance Optimizations (NEW)
     // =========================================================================
@@ -86,6 +91,12 @@ try
     // STEP 5: Initialize Database
     // =========================================================================
     await app.InitializeDatabaseAsync();
+
+    // Schedule recurring log cleanup job (runs daily at midnight UTC)
+    RecurringJob.AddOrUpdate<LogCleanupService>(
+        "daily-log-cleanup", 
+        service => service.CleanOldLogsAsync(10), 
+        Cron.Daily);
 
     // =========================================================================
     // STEP 6: Map Endpoints

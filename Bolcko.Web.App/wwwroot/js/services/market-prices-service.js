@@ -1,15 +1,13 @@
 /**
  * BLOCKO Market Prices Service (SOLID - Single Responsibility Principle)
  * Responsible ONLY for communicating with the Market Prices endpoints.
- * Utilizes the low-level ApiClient dependency.
+ * Uses browser's native fetch for simplicity.
  */
 (function (window) {
     'use strict';
 
     class MarketPricesService {
-        constructor(apiClient) {
-            this.apiClient = apiClient || window.ApiClient;
-        }
+        constructor() {}
 
         /**
          * Fetches the formatted HTML block for market prices asynchronously
@@ -17,10 +15,11 @@
          * @returns {Promise<string>} The rendered HTML content
          */
         async fetchPricesHtml(endpointUrl) {
-            if (!this.apiClient) {
-                throw new Error("API Client dependency is not initialized.");
+            const response = await fetch(endpointUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            return await this.apiClient.get(endpointUrl);
+            return await response.text();
         }
     }
 
