@@ -71,7 +71,7 @@
     <!-- Audio Notification Support -->
     @if (soundEnabled)
     {
-        <audio id="shop-notification-sound" src="@resolvedSoundUrl" preload="auto"></audio>
+        <audio id="shop-notification-sound" src="@resolvedSoundUrl" preload="none"></audio>
     }
 
     <!-- Glassmorphic Premium Toast Container -->
@@ -82,8 +82,14 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // SignalR connection setup
+            // Force WebSockets-only transport.
+            // SSE (the default fallback) holds an open HTTP connection which causes the
+            // browser tab spinner to spin forever. WebSockets do NOT trigger this behaviour.
             const shopConnection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificationHub")
+                .withUrl("/notificationHub", {
+                    transport: signalR.HttpTransportType.WebSockets,
+                    skipNegotiation: true
+                })
                 .withAutomaticReconnect()
                 .build();
 
