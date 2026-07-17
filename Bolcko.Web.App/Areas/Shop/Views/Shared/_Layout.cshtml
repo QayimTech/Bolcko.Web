@@ -80,16 +80,9 @@
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Scripts.cshtml" />
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // SignalR connection setup
-            // Force WebSockets-only transport.
-            // SSE (the default fallback) holds an open HTTP connection which causes the
-            // browser tab spinner to spin forever. WebSockets do NOT trigger this behaviour.
+            // SignalR - let the client and server auto-negotiate the best transport (WebSockets preferred)
             const shopConnection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificationHub", {
-                    transport: signalR.HttpTransportType.WebSockets,
-                    skipNegotiation: true
-                })
+                .withUrl("/notificationHub")
                 .withAutomaticReconnect()
                 .build();
 
