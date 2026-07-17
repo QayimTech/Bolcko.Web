@@ -164,62 +164,7 @@
                         </div>
                         <div>Status: <span id="${prefix}-sig-status" style="color:#ef4444; font-weight:bold;">Connecting...</span></div>
                         <div>Transport: <span id="${prefix}-sig-transport">-</span></div>
-                        <div>Auth: <span id="${prefix}-sig-auth">-</span></div>
-                        <div>User ID: <span id="${prefix}-sig-userid">-</span></div>
-                        <div>Roles: <span id="${prefix}-sig-roles">-</span></div>
-                        <div style="max-height:80px; overflow-y:auto; color:#f87171; margin-top:4px; font-size:10px;" id="${prefix}-sig-error"></div>
-                    </div>
-                `;
-                $('body').append(panelHtml);
-
-                function updateAuthStatus() {
-                    conn.invoke("GetConnectionStatus")
-                        .then(status => {
-                            $(`#${prefix}-sig-auth`).text(status.isAuthenticated ? 'Authenticated' : 'Unauthenticated')
-                                .css('color', status.isAuthenticated ? '#22c55e' : '#ef4444');
-                            $(`#${prefix}-sig-userid`).text(status.userId || 'N/A');
-                            $(`#${prefix}-sig-roles`).text(status.roles && status.roles.length ? status.roles.join(', ') : 'None');
-                        })
-                        .catch(err => {
-                            $(`#${prefix}-sig-error`).text('Auth check failed: ' + err.message);
-                        });
-                }
-
-                conn.onclose(err => {
-                    $(`#${prefix}-sig-status`).text('Disconnected').css('color', '#ef4444');
-                    $(`#${prefix}-debug-panel`).css('border-left-color', '#ef4444');
-                    if (err) $(`#${prefix}-sig-error`).text(err.message);
-                });
-
-                conn.onreconnecting(err => {
-                    $(`#${prefix}-sig-status`).text('Reconnecting...').css('color', '#eab308');
-                    $(`#${prefix}-debug-panel`).css('border-left-color', '#eab308');
-                    if (err) $(`#${prefix}-sig-error`).text(err.message);
-                });
-
-                conn.onreconnected(() => {
-                    $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
-                    $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
-                    const transport = conn.connection?.transport?.name || 'WebSocket';
-                    $(`#${prefix}-sig-transport`).text(transport);
-                    updateAuthStatus();
-                });
-
-                conn.start()
-                    .then(() => {
-                        $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
-                        $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
-                        const transport = conn.connection?.transport?.name || 'WebSocket';
-                        $(`#${prefix}-sig-transport`).text(transport);
-                        updateAuthStatus();
-                    })
-                    .catch(err => {
-                        $(`#${prefix}-sig-status`).text('Failed').css('color', '#ef4444');
-                        $(`#${prefix}-sig-error`).text(err.message);
-                    });
-            }
-
-            initSignalRDiagnostics(shopConnection, "shop");
+            shopConnection.start().catch(err => console.warn('SignalR Hub Connection error: ', err));
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
