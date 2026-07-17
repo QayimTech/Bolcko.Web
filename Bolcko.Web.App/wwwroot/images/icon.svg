@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- Yellow Rounded Square Icon - Maximize size by reducing margins to 2% -->
-  <rect x="2" y="2" width="96" height="96" rx="22" fill="#E8A020" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <!-- Eliminate all outer margins (x=0, y=0, size=80) to force browser to render the logo at maximum possible size in tab -->
+  <rect x="0" y="0" width="80" height="80" rx="18" fill="#E8A020" />
   
-  <!-- Stylized White Blocks inside the Icon - scaled and aligned perfectly -->
+  <!-- White vertical and hollow blocks scale optimized for maximum visibility in small sizes -->
   <!-- Left vertical block -->
-  <rect x="23.6" y="21.2" width="14.4" height="57.6" rx="7.2" fill="#FFFFFF" />
+  <rect x="18" y="16" width="12" height="48" rx="6" fill="#FFFFFF" />
   <!-- Right top block (hollow) -->
-  <rect x="52.4" y="26" width="19.2" height="14.4" rx="4.8" fill="none" stroke="#FFFFFF" stroke-width="7.2" />
+  <rect x="42" y="20" width="18" height="14" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6.5" />
   <!-- Right bottom block (hollow) -->
-  <rect x="52.4" y="59.6" width="19.2" height="14.4" rx="4.8" fill="none" stroke="#FFFFFF" stroke-width="7.2" />
+  <rect x="42" y="46" width="18" height="14" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6.5" />
 </svg>

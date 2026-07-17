@@ -11,50 +11,46 @@ except ImportError:
     from PIL import Image, ImageDraw
 
 def draw_blocko_icon_high_res():
-    # Render at a solid 512x512 size to get maximum geometric precision
+    # Render at a solid 512x512 size to get maximum geometric precision with 0% margin
     size = 512
     img = Image.new("RGBA", (size, size), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     
-    # Yellow Rounded Square
-    margin = 51.2   # 10%
-    box_size = 409.6 # 80%
-    r = 102.4       # Corner radius (20%)
-    
+    # Yellow Rounded Square - Fills the entire canvas (0 margin)
     draw.rounded_rectangle(
-        [margin, margin, margin + box_size, margin + box_size],
-        radius=r,
+        [0, 0, size, size],
+        radius=115, # Proportional corner radius
         fill="#E8A020"
     )
     
     # White left vertical block
-    # x=28%, y=26%, w=12%, h=48%
-    lx1 = size * 0.28
-    ly1 = size * 0.26
-    lx2 = size * (0.28 + 0.12)
-    ly2 = size * (0.26 + 0.48)
-    lr = size * 0.06
+    # lx1 = 18/80 = 22.5%, ly1 = 16/80 = 20%, w = 12/80 = 15%, h = 48/80 = 60%
+    lx1 = size * 0.225
+    ly1 = size * 0.20
+    lx2 = size * (0.225 + 0.15)
+    ly2 = size * (0.20 + 0.60)
+    lr = size * 0.075
     draw.rounded_rectangle([lx1, ly1, lx2, ly2], radius=lr, fill="#FFFFFF")
     
     # White right top block (hollow)
-    # x=52%, y=30%, w=16%, h=12%, stroke=6%
-    tx1 = size * 0.52
-    ty1 = size * 0.30
-    tx2 = size * (0.52 + 0.16)
-    ty2 = size * (0.30 + 0.12)
-    tr = size * 0.04
-    sw = size * 0.06 # Stroke width (approx 30.7px)
+    # tx1 = 42/80 = 52.5%, ty1 = 20/80 = 25%, w = 18/80 = 22.5%, h = 14/80 = 17.5%, stroke = 6.5/80 = 8.125%
+    tx1 = size * 0.525
+    ty1 = size * 0.25
+    tx2 = size * (0.525 + 0.225)
+    ty2 = size * (0.25 + 0.175)
+    tr = size * 0.05
+    sw = size * 0.08125 # Stroke width
     
     draw.rounded_rectangle([tx1, ty1, tx2, ty2], radius=tr, fill="#FFFFFF")
     draw.rounded_rectangle([tx1 + sw, ty1 + sw, tx2 - sw, ty2 - sw], radius=max(1, tr - sw/2), fill="#E8A020")
     
     # White right bottom block (hollow)
-    # x=52%, y=58%, w=16%, h=12%, stroke=6%
-    bx1 = size * 0.52
-    by1 = size * 0.58
-    bx2 = size * (0.52 + 0.16)
-    by2 = size * (0.58 + 0.12)
-    br = size * 0.04
+    # bx1 = 42/80 = 52.5%, by1 = 46/80 = 57.5%, w = 18/80 = 22.5%, h = 14/80 = 17.5%
+    bx1 = size * 0.525
+    by1 = size * 0.575
+    bx2 = size * (0.525 + 0.225)
+    by2 = size * (0.575 + 0.175)
+    br = size * 0.05
     
     draw.rounded_rectangle([bx1, by1, bx2, by2], radius=br, fill="#FFFFFF")
     draw.rounded_rectangle([bx1 + sw, by1 + sw, bx2 - sw, by2 - sw], radius=max(1, br - sw/2), fill="#E8A020")
