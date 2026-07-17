@@ -263,21 +263,27 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Load market prices in background asynchronously after page interactive event
+        document.addEventListener("DOMContentLoaded", function() {
+            // Load market prices in background asynchronously using the centralized ApiClient
             setTimeout(function() {
-                $.ajax({
-                    url: '@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })',
-                    type: 'GET',
-                    timeout: 4000,
-                    success: function(data) {
-                        $('#market-prices-container').html(data);
-                    },
-                    error: function() {
-                        // Cleanly hide container if database fails to respond
-                        $('#market-prices-container').slideUp(300);
-                    }
-                });
+                if (window.ApiClient && typeof window.ApiClient.get === 'function') {
+                    window.ApiClient.get('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })')
+                        .then(function(html) {
+                            const container = document.getElementById('market-prices-container');
+                            if (container && html) {
+                                container.innerHTML = html;
+                            }
+                        })
+                        .catch(function(err) {
+                            if (err.name !== 'AbortError') {
+                                console.warn('Deferred market prices fetch cancelled or failed: ', err);
+                                const container = document.getElementById('market-prices-container');
+                                if (container) {
+                                    container.style.display = 'none';
+                                }
+                            }
+                        });
+                }
             }, 100);
         });
     </script>
