@@ -19,7 +19,7 @@ namespace Blocko.Services.DTOs.Api
             return new ApiResponse { Success = true, Message = message };
         }
 
-        public static ApiResponse Error(string message, List<string> errors = null)
+        public static ApiResponse Error(string message, List<string>? errors = null)
         {
             return new ApiResponse { Success = false, Message = message, Errors = errors ?? new List<string>() };
         }
