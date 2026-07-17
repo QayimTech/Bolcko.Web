@@ -1,6 +1,7 @@
+<script>
 /**
- * BLOCKO Notification Center Service (SOLID - Single Responsibility)
- * Manages fetching, marking read, and DOM updates of notifications in header dropdowns.
+ * BLOCKO Notification Center Service
+ * Loaded dynamically inline via server-side Partial View.
  */
 (function (window) {
     'use strict';
@@ -27,7 +28,6 @@
                 event?.preventDefault();
             }
             
-            // Hide menu dropdown immediately
             const menu = document.getElementById('notification-menu');
             if (menu) {
                 menu.classList.add('opacity-0', 'translate-y-1');
@@ -74,7 +74,6 @@
             const count = notifications ? notifications.length : 0;
             const isAdmin = window.location.pathname.toLowerCase().includes('/admin');
 
-            // Toggle indicators
             if (count > 0) {
                 countBadge.text(count).removeClass('hidden');
                 bell.addClass('animate-swing text-[#E8A020]');
@@ -140,7 +139,7 @@
         }
     }
 
-    // Export globally
     window.NotificationService = new NotificationService();
 
 })(window);
+</script>

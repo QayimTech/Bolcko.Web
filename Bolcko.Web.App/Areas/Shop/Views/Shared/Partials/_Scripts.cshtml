@@ -1,15 +1,15 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<!-- Library and Centralized API Client Driver Scripts -->
+<!-- Core Library Drivers -->
 <script src="~/lib/jquery/dist/jquery.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.12/dist/browser/signalr.min.js" defer></script>
-<script src="~/js/api-client.js" asp-append-version="true" defer></script>
 
-<!-- UI Components and Decoupled Business Services (SOLID) -->
-<script src="~/js/components/modal.js" asp-append-version="true" defer></script>
+<!-- Centralized High-Performance Inline Server-Rendered Scripts (SOLID Partials) -->
+<partial name="~/Areas/Shop/Views/Shared/Partials/_ApiClient.cshtml" />
+<partial name="~/Areas/Shop/Views/Shared/Partials/_Modal.cshtml" />
+<partial name="~/Areas/Shop/Views/Shared/Partials/_NotificationService.cshtml" />
+
+<!-- Inline Sound and User Actions Logic -->
 <script src="~/js/services/sound-service.js" asp-append-version="true" defer></script>
-<script src="~/js/services/notification-service.js" asp-append-version="true" defer></script>
-
-<!-- Shared Initializer Scripts -->
 <script src="~/js/site.js" asp-append-version="true" defer></script>
 <script src="~/js/tender-cart.js" asp-append-version="true" defer></script>
