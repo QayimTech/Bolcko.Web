@@ -48,6 +48,13 @@ try
     builder.Services.AddSessionServices();
 
     // =========================================================================
+    // STEP 2b: Configure Performance Optimizations (NEW)
+    // =========================================================================
+    builder.Services.AddAdvancedCompression();
+    builder.Services.AddMarkupMinification();
+    builder.Services.AddAdvancedResponseCaching();
+
+    // =========================================================================
     // STEP 3: Build Application
     // =========================================================================
     var app = builder.Build();
@@ -57,15 +64,23 @@ try
     // =========================================================================
     // Order is critical - each middleware builds upon the previous
     
+    // Performance middleware (MUST be first)
+    app.UseAdvancedCompression();
+    app.UseAdvancedResponseCaching();
+    
     app.UseSwaggerDocumentation();
     app.UseEnvironmentSpecificMiddleware();
     app.UseSecurityMiddleware();
+    app.UsePerformanceAndSecurityHeaders();
     app.UseStaticFilesWithCaching();
     app.UseFirstRunSetupMiddleware();
     app.UseSessionMiddleware();
     app.UseLocalizationMiddleware();
     app.UseSecurityPipeline();
     app.UseHangfireDashboardMiddleware();
+    
+    // HTML Minification (MUST be last in pipeline before endpoints)
+    app.UseMarkupMinification();
 
     // =========================================================================
     // STEP 5: Initialize Database

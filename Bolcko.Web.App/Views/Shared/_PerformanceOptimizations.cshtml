@@ -1,0 +1,71 @@
+@* Performance Optimizations Partial View
+   Include this in the <head> section of your layout
+   These optimizations follow Google's PageSpeed Insights best practices *@
+
+@* 1. Preconnect to required origins (establishes early connections) *@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+@* 2. Preload Critical Resources (LCP optimization) *@
+@* Preload hero image if on homepage *@
+@if (Context.Request.Path == "/" || Context.Request.Path == "/Shop/Home" || Context.Request.Path == "/Shop/Home/Index")
+{
+    <link rel="preload" as="image" 
+          href="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200" 
+          imagesrcset="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=600 600w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200 1200w"
+          imagesizes="100vw"
+          fetchpriority="high" />
+}
+
+@* 3. Critical CSS (Above the fold styles) *@
+<style>
+    /* Critical CSS - Above the fold content */
+    :root {
+        --primary-color: #E8A020;
+        --bg-dark: #0D111A;
+        --text-light: #ffffff;
+    }
+    
+    /* Prevent layout shifts */
+    html {
+        font-display: swap;
+    }
+    
+    /* Optimize LCP element */
+    .hero-section {
+        min-height: 60vh;
+        contain: layout style;
+    }
+    
+    /* Font display optimization */
+    @@font-face {
+        font-family: 'Noto Kufi Arabic';
+        font-display: swap;
+    }
+    
+    /* CLS prevention */
+    img, video, picture {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Reduce motion for accessibility */
+    @@media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>
+
+@* 4. Prefetch likely next pages *@
+<link rel="prefetch" href="/Shop/Category" as="document" />
+<link rel="prefetch" href="/Shop/Cart" as="document" />
+
+@* 5. Module Preload for critical JS *@
+<link rel="modulepreload" href="/js/site.js" />
