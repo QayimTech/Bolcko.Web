@@ -31,12 +31,12 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<IEnumerable<ProductDto>> TranslateAsync(this IEnumerable<ProductDto> products, ITranslationService translationService, string targetCulture)
         {
             if (products == null) return null!;
-            var list = new List<ProductDto>();
+            var tasks = new List<Task<ProductDto>>();
             foreach (var p in products)
             {
-                list.Add(await p.TranslateAsync(translationService, targetCulture));
+                tasks.Add(p.TranslateAsync(translationService, targetCulture));
             }
-            return list;
+            return await Task.WhenAll(tasks);
         }
 
         public static async Task<IPagedList<ProductDto>> TranslateAsync(this IPagedList<ProductDto> pagedProducts, ITranslationService translationService, string targetCulture)
@@ -65,12 +65,12 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<IEnumerable<CategoryDto>> TranslateAsync(this IEnumerable<CategoryDto> categories, ITranslationService translationService, string targetCulture)
         {
             if (categories == null) return null!;
-            var list = new List<CategoryDto>();
+            var tasks = new List<Task<CategoryDto>>();
             foreach (var c in categories)
             {
-                list.Add(await c.TranslateAsync(translationService, targetCulture));
+                tasks.Add(c.TranslateAsync(translationService, targetCulture));
             }
-            return list;
+            return await Task.WhenAll(tasks);
         }
 
         public static async Task<Bolcko.Domain.Entities.Catalog.MarketPrice> TranslateAsync(this Bolcko.Domain.Entities.Catalog.MarketPrice price, ITranslationService translationService, string targetCulture)
@@ -91,12 +91,12 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice>> TranslateAsync(this IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> prices, ITranslationService translationService, string targetCulture)
         {
             if (prices == null) return null!;
-            var list = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+            var tasks = new List<Task<Bolcko.Domain.Entities.Catalog.MarketPrice>>();
             foreach (var p in prices)
             {
-                list.Add(await p.TranslateAsync(translationService, targetCulture));
+                tasks.Add(p.TranslateAsync(translationService, targetCulture));
             }
-            return list;
+            return await Task.WhenAll(tasks);
         }
     }
 }

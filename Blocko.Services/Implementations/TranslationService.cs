@@ -94,39 +94,31 @@ namespace Blocko.Services.Implementations
             text = text.Trim();
             targetLanguage = targetLanguage.ToLower().Split('-')[0]; // Simplify "en-US" to "en"
 
-            // Optimization 1: If target is Arabic and text already has Arabic characters, skip API completely
+            // 1. Check local overrides first (Highest priority, instant response)
+            if (targetLanguage == "en" && ArToEnOverrides.TryGetValue(text, out var enVal))
+                return enVal;
+            if (targetLanguage == "ar" && EnToArOverrides.TryGetValue(text, out var arVal))
+                return arVal;
+
+            // 2. Optimization: If target is Arabic and text already has Arabic characters, skip API completely
             if (targetLanguage == "ar" && System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]"))
             {
                 return text;
             }
 
-            // Optimization 2: If target is Arabic and text is purely English/Latin (like brand names, models, or descriptions),
-            // bypass Google Translate API completely to prevent rate limit block latency (returns original text directly).
-            if (targetLanguage == "ar")
-            {
-                // Check if we have a direct override first
-                if (EnToArOverrides.TryGetValue(text, out var arVal))
-                    return arVal;
-                
-                return text;
-            }
-
-            // 1. Check local overrides first
-            if (targetLanguage == "en" && ArToEnOverrides.TryGetValue(text, out var enVal))
-                return enVal;
-
-            // 2. Check memory cache to prevent duplicate external HTTP calls
+            // 3. Check memory cache to prevent duplicate external HTTP calls
             string cacheKey = $"translation_{targetLanguage}_{text.GetHashCode()}";
             if (_memoryCache.TryGetValue(cacheKey, out string? cachedTranslation) && cachedTranslation != null)
             {
                 return cachedTranslation;
             }
 
-            // 3. Fallback to Google Translate public NMT API
+            // 4. Fallback to Google Translate public NMT API (Only for English targets or missing translations)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromMilliseconds(500); // Set ultra-brief timeout to avoid holding requests on rate limiting
+                // Drastically reduce timeout to 150ms to ensure absolute zero visible latency for the user
+                client.Timeout = TimeSpan.FromMilliseconds(150); 
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
