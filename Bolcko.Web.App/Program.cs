@@ -86,6 +86,13 @@ try
 
     app.UseBlockoSwagger();
 
+    // --- Auto-apply pending EF Core migrations on startup (Code First) ---
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
+        db.Database.Migrate();
+    }
+
     // --- 2. Middleware Pipeline (Strict Engineering Order) ---
 
     if (app.Environment.IsDevelopment())
