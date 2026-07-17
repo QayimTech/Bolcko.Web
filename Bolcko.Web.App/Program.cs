@@ -90,29 +90,46 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
+        var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
         try
         {
             db.Database.Migrate();
         }
         catch (Npgsql.PostgresException ex) when (ex.SqlState == "42701" || ex.SqlState == "42P07")
         {
-            // Some migrations were applied to the DB directly (outside EF tracking).
-            // Mark ALL code-defined migrations as applied in __EFMigrationsHistory,
-            // then retry so only truly new migrations are applied.
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("Migration conflict detected ({SqlState}): {Message}. Auto-seeding migration history...", ex.SqlState, ex.MessageText);
+            // Some migrations were applied to DB directly without being recorded in __EFMigrationsHistory.
+            // Strategy: Check which of our new columns actually exist in the DB.
+            // Mark only the HISTORICAL migrations (those already applied) as recorded,
+            // then retry Migrate() so truly new migrations still get applied.
+            startupLogger.LogWarning("Migration conflict ({SqlState}): {Msg}. Syncing __EFMigrationsHistory...", ex.SqlState, ex.MessageText);
 
-            var allMigrations = db.Database.GetMigrations();
-            foreach (var migrationId in allMigrations)
+            // Check if the new translation columns already exist in DB
+            var translationColumnsExist = db.Database
+                .SqlQueryRaw<int>(
+                    "SELECT COUNT(*)::int FROM information_schema.columns " +
+                    "WHERE table_name = 'Products' AND column_name = 'NameEn'")
+                .AsEnumerable()
+                .First() > 0;
+
+            var allMigrations = db.Database.GetMigrations().ToList();
+
+            // If translation columns don't exist yet, skip registering that migration
+            // so Migrate() will actually apply it and create the columns.
+            var migrationsToRegister = translationColumnsExist
+                ? allMigrations
+                : allMigrations.Where(m => m != "20260717045637_AddEnglishTranslationsColumns");
+
+            foreach (var migrationId in migrationsToRegister)
             {
                 db.Database.ExecuteSqlRaw(
                     $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
                     $"VALUES ('{migrationId}', '8.0.11') ON CONFLICT DO NOTHING");
             }
 
-            logger.LogInformation("Migration history seeded. Retrying Migrate()...");
+            startupLogger.LogInformation("History synced. Retrying Migrate() for new pending migrations...");
             db.Database.Migrate();
-            logger.LogInformation("Migrations applied successfully.");
+            startupLogger.LogInformation("All migrations applied successfully.");
         }
     }
 
