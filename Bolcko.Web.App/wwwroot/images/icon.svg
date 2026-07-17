@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
-  <!-- Eliminate all outer margins (x=0, y=0, size=80) to force browser to render the logo at maximum possible size in tab -->
-  <rect x="0" y="0" width="80" height="80" rx="18" fill="#E8A020" />
+  <!-- Minimal corner radius (rx=9) to maximize the square fill like LinkedIn and SoundCloud -->
+  <rect x="0" y="0" width="80" height="80" rx="9" fill="#E8A020" />
   
-  <!-- White vertical and hollow blocks scale optimized for maximum visibility in small sizes -->
-  <!-- Left vertical block -->
-  <rect x="18" y="16" width="12" height="48" rx="6" fill="#FFFFFF" />
-  <!-- Right top block (hollow) -->
-  <rect x="42" y="20" width="18" height="14" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6.5" />
-  <!-- Right bottom block (hollow) -->
-  <rect x="42" y="46" width="18" height="14" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6.5" />
+  <!-- Thickened and scaled blocks for high-visibility at 16x16 sizes -->
+  <!-- Left vertical block (Made thicker and wider) -->
+  <rect x="14" y="12" width="15" height="56" rx="5" fill="#FFFFFF" />
+  <!-- Right top block (hollow) (Thicker borders) -->
+  <rect x="38" y="15" width="26" height="20" rx="4" fill="none" stroke="#FFFFFF" stroke-width="8.5" />
+  <!-- Right bottom block (hollow) (Thicker borders) -->
+  <rect x="38" y="45" width="26" height="20" rx="4" fill="none" stroke="#FFFFFF" stroke-width="8.5" />
 </svg>

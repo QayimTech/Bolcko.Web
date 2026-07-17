@@ -12,6 +12,10 @@
         <div class="absolute inset-0 opacity-20 mix-blend-overlay">
             <img class="w-full h-full object-cover" 
                  src="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070" 
+                 width="2070"
+                 height="1000"
+                 fetchpriority="high"
+                 loading="eager"
                  onerror="this.src='https://placehold.co/1920x1080/0d111a/ffffff?text=BLOCKO+Construction'"
                  alt="Construction site" />
         </div>
@@ -234,45 +238,56 @@
 
             <div id="market-prices-container">
                 @{
-                    // Render prices inline from DB, completely zero-spinner fallback
                     var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
                     var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
                     var serviceManager = (Blocko.Services.Interfaces.IServiceManager)Context.RequestServices.GetService(typeof(Blocko.Services.Interfaces.IServiceManager))!;
+                    var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)Context.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
                     
-                    IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> displayPrices;
-                    try
+                    var cacheKey = $"Home_MarketPrices_Static_{culture}";
+                    if (!cache.TryGetValue(cacheKey, out object? cachedPricesObj) || cachedPricesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> displayPricesList)
                     {
-                        var dbPrices = await serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-                        if (dbPrices != null)
+                        try
                         {
-                            var list = dbPrices.ToList();
-                            var isAr = culture.StartsWith("ar");
-                            foreach (var p in list)
+                            var dbPrices = await serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+                            if (dbPrices != null)
                             {
-                                if (!isAr)
+                                var list = dbPrices.ToList();
+                                var isAr = culture.StartsWith("ar");
+                                foreach (var p in list)
                                 {
-                                    if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
-                                    else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
-                                    else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
-                                    else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
-                                    else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
-                                    else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
-                                    
-                                    p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
-                                    p.Currency = "JOD";
+                                    if (!isAr)
+                                    {
+                                        if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
+                                        else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
+                                        else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
+                                        else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
+                                        else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
+                                        else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
+                                        
+                                        p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
+                                        p.Currency = "JOD";
+                                    }
                                 }
+                                displayPricesList = list;
                             }
-                            displayPrices = list;
+                            else
+                            {
+                                displayPricesList = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                            }
                         }
-                        else
+                        catch
                         {
-                            displayPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                            displayPricesList = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                        }
+
+                        // Use classic entry creation to bypass missing using extensions
+                        using (var entry = cache.CreateEntry(cacheKey))
+                        {
+                            entry.Value = displayPricesList;
+                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
                         }
                     }
-                    catch
-                    {
-                        displayPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
-                    }
+                    var displayPrices = displayPricesList;
                 }
                 <partial name="Partials/_MarketPrices" model="displayPrices" />
             </div>
