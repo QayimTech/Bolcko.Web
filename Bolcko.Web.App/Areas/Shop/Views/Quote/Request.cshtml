@@ -298,23 +298,27 @@
                 <div class="q-grid-2">
                     <div>
                         <label class="q-label">@(isAr ? "اسم المشروع" : "Project Name")</label>
-                        <input asp-for="ProjectName" class="q-input" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني عمان" : "e.g. Amman Complex")" />
+                        <input asp-for="ProjectName" class="q-input" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني الرياض" : "e.g. Riyadh Complex")" />
                     </div>
                     <div>
                         <label class="q-label">@(isAr ? "موقع المشروع (المدينة)" : "City") <span class="q-req">*</span></label>
                         <select asp-for="City" class="q-input">
-                            <option value="عمان">@(isAr ? "عمان" : "Amman")</option>
-                            <option value="الزرقاء">@(isAr ? "الزرقاء" : "Zarqa")</option>
-                            <option value="إربد">@(isAr ? "إربد" : "Irbid")</option>
-                            <option value="العقبة">@(isAr ? "العقبة" : "Aqaba")</option>
-                            <option value="البلقاء">@(isAr ? "البلقاء" : "Balqa")</option>
-                            <option value="المفرق">@(isAr ? "المفرق" : "Mafraq")</option>
-                            <option value="جرش">@(isAr ? "جرش" : "Jerash")</option>
-                            <option value="عجلون">@(isAr ? "عجلون" : "Ajloun")</option>
-                            <option value="مأدبا">@(isAr ? "مأدبا" : "Madaba")</option>
-                            <option value="الكرك">@(isAr ? "الكرك" : "Karak")</option>
-                            <option value="الطفيلة">@(isAr ? "الطفيلة" : "Tafilah")</option>
-                            <option value="معان">@(isAr ? "معان" : "Ma'an")</option>
+                            <option value="الرياض">@(isAr ? "الرياض" : "Riyadh")</option>
+                            <option value="جدة">@(isAr ? "جدة" : "Jeddah")</option>
+                            <option value="مكة المكرمة">@(isAr ? "مكة المكرمة" : "Makkah")</option>
+                            <option value="المدينة المنورة">@(isAr ? "المدينة المنورة" : "Madinah")</option>
+                            <option value="الدمام">@(isAr ? "الدمام" : "Dammam")</option>
+                            <option value="الخبر">@(isAr ? "الخبر" : "Khobar")</option>
+                            <option value="الأحساء">@(isAr ? "الأحساء" : "Al Ahsa")</option>
+                            <option value="القصيم">@(isAr ? "القصيم" : "Qassim")</option>
+                            <option value="حائل">@(isAr ? "حائل" : "Hail")</option>
+                            <option value="نجران">@(isAr ? "نجران" : "Najran")</option>
+                            <option value="جازان">@(isAr ? "جازان" : "Jazan")</option>
+                            <option value="عسير">@(isAr ? "عسير" : "Asir")</option>
+                            <option value="الباحة">@(isAr ? "الباحة" : "Al Baha")</option>
+                            <option value="تبوك">@(isAr ? "تبوك" : "Tabuk")</option>
+                            <option value="الجوف">@(isAr ? "الجوف" : "Al Jouf")</option>
+                            <option value="الحد الشمالية">@(isAr ? "الحد الشمالية" : "Northern Borders")</option>
                         </select>
                         <span asp-validation-for="City" style="color: #ef4444; font-size: 11px; display: block; margin-top: 4px;"></span>
                     </div>

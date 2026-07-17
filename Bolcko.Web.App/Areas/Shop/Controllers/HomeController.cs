@@ -46,12 +46,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 using (var entry = cache.CreateEntry(titleKey))
                 {
                     entry.Value = titleVal;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
                 }
                 using (var entry = cache.CreateEntry(descKey))
                 {
                     entry.Value = descVal;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
                 }
             }
             ViewBag.HomeHeroTitle = titleVal;
@@ -66,7 +66,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 using (var entry = cache.CreateEntry(productsKey))
                 {
                     entry.Value = translatedProducts;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
                 }
             }
 
@@ -79,7 +79,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 using (var entry = cache.CreateEntry(categoriesKey))
                 {
                     entry.Value = translatedCategories;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
                 }
             }
             

@@ -15,11 +15,11 @@
         var allCategoriesList = await rawCategories.TranslateAsync(TranslationService, culture);
         allCategories = allCategoriesList.ToList();
         
-        // Cache categories for 10 minutes to save DB and Translation loop overhead
+        // Cache categories for 12 hours to save DB and Translation loop overhead
         using (var entry = MemoryCache.CreateEntry(cacheKey))
         {
             entry.Value = allCategories;
-            entry.AbsoluteExpirationRelativeToNow = System.TimeSpan.FromMinutes(10);
+            entry.AbsoluteExpirationRelativeToNow = System.TimeSpan.FromHours(12);
         }
     }
     

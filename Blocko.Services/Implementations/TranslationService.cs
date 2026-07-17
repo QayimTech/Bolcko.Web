@@ -150,7 +150,7 @@ namespace Blocko.Services.Implementations
                             string translatedText = builder.ToString().Trim();
                             if (!string.IsNullOrEmpty(translatedText))
                             {
-                                // Cache the translation (e.g. 24 hours, or permanent since translations are static)
+                                // Cache the translation (e.g. 7 days, since translations are static)
                                 _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
                                 return translatedText;
                             }
@@ -158,11 +158,14 @@ namespace Blocko.Services.Implementations
                     }
                 }
             }
-            catch
+            catch (Exception)
             {
-                // Fallback to original text on any exception (no network, API failure, etc.)
+                // Fallback and prevent spamming the blocked API again for the next 30 minutes
+                _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
             }
 
+            // Also cache non-success responses to avoid API spamming
+            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
             return text;
         }
     }

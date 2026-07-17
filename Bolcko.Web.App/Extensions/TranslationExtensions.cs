@@ -33,24 +33,6 @@ namespace Bolcko.Web.App.Extensions
                     {
                         product.Description = await translationService.TranslateAsync(product.Description, targetCulture);
                     }
-                    
-                    if (unitOfWork != null)
-                    {
-                        try
-                        {
-                            var entity = await unitOfWork.Products.GetByIdAsync(product.Id);
-                            if (entity != null)
-                            {
-                                entity.NameEn = product.Name;
-                                entity.DescriptionEn = product.Description;
-                                unitOfWork.Products.Update(entity);
-                                await unitOfWork.SaveChangesAsync();
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
                 }
             }
             else
@@ -79,7 +61,7 @@ namespace Bolcko.Web.App.Extensions
             var tasks = new List<Task<ProductDto>>();
             foreach (var p in products)
             {
-                tasks.Add(p.TranslateAsync(translationService, targetCulture, unitOfWork));
+                tasks.Add(p.TranslateAsync(translationService, targetCulture, null)); // Force null unitOfWork to prevent parallel DB writes
             }
             return await Task.WhenAll(tasks);
         }
@@ -87,7 +69,7 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<IPagedList<ProductDto>> TranslateAsync(this IPagedList<ProductDto> pagedProducts, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
         {
             if (pagedProducts == null) return null!;
-            var translatedItems = await pagedProducts.Items.TranslateAsync(translationService, targetCulture, unitOfWork);
+            var translatedItems = await pagedProducts.Items.TranslateAsync(translationService, targetCulture, null); // Force null unitOfWork
             return new Blocko.Persistence.Common.PagedList<ProductDto>(
                 translatedItems, 
                 pagedProducts.TotalCount, 
@@ -116,24 +98,6 @@ namespace Bolcko.Web.App.Extensions
                     if (!string.IsNullOrEmpty(category.Description))
                     {
                         category.Description = await translationService.TranslateAsync(category.Description, targetCulture);
-                    }
-                    
-                    if (unitOfWork != null)
-                    {
-                        try
-                        {
-                            var entity = await unitOfWork.Categories.GetByIdAsync(category.Id);
-                            if (entity != null)
-                            {
-                                entity.NameEn = category.Name;
-                                entity.DescriptionEn = category.Description;
-                                unitOfWork.Categories.Update(entity);
-                                await unitOfWork.SaveChangesAsync();
-                            }
-                        }
-                        catch
-                        {
-                        }
                     }
                 }
             }
