@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- Yellow Rounded Square Icon -->
-  <rect x="10" y="10" width="80" height="80" rx="20" fill="#E8A020" />
+  <!-- Yellow Rounded Square Icon - Maximize size by reducing margins to 2% -->
+  <rect x="2" y="2" width="96" height="96" rx="22" fill="#E8A020" />
   
-  <!-- Stylized White Blocks inside the Icon -->
+  <!-- Stylized White Blocks inside the Icon - scaled and aligned perfectly -->
   <!-- Left vertical block -->
-  <rect x="28" y="26" width="12" height="48" rx="6" fill="#FFFFFF" />
+  <rect x="23.6" y="21.2" width="14.4" height="57.6" rx="7.2" fill="#FFFFFF" />
   <!-- Right top block (hollow) -->
-  <rect x="52" y="30" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+  <rect x="52.4" y="26" width="19.2" height="14.4" rx="4.8" fill="none" stroke="#FFFFFF" stroke-width="7.2" />
   <!-- Right bottom block (hollow) -->
-  <rect x="52" y="58" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+  <rect x="52.4" y="59.6" width="19.2" height="14.4" rx="4.8" fill="none" stroke="#FFFFFF" stroke-width="7.2" />
 </svg>
