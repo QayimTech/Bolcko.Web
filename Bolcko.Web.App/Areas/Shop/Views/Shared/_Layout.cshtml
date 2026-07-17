@@ -83,15 +83,7 @@
     <!-- Glassmorphic Premium Toast Container -->
     <div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.12/dist/browser/signalr.min.js" defer></script>
-    <script src="~/js/api-client.js" asp-append-version="true" defer></script>
-    <script src="~/js/components/modal.js" asp-append-version="true" defer></script>
-    <script src="~/js/services/sound-service.js" asp-append-version="true" defer></script>
-    <script src="~/js/services/notification-service.js" asp-append-version="true" defer></script>
-    <script src="~/js/services/market-prices-service.js" asp-append-version="true" defer></script>
-    <script src="~/js/site.js" asp-append-version="true" defer></script>
-    <script src="~/js/tender-cart.js" asp-append-version="true" defer></script>
+    <partial name="~/Areas/Shop/Views/Shared/Partials/_Scripts.cshtml" />
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
