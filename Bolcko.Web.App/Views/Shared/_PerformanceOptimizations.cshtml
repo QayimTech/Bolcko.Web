@@ -5,8 +5,6 @@
 @* 1. Preconnect to required origins (establishes early connections) *@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="dns-prefetch" href="https://fonts.googleapis.com">
-<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
 @* 2. Preload Critical Resources (LCP optimization) *@
 @* Preload hero image if on homepage *@
@@ -84,7 +82,3 @@
         }
     }
 </style>
-
-@* 4. Prefetch likely next pages *@
-<link rel="prefetch" href="/Shop/Category" as="document">
-<link rel="prefetch" href="/Shop/Cart" as="document">

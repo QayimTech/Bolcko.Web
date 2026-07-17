@@ -3,7 +3,7 @@
 @{
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
     var soundEnabled = true;
-    var soundUrl = "/sounds/notification.mp3";
+    var soundUrl = "/sounds/default-notification.wav";
     var resolvedSoundUrl = soundUrl;
     if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))
     {
@@ -15,7 +15,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(ViewData["Title"] == null || ViewData["Title"].ToString() == "Home" ? "الرئيسية" : ViewData["Title"]) | بلوكو لتوريد مواد البناء</title>
+    @await Component.InvokeAsync("SeoMeta", new { defaultTitle = "بلوكو لتوريد مواد البناء" })
     
     <!-- Premium Orange Favicons Cache Busted v5 -->
     <link rel="apple-touch-icon" sizes="180x180" href="~/favicons/apple-touch-icon.png?v=5" />
@@ -27,22 +27,13 @@
     <meta name="msapplication-TileColor" content="#0d111a" />
     <meta name="theme-color" content="#0d111a" />
 
-    <!-- Google Fonts Async Loading - media="print" trick prevents render blocking -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" 
-          media="print" 
-          onload="this.media='all'">
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" 
-          media="print" 
-          onload="this.media='all'">
-    
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-    </noscript>
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
 
     <!-- Performance Optimizations: Preconnect, Preload, Critical CSS -->
     <partial name="~/Views/Shared/_PerformanceOptimizations.cshtml" />
