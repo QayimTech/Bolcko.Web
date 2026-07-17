@@ -69,8 +69,11 @@ namespace Bolcko.Web.App.Extensions
             IServiceProvider? serviceProvider = null)
         {
             if (products == null) return null!;
-            var tasks = new List<Task<ProductDto>>();
             
+            Serilog.Log.Information("[TranslationExtensions] TranslateAsync started for {Count} products. Culture: {Culture}. HasServiceProvider: {HasSP}, HasUOW: {HasUOW}", 
+                products.Count(), targetCulture, serviceProvider != null, unitOfWork != null);
+
+            var tasks = new List<Task<ProductDto>>();
             foreach (var p in products)
             {
                 tasks.Add(p.TranslateAsync(translationService, targetCulture, null));
@@ -79,7 +82,6 @@ namespace Bolcko.Web.App.Extensions
             var results = await Task.WhenAll(tasks);
             
             // Background DB Persistence for English Translations:
-            // If target is English, save missing translations to DB
             if (!targetCulture.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
             {
                 var productsToSave = new List<ProductDto>();
@@ -91,11 +93,15 @@ namespace Bolcko.Web.App.Extensions
                     }
                 }
 
+                Serilog.Log.Information("[TranslationExtensions] Found {Count} products needing DB persistence for English translation.", productsToSave.Count);
+
                 if (productsToSave.Count > 0)
                 {
                     if (serviceProvider != null)
                     {
-                        // High Performance: Fire-and-forget background task with a fresh scope
+                        Serilog.Log.Information("[TranslationExtensions] Spawning background task to save translations for products: {ProductIds}", 
+                            string.Join(", ", productsToSave.Select(p => p.Id)));
+
                         var scopeFactory = (Microsoft.Extensions.DependencyInjection.IServiceScopeFactory)serviceProvider.GetService(typeof(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory))!;
                         _ = Task.Run(async () =>
                         {
@@ -104,6 +110,7 @@ namespace Bolcko.Web.App.Extensions
                                 using (var scope = scopeFactory.CreateScope())
                                 {
                                     var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                                    int updatedCount = 0;
                                     foreach (var pDto in productsToSave)
                                     {
                                         var productEntity = await uow.Products.GetByIdAsync(pDto.Id);
@@ -112,22 +119,31 @@ namespace Bolcko.Web.App.Extensions
                                             productEntity.NameEn = pDto.Name;
                                             productEntity.DescriptionEn = pDto.Description;
                                             uow.Products.Update(productEntity);
+                                            updatedCount++;
                                         }
                                     }
-                                    await uow.CompleteAsync();
+                                    if (updatedCount > 0)
+                                    {
+                                        await uow.CompleteAsync();
+                                        Serilog.Log.Information("[TranslationExtensions] Background task successfully saved {Count} translations to DB.", updatedCount);
+                                    }
+                                    else
+                                    {
+                                        Serilog.Log.Warning("[TranslationExtensions] Background task completed but no database entities were updated.");
+                                    }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"[TranslationBackgroundSave] Error: {ex.Message}");
+                                Serilog.Log.Error(ex, "[TranslationExtensions] Exception in background translation DB writer.");
                             }
                         });
                     }
                     else if (unitOfWork != null)
                     {
-                        // Fallback: Save sequentially to the provided unit of work
                         try
                         {
+                            int updatedCount = 0;
                             foreach (var pDto in productsToSave)
                             {
                                 var productEntity = await unitOfWork.Products.GetByIdAsync(pDto.Id);
@@ -136,13 +152,18 @@ namespace Bolcko.Web.App.Extensions
                                     productEntity.NameEn = pDto.Name;
                                     productEntity.DescriptionEn = pDto.Description;
                                     unitOfWork.Products.Update(productEntity);
+                                    updatedCount++;
                                 }
                             }
-                            await unitOfWork.CompleteAsync();
+                            if (updatedCount > 0)
+                            {
+                                await unitOfWork.CompleteAsync();
+                                Serilog.Log.Information("[TranslationExtensions] Sequential task successfully saved {Count} translations to DB.", updatedCount);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"[TranslationSequentialSave] Error: {ex.Message}");
+                            Serilog.Log.Error(ex, "[TranslationExtensions] Exception in sequential translation DB writer.");
                         }
                     }
                 }
