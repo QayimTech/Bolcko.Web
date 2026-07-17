@@ -61,21 +61,113 @@ namespace Bolcko.Web.App.Extensions
         private static bool ContainsArabic(string text) =>
             System.Text.RegularExpressions.Regex.IsMatch(text, @"[\u0600-\u06FF]");
 
-        public static async Task<IEnumerable<ProductDto>> TranslateAsync(this IEnumerable<ProductDto> products, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
+        public static async Task<IEnumerable<ProductDto>> TranslateAsync(
+            this IEnumerable<ProductDto> products, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IUnitOfWork? unitOfWork = null, 
+            IServiceProvider? serviceProvider = null)
         {
             if (products == null) return null!;
             var tasks = new List<Task<ProductDto>>();
+            
             foreach (var p in products)
             {
-                tasks.Add(p.TranslateAsync(translationService, targetCulture, null)); // Force null unitOfWork to prevent parallel DB writes
+                tasks.Add(p.TranslateAsync(translationService, targetCulture, null));
             }
-            return await Task.WhenAll(tasks);
+            
+            var results = await Task.WhenAll(tasks);
+            
+            // Background DB Persistence for English Translations:
+            // If target is English, save missing translations to DB
+            if (!targetCulture.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
+            {
+                var productsToSave = new List<ProductDto>();
+                foreach (var p in results)
+                {
+                    if (string.IsNullOrEmpty(p.NameEn) && !string.IsNullOrEmpty(p.Name))
+                    {
+                        productsToSave.Add(p);
+                    }
+                }
+
+                if (productsToSave.Count > 0)
+                {
+                    if (serviceProvider != null)
+                    {
+                        // High Performance: Fire-and-forget background task with a fresh scope
+                        var scopeFactory = (Microsoft.Extensions.DependencyInjection.IServiceScopeFactory)serviceProvider.GetService(typeof(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory))!;
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                using (var scope = scopeFactory.CreateScope())
+                                {
+                                    var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                                    foreach (var pDto in productsToSave)
+                                    {
+                                        var productEntity = await uow.Products.GetByIdAsync(pDto.Id);
+                                        if (productEntity != null && string.IsNullOrEmpty(productEntity.NameEn))
+                                        {
+                                            productEntity.NameEn = pDto.Name;
+                                            productEntity.DescriptionEn = pDto.Description;
+                                            uow.Products.Update(productEntity);
+                                        }
+                                    }
+                                    await uow.CompleteAsync();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[TranslationBackgroundSave] Error: {ex.Message}");
+                            }
+                        });
+                    }
+                    else if (unitOfWork != null)
+                    {
+                        // Fallback: Save sequentially to the provided unit of work
+                        try
+                        {
+                            foreach (var pDto in productsToSave)
+                            {
+                                var productEntity = await unitOfWork.Products.GetByIdAsync(pDto.Id);
+                                if (productEntity != null && string.IsNullOrEmpty(productEntity.NameEn))
+                                {
+                                    productEntity.NameEn = pDto.Name;
+                                    productEntity.DescriptionEn = pDto.Description;
+                                    unitOfWork.Products.Update(productEntity);
+                                }
+                            }
+                            await unitOfWork.CompleteAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[TranslationSequentialSave] Error: {ex.Message}");
+                        }
+                    }
+                }
+            }
+
+            return results;
         }
 
-        public static async Task<IPagedList<ProductDto>> TranslateAsync(this IPagedList<ProductDto> pagedProducts, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
+        // Clean overload for Background ServiceProvider persistence
+        public static Task<IEnumerable<ProductDto>> TranslateAsync(
+            this IEnumerable<ProductDto> products, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IServiceProvider serviceProvider) =>
+            TranslateAsync(products, translationService, targetCulture, null, serviceProvider);
+
+        public static async Task<IPagedList<ProductDto>> TranslateAsync(
+            this IPagedList<ProductDto> pagedProducts, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IUnitOfWork? unitOfWork = null, 
+            IServiceProvider? serviceProvider = null)
         {
             if (pagedProducts == null) return null!;
-            var translatedItems = await pagedProducts.Items.TranslateAsync(translationService, targetCulture, null); // Force null unitOfWork
+            var translatedItems = await pagedProducts.Items.TranslateAsync(translationService, targetCulture, unitOfWork, serviceProvider);
             return new Blocko.Persistence.Common.PagedList<ProductDto>(
                 translatedItems, 
                 pagedProducts.TotalCount, 
@@ -84,7 +176,12 @@ namespace Bolcko.Web.App.Extensions
             );
         }
 
-        public static async Task<CategoryDto> TranslateAsync(this CategoryDto category, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
+        public static async Task<CategoryDto> TranslateAsync(
+            this CategoryDto category, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IUnitOfWork? unitOfWork = null, 
+            IServiceProvider? serviceProvider = null)
         {
             if (category == null) return null!;
             var isAr = targetCulture.StartsWith("ar");
@@ -105,29 +202,61 @@ namespace Bolcko.Web.App.Extensions
                     {
                         category.Description = await translationService.TranslateAsync(category.Description, targetCulture);
                     }
+                    
+                    // Persist category translation to database
+                    if (unitOfWork != null)
+                    {
+                        try
+                        {
+                            var categoryEntity = await unitOfWork.Categories.GetByIdAsync(category.Id);
+                            if (categoryEntity != null && string.IsNullOrEmpty(categoryEntity.NameEn))
+                            {
+                                categoryEntity.NameEn = category.Name;
+                                categoryEntity.DescriptionEn = category.Description;
+                                unitOfWork.Categories.Update(categoryEntity);
+                                await unitOfWork.CompleteAsync();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[CategoryTranslationSave] Error: {ex.Message}");
+                        }
+                    }
                 }
             }
             else
             {
-                category.Name = await translationService.TranslateAsync(category.Name, targetCulture);
-                if (!string.IsNullOrEmpty(category.Description))
-                {
+                if (!string.IsNullOrEmpty(category.Name) && !ContainsArabic(category.Name))
+                    category.Name = await translationService.TranslateAsync(category.Name, targetCulture);
+                if (!string.IsNullOrEmpty(category.Description) && !ContainsArabic(category.Description))
                     category.Description = await translationService.TranslateAsync(category.Description, targetCulture);
-                }
             }
             return category;
         }
 
-        public static async Task<IEnumerable<CategoryDto>> TranslateAsync(this IEnumerable<CategoryDto> categories, ITranslationService translationService, string targetCulture, IUnitOfWork? unitOfWork = null)
+        public static async Task<IEnumerable<CategoryDto>> TranslateAsync(
+            this IEnumerable<CategoryDto> categories, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IUnitOfWork? unitOfWork = null, 
+            IServiceProvider? serviceProvider = null)
         {
             if (categories == null) return null!;
             var tasks = new List<Task<CategoryDto>>();
             foreach (var c in categories)
             {
-                tasks.Add(c.TranslateAsync(translationService, targetCulture, unitOfWork));
+                tasks.Add(c.TranslateAsync(translationService, targetCulture, unitOfWork, serviceProvider));
             }
             return await Task.WhenAll(tasks);
         }
+
+        // Clean overload for Background ServiceProvider persistence
+        public static Task<IEnumerable<CategoryDto>> TranslateAsync(
+            this IEnumerable<CategoryDto> categories, 
+            ITranslationService translationService, 
+            string targetCulture, 
+            IServiceProvider serviceProvider) =>
+            TranslateAsync(categories, translationService, targetCulture, null, serviceProvider);
 
         public static async Task<Bolcko.Domain.Entities.Catalog.MarketPrice> TranslateAsync(this Bolcko.Domain.Entities.Catalog.MarketPrice price, ITranslationService translationService, string targetCulture)
         {
