@@ -99,14 +99,37 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 try
                 {
+                    // Retrieve market prices directly from DB. Keep it lightweight and fast.
                     var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
                     if (prices != null)
                     {
-                        translatedPrices = await prices.TranslateAsync(_translationService, culture);
+                        var pricesList = prices.ToList();
+                        
+                        // We will skip translation APIs completely for market prices to prevent any API hangs.
+                        // Instead, assign values directly based on language.
+                        var isAr = culture.StartsWith("ar");
+                        foreach (var p in pricesList)
+                        {
+                            // If Arabic, keep MaterialName as stored in DB. Otherwise, if English, use English mappings if available or direct fallback.
+                            if (!isAr)
+                            {
+                                if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
+                                else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
+                                else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
+                                else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
+                                else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
+                                else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
+                                
+                                p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
+                                p.Currency = "JOD";
+                            }
+                        }
+
+                        translatedPrices = pricesList;
                         using (var entry = cache.CreateEntry(cacheKey))
                         {
                             entry.Value = translatedPrices;
-                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30); // Cache for 30 minutes
                         }
                     }
                     else
@@ -116,7 +139,6 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 }
                 catch
                 {
-                    // Fallback to empty list to prevent crash and safely hide the spinner
                     translatedPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
                 }
             }
