@@ -4,6 +4,7 @@ using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Category
 {
@@ -14,7 +15,13 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
-            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var categories = await _unitOfWork.Categories.GetAllAsQueryable()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(c => c.ParentCategory)
+                .Include(c => c.Products)
+                .ToListAsync();
+
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
