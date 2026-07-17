@@ -90,73 +90,9 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
-        var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-        // --- Pre-check: Fix corrupted migration history ---
-        // If translation columns don't exist in DB but are marked as applied in history,
-        // remove that record to force EF to re-apply the migration and create the columns.
-        const string translationMigrationId = "20260717045637_AddEnglishTranslationsColumns";
-        try
-        {
-            var nameEnExists = db.Database
-                .SqlQueryRaw<int>(
-                    "SELECT COUNT(*)::int FROM information_schema.columns " +
-                    "WHERE table_name = 'Products' AND column_name = 'NameEn'")
-                .AsEnumerable()
-                .First() > 0;
-
-            if (!nameEnExists)
-            {
-                startupLogger.LogWarning("Translation columns missing from DB. Removing stale migration history entry to force re-apply...");
-                db.Database.ExecuteSqlRaw(
-                    $"DELETE FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" = '{translationMigrationId}'");
-            }
-        }
-        catch
-        {
-            // __EFMigrationsHistory may not exist yet on first run — safe to ignore
-        }
-
-        try
-        {
-            db.Database.Migrate();
-        }
-        catch (Npgsql.PostgresException ex) when (ex.SqlState == "42701" || ex.SqlState == "42P07")
-        {
-            // Some migrations were applied to DB directly without being recorded in __EFMigrationsHistory.
-            // Strategy: Check which of our new columns actually exist in the DB.
-            // Mark only the HISTORICAL migrations (those already applied) as recorded,
-            // then retry Migrate() so truly new migrations still get applied.
-            startupLogger.LogWarning("Migration conflict ({SqlState}): {Msg}. Syncing __EFMigrationsHistory...", ex.SqlState, ex.MessageText);
-
-            // Check if the new translation columns already exist in DB
-            var translationColumnsExist = db.Database
-                .SqlQueryRaw<int>(
-                    "SELECT COUNT(*)::int FROM information_schema.columns " +
-                    "WHERE table_name = 'Products' AND column_name = 'NameEn'")
-                .AsEnumerable()
-                .First() > 0;
-
-            var allMigrations = db.Database.GetMigrations().ToList();
-
-            // If translation columns don't exist yet, skip registering that migration
-            // so Migrate() will actually apply it and create the columns.
-            var migrationsToRegister = translationColumnsExist
-                ? allMigrations
-                : allMigrations.Where(m => m != translationMigrationId);
-
-            foreach (var migrationId in migrationsToRegister)
-            {
-                db.Database.ExecuteSqlRaw(
-                    $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
-                    $"VALUES ('{migrationId}', '8.0.11') ON CONFLICT DO NOTHING");
-            }
-
-            startupLogger.LogInformation("History synced. Retrying Migrate() for new pending migrations...");
-            db.Database.Migrate();
-            startupLogger.LogInformation("All migrations applied successfully.");
-        }
+        db.Database.Migrate();
     }
+
 
     // --- 2. Middleware Pipeline (Strict Engineering Order) ---
 
