@@ -12,8 +12,6 @@
                  src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
                  width="600"
                  height="450"
-                 loading="lazy"
-                 fetchpriority="low"
                  onerror="this.src='https://placehold.co/600x450/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'"
                  alt="@Model.Name">
         }
