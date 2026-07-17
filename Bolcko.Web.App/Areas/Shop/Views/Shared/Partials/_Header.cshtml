@@ -4,11 +4,25 @@
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @inject Blocko.Services.Interfaces.Category.ICategoryService CategoryService
 @inject Blocko.Services.Interfaces.ITranslationService TranslationService
+@inject Microsoft.Extensions.Caching.Memory.IMemoryCache MemoryCache
 @{
     var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
-    var rawCategories = await CategoryService.GetAllCategoriesAsync();
-    var allCategoriesList = await rawCategories.TranslateAsync(TranslationService, culture);
-    var allCategories = allCategoriesList.ToList();
+    var cacheKey = $"Header_Categories_{culture}";
+    
+    if (!MemoryCache.TryGetValue(cacheKey, out object? cachedObj) || cachedObj is not List<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> allCategories)
+    {
+        var rawCategories = await CategoryService.GetAllCategoriesAsync();
+        var allCategoriesList = await rawCategories.TranslateAsync(TranslationService, culture);
+        allCategories = allCategoriesList.ToList();
+        
+        // Cache categories for 10 minutes to save DB and Translation loop overhead
+        using (var entry = MemoryCache.CreateEntry(cacheKey))
+        {
+            entry.Value = allCategories;
+            entry.AbsoluteExpirationRelativeToNow = System.TimeSpan.FromMinutes(10);
+        }
+    }
+    
     var rootCategories = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ToList();
     var isArabic = culture.StartsWith("ar");
 }
