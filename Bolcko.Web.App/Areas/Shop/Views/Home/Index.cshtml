@@ -242,9 +242,18 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Load market prices via AJAX
-            $.get('@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })', function(data) {
-                $('#market-prices-container').html(data);
+            // Load market prices via AJAX with a safety timeout and error handling to prevent infinite spinner
+            $.ajax({
+                url: '@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })',
+                type: 'GET',
+                timeout: 5000, // 5 seconds safety timeout
+                success: function(data) {
+                    $('#market-prices-container').html(data);
+                },
+                error: function() {
+                    // Remove spinner and show fallback if there is a timeout or error
+                    $('#market-prices-container').html('<div class="text-center py-8 text-slate-400 text-sm">@SharedLocalizer["MarketPricesUnavailable"]</div>');
+                }
             });
         });
     </script>
