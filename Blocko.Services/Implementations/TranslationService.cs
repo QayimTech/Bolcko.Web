@@ -117,8 +117,8 @@ namespace Blocko.Services.Implementations
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                // Drastically reduce timeout to 150ms to ensure absolute zero visible latency for the user
-                client.Timeout = TimeSpan.FromMilliseconds(150); 
+                // Safe stable timeout of 2000ms for API availability, falling back to original text if exceeded
+                client.Timeout = TimeSpan.FromMilliseconds(2000); 
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 

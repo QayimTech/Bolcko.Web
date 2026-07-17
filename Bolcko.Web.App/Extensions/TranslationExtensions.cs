@@ -102,6 +102,13 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<Bolcko.Domain.Entities.Catalog.MarketPrice> TranslateAsync(this Bolcko.Domain.Entities.Catalog.MarketPrice price, ITranslationService translationService, string targetCulture)
         {
             if (price == null) return null!;
+            
+            // Bypass translation completely if target is Arabic, since database values are already in Arabic
+            if (targetCulture.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
+            {
+                return price;
+            }
+
             price.MaterialName = await translationService.TranslateAsync(price.MaterialName, targetCulture);
             if (!string.IsNullOrEmpty(price.UnitOfMeasure))
             {
