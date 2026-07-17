@@ -90,7 +90,30 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
-        db.Database.Migrate();
+        try
+        {
+            db.Database.Migrate();
+        }
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == "42701" || ex.SqlState == "42P07")
+        {
+            // Some migrations were applied to the DB directly (outside EF tracking).
+            // Mark ALL code-defined migrations as applied in __EFMigrationsHistory,
+            // then retry so only truly new migrations are applied.
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Migration conflict detected ({SqlState}): {Message}. Auto-seeding migration history...", ex.SqlState, ex.MessageText);
+
+            var allMigrations = db.Database.GetMigrations();
+            foreach (var migrationId in allMigrations)
+            {
+                db.Database.ExecuteSqlRaw(
+                    $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
+                    $"VALUES ('{migrationId}', '8.0.11') ON CONFLICT DO NOTHING");
+            }
+
+            logger.LogInformation("Migration history seeded. Retrying Migrate()...");
+            db.Database.Migrate();
+            logger.LogInformation("Migrations applied successfully.");
+        }
     }
 
     // --- 2. Middleware Pipeline (Strict Engineering Order) ---
