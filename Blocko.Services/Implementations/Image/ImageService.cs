@@ -2,7 +2,7 @@ using Blocko.Services.Interfaces.Image;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
@@ -22,8 +22,6 @@ namespace Blocko.Services.Implementations.Images
             _logger = logger;
             _httpClient = httpClient;
 
-            // Resolve the absolute path relative to ContentRootPath
-            // to make sure it always points to the correct wwwroot folder
             var settingsPath = settings.Value.BasePath;
             if (string.IsNullOrWhiteSpace(settingsPath))
             {
@@ -46,22 +44,28 @@ namespace Blocko.Services.Implementations.Images
         {
             try
             {
-                var uniqueFileName = GenerateUniqueFileName(fileName);
-                var localPath = Path.Combine(_basePath, folderPath, uniqueFileName);
+                var webpFileName = GenerateUniqueFileName(fileName);
+                var localPath = Path.Combine(_basePath, folderPath, webpFileName);
 
-                _logger.LogInformation("Saving product image to local path: {Path}", localPath);
+                _logger.LogInformation("Saving product image as WebP to local path: {Path}", localPath);
 
                 Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
 
-                using (var destinationStream = new FileStream(localPath, FileMode.Create))
+                // Use ImageSharp to load and save direct to WebP, bypassing temporary disk copy
+                using (var image = await Image.LoadAsync(fileStream))
                 {
-                    await fileStream.CopyToAsync(destinationStream);
+                    image.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(1200, 1200)
+                    }));
+
+                    var encoder = new WebpEncoder { Quality = 75, Method = WebpEncodingMethod.Level4 };
+                    await image.SaveAsync(localPath, encoder);
                 }
 
-                await CompressImageAsync(localPath);
-
-                var relativeResultPath = Path.Combine(folderPath, uniqueFileName).Replace("\\", "/");
-                _logger.LogInformation("Successfully saved and compressed image. Resulting URL path: {Url}", relativeResultPath);
+                var relativeResultPath = Path.Combine(folderPath, webpFileName).Replace("\\", "/");
+                _logger.LogInformation("Successfully saved and compressed image in WebP format. Resulting URL path: {Url}", relativeResultPath);
                 return relativeResultPath;
             }
             catch (Exception ex)
@@ -84,22 +88,27 @@ namespace Blocko.Services.Implementations.Images
                 {
                     fileName = "image.jpg";
                 }
-                var uniqueFileName = GenerateUniqueFileName(fileName);
-                var localPath = Path.Combine(_basePath, folderPath, uniqueFileName);
+                var webpFileName = GenerateUniqueFileName(fileName);
+                var localPath = Path.Combine(_basePath, folderPath, webpFileName);
 
-                _logger.LogInformation("Saving downloaded image to path: {Path}", localPath);
+                _logger.LogInformation("Saving downloaded image as WebP to path: {Path}", localPath);
 
                 Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
 
                 using (var stream = await response.Content.ReadAsStreamAsync())
-                using (var fileStream = File.Create(localPath))
+                using (var image = await Image.LoadAsync(stream))
                 {
-                    await stream.CopyToAsync(fileStream);
+                    image.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(1200, 1200)
+                    }));
+
+                    var encoder = new WebpEncoder { Quality = 75, Method = WebpEncodingMethod.Level4 };
+                    await image.SaveAsync(localPath, encoder);
                 }
 
-                await CompressImageAsync(localPath);
-
-                var relativeResultPath = Path.Combine(folderPath, uniqueFileName).Replace("\\", "/");
+                var relativeResultPath = Path.Combine(folderPath, webpFileName).Replace("\\", "/");
                 return relativeResultPath;
             }
             catch (Exception ex)
@@ -113,7 +122,7 @@ namespace Blocko.Services.Implementations.Images
         {
             try
             {
-                _logger.LogInformation("Compressing image: {Path}", imagePath);
+                _logger.LogInformation("Compressing existing image in-place: {Path}", imagePath);
                 using var image = await Image.LoadAsync(imagePath);
                 image.Mutate(x => x.Resize(new ResizeOptions
                 {
@@ -121,7 +130,18 @@ namespace Blocko.Services.Implementations.Images
                     Size = new Size(1200, 1200)
                 }));
 
-                var encoder = new JpegEncoder { Quality = quality };
+                var encoder = new WebpEncoder { Quality = quality, Method = WebpEncodingMethod.Level4 };
+                
+                // If it's not webp extension, we save a new webp file and delete old one,
+                // or just compress it in-place using WebpEncoder if path allows it.
+                if (!imagePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
+                {
+                    var newPath = Path.ChangeExtension(imagePath, ".webp");
+                    await image.SaveAsync(newPath, encoder);
+                    if (File.Exists(imagePath)) File.Delete(imagePath);
+                    return newPath;
+                }
+
                 await image.SaveAsync(imagePath, encoder);
                 return imagePath;
             }
@@ -139,6 +159,6 @@ namespace Blocko.Services.Implementations.Images
             if (File.Exists(fullPath)) File.Delete(fullPath);
         }
 
-        public string GenerateUniqueFileName(string originalFileName) => $"{Guid.NewGuid():N}.jpg";
+        public string GenerateUniqueFileName(string originalFileName) => $"{Guid.NewGuid():N}.webp";
     }
 }
