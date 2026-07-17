@@ -4,25 +4,25 @@
 @inject IOptions<Bolcko.Web.App.Models.MarketSettings> MarketSettings
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 
-<footer class="bg-[#0D111A] text-white border-t border-white/5">
-    <div class="w-full py-16 px-6 flex flex-col md:flex-row justify-between items-start max-w-7xl mx-auto gap-12 text-start">
-        <div class="max-w-xs flex flex-col gap-6">
+<footer class="bg-[#0D111A] text-white border-t border-white/5 relative z-10">
+    <div class="w-full py-16 px-6 flex flex-col lg:flex-row justify-between items-start max-w-7xl mx-auto gap-12 text-start">
+        <div class="max-w-md w-full flex flex-col gap-6">
             <a href="/" class="inline-block hover:opacity-90 transition-opacity">
                 <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-10")' />
             </a>
-            <p class="text-slate-400 text-sm leading-relaxed">
+            <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
                 @SharedLocalizer["FooterAbout"]
             </p>
             <div class="flex gap-4">
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors">social_leaderboard</span>
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors">public</span>
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors">mail</span>
+                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-xl">share</span>
+                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-xl">language</span>
+                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-xl">mail</span>
             </div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-12">
+        <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 md:gap-12">
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Navigation"]</h5>
-                <nav class="flex flex-col gap-2.5 text-sm">
+                <nav class="flex flex-col gap-3 text-sm">
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("AboutUs","Home", new { area = "Shop" })">@SharedLocalizer["AboutUs"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ContactUs"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Privacy", "Legal", new { area = "Shop" })">@SharedLocalizer["PrivacyPolicy"]</a>
@@ -32,13 +32,13 @@
             </div>
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["Commercial"]</h5>
-                <nav class="flex flex-col gap-2.5 text-sm">
+                <nav class="flex flex-col gap-3 text-sm">
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Contact", "Home", new { area = "Shop" })">@SharedLocalizer["ShippingInfo"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Request", "Quote", new { area = "Shop" })">@SharedLocalizer["WholesaleOrders"]</a>
                     <a class="text-slate-400 hover:text-white transition-all duration-200" href="@Url.Action("Login", "Account", new { area = "Shop" })">@SharedLocalizer["PartnerLogin"]</a>
                 </nav>
             </div>
-            <div class="flex flex-col gap-4 col-span-2 md:col-span-1">
+            <div class="flex flex-col gap-4 col-span-1 sm:col-span-2 md:col-span-1">
                 <h5 class="text-[#E8A020] font-bold text-sm tracking-widest uppercase">@SharedLocalizer["MarketInfo"]</h5>
                 @{
                     var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
@@ -57,17 +57,17 @@
                     var currency = isAr ? (dbCurrencyAr?.Value ?? "دينار أردني") : (dbCurrencyEn?.Value ?? "JOD");
                     var isOnline = (dbIsOnlineOnly?.Value ?? "true") == "true";
                 }
-                <div class="text-slate-400 text-sm leading-relaxed mt-2 flex flex-col gap-2">
-                    <p class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">public</span>
+                <div class="text-slate-400 text-sm leading-relaxed flex flex-col gap-3">
+                    <p class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-[#E8A020]">public</span>
                         <span>@city، @country</span>
                     </p>
-                    <p class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">storefront</span>
+                    <p class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-[#E8A020]">storefront</span>
                         <span>@(isOnline ? SharedLocalizer["OnlineOnly"] : SharedLocalizer["ShowroomsWarehouses"])</span>
                     </p>
-                    <p class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">payments</span>
+                    <p class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-[#E8A020]">payments</span>
                         <span>@SharedLocalizer["ApprovedCurrency"]: @currency</span>
                     </p>
                 </div>
