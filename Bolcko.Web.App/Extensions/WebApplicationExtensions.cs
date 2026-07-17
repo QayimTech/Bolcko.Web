@@ -57,7 +57,10 @@ public static class WebApplicationExtensions
                 // Set Cache-Control header to enable caching on Edge servers (Cloudflare CDN) and client browsers
                 const int durationInSeconds = 60 * 60 * 24 * 365; // Cache for 1 year
                 ctx.Context.Response.Headers[HeaderNames.CacheControl] = 
-                    "public, max-age=" + durationInSeconds;
+                    "public, max-age=" + durationInSeconds + ", immutable";
+                
+                // Add Vary header for better CDN caching
+                ctx.Context.Response.Headers[HeaderNames.Vary] = "Accept-Encoding";
             }
         });
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Net.Http.Headers;
 using System.IO.Compression;
 using WebMarkupMin.AspNetCore8;
 
@@ -38,18 +39,21 @@ public static class PerformanceExtensions
                 "image/svg+xml",
                 "font/woff2",
                 "font/woff",
-                "font/ttf"
+                "font/ttf",
+                "application/manifest+json",
+                "application/x-font-ttf",
+                "image/x-icon"
             };
         });
 
         services.Configure<BrotliCompressionProviderOptions>(options =>
         {
-            options.Level = CompressionLevel.Optimal;
+            options.Level = CompressionLevel.SmallestSize;
         });
 
         services.Configure<GzipCompressionProviderOptions>(options =>
         {
-            options.Level = CompressionLevel.Optimal;
+            options.Level = CompressionLevel.SmallestSize;
         });
     }
 
@@ -74,6 +78,11 @@ public static class PerformanceExtensions
             options.MinificationSettings.RemoveHttpsProtocolFromAttributes = true;
             options.MinificationSettings.RemoveHtmlComments = true;
             options.MinificationSettings.CollapseBooleanAttributes = true;
+            options.MinificationSettings.RemoveEmptyAttributes = true;
+            options.MinificationSettings.MinifyEmbeddedCssCode = true;
+            options.MinificationSettings.MinifyEmbeddedJsCode = true;
+            options.MinificationSettings.MinifyInlineCssCode = true;
+            options.MinificationSettings.MinifyInlineJsCode = true;
         });
     }
 
@@ -90,6 +99,7 @@ public static class PerformanceExtensions
         {
             options.UseCaseSensitivePaths = false;
             options.MaximumBodySize = 1024 * 1024 * 64; // 64 MB
+            options.SizeLimit = 1024 * 1024 * 100; // 100 MB
         });
     }
 
@@ -130,16 +140,13 @@ public static class PerformanceExtensions
         {
             // Performance headers
             context.Response.Headers.Append("X-DNS-Prefetch-Control", "on");
+            context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+            context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+            context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
             context.Response.Headers.Append("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
             
-            // Caching headers for static resources
-            if (context.Request.Path.StartsWithSegments("/css") ||
-                context.Request.Path.StartsWithSegments("/js") ||
-                context.Request.Path.StartsWithSegments("/lib") ||
-                context.Request.Path.StartsWithSegments("/images"))
-            {
-                context.Response.Headers.Append("Cache-Control", "public, max-age=31536000, immutable");
-            }
+            // Permissions Policy for better security and performance
+            context.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
             await next();
         });

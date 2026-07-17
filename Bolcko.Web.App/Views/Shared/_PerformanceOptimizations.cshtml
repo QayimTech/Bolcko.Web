@@ -3,11 +3,10 @@
    These optimizations follow Google's PageSpeed Insights best practices *@
 
 @* 1. Preconnect to required origins (establishes early connections) *@
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="preconnect" href="https://images.unsplash.com" crossorigin />
-<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
 @* 2. Preload Critical Resources (LCP optimization) *@
 @* Preload hero image if on homepage *@
@@ -15,13 +14,15 @@
 {
     <link rel="preload" as="image" 
           href="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200" 
-          imagesrcset="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=600 600w,
-                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200 1200w"
+          imagesrcset="https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=640 640w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1024 1024w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200 1200w,
+                       https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1920 1920w"
           imagesizes="100vw"
-          fetchpriority="high" />
+          fetchpriority="high">
 }
 
-@* 3. Critical CSS (Above the fold styles) *@
+@* 3. Critical CSS (Above the fold styles) - Prevents CLS and optimizes FCP *@
 <style>
     /* Critical CSS - Above the fold content */
     :root {
@@ -33,24 +34,45 @@
     /* Prevent layout shifts */
     html {
         font-display: swap;
+        box-sizing: border-box;
+    }
+    *, *::before, *::after {
+        box-sizing: inherit;
     }
     
-    /* Optimize LCP element */
+    /* CLS prevention for media */
+    img, video, picture, iframe {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Optimize hero section rendering */
     .hero-section {
         min-height: 60vh;
         contain: layout style;
     }
     
-    /* Font display optimization */
+    /* Font display optimization for all web fonts */
     @@font-face {
         font-family: 'Noto Kufi Arabic';
         font-display: swap;
     }
-    
-    /* CLS prevention */
-    img, video, picture {
-        max-width: 100%;
-        height: auto;
+    @@font-face {
+        font-family: 'Inter';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Work Sans';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Space Grotesk';
+        font-display: swap;
+    }
+    @@font-face {
+        font-family: 'Material Symbols Outlined';
+        font-display: swap;
     }
     
     /* Reduce motion for accessibility */
@@ -64,8 +86,5 @@
 </style>
 
 @* 4. Prefetch likely next pages *@
-<link rel="prefetch" href="/Shop/Category" as="document" />
-<link rel="prefetch" href="/Shop/Cart" as="document" />
-
-@* 5. Module Preload for critical JS *@
-<link rel="modulepreload" href="/js/site.js" />
+<link rel="prefetch" href="/Shop/Category" as="document">
+<link rel="prefetch" href="/Shop/Cart" as="document">

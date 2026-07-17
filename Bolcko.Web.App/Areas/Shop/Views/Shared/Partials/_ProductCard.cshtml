@@ -10,8 +10,12 @@
         {
             <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                  src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
-                 onerror="this.src='https://placehold.co/600x400/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'"
-                 alt="@Model.Name" />
+                 width="600"
+                 height="450"
+                 loading="lazy"
+                 fetchpriority="low"
+                 onerror="this.src='https://placehold.co/600x450/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'"
+                 alt="@Model.Name">
         }
         else
         {
