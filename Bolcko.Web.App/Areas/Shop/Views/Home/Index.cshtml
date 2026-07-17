@@ -220,7 +220,7 @@
         </div>
     </section>
 
-    <!-- Section: Market Prices rendered directly from server to prevent any client-side AJAX freezes -->
+    <!-- Section: Market Prices rendered via deferred lightweight AJAX with a clean skeleton placeholder -->
     <section class="w-full py-16 px-6 bg-surface-container-lowest border-t border-outline-variant relative z-10">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -237,64 +237,48 @@
             </div>
 
             <div id="market-prices-container">
-                @{
-                    var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
-                    var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-                    var serviceManager = (Blocko.Services.Interfaces.IServiceManager)Context.RequestServices.GetService(typeof(Blocko.Services.Interfaces.IServiceManager))!;
-                    var cache = (Microsoft.Extensions.Caching.Memory.IMemoryCache)Context.RequestServices.GetService(typeof(Microsoft.Extensions.Caching.Memory.IMemoryCache))!;
-                    
-                    var cacheKey = $"Home_MarketPrices_Static_{culture}";
-                    if (!cache.TryGetValue(cacheKey, out object? cachedPricesObj) || cachedPricesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> displayPricesList)
+                <!-- Sleek, premium skeleton placeholders matching the exact card design -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter animate-pulse">
+                    @for (int i = 0; i < 3; i++)
                     {
-                        try
-                        {
-                            var dbPrices = await serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-                            if (dbPrices != null)
-                            {
-                                var list = dbPrices.ToList();
-                                var isAr = culture.StartsWith("ar");
-                                foreach (var p in list)
-                                {
-                                    if (!isAr)
-                                    {
-                                        if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
-                                        else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
-                                        else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
-                                        else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
-                                        else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
-                                        else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
-                                        
-                                        p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
-                                        p.Currency = "JOD";
-                                    }
-                                }
-                                displayPricesList = list;
-                            }
-                            else
-                            {
-                                displayPricesList = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
-                            }
-                        }
-                        catch
-                        {
-                            displayPricesList = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
-                        }
-
-                        // Use classic entry creation to bypass missing using extensions
-                        using (var entry = cache.CreateEntry(cacheKey))
-                        {
-                            entry.Value = displayPricesList;
-                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
-                        }
+                        <div class="bg-white border border-outline-variant p-6 shadow-hard flex items-center justify-between">
+                            <div class="flex items-center gap-4 w-2/3">
+                                <div class="w-12 h-12 bg-slate-100 rounded-lg shrink-0"></div>
+                                <div class="flex-grow flex flex-col gap-2">
+                                    <div class="h-4 bg-slate-100 rounded w-5/6"></div>
+                                    <div class="h-3 bg-slate-100 rounded w-1/3"></div>
+                                </div>
+                            </div>
+                            <div class="w-1/4 flex flex-col items-end gap-2">
+                                <div class="h-5 bg-slate-100 rounded w-2/3"></div>
+                                <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+                            </div>
+                        </div>
                     }
-                    var displayPrices = displayPricesList;
-                }
-                <partial name="Partials/_MarketPrices" model="displayPrices" />
+                </div>
             </div>
         </div>
     </section>
 </main>
 
 @section Scripts {
-    <!-- AJAX Script removed to eliminate infinite spinner issue -->
+    <script>
+        $(document).ready(function() {
+            // Load market prices in background asynchronously after page interactive event
+            setTimeout(function() {
+                $.ajax({
+                    url: '@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })',
+                    type: 'GET',
+                    timeout: 4000,
+                    success: function(data) {
+                        $('#market-prices-container').html(data);
+                    },
+                    error: function() {
+                        // Cleanly hide container if database fails to respond
+                        $('#market-prices-container').slideUp(300);
+                    }
+                });
+            }, 100);
+        });
+    </script>
 }
