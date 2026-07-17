@@ -1,7 +1,13 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+<link rel="preload" href="~/css/site.css" as="style" asp-append-version="true" />
+<link rel="preload" href="~/css/output.css" as="style" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" media="print" onload="this.media='all'" />
+<link rel="stylesheet" href="~/css/output.css" asp-append-version="true" media="print" onload="this.media='all'" />
+<noscript>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+</noscript>
 
 <style>
     .material-symbols-outlined {
