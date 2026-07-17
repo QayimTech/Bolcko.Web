@@ -1,8 +1,6 @@
-
-<script>
 /**
  * BLOCKO Notification Center Service
- * Loaded dynamically inline via server-side Partial View.
+ * Decoupled static file to support browser caching.
  */
 (function (window) {
     'use strict';
@@ -174,4 +172,3 @@
     };
 
 })(window);
-</script>

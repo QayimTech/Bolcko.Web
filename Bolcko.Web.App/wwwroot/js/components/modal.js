@@ -1,7 +1,6 @@
-<script>
 /**
  * BLOCKO UI Modal Component
- * Loaded dynamically inline via server-side Partial View.
+ * Decoupled static file to support browser caching.
  */
 (function (window) {
     'use strict';
@@ -105,4 +104,3 @@
     window.BlockoModal = Object.freeze(new BlockoModal());
 
 })(window);
-</script>

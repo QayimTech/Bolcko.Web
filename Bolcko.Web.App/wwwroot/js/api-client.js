@@ -1,7 +1,6 @@
-<script>
 /**
  * BLOCKO Centralized API Client (Fetch Wrapper)
- * Loaded dynamically inline via server-side Partial View to minimize network requests.
+ * Decoupled static file to support browser caching.
  */
 (function (window) {
     'use strict';
@@ -117,4 +116,3 @@
     });
 
 })(window);
-</script>
