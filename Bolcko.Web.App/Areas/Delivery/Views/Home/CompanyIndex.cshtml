@@ -307,7 +307,11 @@
 
     function copyDriverLink(link) {
         navigator.clipboard.writeText(link).then(() => {
-            alert('✅ تم نسخ رابط تحديث المندوب بنجاح! يمكنك إرساله للسائق عبر الواتساب.');
+            window.BlockoModal.show({ 
+                title: 'تم النسخ بنجاح', 
+                message: 'تم نسخ رابط تحديث المندوب بنجاح! يمكنك إرساله للسائق عبر الواتساب.', 
+                icon: 'success' 
+            });
         }).catch(err => {
             console.error('Failed to copy text: ', err);
         });

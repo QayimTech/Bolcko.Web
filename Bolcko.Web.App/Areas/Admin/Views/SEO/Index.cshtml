@@ -89,11 +89,15 @@
                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function (res) {
-                        alert(res.message);
-                        location.reload();
+                        if (res.success) {
+                            window.BlockoModal.show({ title: 'عملية ناجحة', message: res.message, icon: 'success', onConfirm: () => window.location.reload() });
+                        } else {
+                            window.BlockoModal.show({ title: 'فشل العملية', message: res.message, icon: 'error' });
+                        }
                     },
                     error: function () {
-                        alert('حدث خطأ أثناء محاولة تهيئة صفحات الـ SEO.');
+                        btn.disabled = false;
+                        window.BlockoModal.show({ title: 'خطأ في الخادم', message: 'حدث خطأ أثناء محاولة تهيئة صفحات الـ SEO.', icon: 'error' });
                         btn.prop('disabled', false).html('<span class="material-symbols-outlined text-[18px]">auto_awesome</span> تهيئة الصفحات تلقائياً');
                     }
                 });
