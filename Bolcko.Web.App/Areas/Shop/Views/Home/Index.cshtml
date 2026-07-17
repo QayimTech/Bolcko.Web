@@ -237,24 +237,71 @@
             </div>
         </div>
     </section>
+
+    <!-- Section: Market Prices rendered directly from server to prevent any client-side AJAX freezes -->
+    <section class="w-full py-16 px-6 bg-surface-container-lowest border-t border-outline-variant relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 font-bold text-xs uppercase tracking-wider rounded-full mb-3">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        @SharedLocalizer["LiveAndUpdated"]
+                    </span>
+                    <h2 class="font-headline-lg text-on-surface font-black">@SharedLocalizer["LocalMarketMaterialPrices"]</h2>
+                </div>
+                <p class="text-on-surface-variant max-w-md text-xs md:text-sm leading-relaxed">
+                    @SharedLocalizer["MarketPricesDesc"]
+                </p>
+            </div>
+
+            <div id="market-prices-container">
+                @{
+                    // Invoke GetMarketPrices logic directly inline from DB as fallback to prevent any AJAX issues.
+                    var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
+                    var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+                    var serviceManager = (Blocko.Services.Interfaces.IServiceManager)Context.RequestServices.GetService(typeof(Blocko.Services.Interfaces.IServiceManager))!;
+                    
+                    IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> displayPrices;
+                    try
+                    {
+                        var dbPrices = await serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+                        if (dbPrices != null)
+                        {
+                            var list = dbPrices.ToList();
+                            var isAr = culture.StartsWith("ar");
+                            foreach (var p in list)
+                            {
+                                if (!isAr)
+                                {
+                                    if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
+                                    else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
+                                    else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
+                                    else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
+                                    else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
+                                    else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
+                                    
+                                    p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
+                                    p.Currency = "JOD";
+                                }
+                            }
+                            displayPrices = list;
+                        }
+                        else
+                        {
+                            displayPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                        }
+                    }
+                    catch
+                    {
+                        displayPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                    }
+                }
+                <partial name="Partials/_MarketPrices" model="displayPrices" />
+            </div>
+        </div>
+    </section>
 </main>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Load market prices via AJAX with a safety timeout and error handling to prevent infinite spinner
-            $.ajax({
-                url: '@Url.Action("GetMarketPrices", "Home", new { area = "Shop" })',
-                type: 'GET',
-                timeout: 5000, // 5 seconds safety timeout
-                success: function(data) {
-                    $('#market-prices-container').html(data);
-                },
-                error: function() {
-                    // Remove spinner and show fallback if there is a timeout or error
-                    $('#market-prices-container').html('<div class="text-center py-8 text-slate-400 text-sm">@SharedLocalizer["MarketPricesUnavailable"]</div>');
-                }
-            });
-        });
-    </script>
+    <!-- AJAX Script removed to eliminate infinite spinner issue -->
 }
