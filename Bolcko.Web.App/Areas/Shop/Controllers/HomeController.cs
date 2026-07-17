@@ -97,12 +97,27 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var cacheKey = $"Home_MarketPrices_{culture}";
             if (!cache.TryGetValue(cacheKey, out object? pricesObj) || pricesObj is not IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice> translatedPrices)
             {
-                var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
-                translatedPrices = await prices.TranslateAsync(_translationService, culture);
-                using (var entry = cache.CreateEntry(cacheKey))
+                try
                 {
-                    entry.Value = translatedPrices;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                    var prices = await _serviceManager.MarketPriceService.GetAllMarketPricesAsync();
+                    if (prices != null)
+                    {
+                        translatedPrices = await prices.TranslateAsync(_translationService, culture);
+                        using (var entry = cache.CreateEntry(cacheKey))
+                        {
+                            entry.Value = translatedPrices;
+                            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                        }
+                    }
+                    else
+                    {
+                        translatedPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
+                    }
+                }
+                catch
+                {
+                    // Fallback to empty list to prevent crash and safely hide the spinner
+                    translatedPrices = new List<Bolcko.Domain.Entities.Catalog.MarketPrice>();
                 }
             }
             
