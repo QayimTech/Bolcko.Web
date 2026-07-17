@@ -6,7 +6,9 @@ namespace Bolcko.Domain.Entities.Product
     public class Product : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
         public string? Description { get; set; }
+        public string? DescriptionEn { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
         public int? SupplierId { get; set; }

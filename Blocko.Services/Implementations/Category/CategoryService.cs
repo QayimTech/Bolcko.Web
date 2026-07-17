@@ -26,7 +26,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
                 DisplayOrder = c.DisplayOrder,
@@ -48,7 +50,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
                 DisplayOrder = c.DisplayOrder,
@@ -66,7 +70,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -81,7 +87,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -98,7 +106,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = category.Id,
                 Name = category.Name,
+                NameEn = category.NameEn,
                 Description = category.Description,
+                DescriptionEn = category.DescriptionEn,
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
                 DisplayOrder = category.DisplayOrder,
@@ -112,7 +122,9 @@ namespace Blocko.Services.Implementations.Category
             var category = new Bolcko.Domain.Entities.Catalog.Category
             {
                 Name = categoryDto.Name,
+                NameEn = categoryDto.NameEn,
                 Description = categoryDto.Description,
+                DescriptionEn = categoryDto.DescriptionEn,
                 ParentCategoryId = categoryDto.ParentCategoryId,
                 DisplayOrder = categoryDto.DisplayOrder,
                 ImageUrl = categoryDto.ImageUrl
@@ -127,7 +139,9 @@ namespace Blocko.Services.Implementations.Category
             if (category != null)
             {
                 category.Name = categoryDto.Name;
+                category.NameEn = categoryDto.NameEn;
                 category.Description = categoryDto.Description;
+                category.DescriptionEn = categoryDto.DescriptionEn;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
                 category.DisplayOrder = categoryDto.DisplayOrder;
                 category.ImageUrl = categoryDto.ImageUrl;

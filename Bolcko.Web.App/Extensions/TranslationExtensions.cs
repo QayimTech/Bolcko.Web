@@ -12,11 +12,25 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<ProductDto> TranslateAsync(this ProductDto product, ITranslationService translationService, string targetCulture)
         {
             if (product == null) return null!;
-            product.Name = await translationService.TranslateAsync(product.Name, targetCulture);
-            if (!string.IsNullOrEmpty(product.Description))
+            
+            var isAr = targetCulture.StartsWith("ar");
+            if (!isAr && !string.IsNullOrEmpty(product.NameEn))
             {
-                product.Description = await translationService.TranslateAsync(product.Description, targetCulture);
+                product.Name = product.NameEn;
+                if (!string.IsNullOrEmpty(product.DescriptionEn))
+                {
+                    product.Description = product.DescriptionEn;
+                }
             }
+            else
+            {
+                product.Name = await translationService.TranslateAsync(product.Name, targetCulture);
+                if (!string.IsNullOrEmpty(product.Description))
+                {
+                    product.Description = await translationService.TranslateAsync(product.Description, targetCulture);
+                }
+            }
+
             if (!string.IsNullOrEmpty(product.CategoryName))
             {
                 product.CategoryName = await translationService.TranslateAsync(product.CategoryName, targetCulture);
@@ -54,10 +68,22 @@ namespace Bolcko.Web.App.Extensions
         public static async Task<CategoryDto> TranslateAsync(this CategoryDto category, ITranslationService translationService, string targetCulture)
         {
             if (category == null) return null!;
-            category.Name = await translationService.TranslateAsync(category.Name, targetCulture);
-            if (!string.IsNullOrEmpty(category.Description))
+            var isAr = targetCulture.StartsWith("ar");
+            if (!isAr && !string.IsNullOrEmpty(category.NameEn))
             {
-                category.Description = await translationService.TranslateAsync(category.Description, targetCulture);
+                category.Name = category.NameEn;
+                if (!string.IsNullOrEmpty(category.DescriptionEn))
+                {
+                    category.Description = category.DescriptionEn;
+                }
+            }
+            else
+            {
+                category.Name = await translationService.TranslateAsync(category.Name, targetCulture);
+                if (!string.IsNullOrEmpty(category.Description))
+                {
+                    category.Description = await translationService.TranslateAsync(category.Description, targetCulture);
+                }
             }
             return category;
         }
