@@ -5,28 +5,26 @@
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 
 <footer class="bg-[#0D111A] text-white border-t border-white/5 relative z-10 font-body-md">
-    <!-- Main Footer Container: Responsive flex and alignment -->
-    <div class="w-full py-12 px-6 lg:py-16 flex flex-col lg:flex-row justify-between items-start max-w-7xl mx-auto gap-12 text-start">
-        
-        <!-- Brand Section -->
-        <div class="max-w-md w-full flex flex-col items-start gap-4 pb-6 lg:pb-0 border-b border-white/5 lg:border-none">
-            <a href="/" class="inline-block hover:opacity-90 transition-opacity">
-                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-9")' />
-            </a>
-            <p class="text-slate-400 text-xs md:text-sm leading-relaxed max-w-sm">
-                @SharedLocalizer["FooterAbout"]
-            </p>
-            <div class="flex gap-4 mt-2">
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">share</span>
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">language</span>
-                <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">mail</span>
-            </div>
-        </div>
-        
-        <!-- Links and Market Info Grid: Adaptive grid with safe gaps -->
-        <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+    <!-- Unified Grid System for perfect desktop & mobile harmony -->
+    <div class="w-full py-12 px-6 lg:py-16 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 text-start">
             
-            <!-- Navigation Links -->
+            <!-- Column 1: Brand & Socials -->
+            <div class="flex flex-col items-start gap-4 pb-6 sm:pb-0 border-b border-white/5 sm:border-none">
+                <a href="/" class="inline-block hover:opacity-90 transition-opacity">
+                    <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-9")' />
+                </a>
+                <p class="text-slate-400 text-xs md:text-sm leading-relaxed max-w-xs">
+                    @SharedLocalizer["FooterAbout"]
+                </p>
+                <div class="flex gap-4 mt-2">
+                    <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">share</span>
+                    <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">language</span>
+                    <span class="material-symbols-outlined text-slate-400 hover:text-[#E8A020] cursor-pointer transition-colors text-lg">mail</span>
+                </div>
+            </div>
+            
+            <!-- Column 2: Navigation Links -->
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-xs tracking-wider uppercase border-b border-white/5 pb-2">@SharedLocalizer["Navigation"]</h5>
                 <nav class="flex flex-col gap-2.5 text-xs md:text-sm">
@@ -38,7 +36,7 @@
                 </nav>
             </div>
             
-            <!-- Commercial Links -->
+            <!-- Column 3: Commercial Links -->
             <div class="flex flex-col gap-4">
                 <h5 class="text-[#E8A020] font-bold text-xs tracking-wider uppercase border-b border-white/5 pb-2">@SharedLocalizer["Commercial"]</h5>
                 <nav class="flex flex-col gap-2.5 text-xs md:text-sm">
@@ -48,8 +46,8 @@
                 </nav>
             </div>
             
-            <!-- Market Info Section -->
-            <div class="flex flex-col gap-4 col-span-1 sm:col-span-2 md:col-span-1 border-t border-white/5 pt-6 sm:pt-0 sm:border-none">
+            <!-- Column 4: Market Info Section -->
+            <div class="flex flex-col gap-4 border-t border-white/5 pt-6 sm:pt-0 sm:border-none">
                 <h5 class="text-[#E8A020] font-bold text-xs tracking-wider uppercase border-b border-white/5 pb-2">@SharedLocalizer["MarketInfo"]</h5>
                 @{
                     var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)Context.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
@@ -69,7 +67,6 @@
                     var isOnline = (dbIsOnlineOnly?.Value ?? "true") == "true";
                 }
                 <div class="text-slate-400 text-xs md:text-sm leading-relaxed flex flex-col gap-3.5 mt-1">
-                    <!-- Flex container with row-reverse for intuitive icon alignment in RTL/LTR -->
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-base text-[#E8A020] shrink-0">public</span>
                         <span>@city، @country</span>
