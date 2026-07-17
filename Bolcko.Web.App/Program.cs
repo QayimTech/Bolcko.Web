@@ -92,6 +92,31 @@ try
         var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
         var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
+        // --- Pre-check: Fix corrupted migration history ---
+        // If translation columns don't exist in DB but are marked as applied in history,
+        // remove that record to force EF to re-apply the migration and create the columns.
+        const string translationMigrationId = "20260717045637_AddEnglishTranslationsColumns";
+        try
+        {
+            var nameEnExists = db.Database
+                .SqlQueryRaw<int>(
+                    "SELECT COUNT(*)::int FROM information_schema.columns " +
+                    "WHERE table_name = 'Products' AND column_name = 'NameEn'")
+                .AsEnumerable()
+                .First() > 0;
+
+            if (!nameEnExists)
+            {
+                startupLogger.LogWarning("Translation columns missing from DB. Removing stale migration history entry to force re-apply...");
+                db.Database.ExecuteSqlRaw(
+                    $"DELETE FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" = '{translationMigrationId}'");
+            }
+        }
+        catch
+        {
+            // __EFMigrationsHistory may not exist yet on first run — safe to ignore
+        }
+
         try
         {
             db.Database.Migrate();
@@ -118,7 +143,7 @@ try
             // so Migrate() will actually apply it and create the columns.
             var migrationsToRegister = translationColumnsExist
                 ? allMigrations
-                : allMigrations.Where(m => m != "20260717045637_AddEnglishTranslationsColumns");
+                : allMigrations.Where(m => m != translationMigrationId);
 
             foreach (var migrationId in migrationsToRegister)
             {
