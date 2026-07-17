@@ -99,7 +99,16 @@ try
     }
 
     app.UseHttpsRedirection();
-    app.UseStaticFiles();
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            // Set Cache-Control header to enable caching on Edge servers (Cloudflare CDN) and client browsers
+            const int durationInSeconds = 60 * 60 * 24 * 365; // Cache for 1 year
+            ctx.Context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.CacheControl] = 
+                "public, max-age=" + durationInSeconds;
+        }
+    });
 
     // First-run setup guard: redirects to /Setup if no Admin exists yet
     app.UseFirstRunSetup();
