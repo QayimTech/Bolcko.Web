@@ -113,7 +113,7 @@ namespace Blocko.Services.Implementations
                 return cachedTranslation;
             }
 
-            // 4. Fallback: Try LibreTranslate Public Mirror (No CAPTCHA, free, supports ar|en)
+            // 4. Fallback: Try Argos OpenTech / LibreTranslate (No CAPTCHA, free, supports ar|en, doesn't block cloud IPs)
             try
             {
                 var client = _httpClientFactory.CreateClient();
@@ -130,12 +130,12 @@ namespace Blocko.Services.Implementations
                 string jsonContent = System.Text.Json.JsonSerializer.Serialize(requestData);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                // Using a reliable public community mirror of LibreTranslate
-                var response = await client.PostAsync("https://libretranslate.de/translate", content);
+                // Using the keyless public mirror first
+                var response = await client.PostAsync("https://translate.argosopentech.com/translate", content);
                 if (!response.IsSuccessStatusCode)
                 {
-                    // Try alternative public mirror
-                    response = await client.PostAsync("https://translate.argosopentech.com/translate", content);
+                    // Fallback to secondary mirror if down
+                    response = await client.PostAsync("https://libretranslate.de/translate", content);
                 }
 
                 if (response.IsSuccessStatusCode)
