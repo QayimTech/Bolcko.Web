@@ -298,22 +298,27 @@ namespace Blocko.Services.Implementations.Product
         }
 
         /// <summary>
-        /// One-time bulk translation: translates all products where NameEn is null/empty.
-        /// Uses the override dictionary first (instant, free), then falls back to Google API.
+        /// One-time bulk translation: translates all products where NameEn is null/empty,
+        /// or contains Arabic characters (due to previous failed fallbacks).
         /// Processes in batches of 10 with a 300ms delay to respect rate limits.
         /// </summary>
         public async Task<(int translated, int skipped, int failed)> BulkTranslateAsync(ITranslationService translationService)
         {
             var products = await _unitOfWork.Products.GetAllAsQueryable()
-                .Where(p => string.IsNullOrEmpty(p.NameEn))
                 .ToListAsync();
+
+            // Filter memory-side to easily check for Arabic characters in NameEn
+            var targetProducts = products.Where(p => 
+                string.IsNullOrEmpty(p.NameEn) || 
+                System.Text.RegularExpressions.Regex.IsMatch(p.NameEn, @"[\u0600-\u06FF]")
+            ).ToList();
 
             int translated = 0, skipped = 0, failed = 0;
             const int batchSize = 10;
 
-            for (int i = 0; i < products.Count; i += batchSize)
+            for (int i = 0; i < targetProducts.Count; i += batchSize)
             {
-                var batch = products.Skip(i).Take(batchSize).ToList();
+                var batch = targetProducts.Skip(i).Take(batchSize).ToList();
 
                 foreach (var product in batch)
                 {
@@ -361,7 +366,7 @@ namespace Blocko.Services.Implementations.Product
                 }
 
                 // Small delay between batches to avoid API rate limiting
-                if (i + batchSize < products.Count)
+                if (i + batchSize < targetProducts.Count)
                 {
                     await Task.Delay(300);
                 }
