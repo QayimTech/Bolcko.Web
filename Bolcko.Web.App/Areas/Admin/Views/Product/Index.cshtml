@@ -5,6 +5,11 @@
     ViewData["Title"] = L["ManageProducts"];
 }
 
+@* Hidden form to make AntiForgeryToken available to JavaScript *@
+<form id="antiforgery-form" method="post">
+    @Html.AntiForgeryToken()
+</form>
+
 <section class="p-8 space-y-8 text-right">
     <div class="flex justify-between items-center">
         <div>
@@ -179,12 +184,8 @@ async function runBulkTranslate() {
             }, 300);
 
             try {
-                // Safe extraction of ASP.NET CSRF token
-                let token = '';
-                const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-                if (tokenElement) {
-                    token = tokenElement.value;
-                }
+                // Safe extraction of ASP.NET CSRF token from the hidden form
+                const token = document.querySelector('#antiforgery-form input[name="__RequestVerificationToken"]')?.value ?? '';
 
                 const response = await fetch('@Url.Action("BulkTranslate")', {
                     method: 'POST',
