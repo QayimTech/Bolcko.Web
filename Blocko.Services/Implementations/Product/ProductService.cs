@@ -307,10 +307,13 @@ namespace Blocko.Services.Implementations.Product
             var products = await _unitOfWork.Products.GetAllAsQueryable()
                 .ToListAsync();
 
-            // Filter memory-side to easily check for Arabic characters in NameEn
+            // Filter: pick up any product with missing/Arabic NameEn OR missing/Arabic DescriptionEn
+            // This catches products like "60 80" (numeric NameEn is fine but DescriptionEn is empty/Arabic)
             var targetProducts = products.Where(p => 
                 string.IsNullOrEmpty(p.NameEn) || 
-                System.Text.RegularExpressions.Regex.IsMatch(p.NameEn, @"[\u0600-\u06FF]")
+                System.Text.RegularExpressions.Regex.IsMatch(p.NameEn, @"[\u0600-\u06FF]") ||
+                string.IsNullOrEmpty(p.DescriptionEn) ||
+                System.Text.RegularExpressions.Regex.IsMatch(p.DescriptionEn ?? "", @"[\u0600-\u06FF]")
             ).ToList();
 
             int translated = 0, skipped = 0, failed = 0;
