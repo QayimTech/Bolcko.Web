@@ -113,11 +113,49 @@ namespace Blocko.Services.Implementations
                 return cachedTranslation;
             }
 
-            // 4. Fallback to Google Translate public NMT API (Only for English targets or missing translations)
+            // 4. Fallback: Try MyMemory API (Free, doesn't block cloud IPs)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                // Strict 1.5 seconds timeout for regular requests to prevent hanging
+                client.Timeout = TimeSpan.FromMilliseconds(2000);
+
+                // MyMemory API expects languages in ISO format (e.g., ar|en)
+                string pair = $"ar|{targetLanguage}";
+                string url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(text)}&langpair={pair}";
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    if (root.TryGetProperty("responseData", out var responseData) && 
+                        responseData.TryGetProperty("translatedText", out var translatedTextProp))
+                    {
+                        string translatedText = translatedTextProp.GetString()?.Trim() ?? "";
+                        if (!string.IsNullOrEmpty(translatedText))
+                        {
+                            // Check if translation returned same Arabic text (API failed/limit reached)
+                            bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
+                            if (!isStillArabic)
+                            {
+                                _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
+                                return translatedText;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] MyMemory failed for '{text}': {ex.Message}");
+            }
+
+            // 5. Hard Fallback: Google Translate public API (as backup)
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
                 client.Timeout = TimeSpan.FromMilliseconds(1500);
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
@@ -150,7 +188,6 @@ namespace Blocko.Services.Implementations
                             string translatedText = builder.ToString().Trim();
                             if (!string.IsNullOrEmpty(translatedText))
                             {
-                                // Cache the translation (e.g. 7 days, since translations are static)
                                 _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
                                 return translatedText;
                             }
@@ -160,9 +197,7 @@ namespace Blocko.Services.Implementations
             }
             catch (Exception ex)
             {
-                // Fallback, preventing spamming the blocked/slow API for the next 15 minutes
-                System.Diagnostics.Debug.WriteLine($"[TranslationService] Exception translating '{text}' to '{targetLanguage}': {ex.Message}");
-                _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(15));
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] Google failed for '{text}': {ex.Message}");
             }
 
             // Also cache non-success responses to avoid API spamming
