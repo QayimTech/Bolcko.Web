@@ -36,13 +36,13 @@ namespace Bolcko.Web.App.ViewComponents
                         {
                             PageName = $"Product-{product.Id}",
                             PageTitle = isArabic 
-                                ? $"شراء {product.Name}{brandText}{originText} | أسعار التوريد الأردن BLOCKO"
+                                ? $"شراء {product.Name}{brandText}{originText} | أسعار التوريد الأردن بلوكو BLOCKO"
                                 : $"Buy {product.Name}{brandText} | Best Building Materials Jordan",
                             MetaDescription = isArabic
-                                ? $"احصل على {product.Name}{brandText}{originText} بأفضل سعر للبيع والتوريد للمشاريع الإنشائية في الأردن. مواصفات قياسية، جودة معتمدة، وتوصيل فوري للموقع من BLOCKO."
+                                ? $"احصل على {product.Name}{brandText}{originText} بأفضل سعر للبيع والتوريد للمشاريع الإنشائية في الأردن. مواصفات قياسية، جودة معتمدة، وتوصيل فوري للموقع من بلوكو BLOCKO."
                                 : $"Get standard {product.Name}{brandText} online. Direct wholesale construction supply & delivery to your jobsite in Jordan. Enquire for bulk pricing today.",
                             MetaKeywords = isArabic
-                                ? $"شراء {product.Name}، {product.Brand}، مواد بناء الأردن، توريد مشاريع، أسعار مواد البناء"
+                                ? $"شراء {product.Name}، {product.Brand}، مواد بناء الأردن، توريد مشاريع، أسعار مواد البناء، بلوكو، blocko"
                                 : $"buy {product.Name}, {product.Brand}, building materials jordan, blocko construction supplies"
                         };
                     }
@@ -61,7 +61,7 @@ namespace Bolcko.Web.App.ViewComponents
                 seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
             }
 
-            ViewBag.DefaultTitle = defaultTitle ?? "BLOCKO";
+            ViewBag.DefaultTitle = defaultTitle ?? (isArabic ? "بلوكو لتوريد مواد البناء | BLOCKO" : "BLOCKO - Building Materials");
             return View(seo);
         }
     }

@@ -125,7 +125,7 @@ namespace Bolcko.Web.App.Controllers
                     urls.Add(new SitemapUrl
                     {
                         Loc = $"{baseUrl}/Shop/Product/Index/{product.Id}",
-                        LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                        LastMod = product.UpdatedAt.ToString("yyyy-MM-dd"),
                         ChangeFreq = "weekly",
                         Priority = "0.7"
                     });
@@ -171,7 +171,7 @@ namespace Bolcko.Web.App.Controllers
         private string GetBaseUrl()
         {
             var request = HttpContext.Request;
-            return $"{request.Scheme}://{request.Host}";
+            return $"https://{request.Host}";
         }
     }
 

@@ -29,5 +29,6 @@ namespace Bolcko.Domain.Entities.Product.DTOs
 
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

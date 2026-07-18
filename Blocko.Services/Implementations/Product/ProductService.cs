@@ -30,7 +30,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -57,7 +58,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
 
             return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
@@ -82,6 +84,7 @@ namespace Blocko.Services.Implementations.Product
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
                 BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt,
                 Images = p.Images.Select(img => new ProductImageDto
                 {
                     Id = img.Id,
@@ -110,7 +113,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -131,7 +135,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -152,7 +157,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -188,7 +194,8 @@ namespace Blocko.Services.Implementations.Product
                 ImageUrl = p.ImageUrl,
                 Brand = p.Brand,
                 CountryOfOrigin = p.CountryOfOrigin,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
 
             return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
@@ -236,6 +243,7 @@ namespace Blocko.Services.Implementations.Product
                 product.UnitOfMeasure = productDto.UnitOfMeasure;
                 product.Sku = productDto.Sku;
                 product.BulkPricingAvailable = productDto.BulkPricingAvailable;
+                product.UpdatedAt = DateTime.UtcNow;
 
                 // Handle deletions
                 if (deleteImageIds != null && deleteImageIds.Any())

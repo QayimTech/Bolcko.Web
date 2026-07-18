@@ -60,6 +60,7 @@
     <partial name="~/Views/Shared/_PerformanceOptimizations.cshtml" />
 
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Styles.cshtml" />
+    @await RenderSectionAsync("Head", required: false)
 </head>
 <body class="bg-surface text-on-surface font-body-md min-h-screen">
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Header.cshtml" />

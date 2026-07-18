@@ -3,6 +3,63 @@
     ViewData["Title"] = SharedLocalizer["ProductDetails"];
 }
 
+@section Head {
+    @{
+        var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+        var productName = isArabic ? Model.Name : (Model.NameEn ?? Model.Name);
+        var productDesc = isArabic ? Model.Description : (Model.DescriptionEn ?? Model.Description);
+        
+        var isLocal = Context.Request.Host.Host.Contains("localhost");
+        var siteDomain = isLocal ? $"https://{Context.Request.Host}" : "https://www.block-o.com";
+        
+        var imageUrls = new List<string>();
+        if (Model.Images != null && Model.Images.Any())
+        {
+            imageUrls.AddRange(Model.Images.OrderBy(img => img.DisplayOrder).Select(img => img.Url.StartsWith("http") ? img.Url : $"{siteDomain}/" + img.Url.TrimStart('/')));
+        }
+        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            imageUrls.AddRange(Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(img => img.StartsWith("http") ? img : $"{siteDomain}/" + img.TrimStart('/')));
+        }
+        else
+        {
+            imageUrls.Add($"{siteDomain}/images/default-product.png");
+        }
+
+        var schemaObj = new Dictionary<string, object>
+        {
+            { "@context", "https://schema.org/" },
+            { "@type", "Product" },
+            { "name", productName },
+            { "image", imageUrls },
+            { "description", productDesc ?? productName },
+            { "sku", Model.Sku },
+            { "offers", new Dictionary<string, object>
+                {
+                    { "@type", "Offer" },
+                    { "url", $"{siteDomain}/Shop/Product/Index/{Model.Id}" },
+                    { "priceCurrency", "JOD" },
+                    { "price", Model.RetailPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                    { "availability", Model.StockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" },
+                    { "itemCondition", "https://schema.org/NewCondition" },
+                    { "priceValidUntil", "2027-12-31" }
+                }
+            },
+            { "brand", new Dictionary<string, object>
+                {
+                    { "@type", "Brand" },
+                    { "name", !string.IsNullOrEmpty(Model.Brand) ? Model.Brand : "BLOCKO" }
+                }
+            }
+        };
+
+        var schemaJson = System.Text.Json.JsonSerializer.Serialize(schemaObj, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    <script type="application/ld+json">
+        @Html.Raw(schemaJson)
+    </script>
+}
+
 <main class="max-w-7xl mx-auto px-6 py-12 text-start">
     @if (Model != null)
     {
