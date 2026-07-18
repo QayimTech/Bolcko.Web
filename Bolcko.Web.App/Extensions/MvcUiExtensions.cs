@@ -23,12 +23,13 @@ namespace Bolcko.Web.App.Extensions
             // Map API Controllers (must be before MVC routes)
             endpoints.MapControllers();
 
-            // Root Redirect
-            endpoints.MapGet("/", context =>
-            {
-                context.Response.Redirect("/Shop/Home/Index");
-                return Task.CompletedTask;
-            });
+            // Root route: serve the shop home page directly at "/"
+            // (a 302 redirect here added a full round-trip before first byte
+            //  and made PageSpeed measure /Shop/Home/Index instead of /)
+            endpoints.MapControllerRoute(
+                name: "root",
+                pattern: "",
+                defaults: new { area = "Shop", controller = "Home", action = "Index" });
 
             // Areas Support
             endpoints.MapControllerRoute(

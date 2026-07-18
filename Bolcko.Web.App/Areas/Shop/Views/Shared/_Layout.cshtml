@@ -33,20 +33,27 @@
     <!-- Preload primary Arabic font file (variable font, covers weights 400-700) -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2">
-    <!-- Hide raw icon ligature names until the icon stylesheet has been applied -->
-    <style>html:not(.ms-ready) .material-symbols-outlined{visibility:hidden}</style>
+    <!-- Icon CLS guard: reserve the final 1em x 1em glyph box and keep icons
+         invisible until the icon FONT itself is loaded (ms-ready), so nothing
+         shifts and no raw ligature names ever flash. The base class is inlined
+         so the box metrics are correct before any external CSS arrives. -->
+    <style>
+        .material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased}
+        html:not(.ms-ready) .material-symbols-outlined{visibility:hidden;width:1em;height:1em;overflow:hidden}
+    </style>
     <link rel="preload" as="style"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"
           onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" as="style"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght@24,200..700&display=block"
-          onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('ms-ready')">
+          onload='this.onload=null;this.rel="stylesheet";document.fonts.load("24px \"Material Symbols Outlined\"").then(function(){document.documentElement.classList.add("ms-ready")})'>
+    <script>setTimeout(function () { document.documentElement.classList.add('ms-ready'); }, 4000);</script>
     <noscript>
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght@24,200..700&display=block">
-        <style>.material-symbols-outlined{visibility:visible !important}</style>
+        <style>.material-symbols-outlined{visibility:visible !important;width:auto !important;height:auto !important;overflow:visible !important}</style>
     </noscript>
 
     <!-- Performance Optimizations: Preconnect, Preload, Critical CSS -->

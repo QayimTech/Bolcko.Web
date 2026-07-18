@@ -1,5 +1,7 @@
 // ============================================================================
-// WebP Migration Tool — converts legacy PNG product images to WebP
+// WebP Migration Tool — converts legacy PNG/JPG product images to WebP
+// (local dev stores PNGs under wwwroot/uploads; production stores JPGs
+//  under wwwroot/products — both are scanned when present)
 // Run with: dotnet run tools/WebpMigration.cs -- <mode> [--batch-size N]
 //
 // Modes:
@@ -25,7 +27,11 @@ using SixLabors.ImageSharp.Processing;
 
 var repoRoot = FindRepoRoot();
 var wwwroot = Path.Combine(repoRoot, "Bolcko.Web.App", "wwwroot");
-var uploadsDir = Path.Combine(wwwroot, "uploads");
+var imageDirs = new[] { "uploads", "products" }
+    .Select(d => Path.Combine(wwwroot, d))
+    .Where(Directory.Exists)
+    .ToList();
+var legacyExtensions = new[] { ".png", ".jpg", ".jpeg" };
 var backupDir = Path.Combine(repoRoot, "tools", "webp-migration-backups");
 
 var mode = args.FirstOrDefault(a => !a.StartsWith("--")) ?? "dry-run";
@@ -39,17 +45,20 @@ if (mode is not ("dry-run" or "convert" or "update-db"))
     return 1;
 }
 
-Console.WriteLine($"Mode: {mode} | uploads: {uploadsDir}");
-if (!Directory.Exists(uploadsDir)) { Console.Error.WriteLine("uploads directory not found."); return 1; }
+Console.WriteLine($"Mode: {mode} | scanning: {string.Join(", ", imageDirs)}");
+if (imageDirs.Count == 0) { Console.Error.WriteLine("No image directories (uploads/products) found under wwwroot."); return 1; }
 
 // ----------------------------------------------------------------------------
 // Phase 1: file conversion (dry-run / convert)
 // ----------------------------------------------------------------------------
 if (mode is "dry-run" or "convert")
 {
-    var pngs = Directory.EnumerateFiles(uploadsDir, "*.png", SearchOption.AllDirectories).ToList();
-    var pending = pngs.Where(p => !File.Exists(Path.ChangeExtension(p, ".webp"))).ToList();
-    Console.WriteLine($"PNG files: {pngs.Count} total, {pngs.Count - pending.Count} already converted, {pending.Count} pending.");
+    var legacyFiles = imageDirs
+        .SelectMany(d => Directory.EnumerateFiles(d, "*.*", SearchOption.AllDirectories))
+        .Where(f => legacyExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+        .ToList();
+    var pending = legacyFiles.Where(p => !File.Exists(Path.ChangeExtension(p, ".webp"))).ToList();
+    Console.WriteLine($"Legacy image files (png/jpg/jpeg): {legacyFiles.Count} total, {legacyFiles.Count - pending.Count} already converted, {pending.Count} pending.");
 
     if (mode == "convert")
     {
@@ -113,7 +122,7 @@ if (mode is "dry-run" or "update-db")
     foreach (var t in targets)
     {
         await using var cmd = new NpgsqlCommand(
-            $"SELECT \"{t.IdCol}\"::text, \"{t.ValCol}\" FROM \"{t.Table}\" WHERE \"{t.ValCol}\" ILIKE '%.png%'", conn);
+            $"SELECT \"{t.IdCol}\"::text, \"{t.ValCol}\" FROM \"{t.Table}\" WHERE \"{t.ValCol}\" ~* '\\.(png|jpg|jpeg)'", conn);
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
@@ -178,17 +187,18 @@ return 0;
 // ----------------------------------------------------------------------------
 static string MapSegment(string segment, string wwwroot)
 {
-    // Only rewrite local .png paths whose .webp twin actually exists on disk.
+    // Only rewrite local .png/.jpg/.jpeg paths whose .webp twin actually exists on disk.
     if (string.IsNullOrWhiteSpace(segment)) return segment;
     if (segment.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return segment;
-    if (!segment.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) return segment;
+    var ext = Path.GetExtension(segment).ToLowerInvariant();
+    if (ext is not (".png" or ".jpg" or ".jpeg")) return segment;
 
     var relative = segment.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-    var pngPath = Path.Combine(wwwroot, relative);
-    var webpPath = Path.ChangeExtension(pngPath, ".webp");
+    var legacyPath = Path.Combine(wwwroot, relative);
+    var webpPath = Path.ChangeExtension(legacyPath, ".webp");
     if (!File.Exists(webpPath)) return segment; // not converted yet -> leave untouched
 
-    return segment[..^4] + ".webp";
+    return segment[..^ext.Length] + ".webp";
 }
 
 static string ReadConnectionString(string repoRoot)
