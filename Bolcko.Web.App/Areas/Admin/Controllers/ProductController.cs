@@ -259,5 +259,55 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return Json(new { success = false, message = "حدث خطأ: " + ex.Message });
             }
         }
+
+        /// <summary>
+        /// Debug endpoint - Tests translation of a single word to diagnose API connectivity.
+        /// Access via: /Admin/Product/TestTranslate
+        /// REMOVE IN PRODUCTION after debugging.
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> TestTranslate(string word = "صوف صخري")
+        {
+            var results = new System.Text.StringBuilder();
+            results.AppendLine($"Testing translation of: '{word}'");
+            results.AppendLine("---");
+
+            // Test MyMemory
+            try
+            {
+                var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                string url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(word)}&langpair=ar|en";
+                results.AppendLine($"MyMemory URL: {url}");
+                var resp = await client.GetAsync(url);
+                string body = await resp.Content.ReadAsStringAsync();
+                results.AppendLine($"MyMemory Status: {resp.StatusCode}");
+                results.AppendLine($"MyMemory Response: {body}");
+            }
+            catch (Exception ex)
+            {
+                results.AppendLine($"MyMemory FAILED: {ex.GetType().Name} - {ex.Message}");
+            }
+
+            results.AppendLine("---");
+
+            // Test Google
+            try
+            {
+                var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q={Uri.EscapeDataString(word)}";
+                results.AppendLine($"Google URL: {url}");
+                var resp = await client.GetAsync(url);
+                string body = await resp.Content.ReadAsStringAsync();
+                results.AppendLine($"Google Status: {resp.StatusCode}");
+                results.AppendLine($"Google Response: {body}");
+            }
+            catch (Exception ex)
+            {
+                results.AppendLine($"Google FAILED: {ex.GetType().Name} - {ex.Message}");
+            }
+
+            return Content(results.ToString(), "text/plain");
+        }
     }
 }
