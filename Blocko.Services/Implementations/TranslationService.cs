@@ -113,13 +113,66 @@ namespace Blocko.Services.Implementations
                 return cachedTranslation;
             }
 
-            // 4. Fallback: Try MyMemory API (Free, doesn't block cloud IPs)
+            // 4. Fallback: Try LibreTranslate Public Mirror (No CAPTCHA, free, supports ar|en)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromMilliseconds(2000);
+                client.Timeout = TimeSpan.FromMilliseconds(4000);
+                
+                var requestData = new
+                {
+                    q = text,
+                    source = "ar",
+                    target = targetLanguage,
+                    format = "text"
+                };
 
-                // MyMemory API expects languages in ISO format (e.g., ar|en)
+                string jsonContent = System.Text.Json.JsonSerializer.Serialize(requestData);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                // Using a reliable public community mirror of LibreTranslate
+                var response = await client.PostAsync("https://libretranslate.de/translate", content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Try alternative public mirror
+                    response = await client.PostAsync("https://translate.argosopentech.com/translate", content);
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("translatedText", out var translatedTextProp))
+                    {
+                        string translatedText = translatedTextProp.GetString()?.Trim() ?? "";
+                        if (!string.IsNullOrEmpty(translatedText))
+                        {
+                            bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
+                            if (!isStillArabic)
+                            {
+                                _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
+                                return translatedText;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] LibreTranslate failed: {ex.Message}");
+            }
+
+            // 5. Fallback: Try MyMemory API with rotated headers
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromMilliseconds(3000);
+                
+                // Add realistic browser headers to bypass block
+                client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+
                 string pair = $"ar|{targetLanguage}";
                 string url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(text)}&langpair={pair}";
 
@@ -134,9 +187,8 @@ namespace Blocko.Services.Implementations
                         responseData.TryGetProperty("translatedText", out var translatedTextProp))
                     {
                         string translatedText = translatedTextProp.GetString()?.Trim() ?? "";
-                        if (!string.IsNullOrEmpty(translatedText))
+                        if (!string.IsNullOrEmpty(translatedText) && !translatedText.Contains("MYMEMORY WARNING"))
                         {
-                            // Check if translation returned same Arabic text (API failed/limit reached)
                             bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
                             if (!isStillArabic)
                             {
@@ -152,11 +204,13 @@ namespace Blocko.Services.Implementations
                 System.Diagnostics.Debug.WriteLine($"[TranslationService] MyMemory failed for '{text}': {ex.Message}");
             }
 
-            // 5. Hard Fallback: Google Translate public API (as backup)
+            // 6. Hard Fallback: Google Translate public API with rotated browser headers
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromMilliseconds(1500);
+                client.Timeout = TimeSpan.FromMilliseconds(2500);
+                client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
+                client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9,ar;q=0.8");
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
@@ -201,8 +255,21 @@ namespace Blocko.Services.Implementations
             }
 
             // Also cache non-success responses to avoid API spamming
-            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(15));
+            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(10));
             return text;
+        }
+
+        private static string GetRandomUserAgent()
+        {
+            string[] userAgents = new[]
+            {
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
+            };
+            return userAgents[Random.Shared.Next(userAgents.Length)];
         }
     }
 }
