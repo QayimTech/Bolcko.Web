@@ -113,46 +113,50 @@ namespace Blocko.Services.Implementations
                 return cachedTranslation;
             }
 
-            // 4. Fallback: Try Argos OpenTech / LibreTranslate (No CAPTCHA, free, supports ar|en, doesn't block cloud IPs)
+            // 4. Fallback: Try Google Web Client API format (Extremely stable, emulates browser client translation)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromMilliseconds(4000);
-                
-                var requestData = new
-                {
-                    q = text,
-                    source = "ar",
-                    target = targetLanguage,
-                    format = "text"
-                };
+                client.Timeout = TimeSpan.FromMilliseconds(3000);
+                client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
 
-                string jsonContent = System.Text.Json.JsonSerializer.Serialize(requestData);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                string url = $"https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qterm&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=1&cl=2&tk=123.123&q={Uri.EscapeDataString(text)}&sl=ar&tl={targetLanguage}";
 
-                // Using the keyless public mirror first
-                var response = await client.PostAsync("https://translate.argosopentech.com/translate", content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    // Fallback to secondary mirror if down
-                    response = await client.PostAsync("https://libretranslate.de/translate", content);
-                }
-
+                var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
-                    if (root.TryGetProperty("translatedText", out var translatedTextProp))
+                    
+                    if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
                     {
-                        string translatedText = translatedTextProp.GetString()?.Trim() ?? "";
-                        if (!string.IsNullOrEmpty(translatedText))
+                        var sentenceArray = root[0];
+                        if (sentenceArray.ValueKind == JsonValueKind.Array)
                         {
-                            bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
-                            if (!isStillArabic)
+                            var builder = new StringBuilder();
+                            foreach (var item in sentenceArray.EnumerateArray())
                             {
-                                _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
-                                return translatedText;
+                                if (item.ValueKind == JsonValueKind.Array && item.GetArrayLength() > 0)
+                                {
+                                    var part = item[0].GetString();
+                                    if (!string.IsNullOrEmpty(part))
+                                    {
+                                        builder.Append(part);
+                                    }
+                                }
+                            }
+                            
+                            string translatedText = builder.ToString().Trim();
+                            if (!string.IsNullOrEmpty(translatedText))
+                            {
+                                bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
+                                if (!isStillArabic)
+                                {
+                                    _memoryCache.Set(cacheKey, translatedText, TimeSpan.FromDays(7));
+                                    return translatedText;
+                                }
                             }
                         }
                     }
@@ -160,7 +164,7 @@ namespace Blocko.Services.Implementations
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[TranslationService] LibreTranslate failed: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] Google Client API failed: {ex.Message}");
             }
 
             // 5. Fallback: Try MyMemory API with rotated headers
@@ -168,8 +172,6 @@ namespace Blocko.Services.Implementations
             {
                 var client = _httpClientFactory.CreateClient();
                 client.Timeout = TimeSpan.FromMilliseconds(3000);
-                
-                // Add realistic browser headers to bypass block
                 client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
 
