@@ -18,50 +18,74 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         public IActionResult Index(string? fileName = null, int? pageNumber = 1, int? pageSize = 100)
         {
-            var logsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
             var logFiles = new List<string>();
-
-            if (Directory.Exists(logsDirectory))
+            var logEntries = new List<LogEntryViewModel>();
+            
+            // Fallback strategy for log directory resolution
+            var logsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
+            if (!Directory.Exists(logsDirectory))
             {
-                logFiles = Directory.GetFiles(logsDirectory, "*.txt")
-                    .Select(Path.GetFileName)
-                    .OrderByDescending(x => x)
-                    .ToList()!;
+                logsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+            }
+
+            try
+            {
+                if (Directory.Exists(logsDirectory))
+                {
+                    logFiles = Directory.GetFiles(logsDirectory, "*.txt")
+                        .Select(Path.GetFileName)
+                        .OrderByDescending(x => x)
+                        .ToList()!;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LogController] Error listing logs directory: {ex.Message}");
             }
 
             // Set default file name if none selected
             fileName ??= logFiles.FirstOrDefault();
 
-            var logEntries = new List<LogEntryViewModel>();
-
-            if (fileName != null && System.IO.File.Exists(Path.Combine(logsDirectory, fileName)))
+            if (fileName != null)
             {
-                var lines = new List<string>();
                 var filePath = Path.Combine(logsDirectory, fileName);
-
-                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var sr = new StreamReader(fs))
+                try
                 {
-                    string? line;
-                    while ((line = sr.ReadLine()) != null)
+                    if (System.IO.File.Exists(filePath))
                     {
-                        lines.Add(line);
+                        var lines = new List<string>();
+                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var sr = new StreamReader(fs))
+                        {
+                            string? line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                lines.Add(line);
+                            }
+                        }
+
+                        // Parse lines (assuming Serilog default output format)
+                        foreach (var line in lines.AsEnumerable().Reverse()) // Newest first
+                        {
+                            logEntries.Add(new LogEntryViewModel
+                            {
+                                RawText = line
+                            });
+                        }
+
+                        // Apply pagination
+                        pageSize ??= 100;
+                        pageNumber ??= 1;
+                        logEntries = logEntries.Skip(((int)pageNumber - 1) * (int)pageSize).Take((int)pageSize).ToList();
                     }
                 }
-
-                // Parse lines (assuming Serilog default output format)
-                foreach (var line in lines.AsEnumerable().Reverse()) // Newest first
+                catch (Exception ex)
                 {
-                    logEntries.Add(new LogEntryViewModel
-                    {
-                        RawText = line
+                    logEntries.Add(new LogEntryViewModel 
+                    { 
+                        RawText = $"[خطأ أثناء قراءة ملف السجل]: {ex.Message}" 
                     });
                 }
-
-                // Apply pagination
-                pageSize ??= 100;
-                pageNumber ??= 1;
-                logEntries = logEntries.Skip(((int)pageNumber - 1) * (int)pageSize).Take((int)pageSize).ToList();
             }
 
             var model = new LogsViewModel

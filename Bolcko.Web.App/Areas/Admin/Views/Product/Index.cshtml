@@ -179,8 +179,12 @@ async function runBulkTranslate() {
             }, 300);
 
             try {
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                           ?? document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '';
+                // Safe extraction of ASP.NET CSRF token
+                let token = '';
+                const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (tokenElement) {
+                    token = tokenElement.value;
+                }
 
                 const response = await fetch('@Url.Action("BulkTranslate")', {
                     method: 'POST',
@@ -191,7 +195,15 @@ async function runBulkTranslate() {
                 });
 
                 clearInterval(progressInterval);
-                const data = await response.json();
+                
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonErr) {
+                    console.error("Server raw response:", responseText);
+                    throw new Error("استجابة غير صالحة من الخادم (قد تكون الجلسة قد انتهت، يرجى إعادة تسجيل الدخول).");
+                }
 
                 if (data.success) {
                     progressBar.style.width = '100%';
@@ -231,7 +243,7 @@ async function runBulkTranslate() {
 
                 showTranslationModal(
                     'خطأ في الاتصال ❌',
-                    'حدث خطأ غير متوقع أثناء الاتصال بالخادم: ' + err.message,
+                    err.message,
                     false
                 );
             }
