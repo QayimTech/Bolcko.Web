@@ -307,6 +307,39 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 results.AppendLine($"Google FAILED: {ex.GetType().Name} - {ex.Message}");
             }
 
+            results.AppendLine("---");
+
+            // Test LibreTranslate
+            try
+            {
+                var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                var requestData = new
+                {
+                    q = word,
+                    source = "ar",
+                    target = "en",
+                    format = "text"
+                };
+                string jsonContent = System.Text.Json.JsonSerializer.Serialize(requestData);
+                var content = new System.Net.Http.StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+                results.AppendLine("Testing LibreTranslate URL: https://libretranslate.de/translate");
+                var resp = await client.PostAsync("https://libretranslate.de/translate", content);
+                if (!resp.IsSuccessStatusCode)
+                {
+                    results.AppendLine($"LibreTranslate primary failed ({resp.StatusCode}). Trying fallback...");
+                    resp = await client.PostAsync("https://translate.argosopentech.com/translate", content);
+                }
+
+                string body = await resp.Content.ReadAsStringAsync();
+                results.AppendLine($"LibreTranslate Status: {resp.StatusCode}");
+                results.AppendLine($"LibreTranslate Response: {body}");
+            }
+            catch (Exception ex)
+            {
+                results.AppendLine($"LibreTranslate FAILED: {ex.GetType().Name} - {ex.Message}");
+            }
+
             return Content(results.ToString(), "text/plain");
         }
     }
