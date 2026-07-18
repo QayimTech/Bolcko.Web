@@ -1,6 +1,6 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+@* site.css is the Tailwind *source* file; everything in it is compiled into output.css — loading it separately was a redundant render-blocking request *@
 <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
 
 <style>

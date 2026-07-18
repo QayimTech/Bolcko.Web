@@ -27,13 +27,27 @@
     <meta name="msapplication-TileColor" content="#0d111a" />
     <meta name="theme-color" content="#0d111a" />
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts (non-blocking async load; noscript fallback below) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <!-- Preload primary Arabic font file (variable font, covers weights 400-700) -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2">
+    <!-- Hide raw icon ligature names until the icon stylesheet has been applied -->
+    <style>html:not(.ms-ready) .material-symbols-outlined{visibility:hidden}</style>
+    <link rel="preload" as="style"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght@24,200..700&display=block"
+          onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('ms-ready')">
+    <noscript>
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght@24,200..700&display=block">
+        <style>.material-symbols-outlined{visibility:visible !important}</style>
+    </noscript>
 
     <!-- Performance Optimizations: Preconnect, Preload, Critical CSS -->
     <partial name="~/Views/Shared/_PerformanceOptimizations.cshtml" />

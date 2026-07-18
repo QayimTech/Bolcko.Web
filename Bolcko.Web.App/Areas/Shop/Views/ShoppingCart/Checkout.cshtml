@@ -130,7 +130,7 @@
                             <div class="flex gap-4 border-b border-outline-variant pb-4">
                                 @if (!string.IsNullOrEmpty(item.ProductImage))
                                 {
-                                    <img class="w-16 h-16 object-cover" src="@item.ProductImage" />
+                                    <img class="w-16 h-16 object-cover" src="@item.ProductImage" alt="@item.ProductName" width="64" height="64" loading="lazy" decoding="async" />
                                 }
                                 else
                                 {

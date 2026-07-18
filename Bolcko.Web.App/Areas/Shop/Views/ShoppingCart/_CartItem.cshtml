@@ -23,6 +23,7 @@
             <img alt="@Model.ProductName"
                  class="w-full h-full object-cover"
                  src="@imgSrc"
+                 width="192" height="192" loading="lazy" decoding="async"
                  onerror="this.src='https://placehold.co/400x400/e2e8f0/475569?text=@(Uri.EscapeDataString(Model.ProductName))'" />
         }
         else
