@@ -117,9 +117,8 @@ namespace Blocko.Services.Implementations
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                // Strict 600ms timeout - if Google API is slow/blocked, fail fast and return original text.
-                // This prevents the page from hanging when 20-40 parallel translation calls are in-flight.
-                client.Timeout = TimeSpan.FromMilliseconds(600);
+                // Strict 1.5 seconds timeout for regular requests to prevent hanging
+                client.Timeout = TimeSpan.FromMilliseconds(1500);
 
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
                 
@@ -159,14 +158,15 @@ namespace Blocko.Services.Implementations
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Fallback and prevent spamming the blocked API again for the next 30 minutes
-                _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
+                // Fallback, preventing spamming the blocked/slow API for the next 15 minutes
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] Exception translating '{text}' to '{targetLanguage}': {ex.Message}");
+                _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(15));
             }
 
             // Also cache non-success responses to avoid API spamming
-            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(30));
+            _memoryCache.Set(cacheKey, text, TimeSpan.FromMinutes(15));
             return text;
         }
     }

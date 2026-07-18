@@ -1,3 +1,4 @@
+using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Category;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Catalog.DTOs;
@@ -210,6 +211,63 @@ namespace Blocko.Services.Implementations.Category
 
             // 3. Finally remove the category
             _unitOfWork.Categories.Remove(category);
+        }
+
+        /// <summary>
+        /// One-time bulk translation for all categories where NameEn is null or empty.
+        /// </summary>
+        public async Task<(int translated, int skipped, int failed)> BulkTranslateCategoriesAsync(ITranslationService translationService)
+        {
+            var categories = await _unitOfWork.Categories.GetAllAsQueryable()
+                .Where(c => string.IsNullOrEmpty(c.NameEn))
+                .ToListAsync();
+
+            int translated = 0, skipped = 0, failed = 0;
+
+            foreach (var category in categories)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(category.Name))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    var nameEn = await translationService.TranslateAsync(category.Name, "en");
+
+                    // Check if it's still Arabic (Translation failed)
+                    bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(nameEn, @"[\u0600-\u06FF]");
+                    if (isStillArabic)
+                    {
+                        failed++;
+                        continue;
+                    }
+
+                    category.NameEn = nameEn;
+
+                    if (!string.IsNullOrWhiteSpace(category.Description))
+                    {
+                        var descEn = await translationService.TranslateAsync(category.Description, "en");
+                        bool descStillArabic = System.Text.RegularExpressions.Regex.IsMatch(descEn, @"[\u0600-\u06FF]");
+                        category.DescriptionEn = descStillArabic ? null : descEn;
+                    }
+
+                    _unitOfWork.Categories.Update(category);
+                    translated++;
+                }
+                catch
+                {
+                    failed++;
+                }
+            }
+
+            if (translated > 0)
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return (translated, skipped, failed);
         }
     }
 }

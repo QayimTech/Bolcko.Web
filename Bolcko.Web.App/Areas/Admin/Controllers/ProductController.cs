@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
+using Blocko.Services.Interfaces.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -18,15 +19,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly ITranslationService _translationService;
 
         public ProductController(
             IServiceManager serviceManager,
             IWebHostEnvironment webHostEnvironment,
-            IBackgroundJobClient backgroundJobClient)
+            IBackgroundJobClient backgroundJobClient,
+            ITranslationService translationService)
         {
             _serviceManager = serviceManager;
             _webHostEnvironment = webHostEnvironment;
             _backgroundJobClient = backgroundJobClient;
+            _translationService = translationService;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -216,5 +220,44 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult BulkImport()
             => RedirectToAction("BulkImport", "Import", new { area = "Admin" });
+
+        /// <summary>
+        /// AJAX endpoint — translates all products where NameEn is empty.
+        /// Called by the "ترجم الكل" button in the product index view.
+        /// Runs synchronously (may take a few minutes for 900 products) and returns JSON stats.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BulkTranslate()
+        {
+            try
+            {
+                // 1. ترجمة المنتجات
+                var (pTranslated, pSkipped, pFailed) = await _serviceManager.ProductService
+                    .BulkTranslateAsync(_translationService);
+
+                // 2. ترجمة الفئات
+                var (cTranslated, cSkipped, cFailed) = await _serviceManager.CategoryService
+                    .BulkTranslateCategoriesAsync(_translationService);
+
+                int totalTranslated = pTranslated + cTranslated;
+                int totalSkipped = pSkipped + cSkipped;
+                int totalFailed = pFailed + cFailed;
+
+                return Json(new
+                {
+                    success = true,
+                    translated = totalTranslated,
+                    skipped = totalSkipped,
+                    failed = totalFailed,
+                    message = $"تمت الترجمة بنجاح: {pTranslated} منتج و {cTranslated} فئة. (تخطي: {totalSkipped}، فشل: {totalFailed})"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "حدث خطأ: " + ex.Message });
+            }
+        }
     }
 }

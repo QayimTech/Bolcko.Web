@@ -1,4 +1,5 @@
 using Blocko.Persistence.Common;
+using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Product;
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.Product;
@@ -294,6 +295,79 @@ namespace Blocko.Services.Implementations.Product
                 _unitOfWork.Products.Remove(product);
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        /// <summary>
+        /// One-time bulk translation: translates all products where NameEn is null/empty.
+        /// Uses the override dictionary first (instant, free), then falls back to Google API.
+        /// Processes in batches of 10 with a 300ms delay to respect rate limits.
+        /// </summary>
+        public async Task<(int translated, int skipped, int failed)> BulkTranslateAsync(ITranslationService translationService)
+        {
+            var products = await _unitOfWork.Products.GetAllAsQueryable()
+                .Where(p => string.IsNullOrEmpty(p.NameEn))
+                .ToListAsync();
+
+            int translated = 0, skipped = 0, failed = 0;
+            const int batchSize = 10;
+
+            for (int i = 0; i < products.Count; i += batchSize)
+            {
+                var batch = products.Skip(i).Take(batchSize).ToList();
+
+                foreach (var product in batch)
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(product.Name))
+                        {
+                            skipped++;
+                            continue;
+                        }
+
+                        var nameEn = await translationService.TranslateAsync(product.Name, "en");
+
+                        // If translation returned same Arabic text (API failed/blocked), skip to avoid bad data
+                        bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(nameEn, @"[\u0600-\u06FF]");
+                        if (isStillArabic)
+                        {
+                            failed++;
+                            continue;
+                        }
+
+                        product.NameEn = nameEn;
+
+                        if (!string.IsNullOrWhiteSpace(product.Description))
+                        {
+                            var descEn = await translationService.TranslateAsync(product.Description, "en");
+                            bool descStillArabic = System.Text.RegularExpressions.Regex.IsMatch(descEn, @"[\u0600-\u06FF]");
+                            product.DescriptionEn = descStillArabic ? null : descEn;
+                        }
+
+                        product.UpdatedAt = DateTime.UtcNow;
+                        _unitOfWork.Products.Update(product);
+                        translated++;
+                    }
+                    catch
+                    {
+                        failed++;
+                    }
+                }
+
+                // Save each batch to DB
+                if (translated > 0 || failed > 0)
+                {
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                // Small delay between batches to avoid API rate limiting
+                if (i + batchSize < products.Count)
+                {
+                    await Task.Delay(300);
+                }
+            }
+
+            return (translated, skipped, failed);
         }
     }
 }

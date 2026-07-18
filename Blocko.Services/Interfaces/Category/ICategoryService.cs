@@ -1,5 +1,6 @@
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Common;
+using Blocko.Services.Interfaces;
 
 namespace Blocko.Services.Interfaces.Category
 {
@@ -13,5 +14,6 @@ namespace Blocko.Services.Interfaces.Category
         Task AddCategoryAsync(CategoryDto categoryDto);
         Task UpdateCategoryAsync(CategoryDto categoryDto);
         Task DeleteCategoryAsync(int id);
+        Task<(int translated, int skipped, int failed)> BulkTranslateCategoriesAsync(ITranslationService translationService);
     }
 }

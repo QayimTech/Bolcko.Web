@@ -1,5 +1,6 @@
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Domain.Common;
+using Blocko.Services.Interfaces;
 
 namespace Blocko.Services.Interfaces.Product
 {
@@ -15,5 +16,6 @@ namespace Blocko.Services.Interfaces.Product
         Task AddProductAsync(ProductDto productDto);
         Task UpdateProductAsync(ProductDto productDto, List<int>? deleteImageIds = null);
         Task DeleteProductAsync(int id);
+        Task<(int translated, int skipped, int failed)> BulkTranslateAsync(ITranslationService translationService);
     }
 }

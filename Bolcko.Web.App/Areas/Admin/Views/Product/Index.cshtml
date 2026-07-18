@@ -12,6 +12,12 @@
             <p class="text-on-surface-variant text-sm mt-1">@L["ManageProductsDescription"]</p>
         </div>
         <div class="flex items-center gap-3">
+            <button id="btn-bulk-translate"
+                    onclick="runBulkTranslate()"
+                    class="bg-slate-800 text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-slate-900 transition-all">
+                <span class="material-symbols-outlined" id="bulk-translate-icon">translate</span>
+                <span id="bulk-translate-label">ترجم الكل للإنجليزي</span>
+            </button>
             <a href="@Url.Action("BulkImport")" class="bg-emerald-600 text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
                 <span class="material-symbols-outlined">upload_file</span>
                 Import Excel
@@ -96,3 +102,141 @@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Products" />
     </div>
 </section>
+@section Scripts {
+<script>
+function showTranslationModal(title, message, isConfirm = false, onConfirm = null) {
+    // Remove existing modal if any
+    const existing = document.getElementById('translation-modal');
+    if (existing) existing.remove();
+
+    const modalHtml = `
+        <div id="translation-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+            <div class="bg-white border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] p-6 max-w-md w-full mx-4 space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[#E8A020] text-3xl">translate</span>
+                    <h3 class="font-bold text-xl text-slate-900">${title}</h3>
+                </div>
+                <p class="text-slate-600 text-sm leading-relaxed">${message}</p>
+                <div id="modal-progress-container" class="hidden space-y-2">
+                    <div class="w-full bg-slate-100 h-2 border border-slate-300">
+                        <div id="modal-progress-bar" class="bg-[#E8A020] h-full w-0 transition-all duration-300"></div>
+                    </div>
+                    <div class="text-xs text-slate-500 flex justify-between">
+                        <span>جاري ترجمة البيانات وقاعدة البيانات...</span>
+                        <span id="modal-progress-percent">0%</span>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2" id="modal-actions">
+                    ${isConfirm ? `
+                        <button onclick="document.getElementById('translation-modal').remove()" class="px-4 py-2 border border-slate-300 font-bold text-slate-700 hover:bg-slate-50 transition-colors text-sm">إلغاء</button>
+                        <button id="modal-confirm-btn" class="px-5 py-2 bg-[#E8A020] hover:bg-[#d18f1c] text-white font-bold transition-colors text-sm shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] border border-slate-900">موافق</button>
+                    ` : `
+                        <button onclick="location.reload()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-colors text-sm">إغلاق وتحديث الصفحة</button>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    if (isConfirm && onConfirm) {
+        document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+            document.getElementById('modal-actions').style.display = 'none';
+            const progress = document.getElementById('modal-progress-container');
+            progress.classList.remove('hidden');
+            onConfirm();
+        });
+    }
+}
+
+async function runBulkTranslate() {
+    showTranslationModal(
+        'تأكيد الترجمة الشاملة',
+        'سيتم ترجمة كافة المنتجات والفئات التي لا تحتوي على ترجمة إنجليزية وحفظها مباشرة في قاعدة البيانات. قد تستغرق هذه العملية دقائق معدودة حسب سرعة الشبكة.',
+        true,
+        async () => {
+            const btn = document.getElementById('btn-bulk-translate');
+            const icon = document.getElementById('bulk-translate-icon');
+            const label = document.getElementById('bulk-translate-label');
+            const progressBar = document.getElementById('modal-progress-bar');
+            const progressPercent = document.getElementById('modal-progress-percent');
+
+            // Loading UI state
+            btn.disabled = true;
+            icon.textContent = 'hourglass_empty';
+            icon.classList.add('animate-spin');
+            label.textContent = 'جاري الترجمة...';
+
+            // Simulate step progress update for UI feedback
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    progressPercent.textContent = `${progress}%`;
+                }
+            }, 300);
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                           ?? document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? '';
+
+                const response = await fetch('@Url.Action("BulkTranslate")', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                clearInterval(progressInterval);
+                const data = await response.json();
+
+                if (data.success) {
+                    progressBar.style.width = '100%';
+                    progressPercent.textContent = '100%';
+
+                    // Final Success State inside modal
+                    setTimeout(() => {
+                        showTranslationModal(
+                            'اكتملت العملية بنجاح ✓',
+                            data.message,
+                            false
+                        );
+                    }, 500);
+
+                    icon.textContent = 'check_circle';
+                    icon.classList.remove('animate-spin');
+                    label.textContent = `✓ تمت الترجمة`;
+                    btn.classList.replace('bg-slate-800', 'bg-green-600');
+                } else {
+                    icon.textContent = 'error';
+                    icon.classList.remove('animate-spin');
+                    label.textContent = 'فشلت العملية';
+                    btn.disabled = false;
+                    
+                    showTranslationModal(
+                        'فشلت الترجمة ❌',
+                        data.message,
+                        false
+                    );
+                }
+            } catch (err) {
+                clearInterval(progressInterval);
+                icon.textContent = 'error';
+                icon.classList.remove('animate-spin');
+                label.textContent = 'خطأ في الاتصال';
+                btn.disabled = false;
+
+                showTranslationModal(
+                    'خطأ في الاتصال ❌',
+                    'حدث خطأ غير متوقع أثناء الاتصال بالخادم: ' + err.message,
+                    false
+                );
+            }
+        }
+    );
+}
+</script>
+}
