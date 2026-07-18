@@ -309,35 +309,41 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             results.AppendLine("---");
 
-            // Test LibreTranslate
+            // Test Google Mobile HTML Scraper
             try
             {
                 var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-                var requestData = new
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPad; CPU OS 15_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
+                string url = $"https://translate.google.com/m?hl=en&sl=ar&q={Uri.EscapeDataString(word)}";
+                results.AppendLine($"Google Mobile URL: {url}");
+                var resp = await client.GetAsync(url);
+                string html = await resp.Content.ReadAsStringAsync();
+                
+                string marker = "class=\"result-container\">";
+                int index = html.IndexOf(marker);
+                if (index != -1)
                 {
-                    q = word,
-                    source = "ar",
-                    target = "en",
-                    format = "text"
-                };
-                string jsonContent = System.Text.Json.JsonSerializer.Serialize(requestData);
-                var content = new System.Net.Http.StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-
-                results.AppendLine("Testing LibreTranslate URL: https://libretranslate.de/translate");
-                var resp = await client.PostAsync("https://libretranslate.de/translate", content);
-                if (!resp.IsSuccessStatusCode)
-                {
-                    results.AppendLine($"LibreTranslate primary failed ({resp.StatusCode}). Trying fallback...");
-                    resp = await client.PostAsync("https://translate.argosopentech.com/translate", content);
+                    int start = index + marker.Length;
+                    int end = html.IndexOf("</div>", start);
+                    if (end != -1)
+                    {
+                        string trans = html.Substring(start, end - start);
+                        trans = System.Net.WebUtility.HtmlDecode(trans).Trim();
+                        results.AppendLine($"Google Mobile Translated: '{trans}'");
+                    }
+                    else
+                    {
+                        results.AppendLine("Google Mobile: found container but no closing div");
+                    }
                 }
-
-                string body = await resp.Content.ReadAsStringAsync();
-                results.AppendLine($"LibreTranslate Status: {resp.StatusCode}");
-                results.AppendLine($"LibreTranslate Response: {body}");
+                else
+                {
+                    results.AppendLine("Google Mobile: result-container not found in HTML response");
+                }
             }
             catch (Exception ex)
             {
-                results.AppendLine($"LibreTranslate FAILED: {ex.GetType().Name} - {ex.Message}");
+                results.AppendLine($"Google Mobile FAILED: {ex.GetType().Name} - {ex.Message}");
             }
 
             return Content(results.ToString(), "text/plain");

@@ -113,42 +113,33 @@ namespace Blocko.Services.Implementations
                 return cachedTranslation;
             }
 
-            // 4. Fallback: Try Google Web Client API format (Extremely stable, emulates browser client translation)
+            // 4. Fallback: Google Mobile Translator HTML Scraper (Completely bypasses CAPTCHAs, free, highly stable)
             try
             {
                 var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromMilliseconds(3000);
-                client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
-                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.Timeout = TimeSpan.FromMilliseconds(4000);
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPad; CPU OS 15_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
 
-                string url = $"https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qterm&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=1&cl=2&tk=123.123&q={Uri.EscapeDataString(text)}&sl=ar&tl={targetLanguage}";
-
+                string url = $"https://translate.google.com/m?hl={targetLanguage}&sl=ar&q={Uri.EscapeDataString(text)}";
+                
                 var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
-                    string json = await response.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
+                    string html = await response.Content.ReadAsStringAsync();
                     
-                    if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
+                    // Simple, fast string parsing of the result container <div class="result-container">Translated Text</div>
+                    string marker = "class=\"result-container\">";
+                    int index = html.IndexOf(marker);
+                    if (index != -1)
                     {
-                        var sentenceArray = root[0];
-                        if (sentenceArray.ValueKind == JsonValueKind.Array)
+                        int start = index + marker.Length;
+                        int end = html.IndexOf("</div>", start);
+                        if (end != -1)
                         {
-                            var builder = new StringBuilder();
-                            foreach (var item in sentenceArray.EnumerateArray())
-                            {
-                                if (item.ValueKind == JsonValueKind.Array && item.GetArrayLength() > 0)
-                                {
-                                    var part = item[0].GetString();
-                                    if (!string.IsNullOrEmpty(part))
-                                    {
-                                        builder.Append(part);
-                                    }
-                                }
-                            }
-                            
-                            string translatedText = builder.ToString().Trim();
+                            string translatedText = html.Substring(start, end - start);
+                            // Decode HTML entities (like &quot;, &#39;, etc.)
+                            translatedText = System.Net.WebUtility.HtmlDecode(translatedText).Trim();
+
                             if (!string.IsNullOrEmpty(translatedText))
                             {
                                 bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(translatedText, @"[\u0600-\u06FF]");
@@ -164,19 +155,18 @@ namespace Blocko.Services.Implementations
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[TranslationService] Google Client API failed: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[TranslationService] Google Mobile Scraper failed: {ex.Message}");
             }
 
-            // 5. Fallback: Try MyMemory API with rotated headers
+            // 5. Fallback: Try Google Web Client API format
             try
             {
                 var client = _httpClientFactory.CreateClient();
                 client.Timeout = TimeSpan.FromMilliseconds(3000);
                 client.DefaultRequestHeaders.Add("User-Agent", GetRandomUserAgent());
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
 
-                string pair = $"ar|{targetLanguage}";
-                string url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(text)}&langpair={pair}";
+                string url = $"https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qterm&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=1&cl=2&tk=123.123&q={Uri.EscapeDataString(text)}&sl=ar&tl={targetLanguage}";
 
                 var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
