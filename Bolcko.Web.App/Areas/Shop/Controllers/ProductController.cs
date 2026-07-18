@@ -29,7 +29,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             var culture = CultureInfo.CurrentCulture.Name;
-            await product.TranslateAsync(_translationService, culture, _unitOfWork);
+         //   await product.TranslateAsync(_translationService, culture, _unitOfWork);
 
             return View(product);
         }
@@ -38,10 +38,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             var products = await _serviceManager.ProductService.SearchProductsAsync(query);
             var culture = CultureInfo.CurrentCulture.Name;
-            var translatedProducts = await products.TranslateAsync(_translationService, culture, _unitOfWork);
+           // var translatedProducts = await products.TranslateAsync(_translationService, culture, _unitOfWork);
 
             ViewBag.Query = query;
-            return View(translatedProducts);
+            return View(products);
         }
     }
 }

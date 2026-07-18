@@ -62,7 +62,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             if (!cache.TryGetValue(productsKey, out object? productsObj) || productsObj is not IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto> translatedProducts)
             {
                 var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
-                translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture);
+                translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture, HttpContext.RequestServices);
                 using (var entry = cache.CreateEntry(productsKey))
                 {
                     entry.Value = translatedProducts;

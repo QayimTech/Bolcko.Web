@@ -12,9 +12,15 @@
                  src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))"
                  width="600"
                  height="450"
-                 loading="lazy"
-                 fetchpriority="low"
-                 onerror="this.src='https://placehold.co/600x450/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'"
+                 onerror="this.onerror=null; this.src='/images/product-placeholder.svg';"
+                 alt="@Model.Name">
+        }
+        else
+        {
+            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                 src="/images/product-placeholder.svg"
+                 width="600"
+                 height="450"
                  alt="@Model.Name">
         }
         else
