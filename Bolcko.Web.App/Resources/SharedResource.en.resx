@@ -925,4 +925,27 @@
   <data name="NoSearchResultsDesc" xml:space="preserve"><value>Sorry, we couldn't find any products matching your search. Try using different keywords.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Back to Home</value></data>
   <data name="ManageMarketPrices" xml:space="preserve"><value>Market Prices</value></data>
+  <data name="RemoveFromCartTitle" xml:space="preserve"><value>Remove from Cart</value></data>
+  <data name="RemoveFromCartConfirm" xml:space="preserve"><value>Are you sure you want to remove this item from your shopping cart?</value></data>
+  <data name="ConfirmRemove" xml:space="preserve"><value>Yes, Remove</value></data>
+  <data name="CancelRemove" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="TrackShipmentTitle" xml:space="preserve"><value>Track Shipment Status</value></data>
+  <data name="OrderNumberLabel" xml:space="preserve"><value>Order Number</value></data>
+  <data name="OrderConfirmedTitle" xml:space="preserve"><value>Order Confirmed</value></data>
+  <data name="OrderConfirmedDesc" xml:space="preserve"><value>Your order has been received and verified by store management.</value></data>
+  <data name="PickedUpTitle" xml:space="preserve"><value>Picked Up by Shipping Company</value></data>
+  <data name="PickedUpDesc" xml:space="preserve"><value>The delivery company picked up the package from our warehouse for sorting and distribution.</value></data>
+  <data name="OutForDeliveryTitle" xml:space="preserve"><value>Out for Delivery</value></data>
+  <data name="OutForDeliveryDesc" xml:space="preserve"><value>The driver is now on their way to deliver the package to your address.</value></data>
+  <data name="DeliveredTitle" xml:space="preserve"><value>Successfully Delivered &amp; Paid</value></data>
+  <data name="DeliveredDesc" xml:space="preserve"><value>Package has been delivered and payment cleared. Thank you for shopping with BLOCKO!</value></data>
+  <data name="ShipmentSummaryTitle" xml:space="preserve"><value>Shipment Summary</value></data>
+  <data name="AddressLabel" xml:space="preserve"><value>Address</value></data>
+  <data name="PaymentMethodLabel" xml:space="preserve"><value>Payment Method</value></data>
+  <data name="TotalRequiredAmount" xml:space="preserve"><value>Total Amount Required</value></data>
+  <data name="DeliveryCompanyLabel" xml:space="preserve"><value>Delivery Company</value></data>
+  <data name="IndependentDriverText" xml:space="preserve"><value>Independent Driver</value></data>
+  <data name="BackToDashboardText" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <data name="DeliveryDistributionCenter" xml:space="preserve"><value>Distribution Center</value></data>
 </root>

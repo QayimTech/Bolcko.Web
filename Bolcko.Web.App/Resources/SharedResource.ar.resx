@@ -929,4 +929,27 @@
   <data name="NoSearchResultsDesc" xml:space="preserve"><value>عذراً، لم نتمكن من العثور على أي منتجات تطابق بحثك. جرب استخدام كلمات مختلفة.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>العودة للرئيسية</value></data>
   <data name="ManageMarketPrices" xml:space="preserve"><value>أسعار السوق</value></data>
+  <data name="RemoveFromCartTitle" xml:space="preserve"><value>إزالة المنتج من السلة</value></data>
+  <data name="RemoveFromCartConfirm" xml:space="preserve"><value>هل أنت متأكد أنك تريد إزالة هذا المنتج من سلة المشتريات؟</value></data>
+  <data name="ConfirmRemove" xml:space="preserve"><value>نعم، إزالة</value></data>
+  <data name="CancelRemove" xml:space="preserve"><value>تراجع</value></data>
+  <data name="Search" xml:space="preserve"><value>بحث</value></data>
+  <data name="TrackShipmentTitle" xml:space="preserve"><value>تتبع حالة شحنتك</value></data>
+  <data name="OrderNumberLabel" xml:space="preserve"><value>طلب رقم</value></data>
+  <data name="OrderConfirmedTitle" xml:space="preserve"><value>تم تأكيد الطلب</value></data>
+  <data name="OrderConfirmedDesc" xml:space="preserve"><value>تم استلام طلبك ومراجعته بنجاح من إدارة المتجر.</value></data>
+  <data name="PickedUpTitle" xml:space="preserve"><value>تم تسليم الشحنة لشركة التوصيل</value></data>
+  <data name="PickedUpDesc" xml:space="preserve"><value>استلمت شركة الشحن الباقة من مستودعاتنا للفرز والتوزيع.</value></data>
+  <data name="OutForDeliveryTitle" xml:space="preserve"><value>الشحنة مع المندوب للتسليم</value></data>
+  <data name="OutForDeliveryDesc" xml:space="preserve"><value>خرج السائق وهو في طريقه لتسليم الشحنة إلى عنوانك.</value></data>
+  <data name="DeliveredTitle" xml:space="preserve"><value>تم التوصيل والتحصيل بنجاح</value></data>
+  <data name="DeliveredDesc" xml:space="preserve"><value>تم استلام الشحنة وتصفية الحساب المالي. شكراً لشرائك من بلوكو!</value></data>
+  <data name="ShipmentSummaryTitle" xml:space="preserve"><value>ملخص تفاصيل الشحن</value></data>
+  <data name="AddressLabel" xml:space="preserve"><value>العنوان</value></data>
+  <data name="PaymentMethodLabel" xml:space="preserve"><value>طريقة الدفع</value></data>
+  <data name="TotalRequiredAmount" xml:space="preserve"><value>المبلغ الإجمالي المطلوب</value></data>
+  <data name="DeliveryCompanyLabel" xml:space="preserve"><value>شركة التوصيل المسؤولة</value></data>
+  <data name="IndependentDriverText" xml:space="preserve"><value>مندوب مستقل</value></data>
+  <data name="BackToDashboardText" xml:space="preserve"><value>الرجوع لحسابي الشخصي</value></data>
+  <data name="DeliveryDistributionCenter" xml:space="preserve"><value>مركز التوزيع</value></data>
 </root>

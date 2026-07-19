@@ -3,12 +3,12 @@
     ViewData["Title"] = SharedLocalizer["ShoppingCartTitle"];
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
 
     @* CSRF token for AJAX *@
     <form id="ajaxTokenForm">@Html.AntiForgeryToken()</form>
 
-    <header class="mb-12 border-r-4 border-primary-container pr-6">
+    <header class="mb-12 border-e-4 border-primary-container pe-6">
         <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["ShoppingCartTitle"]</h1>
         <p id="cart-item-count-text" class="font-body-lg text-secondary">
             @string.Format(SharedLocalizer["CartItemCount"], Model.TotalItems)

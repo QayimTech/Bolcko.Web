@@ -1,6 +1,6 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
-<div class="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)] group text-right h-full transition-all duration-300 hover:border-[#E8A020]/30 hover:shadow-[0_12px_30px_rgba(232,160,32,0.05)] hover:-translate-y-1.5 relative">
+<div class="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)] group text-start h-full transition-all duration-300 hover:border-[#E8A020]/30 hover:shadow-[0_12px_30px_rgba(232,160,32,0.05)] hover:-translate-y-1.5 relative">
     
     <!-- Image Gallery Wrapper -->
     <div onclick="location.href='@Url.Action("Index", "Product", new { area = "Shop", id = Model.Id })'" 
@@ -13,25 +13,21 @@
                  width="600"
                  height="450"
                  onerror="this.onerror=null; this.src='/images/product-placeholder.svg';"
-                 alt="@Model.Name">
+                 alt="@Model.Name"
+                 loading="lazy"
+                 decoding="async">
         }
         else
         {
-            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            <img class="w-full h-full object-cover"
                  src="/images/product-placeholder.svg"
                  width="600"
                  height="450"
                  alt="@Model.Name">
         }
-        else
-        {
-            <div class="w-full h-full flex flex-col items-center justify-center bg-slate-50">
-                <span class="material-symbols-outlined text-4xl text-slate-300">image</span>
-            </div>
-        }
         
-        <!-- Floating SKU badge -->
-        <span class="absolute top-3 right-3 bg-[#151B26] text-white/95 font-bold px-2.5 py-1 rounded-xl text-[9px] uppercase tracking-wider shadow-sm">
+        <!-- Floating SKU badge — RTL-aware: use end-3 instead of right-3 -->
+        <span class="absolute top-3 end-3 bg-[#151B26] text-white/95 font-bold px-2.5 py-1 rounded-xl text-[9px] uppercase tracking-wider shadow-sm">
             SKU: @Model.Sku
         </span>
     </div>
@@ -82,13 +78,11 @@
             <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="space-y-2">
                 <input type="hidden" name="productId" value="@Model.Id" />
                 <input type="hidden" name="quantity" value="1" />
-                <div class="flex gap-2">
-                    <button type="submit" 
-                            class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
-                        <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                        <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>
-                    </button>
-                </div>
+                <button type="submit" 
+                        class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>
+                </button>
             </form>
         </div>
     </div>

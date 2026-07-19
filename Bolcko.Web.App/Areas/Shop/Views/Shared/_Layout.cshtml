@@ -1,9 +1,15 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Bolcko.Web.App.SharedResource> SharedLocalizer
+@inject Bolcko.Domain.Interfaces.IUnitOfWork Uow
 @{
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
-    var soundEnabled = true;
-    var soundUrl = "/sounds/default-notification.wav";
+
+    // Read sound settings from DB
+    var soundEnabledSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundEnabled");
+    var soundUrlSetting     = await Uow.AppSettings.GetByKeyAsync("NotificationSoundUrl");
+    bool soundEnabled = (soundEnabledSetting?.Value ?? "true") == "true";
+    string soundUrl   = soundUrlSetting?.Value ?? "/sounds/default-notification.wav";
+
     var resolvedSoundUrl = soundUrl;
     if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))
     {
@@ -67,18 +73,18 @@
     
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
-            <div class="flex items-center">
-                <span class="material-symbols-outlined text-red-500 me-2">error</span>
+        <div class="bg-red-50 border-s-4 border-red-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-red-500 shrink-0">error</span>
                 <p class="text-sm text-red-700 font-bold">@TempData["ErrorMessage"]</p>
             </div>
         </div>
     }
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
-            <div class="flex items-center">
-                <span class="material-symbols-outlined text-emerald-500 me-2">check_circle</span>
+        <div class="bg-emerald-50 border-s-4 border-emerald-500 p-4 mx-auto max-w-7xl mt-4 rounded-md shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-500 shrink-0">check_circle</span>
                 <p class="text-sm text-emerald-700 font-bold">@TempData["SuccessMessage"]</p>
             </div>
         </div>
@@ -91,13 +97,6 @@
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Footer.cshtml" />
     
     <!-- Audio Notification Support (always rendered so JS can find it) -->
-    @{
-        var resolvedSoundUrl = soundUrl;
-        if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))
-        {
-            resolvedSoundUrl = "/" + resolvedSoundUrl;
-        }
-    }
     <audio id="notification-sound"
            src="@resolvedSoundUrl"
            preload="auto"

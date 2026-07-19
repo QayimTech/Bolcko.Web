@@ -1,30 +1,32 @@
 @using Bolcko.Domain.Entities.Delivery
 @using Bolcko.Domain.Entities.Order
 @using Bolcko.Domain.Enums
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Bolcko.Web.App.SharedResource> SharedLocalizer
 @model DeliveryJob?
 @{
-    ViewData["Title"] = "تتبع الشحنة";
+    ViewData["Title"] = SharedLocalizer["TrackShipmentTitle"];
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var order = ViewBag.Order as Order;
     
-    // تحديد الخط الزمني
+    // Timeline steps configuration
     bool isConfirmed = order != null;
     bool isPickedUp = Model != null && (Model.Status == DeliveryJobStatus.PickedUp || Model.Status == DeliveryJobStatus.InTransit || Model.Status == DeliveryJobStatus.Delivered);
     bool isOutForDelivery = Model != null && (Model.Status == DeliveryJobStatus.InTransit || Model.Status == DeliveryJobStatus.Delivered);
     bool isDelivered = Model != null && Model.Status == DeliveryJobStatus.Delivered;
 }
 
-<div class="container mx-auto px-4 py-12 text-right" dir="rtl">
+<div class="container mx-auto px-4 py-12 text-start">
     <div class="max-w-2xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-8">
         <!-- Header -->
         <div class="text-center border-b border-slate-100 pb-6 mb-8">
             <span class="material-symbols-outlined text-[#E8A020] text-5xl">track_changes</span>
-            <h1 class="text-2xl font-black text-slate-800 mt-2">تتبع حالة شحنتك</h1>
-            <p class="text-xs text-slate-400 mt-1">طلب رقم #@(order?.OrderNumber ?? order?.Id.ToString())</p>
+            <h1 class="text-2xl font-black text-slate-800 mt-2">@SharedLocalizer["TrackShipmentTitle"]</h1>
+            <p class="text-xs text-slate-400 mt-1">@SharedLocalizer["OrderNumberLabel"] #@(order?.OrderNumber ?? order?.Id.ToString())</p>
         </div>
 
-        <!-- Tracking Timeline -->
-        <div class="space-y-8 relative before:absolute before:top-2 before:bottom-2 before:right-4 before:w-0.5 before:bg-slate-200">
+        <!-- Tracking Timeline (RTL-aware logical border/positioning) -->
+        <div class="space-y-8 relative before:absolute before:top-2 before:bottom-2 before:start-4 before:w-0.5 before:bg-slate-200">
             
             <!-- Step 1: Confirmed -->
             <div class="flex items-start gap-4 relative">
@@ -32,19 +34,19 @@
                     <span class="material-symbols-outlined text-sm">assignment_turned_in</span>
                 </span>
                 <div>
-                    <h3 class="font-bold text-xs @(isConfirmed ? "text-slate-800" : "text-slate-400")">تم تأكيد الطلب</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">تم استلام طلبك ومراجعته بنجاح من إدارة المتجر.</p>
+                    <h3 class="font-bold text-xs @(isConfirmed ? "text-slate-800" : "text-slate-400")">@SharedLocalizer["OrderConfirmedTitle"]</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@SharedLocalizer["OrderConfirmedDesc"]</p>
                 </div>
             </div>
 
-            <!-- Step 2: Picked Up by Delivery -->
+            <!-- Step 2: Picked Up -->
             <div class="flex items-start gap-4 relative">
                 <span class="flex items-center justify-center w-8.5 h-8.5 rounded-full z-10 transition-colors duration-300 @(isPickedUp ? "bg-[#E8A020] text-white" : "bg-slate-100 text-slate-400")">
                     <span class="material-symbols-outlined text-sm">inventory_2</span>
                 </span>
                 <div>
-                    <h3 class="font-bold text-xs @(isPickedUp ? "text-slate-800" : "text-slate-400")">تم تسليم الشحنة لشركة التوصيل</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">استلمت شركة الشحن الباقة من مستودعاتنا للفرز والتوزيع.</p>
+                    <h3 class="font-bold text-xs @(isPickedUp ? "text-slate-800" : "text-slate-400")">@SharedLocalizer["PickedUpTitle"]</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@SharedLocalizer["PickedUpDesc"]</p>
                 </div>
             </div>
 
@@ -54,8 +56,8 @@
                     <span class="material-symbols-outlined text-sm">local_shipping</span>
                 </span>
                 <div>
-                    <h3 class="font-bold text-xs @(isOutForDelivery ? "text-slate-800" : "text-slate-400")">الشحنة مع المندوب للتسليم</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">خرج السائق الآن وهو في طريقه لتسليم الشحنة إلى عنوانك.</p>
+                    <h3 class="font-bold text-xs @(isOutForDelivery ? "text-slate-800" : "text-slate-400")">@SharedLocalizer["OutForDeliveryTitle"]</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@SharedLocalizer["OutForDeliveryDesc"]</p>
                 </div>
             </div>
 
@@ -65,28 +67,28 @@
                     <span class="material-symbols-outlined text-sm">check_circle</span>
                 </span>
                 <div>
-                    <h3 class="font-bold text-xs @(isDelivered ? "text-emerald-800" : "text-slate-400")">تم التوصيل والتحصيل بنجاح</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">تم استلام الشحنة وتصفية الحساب المالي. شكراً لشرائك من بلوكو!</p>
+                    <h3 class="font-bold text-xs @(isDelivered ? "text-emerald-800" : "text-slate-400")">@SharedLocalizer["DeliveredTitle"]</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@SharedLocalizer["DeliveredDesc"]</p>
                 </div>
             </div>
         </div>
 
-        <!-- Shipment and Order Info Summary -->
+        <!-- Shipment Summary -->
         <div class="mt-10 pt-6 border-t border-slate-100 space-y-4">
-            <h4 class="font-black text-slate-700 text-xs">ملخص تفاصيل الشحن</h4>
+            <h4 class="font-black text-slate-700 text-xs">@SharedLocalizer["ShipmentSummaryTitle"]</h4>
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-2">
-                <p><span class="text-slate-400">العنوان:</span> @(order?.ShippingAddress?.AddressLine1), @(order?.ShippingAddress?.City)</p>
-                <p><span class="text-slate-400">طريقة الدفع:</span> الدفع عند الاستلام (COD)</p>
-                <p><span class="text-slate-400">المبلغ الإجمالي المطلـوب:</span> <span class="font-bold text-slate-800">@(order?.TotalAmount.ToString("N2")) د.أ</span></p>
+                <p><span class="text-slate-400">@SharedLocalizer["AddressLabel"]:</span> @(order?.ShippingAddress?.AddressLine1), @(order?.ShippingAddress?.City)</p>
+                <p><span class="text-slate-400">@SharedLocalizer["PaymentMethodLabel"]:</span> @SharedLocalizer["CodLabel"]</p>
+                <p><span class="text-slate-400">@SharedLocalizer["TotalRequiredAmount"]:</span> <span class="font-bold text-slate-800">@(order?.TotalAmount.ToString("N2")) @SharedLocalizer["JordanDinarShort"]</span></p>
                 @if (Model != null)
                 {
-                    <p><span class="text-slate-400">شركة التوصيل المسؤولة:</span> @(Model.Company?.Name ?? "مندوب مستقل")</p>
+                    <p><span class="text-slate-400">@SharedLocalizer["DeliveryCompanyLabel"]:</span> @(Model.Company?.Name ?? SharedLocalizer["IndependentDriverText"].Value)</p>
                 }
             </div>
         </div>
         
         <div class="text-center mt-8">
-            <a asp-action="Index" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all inline-block">الرجوع لحسابي الشخصي</a>
+            <a asp-action="Index" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all inline-block">@SharedLocalizer["BackToDashboardText"]</a>
         </div>
     </div>
 </div>

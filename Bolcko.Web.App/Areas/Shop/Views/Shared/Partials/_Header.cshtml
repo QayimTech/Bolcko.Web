@@ -93,8 +93,8 @@
                 <button type="button" id="search-toggle-btn" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center" aria-label="Open Search">
                     <span class="material-symbols-outlined text-[20px]">search</span>
                 </button>
-                <div class="absolute top-full mt-2.5 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
-                    @(isArabic ? "البحث" : "Search")
+                <div class="absolute top-full mt-2.5 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @SharedLocalizer["Search"]
                 </div>
             </div>
 
@@ -185,8 +185,8 @@
                     <span class="material-symbols-outlined text-[20px]">request_quote</span>
                     <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
                 </a>
-                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
-                    @(isArabic ? "طلبات الأسعار" : "Quote Requests")
+                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @SharedLocalizer["QuoteRequests"]
                 </div>
             </div>
 
@@ -196,8 +196,8 @@
                     <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
                     @await Component.InvokeAsync("CartCount")
                 </a>
-                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
-                    @(isArabic ? "سلة المشتريات" : "Shopping Cart")
+                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @SharedLocalizer["ShoppingCartTitle"]
                 </div>
             </div>
 
