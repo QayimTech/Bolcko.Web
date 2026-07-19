@@ -191,8 +191,8 @@
             }, 10000);
 
             // Update Notification Center Dropdown
-            if (typeof window.fetchNotifications === 'function') {
-                window.fetchNotifications();
+            if (window.NotificationService && typeof window.NotificationService.fetchNotifications === 'function') {
+                window.NotificationService.fetchNotifications();
             }
         });
 

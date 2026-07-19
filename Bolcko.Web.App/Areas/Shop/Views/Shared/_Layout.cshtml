@@ -140,8 +140,12 @@
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = toastHtml.trim();
                     const toastNode = tempDiv.firstChild;
-                    toastContainer.appendChild(toastNode);
                     setTimeout(() => toastNode.remove(), 7000);
+                }
+
+                // Update Notification Center Dropdown on Shop Layout
+                if (window.NotificationService && typeof window.NotificationService.fetchNotifications === 'function') {
+                    window.NotificationService.fetchNotifications();
                 }
             });
 
