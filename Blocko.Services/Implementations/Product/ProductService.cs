@@ -68,7 +68,7 @@ namespace Blocko.Services.Implementations.Product
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            var p = await _unitOfWork.Products.GetByIdWithImagesAsync(id);
+            var p = await _unitOfWork.Products.GetByIdWithImagesAndVariantsAsync(id);
             if (p == null) return null;
             return new ProductDto
             {
@@ -84,6 +84,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
+                Brand = p.Brand,
+                CountryOfOrigin = p.CountryOfOrigin,
                 BulkPricingAvailable = p.BulkPricingAvailable,
                 UpdatedAt = p.UpdatedAt,
                 Images = p.Images.Select(img => new ProductImageDto
@@ -93,6 +95,19 @@ namespace Blocko.Services.Implementations.Product
                     AltText = img.AltText,
                     Caption = img.Caption,
                     DisplayOrder = img.DisplayOrder
+                }).ToList(),
+                Variants = p.Variants.Select(v => new ProductVariantDto
+                {
+                    Id = v.Id,
+                    ProductId = v.ProductId,
+                    Size = v.Size,
+                    Color = v.Color,
+                    PackagingUnit = v.PackagingUnit,
+                    CountryOfOrigin = v.CountryOfOrigin,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    Sku = v.Sku,
+                    ImageUrl = v.ImageUrl
                 }).ToList()
             };
         }
@@ -216,6 +231,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = productDto.UnitOfMeasure,
                 Sku = productDto.Sku,
                 ImageUrl = productDto.ImageUrl,
+                Brand = productDto.Brand,
+                CountryOfOrigin = productDto.CountryOfOrigin,
                 BulkPricingAvailable = productDto.BulkPricingAvailable,
                 Images = productDto.Images.Select(img => new ProductImage
                 {
@@ -223,6 +240,17 @@ namespace Blocko.Services.Implementations.Product
                     AltText = img.AltText ?? productDto.Name,
                     Caption = img.Caption,
                     DisplayOrder = img.DisplayOrder
+                }).ToList(),
+                Variants = productDto.Variants.Select(v => new ProductVariant
+                {
+                    Size = v.Size,
+                    Color = v.Color,
+                    PackagingUnit = v.PackagingUnit,
+                    CountryOfOrigin = v.CountryOfOrigin,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    Sku = v.Sku,
+                    ImageUrl = v.ImageUrl
                 }).ToList()
             };
             await _unitOfWork.Products.AddAsync(product);
@@ -231,7 +259,7 @@ namespace Blocko.Services.Implementations.Product
 
         public async Task UpdateProductAsync(ProductDto productDto, List<int>? deleteImageIds = null)
         {
-            var product = await _unitOfWork.Products.GetByIdWithImagesAsync(productDto.Id);
+            var product = await _unitOfWork.Products.GetByIdWithImagesAndVariantsAsync(productDto.Id);
             if (product != null)
             {
                 product.Name = productDto.Name;
@@ -243,8 +271,55 @@ namespace Blocko.Services.Implementations.Product
                 product.StockQuantity = productDto.StockQuantity;
                 product.UnitOfMeasure = productDto.UnitOfMeasure;
                 product.Sku = productDto.Sku;
+                product.Brand = productDto.Brand;
+                product.CountryOfOrigin = productDto.CountryOfOrigin;
                 product.BulkPricingAvailable = productDto.BulkPricingAvailable;
                 product.UpdatedAt = DateTime.UtcNow;
+
+                // Merge Variants
+                if (productDto.Variants != null)
+                {
+                    var incomingVariantIds = productDto.Variants.Select(v => v.Id).ToList();
+                    var variantsToRemove = product.Variants.Where(v => !incomingVariantIds.Contains(v.Id)).ToList();
+                    foreach (var variant in variantsToRemove)
+                    {
+                        product.Variants.Remove(variant);
+                    }
+
+                    foreach (var vDto in productDto.Variants)
+                    {
+                        if (vDto.Id == 0)
+                        {
+                            product.Variants.Add(new ProductVariant
+                            {
+                                Size = vDto.Size,
+                                Color = vDto.Color,
+                                PackagingUnit = vDto.PackagingUnit,
+                                CountryOfOrigin = vDto.CountryOfOrigin,
+                                Price = vDto.Price,
+                                StockQuantity = vDto.StockQuantity,
+                                Sku = vDto.Sku,
+                                ImageUrl = vDto.ImageUrl
+                            });
+                        }
+                        else
+                        {
+                            var existingVariant = product.Variants.FirstOrDefault(v => v.Id == vDto.Id);
+                            if (existingVariant != null)
+                            {
+                                existingVariant.Size = vDto.Size;
+                                existingVariant.Color = vDto.Color;
+                                existingVariant.PackagingUnit = vDto.PackagingUnit;
+                                existingVariant.CountryOfOrigin = vDto.CountryOfOrigin;
+                                existingVariant.Price = vDto.Price;
+                                existingVariant.StockQuantity = vDto.StockQuantity;
+                                existingVariant.Sku = vDto.Sku;
+                                existingVariant.ImageUrl = vDto.ImageUrl;
+                                existingVariant.UpdatedAt = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                }
 
                 // Handle deletions
                 if (deleteImageIds != null && deleteImageIds.Any())

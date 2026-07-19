@@ -30,14 +30,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int productId, int quantity = 1, int? productVariantId = null)
         {
             string sessionId = GetSessionId();
             int? userId = GetUserId();
 
             try
             {
-                await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId);
+                await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId, productVariantId);
             }
             catch (Exception ex)
             {

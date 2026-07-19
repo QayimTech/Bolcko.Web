@@ -92,6 +92,27 @@ try
     // =========================================================================
     await app.InitializeDatabaseAsync();
 
+    // ─── TEMP DIAGNOSTIC: Check variants of product 6963 ────────────────────
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
+            var variants = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
+                db.ProductVariants.Where(v => v.ProductId == 6963)
+            );
+            Serilog.Log.Information("[DIAGNOSTIC] Product 6963 has {Count} variants in DB at startup.", variants.Count);
+            foreach (var v in variants)
+            {
+                Serilog.Log.Information("[DIAGNOSTIC] Variant ID: {Id}, Sku: {Sku}, Size: {Size}, Color: {Color}", v.Id, v.Sku, v.Size, v.Color);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Serilog.Log.Error(ex, "[DIAGNOSTIC] Failed to query product 6963 variants at startup.");
+    }
+
     // Schedule recurring log cleanup job (runs daily at midnight UTC)
     RecurringJob.AddOrUpdate<LogCleanupService>(
         "daily-log-cleanup", 

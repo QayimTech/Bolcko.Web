@@ -21,6 +21,7 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<TenderItem> TenderItems { get; }
         IGenericRepository<OrderItem> OrderItems { get; }
         IGenericRepository<ProductImage> ProductImages { get; }
+        IGenericRepository<ProductVariant> ProductVariants { get; }
         IAppSettingRepository AppSettings { get; }
         IShippingRateRepository ShippingRates { get; }
         ICouponRepository Coupons { get; }

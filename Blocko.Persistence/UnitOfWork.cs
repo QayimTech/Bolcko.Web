@@ -1,6 +1,8 @@
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Delivery;
+using Bolcko.Domain.Entities.Order;
+using Bolcko.Domain.Entities.Product;
 using Blocko.Persistence.Repositories.Product;
 using Blocko.Persistence.Repositories.Category;
 using Blocko.Persistence.Repositories.Order;
@@ -34,8 +36,9 @@ namespace Blocko.Persistence
             Addresses = new AddressRepository(_context);
             TenderItems = new GenericRepository<TenderItem>(_context);
             ShoppingCartItems = new GenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem>(_context);
-            OrderItems = new GenericRepository<Bolcko.Domain.Entities.Order.OrderItem>(_context);
-            ProductImages = new GenericRepository<Bolcko.Domain.Entities.Product.ProductImage>(_context);
+            OrderItems = new GenericRepository<OrderItem>(_context);
+            ProductImages = new GenericRepository<ProductImage>(_context);
+            ProductVariants = new GenericRepository<ProductVariant>(_context);
             AppSettings = new Blocko.Persistence.Repositories.Setting.AppSettingRepository(_context);
             ShippingRates = new Blocko.Persistence.Repositories.Setting.ShippingRateRepository(_context);
             Coupons = new Blocko.Persistence.Repositories.Setting.CouponRepository(_context);
@@ -60,8 +63,9 @@ namespace Blocko.Persistence
         public IAddressRepository Addresses { get; private set; }
         public IGenericRepository<TenderItem> TenderItems { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; private set; }
+        public IGenericRepository<OrderItem> OrderItems { get; private set; }
+        public IGenericRepository<ProductImage> ProductImages { get; private set; }
+        public IGenericRepository<ProductVariant> ProductVariants { get; private set; }
         public IAppSettingRepository AppSettings { get; private set; }
         public IShippingRateRepository ShippingRates { get; private set; }
         public ICouponRepository Coupons { get; private set; }

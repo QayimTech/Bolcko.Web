@@ -28,5 +28,7 @@ namespace Bolcko.Domain.Entities.Product
         // New properties based on user request
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }
+
+        public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
     }
 }

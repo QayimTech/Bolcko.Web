@@ -50,9 +50,25 @@
             </div>
 
             @* SKU *@
-            <p class="mt-2 font-bold text-xs text-outline-variant uppercase">
-                SKU: <span class="text-on-surface-variant">@Model.ProductSku</span>
-            </p>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-outline-variant uppercase">
+                <span>SKU: <strong class="text-on-surface-variant">@Model.ProductSku</strong></span>
+                @if (!string.IsNullOrEmpty(Model.Size))
+                {
+                    <span>| @SharedLocalizer["Size"] / القياس: <strong class="text-on-surface-variant">@Model.Size</strong></span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Color))
+                {
+                    <span>| @SharedLocalizer["Color"] / اللون: <strong class="text-on-surface-variant">@Model.Color</strong></span>
+                }
+                @if (!string.IsNullOrEmpty(Model.PackagingUnit))
+                {
+                    <span>| @SharedLocalizer["Unit"] / التعبئة: <strong class="text-on-surface-variant">@Model.PackagingUnit</strong></span>
+                }
+                @if (!string.IsNullOrEmpty(Model.CountryOfOrigin))
+                {
+                    <span>| بلد المنشأ: <strong class="text-on-surface-variant">@Model.CountryOfOrigin</strong></span>
+                }
+            </div>
 
             @* Stock badge *@
             <div class="mt-3">

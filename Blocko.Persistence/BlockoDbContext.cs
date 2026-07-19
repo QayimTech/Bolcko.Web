@@ -31,6 +31,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; set; }  
         public DbSet<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Product.ProductVariant> ProductVariants { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.AppSetting> AppSettings { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.ShippingRate> ShippingRates { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.Coupon> Coupons { get; set; }
@@ -109,6 +110,11 @@ namespace Blocko.Persistence
                     .WithMany()
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.ProductVariant)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductVariantId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ProductImage configuration
@@ -116,6 +122,17 @@ namespace Blocko.Persistence
             {
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.Images)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ProductVariant configuration
+            modelBuilder.Entity<Bolcko.Domain.Entities.Product.ProductVariant>(entity =>
+            {
+                entity.Property(e => e.Price).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.Variants)
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -133,6 +150,11 @@ namespace Blocko.Persistence
                 entity.Property(e => e.ProposedPricePerUnit).HasPrecision(18, 2);
                 entity.Property(e => e.TargetPricePerUnit).HasPrecision(18, 2);
                 entity.Property(e => e.SubtotalItem).HasPrecision(18, 2);
+
+                entity.HasOne(d => d.ProductVariant)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductVariantId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // MarketPrice configuration
@@ -163,6 +185,11 @@ namespace Blocko.Persistence
                 entity.HasOne(d => d.Product)
                     .WithMany()
                     .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.ProductVariant)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductVariantId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

@@ -44,6 +44,28 @@
                 <span asp-validation-for="CategoryId" class="text-rose-500 text-xs font-bold"></span>
             </div>
 
+            <!-- Brand & Country of Origin -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label asp-for="Brand" class="block text-xs font-bold text-slate-500 uppercase tracking-widest">الماركة / البراند</label>
+                    <input asp-for="Brand"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900
+                                  focus:bg-white focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20
+                                  outline-none transition-all text-sm font-medium"
+                           placeholder="مثال: Grohe, RAK" />
+                    <span asp-validation-for="Brand" class="text-rose-500 text-xs font-bold"></span>
+                </div>
+                <div class="space-y-1.5">
+                    <label asp-for="CountryOfOrigin" class="block text-xs font-bold text-slate-500 uppercase tracking-widest">بلد المنشأ</label>
+                    <input asp-for="CountryOfOrigin"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900
+                                  focus:bg-white focus:border-[#E8A020] focus:ring-2 focus:ring-[#E8A020]/20
+                                  outline-none transition-all text-sm font-medium"
+                           placeholder="مثال: إيطاليا, إسبانيا, الصين" />
+                    <span asp-validation-for="CountryOfOrigin" class="text-rose-500 text-xs font-bold"></span>
+                </div>
+            </div>
+
             <!-- Price + SKU -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
@@ -189,6 +211,50 @@
     </div>
 </div>
 
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+}
+
+<!-- Variants Management Section -->
+<div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm mt-8 text-right">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#E8A020] text-xl">inventory_2</span>
+            <h3 class="text-sm font-bold text-slate-800">@(isRtl ? "متغيرات المنتج (الأسعار والمخزون لكل لون/قياس)" : "Product Variants (Price/Stock per Option)")</h3>
+        </div>
+        <button type="button" onclick="addVariantRow()" 
+                class="flex items-center gap-2 bg-[#E8A020] hover:bg-[#d69018] text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all">
+            <span class="material-symbols-outlined text-sm">add</span>
+            <span>@(isRtl ? "إضافة متغير" : "Add Variant")</span>
+        </button>
+    </div>
+
+    <!-- Variants Table/List -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-right text-sm border-collapse" id="variantsTable">
+            <thead>
+                <tr class="border-b border-slate-100 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="pb-3 text-right">@(isRtl ? "القياس" : "Size")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "اللون" : "Color")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "وحدة البيع" : "Unit")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "بلد المنشأ" : "Origin")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "السعر" : "Price")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "المخزون" : "Stock")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "SKU" : "SKU")</th>
+                    <th class="pb-3 text-center">@(isRtl ? "صورة" : "Image")</th>
+                    <th class="pb-3 text-center">@(isRtl ? "إجراءات" : "Actions")</th>
+                </tr>
+            </thead>
+            <tbody id="variantsContainer">
+                <!-- Dynamic rows here -->
+            </tbody>
+        </table>
+        <div id="noVariantsMsg" class="text-center py-8 text-slate-400 text-xs font-medium">
+            @(isRtl ? "لا يوجد متغيرات مضافة لهذا المنتج بعد." : "No variants added for this product yet.")
+        </div>
+    </div>
+</div>
+
 <style>
     /* Checkbox toggle animation */
     input[type="checkbox"].sr-only:checked ~ div:last-child {
@@ -324,5 +390,201 @@ function removeExistingImage(btn, imageId) {
     hidden.value = imageId;
     form.appendChild(hidden);
     btn.closest('.relative').remove();
+}
+
+// ═══════════════════════════════════════════
+// Dynamic Variant Row Functions
+// ═══════════════════════════════════════════
+
+// Upload token for AJAX (RequestVerificationToken)
+const __variantAntiForgery = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+const __uploadVariantUrl   = '@Url.Action("UploadVariantImage", "Product", new { area = "Admin" })';
+
+function addVariantRow(data = {}) {
+    const container = document.getElementById('variantsContainer');
+    const noMsg = document.getElementById('noVariantsMsg');
+    if (noMsg) noMsg.classList.add('hidden');
+
+    const imgSrc = data.imageUrl ? data.imageUrl : '';
+    const imgPreviewStyle = imgSrc ? '' : 'display:none';
+
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-50 hover:bg-slate-50/50 transition-colors variant-row';
+    tr.innerHTML = `
+        <td class="py-3 pe-2">
+            <input type="hidden" name="Variants[INDEX].Id" value="${data.id || 0}" />
+            <input type="hidden" name="Variants[INDEX].ProductId" value="${data.productId || 0}" />
+            <input type="text" name="Variants[INDEX].Size" value="${escV(data.size)}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="مثال: 1/2 إنش" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="text" name="Variants[INDEX].Color" value="${escV(data.color)}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="مثال: كروم" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="text" name="Variants[INDEX].PackagingUnit" value="${escV(data.packagingUnit)}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="حبة، كرتونة" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="text" name="Variants[INDEX].CountryOfOrigin" value="${escV(data.countryOfOrigin)}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="إيطالي، صيني" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="number" step="0.01" name="Variants[INDEX].Price" value="${data.price || ''}" class="w-24 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="0.00" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="number" name="Variants[INDEX].StockQuantity" value="${data.stockQuantity !== undefined ? data.stockQuantity : ''}" class="w-20 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="0" />
+        </td>
+        <td class="py-3 pe-2">
+            <input type="text" name="Variants[INDEX].Sku" value="${escV(data.sku)}" class="w-28 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all font-mono" placeholder="BLK-VAR" />
+        </td>
+        <td class="py-3 pe-2 text-center">
+            <!-- hidden URL field submitted with form -->
+            <input type="hidden" name="Variants[INDEX].ImageUrl" class="variant-img-url" value="${escV(data.imageUrl)}" />
+            <!-- preview thumbnail -->
+            <div class="flex flex-col items-center gap-1">
+                <div class="variant-img-preview w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100" style="${imgPreviewStyle}">
+                    <img src="${imgSrc}" class="w-full h-full object-cover variant-img-tag" alt="" />
+                </div>
+                <label class="cursor-pointer text-[10px] text-[#E8A020] font-bold hover:underline variant-img-label">
+                    <span class="material-symbols-outlined text-[13px] align-middle">photo_camera</span>
+                    <input type="file" accept="image/*" class="hidden variant-img-file" />
+                </label>
+                <span class="variant-img-spinner hidden text-[10px] text-slate-400">جاري...</span>
+            </div>
+        </td>
+        <td class="py-3 text-center">
+            <button type="button" onclick="removeVariantRow(this)" class="w-8 h-8 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl flex items-center justify-center transition-colors mx-auto">
+                <span class="material-symbols-outlined text-sm">delete</span>
+            </button>
+        </td>
+    `;
+    container.appendChild(tr);
+
+    // Attach image upload listener to the new row's file input
+    const fileInput = tr.querySelector('.variant-img-file');
+    fileInput.addEventListener('change', function() {
+        if (!this.files || !this.files[0]) return;
+        uploadVariantImage(this.files[0], tr);
+    });
+
+    reindexVariants();
+}
+
+// AJAX upload for a single variant image
+function uploadVariantImage(file, tr) {
+    const spinner = tr.querySelector('.variant-img-spinner');
+    const urlInput = tr.querySelector('.variant-img-url');
+    const preview = tr.querySelector('.variant-img-preview');
+    const img     = tr.querySelector('.variant-img-tag');
+
+    spinner.classList.remove('hidden');
+
+    const fd = new FormData();
+    fd.append('variantImage', file);
+    fd.append('__RequestVerificationToken', __variantAntiForgery);
+
+    fetch(__uploadVariantUrl, { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            spinner.classList.add('hidden');
+            if (data.success) {
+                urlInput.value = data.url;
+                img.src = data.url;
+                preview.style.display = '';
+            } else {
+                alert('خطأ في رفع الصورة: ' + data.message);
+            }
+        })
+        .catch(() => {
+            spinner.classList.add('hidden');
+            alert('تعذّر رفع الصورة. تحقق من الاتصال.');
+        });
+}
+
+function escV(v) { return (v == null ? '' : String(v).replace(/"/g, '&quot;').replace(/'/g, '&#39;')); }
+
+function removeVariantRow(btn) {
+    btn.closest('tr').remove();
+    reindexVariants();
+}
+
+function reindexVariants() {
+    const rows = document.querySelectorAll('.variant-row');
+    const noMsg = document.getElementById('noVariantsMsg');
+    if (rows.length === 0) {
+        if (noMsg) noMsg.classList.remove('hidden');
+    } else {
+        if (noMsg) noMsg.classList.add('hidden');
+    }
+
+    rows.forEach((row, idx) => {
+        row.querySelectorAll('input[name]').forEach(input => {
+            const name = input.getAttribute('name');
+            if (name) {
+                input.setAttribute(
+                    'name',
+                    name.replace(/Variants\[(\d+|INDEX)\]/g, `Variants[${idx}]`)
+                );
+            }
+        });
+    });
+}
+</script>
+
+<!-- Variant data stored as Base64 in data attribute to be immune to HTML/JS minifiers -->
+<div id="variants-data-holder"
+     data-variants="@Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(Model?.Variants ?? new List<Bolcko.Domain.Entities.Product.DTOs.ProductVariantDto>())))" 
+     style="display:none"
+     aria-hidden="true"></div>
+
+<script>
+// Render existing variants on page load safely using JSON
+function initVariants() {
+    console.log('[initVariants] called');
+    try {
+        const holder = document.getElementById('variants-data-holder');
+        console.log('[initVariants] holder:', holder);
+        if (!holder) {
+            console.error('[initVariants] variants-data-holder NOT FOUND!');
+            return;
+        }
+        const b64 = holder.getAttribute('data-variants') || '';
+        console.log('[initVariants] b64 length:', b64.length);
+        if (!b64) { console.warn('[initVariants] data-variants is empty'); return; }
+        const binaryString = atob(b64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; binaryString.length > i; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const json = new TextDecoder('utf-8').decode(bytes);
+        console.log('[initVariants] decoded JSON:', json);
+        const variants = JSON.parse(json);
+        console.log('[initVariants] parsed variants:', variants);
+        if (Array.isArray(variants) && variants.length > 0) {
+            variants.forEach(v => {
+                addVariantRow({
+                    id: v.Id || v.id || 0,
+                    productId: v.ProductId || v.productId || 0,
+                    size: v.Size || v.size || '',
+                    color: v.Color || v.color || '',
+                    packagingUnit: v.PackagingUnit || v.packagingUnit || '',
+                    countryOfOrigin: v.CountryOfOrigin || v.countryOfOrigin || '',
+                    price: v.Price || v.price || 0,
+                    stockQuantity: (v.StockQuantity !== undefined ? v.StockQuantity : (v.stockQuantity !== undefined ? v.stockQuantity : 0)),
+                    sku: v.Sku || v.sku || '',
+                    imageUrl: v.ImageUrl || v.imageUrl || ''
+                });
+            });
+        } else {
+            console.warn('[initVariants] variants array is empty or not array');
+        }
+    } catch (e) {
+        console.error('[initVariants] Error:', e);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVariants);
+} else {
+    // DOM already parsed – run immediately but defer to next tick
+    // so all other scripts (addVariantRow, reindexVariants) are defined
+    setTimeout(initVariants, 0);
 }
 </script>

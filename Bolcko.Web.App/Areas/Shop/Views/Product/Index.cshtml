@@ -63,6 +63,7 @@
 <main class="max-w-7xl mx-auto px-6 py-12 text-start">
     @if (Model != null)
     {
+        var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
             <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
@@ -180,13 +181,46 @@
                 
                 <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
                     <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-50 pb-6">
-                        <span class="text-4xl font-extrabold text-slate-900">@Model.RetailPrice.ToString("N2")</span>
+                        <span class="text-4xl font-extrabold text-slate-900" id="product-display-price">@Model.RetailPrice.ToString("N2")</span>
                         <span class="text-sm font-bold text-slate-400">@SharedLocalizer["JordanDinarShort"] / @Model.UnitOfMeasure</span>
                         <span class="text-sm font-medium">@SharedLocalizer["VatIncluded"]</span>
                     </div>
-                    
+                    <!-- Premium Variant Selector (Size / Color / Unit) -->
+                    @if (Model.Variants != null && Model.Variants.Any())
+                    {
+                        <div class="border-t border-slate-100 pt-6 mb-6">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">@(isArabic ? "الخيارات والقياسات المتاحة" : "Available Options / Variants")</h3>
+                            <div class="flex flex-wrap gap-2.5" id="variant-selector-container">
+                                @for (int i = 0; i < Model.Variants.Count; i++)
+                                {
+                                    var v = Model.Variants[i];
+                                    var variantLabel = new List<string>();
+                                    if (!string.IsNullOrEmpty(v.Size)) variantLabel.Add(v.Size);
+                                    if (!string.IsNullOrEmpty(v.Color)) variantLabel.Add(v.Color);
+                                    if (!string.IsNullOrEmpty(v.PackagingUnit)) variantLabel.Add(v.PackagingUnit);
+                                    if (!string.IsNullOrEmpty(v.CountryOfOrigin)) variantLabel.Add(v.CountryOfOrigin);
+                                    var displayLabel = string.Join(" - ", variantLabel);
+                                    if (string.IsNullOrEmpty(displayLabel)) displayLabel = $"Option #{v.Id}";
+
+                                    var activeClass = i == 0 ? "border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20" : "border-slate-200 text-slate-600 hover:border-[#E8A020] hover:bg-slate-50";
+
+                                    <button type="button" 
+                                            class="variant-select-btn px-4 py-3 rounded-2xl border text-xs font-bold transition-all @activeClass"
+                                            data-variant-id="@v.Id"
+                                            data-price="@v.Price.ToString("N2")"
+                                            data-sku="@v.Sku"
+                                            data-stock="@v.StockQuantity"
+                                            data-image="@(string.IsNullOrEmpty(v.ImageUrl) ? "" : v.ImageUrl.StartsWith("http") ? v.ImageUrl : "/" + v.ImageUrl.TrimStart('/'))">
+                                        @displayLabel
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="productId" value="@Model.Id" />
+                        <input type="hidden" name="productVariantId" id="selected-variant-id-input" value="@(Model.Variants?.FirstOrDefault()?.Id)" />
                         
                         <div class="flex flex-col gap-2">
                             <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">@SharedLocalizer["QuantityRequired"]</label>
@@ -210,14 +244,6 @@
                             </div>
                         </div>
                     </form>
-
-                      <div class="mt-4">
-                          <!-- One-Click Fast Quick Order Modal trigger -->
-                          <button id="btn-quick-order" type="button" class="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-sm">
-                              <span class="material-symbols-outlined text-lg">bolt</span>
-                              <span>شراء سريع بنقرة واحدة</span>
-                          </button>
-                      </div>
                     
                     <!-- Trust Checkout Badge -->
                     <div class="border-t border-slate-50 pt-6 mt-6 flex flex-wrap gap-4 items-center justify-between text-xs text-slate-400">
@@ -293,6 +319,40 @@
                     mainImg.attr('src', newUrl);
                     mainImg.fadeIn(150);
                 });
+            });
+
+            // Variant Selector click handler
+            $('.variant-select-btn').click(function() {
+                // Toggle active styles
+                $('.variant-select-btn').removeClass('border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20')
+                                       .addClass('border-slate-200 text-slate-600');
+                $(this).addClass('border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20')
+                       .removeClass('border-slate-200 text-slate-600');
+
+                // Update hidden form inputs and prices
+                const variantId = $(this).data('variant-id');
+                const price = $(this).data('price');
+                const sku = $(this).data('sku');
+                const stock = parseInt($(this).data('stock'));
+                const imageUrl = $(this).data('image');
+
+                $('#selected-variant-id-input').val(variantId);
+                $('#product-display-price').text(price);
+                
+                // Update SKU badge
+                const skuBadge = $('span:contains("SKU:")');
+                if (skuBadge.length) {
+                    skuBadge.text('SKU: ' + sku);
+                }
+
+                // If variant has specific image, swap main product image
+                if (imageUrl && imageUrl.trim() !== '') {
+                    const mainImg = $('#main-product-image');
+                    mainImg.fadeOut(150, function() {
+                        mainImg.attr('src', imageUrl);
+                        mainImg.fadeIn(150);
+                    });
+                }
             });
         });
     </script>

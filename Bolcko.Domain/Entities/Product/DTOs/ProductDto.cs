@@ -26,6 +26,7 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public string? ImageUrl { get; set; }
         public bool BulkPricingAvailable { get; set; }
         public List<ProductImageDto> Images { get; set; } = new();
+        public List<ProductVariantDto> Variants { get; set; } = new();
 
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }

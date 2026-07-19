@@ -101,6 +101,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductDto productDto, List<IFormFile> uploadImages, List<int>? deleteImageIds)
         {
+            Serilog.Log.Information("[POST Edit] Received product {Id} with {Count} variants in request.", productDto.Id, productDto.Variants?.Count ?? 0);
+            if (productDto.Variants != null)
+            {
+                foreach (var v in productDto.Variants)
+                {
+                    Serilog.Log.Information("[POST Edit] Bound Variant ID: {Id}, Sku: {Sku}, Size: {Size}, Color: {Color}, Price: {Price}, Stock: {Stock}, Img: {Img}", 
+                        v.Id, v.Sku, v.Size, v.Color, v.Price, v.StockQuantity, v.ImageUrl);
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -214,6 +224,56 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "لا يمكن حذف هذا المنتج لأنه مرتبط بطلبات سابقة أو سلات تسوق لعملاء، الرجاء أرشفته بدلاً من ذلك.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // ─── AJAX: Upload a single variant image ───────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadVariantImage(IFormFile variantImage)
+        {
+            if (variantImage == null || variantImage.Length == 0)
+                return Json(new { success = false, message = "لم يتم اختيار صورة" });
+
+            if (variantImage.Length > 5 * 1024 * 1024)
+                return Json(new { success = false, message = "حجم الصورة يتجاوز 5 ميجابايت" });
+
+            if (!variantImage.ContentType.StartsWith("image/"))
+                return Json(new { success = false, message = "الملف المختار ليس صورة" });
+
+            try
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "variants");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(variantImage.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await variantImage.CopyToAsync(fileStream);
+                }
+
+                string url = "/images/variants/" + uniqueFileName;
+                return Json(new { success = true, url });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطأ في رفع الصورة: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous] // Allow quick access for diagnostics
+        public async Task<IActionResult> DebugProduct(int id)
+        {
+            var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
+            if (product == null) return Content($"Product with ID {id} not found.");
+            
+            return Json(new {
+                Id = product.Id,
+                Name = product.Name,
+                VariantsCount = product.Variants?.Count ?? 0,
+                Variants = product.Variants
+            });
         }
 
         // Redirect old /Product/BulkImport links to the unified import page

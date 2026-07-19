@@ -22,6 +22,9 @@ namespace Blocko.Persistence.Repositories.Product
         public async Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAsync(int id) =>
             await _context.Products.AsNoTracking().Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
 
+        public async Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAndVariantsAsync(int id) =>
+            await _context.Products.Include(p => p.Images).Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == id);
+
         public async Task<IEnumerable<Bolcko.Domain.Entities.Product.Product>> SearchProductsAsync(string? query)
         {
             if (string.IsNullOrWhiteSpace(query))
