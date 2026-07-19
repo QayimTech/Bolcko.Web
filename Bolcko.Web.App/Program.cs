@@ -78,7 +78,6 @@ try
     app.UseSecurityMiddleware();
     app.UsePerformanceAndSecurityHeaders();
     app.UseStaticFilesWithCaching();
-    app.UseWebSockets(); // Required for SignalR WebSocket upgrades
     app.UseFirstRunSetupMiddleware();
     app.UseSessionMiddleware();
     app.UseLocalizationMiddleware();
