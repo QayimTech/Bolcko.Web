@@ -18,11 +18,19 @@ namespace Blocko.Services.Implementations.order
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationService _notificationService;
+        private readonly Blocko.Services.Interfaces.User.IEmailSender _emailSender;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
 
-        public OrderService(IUnitOfWork unitOfWork, INotificationService notificationService)
+        public OrderService(
+            IUnitOfWork unitOfWork, 
+            INotificationService notificationService,
+            Blocko.Services.Interfaces.User.IEmailSender emailSender,
+            Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager)
         {
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
+            _emailSender = emailSender;
+            _userManager = userManager;
         }
 
         public async Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, CheckoutDto checkoutDto)
@@ -131,6 +139,29 @@ namespace Blocko.Services.Implementations.order
 
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync();
+
+                // Send confirmation email to User
+                try
+                {
+                    var user = await _userManager.FindByIdAsync(userId.ToString());
+                    if (user != null && !string.IsNullOrEmpty(user.Email))
+                    {
+                        var emailSubject = $"تأكيد استلام طلبك #{order.OrderNumber} - BLOCKO";
+                        var detailsUrl = $"https://bolcko.com/Shop/Account/OrderDetails/{order.Id}"; // Staging/Production link structure
+                        var emailBody = Blocko.Services.Helpers.EmailTemplates.GetOrderConfirmationTemplate(
+                            order.OrderNumber,
+                            $"{user.FirstName} {user.LastName}",
+                            order.TotalAmount,
+                            order.PaymentMethod ?? "COD",
+                            detailsUrl
+                        );
+                        await _emailSender.SendEmailAsync(user.Email, emailSubject, emailBody);
+                    }
+                }
+                catch
+                {
+                    // Fail silently so it doesn't break checkout flow
+                }
 
                 // Send notification to Admins
                 try
@@ -253,6 +284,7 @@ namespace Blocko.Services.Implementations.order
             // Send notification to the user
             try
             {
+                var oldStatusAr = "غير معروف"; // If we had old status, but simple translation is fine
                 var arStatus = status == Bolcko.Domain.Enums.OrderStatus.Pending ? "قيد الانتظار" :
                                status == Bolcko.Domain.Enums.OrderStatus.Processing ? "قيد المعالجة" :
                                status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "تم الشحن" :
@@ -262,6 +294,22 @@ namespace Blocko.Services.Implementations.order
                 var message = $"تم تحديث حالة طلبك إلى: {arStatus}. اضغط هنا للتفاصيل.";
                 var actionUrl = $"/Shop/Account/OrderDetails/{order.Id}";
                 await _notificationService.SendNotificationToUserAsync(order.UserId, title, message, actionUrl);
+
+                // Send email update to customer
+                var user = await _userManager.FindByIdAsync(order.UserId.ToString());
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    var emailSubject = $"تحديث حالة طلبك #{order.OrderNumber} - BLOCKO";
+                    var detailsUrl = $"https://bolcko.com/Shop/Account/OrderDetails/{order.Id}";
+                    var emailBody = Blocko.Services.Helpers.EmailTemplates.GetOrderStatusTemplate(
+                        order.OrderNumber,
+                        "تحت المراجعة",
+                        arStatus,
+                        $"{user.FirstName} {user.LastName}",
+                        detailsUrl
+                    );
+                    await _emailSender.SendEmailAsync(user.Email, emailSubject, emailBody);
+                }
             }
             catch
             {

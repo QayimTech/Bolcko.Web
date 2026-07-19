@@ -37,13 +37,14 @@ namespace Blocko.Services.Implementations
             IUnitOfWork unitOfWork, 
             Blocko.Services.Interfaces.Notifications.INotificationService notificationService,
             IDeliveryDocumentService deliveryDocumentService,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager)
         {
             _lazyUserService = new Lazy<IUserService>(() => new UserService(unitOfWork));
             _lazyProductService = new Lazy<IProductService>(() => new ProductService(unitOfWork));
             _lazyCategoryService = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork));
             _lazyMarketPriceService = new Lazy<IMarketPriceService>(() => new MarketPriceService(unitOfWork));
-            _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork, notificationService));
+            _lazyOrderService = new Lazy<IOrderService>(() => new OrderService(unitOfWork, notificationService, emailSender, userManager));
             _lazyTenderService = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
             _lazySEOService = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
             _lazyShoppingCartService = new Lazy<IShoppingCartService>(() => new ShoppingCartService(unitOfWork));

@@ -29,13 +29,24 @@ namespace Blocko.Services
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
-            services.AddScoped<IServiceManager, ServiceManager>();
+            services.AddScoped<IServiceManager, ServiceManager>(sp =>
+                new ServiceManager(
+                    sp.GetRequiredService<Bolcko.Domain.Interfaces.IUnitOfWork>(),
+                    sp.GetRequiredService<Blocko.Services.Interfaces.Notifications.INotificationService>(),
+                    sp.GetRequiredService<Blocko.Services.Interfaces.Delivery.IDeliveryDocumentService>(),
+                    sp.GetRequiredService<IEmailSender>(),
+                    sp.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>>()));
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IMarketPriceService, MarketPriceService>();
-            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IOrderService, OrderService>(sp =>
+                new OrderService(
+                    sp.GetRequiredService<Bolcko.Domain.Interfaces.IUnitOfWork>(),
+                    sp.GetRequiredService<Blocko.Services.Interfaces.Notifications.INotificationService>(),
+                    sp.GetRequiredService<IEmailSender>(),
+                    sp.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>>()));
             services.AddScoped<ITenderService, TenderService>();
             services.AddScoped(typeof(IPagedList<>), typeof(PagedList<>));
             services.AddScoped<IImageService, ImageService>(sp =>

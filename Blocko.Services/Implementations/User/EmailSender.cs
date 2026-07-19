@@ -29,13 +29,14 @@ namespace Blocko.Services.Implementations.user
             _logger.LogInformation("Sending email to {Email} with subject {Subject} and {Count} attachments", email, subject, attachments.Count());
 
             // Attempt to read SMTP settings from configuration if available
-            var smtpHost = _configuration["Smtp:Host"];
-            var smtpPortStr = _configuration["Smtp:Port"];
-            var smtpUser = _configuration["Smtp:Username"];
+            var smtpHost = _configuration["Smtp:Host"] ?? "smtp.zoho.com";
+            var smtpPortStr = _configuration["Smtp:Port"] ?? "587";
+            var smtpUser = _configuration["Smtp:Username"] ?? "info@block-o.com";
             var smtpPass = _configuration["Smtp:Password"];
-            var fromEmail = _configuration["Smtp:FromEmail"] ?? "no-reply@bolcko.com";
+            var fromEmail = _configuration["Smtp:FromEmail"] ?? "noreply@block-o.com";
+            var fromName = _configuration["Smtp:FromName"] ?? "BLOCKO";
 
-            if (!string.IsNullOrEmpty(smtpHost) && int.TryParse(smtpPortStr, out int smtpPort))
+            if (!string.IsNullOrEmpty(smtpHost) && int.TryParse(smtpPortStr, out int smtpPort) && !string.IsNullOrEmpty(smtpPass))
             {
                 try
                 {
@@ -47,7 +48,7 @@ namespace Blocko.Services.Implementations.user
 
                         var mailMessage = new MailMessage
                         {
-                            From = new MailAddress(fromEmail),
+                            From = new MailAddress(fromEmail, fromName),
                             Subject = subject,
                             Body = htmlMessage,
                             IsBodyHtml = true

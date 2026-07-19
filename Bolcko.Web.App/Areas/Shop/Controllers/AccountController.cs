@@ -272,33 +272,113 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                ViewBag.Message = "إذا كان الحساب مسجلاً لدينا، فقد تم إرسال رابط إعادة تعيين كلمة المرور. يرجى مراجعة بريدك الإلكتروني.";
+                ViewBag.Message = "إذا كان الحساب مسجلاً لدينا، فقد تم إرسال رمز التحقق. يرجى مراجعة بريدك الإلكتروني.";
                 return View();
             }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var callbackUrl = Url.Action("ResetPassword", "Account", new { area = "Shop", userId = user.Id, token = token }, protocol: Request.Scheme);
+            // Generate a 6-digit numeric OTP code
+            var random = new Random();
+            var otpCode = random.Next(100000, 999999).ToString();
 
-            string emailBody = $@"
-                <div style='font-family: Arial, sans-serif; direction: rtl; text-align: right; padding: 20px; border: 1px solid #e2e8f0; max-width: 600px; margin: auto;'>
-                    <h2 style='color: #151b26;'>إعادة تعيين كلمة المرور - BLOCKO</h2>
-                    <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في BLOCKO.</p>
-                    <p>يرجى النقر على الزر أدناه لإعادة تعيين كلمة المرور الخاصة بك:</p>
-                    <div style='text-align: center; margin: 30px 0;'>
-                        <a href='{callbackUrl}' style='background-color: #E8A020; color: #151b26; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px;'>إعادة تعيين كلمة المرور</a>
-                    </div>
-                    <p>أو انسخ الرابط التالي والصقه في متصفحك:</p>
-                    <p style='word-break: break-all; color: #64748b;'>{callbackUrl}</p>
-                    <hr style='border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;' />
-                    <p style='font-size: 12px; color: #94a3b8;'>إذا لم تطلب هذا التغيير، يرجى تجاهل هذا البريد الإلكتروني.</p>
-                </div>";
+            // Set dynamic claim or temporary property (using UserClaims for persistence or TempData/Session)
+            // Let's use ASP.NET Identity's UserClaims to store the OTP securely
+            var existingClaims = await _userManager.GetClaimsAsync(user);
+            var otpClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTP");
+            if (otpClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, otpClaim);
+            }
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("PasswordResetOTP", otpCode));
 
-            await _emailSender.SendEmailAsync(email, "إعادة تعيين كلمة المرور - BLOCKO", emailBody);
+            var otpTimeClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTPExpiry");
+            if (otpTimeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, otpTimeClaim);
+            }
+            var expiryTime = DateTime.UtcNow.AddMinutes(15).ToString("O");
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("PasswordResetOTPExpiry", expiryTime));
 
-            ViewBag.Message = "إذا كان الحساب مسجلاً لدينا، فقد تم إرسال رابط إعادة تعيين كلمة المرور. يرجى مراجعة بريدك الإلكتروني.";
-            ViewBag.DebugResetLink = callbackUrl;
+            // Generate dynamic reset token that we will store in TempData or query string later once verified
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
+            // Send Beautiful HTML email using EmailTemplates
+            string emailBody = Blocko.Services.Helpers.EmailTemplates.GetOtpTemplate(otpCode, "15");
+
+            await _emailSender.SendEmailAsync(email, "رمز التحقق لإعادة تعيين كلمة المرور - BLOCKO", emailBody);
+
+            TempData["UserEmail"] = email;
+            TempData["ResetToken"] = resetToken;
+
+            return RedirectToAction("VerifyOtp");
+        }
+
+        [HttpGet]
+        public IActionResult VerifyOtp()
+        {
+            var email = TempData["UserEmail"] as string;
+            var token = TempData["ResetToken"] as string;
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+
+            // Keep TempData alive for the next postback
+            TempData.Keep("UserEmail");
+            TempData.Keep("ResetToken");
+
+            ViewBag.Email = email;
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOtp(string otp)
+        {
+            var email = TempData["UserEmail"] as string;
+            var token = TempData["ResetToken"] as string;
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(otp))
+            {
+                ViewBag.Error = "حدث خطأ ما أو انتهت صلاحية الجلسة.";
+                return View();
+            }
+
+            TempData.Keep("UserEmail");
+            TempData.Keep("ResetToken");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                ViewBag.Error = "المستخدم غير موجود.";
+                return View();
+            }
+
+            var claims = await _userManager.GetClaimsAsync(user);
+            var otpClaim = claims.FirstOrDefault(c => c.Type == "PasswordResetOTP");
+            var otpTimeClaim = claims.FirstOrDefault(c => c.Type == "PasswordResetOTPExpiry");
+
+            if (otpClaim == null || otpClaim.Value != otp.Trim())
+            {
+                ViewBag.Error = "رمز التحقق المدخل غير صحيح.";
+                return View();
+            }
+
+            if (otpTimeClaim != null && DateTime.TryParse(otpTimeClaim.Value, out DateTime expiry) && expiry < DateTime.UtcNow)
+            {
+                ViewBag.Error = "لقد انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.";
+                return View();
+            }
+
+            // Clean up claims since OTP is successfully verified
+            await _userManager.RemoveClaimAsync(user, otpClaim);
+            if (otpTimeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, otpTimeClaim);
+            }
+
+            // Successfully verified OTP. Redirect to reset password page with email and token
+            return RedirectToAction("ResetPassword", new { userId = user.Id, token = token });
         }
 
         [HttpGet]
