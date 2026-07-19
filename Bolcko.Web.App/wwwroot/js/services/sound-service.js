@@ -50,20 +50,43 @@
 
     function unlockAudio() {
         if (_unlocked) return;
-        _unlocked = true;
+        
         _getAudioContext().then(function (ctx) {
             if (!ctx) return;
+            
+            // Resume if suspended
+            if (ctx.state === 'suspended') {
+                ctx.resume().then(function() {
+                    playSilentBuffer(ctx);
+                });
+            } else {
+                playSilentBuffer(ctx);
+            }
+        });
+    }
+
+    function playSilentBuffer(ctx) {
+        try {
             var buf = ctx.createBuffer(1, 1, 22050);
             var src = ctx.createBufferSource();
             src.buffer = buf;
             src.connect(ctx.destination);
             src.start(0);
+            _unlocked = true;
+            console.log('[SoundService] AudioContext unlocked successfully via user gesture.');
+            
+            // Remove the listeners once unlocked
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
             
             var url = detectSoundUrl();
             if (url) {
                 preloadSound(url);
             }
-        });
+        } catch (e) {
+            console.warn('[SoundService] Failed to play silent buffer:', e);
+        }
     }
 
     // Synthesize a clean, professional notification bell (ding) sound programmatically

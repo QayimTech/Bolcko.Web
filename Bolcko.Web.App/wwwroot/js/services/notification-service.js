@@ -111,14 +111,18 @@
                     if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
                     else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
 
+                    const textAlignment = isArabic ? 'text-right' : 'text-start';
+                    const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
+                    const listPadding = isArabic ? 'pl-4' : 'pr-4';
+
                     list.innerHTML += `
                         <a ${href} onclick="window.NotificationService.markAsRead(${n.id}, event, '${n.actionUrl || ''}')"
                            class="block p-4.5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'}">
-                            <div class="flex items-start gap-4">
+                            <div class="flex items-start gap-4 ${flexDir}">
                                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} group-hover:scale-105">
                                     <span class="material-symbols-outlined text-[20px]">${icon}</span>
                                 </div>
-                                <div class="flex-grow text-start min-w-0">
+                                <div class="flex-grow min-w-0 ${textAlignment}">
                                     <h4 class="text-xs font-black ${textClass} mb-1 ${titleHover} transition-colors truncate">${n.title || ''}</h4>
                                     <p class="text-[11px] ${subText} leading-relaxed font-medium break-words">${n.message || ''}</p>
                                     <span class="text-[9px] font-bold text-slate-500 mt-2 block">${n.createdAt || ''}</span>
