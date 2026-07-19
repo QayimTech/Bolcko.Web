@@ -117,19 +117,49 @@
     // Public API
     window.playNotificationSound = function () {
         _getAudioContext().then(function (ctx) {
-            if (!ctx) return;
-            
-            // If custom buffer is preloaded, play it
-            if (_soundBuffer) {
-                var src = ctx.createBufferSource();
-                src.buffer = _soundBuffer;
-                src.connect(ctx.destination);
-                src.start(0);
-                return;
+            // 1. Try playing custom preloaded buffer if available
+            if (ctx && _soundBuffer) {
+                try {
+                    var src = ctx.createBufferSource();
+                    src.buffer = _soundBuffer;
+                    src.connect(ctx.destination);
+                    src.start(0);
+                    return;
+                } catch (e) {
+                    console.warn('[SoundService] Buffer play failed, falling back...', e);
+                }
             }
             
-            // Fallback: Play high-quality synthesized notification ding
-            playSynthNotificationSound(ctx);
+            // 2. Try Web Audio Synth if context is active
+            if (ctx && ctx.state === 'running') {
+                try {
+                    playSynthNotificationSound(ctx);
+                    return;
+                } catch (e) {
+                    console.warn('[SoundService] Synth failed, falling back to HTMLAudio...', e);
+                }
+            }
+
+            // 3. Fallback: Use standard HTML5 Audio element to bypass AudioContext state limits
+            var el = document.getElementById('notification-sound') || document.getElementById('shop-notification-sound');
+            if (el) {
+                try {
+                    el.currentTime = 0;
+                    var playPromise = el.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(function (error) {
+                            console.warn('[SoundService] HTMLAudio play blocked by browser autoplay policy:', error);
+                        });
+                    }
+                } catch (err) {
+                    console.warn('[SoundService] HTMLAudio fallback failed:', err);
+                }
+            } else {
+                // If no element exists, create an ad-hoc one with the default ding synth
+                if (ctx) {
+                    playSynthNotificationSound(ctx);
+                }
+            }
         });
     };
 
