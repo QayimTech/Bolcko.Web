@@ -22,7 +22,7 @@
         <div class="text-center border-b border-slate-100 pb-6 mb-8">
             <span class="material-symbols-outlined text-[#E8A020] text-5xl">track_changes</span>
             <h1 class="text-2xl font-black text-slate-800 mt-2">@SharedLocalizer["TrackShipmentTitle"]</h1>
-            <p class="text-xs text-slate-400 mt-1">@SharedLocalizer["OrderNumberLabel"] #@(order?.OrderNumber ?? order?.Id.ToString())</p>
+            <p class="text-xs text-slate-400 mt-1">@SharedLocalizer["OrderNumber"] #@(order?.OrderNumber ?? order?.Id.ToString())</p>
         </div>
 
         <!-- Tracking Timeline (RTL-aware logical border/positioning) -->

@@ -5,7 +5,7 @@
     ViewData["Title"] = L["ManageOrders"];
 }
 
-<section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
+<section class="p-8 space-y-8 text-start animate-in fade-in duration-500">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="font-headline-md text-on-surface">@L["ManageOrders"]</h1>
@@ -18,7 +18,7 @@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Orders" />
 
         <div class="overflow-x-auto w-full">
-            <table class="w-full text-right border-collapse min-w-[800px]">
+            <table class="w-full text-start border-collapse min-w-[800px]">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
                         <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["OrderNumber"]</th>
@@ -43,10 +43,10 @@
                                       item.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" : 
                                       item.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" : 
                                       item.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")">
-                                    @(item.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "قيد الانتظار" : 
-                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "قيد المعالجة" : 
-                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "تم الشحن" : 
-                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "تم التوصيل" : "ملغي")
+                                    @(item.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? L["StatusPending"] : 
+                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? L["StatusProcessing"] : 
+                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? L["StatusShipped"] : 
+                                      item.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"])
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

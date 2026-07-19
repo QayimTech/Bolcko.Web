@@ -935,7 +935,6 @@
   <data name="CancelRemove" xml:space="preserve"><value>تراجع</value></data>
   <data name="Search" xml:space="preserve"><value>بحث</value></data>
   <data name="TrackShipmentTitle" xml:space="preserve"><value>تتبع حالة شحنتك</value></data>
-  <data name="OrderNumberLabel" xml:space="preserve"><value>طلب رقم</value></data>
   <data name="OrderConfirmedTitle" xml:space="preserve"><value>تم تأكيد الطلب</value></data>
   <data name="OrderConfirmedDesc" xml:space="preserve"><value>تم استلام طلبك ومراجعته بنجاح من إدارة المتجر.</value></data>
   <data name="PickedUpTitle" xml:space="preserve"><value>تم تسليم الشحنة لشركة التوصيل</value></data>
@@ -951,5 +950,23 @@
   <data name="DeliveryCompanyLabel" xml:space="preserve"><value>شركة التوصيل المسؤولة</value></data>
   <data name="IndependentDriverText" xml:space="preserve"><value>مندوب مستقل</value></data>
   <data name="BackToDashboardText" xml:space="preserve"><value>الرجوع لحسابي الشخصي</value></data>
+  <data name="BackToList" xml:space="preserve"><value>العودة للقائمة</value></data>
+  <data name="GeneralInformation" xml:space="preserve"><value>معلومات عامة</value></data>
+  <data name="NotSpecified" xml:space="preserve"><value>غير محدد</value></data>
+  <data name="PaymentAndShipping" xml:space="preserve"><value>الدفع والشحن</value></data>
+  <data name="PaymentStatus" xml:space="preserve"><value>حالة الدفع</value></data>
+  <data name="NoDeliveryAddressRegistered" xml:space="preserve"><value>لا يوجد عنوان توصيل مسجل لهذا الطلب.</value></data>
+  <data name="UpdateOrderStatus" xml:space="preserve"><value>تحديث حالة الطلب</value></data>
+  <data name="SelectNewOrderStatus" xml:space="preserve"><value>اختر الحالة الجديدة للطلب:</value></data>
+  <data name="SaveOrderStatus" xml:space="preserve"><value>حفظ حالة الطلب</value></data>
+  <data name="Option1AssignToCompany" xml:space="preserve"><value>🚚 خيار 1: إسناد لشركة توصيل (مباشر)</value></data>
+  <data name="Option2AssignToFreeDrivers" xml:space="preserve"><value>🚚 خيار 2: طرح الطلب للمناديب الأحرار</value></data>
+  <data name="SelectShippingCompany" xml:space="preserve"><value>اختر شركة الشحن:</value></data>
+  <data name="SuggestedDeliveryFee" xml:space="preserve"><value>رسوم التوصيل المقترحة (د.أ):</value></data>
+  <data name="AssignToShippingCompany" xml:space="preserve"><value>إسناد لشركة الشحن</value></data>
+  <data name="PostJobForFreeDrivers" xml:space="preserve"><value>طرح الطلب للتوصيل الحر</value></data>
+  <data name="Items" xml:space="preserve"><value>العناصر</value></data>
+  <data name="ProductId" xml:space="preserve"><value>معرف المنتج</value></data>
+  <data name="NoItemsForThisOrder" xml:space="preserve"><value>لا توجد عناصر لهذا الطلب.</value></data>
   <data name="DeliveryDistributionCenter" xml:space="preserve"><value>مركز التوزيع</value></data>
 </root>
