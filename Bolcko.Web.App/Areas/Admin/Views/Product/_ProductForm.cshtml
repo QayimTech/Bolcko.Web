@@ -181,7 +181,7 @@
                 <div class="mt-5">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">@L["CurrentImage"]</p>
                     <div class="rounded-2xl overflow-hidden border border-slate-100 aspect-video">
-                        <img src="@Model.ImageUrl" class="w-full h-full object-cover" />
+                        <img src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/'))" class="w-full h-full object-cover" />
                     </div>
                 </div>
             }

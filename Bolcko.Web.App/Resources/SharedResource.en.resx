@@ -965,4 +965,8 @@
   <data name="ProductId" xml:space="preserve"><value>Product ID</value></data>
   <data name="NoItemsForThisOrder" xml:space="preserve"><value>No items found for this order.</value></data>
   <data name="DeliveryDistributionCenter" xml:space="preserve"><value>Distribution Center</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Confirm Deletion</value></data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve"><value>Are you sure? This action cannot be undone.</value></data>
+  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>To confirm, type &quot;delete&quot; in the box below:</value></data>
+  <data name="ConfirmDeleteButton" xml:space="preserve"><value>Confirm Delete</value></data>
 </root>

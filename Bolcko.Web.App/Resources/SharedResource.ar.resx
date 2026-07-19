@@ -969,4 +969,8 @@
   <data name="ProductId" xml:space="preserve"><value>معرف المنتج</value></data>
   <data name="NoItemsForThisOrder" xml:space="preserve"><value>لا توجد عناصر لهذا الطلب.</value></data>
   <data name="DeliveryDistributionCenter" xml:space="preserve"><value>مركز التوزيع</value></data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve"><value>تأكيد الحذف</value></data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve"><value>هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</value></data>
+  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>للتأكيد، اكتب &quot;حذف&quot; أو &quot;delete&quot; في الصندوق أدناه:</value></data>
+  <data name="ConfirmDeleteButton" xml:space="preserve"><value>تأكيد الحذف</value></data>
 </root>

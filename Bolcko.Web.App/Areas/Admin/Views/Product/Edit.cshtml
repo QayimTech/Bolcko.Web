@@ -18,6 +18,7 @@
     <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
             <partial name="_ProductForm" model="Model" />
             
             <div class="mt-10 flex gap-4 border-t border-slate-100 pt-8 justify-end">

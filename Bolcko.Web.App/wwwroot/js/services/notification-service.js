@@ -111,9 +111,8 @@
                     if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
                     else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
 
-                    const textAlignment = isArabic ? 'text-right' : 'text-start';
+                    const textAlignment = isArabic ? 'text-end' : 'text-start';
                     const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
-                    const listPadding = isArabic ? 'pl-4' : 'pr-4';
 
                     list.innerHTML += `
                         <a ${href} onclick="window.NotificationService.markAsRead(${n.id}, event, '${n.actionUrl || ''}')"
@@ -182,7 +181,7 @@
                 if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
                 else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
 
-                const textAlignment = isArabic ? 'text-right' : 'text-start';
+                const textAlignment = isArabic ? 'text-end' : 'text-start';
                 const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
 
                 // Format time dynamically for fresh notification

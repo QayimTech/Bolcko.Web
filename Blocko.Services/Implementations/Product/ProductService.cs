@@ -277,6 +277,16 @@ namespace Blocko.Services.Implementations.Product
                 {
                     product.ImageUrl = product.Images.OrderBy(img => img.DisplayOrder).First().Url;
                 }
+                else if (productDto.Images != null && productDto.Images.Any())
+                {
+                    // New images were added but not yet saved — URL already set above
+                    product.ImageUrl = productDto.Images.First().Url;
+                }
+                else if (!string.IsNullOrEmpty(productDto.ImageUrl))
+                {
+                    // No Images records and no new uploads — preserve the existing ImageUrl
+                    product.ImageUrl = productDto.ImageUrl;
+                }
                 else
                 {
                     product.ImageUrl = null;
