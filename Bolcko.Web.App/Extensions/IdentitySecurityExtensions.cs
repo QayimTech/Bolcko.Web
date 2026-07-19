@@ -52,6 +52,15 @@ namespace Bolcko.Web.App.Extensions
                 options.Events.OnRedirectToLogin = context =>
                 {
                     var requestPath = context.Request.Path.Value ?? "";
+                    
+                    // SignalR/WebSocket connections must get 401, NOT a redirect.
+                    // A redirect causes the browser to treat it as a full page navigation (Refresh).
+                    if (requestPath.StartsWith("/notificationHub", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+                    }
+                    
                     if (requestPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
                         context.Response.Redirect("/Admin/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     else if (requestPath.StartsWith("/Delivery", StringComparison.OrdinalIgnoreCase))
