@@ -47,8 +47,27 @@ namespace Blocko.Services.Implementations.user
                 return;
             }
 
+            // Detect if the key is a SendGrid API Key (SendGrid keys typically start with 'SG.')
+            if (smtpPass.StartsWith("SG.") || smtpHost.Contains("sendgrid"))
+            {
+                _logger.LogInformation("SendGrid API Key detected. Sending email via SendGrid Web API (HTTP Port 443)...");
+                await SendViaSendGridWebApiAsync(email, subject, htmlMessage, smtpPass, fromEmail, fromName, attachments);
+                return;
+            }
+
             if (!int.TryParse(smtpPortStr, out int smtpPort))
                 smtpPort = 465;
+
+            // Strictly map secure socket options to prevent configuration mismatch
+            SecureSocketOptions sslOption;
+            if (smtpPort == 465)
+            {
+                sslOption = SecureSocketOptions.SslOnConnect;
+            }
+            else
+            {
+                sslOption = SecureSocketOptions.StartTls;
+            }
 
             try
             {
@@ -70,19 +89,6 @@ namespace Blocko.Services.Implementations.user
                 client.Timeout = 10000; // 10 seconds timeout
 
                 // Try to connect to SMTP server
-                _logger.LogInformation("Attempting SMTP connection to {Host}:{Port}...", smtpHost, smtpPort);
-                
-                // Strictly map secure socket options to prevent configuration mismatch
-                SecureSocketOptions sslOption;
-                if (smtpPort == 465)
-                {
-                    sslOption = SecureSocketOptions.SslOnConnect;
-                }
-                else
-                {
-                    sslOption = SecureSocketOptions.StartTls;
-                }
-
                 _logger.LogInformation("Attempting SMTP connection to {Host}:{Port} using {SslOption}...", smtpHost, smtpPort, sslOption);
                 await client.ConnectAsync(smtpHost, smtpPort, sslOption);
                 _logger.LogInformation("SMTP Connected. Authenticating...");
@@ -98,6 +104,62 @@ namespace Blocko.Services.Implementations.user
             catch (System.Exception ex)
             {
                 _logger.LogError(ex, "Failed to send email via MailKit SMTP to {Email}. Error: {Message}", email, ex.Message);
+                await SaveEmailLocallyAsync(email, subject, htmlMessage, attachments);
+            }
+        }
+
+        private async Task SendViaSendGridWebApiAsync(string email, string subject, string htmlMessage, string apiKey, string fromEmail, string fromName, IEnumerable<(byte[] content, string fileName, string contentType)> attachments)
+        {
+            try
+            {
+                using var client = new System.Net.Http.HttpClient();
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+
+                var personalizations = new[]
+                {
+                    new { to = new[] { new { email = email } } }
+                };
+
+                var content = new[]
+                {
+                    new { type = "text/html", value = htmlMessage }
+                };
+
+                var sendGridAttachments = attachments.Select(att => new
+                {
+                    content = System.Convert.ToBase64String(att.content),
+                    filename = att.fileName,
+                    type = att.contentType,
+                    disposition = "attachment"
+                }).ToArray();
+
+                var payload = new
+                {
+                    personalizations = personalizations,
+                    from = new { email = fromEmail, name = fromName },
+                    subject = subject,
+                    content = content,
+                    attachments = sendGridAttachments.Length > 0 ? sendGridAttachments : null
+                };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                var httpContent = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("https://api.sendgrid.com/v3/mail/send", httpContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Email sent successfully via SendGrid Web API to {Email}", email);
+                }
+                else
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to send email via SendGrid Web API. Status: {Status}, Response: {Response}", response.StatusCode, errorResponse);
+                    await SaveEmailLocallyAsync(email, subject, htmlMessage, attachments);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email via SendGrid Web API to {Email}.", email);
                 await SaveEmailLocallyAsync(email, subject, htmlMessage, attachments);
             }
         }
