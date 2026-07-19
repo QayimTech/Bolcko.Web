@@ -74,6 +74,7 @@ namespace Blocko.Services.Implementations.user
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using var client = new SmtpClient();
+                client.Timeout = 10000; // 10 second timeout — fail fast if SMTP is unreachable
                 await client.ConnectAsync(smtpHost, smtpPort, secureSocketOptions);
                 await client.AuthenticateAsync(smtpUser, smtpPass);
                 await client.SendAsync(message);

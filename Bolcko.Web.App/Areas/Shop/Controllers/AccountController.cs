@@ -301,10 +301,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             // Generate dynamic reset token that we will store in TempData or query string later once verified
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            // Send Beautiful HTML email using EmailTemplates
+            // Send Beautiful HTML email using EmailTemplates (fire-and-forget — don't block the request)
             string emailBody = Blocko.Services.Helpers.EmailTemplates.GetOtpTemplate(otpCode, "15");
-
-            await _emailSender.SendEmailAsync(email, "رمز التحقق لإعادة تعيين كلمة المرور - BLOCKO", emailBody);
+            _ = Task.Run(() => _emailSender.SendEmailAsync(email, "رمز التحقق لإعادة تعيين كلمة المرور - BLOCKO", emailBody));
 
             TempData["UserEmail"] = email;
             TempData["ResetToken"] = resetToken;
