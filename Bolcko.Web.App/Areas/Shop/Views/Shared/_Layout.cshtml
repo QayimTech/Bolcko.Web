@@ -143,9 +143,9 @@
                     setTimeout(() => toastNode.remove(), 7000);
                 }
 
-                // Update Notification Center Dropdown on Shop Layout
-                if (window.NotificationService && typeof window.NotificationService.fetchNotifications === 'function') {
-                    window.NotificationService.fetchNotifications();
+                // Inject new notification directly into dropdown UI dynamically (bypassing REST/API GET requests)
+                if (window.NotificationService && typeof window.NotificationService.injectNotification === 'function') {
+                    window.NotificationService.injectNotification(notification);
                 }
             });
 

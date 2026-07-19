@@ -190,9 +190,9 @@
                 }, 500);
             }, 10000);
 
-            // Update Notification Center Dropdown
-            if (window.NotificationService && typeof window.NotificationService.fetchNotifications === 'function') {
-                window.NotificationService.fetchNotifications();
+            // Inject new notification directly into dropdown UI dynamically (bypassing REST/API GET requests)
+            if (window.NotificationService && typeof window.NotificationService.injectNotification === 'function') {
+                window.NotificationService.injectNotification(notification);
             }
         });
 

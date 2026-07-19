@@ -143,6 +143,73 @@
                 `;
             }
         }
+        injectNotification(notification) {
+            const list = document.getElementById('notification-list');
+            const countBadge = document.getElementById('notification-badge');
+            const isArabic = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+            const isAdmin = window.location.pathname.toLowerCase().includes('/admin');
+
+            // 1. Update Badge Count (+1)
+            if (countBadge) {
+                let currentCount = parseInt(countBadge.textContent || '0', 10);
+                currentCount = isNaN(currentCount) ? 0 : currentCount;
+                currentCount += 1;
+                countBadge.textContent = currentCount;
+                countBadge.classList.remove('hidden');
+            }
+
+            // 2. Format & Inject dynamic notification HTML directly into the list (without REST request)
+            if (list) {
+                // Remove empty notifications state message if it exists
+                const emptyState = list.querySelector('.p-6');
+                if (emptyState) {
+                    list.innerHTML = '';
+                }
+
+                const bgClass = isAdmin ? 'bg-indigo-50/40' : 'bg-white/5';
+                const textClass = isAdmin ? 'text-slate-800' : 'text-slate-100';
+                const subText = isAdmin ? 'text-slate-500 font-medium' : 'text-slate-400 font-normal';
+                const titleHover = isAdmin ? 'group-hover:text-indigo-600' : 'group-hover:text-[#E8A020]';
+                const dot = `<span class="w-2 h-2 rounded-full bg-[#E8A020] block shrink-0"></span>`;
+                const iconClass = isAdmin ? 'bg-indigo-50 border border-indigo-100 text-indigo-600' : 'bg-white/5 border border-white/10 text-[#E8A020]';
+                
+                const href = notification.ActionUrl || notification.actionUrl ? `href="${notification.ActionUrl || notification.actionUrl}"` : 'href="javascript:void(0)"';
+                const cursor = notification.ActionUrl || notification.actionUrl ? 'cursor-pointer' : 'cursor-default';
+
+                let icon = 'notifications';
+                const tl = (notification.Title || notification.title || '').toLowerCase();
+                const ml = (notification.Message || notification.message || '').toLowerCase();
+                if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
+                else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
+
+                const textAlignment = isArabic ? 'text-right' : 'text-start';
+                const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
+
+                // Format time dynamically for fresh notification
+                const timeString = isArabic ? 'الآن' : 'Just now';
+
+                const itemHtml = `
+                    <a ${href} onclick="window.NotificationService.markAsRead(${notification.Id || notification.id}, event, '${notification.ActionUrl || notification.actionUrl || ''}')"
+                       class="block p-4.5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'}">
+                        <div class="flex items-start gap-4 ${flexDir}">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} group-hover:scale-105">
+                                <span class="material-symbols-outlined text-[20px]">${icon}</span>
+                            </div>
+                            <div class="flex-grow min-w-0 ${textAlignment}">
+                                <h4 class="text-xs font-black ${textClass} mb-1 ${titleHover} transition-colors truncate">${notification.Title || notification.title || ''}</h4>
+                                <p class="text-[11px] ${subText} leading-relaxed font-medium break-words">${notification.Message || notification.message || ''}</p>
+                                <span class="text-[9px] font-bold text-slate-500 mt-2 block">${timeString}</span>
+                            </div>
+                            <div class="self-center">
+                                ${dot}
+                            </div>
+                        </div>
+                    </a>`;
+
+                // Prepend new item to the list
+                list.insertAdjacentHTML('afterbegin', itemHtml);
+            }
+        }
     }
 
     window.NotificationService = new NotificationService();
