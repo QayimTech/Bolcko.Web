@@ -50,13 +50,6 @@ namespace Blocko.Services.Implementations.user
             if (!int.TryParse(smtpPortStr, out int smtpPort))
                 smtpPort = 465;
 
-            // Choose SSL mode based on port
-            // Port 465 = implicit SSL (SslOnConnect)
-            // Port 587 = STARTTLS (StartTls)
-            var secureSocketOptions = smtpPort == 465
-                ? SecureSocketOptions.SslOnConnect
-                : SecureSocketOptions.StartTls;
-
             try
             {
                 var message = new MimeMessage();
@@ -74,9 +67,29 @@ namespace Blocko.Services.Implementations.user
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using var client = new SmtpClient();
-                client.Timeout = 10000; // 10 second timeout — fail fast if SMTP is unreachable
-                await client.ConnectAsync(smtpHost, smtpPort, secureSocketOptions);
+                client.Timeout = 10000; // 10 seconds timeout
+
+                // Try to connect to SMTP server
+                _logger.LogInformation("Attempting SMTP connection to {Host}:{Port}...", smtpHost, smtpPort);
+                
+                // Strictly map secure socket options to prevent configuration mismatch
+                SecureSocketOptions sslOption;
+                if (smtpPort == 465)
+                {
+                    sslOption = SecureSocketOptions.SslOnConnect;
+                }
+                else
+                {
+                    sslOption = SecureSocketOptions.StartTls;
+                }
+
+                _logger.LogInformation("Attempting SMTP connection to {Host}:{Port} using {SslOption}...", smtpHost, smtpPort, sslOption);
+                await client.ConnectAsync(smtpHost, smtpPort, sslOption);
+                _logger.LogInformation("SMTP Connected. Authenticating...");
+                
                 await client.AuthenticateAsync(smtpUser, smtpPass);
+                _logger.LogInformation("SMTP Authenticated. Sending email...");
+                
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
 
@@ -84,7 +97,7 @@ namespace Blocko.Services.Implementations.user
             }
             catch (System.Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email via MailKit SMTP to {Email}.", email);
+                _logger.LogError(ex, "Failed to send email via MailKit SMTP to {Email}. Error: {Message}", email, ex.Message);
                 await SaveEmailLocallyAsync(email, subject, htmlMessage, attachments);
             }
         }
