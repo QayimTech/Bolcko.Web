@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Product;
+using Blocko.Services.Interfaces.Image;
 using Bolcko.Domain.Entities.Product.DTOs;
 using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -20,17 +21,20 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly ITranslationService _translationService;
+        private readonly IImageService _imageService;
 
         public ProductController(
             IServiceManager serviceManager,
             IWebHostEnvironment webHostEnvironment,
             IBackgroundJobClient backgroundJobClient,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            IImageService imageService)
         {
             _serviceManager = serviceManager;
             _webHostEnvironment = webHostEnvironment;
             _backgroundJobClient = backgroundJobClient;
             _translationService = translationService;
+            _imageService = imageService;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -61,19 +65,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             {
                 if (uploadImages != null && uploadImages.Count > 0)
                 {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-                    
                     int order = 1;
                     foreach (var image in uploadImages)
                     {
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        using (var stream = image.OpenReadStream())
                         {
-                            await image.CopyToAsync(fileStream);
+                            string savedPath = await _imageService.SaveImageAsync(stream, image.FileName, "images/products");
+                            if (!string.IsNullOrEmpty(savedPath))
+                            {
+                                productDto.Images.Add(new ProductImageDto { Url = "/" + savedPath.Replace("\\", "/").TrimStart('/'), DisplayOrder = order++ });
+                            }
                         }
-                        productDto.Images.Add(new ProductImageDto { Url = "/images/products/" + uniqueFileName, DisplayOrder = order++ });
                     }
                     if(productDto.Images.Any())
                     {
@@ -143,19 +145,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
                     if (uploadImages != null && uploadImages.Count > 0)
                     {
-                        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-                        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-                        
                         int order = 1;
                         foreach (var image in uploadImages)
                         {
-                            string uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            using (var stream = image.OpenReadStream())
                             {
-                                await image.CopyToAsync(fileStream);
+                                string savedPath = await _imageService.SaveImageAsync(stream, image.FileName, "images/products");
+                                if (!string.IsNullOrEmpty(savedPath))
+                                {
+                                    productDto.Images.Add(new ProductImageDto { Url = "/" + savedPath.Replace("\\", "/").TrimStart('/'), DisplayOrder = order++ });
+                                }
                             }
-                            productDto.Images.Add(new ProductImageDto { Url = "/images/products/" + uniqueFileName, DisplayOrder = order++ });
                         }
                         if(string.IsNullOrEmpty(productDto.ImageUrl) && productDto.Images.Any())
                         {
@@ -242,17 +242,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             try
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "variants");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(variantImage.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                string url = "";
+                using (var stream = variantImage.OpenReadStream())
                 {
-                    await variantImage.CopyToAsync(fileStream);
+                    string savedPath = await _imageService.SaveImageAsync(stream, variantImage.FileName, "images/variants");
+                    if (!string.IsNullOrEmpty(savedPath))
+                    {
+                        url = "/" + savedPath.Replace("\\", "/").TrimStart('/');
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "فشل ضغط ومعالجة الصورة" });
+                    }
                 }
-
-                string url = "/images/variants/" + uniqueFileName;
                 return Json(new { success = true, url });
             }
             catch (Exception ex)
