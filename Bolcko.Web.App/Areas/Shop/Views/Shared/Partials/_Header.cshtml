@@ -34,7 +34,7 @@
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get" class="flex items-center gap-3 p-4 border-b border-white/5">
                 <span class="material-symbols-outlined text-[#E8A020]">search</span>
                 <input id="spotlight-input" name="query" class="flex-1 bg-transparent border-none text-white placeholder-slate-400 focus:outline-none text-sm text-start" placeholder="@SharedLocalizer["SearchPlaceholder"]" type="text" autocomplete="off" />
-                <button type="button" id="spotlight-close-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                <button type="button" id="spotlight-close-btn" aria-label="Close search" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
                     <span class="material-symbols-outlined text-[18px]">close</span>
                 </button>
             </form>
@@ -100,7 +100,7 @@
 
             <!-- Language Switcher Pill (Visible on lg+) -->
             <div class="relative group hidden lg:block">
-                <button type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white transition-all text-[11px] font-bold focus:outline-none whitespace-nowrap">
+                <button type="button" aria-label="Switch Language" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 hover:text-white transition-all text-[11px] font-bold focus:outline-none whitespace-nowrap">
                     <span class="material-symbols-outlined text-[13px] text-slate-400">language</span>
                     <span>@(isArabic ? "العربية" : "English")</span>
                     <span class="material-symbols-outlined text-[10px] text-slate-500">expand_more</span>
@@ -181,7 +181,7 @@
 
             <!-- Quote Requests (hidden on very small screens to reduce clutter) -->
             <div class="relative group hidden sm:block">
-                <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" aria-label="@SharedLocalizer["QuoteRequests"]" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-[20px]">request_quote</span>
                     <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
                 </a>
@@ -192,7 +192,7 @@
 
             <!-- Shopping Cart -->
             <div class="relative group">
-                <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" aria-label="@SharedLocalizer["ShoppingCartTitle"]" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
                     @await Component.InvokeAsync("CartCount")
                 </a>
@@ -247,7 +247,7 @@
                 }
                 else
                 {
-                    <div class="p-6 text-xs text-slate-400 text-center">@(isArabic ? "لا توجد تصنيفات" : "No categories")</div>
+                    <div class="p-6 text-xs text-slate-400 text-center">@SharedLocalizer["NoCategories"]</div>
                 }
             </div>
 
@@ -268,12 +268,12 @@
                                     </div>
                                     <div>
                                         <h3 class="text-white font-bold text-sm leading-tight">@rootCat.Name</h3>
-                                        <p class="text-slate-500 text-[10px] mt-0.5">@(subCats.Count) @(isArabic ? "فئة فرعية" : "subcategories")</p>
+                                        <p class="text-slate-500 text-[10px] mt-0.5">@string.Format(SharedLocalizer["SubcategoriesCount"].Value, subCats.Count)</p>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("Index", "Category", new { area = "Shop", id = rootCat.Id })"
                                    class="flex items-center gap-1.5 text-[11px] font-bold text-[#E8A020] hover:text-amber-300 bg-[#E8A020]/10 hover:bg-[#E8A020]/20 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
-                                    @(isArabic ? "عرض الكل" : "View All")
+                                    @SharedLocalizer["ViewAll"]
                                     <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
                                 </a>
                             </div>

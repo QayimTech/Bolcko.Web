@@ -30,6 +30,7 @@
             @if (Model.HasPreviousPage)
             {
                 <a href="@PageUrl(Model.PageIndex - 1)"
+                   aria-label="@SharedLocalizer["Previous"]"
                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-[#E8A020] hover:text-[#151B26] rounded-xl transition-all">
                     <span class="material-symbols-outlined text-base leading-none rtl:-scale-x-100">arrow_back</span>
                     @SharedLocalizer["Previous"]
@@ -47,6 +48,8 @@
                     if (isActive || isNear || isEndpoint)
                     {
                         <a href="@PageUrl(i)"
+                           aria-label="@string.Format(SharedLocalizer["GoToPage"].ResourceNotFound ? "Page {0}" : SharedLocalizer["GoToPage"].Value, i)"
+                           aria-current="@(isActive ? "page" : null)"
                            class="@(isActive ? "bg-[#E8A020] text-[#1B2235] shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200") px-3 py-2 text-xs font-bold rounded-xl transition-all min-w-[36px] text-center">
                             @i
                         </a>
@@ -62,6 +65,7 @@
             @if (Model.HasNextPage)
             {
                 <a href="@PageUrl(Model.PageIndex + 1)"
+                   aria-label="@SharedLocalizer["Next"]"
                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-[#E8A020] hover:text-[#151B26] rounded-xl transition-all">
                     @SharedLocalizer["Next"]
                     <span class="material-symbols-outlined text-base leading-none rtl:-scale-x-100">arrow_forward</span>

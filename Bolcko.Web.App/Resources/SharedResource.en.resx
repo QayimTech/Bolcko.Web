@@ -763,6 +763,7 @@
   <data name="Previous" xml:space="preserve"><value>Previous</value></data>
   <data name="Next" xml:space="preserve"><value>Next</value></data>
   <data name="PaginationSummary" xml:space="preserve"><value>Showing {0} - {1} of {2}</value></data>
+  <data name="GoToPage" xml:space="preserve"><value>Go to page {0}</value></data>
   <data name="AvailableOptionsVariants" xml:space="preserve"><value>Available Options / Variants</value></data>
   <data name="SearchHint" xml:space="preserve"><value>Press Enter to search, Esc to close</value></data>
   <data name="QuickAccess" xml:space="preserve"><value>Quick Access</value></data>

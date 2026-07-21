@@ -23,7 +23,9 @@
                  src="/images/product-placeholder.svg"
                  width="600"
                  height="450"
-                 alt="@Model.Name">
+                 alt="@Model.Name"
+                 loading="lazy"
+                 decoding="async">
         }
         
         <!-- Floating SKU badge — RTL-aware: use end-3 instead of right-3 -->
@@ -49,14 +51,14 @@
         <!-- Description -->
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">@Model.Description</p>
+            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-4">@Model.Description</p>
         }
         
         <!-- Bottom Pricing and Add to Cart Section -->
         <div class="mt-auto">
             <div class="flex justify-between items-center border-t border-slate-50 pt-4 mb-4">
                 <span class="font-bold text-lg text-slate-900">
-                    @Model.RetailPrice.ToString("N2") <span class="text-[10px] font-medium text-slate-400">@SharedLocalizer["JordanDinarShort"]</span>
+                    @Model.RetailPrice.ToString("N2") <span class="text-[10px] font-medium text-slate-600">@SharedLocalizer["JordanDinarShort"]</span>
                 </span>
                 
                 <!-- Glowing Stock Indicator -->
@@ -81,6 +83,7 @@
                 <button type="submit" 
                         data-loading-btn
                         data-loading-text="@SharedLocalizer["AddToCart"]"
+                        aria-label="@Model.Name - @SharedLocalizer["AddToCart"]"
                         class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-sm active:scale-95 min-h-[44px]">
                     <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
                     <span class="text-xs tracking-wider">@SharedLocalizer["AddToCart"]</span>

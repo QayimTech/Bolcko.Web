@@ -43,7 +43,7 @@
                 <h3 class="font-headline-md text-on-surface uppercase">@Model.ProductName</h3>
                 <form asp-action="RemoveItem" asp-controller="ShoppingCart" asp-area="Shop" method="post">
                     <input type="hidden" name="itemId" value="@Model.Id" />
-                    <button type="submit" class="text-outline hover:text-error transition-colors">
+                    <button type="submit" aria-label="Remove @Model.ProductName from cart" class="text-outline hover:text-error transition-colors p-1">
                         <span class="material-symbols-outlined">delete</span>
                     </button>
                 </form>
@@ -83,6 +83,7 @@
 
             <div class="flex items-center border border-outline shadow-hard">
                 <button type="button" data-decrement="@Model.Id"
+                        aria-label="Decrease quantity for @Model.ProductName"
                         class="px-3 py-1 font-bold border-s border-outline hover:bg-surface-container-high transition-colors">
                     -
                 </button>
@@ -91,8 +92,10 @@
                        data-item-id="@Model.Id"
                        value="@Model.Quantity"
                        min="0"
+                       aria-label="Quantity for @Model.ProductName"
                        class="w-16 border-x border-outline text-center focus:ring-0 bg-white font-bold" />
                 <button type="button" data-increment="@Model.Id"
+                        aria-label="Increase quantity for @Model.ProductName"
                         class="px-3 py-1 font-bold border-e border-outline hover:bg-surface-container-high transition-colors">
                     +
                 </button>
