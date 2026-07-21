@@ -13,26 +13,26 @@
     <div class="space-y-4 mb-8">
         <div class="flex justify-between items-center text-sm">
             <span class="text-secondary">@SharedLocalizer["Subtotal"]</span>
-            <span id="summary-subtotal" class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") د.أ</span>
+            <span id="summary-subtotal" class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
         <div class="flex justify-between items-center text-sm">
             <span class="text-secondary">@SharedLocalizer["Tax"]</span>
-            <span id="summary-tax" class="font-bold text-on-surface">@Model.Tax.ToString("N2") د.أ</span>
+            <span id="summary-tax" class="font-bold text-on-surface">@Model.Tax.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
         <div class="flex justify-between items-center text-sm pb-6 border-b border-outline-variant">
             <span class="text-secondary">@SharedLocalizer["ShippingEstimated"]</span>
-            <span id="summary-shipping" class="font-bold text-on-surface">@Model.Shipping.ToString("N2") د.أ</span>
+            <span id="summary-shipping" class="font-bold text-on-surface">@Model.Shipping.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
         <div class="flex justify-between items-center">
             <span class="font-bold text-lg text-on-surface">@SharedLocalizer["Total"]</span>
-            <span id="summary-total" class="font-headline-md text-primary">@Model.Total.ToString("N2") د.أ</span>
+            <span id="summary-total" class="font-headline-md text-primary">@Model.Total.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
     </div>
 
     <a href="@Url.Action("Checkout", "ShoppingCart", new { area = "Shop" })"
        class="w-full bg-primary-container text-on-primary-container font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all mb-3">
         @SharedLocalizer["CompleteOrder"]
-        <span class="material-symbols-outlined">@(isRtl ? "arrow_back" : "arrow_forward")</span>
+        <span class="material-symbols-outlined rtl:-scale-x-100">arrow_forward</span>
     </a>
 
     <a href="@Url.Action("Index", "Category", new { area = "Shop" })"

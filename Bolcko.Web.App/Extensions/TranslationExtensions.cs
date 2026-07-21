@@ -244,6 +244,16 @@ namespace Bolcko.Web.App.Extensions
                         }
                     }
                 }
+
+                // Parent category name translation for English
+                if (!string.IsNullOrEmpty(category.ParentCategoryNameEn))
+                {
+                    category.ParentCategoryName = category.ParentCategoryNameEn;
+                }
+                else if (!string.IsNullOrEmpty(category.ParentCategoryName) && ContainsArabic(category.ParentCategoryName))
+                {
+                    category.ParentCategoryName = await translationService.TranslateAsync(category.ParentCategoryName, targetCulture);
+                }
             }
             else
             {

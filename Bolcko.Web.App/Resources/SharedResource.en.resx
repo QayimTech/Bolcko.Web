@@ -762,6 +762,21 @@
   <data name="TrackOrder" xml:space="preserve"><value>Track Order</value></data>
   <data name="Previous" xml:space="preserve"><value>Previous</value></data>
   <data name="Next" xml:space="preserve"><value>Next</value></data>
+  <data name="PaginationSummary" xml:space="preserve"><value>Showing {0} - {1} of {2}</value></data>
+  <data name="AvailableOptionsVariants" xml:space="preserve"><value>Available Options / Variants</value></data>
+  <data name="SearchHint" xml:space="preserve"><value>Press Enter to search, Esc to close</value></data>
+  <data name="QuickAccess" xml:space="preserve"><value>Quick Access</value></data>
+  <data name="Notifications" xml:space="preserve"><value>Notifications</value></data>
+  <data name="MarkAllAsRead" xml:space="preserve"><value>Mark all as read</value></data>
+  <data name="NoCategories" xml:space="preserve"><value>No categories</value></data>
+  <data name="SubcategoriesCount" xml:space="preserve"><value>{0} subcategories</value></data>
+  <data name="NoSubcategories" xml:space="preserve"><value>No subcategories</value></data>
+  <data name="NeedHelp" xml:space="preserve"><value>Need help?</value></data>
+  <data name="FreeConsultationDesc" xml:space="preserve"><value>Contact our experts for a free consultation.</value></data>
+  <data name="AccountSettings" xml:space="preserve"><value>Account Settings</value></data>
+  <data name="AccessDeniedTitle" xml:space="preserve"><value>Access Denied</value></data>
+  <data name="AccessDeniedDesc" xml:space="preserve"><value>You do not have permission to access this page. Please contact administration if you believe this is an error.</value></data>
+  <data name="CountryOfOrigin" xml:space="preserve"><value>Country of Origin</value></data>
   <data name="OrderTracking" xml:space="preserve"><value>Order Tracking</value></data>
   <data name="DeliveryConfirmed" xml:space="preserve"><value>Order delivery confirmed successfully. Thank you for your trust in BLOCKO!</value></data>
   <data name="ConfirmDeliveryPrompt" xml:space="preserve"><value>Have you received your order? Confirm receipt to close the order.</value></data>

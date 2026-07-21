@@ -1,15 +1,15 @@
 @{
-    ViewData["Title"] = "وصول مرفوض";
+    ViewData["Title"] = SharedLocalizer["AccessDeniedTitle"];
 }
 
-<main class="min-h-[60vh] flex items-center justify-center py-12 px-6 text-right">
-    <div class="max-w-md w-full text-center space-y-6 bg-white p-10 border border-slate-200 shadow-hard">
+<main class="min-h-[60vh] flex items-center justify-center py-12 px-6 text-start">
+    <div class="max-w-md w-full text-center space-y-6 bg-white p-10 border border-slate-200 shadow-hard rounded-3xl">
         <span class="material-symbols-outlined text-red-500 text-6xl">block</span>
-        <h1 class="text-2xl font-bold text-slate-900">عذراً، لا تملك الصلاحية</h1>
-        <p class="text-slate-600">ليس لديك الصلاحيات الكافية للوصول إلى هذه الصفحة. يرجى التواصل مع الإدارة إذا كنت تعتقد أن هذا خطأ.</p>
+        <h1 class="text-2xl font-bold text-slate-900">@SharedLocalizer["AccessDeniedTitle"]</h1>
+        <p class="text-slate-600 text-sm leading-relaxed">@SharedLocalizer["AccessDeniedDesc"]</p>
         <div class="pt-4">
-            <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="inline-block bg-primary text-white font-bold px-8 py-3 rounded-md hover:bg-primary/90 transition-all">
-                العودة للرئيسية
+            <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="inline-block bg-[#151B26] text-white font-bold px-8 py-3.5 rounded-xl hover:bg-[#E8A020] hover:text-[#151B26] transition-all">
+                @SharedLocalizer["Home"]
             </a>
         </div>
     </div>

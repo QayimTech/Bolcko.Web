@@ -32,6 +32,7 @@ namespace Blocko.Services.Implementations.Category
                 DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
+                ParentCategoryNameEn = c.ParentCategory?.NameEn,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
@@ -56,6 +57,7 @@ namespace Blocko.Services.Implementations.Category
                 DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
+                ParentCategoryNameEn = c.ParentCategory?.NameEn,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
@@ -112,6 +114,7 @@ namespace Blocko.Services.Implementations.Category
                 DescriptionEn = category.DescriptionEn,
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
+                ParentCategoryNameEn = category.ParentCategory?.NameEn,
                 DisplayOrder = category.DisplayOrder,
                 ImageUrl = category.ImageUrl,
                 ProductCount = category.Products?.Count ?? 0

@@ -39,7 +39,7 @@
                 </button>
             </form>
             <div class="p-4 bg-[#1B2235] text-slate-400 text-[10px] font-medium flex items-center justify-between">
-                <span>@(isArabic ? "اضغط Enter للبحث أو Esc للإغلاق" : "Press Enter to search, Esc to close")</span>
+                <span>@SharedLocalizer["SearchHint"]</span>
             </div>
         </div>
     </div>
@@ -138,8 +138,8 @@
                     <!-- Dropdown -->
                     <div id="notification-menu" class="absolute end-0 top-full mt-2 w-80 sm:w-96 bg-[#161d2d] border border-white/10 rounded-2xl shadow-xl overflow-hidden z-[110] hidden opacity-0 transition-all duration-200 transform translate-y-1 text-on-surface">
                         <div class="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
-                            <h3 class="text-xs font-bold text-white m-0 uppercase tracking-widest">الإشعارات</h3>
-                            <button type="button" class="text-[11px] font-bold text-[#E8A020] hover:underline" onclick="markAllNotificationsAsRead()">تحديد الكل كمقروء</button>
+                            <h3 class="text-xs font-bold text-white m-0 uppercase tracking-widest">@SharedLocalizer["Notifications"]</h3>
+                            <button type="button" class="text-[11px] font-bold text-[#E8A020] hover:underline" onclick="markAllNotificationsAsRead()">@SharedLocalizer["MarkAllAsRead"]</button>
                         </div>
                         <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-white/5 custom-scrollbar">
                             <!-- Notifications will be injected here via JS -->
@@ -376,7 +376,7 @@
                 </div>
                 <span class="font-bold text-sm">@SharedLocalizer["Categories"]</span>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-[#E8A020] transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-[#E8A020] transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
         <a href="@Url.Action("AboutUs", "Home")"
@@ -387,7 +387,7 @@
                 </div>
                 <span class="font-bold text-sm">@SharedLocalizer["AboutUs"]</span>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
         <a href="@Url.Action("Contact", "Home", new { area = "Shop" })"
@@ -398,12 +398,12 @@
                 </div>
                 <span class="font-bold text-sm">@SharedLocalizer["ContactUs"]</span>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
         <div class="my-3 h-px bg-white/5"></div>
         <p class="px-3 pb-2 text-[9px] font-black uppercase tracking-[3px] text-slate-600">
-            @(isArabic ? "الوصول السريع" : "Quick Access")
+            @SharedLocalizer["QuickAccess"]
         </p>
 
         <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })"
@@ -412,9 +412,9 @@
                 <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-white/10 group-hover:text-white flex-shrink-0 transition-all">
                     <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
                 </div>
-                <span class="font-bold text-sm">@(isArabic ? "سلة المشتريات" : "Shopping Cart")</span>
+                <span class="font-bold text-sm">@SharedLocalizer["ShoppingCart"]</span>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
         <a href="@Url.Action("Request", "Quote", new { area = "Shop" })"
@@ -423,9 +423,9 @@
                 <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-white/10 group-hover:text-white flex-shrink-0 transition-all">
                     <span class="material-symbols-outlined text-[18px]">request_quote</span>
                 </div>
-                <span class="font-bold text-sm">@(isArabic ? "طلب عرض سعر" : "Request Quote")</span>
+                <span class="font-bold text-sm">@SharedLocalizer["RequestQuote"]</span>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
         @if (User.Identity.IsAuthenticated)

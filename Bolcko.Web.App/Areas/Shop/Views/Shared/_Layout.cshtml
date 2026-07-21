@@ -17,10 +17,10 @@
     }
 }
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName" dir="@(isRtl ? "rtl" : "ltr")" class="h-full">
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName" dir="@(isRtl ? "rtl" : "ltr")" class="h-full overflow-x-hidden">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     @await Component.InvokeAsync("SeoMeta", new { defaultTitle = "بلوكو لتوريد مواد البناء" })
     
     <!-- Premium Orange Favicons Cache Busted v5 -->
@@ -55,7 +55,7 @@
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Styles.cshtml" />
     @await RenderSectionAsync("Head", required: false)
 </head>
-<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<body class="bg-surface text-on-surface font-body-md min-h-screen w-full overflow-x-hidden relative">
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Header.cshtml" />
     
     @if (TempData["ErrorMessage"] != null)

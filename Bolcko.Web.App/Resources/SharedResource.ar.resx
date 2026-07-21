@@ -768,6 +768,21 @@
   <data name="TrackOrder" xml:space="preserve"><value>تتبع الطلب</value></data>
   <data name="Previous" xml:space="preserve"><value>السابق</value></data>
   <data name="Next" xml:space="preserve"><value>التالي</value></data>
+  <data name="PaginationSummary" xml:space="preserve"><value>عرض {0} - {1} من أصل {2}</value></data>
+  <data name="AvailableOptionsVariants" xml:space="preserve"><value>الخيارات والقياسات المتاحة</value></data>
+  <data name="SearchHint" xml:space="preserve"><value>اضغط Enter للبحث أو Esc للإغلاق</value></data>
+  <data name="QuickAccess" xml:space="preserve"><value>الوصول السريع</value></data>
+  <data name="Notifications" xml:space="preserve"><value>الإشعارات</value></data>
+  <data name="MarkAllAsRead" xml:space="preserve"><value>تحديد الكل كمقروء</value></data>
+  <data name="NoCategories" xml:space="preserve"><value>لا توجد تصنيفات</value></data>
+  <data name="SubcategoriesCount" xml:space="preserve"><value>{0} فئة فرعية</value></data>
+  <data name="NoSubcategories" xml:space="preserve"><value>لا توجد فئات فرعية</value></data>
+  <data name="NeedHelp" xml:space="preserve"><value>هل تحتاج مساعدة؟</value></data>
+  <data name="FreeConsultationDesc" xml:space="preserve"><value>تواصل مع خبرائنا للحصول على استشارة مجانية.</value></data>
+  <data name="AccountSettings" xml:space="preserve"><value>إعدادات الحساب</value></data>
+  <data name="AccessDeniedTitle" xml:space="preserve"><value>عذراً، لا تملك الصلاحية</value></data>
+  <data name="AccessDeniedDesc" xml:space="preserve"><value>ليس لديك الصلاحيات الكافية للوصول إلى هذه الصفحة. يرجى التواصل مع الإدارة إذا كنت تعتقد أن هذا خطأ.</value></data>
+  <data name="CountryOfOrigin" xml:space="preserve"><value>بلد المنشأ</value></data>
   <data name="OrderTracking" xml:space="preserve"><value>تتبع الطلب</value></data>
   <data name="DeliveryConfirmed" xml:space="preserve"><value>تم تأكيد استلام الطلبية بنجاح. شكراً لثقتك بـ BLOCKO!</value></data>
   <data name="ConfirmDeliveryPrompt" xml:space="preserve"><value>هل استلمت طلبيتك؟ أكّد الاستلام لإغلاق الطلب.</value></data>

@@ -2,31 +2,31 @@
     ViewData["Title"] = SharedLocalizer["Home"];
 }
 
-<main class="bg-[#faf8ff] text-[#161b28]">
+<main class="bg-[#faf8ff] text-[#161b28] w-full overflow-hidden">
     <!-- Hero Section -->
     <section class="relative bg-[#0D111A] text-white flex items-center overflow-hidden py-10 md:py-14">
-        <!-- Glowing background decoration -->
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#E8A020]/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <!-- Glowing background decoration (RTL aware & bounds safe) -->
+        <div class="absolute top-0 end-0 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#E8A020]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-0 start-0 w-[200px] sm:w-[300px] h-[200px] sm:h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
         
 
-        <div class="relative max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div class="flex flex-col gap-8 text-start">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div class="flex flex-col gap-6 md:gap-8 text-start">
                 <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E8A020] bg-[#E8A020]/10 px-3.5 py-1.5 rounded-full w-max">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#E8A020] animate-pulse"></span>
                     @SharedLocalizer["HomeHeroBadge"]
                 </span>
-                <h1 class="font-headline-xl text-white leading-tight">@(ViewBag.HomeHeroTitle ?? SharedLocalizer["HomeHeroTitle"].Value)</h1>
-                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed">@(ViewBag.HomeHeroDesc ?? SharedLocalizer["HomeHeroDesc"].Value)</p>
+                <h1 class="font-headline-xl text-white leading-tight text-2xl sm:text-4xl md:text-5xl">@(ViewBag.HomeHeroTitle ?? SharedLocalizer["HomeHeroTitle"].Value)</h1>
+                <p class="font-body-lg text-slate-300 max-w-lg leading-relaxed text-sm sm:text-base">@(ViewBag.HomeHeroDesc ?? SharedLocalizer["HomeHeroDesc"].Value)</p>
                 
                 <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-start">
                     <a href="@Url.Action("Index", "Category")" 
-                       class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-6 md:px-8 py-3.5 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.2)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 text-center">
+                       class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-6 md:px-8 py-3.5 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.2)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 text-center text-sm">
                         <span>@SharedLocalizer["BrowseProducts"]</span>
-                        <span class="material-symbols-outlined text-base rtl:-scale-x-100">arrow_back</span>
+                        <span class="material-symbols-outlined text-base rtl:-scale-x-100">arrow_forward</span>
                     </a>
                     <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" 
-                       class="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold px-6 md:px-8 py-3.5 rounded-2xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 text-center">
+                       class="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold px-6 md:px-8 py-3.5 rounded-2xl transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 text-center text-sm">
                         @SharedLocalizer["RequestQuote"]
                     </a>
                 </div>
@@ -47,34 +47,34 @@
     </section>
 
     <!-- Categories Section -->
-    <section class="py-14 max-w-7xl mx-auto px-6">
-        <div class="flex justify-between items-end mb-8 text-start">
+    <section class="py-10 md:py-14 max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="flex justify-between items-end mb-6 md:mb-8 text-start">
             <div>
                 <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">@SharedLocalizer["BrowseSmartly"]</span>
-                <h2 class="font-headline-lg border-s-4 border-[#E8A020] ps-4 mt-2">@SharedLocalizer["FeaturedCategories"]</h2>
+                <h2 class="font-headline-lg border-s-4 border-[#E8A020] ps-4 mt-2 text-xl sm:text-2xl md:text-3xl">@SharedLocalizer["FeaturedCategories"]</h2>
             </div>
-            <a class="font-bold text-[#E8A020] hover:underline underline-offset-4 flex items-center gap-1.5 transition-all text-sm" 
+            <a class="font-bold text-[#E8A020] hover:underline underline-offset-4 flex items-center gap-1.5 transition-all text-xs sm:text-sm" 
                href="@Url.Action("Index", "Category", new { area = "Shop" })">
                 <span>@SharedLocalizer["ViewAll"]</span>
                 <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_forward</span>
             </a>
         </div>
         
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-5">
             @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
             {
                 <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" 
-                   class="group flex flex-col items-center text-center bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
+                   class="group flex flex-col items-center text-center bg-white border border-slate-100 rounded-[24px] p-4 sm:p-6 shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
                     
                     <div class="absolute inset-0 bg-gradient-to-b from-[#fffaf0] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                    <div class="relative w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-500 shadow-sm group-hover:shadow-md mb-4 transform group-hover:scale-110">
-                        <span class="material-symbols-outlined text-3xl">@(string.IsNullOrWhiteSpace(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                    <div class="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-500 shadow-sm group-hover:shadow-md mb-3 sm:mb-4 transform group-hover:scale-110">
+                        <span class="material-symbols-outlined text-2xl sm:text-3xl">@(string.IsNullOrWhiteSpace(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
                     </div>
                     
                     <div class="relative flex flex-col items-center w-full min-w-0">
-                        <h3 class="font-bold text-slate-800 text-[13px] sm:text-sm group-hover:text-[#E8A020] transition-colors duration-300 line-clamp-2 w-full px-1" title="@cat.Name">@cat.Name</h3>
-                        <span class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-2 bg-slate-100 px-2 py-0.5 rounded-lg group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
+                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm group-hover:text-[#E8A020] transition-colors duration-300 line-clamp-2 w-full px-1" title="@cat.Name">@cat.Name</h3>
+                        <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-2 bg-slate-100 px-2 py-0.5 rounded-lg group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors truncate max-w-full">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
                     </div>
                 </a>
             }
@@ -82,8 +82,8 @@
     </section>
 
     <!-- Best Sellers Section -->
-    <section class="bg-white py-14 border-y border-slate-50">
-        <div class="max-w-7xl mx-auto px-6">
+    <section class="bg-white py-10 md:py-14 border-y border-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="flex justify-between items-end mb-8 text-start">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">@SharedLocalizer["CustomerFavorites"]</span>
@@ -111,9 +111,9 @@
 
     <!-- B2B Quote Section -->
     <section class="bg-[#0D111A] py-14 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-[#E8A020]/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute top-0 start-0 w-[400px] h-[400px] bg-[#E8A020]/5 rounded-full blur-[100px] pointer-events-none"></div>
         
-        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-8 md:gap-16 items-center">
             <div class="flex flex-col gap-6 text-start text-white">
                 <span class="text-xs font-bold uppercase tracking-widest text-[#E8A020]">@SharedLocalizer["CorporateAccounts"]</span>
                 <h2 class="font-headline-xl text-white">@SharedLocalizer["BigProjectsTitle"]</h2>
@@ -156,7 +156,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold uppercase text-slate-300 mb-2">@SharedLocalizer["ProjectType"]</label>
-                            <select name="ProjectType" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold appearance-none" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-position: left 0.75rem center; background-repeat: no-repeat; background-size: 1.2em; padding-left: 2.5rem;">
+                             <select name="ProjectType" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 focus:outline-none focus:ring-1 focus:ring-[#E8A020] focus:border-[#E8A020] transition-all text-white text-start text-xs font-semibold appearance-none" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E'); background-position: inline-start 0.75rem center; background-repeat: no-repeat; background-size: 1.2em; padding-inline-start: 2.5rem;">
                                 <option value="Residential" class="bg-[#151B26] text-white">@SharedLocalizer["Residential"]</option>
                                 <option value="Commercial" class="bg-[#151B26] text-white">@SharedLocalizer["Commercial"]</option>
                                 <option value="Industrial" class="bg-[#151B26] text-white">@SharedLocalizer["Industrial"]</option>
@@ -175,9 +175,9 @@
     </section>
 
     <!-- Trust Features Section -->
-    <section class="bg-white py-12 border-t border-slate-50">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <section class="bg-white py-10 md:py-12 border-t border-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
                     <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
                         <span class="material-symbols-outlined text-2xl font-bold">local_shipping</span>
@@ -211,7 +211,7 @@
     </section>
 
     <!-- Section: Market Prices rendered via deferred lightweight AJAX with a clean skeleton placeholder -->
-    <section class="w-full py-16 px-6 bg-surface-container-lowest border-t border-outline-variant relative z-10">
+    <section class="w-full py-10 md:py-16 px-4 sm:px-6 bg-surface-container-lowest border-t border-outline-variant relative z-10">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>

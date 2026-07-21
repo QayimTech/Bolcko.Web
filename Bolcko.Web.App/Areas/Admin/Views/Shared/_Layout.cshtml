@@ -6,12 +6,14 @@
     
     bool soundEnabled = (soundEnabledSetting?.Value ?? "true") == "true";
     string soundUrl = soundUrlSetting?.Value ?? "https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav";
+    bool isRtl = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
 }
-<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName" dir="@(isRtl ? "rtl" : "ltr")" class="h-full overflow-x-hidden">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title - BLOCKO Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>@(ViewData["Title"] ?? "لوحة التحكم") - بولكو الأدمن</title>
     <link rel="apple-touch-icon" sizes="180x180" href="~/favicons/apple-touch-icon.png?v=5" />
     <link rel="icon" type="image/png" sizes="32x32" href="~/favicons/favicon-32x32.png?v=5" />
     <link rel="icon" type="image/png" sizes="16x16" href="~/favicons/favicon-16x16.png?v=5" />
@@ -28,7 +30,7 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"></noscript>
     <partial name="~/Areas/Admin/Views/Shared/Partials/_Styles.cshtml" />
 </head>
-<body class="bg-[#F8FAFC] text-slate-900 font-body-md min-h-screen overflow-x-hidden">
+<body class="bg-[#F8FAFC] text-slate-900 font-body-md min-h-screen w-full overflow-x-hidden relative">
     <div class="min-h-screen relative flex">
         <!-- Sidebar -->
         <partial name="~/Areas/Admin/Views/Shared/Partials/Aside.cshtml" />
