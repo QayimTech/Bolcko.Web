@@ -2,6 +2,10 @@
     ViewData["Title"] = SharedLocalizer["Home"];
 }
 
+@section Head {
+    <link rel="preload" as="image" href="/images/logo.svg" fetchpriority="high">
+}
+
 <main class="bg-[#faf8ff] text-[#161b28] w-full overflow-hidden">
     <!-- Hero Section -->
     <section class="relative bg-[#0D111A] text-white flex items-center overflow-hidden py-10 md:py-14">
@@ -33,7 +37,7 @@
             </div>
             
             <div class="hidden md:flex items-center justify-center">
-                <!-- Premium Glassmorphic Feature Card -->
+                <!-- Premium Glassmorphic Feature Card with Hero Image -->
                 <div class="bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-3xl flex flex-col gap-4 max-w-sm text-start shadow-2xl relative">
                     <div class="absolute -top-3 -end-3 w-12 h-12 bg-[#E8A020] rounded-2xl flex items-center justify-center text-[#151B26] shadow-lg">
                         <span class="material-symbols-outlined font-bold">local_shipping</span>
@@ -90,10 +94,10 @@
                     <h2 class="font-headline-lg border-s-4 border-[#E8A020] ps-4 mt-2">@SharedLocalizer["BestSellingProducts"]</h2>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" aria-label="@SharedLocalizer["Previous"]" class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
+                    <button type="button" aria-label="Previous Product" class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
                         <span class="material-symbols-outlined text-lg rtl:-scale-x-100">chevron_left</span>
                     </button>
-                    <button type="button" aria-label="@SharedLocalizer["Next"]" class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
+                    <button type="button" aria-label="Next Product" class="w-11 h-11 border border-slate-100 rounded-xl bg-white flex items-center justify-center hover:bg-[#E8A020] hover:text-[#151B26] transition-all duration-200">
                         <span class="material-symbols-outlined text-lg rtl:-scale-x-100">chevron_right</span>
                     </button>
                 </div>
@@ -126,7 +130,7 @@
                         </div>
                         <div>
                             <h6 class="text-white font-bold text-sm">@SharedLocalizer["GuaranteedSupply"]</h6>
-                            <p class="text-xs text-slate-400 mt-1">@SharedLocalizer["GuaranteedSupplyDesc"]</p>
+                            <p class="text-xs text-slate-300 mt-1">@SharedLocalizer["GuaranteedSupplyDesc"]</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-4">
@@ -135,7 +139,7 @@
                         </div>
                         <div>
                             <h6 class="text-white font-bold text-sm">@SharedLocalizer["AdvancedLogistics"]</h6>
-                            <p class="text-xs text-slate-400 mt-1">@SharedLocalizer["AdvancedLogisticsDesc"]</p>
+                            <p class="text-xs text-slate-300 mt-1">@SharedLocalizer["AdvancedLogisticsDesc"]</p>
                         </div>
                     </div>
                 </div>
@@ -183,28 +187,28 @@
                         <span class="material-symbols-outlined text-2xl font-bold">local_shipping</span>
                     </div>
                     <h4 class="font-bold text-slate-800">@SharedLocalizer["FastDelivery"]</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">@SharedLocalizer["FastDeliveryDesc"]</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">@SharedLocalizer["FastDeliveryDesc"]</p>
                 </div>
                 <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
                     <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
                         <span class="material-symbols-outlined text-2xl font-bold">verified_user</span>
                     </div>
                     <h4 class="font-bold text-slate-800">@SharedLocalizer["WarrantyMatching"]</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">@SharedLocalizer["WarrantyMatchingDesc"]</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">@SharedLocalizer["WarrantyMatchingDesc"]</p>
                 </div>
                 <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
                     <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
                         <span class="material-symbols-outlined text-2xl font-bold">support_agent</span>
                     </div>
                     <h4 class="font-bold text-slate-800">@SharedLocalizer["TechnicalSupport"]</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">@SharedLocalizer["TechnicalSupportDesc"]</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">@SharedLocalizer["TechnicalSupportDesc"]</p>
                 </div>
                 <div class="flex flex-col items-center text-center gap-4 group p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
                     <div class="w-14 h-14 bg-[#E8A020]/10 rounded-2xl flex items-center justify-center text-[#E8A020] group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-300">
                         <span class="material-symbols-outlined text-2xl font-bold">payments</span>
                     </div>
                     <h4 class="font-bold text-slate-800">@SharedLocalizer["FlexiblePayments"]</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">@SharedLocalizer["FlexiblePaymentsDesc"]</p>
+                    <p class="text-xs text-slate-600 leading-relaxed">@SharedLocalizer["FlexiblePaymentsDesc"]</p>
                 </div>
             </div>
         </div>

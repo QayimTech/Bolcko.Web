@@ -96,77 +96,80 @@
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Scripts.cshtml" />
 
     <script>
-        // Global SignalR setup (Exactly like Admin)
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/notificationHub")
-            .withAutomaticReconnect()
-            .build();
+        document.addEventListener("DOMContentLoaded", function () {
+            // Global SignalR setup (Exactly like Admin)
+            if (typeof signalR === 'undefined') return;
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .withAutomaticReconnect()
+                .build();
 
-        connection.on("ReceiveNotification", function (notification) {
-            // Play sound via AudioContext engine (bypasses browser autoplay restriction)
-            if (typeof window.playNotificationSound === 'function') {
-                window.playNotificationSound();
-            }
+            connection.on("ReceiveNotification", function (notification) {
+                // Play sound via AudioContext engine (bypasses browser autoplay restriction)
+                if (typeof window.playNotificationSound === 'function') {
+                    window.playNotificationSound();
+                }
 
-            // Determine appropriate icon based on title/content
-            let iconName = "notifications";
-            const titleLower = (notification.title || "").toLowerCase();
-            const msgLower = (notification.message || "").toLowerCase();
-            if (titleLower.includes("order") || titleLower.includes("طلب") || msgLower.includes("order") || msgLower.includes("طلب")) {
-                iconName = "shopping_cart";
-            } else if (titleLower.includes("delivery") || titleLower.includes("توصيل") || titleLower.includes("سائق") || titleLower.includes("مندوب")) {
-                iconName = "local_shipping";
-            }
+                // Determine appropriate icon based on title/content
+                let iconName = "notifications";
+                const titleLower = (notification.title || "").toLowerCase();
+                const msgLower = (notification.message || "").toLowerCase();
+                if (titleLower.includes("order") || titleLower.includes("طلب") || msgLower.includes("order") || msgLower.includes("طلب")) {
+                    iconName = "shopping_cart";
+                } else if (titleLower.includes("delivery") || titleLower.includes("توصيل") || titleLower.includes("سائق") || titleLower.includes("مندوب")) {
+                    iconName = "local_shipping";
+                }
 
-            const isClickable = !!notification.actionUrl;
-            const clickAttr = isClickable ? `onclick="window.location.href='${notification.actionUrl}'"` : '';
-            const cursorClass = isClickable ? 'cursor-pointer hover:bg-[#161d2d]/90 hover:border-indigo-500/60 transition-all duration-300' : '';
+                const isClickable = !!notification.actionUrl;
+                const clickAttr = isClickable ? `onclick="window.location.href='${notification.actionUrl}'"` : '';
+                const cursorClass = isClickable ? 'cursor-pointer hover:bg-[#161d2d]/90 hover:border-indigo-500/60 transition-all duration-300' : '';
 
-            // Create and append dynamic premium toast notification
-            const toastHtml = `
-                <div ${clickAttr} class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020] ${cursorClass}" style="min-width: 320px; max-width: 400px;">
-                    <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020] shrink-0">
-                        <span class="material-symbols-outlined text-[22px]">${iconName}</span>
+                // Create and append dynamic premium toast notification
+                const toastHtml = `
+                    <div ${clickAttr} class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020] ${cursorClass}" style="min-width: 320px; max-width: 400px;">
+                        <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020] shrink-0">
+                            <span class="material-symbols-outlined text-[22px]">${iconName}</span>
+                        </div>
+                        <div class="flex-grow text-start">
+                            <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'إشعار جديد'}</strong>
+                            <p class="text-xs text-slate-200 mt-1 font-medium leading-relaxed">${notification.message}</p>
+                        </div>
                     </div>
-                    <div class="flex-grow text-start">
-                        <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'إشعار جديد'}</strong>
-                        <p class="text-xs text-slate-200 mt-1 font-medium leading-relaxed">${notification.message}</p>
-                    </div>
-                </div>
-            `;
-            
-            let container = $('#toast-container');
-            if (container.length === 0) {
-                $('body').append('<div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>');
-                container = $('#toast-container');
-            }
-            
-            const $toast = $(toastHtml);
-            container.append($toast);
+                `;
+                
+                let container = $('#toast-container');
+                if (container.length === 0) {
+                    $('body').append('<div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>');
+                    container = $('#toast-container');
+                }
+                
+                const $toast = $(toastHtml);
+                container.append($toast);
 
-            // Trigger animation
-            setTimeout(() => {
-                $toast.removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
-            }, 10);
-
-            // Auto fade out toast
-            setTimeout(function() {
-                $toast.removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
+                // Trigger animation
                 setTimeout(() => {
-                    $toast.remove();
-                }, 500);
-            }, 10000);
+                    $toast.removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
+                }, 10);
 
-            // Inject new notification directly into dropdown UI dynamically (bypassing REST/API GET requests)
-            if (window.NotificationService && typeof window.NotificationService.injectNotification === 'function') {
-                window.NotificationService.injectNotification(notification);
-            }
+                // Auto fade out toast
+                setTimeout(function() {
+                    $toast.removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
+                    setTimeout(() => {
+                        $toast.remove();
+                    }, 500);
+                }, 10000);
+
+                // Inject new notification directly into dropdown UI dynamically (bypassing REST/API GET requests)
+                if (window.NotificationService && typeof window.NotificationService.injectNotification === 'function') {
+                    window.NotificationService.injectNotification(notification);
+                }
+            });
+
+            // Start connection
+            connection.start()
+                .then(() => console.log("SignalR Connected successfully (Shop)!"))
+                .catch(err => console.error("SignalR Connection Error (Shop): ", err));
         });
-
-        // Start connection
-        connection.start()
-            .then(() => console.log("SignalR Connected successfully (Shop)!"))
-            .catch(err => console.error("SignalR Connection Error (Shop): ", err));
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)
