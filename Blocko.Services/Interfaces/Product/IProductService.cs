@@ -7,7 +7,7 @@ namespace Blocko.Services.Interfaces.Product
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize);
+        Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize, string? search = null, int? categoryId = null, string? sortOrder = null);
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<ProductDto>> GetFeaturedProductsAsync();

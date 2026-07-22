@@ -39,11 +39,20 @@ namespace Blocko.Services.Implementations.Category
             });
         }
 
-        public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize)
+        public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize, string? search = null)
         {
+            System.Linq.Expressions.Expression<Func<Bolcko.Domain.Entities.Catalog.Category, bool>>? predicate = null;
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim().ToLower();
+                predicate = c => c.Name.ToLower().Contains(s) || (c.NameEn != null && c.NameEn.ToLower().Contains(s)) || (c.Description != null && c.Description.ToLower().Contains(s));
+            }
+
             var pagedCategories = await _unitOfWork.Categories.GetPagedAsync(
                 pageIndex,
                 pageSize,
+                predicate: predicate,
                 orderBy: q => q.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name),
                 includes: c => c.Products!
             );

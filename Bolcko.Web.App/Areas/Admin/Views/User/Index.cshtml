@@ -12,6 +12,36 @@
             <a href="@Url.Action("CreateAdminUser", "User", new { area = "Admin" })" class="bg-[#E8A020] text-[#1B2235] px-4 py-2 text-xs font-bold uppercase hover:brightness-110 transition-all">@L["AddUser"]</a>
         </div>
         
+        @{
+            var roleOptions = new List<SelectListItem>();
+            if (ViewBag.Roles != null)
+            {
+                foreach (string r in ViewBag.Roles)
+                {
+                    var label = r switch
+                    {
+                        "Admin" => "سوبر أدمن",
+                        "DashboardUser" => "أدمن داشبورد",
+                        "Customer" => "مشتري / زبون",
+                        "DeliveryDriver" => "مندوب توصيل",
+                        "DeliveryCompanyUser" => "شركة توصيل",
+                        _ => r
+                    };
+                    roleOptions.Add(new SelectListItem { Value = r, Text = label, Selected = Model.RoleFilter == r });
+                }
+            }
+
+            ViewData["SearchPlaceholder"] = "بحث بالاسم، البريد الإلكتروني، أو الهاتف...";
+            ViewData["SearchValue"] = Model.Search;
+            ViewData["SelectName"] = "roleFilter";
+            ViewData["SelectLabel"] = "جميع الأدوار";
+            ViewData["SelectValue"] = Model.RoleFilter;
+            ViewData["SelectOptions"] = roleOptions;
+            ViewData["Action"] = "Index";
+            ViewData["Controller"] = "User";
+        }
+        <partial name="~/Views/Shared/Partials/_GridFilter.cshtml" />
+
         @* Pagination on top as requested *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Users" />
         
@@ -33,7 +63,28 @@
                             <td class="px-6 py-4 font-bold text-[#1B2235]">@user.FirstName @user.LastName</td>
                             <td class="px-6 py-4">@user.Email</td>
                             <td class="px-6 py-4">
-                                <span class="bg-[#E8EAF0] text-[#1B2235] px-2 py-1 text-[10px] font-bold uppercase rounded">@user.UserType.ToString()</span>
+                                @{
+                                    var role = Model.UserRoles.TryGetValue(user.Id, out var r) ? r : user.UserType.ToString();
+                                    var roleBadge = role switch
+                                    {
+                                        "Admin" => "bg-purple-100 text-purple-800 border border-purple-200",
+                                        "DashboardUser" => "bg-blue-100 text-blue-800 border border-blue-200",
+                                        "Customer" => "bg-emerald-100 text-emerald-800 border border-emerald-200",
+                                        "DeliveryDriver" => "bg-amber-100 text-amber-800 border border-amber-200",
+                                        "DeliveryCompanyUser" => "bg-indigo-100 text-indigo-800 border border-indigo-200",
+                                        _ => "bg-slate-100 text-slate-800"
+                                    };
+                                    var roleLabel = role switch
+                                    {
+                                        "Admin" => "سوبر أدمن",
+                                        "DashboardUser" => "أدمن داشبورد",
+                                        "Customer" => "مشتري / زبون",
+                                        "DeliveryDriver" => "مندوب توصيل",
+                                        "DeliveryCompanyUser" => "شركة توصيل",
+                                        _ => role
+                                    };
+                                }
+                                <span class="px-2.5 py-1 text-xs font-black rounded-lg @roleBadge">@roleLabel</span>
                             </td>
                             <td class="px-6 py-4 text-xs">@user.RegistrationDate.ToString("yyyy/MM/dd")</td>
                             <td class="px-6 py-4 flex gap-2 items-center">

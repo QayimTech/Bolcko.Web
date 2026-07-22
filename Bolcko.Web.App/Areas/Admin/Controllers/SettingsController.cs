@@ -161,7 +161,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             await SaveSettingAsync("MarketCurrencyAr", marketCurrencyAr, "العملة المعتمدة - عربي");
             await SaveSettingAsync("MarketCurrencyEn", marketCurrencyEn, "العملة المعتمدة - إنجليزي");
 
-            string finalSoundUrl = notificationSoundUrl ?? "/sounds/default-notification.wav";
+            string finalSoundUrl = notificationSoundUrl ?? "/sounds/default-notification.mp3";
 
             // Handle file upload
             if (notificationSoundFile != null && notificationSoundFile.Length > 0)

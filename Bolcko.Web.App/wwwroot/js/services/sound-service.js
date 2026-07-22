@@ -12,8 +12,8 @@
         if (!audio) {
             audio = document.createElement('audio');
             audio.id = 'notification-sound';
-            audio.src = '/sounds/default-notification.wav';
-            audio.preload = 'auto';
+            audio.src = '/sounds/default-notification.mp3';
+            audio.preload = 'none';
             document.body.appendChild(audio);
         }
         return audio;

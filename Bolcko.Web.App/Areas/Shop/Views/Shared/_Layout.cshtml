@@ -8,7 +8,7 @@
     var soundEnabledSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundEnabled");
     var soundUrlSetting     = await Uow.AppSettings.GetByKeyAsync("NotificationSoundUrl");
     bool soundEnabled = (soundEnabledSetting?.Value ?? "true") == "true";
-    string soundUrl   = soundUrlSetting?.Value ?? "/sounds/default-notification.wav";
+    string soundUrl   = soundUrlSetting?.Value ?? "/sounds/default-notification.mp3";
 
     var resolvedSoundUrl = soundUrl;
     if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))

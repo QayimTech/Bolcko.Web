@@ -9,6 +9,14 @@
             <h2 class="text-white font-bold text-sm uppercase tracking-widest">@L["AddNewAdminUser"]</h2>
         </div>
         <form asp-area="Admin" asp-controller="User" asp-action="CreateAdminUser" method="post" class="p-8 space-y-6">
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-xs flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600">info</span>
+                    <span>لإضافة <strong>شركة توصيل جديدة</strong> أو <strong>مندوب شحن ميداني</strong> ببياناتهم التجارية، يرجى استخدام بوابة التوزيع.</span>
+                </div>
+                <a href="@Url.Action("Index", "DeliveryDispatch", new { area = "Admin" })" class="text-amber-800 font-bold underline hover:text-amber-950">إدارة التوصيل &larr;</a>
+            </div>
+
             <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -28,9 +36,18 @@
                     <label class="block text-xs font-bold text-[#8A95A8] uppercase mb-1">@L["UserType"]</label>
                     <select name="role" required class="w-full border border-slate-200 p-3 focus:ring-1 focus:ring-[#E8A020] outline-none text-right">
                         <option value="" disabled selected>@L["SelectUserType"]</option>
-                        @foreach (var role in ViewBag.Roles)
+                        @foreach (string role in ViewBag.Roles)
                         {
-                            <option value="@role">@(role == "Admin" ? L["SuperAdmin"] : L["DashboardAdmin"])</option>
+                            var displayName = role switch
+                            {
+                                "Admin" => "سوبر أدمن (Super Admin)",
+                                "DashboardUser" => "أدمن داشبورد (Dashboard User)",
+                                "Customer" => "مشتري / زبون (Customer)",
+                                "DeliveryDriver" => "مندوب توصيل (Driver)",
+                                "DeliveryCompanyUser" => "مدير شركة توصيل (Delivery Company)",
+                                _ => role
+                            };
+                            <option value="@role">@displayName</option>
                         }
                     </select>
                 </div>

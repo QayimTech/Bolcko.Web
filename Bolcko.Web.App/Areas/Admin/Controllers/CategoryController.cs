@@ -30,15 +30,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _bulkImportService = bulkImportService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, string? sortOrder = null)
         {
-            var categories = await _serviceManager.CategoryService.GetPagedCategoriesAsync(page, pageSize);
+            var categories = await _serviceManager.CategoryService.GetPagedCategoriesAsync(page, pageSize, search);
             var viewModel = new CategoryIndexViewModel
             {
-                Categories = categories
+                Categories = categories,
+                Search = search,
+                SortOrder = sortOrder
             };
             return View(viewModel);
         }
+
 
         public async Task<IActionResult> Create()
         {

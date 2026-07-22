@@ -16,15 +16,18 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
         private readonly UserManager<UserEntity> _userManager;
         private readonly SignInManager<UserEntity> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly Blocko.Services.Interfaces.User.IEmailSender _emailSender;
 
         public AuthController(
             UserManager<UserEntity> userManager,
             SignInManager<UserEntity> signInManager,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            Blocko.Services.Interfaces.User.IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _emailSender = emailSender;
         }
 
         [HttpPost("SignUp")]
@@ -54,7 +57,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             if (!result.Succeeded)
                 return ErrorResponse("Failed to create user", result.Errors.Select(e => e.Description).ToList(), 500);
 
-            // Automatically sign in or just return success
+            // Assign standard Customer role for all buyers (Mobile & Web)
             await _userManager.AddToRoleAsync(user, "Customer");
 
             var token = await _tokenService.GenerateTokenAsync(user);
@@ -101,11 +104,22 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             if (user == null)
                 return OkResponse("If the email exists, a reset link will be sent."); // Do not reveal user existence
 
-            // Generate token (Usually we would send an email here)
-            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            
-            // For now, in a real app you should use IEmailSender to send this token.
-            // _emailSender.SendEmailAsync(user.Email, "Reset Password", $"Your token is: {resetToken}");
+            // Generate 6-digit OTP code for mobile reset flow
+            var random = new System.Random();
+            var otpCode = random.Next(100000, 999999).ToString();
+
+            var existingClaims = await _userManager.GetClaimsAsync(user);
+            var otpClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTP");
+            if (otpClaim != null) await _userManager.RemoveClaimAsync(user, otpClaim);
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("PasswordResetOTP", otpCode));
+
+            var otpTimeClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTPExpiry");
+            if (otpTimeClaim != null) await _userManager.RemoveClaimAsync(user, otpTimeClaim);
+            var expiryTime = System.DateTime.UtcNow.AddMinutes(15).ToString("O");
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("PasswordResetOTPExpiry", expiryTime));
+
+            string emailBody = Blocko.Services.Helpers.EmailTemplates.GetOtpTemplate(otpCode, "15");
+            _ = Task.Run(() => _emailSender.SendEmailAsync(request.Email, "رمز التحقق لإعادة تعيين كلمة المرور - BLOCKO", emailBody));
 
             return OkResponse("If the email exists, a reset link will be sent."); 
         }

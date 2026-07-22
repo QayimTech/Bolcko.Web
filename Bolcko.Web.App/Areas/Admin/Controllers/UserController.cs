@@ -14,29 +14,79 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public UserController(UserManager<User> userManager)
+        public UserController(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        private async Task LoadRolesToViewBagAsync(bool filterForCreate = false)
         {
-            var usersQuery = _userManager.Users.AsNoTracking().OrderByDescending(u => u.RegistrationDate);
+            var dbRoles = await _roleManager.Roles
+                .Where(r => !string.IsNullOrEmpty(r.Name))
+                .Select(r => r.Name!)
+                .Distinct()
+                .ToListAsync();
+
+            if (filterForCreate)
+            {
+                // In Create user, show general system roles (Admin, DashboardUser, Customer)
+                // Delivery users must be created through Delivery Dispatch with logistics data
+                dbRoles = dbRoles.Where(r => r == "Admin" || r == "DashboardUser" || r == "Customer").ToList();
+            }
+
+            ViewBag.Roles = dbRoles;
+        }
+
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, string? roleFilter = null)
+        {
+            var usersQuery = _userManager.Users.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim().ToLower();
+                usersQuery = usersQuery.Where(u =>
+                    u.FirstName.ToLower().Contains(s) ||
+                    u.LastName.ToLower().Contains(s) ||
+                    (u.Email != null && u.Email.ToLower().Contains(s)) ||
+                    (u.PhoneNumber != null && u.PhoneNumber.Contains(s)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(roleFilter))
+            {
+                var userIdsInRole = (await _userManager.GetUsersInRoleAsync(roleFilter)).Select(u => u.Id).ToList();
+                usersQuery = usersQuery.Where(u => userIdsInRole.Contains(u.Id));
+            }
+
+            usersQuery = usersQuery.OrderByDescending(u => u.RegistrationDate);
             var totalCount = await usersQuery.CountAsync();
             var items = await usersQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var userRoles = new Dictionary<int, string>();
+            foreach (var user in items)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userRoles[user.Id] = roles.FirstOrDefault() ?? user.UserType.ToString();
+            }
+
+            await LoadRolesToViewBagAsync();
 
             var pagedResult = new PagedList<User>(items, totalCount, page, pageSize);
             var viewModel = new UserIndexViewModel
             {
-                Users = pagedResult
+                Users = pagedResult,
+                UserRoles = userRoles,
+                Search = search,
+                RoleFilter = roleFilter
             };
             return View(viewModel);
         }
 
-        public IActionResult CreateAdminUser()
+        public async Task<IActionResult> CreateAdminUser()
         {
-            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
+            await LoadRolesToViewBagAsync(filterForCreate: true);
             return View();
         }
 
@@ -59,7 +109,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             {
                 ModelState.AddModelError("", error.Description);
             }
-            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
+            await LoadRolesToViewBagAsync(filterForCreate: true);
             return View(user);
         }
 
@@ -68,7 +118,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return NotFound();
 
-            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
+            await LoadRolesToViewBagAsync();
             ViewBag.CurrentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
             return View(user);
         }
@@ -112,7 +162,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 ModelState.AddModelError("", error.Description);
             }
 
-            ViewBag.Roles = new[] { "Admin", "DashboardUser" };
+            await LoadRolesToViewBagAsync();
             return View(existingUser);
         }
 

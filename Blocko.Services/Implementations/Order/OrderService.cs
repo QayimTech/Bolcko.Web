@@ -212,20 +212,43 @@ namespace Blocko.Services.Implementations.order
             });
         }
 
-        public async Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize)
+        public async Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize, string? search = null, Bolcko.Domain.Enums.OrderStatus? status = null, string? sortOrder = null)
         {
+            System.Linq.Expressions.Expression<Func<Bolcko.Domain.Entities.Order.Order, bool>>? predicate = null;
+
+            if (!string.IsNullOrWhiteSpace(search) || status.HasValue)
+            {
+                var s = search?.Trim().ToLower();
+                predicate = o =>
+                    (!status.HasValue || o.Status == status.Value) &&
+                    (string.IsNullOrEmpty(s) ||
+                     o.OrderNumber.ToLower().Contains(s) ||
+                     (o.User != null && (o.User.FirstName.ToLower().Contains(s) || o.User.LastName.ToLower().Contains(s) || (o.User.Email != null && o.User.Email.ToLower().Contains(s)))) ||
+                     (o.ShippingAddress != null && (o.ShippingAddress.City.ToLower().Contains(s) || o.ShippingAddress.AddressLine1.ToLower().Contains(s))));
+            }
+
+            Func<IQueryable<Bolcko.Domain.Entities.Order.Order>, IOrderedQueryable<Bolcko.Domain.Entities.Order.Order>> orderBy = sortOrder switch
+            {
+                "asc" => q => q.OrderBy(o => o.OrderDate),
+                "name_asc" => q => q.OrderBy(o => o.OrderNumber),
+                "name_desc" => q => q.OrderByDescending(o => o.OrderNumber),
+                _ => q => q.OrderByDescending(o => o.OrderDate)
+            };
+
             var pagedOrders = await _unitOfWork.Orders.GetPagedAsync(
                 pageIndex,
                 pageSize,
-                orderBy: q => q.OrderByDescending(o => o.OrderDate),
+                predicate: predicate,
+                orderBy: orderBy,
                 includes: o => o.User!
             );
 
             var dtos = pagedOrders.Items.Select(o => new OrderDto
             {
                 Id = o.Id,
+                OrderNumber = o.OrderNumber,
                 UserId = o.UserId,
-                UserName = o.User?.UserName,
+                UserName = o.User != null ? $"{o.User.FirstName} {o.User.LastName}".Trim() : o.User?.UserName,
                 OrderDate = o.OrderDate,
                 TotalAmount = o.TotalAmount,
                 Status = o.Status,
@@ -265,6 +288,9 @@ namespace Blocko.Services.Implementations.order
                 {
                     ProductId = i.ProductId,
                     ProductName = i.Product?.Name ?? $"منتج #{i.ProductId}",
+                    Sku = i.ProductVariant?.Sku ?? i.Product?.Sku,
+                    ImageUrl = i.ProductVariant?.ImageUrl ?? i.Product?.ImageUrl,
+                    VariantInfo = i.ProductVariant != null ? string.Join(" | ", new[] { i.ProductVariant.Size, i.ProductVariant.Color, i.ProductVariant.PackagingUnit }.Where(s => !string.IsNullOrEmpty(s))) : null,
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPrice,
                     TotalPrice = i.Subtotal

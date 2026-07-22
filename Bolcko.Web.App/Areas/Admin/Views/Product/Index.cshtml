@@ -34,74 +34,188 @@
         </div>
     </div>
 
-    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-2xl">
+        @{
+            var categoryOptions = new List<SelectListItem>();
+            if (ViewBag.Categories != null)
+            {
+                foreach (var cat in ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)
+                {
+                    categoryOptions.Add(new SelectListItem { Value = cat.Id.ToString(), Text = cat.Name, Selected = Model.CategoryId == cat.Id });
+                }
+            }
+
+            ViewData["SearchPlaceholder"] = L["SearchPlaceholderProducts"].ResourceNotFound ? "بحث باسم المنتج، الوصف، أو الـ SKU..." : L["SearchPlaceholderProducts"].Value;
+            ViewData["SearchValue"] = Model.Search;
+            ViewData["SortOrder"] = Model.SortOrder;
+            ViewData["SelectName"] = "categoryId";
+            ViewData["SelectLabel"] = L["AllCategories"].ResourceNotFound ? "جميع التصنيفات" : L["AllCategories"].Value;
+            ViewData["SelectValue"] = Model.CategoryId?.ToString();
+            ViewData["SelectOptions"] = categoryOptions;
+            ViewData["Action"] = "Index";
+            ViewData["Controller"] = "Product";
+        }
+        <partial name="~/Views/Shared/Partials/_GridFilter.cshtml" />
+
         @* Pagination on top *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Products" />
 
-        <table class="w-full text-right border-collapse">
-            <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Product"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Category"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Price"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Quantity"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Sku"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Actions"]</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model.Products.Items)
-                {
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                @if (!string.IsNullOrEmpty(item.ImageUrl))
-                                {
-                                    <img src="@(item.ImageUrl.StartsWith("http") ? item.ImageUrl : "/" + item.ImageUrl.TrimStart('/'))" class="w-10 h-10 object-cover border border-slate-200" alt="@item.Name" />
-                                }
-                                else
-                                {
-                                    <div class="w-10 h-10 bg-slate-100 flex items-center justify-center border border-slate-200">
-                                        <span class="material-symbols-outlined text-slate-400">image</span>
-                                    </div>
-                                }
-                                <span class="font-bold text-slate-900">@item.Name</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-slate-600">@(item.CategoryName ?? "-")</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="font-bold text-[#E8A020]">@item.RetailPrice.ToString("C")</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-slate-600">@item.StockQuantity @item.UnitOfMeasure</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 text-slate-600">@item.Sku</span>
-                        </td>
-                        <td class="px-6 py-4 flex gap-2">
-                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
-                                <span class="material-symbols-outlined">edit</span>
+        <!-- Scrollable Table Wrapper with Smooth Custom Scrollbar -->
+        <div class="overflow-x-auto relative">
+            <table class="w-full text-right border-collapse min-w-[750px]">
+                <thead>
+                    <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider select-none">
+                        <!-- Product Column -->
+                        <th class="px-6 py-3.5 text-right">
+                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, sortOrder = (Model.SortOrder == "name_asc" ? "name_desc" : "name_asc") })" 
+                               class="inline-flex items-center gap-2 group hover:text-[#E8A020] transition-colors py-1 px-2 rounded-lg hover:bg-slate-200/50">
+                                <span>@L["Product"]</span>
+                                <div class="flex flex-col text-[10px] leading-none opacity-60 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-xs -mb-1 @(Model.SortOrder == "name_asc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_up</span>
+                                    <span class="material-symbols-outlined text-xs @(Model.SortOrder == "name_desc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_down</span>
+                                </div>
                             </a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'product');" class="inline">
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </form>
-                        </td>
+                        </th>
+
+                        <!-- Category Column with In-Header Quick Filter Popover -->
+                        <th class="px-6 py-3.5 text-right relative">
+                            <div class="inline-flex items-center gap-2 py-1 px-2">
+                                <span>@L["Category"]</span>
+                                @if (Model.CategoryId.HasValue)
+                                {
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-white font-bold" title="مصفى حالياً">نشط</span>
+                                }
+                                <div class="relative inline-block" id="cat-filter-container">
+                                    <button type="button" 
+                                            onclick="event.stopPropagation(); toggleCategoryDropdown();" 
+                                            class="p-1 hover:bg-slate-200/80 rounded-md text-slate-500 hover:text-slate-900 transition-colors flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm">filter_alt</span>
+                                    </button>
+                                    
+                                    <!-- Popover Category Quick Select -->
+                                    <div id="cat-header-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 p-2 text-right">
+                                        <div class="text-[11px] font-bold text-slate-400 px-3 py-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
+                                            <span>تصفية سريعة حسب التصنيف</span>
+                                            <span class="material-symbols-outlined text-xs cursor-pointer hover:text-slate-700" onclick="toggleCategoryDropdown()">close</span>
+                                        </div>
+                                        <div class="max-h-60 overflow-y-auto space-y-0.5">
+                                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, sortOrder = Model.SortOrder })" 
+                                               class="block px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-50 @(!Model.CategoryId.HasValue ? "text-[#E8A020] font-bold bg-amber-50" : "text-slate-700")">
+                                                الكل (جميع التصنيفات)
+                                            </a>
+                                            @if (ViewBag.Categories != null)
+                                            {
+                                                foreach (var cat in ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)
+                                                {
+                                                    bool isSelected = Model.CategoryId == cat.Id;
+                                                    <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = cat.Id, sortOrder = Model.SortOrder })" 
+                                                       class="block px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-50 @(isSelected ? "text-[#E8A020] font-bold bg-amber-50" : "text-slate-700")">
+                                                        @cat.Name
+                                                    </a>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+
+                        <!-- Price Column -->
+                        <th class="px-6 py-3.5 text-right">
+                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, sortOrder = (Model.SortOrder == "price_asc" ? "price_desc" : "price_asc") })" 
+                               class="inline-flex items-center gap-2 group hover:text-[#E8A020] transition-colors py-1 px-2 rounded-lg hover:bg-slate-200/50">
+                                <span>@L["Price"]</span>
+                                <div class="flex flex-col text-[10px] leading-none opacity-60 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-xs -mb-1 @(Model.SortOrder == "price_asc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_up</span>
+                                    <span class="material-symbols-outlined text-xs @(Model.SortOrder == "price_desc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_down</span>
+                                </div>
+                            </a>
+                        </th>
+
+                        <!-- Quantity Column -->
+                        <th class="px-6 py-3.5 text-right">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Quantity"]</span>
+                        </th>
+
+                        <!-- SKU Column -->
+                        <th class="px-6 py-3.5 text-right">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Sku"]</span>
+                        </th>
+
+                        <!-- Actions Column -->
+                        <th class="px-6 py-3.5 text-center">
+                            <span class="inline-flex items-center justify-center py-1 px-2">@L["Actions"]</span>
+                        </th>
                     </tr>
-                }
-                @if (!Model.Products.Items.Any())
-                {
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">
-                            @L["NoProductsAvailable"]
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Products.Items)
+                    {
+                        <tr class="hover:bg-amber-50/30 transition-colors group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@(item.ImageUrl.StartsWith("http") ? item.ImageUrl : "/" + item.ImageUrl.TrimStart('/'))" class="w-10 h-10 object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform" alt="@item.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 text-slate-400">
+                                            <span class="material-symbols-outlined text-lg">image</span>
+                                        </div>
+                                    }
+                                    <div>
+                                        <span class="font-bold text-slate-900 group-hover:text-[#E8A020] transition-colors block">@item.Name</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60">
+                                    @(item.CategoryName ?? "-")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-black text-[#E8A020] text-sm">@item.RetailPrice.ToString("C")</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1 text-slate-700 text-xs font-medium">
+                                    <span class="w-2 h-2 rounded-full @(item.StockQuantity > 10 ? "bg-emerald-500" : item.StockQuantity > 0 ? "bg-amber-500" : "bg-red-500")"></span>
+                                    @item.StockQuantity @item.UnitOfMeasure
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600 border border-slate-200">@item.Sku</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-1">
+                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all" title="تعديل">
+                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'product');" class="inline">
+                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all" title="حذف">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Products.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="material-symbols-outlined text-4xl text-slate-300">inventory_2</span>
+                                    <span>@L["NoProductsAvailable"]</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
 
         @* Pagination on bottom *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Products" />
@@ -109,7 +223,23 @@
 </section>
 @section Scripts {
 <script>
+function toggleCategoryDropdown() {
+    const dropdown = document.getElementById('cat-header-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+}
+
+document.addEventListener('click', function (e) {
+    const container = document.getElementById('cat-filter-container');
+    const dropdown = document.getElementById('cat-header-dropdown');
+    if (container && dropdown && !container.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
 function showTranslationModal(title, message, isConfirm = false, onConfirm = null) {
+
     // Remove existing modal if any
     const existing = document.getElementById('translation-modal');
     if (existing) existing.remove();

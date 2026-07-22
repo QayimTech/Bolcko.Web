@@ -48,10 +48,19 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">@L["Role"]</label>
                     <select name="role" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-[#E8A020] focus:ring-1 focus:ring-[#E8A020] outline-none transition-all">
-                        @foreach (var role in (string[])ViewBag.Roles)
+                        @foreach (var role in (List<string>)ViewBag.Roles)
                         {
                             bool isSelected = currentRole == role;
-                            <option value="@role" selected="@isSelected">@role</option>
+                            var displayName = role switch
+                            {
+                                "Admin" => "سوبر أدمن (Super Admin)",
+                                "DashboardUser" => "أدمن داشبورد (Dashboard User)",
+                                "Customer" => "مشتري / زبون (Customer)",
+                                "DeliveryDriver" => "مندوب توصيل (Driver)",
+                                "DeliveryCompanyUser" => "مدير شركة توصيل (Delivery Company)",
+                                _ => role
+                            };
+                            <option value="@role" selected="@isSelected">@displayName</option>
                         }
                     </select>
                 </div>

@@ -171,23 +171,53 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-start border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200">
-                            <th class="p-3">@L["ProductId"]</th>
-                            <th class="p-3">@L["Name"]</th>
-                            <th class="p-3">@L["Quantity"]</th>
-                            <th class="p-3">@L["Price"]</th>
-                            <th class="p-3">@L["Total"]</th>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
+                            <th class="p-3">المنتج</th>
+                            <th class="p-3">رمز الـ SKU</th>
+                            <th class="p-3">المتغير / المواصفة</th>
+                            <th class="p-3">الكمية</th>
+                            <th class="p-3">سعر الوحدة</th>
+                            <th class="p-3">الإجمالي</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-sm">
                         @foreach (var item in Model.Items)
                         {
-                            <tr class="border-b border-slate-100">
-                                <td class="p-3">@item.ProductId</td>
-                                <td class="p-3">@item.ProductName</td>
-                                <td class="p-3">@item.Quantity</td>
+                            var imgUrl = !string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/product-placeholder.png";
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="p-3 flex items-center gap-3">
+                                    <img src="@imgUrl" alt="@item.ProductName" class="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                                    <div>
+                                        <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = item.ProductId })" target="_blank" class="font-bold text-slate-800 hover:text-primary transition-colors flex items-center gap-1">
+                                            <span>@item.ProductName</span>
+                                            <span class="material-symbols-outlined text-xs text-slate-400">open_in_new</span>
+                                        </a>
+                                        <span class="text-[10px] text-slate-400 block">ID: #@item.ProductId</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 font-mono text-xs">
+                                    @if (!string.IsNullOrEmpty(item.Sku))
+                                    {
+                                        <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded font-bold text-slate-700">@item.Sku</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 italic">غير محدد</span>
+                                    }
+                                </td>
+                                <td class="p-3">
+                                    @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                    {
+                                        <span class="px-2 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs font-bold">@item.VariantInfo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 text-xs">-</span>
+                                    }
+                                </td>
+                                <td class="p-3 font-bold text-slate-800">@item.Quantity</td>
                                 <td class="p-3">@item.UnitPrice.ToString("N2") @L["Currency"]</td>
-                                <td class="p-3">@item.TotalPrice.ToString("N2") @L["Currency"]</td>
+                                <td class="p-3 font-black text-emerald-600">@item.TotalPrice.ToString("N2") @L["Currency"]</td>
                             </tr>
                         }
                     </tbody>

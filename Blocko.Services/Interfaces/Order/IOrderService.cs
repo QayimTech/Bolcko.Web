@@ -9,7 +9,7 @@ namespace Blocko.Services.Interfaces.Order
         Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, Bolcko.Domain.Entities.Order.DTOs.CheckoutDto checkoutDto);
         Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId);
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();
-        Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize);
+        Task<IPagedList<OrderDto>> GetPagedOrdersAsync(int pageIndex, int pageSize, string? search = null, Bolcko.Domain.Enums.OrderStatus? status = null, string? sortOrder = null);
         Task<OrderDto?> GetOrderByIdAsync(int id);
         Task<bool> UpdateOrderStatusAsync(int id, Bolcko.Domain.Enums.OrderStatus status);
     }

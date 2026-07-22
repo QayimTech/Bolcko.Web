@@ -37,12 +37,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _imageService = imageService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, int? categoryId = null, string? sortOrder = null)
         {
-            var products = await _serviceManager.ProductService.GetPagedProductsAsync(page, pageSize);
+            var products = await _serviceManager.ProductService.GetPagedProductsAsync(page, pageSize, search, categoryId, sortOrder);
+            ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
+
             var viewModel = new ProductIndexViewModel
             {
-                Products = products
+                Products = products,
+                Search = search,
+                CategoryId = categoryId,
+                SortOrder = sortOrder
             };
             return View(viewModel);
         }

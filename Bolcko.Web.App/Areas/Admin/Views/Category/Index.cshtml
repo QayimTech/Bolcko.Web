@@ -17,54 +17,97 @@
         </a>
     </div>
 
-    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-2xl">
+        @{
+            ViewData["SearchPlaceholder"] = "بحث باسم التصنيف أو الوصف...";
+            ViewData["SearchValue"] = Model.Search;
+            ViewData["SortOrder"] = Model.SortOrder;
+            ViewData["Action"] = "Index";
+
+            ViewData["Controller"] = "Category";
+        }
+        <partial name="~/Views/Shared/Partials/_GridFilter.cshtml" />
+
         @* Pagination on top *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Categories" />
 
-        <table class="w-full text-right border-collapse">
-            <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["CategoryName"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["ParentCategory"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Description"]</th>
-                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">@L["Actions"]</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model.Categories.Items)
-                {
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <span class="font-bold text-slate-900">@item.Name</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-slate-600">@(item.ParentCategoryName ?? "-")</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-slate-500 text-sm">@item.Description</span>
-                        </td>
-                        <td class="px-6 py-4 flex gap-2">
-                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors">
-                                <span class="material-symbols-outlined">edit</span>
+        <!-- Scrollable Table Wrapper -->
+        <div class="overflow-x-auto relative">
+            <table class="w-full text-right border-collapse min-w-[650px]">
+                <thead>
+                    <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider select-none">
+                        <!-- Category Name -->
+                        <th class="px-6 py-4">
+                            <a href="@Url.Action("Index", "Category", new { area = "Admin", page = 1, search = Model.Search, sortOrder = (Model.SortOrder == "name_asc" ? "name_desc" : "name_asc") })" 
+                               class="inline-flex items-center gap-2 group hover:text-[#E8A020] transition-colors py-1 px-2 rounded-lg hover:bg-slate-200/50">
+                                <span>@L["CategoryName"]</span>
+                                <div class="flex flex-col text-[10px] leading-none opacity-60 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-xs -mb-1 @(Model.SortOrder == "name_asc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_up</span>
+                                    <span class="material-symbols-outlined text-xs @(Model.SortOrder == "name_desc" ? "text-[#E8A020] font-black scale-125" : "text-slate-400")">arrow_drop_down</span>
+                                </div>
                             </a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'category');" class="inline">
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors">
-                                    <span class="material-symbols-outlined">delete</span>
-                                </button>
-                            </form>
-                        </td>
+                        </th>
+
+                        <!-- Parent Category -->
+                        <th class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["ParentCategory"]</span>
+                        </th>
+
+                        <!-- Description -->
+                        <th class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Description"]</span>
+                        </th>
+
+                        <!-- Actions -->
+                        <th class="px-6 py-4 text-center">
+                            <span class="inline-flex items-center justify-center py-1 px-2">@L["Actions"]</span>
+                        </th>
                     </tr>
-                }
-                @if (!Model.Categories.Items.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
-                            @L["NoCategoriesAvailable"]
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Categories.Items)
+                    {
+                        <tr class="hover:bg-amber-50/30 transition-colors group">
+                            <td class="px-6 py-4">
+                                <span class="font-bold text-slate-900 group-hover:text-[#E8A020] transition-colors">@item.Name</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60">
+                                    @(item.ParentCategoryName ?? "-")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-slate-600 text-xs">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-1">
+                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all" title="تعديل">
+                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'category');" class="inline">
+                                        <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all" title="حذف">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Categories.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="material-symbols-outlined text-4xl text-slate-300">category</span>
+                                    <span>@L["NoCategoriesAvailable"]</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
 
         @* Pagination on bottom *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Categories" />

@@ -14,15 +14,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
+        private readonly Blocko.Services.Interfaces.Notifications.INotificationService _notificationService;
 
         public DeliveryDispatchController(
             IServiceManager serviceManager,
             UserManager<User> userManager,
-            RoleManager<IdentityRole<int>> roleManager)
+            RoleManager<IdentityRole<int>> roleManager,
+            Blocko.Services.Interfaces.Notifications.INotificationService notificationService)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
             _roleManager = roleManager;
+            _notificationService = notificationService;
         }
 
         // ============================
@@ -65,7 +68,20 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.DeliveryService.AssignOrderToCompanyAsync(orderId, companyId, deliveryFee);
-                TempData["SuccessMessage"] = "تم إسناد الطلب لشركة التوصيل بنجاح!";
+
+                // Notify company manager user
+                var company = await _serviceManager.DeliveryService.GetCompanyByIdAsync(companyId);
+                if (company != null && !string.IsNullOrEmpty(company.ManagerUserId) && int.TryParse(company.ManagerUserId, out int managerUserId))
+                {
+                    await _notificationService.SendNotificationToUserAsync(
+                        managerUserId,
+                        "تم إسناد شحنة جديدة لشركتك",
+                        $"تم إسناد الطلب رقم #{orderId} لشركتك. يمكنك الآن توزيع الشحنة على مندوبيك.",
+                        "/Delivery/Home"
+                    );
+                }
+
+                TempData["SuccessMessage"] = "تم إسناد الطلب لشركة التوصيل وإشعارها بنجاح!";
             }
             catch (Exception ex)
             {

@@ -12,11 +12,16 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
     {
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
+        private readonly Blocko.Services.Interfaces.Notifications.INotificationService _notificationService;
 
-        public HomeController(IServiceManager serviceManager, UserManager<User> userManager)
+        public HomeController(
+            IServiceManager serviceManager,
+            UserManager<User> userManager,
+            Blocko.Services.Interfaces.Notifications.INotificationService notificationService)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index()
@@ -120,7 +125,33 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             try
             {
                 await _serviceManager.DeliveryService.UpdateJobStatusAsync(jobId, status);
-                TempData["Success"] = "تم تحديث الحالة بنجاح!";
+
+                // Notify Delivery Company Manager if applicable
+                var job = await _serviceManager.DeliveryService.GetJobByIdAsync(jobId);
+                if (job != null && job.DeliveryCompanyId.HasValue)
+                {
+                    var company = await _serviceManager.DeliveryService.GetCompanyByIdAsync(job.DeliveryCompanyId.Value);
+                    if (company != null && !string.IsNullOrEmpty(company.ManagerUserId) && int.TryParse(company.ManagerUserId, out int managerUserId))
+                    {
+                        var statusName = status switch
+                        {
+                            Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp  => "تم استلام الشحنة",
+                            Bolcko.Domain.Enums.DeliveryJobStatus.InTransit => "قيد التوصيل",
+                            Bolcko.Domain.Enums.DeliveryJobStatus.Delivered => "تم التسليم للزبون",
+                            Bolcko.Domain.Enums.DeliveryJobStatus.Returned  => "مرتجع",
+                            _ => status.ToString()
+                        };
+
+                        await _notificationService.SendNotificationToUserAsync(
+                            managerUserId,
+                            "تحديث حالة شحنة",
+                            $"قام المندوب بتحديث حالة الشحنة للطلب #{job.OrderId} إلى: {statusName}.",
+                            "/Delivery/Home"
+                        );
+                    }
+                }
+
+                TempData["Success"] = "تم تحديث الحالة وإشعار شركة التوصيل بنجاح!";
             }
             catch (Exception ex)
             {
@@ -211,6 +242,49 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             }
 
             return View("DriverUpdate", job);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportDispatchSheet()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
+            if (company == null) return BadRequest("حسابك غير مرتبط بشركة شحن.");
+
+            var jobs = (await _serviceManager.DeliveryService.GetCompanyJobsAsync(company.Id)).ToList();
+
+            var builder = new System.Text.StringBuilder();
+            builder.AppendLine("رقم الطلب,تاريخ الإسناد,اسم الزبون,المدينة,العنوان,الحالة,المبلغ المحصل (COD),أجرة الشحن,حالة التسوية");
+
+            foreach (var job in jobs)
+            {
+                var statusStr = job.Status switch
+                {
+                    Bolcko.Domain.Enums.DeliveryJobStatus.Assigned  => "مُسند",
+                    Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp  => "تم الاستلام من المستودع",
+                    Bolcko.Domain.Enums.DeliveryJobStatus.InTransit => "قيد التوصيل",
+                    Bolcko.Domain.Enums.DeliveryJobStatus.Delivered => "تم التسليم",
+                    Bolcko.Domain.Enums.DeliveryJobStatus.Returned  => "مرتجع",
+                    Bolcko.Domain.Enums.DeliveryJobStatus.Cancelled => "ملغي",
+                    _ => job.Status.ToString()
+                };
+
+                var customerName = job.Order?.User != null ? $"{job.Order.User.FirstName} {job.Order.User.LastName}".Trim() : "زبون عام";
+                var city = job.Order?.ShippingAddress?.City ?? "";
+                var address = (job.Order?.ShippingAddress?.AddressLine1 ?? "").Replace(",", " ");
+                var collected = job.CollectedAmount?.ToString("F2") ?? "0.00";
+                var fee = job.DeliveryFee.ToString("F2");
+                var reconciled = job.IsReconciled ? "تمت التسوية" : "معلق";
+                var assignedDate = job.AssignedAt.HasValue ? job.AssignedAt.Value.ToString("yyyy-MM-dd HH:mm") : "";
+
+                builder.AppendLine($"#{job.OrderId},{assignedDate},\"{customerName}\",\"{city}\",\"{address}\",\"{statusStr}\",{collected},{fee},\"{reconciled}\"");
+            }
+
+            var csvBytes = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(builder.ToString())).ToArray();
+            var fileName = $"Dispatch_Sheet_{company.Name}_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+            return File(csvBytes, "text/csv; charset=utf-8", fileName);
         }
     }
 }

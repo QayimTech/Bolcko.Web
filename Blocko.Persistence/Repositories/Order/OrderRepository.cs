@@ -15,6 +15,8 @@ namespace Blocko.Persistence.Repositories.Order
             await _context.Orders
                 .Include(o => o.Items)
                     .ThenInclude(i => i.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.ProductVariant)
                 .Include(o => o.ShippingAddress)
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == id);

@@ -17,12 +17,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _serviceManager = serviceManager;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, Bolcko.Domain.Enums.OrderStatus? status = null, string? sortOrder = null)
         {
-            var orders = await _serviceManager.OrderService.GetPagedOrdersAsync(page, pageSize);
+            var orders = await _serviceManager.OrderService.GetPagedOrdersAsync(page, pageSize, search, status, sortOrder);
             var viewModel = new OrderIndexViewModel
             {
-                Orders = orders
+                Orders = orders,
+                Search = search,
+                Status = status,
+                SortOrder = sortOrder
             };
             return View(viewModel);
         }

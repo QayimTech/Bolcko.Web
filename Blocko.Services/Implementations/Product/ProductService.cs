@@ -36,12 +36,38 @@ namespace Blocko.Services.Implementations.Product
             });
         }
 
-        public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize)
+        public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize, string? search = null, int? categoryId = null, string? sortOrder = null)
         {
+            System.Linq.Expressions.Expression<Func<Bolcko.Domain.Entities.Product.Product, bool>>? predicate = null;
+
+            if (!string.IsNullOrWhiteSpace(search) || categoryId.HasValue)
+            {
+                var s = search?.Trim().ToLower();
+                predicate = p =>
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value) &&
+                    (string.IsNullOrEmpty(s) ||
+                     p.Name.ToLower().Contains(s) ||
+                     (p.NameEn != null && p.NameEn.ToLower().Contains(s)) ||
+                     (p.Description != null && p.Description.ToLower().Contains(s)) ||
+                     (p.Sku != null && p.Sku.ToLower().Contains(s)) ||
+                     (p.Variants != null && p.Variants.Any(v => v.Sku.ToLower().Contains(s) || (v.Size != null && v.Size.ToLower().Contains(s)) || (v.Color != null && v.Color.ToLower().Contains(s)))));
+            }
+
+            Func<IQueryable<Bolcko.Domain.Entities.Product.Product>, IOrderedQueryable<Bolcko.Domain.Entities.Product.Product>> orderBy = sortOrder switch
+            {
+                "asc" => q => q.OrderBy(p => p.Id),
+                "name_asc" => q => q.OrderBy(p => p.Name),
+                "name_desc" => q => q.OrderByDescending(p => p.Name),
+                "price_asc" => q => q.OrderBy(p => p.RetailPrice),
+                "price_desc" => q => q.OrderByDescending(p => p.RetailPrice),
+                _ => q => q.OrderByDescending(p => p.Id)
+            };
+
             var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
                 pageIndex,
                 pageSize,
-                orderBy: q => q.OrderByDescending(p => p.Id),
+                predicate: predicate,
+                orderBy: orderBy,
                 includes: p => p.Category!
             );
 
