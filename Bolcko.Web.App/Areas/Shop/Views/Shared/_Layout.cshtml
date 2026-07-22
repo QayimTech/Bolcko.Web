@@ -36,7 +36,8 @@
     <!-- Self-hosted Material Symbols font (eliminates Google Fonts latency & icon-as-text bug) -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="/fonts/material-symbols-outlined.woff2">
-    <link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true">
+    <link rel="preload" as="style" href="~/css/material-symbols.css" asp-append-version="true" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true"></noscript>
 
     <!-- Google Fonts: text fonts only (non-blocking async) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -86,7 +87,7 @@
     <!-- Audio Notification Support (always rendered so JS can find it) -->
     <audio id="notification-sound"
            src="@resolvedSoundUrl"
-           preload="auto"
+           preload="none"
            @(!soundEnabled ? "data-sound-disabled=\"true\"" : "")>
     </audio>
 
