@@ -49,7 +49,30 @@ namespace Blocko.Services.Implementations.Delivery
 
         public async Task<IEnumerable<DeliveryCompany>> GetAllCompaniesAsync()
         {
-            return await _unitOfWork.DeliveryCompanies.GetAllAsync();
+            return await _unitOfWork.DeliveryCompanies.GetAllAsQueryable()
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<DeliveryCompany>> GetActiveCompaniesAsync()
+        {
+            return await _unitOfWork.DeliveryCompanies.GetAllAsQueryable()
+                .AsNoTracking()
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+        }
+
+        public async Task DeleteCompanyAsync(int companyId)
+        {
+            var company = await _unitOfWork.DeliveryCompanies.GetByIdAsync(companyId);
+            if (company != null)
+            {
+                company.IsActive = false;
+                company.ManagerUserId = null;
+                _unitOfWork.DeliveryCompanies.Update(company);
+                await _unitOfWork.CompleteAsync();
+            }
         }
 
         public async Task<DeliveryCompany?> GetCompanyByIdAsync(int companyId)
@@ -87,23 +110,48 @@ namespace Blocko.Services.Implementations.Delivery
 
         public async Task UpdateCompanyJobCollectedAmountAsync(int jobId, decimal collectedAmount, string? returnReason = null)
         {
-            var job = await _unitOfWork.DeliveryJobs.GetByIdAsync(jobId);
+            var job = await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
+                .Include(j => j.Order)
+                .FirstOrDefaultAsync(j => j.Id == jobId);
+
             if (job != null)
             {
                 job.CollectedAmount = collectedAmount;
                 job.ReturnReason = returnReason;
+
                 if (collectedAmount == 0 && !string.IsNullOrEmpty(returnReason))
                 {
                     job.Status = DeliveryJobStatus.Returned;
+                    if (job.Order != null)
+                    {
+                        job.Order.Status = OrderStatus.Cancelled;
+                        _unitOfWork.Orders.Update(job.Order);
+                    }
                 }
                 else
                 {
                     job.Status = DeliveryJobStatus.Delivered;
                     job.DeliveredAt = DateTime.UtcNow;
+                    if (job.Order != null)
+                    {
+                        job.Order.Status = OrderStatus.Delivered;
+                        _unitOfWork.Orders.Update(job.Order);
+                    }
                 }
 
                 _unitOfWork.DeliveryJobs.Update(job);
                 await _unitOfWork.CompleteAsync();
+
+                // Send notification to customer
+                if (job.Order != null)
+                {
+                    string title = job.Status == DeliveryJobStatus.Delivered ? "تم تسليم طلبك بنجاح 💚" : "تحديث حالة الطلب";
+                    string msg = job.Status == DeliveryJobStatus.Delivered 
+                        ? $"تم تسليم الطلب رقم {job.Order.OrderNumber} بنجاح ومزامنته. يسعدنا تقييمك للخدمة!" 
+                        : $"تعذر تسليم الطلب رقم {job.Order.OrderNumber}. السبب: {returnReason ?? "مرتجع"}";
+
+                    await _notificationService.SendNotificationToUserAsync(job.Order.UserId, title, msg, $"/Shop/Account/OrderDetails/{job.OrderId}");
+                }
             }
         }
         public async Task AcceptCompanyPickupAsync(int jobId)
@@ -365,18 +413,29 @@ namespace Blocko.Services.Implementations.Delivery
                 throw new ArgumentException("Job not found");
 
             job.Status = status;
-            if (status == DeliveryJobStatus.PickedUp)
+            if (status == DeliveryJobStatus.PickedUp || status == DeliveryJobStatus.InTransit)
             {
-                job.PickedUpAt = DateTime.UtcNow;
+                job.PickedUpAt ??= DateTime.UtcNow;
+                if (job.Order != null)
+                {
+                    job.Order.Status = OrderStatus.Shipped;
+                    _unitOfWork.Orders.Update(job.Order);
+                }
             }
             else if (status == DeliveryJobStatus.Delivered)
             {
                 job.DeliveredAt = DateTime.UtcNow;
-                
-                // Update Order Status also to Delivered
                 if (job.Order != null)
                 {
                     job.Order.Status = OrderStatus.Delivered;
+                    _unitOfWork.Orders.Update(job.Order);
+                }
+            }
+            else if (status == DeliveryJobStatus.Returned || status == DeliveryJobStatus.Cancelled)
+            {
+                if (job.Order != null)
+                {
+                    job.Order.Status = OrderStatus.Cancelled;
                     _unitOfWork.Orders.Update(job.Order);
                 }
             }
@@ -666,11 +725,18 @@ namespace Blocko.Services.Implementations.Delivery
                 includes: new System.Linq.Expressions.Expression<Func<DeliveryJob, object>>[] { j => j.Order!, j => j.Order!.ShippingAddress! });
         }
 
-        public async Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAllJobsAsync(int pageIndex, int pageSize)
+        public async Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAllJobsAsync(int pageIndex, int pageSize, DeliveryJobStatus? statusFilter = null)
         {
+            System.Linq.Expressions.Expression<Func<DeliveryJob, bool>>? predicate = null;
+            if (statusFilter.HasValue)
+            {
+                predicate = j => j.Status == statusFilter.Value;
+            }
+
             return await _unitOfWork.DeliveryJobs.GetPagedAsync(
                 pageIndex, 
                 pageSize, 
+                predicate: predicate,
                 orderBy: q => q.OrderByDescending(j => j.Id),
                 includes: new System.Linq.Expressions.Expression<Func<DeliveryJob, object>>[] { j => j.Order!, j => j.Driver!, j => j.Driver!.User! });
         }

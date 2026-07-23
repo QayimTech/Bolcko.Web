@@ -27,8 +27,8 @@
             <h2 class="font-bold text-lg mb-4 border-b pb-2">معلومات المهمة</h2>
             <p class="mb-2"><span class="font-bold">رقم الطلب:</span> @(Model.Order?.OrderNumber ?? "-")</p>
             <p class="mb-2"><span class="font-bold">موقع الاستلام:</span> @Model.PickupLocation</p>
-            <p class="mb-2"><span class="font-bold">موقع التسليم:</span> @Model.DropoffLocation</p>
-            <p class="mb-2"><span class="font-bold">رسوم التوصيل:</span> @Model.DeliveryFee.ToString("N2") د.أ</p>
+            <p class="mb-2"><span class="font-bold">مبلغ الطلب الإجمالي COD (شامل التوصيل):</span> <span class="text-amber-600 font-bold">@(Model.Order?.TotalAmount.ToString("N2") ?? "0.00") د.أ</span></p>
+            <p class="mb-2"><span class="font-bold">أجرة التوصيل المتفق عليها للشركة/السائق:</span> <span class="font-bold text-slate-800">@Model.DeliveryFee.ToString("N2") د.أ</span></p>
             <p class="mb-2"><span class="font-bold">الحالة:</span>
                 @{
                     var statusText = Model.Status switch

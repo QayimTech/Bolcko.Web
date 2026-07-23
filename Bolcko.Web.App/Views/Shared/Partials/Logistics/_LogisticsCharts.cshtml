@@ -1,0 +1,104 @@
+@{
+    var dailyLabelsJson = ViewBag.DailyLabelsJson as string ?? "[]";
+    var dailyDeliveredJson = ViewBag.DailyDeliveredJson as string ?? "[]";
+    var dailyCollectedJson = ViewBag.DailyCollectedJson as string ?? "[]";
+    var statusCountsJson = ViewBag.StatusCountsJson as string ?? "[0, 0, 0, 0]";
+    var chartIdSuffix = ViewData["ChartSuffix"]?.ToString() ?? "Default";
+}
+
+<!-- Charts & Analytics Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Daily Deliveries & COD Histogram -->
+    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#E8A020]">bar_chart</span>
+            مؤشر التوصيل والتحصيل المالي اليومي (آخر 7 أيام)
+        </h3>
+        <div class="relative h-64">
+            <canvas id="dailyTrendChart_@chartIdSuffix"></canvas>
+        </div>
+    </div>
+
+    <!-- Job Status Distribution Doughnut -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-600">pie_chart</span>
+            توزيع حالات الشحنات
+        </h3>
+        <div class="relative h-64 flex items-center justify-center">
+            <canvas id="statusDoughnutChart_@chartIdSuffix"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const labels = @Html.Raw(dailyLabelsJson);
+        const dailyDelivered = @Html.Raw(dailyDeliveredJson);
+        const dailyCollected = @Html.Raw(dailyCollectedJson);
+        const statusCounts = @Html.Raw(statusCountsJson);
+
+        const ctxDaily = document.getElementById('dailyTrendChart_@chartIdSuffix');
+        if (ctxDaily) {
+            new Chart(ctxDaily.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'عدد الشحنات المسلمة',
+                            data: dailyDelivered,
+                            backgroundColor: '#10B981',
+                            borderRadius: 8,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'التحصيل المالي COD (د.أ)',
+                            data: dailyCollected,
+                            backgroundColor: '#E8A020',
+                            borderRadius: 8,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Noto Kufi Arabic', size: 11 } } }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { type: 'linear', display: true, position: 'right', grid: { color: '#F1F5F9' } },
+                        y1: { type: 'linear', display: true, position: 'left', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        const ctxStatus = document.getElementById('statusDoughnutChart_@chartIdSuffix');
+        if (ctxStatus) {
+            new Chart(ctxStatus.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['متاح (سوق)', 'قيد التوصيل', 'تم التسليم', 'مرتجع'],
+                    datasets: [{
+                        data: statusCounts,
+                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#EF4444'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Noto Kufi Arabic', size: 11 } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    });
+</script>

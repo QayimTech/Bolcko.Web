@@ -15,11 +15,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
+        private readonly Blocko.Services.Interfaces.IServiceManager _serviceManager;
 
-        public UserController(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
+        public UserController(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager, Blocko.Services.Interfaces.IServiceManager serviceManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _serviceManager = serviceManager;
         }
 
         private async Task LoadRolesToViewBagAsync(bool filterForCreate = false)
@@ -175,8 +177,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 var user = await _userManager.FindByIdAsync(id.ToString());
                 if (user != null)
                 {
+                    // Check if user is a manager for a delivery company
+                    var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
+                    if (company != null)
+                    {
+                        await _serviceManager.DeliveryService.DeleteCompanyAsync(company.Id);
+                    }
+
                     await _userManager.DeleteAsync(user);
-                    TempData["SuccessMessage"] = "تم حذف المستخدم بنجاح.";
+                    TempData["SuccessMessage"] = "تم حذف المستخدم وتحديث حالة الشركة المرتبطة به بنجاح.";
                 }
             }
             catch (Exception ex)

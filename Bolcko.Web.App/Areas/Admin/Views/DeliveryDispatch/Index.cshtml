@@ -25,6 +25,75 @@
         <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["ErrorMessage"]</div>
     }
 
+    <!-- Dynamic KPI Summary Cards (Date-bound & Net Sales) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">إجمالي الشحنات</span>
+                <span class="text-xl font-black text-slate-800">@(ViewBag.KpiTotalJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">inventory_2</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">قيد التوصيل</span>
+                <span class="text-xl font-black text-blue-600">@(ViewBag.KpiInTransitJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">local_shipping</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">الشحنات المسلمة</span>
+                <span class="text-xl font-black text-emerald-600">@(ViewBag.KpiDeliveredJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">check_circle</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">التحصيل المالي COD</span>
+                <span class="text-xl font-black text-[#E8A020]">@(((decimal)(ViewBag.KpiTotalCollected ?? 0m)).ToString("N2")) د.أ</span>
+            </div>
+            <div class="w-10 h-10 bg-amber-50 text-[#E8A020] rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">payments</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm flex items-center justify-between bg-emerald-50/20">
+            <div>
+                <span class="text-xs text-emerald-700 font-black block">صافي البيع (بعد التوصيل)</span>
+                <span class="text-xl font-black text-emerald-700">@(((decimal)(ViewBag.KpiNetSales ?? 0m)).ToString("N2")) د.أ</span>
+            </div>
+            <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter & Quick Actions Bar (DRY Partial) -->
+    <partial name="~/Views/Shared/Partials/Logistics/_DateRangeFilter.cshtml" view-data='new ViewDataDictionary(ViewData) { { "AreaName", "Admin" }, { "ControllerName", "DeliveryDispatch" }, { "ActionName", "Index" } }' />
+
+    <!-- Charts & Analytics Section (DRY Partial) -->
+    <partial name="~/Views/Shared/Partials/Logistics/_LogisticsCharts.cshtml" view-data='new ViewDataDictionary(ViewData) { { "ChartSuffix", "AdminDispatch" } }' />
+
+    <!-- Status Filter Tabs -->
+    @{
+        var currentStatus = ViewBag.CurrentStatus as DeliveryJobStatus?;
+    }
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-3">
+        <a asp-action="Index" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == null ? "bg-slate-900 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">الكل</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Available" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Available ? "bg-amber-500 text-white shadow-sm" : "bg-amber-50 text-amber-700 hover:bg-amber-100")">متاح (سوق العمل)</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Assigned" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Assigned ? "bg-blue-600 text-white shadow-sm" : "bg-blue-50 text-blue-700 hover:bg-blue-100")">تم التعيين</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.PickedUp" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.PickedUp ? "bg-purple-600 text-white shadow-sm" : "bg-purple-50 text-purple-700 hover:bg-purple-100")">تم الاستلام</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.InTransit" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.InTransit ? "bg-indigo-600 text-white shadow-sm" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100")">في الطريق</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Delivered" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Delivered ? "bg-emerald-600 text-white shadow-sm" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100")">تم التسليم</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Returned" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Returned ? "bg-rose-600 text-white shadow-sm" : "bg-rose-50 text-rose-700 hover:bg-rose-100")">مرتجع</a>
+    </div>
+
     <!-- Jobs Table -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">

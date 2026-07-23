@@ -135,6 +135,10 @@
                                             {
                                                 <span class="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-black mt-1 inline-block">حساب المدير نشط</span>
                                             }
+                                            else
+                                            {
+                                                <span class="text-[9px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded font-black mt-1 inline-block">حساب المدير مفقود/محذوف</span>
+                                            }
                                         </div>
                                     </div>
                                 </td>
@@ -157,7 +161,7 @@
                                     }
                                     else
                                     {
-                                        <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-[10px] font-bold">غير نشطة</span>
+                                        <span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-bold">غير نشطة</span>
                                     }
                                 </td>
                                 <td class="px-6 py-4 text-center">
@@ -168,16 +172,19 @@
                                             @if (company.IsActive)
                                             {
                                                 <button type="submit" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl text-[10px] transition-all">
-                                                    تعطيل الشركة
+                                                    تعطيل
                                                 </button>
                                             }
                                             else
                                             {
                                                 <button type="submit" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-xl text-[10px] transition-all">
-                                                    تفعيل الشركة
+                                                    تفعيل
                                                 </button>
                                             }
                                         </form>
+                                        <button type="button" onclick="openDeleteModal(@company.Id, '@company.Name')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-[10px] transition-all">
+                                            حذف
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -200,3 +207,52 @@
         </div>
     </div>
 </div>
+
+<!-- Tailwind Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 text-center transform transition-all scale-95 opacity-0 duration-300" id="deleteModalCard">
+        <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl">warning</span>
+        </div>
+        <h3 class="text-lg font-black text-slate-800 mb-2">تأكيد حذف شركة التوصيل</h3>
+        <p class="text-xs text-slate-500 mb-6 leading-relaxed">
+            هل أنت تأكد من رغبتك في حذف/تعطيل شركة التوصيل <strong id="deleteCompanyName" class="text-slate-800"></strong> نهائياً؟ سيتم إلغاء تفعيل حسابها ومنع ظهورها في مركز التوزيع.
+        </p>
+        <form asp-action="DeleteCompany" method="post" id="deleteCompanyForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="companyId" id="deleteCompanyIdInput" value="" />
+            <div class="flex gap-3 justify-center">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all active:scale-95">
+                    إلغاء
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl shadow-md transition-all active:scale-95">
+                    تأكيد الحذف
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openDeleteModal(id, name) {
+        document.getElementById('deleteCompanyIdInput').value = id;
+        document.getElementById('deleteCompanyName').innerText = '"' + name + '"';
+        const modal = document.getElementById('deleteModal');
+        const card = document.getElementById('deleteModalCard');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const card = document.getElementById('deleteModalCard');
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 200);
+    }
+</script>

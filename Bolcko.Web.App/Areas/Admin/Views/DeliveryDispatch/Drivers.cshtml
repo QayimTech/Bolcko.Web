@@ -2,75 +2,102 @@
 @using Bolcko.Domain.Common
 @model IPagedList<DeliveryDriver>
 @{
-    ViewData["Title"] = "إدارة المناديب";
+    ViewData["Title"] = "إدارة المناديب والأحرار";
     Layout = "_Layout";
 }
 
 <div class="p-6 text-right" dir="rtl">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">👥 إدارة المناديب</h1>
-        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm">عودة لمركز التوزيع</a>
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">👥 إدارة المناديب والمناديب الأحرار</h1>
+            <p class="text-xs text-slate-400 mt-1">إدارة واعتماد المندوبين المستقلين والسائقين التابعين لشركات الشحن</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="openCreateFreelanceModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">person_add</span>
+                إضافة مندوب حر جديد 🎯
+            </button>
+            <a asp-action="Index" class="px-4 py-2.5 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 text-xs font-bold transition-all">عودة لمركز التوزيع</a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["SuccessMessage"]</div>
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-xl text-xs font-bold">✅ @TempData["SuccessMessage"]</div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["ErrorMessage"]</div>
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-xl text-xs font-bold">❌ @TempData["ErrorMessage"]</div>
     }
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+            <table class="w-full text-sm text-right">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
                     <tr>
-                        <th class="px-4 py-3 text-right">الاسم</th>
-                        <th class="px-4 py-3 text-right">الجوال</th>
-                        <th class="px-4 py-3 text-right">المركبة</th>
-                        <th class="px-4 py-3 text-right">الشركة</th>
-                        <th class="px-4 py-3 text-right">التقييم</th>
-                        <th class="px-4 py-3 text-right">الحالة</th>
-                        <th class="px-4 py-3 text-right">إجراء</th>
+                        <th class="px-4 py-3.5">الاسم</th>
+                        <th class="px-4 py-3.5">الجوال</th>
+                        <th class="px-4 py-3.5">المركبة</th>
+                        <th class="px-4 py-3.5">النوع / التبعية</th>
+                        <th class="px-4 py-3.5">التقييم</th>
+                        <th class="px-4 py-3.5">الحالة</th>
+                        <th class="px-4 py-3.5 text-center">إجراء</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 text-xs">
                     @foreach (var driver in Model.Items)
                     {
+                        var isFreelance = driver.DeliveryCompanyId == null;
                         <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-3 font-medium">@driver.User?.FirstName @driver.User?.LastName</td>
-                            <td class="px-4 py-3 text-slate-500">@(driver.User?.PhoneNumber ?? "—")</td>
-                            <td class="px-4 py-3">@(driver.VehicleType ?? "—") @(driver.VehiclePlateNumber != null ? $"({driver.VehiclePlateNumber})" : "")</td>
-                            <td class="px-4 py-3">@(driver.Company?.Name ?? "مستقل 🎯")</td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3.5 font-bold text-slate-900">
+                                @driver.User?.FirstName @driver.User?.LastName
+                            </td>
+                            <td class="px-4 py-3.5 text-slate-600 font-mono">@(driver.User?.PhoneNumber ?? "—")</td>
+                            <td class="px-4 py-3.5 text-slate-700">
+                                @(driver.VehicleType ?? "—") @(driver.VehiclePlateNumber != null ? $"({driver.VehiclePlateNumber})" : "")
+                            </td>
+                            <td class="px-4 py-3.5">
+                                @if (isFreelance)
+                                {
+                                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 font-black rounded-lg inline-flex items-center gap-1 text-[10px]">
+                                        🎯 مندوب حر مستقل
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-lg inline-flex items-center gap-1 text-[10px]">
+                                        🏢 @driver.Company?.Name
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-4 py-3.5">
                                 @if (driver.TotalRatings > 0)
                                 {
-                                    <span class="text-amber-500">⭐ @driver.AverageRating.ToString("N1")</span>
-                                    <span class="text-slate-400 text-xs">(@driver.TotalRatings)</span>
+                                    <span class="text-amber-500 font-bold">⭐ @driver.AverageRating.ToString("N1")</span>
+                                    <span class="text-slate-400 text-[10px]">(@driver.TotalRatings)</span>
                                 }
                                 else
                                 {
-                                    <span class="text-slate-400">لا يوجد</span>
+                                    <span class="text-slate-400">جديد</span>
                                 }
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3.5">
                                 @if (driver.IsApproved)
                                 {
-                                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">✔ مفعّل</span>
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">✔ مفعّل</span>
                                 }
                                 else
                                 {
-                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ ينتظر الموافقة</span>
+                                    <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-full">⏳ بانتظار الاعتماد</span>
                                 }
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3.5 text-center">
                                 @if (!driver.IsApproved)
                                 {
                                     <form asp-action="ApproveDriver" method="post" class="inline">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="driverId" value="@driver.Id" />
-                                        <button type="submit" class="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700">تفعيل</button>
+                                        <button type="submit" class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">تفعيل</button>
                                     </form>
                                 }
                                 else
@@ -82,7 +109,7 @@
                     }
                     @if (!Model.Items.Any())
                     {
-                        <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">لا يوجد مناديب مسجلون بعد</td></tr>
+                        <tr><td colspan="7" class="px-4 py-8 text-center text-slate-400 italic">لا يوجد مناديب مسجلون بعد</td></tr>
                     }
                 </tbody>
             </table>
@@ -91,3 +118,98 @@
     </div>
 </div>
 
+<!-- Modal: Create Freelance Driver -->
+<div id="createFreelanceDriverModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-900 text-white">
+            <h3 class="font-black text-white text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#E8A020]">person_add</span>
+                إضافة مندوب حر مستقل جديد 🎯
+            </h3>
+            <button onclick="closeCreateFreelanceModal()" class="text-slate-400 hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+        <form asp-action="CreateFreelanceDriver" method="post" class="p-6 space-y-4 text-right" dir="rtl">
+            @Html.AntiForgeryToken()
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">الاسم الأول *</label>
+                    <input name="firstName" required placeholder="مثل: أحمد"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">اسم العائلة</label>
+                    <input name="lastName" placeholder="مثل: العلي"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم الهاتف (الجوال) *</label>
+                    <input name="phoneNumber" required placeholder="079XXXXXXXX"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">كلمة المرور الحساب *</label>
+                    <input name="password" type="password" required placeholder="••••••••"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none font-mono" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">البريد الإلكتروني (اختياري)</label>
+                <input name="email" type="email" placeholder="driver@example.com"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none font-mono" />
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">نوع المركبة *</label>
+                    <select name="vehicleType" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none">
+                        <option value="سيارة">سيارة</option>
+                        <option value="دراجة نارية">دراجة نارية</option>
+                        <option value="بك أب / ديانا">بك أب / ديانا</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم اللوحة</label>
+                    <input name="vehiclePlateNumber" placeholder="12-34567"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم الرخصة</label>
+                    <input name="licenseNumber" placeholder="987654"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:border-[#E8A020] outline-none font-mono" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3">
+                <button type="button" onclick="closeCreateFreelanceModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">إلغاء</button>
+                <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md transition-all active:scale-95">إنشاء وتفعيل المندوب 🎯</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openCreateFreelanceModal() {
+        const modal = document.getElementById('createFreelanceDriverModal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }, 50);
+    }
+
+    function closeCreateFreelanceModal() {
+        const modal = document.getElementById('createFreelanceDriverModal');
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>

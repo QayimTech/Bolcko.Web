@@ -32,9 +32,70 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         // DELIVERY JOBS (Dispatch)
         // ============================
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, DeliveryJobStatus? status = null, DateTime? startDate = null, DateTime? endDate = null, int? companyId = null)
         {
-            var pagedJobs = await _serviceManager.DeliveryService.GetPagedAllJobsAsync(page, pageSize);
+            var pagedJobs = await _serviceManager.DeliveryService.GetPagedAllJobsAsync(page, pageSize, status);
+            
+            var allJobs = (await _serviceManager.DeliveryService.GetAllJobsAsync()).AsQueryable();
+
+            if (companyId.HasValue)
+            {
+                allJobs = allJobs.Where(j => j.DeliveryCompanyId == companyId.Value);
+            }
+            if (startDate.HasValue)
+            {
+                allJobs = allJobs.Where(j => j.AssignedAt >= startDate.Value || (j.DeliveredAt.HasValue && j.DeliveredAt >= startDate.Value));
+            }
+            if (endDate.HasValue)
+            {
+                var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                allJobs = allJobs.Where(j => j.AssignedAt <= endOfDay || (j.DeliveredAt.HasValue && j.DeliveredAt <= endOfDay));
+            }
+
+            var jobsList = allJobs.ToList();
+
+            ViewBag.CurrentStatus = status;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.SelectedCompanyId = companyId;
+            ViewBag.DeliveryCompanies = await _serviceManager.DeliveryService.GetActiveCompaniesAsync();
+
+            // Dynamic KPIs based on selected date range & company filter
+            ViewBag.KpiTotalJobs = jobsList.Count;
+            ViewBag.KpiAvailableJobs = jobsList.Count(j => j.Status == DeliveryJobStatus.Available);
+            ViewBag.KpiInTransitJobs = jobsList.Count(j => j.Status == DeliveryJobStatus.InTransit || j.Status == DeliveryJobStatus.PickedUp || j.Status == DeliveryJobStatus.Assigned);
+            ViewBag.KpiDeliveredJobs = jobsList.Count(j => j.Status == DeliveryJobStatus.Delivered);
+
+            var totalCollected = jobsList.Where(j => j.Status == DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0);
+            var totalFees = jobsList.Where(j => j.Status == DeliveryJobStatus.Delivered || j.Status == DeliveryJobStatus.Returned).Sum(j => j.DeliveryFee);
+
+            ViewBag.KpiTotalCollected = totalCollected;
+            ViewBag.KpiTotalFees = totalFees;
+            ViewBag.KpiNetSales = totalCollected - totalFees; // صافي المبيعات بعد خصم أجور التوصيل
+
+            // Prepare Daily Trend Chart Data (Last 7 Days)
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(i => DateTime.UtcNow.Date.AddDays(-6 + i))
+                .ToList();
+
+            var dailyLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
+            var dailyDelivered = last7Days.Select(d => jobsList.Count(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == DeliveryJobStatus.Delivered)).ToList();
+            var dailyCollected = last7Days.Select(d => jobsList.Where(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0)).ToList();
+
+            ViewBag.DailyLabelsJson = System.Text.Json.JsonSerializer.Serialize(dailyLabels);
+            ViewBag.DailyDeliveredJson = System.Text.Json.JsonSerializer.Serialize(dailyDelivered);
+            ViewBag.DailyCollectedJson = System.Text.Json.JsonSerializer.Serialize(dailyCollected);
+
+            // Status Distribution Doughnut Data
+            var statusCounts = new[]
+            {
+                jobsList.Count(j => j.Status == DeliveryJobStatus.Available),
+                jobsList.Count(j => j.Status == DeliveryJobStatus.Assigned || j.Status == DeliveryJobStatus.PickedUp || j.Status == DeliveryJobStatus.InTransit),
+                jobsList.Count(j => j.Status == DeliveryJobStatus.Delivered),
+                jobsList.Count(j => j.Status == DeliveryJobStatus.Returned)
+            };
+            ViewBag.StatusCountsJson = System.Text.Json.JsonSerializer.Serialize(statusCounts);
+
             return View(pagedJobs);
         }
 
@@ -255,6 +316,35 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
             return RedirectToAction("Companies");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCompany(int companyId)
+        {
+            try
+            {
+                var company = await _serviceManager.DeliveryService.GetCompanyByIdAsync(companyId);
+                if (company != null)
+                {
+                    if (!string.IsNullOrEmpty(company.ManagerUserId) && int.TryParse(company.ManagerUserId, out int managerId))
+                    {
+                        var user = await _userManager.FindByIdAsync(managerId.ToString());
+                        if (user != null)
+                        {
+                            await _userManager.DeleteAsync(user);
+                        }
+                    }
+
+                    await _serviceManager.DeliveryService.DeleteCompanyAsync(companyId);
+                    TempData["SuccessMessage"] = "تم حذف/تعطيل شركة التوصيل وحساب مديرها بنجاح!";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"حدث خطأ أثناء الحذف: {ex.Message}";
+            }
+            return RedirectToAction("Companies");
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendCompanyEmail(int jobId, string? email, bool includePdf, bool includeExcel, string? customMessage)
@@ -269,6 +359,71 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = $"حدث خطأ أثناء الإرسال: {ex.Message}";
             }
             return RedirectToAction("JobDetails", new { id = jobId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateFreelanceDriver(string firstName, string lastName, string phoneNumber, string? email, string password, string vehicleType, string? vehiclePlateNumber, string? licenseNumber)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(phoneNumber) || string.IsNullOrWhiteSpace(password))
+                {
+                    TempData["ErrorMessage"] = "الرجاء إدخال الاسم ورقم الهاتف وكلمة المرور بشكل صحيح.";
+                    return RedirectToAction("Drivers");
+                }
+
+                string emailToUse = !string.IsNullOrWhiteSpace(email) 
+                    ? email.Trim() 
+                    : $"driver_{phoneNumber.Trim()}@bolcko-delivery.com";
+
+                var existingUser = await _userManager.FindByEmailAsync(emailToUse);
+                if (existingUser != null)
+                {
+                    TempData["ErrorMessage"] = "يوجد حساب بريد إلكتروني مسجل بهذا العنوان بالفعل.";
+                    return RedirectToAction("Drivers");
+                }
+
+                var user = new User
+                {
+                    UserName = phoneNumber.Trim(),
+                    Email = emailToUse,
+                    FirstName = firstName.Trim(),
+                    LastName = lastName?.Trim() ?? "",
+                    PhoneNumber = phoneNumber.Trim(),
+                    UserType = UserType.Customer,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    TempData["ErrorMessage"] = $"فشل إنشاء حساب المستخدم: {errors}";
+                    return RedirectToAction("Drivers");
+                }
+
+                const string roleName = "DeliveryDriver";
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<int>(roleName));
+                }
+                await _userManager.AddToRoleAsync(user, roleName);
+
+                // Register Driver entity (companyId: null -> Freelance Driver)
+                var driver = await _serviceManager.DeliveryService.RegisterDriverAsync(user.Id, null, vehicleType, vehiclePlateNumber, licenseNumber);
+                
+                // Auto-approve driver created by Admin
+                await _serviceManager.DeliveryService.ApproveDriverAsync(driver.Id);
+
+                TempData["SuccessMessage"] = $"تم إنشاء وتفعيل حساب المندوب الحر '{firstName} {lastName}' بنجاح! 🎯";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"حدث خطأ أثناء إضافة المندوب الحر: {ex.Message}";
+            }
+            return RedirectToAction("Drivers");
         }
     }
 }

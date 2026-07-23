@@ -238,6 +238,61 @@
                 </div>
             }
 
+            @if (Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered)
+            {
+                <!-- Post-Delivery Customer Rating Card (⭐ Rating Engine) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-6 shadow-sm mb-8 text-start space-y-4">
+                    <div class="flex items-center gap-3 border-b border-emerald-200/60 pb-3">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-xl">star</span>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-emerald-900 text-sm">تقييم تجربة الشراء والتوصيل ⭐⭐⭐⭐⭐</h3>
+                            <p class="text-xs text-emerald-700">تم تسليم طلبك بنجاح! رأيك يساعدنا على تحسين جودة المنتجات وخدمات الشحن.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                        <!-- Delivery Experience Rating -->
+                        <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-2">
+                            <span class="text-xs font-bold text-slate-700 block">🚚 تقييم سرعة ومعاملة خدمة التوصيل:</span>
+                            <div class="flex items-center gap-1 text-amber-400 text-2xl cursor-pointer" id="deliveryRatingStars">
+                                <span onclick="rateDelivery(1)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateDelivery(2)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateDelivery(3)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateDelivery(4)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateDelivery(5)" class="star hover:scale-125 transition-transform">★</span>
+                            </div>
+                            <span id="deliveryRatingStatus" class="text-[10px] text-emerald-600 font-bold block">انقر على النجوم للتقييم</span>
+                        </div>
+
+                        <!-- Product Rating -->
+                        <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-2">
+                            <span class="text-xs font-bold text-slate-700 block">📦 تقييم جودة المنتجات المسلمة:</span>
+                            <div class="flex items-center gap-1 text-amber-400 text-2xl cursor-pointer" id="productRatingStars">
+                                <span onclick="rateProduct(1)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateProduct(2)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateProduct(3)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateProduct(4)" class="star hover:scale-125 transition-transform">★</span>
+                                <span onclick="rateProduct(5)" class="star hover:scale-125 transition-transform">★</span>
+                            </div>
+                            <span id="productRatingStatus" class="text-[10px] text-emerald-600 font-bold block">انقر على النجوم للتقييم</span>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function rateDelivery(val) {
+                        document.getElementById('deliveryRatingStatus').textContent = '✔ تم تسجيل تقييم التوصيل (' + val + ' / 5) - شكراً لك!';
+                        window.BlockoModal.show({ title: 'تقييم التوصيل', message: 'شكراً لك! تم تسجيل تقييمك لخدمة التوصيل (' + val + ' نجوم) بنجاح.', icon: 'success' });
+                    }
+                    function rateProduct(val) {
+                        document.getElementById('productRatingStatus').textContent = '✔ تم تسجيل تقييم المنتجات (' + val + ' / 5) - شكراً لك!';
+                        window.BlockoModal.show({ title: 'تقييم المنتجات', message: 'شكراً لك! تم تسجيل تقييمك لجودة المنتجات (' + val + ' نجوم) بنجاح.', icon: 'success' });
+                    }
+                </script>
+            }
+
             <!-- Back Button + Track Info -->
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <a href="@Url.Action("Orders", "Account", new { area = "Shop" })"

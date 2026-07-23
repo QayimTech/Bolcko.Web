@@ -7,6 +7,8 @@ namespace Blocko.Services.Interfaces.Delivery
     {
         // Companies
         Task<DeliveryCompany> CreateCompanyAsync(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate, string? managerUserId = null);
+        Task<IEnumerable<DeliveryCompany>> GetActiveCompaniesAsync();
+        Task DeleteCompanyAsync(int companyId);
         Task<IEnumerable<DeliveryCompany>> GetAllCompaniesAsync();
         Task<Bolcko.Domain.Common.IPagedList<DeliveryCompany>> GetPagedCompaniesAsync(int pageIndex, int pageSize);
         Task<DeliveryCompany?> GetCompanyByIdAsync(int companyId);
@@ -34,7 +36,7 @@ namespace Blocko.Services.Interfaces.Delivery
         Task<IEnumerable<DeliveryJob>> GetAvailableJobsAsync();
         Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAvailableJobsAsync(int pageIndex, int pageSize);
         Task<IEnumerable<DeliveryJob>> GetAllJobsAsync();
-        Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAllJobsAsync(int pageIndex, int pageSize);
+        Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAllJobsAsync(int pageIndex, int pageSize, DeliveryJobStatus? statusFilter = null);
         Task<IEnumerable<DeliveryJob>> GetDriverJobsAsync(int driverId);
         Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedDriverJobsAsync(int driverId, int pageIndex, int pageSize);
         Task AssignJobToDriverAsync(int jobId, int driverId, decimal fee);

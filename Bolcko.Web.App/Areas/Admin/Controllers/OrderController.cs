@@ -35,8 +35,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var order = await _serviceManager.OrderService.GetOrderByIdAsync(id);
             if (order == null) return NotFound();
 
-            var companiesPaged = await _serviceManager.DeliveryService.GetPagedCompaniesAsync(1, 100);
-            ViewBag.DeliveryCompanies = companiesPaged?.Items ?? new List<Bolcko.Domain.Entities.Delivery.DeliveryCompany>();
+            var activeCompanies = await _serviceManager.DeliveryService.GetActiveCompaniesAsync();
+            ViewBag.DeliveryCompanies = activeCompanies ?? new List<Bolcko.Domain.Entities.Delivery.DeliveryCompany>();
 
             return View(order);
         }
