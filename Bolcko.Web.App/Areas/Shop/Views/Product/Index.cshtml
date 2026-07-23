@@ -191,6 +191,18 @@
                         <div class="border-t border-slate-100 pt-6 mb-6">
                             <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">@SharedLocalizer["AvailableOptionsVariants"]</h3>
                             <div class="flex flex-wrap gap-2.5" id="variant-selector-container">
+                                @{
+                                    var defaultProductImg = "";
+                                    if (Model.Images != null && Model.Images.Any())
+                                    {
+                                        var firstImg = Model.Images.OrderBy(img => img.DisplayOrder).First().Url;
+                                        defaultProductImg = firstImg.StartsWith("http") ? firstImg : "/" + firstImg.TrimStart('/');
+                                    }
+                                    else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        defaultProductImg = Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/');
+                                    }
+                                }
                                 @for (int i = 0; i < Model.Variants.Count; i++)
                                 {
                                     var v = Model.Variants[i];
@@ -203,14 +215,18 @@
                                     if (string.IsNullOrEmpty(displayLabel)) displayLabel = $"Option #{v.Id}";
 
                                     var activeClass = i == 0 ? "border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20" : "border-slate-200 text-slate-600 hover:border-[#E8A020] hover:bg-slate-50";
+                                    var vImg = !string.IsNullOrEmpty(v.ImageUrl) ? (v.ImageUrl.StartsWith("http") ? v.ImageUrl : "/" + v.ImageUrl.TrimStart('/')) : defaultProductImg;
 
                                     <button type="button" 
-                                            class="variant-select-btn px-4 py-3 rounded-2xl border text-xs font-bold transition-all @activeClass"
+                                            class="variant-select-btn px-4 py-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer active:scale-95 @activeClass"
                                             data-variant-id="@v.Id"
                                             data-price="@v.Price.ToString("N2")"
                                             data-sku="@v.Sku"
                                             data-stock="@v.StockQuantity"
-                                            data-image="@(string.IsNullOrEmpty(v.ImageUrl) ? "" : v.ImageUrl.StartsWith("http") ? v.ImageUrl : "/" + v.ImageUrl.TrimStart('/'))">
+                                            data-image="@vImg"
+                                            data-default-price="@Model.RetailPrice.ToString("N2")"
+                                            data-default-sku="@Model.Sku"
+                                            data-default-image="@defaultProductImg">
                                         @displayLabel
                                     </button>
                                 }
@@ -292,68 +308,145 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            const quantityInput = $('#quantity-input');
-            
-            $('[data-quantity-btn="add"]').click(function() {
-                let current = parseInt(quantityInput.val());
-                quantityInput.val(current + 1);
-            });
-            
-            $('[data-quantity-btn="remove"]').click(function() {
-                let current = parseInt(quantityInput.val());
-                if (current > 1) {
-                    quantityInput.val(current - 1);
-                }
-            });
+        (function() {
+            function initProductPage() {
+                const quantityInput = document.getElementById('quantity-input');
 
-            // Thumbnail Click Switch Logic with Smooth Transition
-            $('.thumbnail-image-box').click(function() {
-                $('.thumbnail-image-box').removeClass('border-[#E8A020] ring-1 ring-[#E8A020]').addClass('border-slate-100');
-                $(this).addClass('border-[#E8A020] ring-1 ring-[#E8A020]').removeClass('border-slate-100');
-                
-                const newUrl = $(this).data('image-url');
-                const mainImg = $('#main-product-image');
-                
-                mainImg.fadeOut(150, function() {
-                    mainImg.attr('src', newUrl);
-                    mainImg.fadeIn(150);
+                // Universal Click Delegate
+                document.addEventListener('click', function(e) {
+                    // 1. Quantity Add Button
+                    const addBtn = e.target.closest('[data-quantity-btn="add"]');
+                    if (addBtn && quantityInput) {
+                        let current = parseInt(quantityInput.value) || 1;
+                        quantityInput.value = current + 1;
+                        return;
+                    }
+
+                    // 2. Quantity Remove Button
+                    const removeBtn = e.target.closest('[data-quantity-btn="remove"]');
+                    if (removeBtn && quantityInput) {
+                        let current = parseInt(quantityInput.value) || 1;
+                        if (current > 1) {
+                            quantityInput.value = current - 1;
+                        }
+                        return;
+                    }
+
+                    // 3. Thumbnail Image Switch
+                    const thumbBox = e.target.closest('.thumbnail-image-box');
+                    if (thumbBox) {
+                        document.querySelectorAll('.thumbnail-image-box').forEach(box => {
+                            box.classList.remove('border-[#E8A020]', 'ring-1', 'ring-[#E8A020]');
+                            box.classList.add('border-slate-100');
+                        });
+                        thumbBox.classList.add('border-[#E8A020]', 'ring-1', 'ring-[#E8A020]');
+                        thumbBox.classList.remove('border-slate-100');
+
+                        const newUrl = thumbBox.getAttribute('data-image-url');
+                        const mainImg = document.getElementById('main-product-image');
+                        if (mainImg && newUrl) {
+                            if (typeof $ !== 'undefined') {
+                                $(mainImg).fadeOut(150, function() {
+                                    $(mainImg).attr('src', newUrl).fadeIn(150);
+                                });
+                            } else {
+                                mainImg.src = newUrl;
+                            }
+                        }
+                        return;
+                    }
+
+                    // 4. Variant Selection Button Click Handler
+                    const variantBtn = e.target.closest('.variant-select-btn');
+                    if (variantBtn) {
+                        const isAlreadyActive = variantBtn.classList.contains('border-[#E8A020]');
+                        
+                        if (isAlreadyActive) {
+                            // Toggle OFF: Unselect and revert to main default product
+                            variantBtn.classList.remove('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                            variantBtn.classList.add('border-slate-200', 'text-slate-600');
+
+                            const variantIdInput = document.getElementById('selected-variant-id-input');
+                            if (variantIdInput) variantIdInput.value = '';
+
+                            const defaultPrice = variantBtn.getAttribute('data-default-price');
+                            const priceDisplay = document.getElementById('product-display-price');
+                            if (priceDisplay && defaultPrice) priceDisplay.textContent = defaultPrice;
+
+                            const defaultSku = variantBtn.getAttribute('data-default-sku');
+                            const skuBadge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.trim().includes('SKU:'));
+                            if (skuBadge && defaultSku) skuBadge.textContent = 'SKU: ' + defaultSku;
+
+                            const defaultImg = variantBtn.getAttribute('data-default-image');
+                            if (defaultImg && defaultImg.trim() !== '') {
+                                const mainImg = document.getElementById('main-product-image');
+                                if (mainImg) {
+                                    if (typeof $ !== 'undefined') {
+                                        $(mainImg).fadeOut(150, function() {
+                                            $(mainImg).attr('src', defaultImg).fadeIn(150);
+                                        });
+                                    } else {
+                                        mainImg.src = defaultImg;
+                                    }
+                                }
+                            }
+                        } else {
+                            // Select Clicked Variant
+                            document.querySelectorAll('.variant-select-btn').forEach(btn => {
+                                btn.classList.remove('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                                btn.classList.add('border-slate-200', 'text-slate-600');
+                            });
+                            variantBtn.classList.add('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                            variantBtn.classList.remove('border-slate-200', 'text-slate-600');
+
+                            // Read variant datasets
+                            const variantId = variantBtn.getAttribute('data-variant-id');
+                            const price = variantBtn.getAttribute('data-price');
+                            const sku = variantBtn.getAttribute('data-sku');
+                            const imageUrl = variantBtn.getAttribute('data-image');
+
+                            // Update hidden variant ID input for AddToCart form
+                            const variantIdInput = document.getElementById('selected-variant-id-input');
+                            if (variantIdInput && variantId) {
+                                variantIdInput.value = variantId;
+                            }
+
+                            // Update displayed price
+                            const priceDisplay = document.getElementById('product-display-price');
+                            if (priceDisplay && price) {
+                                priceDisplay.textContent = price;
+                            }
+
+                            // Update SKU badge text
+                            const skuBadge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.trim().includes('SKU:'));
+                            if (skuBadge && sku) {
+                                skuBadge.textContent = 'SKU: ' + sku;
+                            }
+
+                            // Swap main product image
+                            if (imageUrl && imageUrl.trim() !== '') {
+                                const finalUrl = (imageUrl.startsWith('http') || imageUrl.startsWith('/')) ? imageUrl : '/' + imageUrl;
+                                const mainImg = document.getElementById('main-product-image');
+                                if (mainImg) {
+                                    if (typeof $ !== 'undefined') {
+                                        $(mainImg).fadeOut(150, function() {
+                                            $(mainImg).attr('src', finalUrl).fadeIn(150);
+                                        });
+                                    } else {
+                                        mainImg.src = finalUrl;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
-            });
+            }
 
-            // Variant Selector click handler
-            $('.variant-select-btn').click(function() {
-                // Toggle active styles
-                $('.variant-select-btn').removeClass('border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20')
-                                       .addClass('border-slate-200 text-slate-600');
-                $(this).addClass('border-[#E8A020] bg-amber-50/20 text-[#E8A020] ring-2 ring-[#E8A020]/20')
-                       .removeClass('border-slate-200 text-slate-600');
-
-                // Update hidden form inputs and prices
-                const variantId = $(this).data('variant-id');
-                const price = $(this).data('price');
-                const sku = $(this).data('sku');
-                const stock = parseInt($(this).data('stock'));
-                const imageUrl = $(this).data('image');
-
-                $('#selected-variant-id-input').val(variantId);
-                $('#product-display-price').text(price);
-                
-                // Update SKU badge
-                const skuBadge = $('span:contains("SKU:")');
-                if (skuBadge.length) {
-                    skuBadge.text('SKU: ' + sku);
-                }
-
-                // If variant has specific image, swap main product image
-                if (imageUrl && imageUrl.trim() !== '') {
-                    const mainImg = $('#main-product-image');
-                    mainImg.fadeOut(150, function() {
-                        mainImg.attr('src', imageUrl);
-                        mainImg.fadeIn(150);
-                    });
-                }
-            });
-        });
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initProductPage);
+            } else {
+                initProductPage();
+            }
+        })();
     </script>
 }
