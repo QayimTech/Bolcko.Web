@@ -45,26 +45,32 @@
 
                     var menuItems = new List<(string Key, string Icon, string Controller, string Action)>
                     {
-                        ("Dashboard",          "dashboard",       "Home",     "Index"),
-                        ("ManageCategories",   "category",        "Category", "Index"),
-                        ("ManageProducts",     "inventory_2",     "Product",  "Index"),
-                        ("ManageSEO",          "search_check",    "SEO",      "Index"),
-                        ("ManageOrders",       "shopping_bag",    "Order",    "Index"),
-                        ("ManageMarketPrices", "payments",        "MarketPrice","Index"),
-                        ("SystemSettings",     "settings",        "Settings", "Index"),
+                        ("Dashboard",          "dashboard",       "Home",        "Index"),
+                        ("مركز البيانات Data Hub", "database",    "SEO",         "ImportExport"),
+                        ("ManageCategories",   "category",        "Category",    "Index"),
+                        ("ManageProducts",     "inventory_2",     "Product",     "Index"),
+                        ("ManageSEO",          "search_check",    "SEO",         "Index"),
+                        ("ManageOrders",       "shopping_bag",    "Order",       "Index"),
                     };
 
                     if (isAdmin)
                     {
+                        menuItems.Add(("ManageMarketPrices", "payments", "MarketPrice", "Index"));
+                        menuItems.Add(("SystemSettings",     "settings", "Settings",    "Index"));
                         menuItems.Add(("ManageUsers", "manage_accounts", "User", "Index"));
                         menuItems.Add(("DeliveryDistributionCenter", "local_shipping", "DeliveryDispatch", "Index"));
                         menuItems.Add(("SystemLogs", "bug_report", "Log", "Index"));
+                    }
+                    else
+                    {
+                        menuItems.Add(("SystemSettings",     "settings", "Settings",    "Index"));
                     }
                 }
 
                 @foreach (var item in menuItems)
                 {
-                    bool isActive = currentController == item.Controller && currentAction != "BulkImport";
+                    bool isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) 
+                                 && string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
                     <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
                        class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group @(isActive ? "bg-slate-900 text-white shadow-lg" : "text-slate-600 hover:bg-slate-50")">
 

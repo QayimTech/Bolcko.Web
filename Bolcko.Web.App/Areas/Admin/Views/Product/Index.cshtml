@@ -23,6 +23,10 @@
                 <span class="material-symbols-outlined" id="bulk-translate-icon">translate</span>
                 <span id="bulk-translate-label">ترجم الكل للإنجليزي</span>
             </button>
+            <a href="@Url.Action("ImportExport", "SEO", new { area = "Admin" })" class="bg-indigo-600 text-white px-5 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-500/20" title="Data Hub - مركز إدارة وتصدير البيانات الشامل">
+                <span class="material-symbols-outlined">dataset</span>
+                Data Hub
+            </a>
             <a href="@Url.Action("BulkImport")" class="bg-emerald-600 text-white px-6 py-2 font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all">
                 <span class="material-symbols-outlined">upload_file</span>
                 Import Excel
@@ -191,6 +195,9 @@
                                 <div class="flex items-center justify-center gap-1">
                                     <a href="@Url.Action("Edit", new { id = item.Id })" class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all" title="تعديل">
                                         <span class="material-symbols-outlined text-lg">edit</span>
+                                    </a>
+                                    <a href="@Url.Action("ExportSingleProductSeo", "SEO", new { area = "Admin", productId = item.Id })" class="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all" title="تصدير SEO هذا المنتج">
+                                        <span class="material-symbols-outlined text-lg">file_download</span>
                                     </a>
                                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'product');" class="inline">
                                         <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all" title="حذف">

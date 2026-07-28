@@ -1,0 +1,641 @@
+@{
+    ViewData["Title"] = "Data Hub - مركز إدارة وتصدير البيانات";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+@* Hidden antiforgery form *@
+<form id="antiforgery-form" method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+<section class="p-6 space-y-8 text-right" dir="rtl">
+
+    <!-- ═══════════════ PAGE HEADER ═══════════════ -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+        <div>
+            <div class="flex items-center gap-4 mb-1">
+                <!-- ICON FIXED WITH HIGH CONTRAST (BLACK SLATE & GOLDEN ICON) -->
+                <div class="w-14 h-14 rounded-2xl bg-slate-900 text-[#E8A020] flex items-center justify-center shadow-xl shadow-slate-900/10 flex-shrink-0 border border-slate-800">
+                    <span class="material-symbols-outlined text-3xl font-bold">database</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">Data Hub - مركز إدارة وتصدير البيانات</h1>
+                    <p class="text-slate-500 text-sm">سحب واستيراد البيانات الشامل للمنتجات، SEO، الطلبات والعملاء بشكل منفرد أو دفعي</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="@Url.Action("Index", "SEO")" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-sm transition-all">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
+                صفحة SEO
+            </a>
+            <a href="@Url.Action("Index", "Product")" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-sm transition-all border border-indigo-200/60">
+                <span class="material-symbols-outlined text-base">inventory_2</span>
+                إدارة المنتجات
+            </a>
+        </div>
+    </div>
+
+    <!-- ═══════════════ MODULE TABS ═══════════════ -->
+    <div class="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+        <button type="button" id="tab-btn-products" onclick="switchTab('products')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all">
+            <span class="material-symbols-outlined text-lg">inventory</span>
+            المنتجات والـ SEO
+        </button>
+
+        @if (isAdmin)
+        {
+            <button type="button" id="tab-btn-orders" onclick="switchTab('orders')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-all">
+                <span class="material-symbols-outlined text-lg text-emerald-600">orders</span>
+                الطلبات والمبيعات (Super Admin)
+            </button>
+            <button type="button" id="tab-btn-crm" onclick="switchTab('crm')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-all">
+                <span class="material-symbols-outlined text-lg text-purple-600">group</span>
+                العملاء والـ CRM (Super Admin)
+            </button>
+        }
+
+        <button type="button" id="tab-btn-shipping" onclick="switchTab('shipping')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-all">
+            <span class="material-symbols-outlined text-lg text-amber-600">local_shipping</span>
+            الشحن والتوصيل
+        </button>
+    </div>
+
+    <!-- ═══════════════ TAB 1: PRODUCTS & SEO MODULE ═══════════════ -->
+    <div id="tab-content-products" class="tab-content space-y-6">
+        <!-- SEO & PRODUCTS HEALTH METRICS CARDS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-slate-600 text-2xl">inventory_2</span>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">إجمالي المنتجات</p>
+                    <p id="metric-total" class="text-2xl font-black text-slate-900">@(ViewBag.TotalProducts ?? 0)</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-emerald-600 text-2xl">verified</span>
+                </div>
+                <div>
+                    <p class="text-xs text-emerald-500 font-bold uppercase tracking-widest">SEO مكتمل</p>
+                    <p id="metric-approved" class="text-2xl font-black text-emerald-600">@(ViewBag.ApprovedProducts ?? 0)</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-amber-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-amber-600 text-2xl">pending</span>
+                </div>
+                <div>
+                    <p class="text-xs text-amber-500 font-bold uppercase tracking-widest">بانتظار SEO</p>
+                    <p id="metric-pending" class="text-2xl font-black text-amber-600">@(ViewBag.PendingProducts ?? 0)</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-rose-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-rose-500 text-2xl">notes</span>
+                </div>
+                <div>
+                    <p class="text-xs text-rose-400 font-bold uppercase tracking-widest">بدون وصف</p>
+                    <p id="metric-nodesc" class="text-2xl font-black text-rose-500">@(ViewBag.MissingDescProducts ?? 0)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPORT / IMPORT SELECTOR TOGGLE (CLEAR CHOICE BETWEEN IMPORT & EXPORT) -->
+        <div class="bg-slate-900 text-white rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#E8A020] text-2xl">swap_vert</span>
+                <div>
+                    <h3 class="font-black text-sm text-white">اختر اتجاه العمليات: التصدير أو الاستيراد</h3>
+                    <p class="text-xs text-slate-400">يمكنك فرز العرض لتحديد كارت التصدير فقط، كارت الاستيراد فقط، أو كلاهما</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700 w-full sm:w-auto justify-center">
+                <button type="button" id="mode-btn-all" onclick="setMode('all')" class="mode-btn px-4 py-2 rounded-lg bg-indigo-600 text-white font-bold text-xs transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    عرض الكل (Both)
+                </button>
+                <button type="button" id="mode-btn-export" onclick="setMode('export')" class="mode-btn px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-indigo-400">download</span>
+                    📤 تصدير فقط (Export)
+                </button>
+                <button type="button" id="mode-btn-import" onclick="setMode('import')" class="mode-btn px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-emerald-400">upload_file</span>
+                    📥 استيراد فقط (Import)
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN TWO-COLUMN LAYOUT (DYNAMICALLY TOGGLED) -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6" id="action-panels-container">
+
+            <!-- EXPORT PANEL -->
+            <div id="export-panel" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between transition-all">
+                <div>
+                    <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-l from-indigo-50/60 via-purple-50/30 to-white flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+                                <span class="material-symbols-outlined text-lg">download</span>
+                            </div>
+                            <div>
+                                <h2 class="font-black text-slate-800 text-base">📊 تصدير شيت البيانات و SEO (Export)</h2>
+                                <p class="text-slate-500 text-xs">اختر الفلاتر ونزّل ملف Excel جاهز للتعديل المباشر</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 font-bold text-xs rounded-full">تصدير Excel</span>
+                    </div>
+
+                    <div class="p-6 space-y-5">
+                        <!-- Quick Preset Filters -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-2">⚡ اختصارات سريعة للتصدير:</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="setQuickFilter('missing')" class="px-3.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold text-xs border border-rose-200/60 transition-all flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    المنتجات بدون وصف فقط
+                                </button>
+                                <button type="button" onclick="setQuickFilter('pending')" class="px-3.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 font-bold text-xs border border-amber-200/60 transition-all flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    بانتظار SEO
+                                </button>
+                                <button type="button" onclick="setQuickFilter('all')" class="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs transition-all">
+                                    جميع المنتجات
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="export-form" action="@Url.Action("ExportFilteredSeo")" method="get" class="space-y-4">
+
+                            <!-- Filter: Search -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">🔍 بحث بالاسم أو SKU</label>
+                                <input type="text" id="export-search" name="search" placeholder="اسم المنتج أو الرمز SKU..."
+                                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm font-medium transition-all" />
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Filter: Category -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">📁 القسم / التصنيف</label>
+                                    <select id="export-category" name="categoryId" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm font-medium transition-all">
+                                        <option value="">جميع الأقسام</option>
+                                        @foreach (var cat in categories)
+                                        {
+                                            <option value="@cat.Id">@cat.Name</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <!-- Filter: SEO Status -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">🏷️ حالة SEO</label>
+                                    <select id="export-status" name="seoStatus" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm font-medium transition-all">
+                                        <option value="">كل الحالات</option>
+                                        <option value="PendingSeo">بانتظار SEO (PendingSeo)</option>
+                                        <option value="InReview">قيد المراجعة (InReview)</option>
+                                        <option value="SeoApproved">مكتمل ومعتمد (SeoApproved)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Filter: Brand -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">📦 الماركة (Brand)</label>
+                                    <input type="text" id="export-brand" name="brand" placeholder="اسم الماركة..."
+                                           class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-sm font-medium transition-all" />
+                                </div>
+
+                                <!-- Filter Checkbox: Only Missing Description -->
+                                <div class="flex items-center gap-3 pt-6">
+                                    <input type="checkbox" id="export-missing-desc" name="onlyMissingDesc" value="true" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-slate-300 cursor-pointer" />
+                                    <label for="export-missing-desc" class="text-xs font-bold text-slate-700 cursor-pointer">
+                                        🔴 بدون وصف فقط
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Export Button -->
+                            <div class="pt-2">
+                                <button type="submit" class="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all">
+                                    <span class="material-symbols-outlined text-xl">file_download</span>
+                                    تصدير ملف Excel بحسب الفلاتر (Export Now)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-slate-400 text-xs flex items-center justify-between">
+                    <span>💡 نصيحة: يمكنك استكمال شيت الـ Excel وإعادة رفعه في قسم الاستيراد</span>
+                    <span class="font-bold">Excel (.xlsx)</span>
+                </div>
+            </div>
+
+            <!-- IMPORT PANEL -->
+            <div id="import-panel" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between transition-all">
+                <div>
+                    <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-l from-emerald-50/60 via-teal-50/30 to-white flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+                                <span class="material-symbols-outlined text-lg">upload_file</span>
+                            </div>
+                            <div>
+                                <h2 class="font-black text-slate-800 text-base">📥 استيراد وتحديث البيانات (Import)</h2>
+                                <p class="text-slate-500 text-xs">ارفع ملف Excel المعدّل لتحديث الـ SEO والأوصاف والأسعار</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">استيراد Upload</span>
+                    </div>
+
+                    <div class="p-6 space-y-5">
+                        <form id="import-form" enctype="multipart/form-data" class="space-y-4">
+
+                            <!-- Drag and Drop Area -->
+                            <div id="drop-zone" onclick="document.getElementById('file-input').click()"
+                                 class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-emerald-50/20 cursor-pointer transition-all">
+                                <input type="file" id="file-input" name="file" accept=".xlsx, .xls" class="hidden" onchange="handleFileSelect(this)" />
+
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-3">
+                                    <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-sm mb-1" id="file-label-title">اسحب ملف Excel إلى هنا أو اضغط للاختيار</h3>
+                                <p class="text-slate-400 text-xs" id="file-label-sub">يدعم صيغ .xlsx بحجم أقصى 500 ميجابايت</p>
+                            </div>
+
+                            <!-- Processing Strategy Options -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                                <label class="block text-xs font-bold text-slate-700">⚡ استراتيجية المعالجة:</label>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label class="flex items-start gap-2.5 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-emerald-300 transition-all">
+                                        <input type="radio" name="backgroundJob" value="false" checked class="mt-0.5 text-emerald-600 focus:ring-emerald-500" />
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-800">معالجة فورية (Direct)</p>
+                                            <p class="text-[11px] text-slate-400">مناسبة للملفات الصغيرة (حتى 500 منتج)</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-start gap-2.5 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-emerald-300 transition-all">
+                                        <input type="radio" name="backgroundJob" value="true" class="mt-0.5 text-emerald-600 focus:ring-emerald-500" />
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-800">Hangfire Job (خلفية)</p>
+                                            <p class="text-[11px] text-slate-400">مناسبة للملفات الضخمة وتفادي بطء النظام</p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center gap-2 pt-1">
+                                    <input type="checkbox" id="auto-approve" name="autoApprove" value="true" checked class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer" />
+                                    <label for="auto-approve" class="text-xs font-bold text-slate-700 cursor-pointer">
+                                        ✅ اعتمادات الـ SEO تلقائياً (تغيير SeoStatus إلى Approved)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div>
+                                <button type="button" onclick="submitImportForm()" id="btn-submit-import"
+                                        class="w-full py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all">
+                                    <span class="material-symbols-outlined text-xl" id="import-btn-icon">upload</span>
+                                    <span id="import-btn-text">بدء عملية الاستيراد والتحديث (Start Import)</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-slate-400 text-xs flex items-center justify-between">
+                    <span>🔒 آمن: يتم التحقق من صحة الصفوف تلقائياً وتجاوز الأخطاء</span>
+                    <span class="font-bold">ClosedXML Engine</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ TAB 2: ORDERS & SALES MODULE (ADMIN ONLY) ═══════════════ -->
+    @if (isAdmin)
+    {
+        <div id="tab-content-orders" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">orders</span>
+                        </div>
+                        <div>
+                            <h2 class="font-black text-slate-900 text-lg">📋 تصدير كشوفات الطلبات والمبيعات (Super Admin)</h2>
+                            <p class="text-slate-500 text-xs">سحب كشوفات المحاسبة والطلبات اليومية بتنسيق Excel</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold text-xs">محمي - للسوبر أدمن فقط</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-sm">📊 تصدير حسب الفترة الزمانية</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">من تاريخ</label>
+                                <input type="date" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">إلى تاريخ</label>
+                                <input type="date" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs" />
+                            </div>
+                        </div>
+                        <a href="@Url.Action("Index", "Order")" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                            <span class="material-symbols-outlined text-base">download</span>
+                            تصدير كشف الطلبات والمبيعات Excel
+                        </a>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-sm">📈 تصدير تقارير الإيرادات المالية</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">يمكنك الذهاب إلى إدارة الطلبات مباشرة وسحب السجلات الكاملة للحسابات والمالية.</p>
+                        <a href="@Url.Action("Index", "Order")" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                            <span class="material-symbols-outlined text-base">visibility</span>
+                            الانتقال إلى جدول إدارة الطلبات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ TAB 3: CUSTOMERS & CRM MODULE (ADMIN ONLY) ═══════════════ -->
+        <div id="tab-content-crm" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-purple-200 shadow-sm p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">group</span>
+                        </div>
+                        <div>
+                            <h2 class="font-black text-slate-900 text-lg">👥 تصدير قاعدة العملاء والمستخدمين (CRM Hub)</h2>
+                            <p class="text-slate-500 text-xs">سحب بيانات الاتصال بالعملاء لاستخدامها في الحملات التسويقية والـ CRM</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full font-bold text-xs">محمي - للسوبر أدمن فقط</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-sm">📥 تصدير قائمة العملاء المسجلين</h3>
+                        <p class="text-xs text-slate-500">يشمل الاسم الكامل، البريد الإلكتروني، رقم الهاتف، والمدينة.</p>
+                        <a href="@Url.Action("Index", "User")" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                            <span class="material-symbols-outlined text-base">manage_accounts</span>
+                            الانتقال لإدارة العملاء والمستخدمين
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ═══════════════ TAB 4: SHIPPING & DELIVERY MODULE ═══════════════ -->
+    <div id="tab-content-shipping" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-amber-200 shadow-sm p-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-slate-900 text-lg">🚚 تصدير واستيراد بيانات الشحن والتوصيل</h2>
+                        <p class="text-slate-500 text-xs">إدارة وظائف التوصيل وكشوفات المندوبين وشركات الشحن</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-sm">📦 كشوفات التوصيل اليومية</h3>
+                    <p class="text-xs text-slate-500">الانتقال لمركز توزيع الشحن لمتابعة وظائف التوصيل الحالية والمندوبين الأحرار.</p>
+                    <a href="@Url.Action("Index", "DeliveryDispatch")" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-base">local_shipping</span>
+                        مركز توزيع الشحن Delivery Dispatch
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ HANGFIRE ASYNC MONITOR (HIDDEN BY DEFAULT) ═══════════════ -->
+    <div id="job-monitor-card" class="hidden bg-white rounded-2xl border border-indigo-200 shadow-xl p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center animate-pulse">
+                    <span class="material-symbols-outlined text-xl">sync</span>
+                </div>
+                <div>
+                    <h3 class="font-black text-slate-900 text-base" id="job-status-title">جاري معالجة شيت الاستيراد في الخلفية...</h3>
+                    <p class="text-xs text-slate-500" id="job-status-sub">يتم معالجة البيانات عبر Hangfire بدون التأثير على سرعة الموقع</p>
+                </div>
+            </div>
+            <span id="job-percent-badge" class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-black border border-indigo-200">0%</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200">
+            <div id="job-progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 5%"></div>
+        </div>
+
+        <!-- Job Details Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center pt-2">
+            <div class="bg-slate-50 p-3 rounded-xl">
+                <p class="text-[11px] text-slate-400 font-bold">إجمالي الصفوف</p>
+                <p id="job-total-rows" class="text-lg font-black text-slate-800">0</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl">
+                <p class="text-[11px] text-slate-400 font-bold">الصفوف المحدثة</p>
+                <p id="job-updated-rows" class="text-lg font-black text-emerald-600">0</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl">
+                <p class="text-[11px] text-slate-400 font-bold">منتجات جديدة</p>
+                <p id="job-success-rows" class="text-lg font-black text-indigo-600">0</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl">
+                <p class="text-[11px] text-slate-400 font-bold">الأخطاء</p>
+                <p id="job-failed-rows" class="text-lg font-black text-rose-500">0</p>
+            </div>
+        </div>
+
+        <div id="job-errors-box" class="hidden p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 space-y-1 max-h-32 overflow-y-auto">
+            <p class="font-bold">⚠️ تنبيهات الأخطاء أثناء الاستيراد:</p>
+            <ul id="job-errors-list" class="list-disc list-inside space-y-0.5"></ul>
+        </div>
+    </div>
+
+</section>
+
+@section Scripts {
+    <script>
+        function setMode(mode) {
+            const exportPanel = document.getElementById('export-panel');
+            const importPanel = document.getElementById('import-panel');
+            const container = document.getElementById('action-panels-container');
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = 'mode-btn px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition-all flex items-center gap-1.5';
+            });
+
+            const activeBtn = document.getElementById('mode-btn-' + mode);
+            if (activeBtn) {
+                activeBtn.className = 'mode-btn px-4 py-2 rounded-lg bg-indigo-600 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md';
+            }
+
+            if (mode === 'export') {
+                exportPanel.classList.remove('hidden');
+                importPanel.classList.add('hidden');
+                container.className = 'grid grid-cols-1 gap-6';
+            } else if (mode === 'import') {
+                exportPanel.classList.add('hidden');
+                importPanel.classList.remove('hidden');
+                container.className = 'grid grid-cols-1 gap-6';
+            } else {
+                exportPanel.classList.remove('hidden');
+                importPanel.classList.remove('hidden');
+                container.className = 'grid grid-cols-1 xl:grid-cols-2 gap-6';
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-all';
+            });
+
+            const targetContent = document.getElementById('tab-content-' + tabId);
+            if (targetContent) targetContent.classList.remove('hidden');
+
+            const targetBtn = document.getElementById('tab-btn-' + tabId);
+            if (targetBtn) {
+                targetBtn.className = 'tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all';
+            }
+        }
+
+        function setQuickFilter(type) {
+            document.getElementById('export-search').value = '';
+            document.getElementById('export-category').value = '';
+            document.getElementById('export-brand').value = '';
+
+            if (type === 'missing') {
+                document.getElementById('export-status').value = '';
+                document.getElementById('export-missing-desc').checked = true;
+            } else if (type === 'pending') {
+                document.getElementById('export-status').value = 'PendingSeo';
+                document.getElementById('export-missing-desc').checked = false;
+            } else {
+                document.getElementById('export-status').value = '';
+                document.getElementById('export-missing-desc').checked = false;
+            }
+        }
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('file-label-title').innerText = file.name;
+                document.getElementById('file-label-sub').innerText = `الحجم: ${(file.size / (1024 * 1024)).toFixed(2)} ميجابايت`;
+            }
+        }
+
+        async function submitImportForm() {
+            const fileInput = document.getElementById('file-input');
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('الرجاء اختيار ملف Excel أولاً.');
+                return;
+            }
+
+            const form = document.getElementById('import-form');
+            const formData = new FormData(form);
+            const isAsync = document.querySelector('input[name="backgroundJob"]:checked').value === 'true';
+
+            const btn = document.getElementById('btn-submit-import');
+            const btnIcon = document.getElementById('import-btn-icon');
+            const btnText = document.getElementById('import-btn-text');
+
+            btn.disabled = true;
+            btnIcon.innerText = 'sync';
+            btnIcon.classList.add('animate-spin');
+            btnText.innerText = 'جاري رفع ومعالجة الملف...';
+
+            const token = document.querySelector('#antiforgery-form input[name="__RequestVerificationToken"]')?.value;
+
+            try {
+                const response = await fetch('@Url.Action("UploadSeoImport")', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert('خطأ: ' + (data.message || 'حدث خطأ غير متوقع أثناء الرفع.'));
+                    resetBtn();
+                    return;
+                }
+
+                if (data.isAsync) {
+                    // Start Background Job Polling
+                    document.getElementById('job-monitor-card').classList.remove('hidden');
+                    pollJobStatus(data.jobId);
+                    resetBtn();
+                } else {
+                    // Direct Import Results
+                    alert(`✅ اكتملت المعالجة بنجاح!\n• إجمالي الصفوف: ${data.totalRows}\n• المنتجات المحدثة: ${data.updatedCount}\n• الأخطاء: ${data.failureCount}`);
+                    location.reload();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('حدث خطأ في الاتصال أثناء الاستيراد.');
+                resetBtn();
+            }
+
+            function resetBtn() {
+                btn.disabled = false;
+                btnIcon.innerText = 'upload';
+                btnIcon.classList.remove('animate-spin');
+                btnText.innerText = 'بدء عملية الاستيراد والتحديث (Start Import)';
+            }
+        }
+
+        function pollJobStatus(jobId) {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`@Url.Action("GetJobStatus")?jobId=${jobId}`);
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const percent = data.progressPercent || 0;
+                        document.getElementById('job-progress-bar').style.width = percent + '%';
+                        document.getElementById('job-percent-badge').innerText = percent + '%';
+
+                        document.getElementById('job-total-rows').innerText = data.totalRows || 0;
+                        document.getElementById('job-updated-rows').innerText = data.updatedCount || 0;
+                        document.getElementById('job-success-rows').innerText = data.successCount || 0;
+                        document.getElementById('job-failed-rows').innerText = data.failureCount || 0;
+
+                        if (data.status === 'Completed') {
+                            clearInterval(interval);
+                            document.getElementById('job-status-title').innerText = '🎉 اكتملت معالجة الاستيراد بنجاح!';
+                            document.getElementById('job-status-title').classList.add('text-emerald-600');
+                            setTimeout(() => location.reload(), 2500);
+                        } else if (data.status === 'Failed') {
+                            clearInterval(interval);
+                            document.getElementById('job-status-title').innerText = '❌ فشلت الوظيفة أو توقفت.';
+                            document.getElementById('job-status-title').classList.add('text-rose-600');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error polling job status:', e);
+                }
+            }, 3000);
+        }
+    </script>
+}

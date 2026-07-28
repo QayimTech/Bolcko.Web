@@ -344,5 +344,17 @@ namespace Blocko.Services.Implementations.order
 
             return true;
         }
+
+        public async Task<decimal> GetTotalSalesAsync()
+        {
+            var orders = await _unitOfWork.Orders.GetAllAsync();
+            return orders.Sum(o => o.TotalAmount);
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            var orders = await _unitOfWork.Orders.GetAllAsync();
+            return orders.Count();
+        }
     }
 }

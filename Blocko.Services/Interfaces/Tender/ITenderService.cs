@@ -6,8 +6,13 @@ namespace Blocko.Services.Interfaces.Tender
     {
         Task<TenderDto> CreateTenderAsync(TenderDto tenderDto);
         Task<TenderDto> CreateQuoteRequestAsync(QuoteRequestDto quoteRequestDto, int? userId = null);
+
+        Task<IEnumerable<TenderDto>> GetAllTendersAsync();
+        Task<IEnumerable<TenderDto>> GetLatestTendersAsync(int count = 5);
         Task<IEnumerable<TenderDto>> GetOpenTendersAsync();
         Task<IEnumerable<TenderDto>> GetTendersByUserAsync(int userId);
+        Task<int> GetPendingCountAsync();
+
         Task<Bolcko.Domain.Entities.Tender.Tender?> GetTenderByIdAsync(int id);
         Task<bool> SubmitQuotationPricesAsync(int tenderId, Dictionary<int, decimal> itemPrices, string? notes);
         Task<bool> RequestPriceNegotiationAsync(int tenderId, Dictionary<int, decimal> targetPrices, string feedback);

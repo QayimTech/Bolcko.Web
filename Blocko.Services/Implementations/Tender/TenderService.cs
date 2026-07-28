@@ -111,10 +111,49 @@ namespace Blocko.Services.Implementations.Tender
             });
         }
 
+        public async Task<IEnumerable<TenderDto>> GetAllTendersAsync()
+        {
+            var tenders = await _unitOfWork.Tenders.GetAllAsync();
+            return tenders
+                .OrderByDescending(t => t.RequestDate)
+                .Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<TenderDto>> GetLatestTendersAsync(int count = 5)
+        {
+            var tenders = await _unitOfWork.Tenders.GetAllAsync();
+            return tenders
+                .OrderByDescending(t => t.RequestDate)
+                .Take(count)
+                .Select(MapToDto);
+        }
+
+        public async Task<int> GetPendingCountAsync()
+        {
+            var tenders = await _unitOfWork.Tenders.GetAllAsync();
+            return tenders.Count(t => t.Status == Bolcko.Domain.Enums.TenderStatus.Pending);
+        }
+
         public async Task<Bolcko.Domain.Entities.Tender.Tender?> GetTenderByIdAsync(int id)
         {
             return await _unitOfWork.Tenders.GetByIdAsync(id);
         }
+
+        // ─── Private Helpers ───────────────────────────────────────────────────
+        private static TenderDto MapToDto(Bolcko.Domain.Entities.Tender.Tender t) => new()
+        {
+            Id                = t.Id,
+            UserId            = t.UserId,
+            UserName          = t.User != null ? t.User.UserName : (t.GuestName ?? "Guest"),
+            TenderTitle       = t.TenderTitle,
+            TenderDescription = t.TenderDescription,
+            RequestDate       = t.RequestDate,
+            SubmissionDeadline    = t.SubmissionDeadline,
+            RequiredDeliveryDate  = t.RequiredDeliveryDate,
+            Status            = t.Status,
+            TotalQuotedAmount = t.TotalQuotedAmount,
+            ItemCount         = t.Items?.Count ?? 0
+        };
 
         public async Task<bool> SubmitQuotationPricesAsync(int tenderId, Dictionary<int, decimal> itemPrices, string? notes)
         {
