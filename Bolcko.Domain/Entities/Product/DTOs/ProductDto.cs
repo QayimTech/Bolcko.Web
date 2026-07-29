@@ -31,5 +31,17 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public decimal DisplayPrice
+        {
+            get
+            {
+                if (Variants != null && Variants.Any(v => v.Price > 0))
+                {
+                    return Variants.Where(v => v.Price > 0).Min(v => v.Price);
+                }
+                return RetailPrice;
+            }
+        }
     }
 }

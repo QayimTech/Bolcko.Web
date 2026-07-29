@@ -63,33 +63,53 @@ namespace Blocko.Services.Implementations.Product
                 _ => q => q.OrderByDescending(p => p.Id)
             };
 
-            var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
-                pageIndex,
-                pageSize,
-                predicate: predicate,
-                orderBy: orderBy,
-                includes: p => p.Category!
-            );
+            IQueryable<Bolcko.Domain.Entities.Product.Product> query = _unitOfWork.Products.GetAllAsQueryable()
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Variants);
 
-            var dtos = pagedProducts.Items.Select(p => new ProductDto
+            if (predicate != null)
             {
-                Id = p.Id,
-                Name = p.Name,
-                NameEn = p.NameEn,
-                Description = p.Description,
-                DescriptionEn = p.DescriptionEn,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category?.Name,
-                RetailPrice = p.RetailPrice,
-                StockQuantity = p.StockQuantity,
-                UnitOfMeasure = p.UnitOfMeasure,
-                Sku = p.Sku,
-                ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable,
-                UpdatedAt = p.UpdatedAt
-            });
+                query = query.Where(predicate);
+            }
 
-            return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
+            var totalCount = await query.CountAsync();
+            var items = await orderBy(query)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NameEn = p.NameEn,
+                    Description = p.Description,
+                    DescriptionEn = p.DescriptionEn,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : null,
+                    RetailPrice = p.RetailPrice,
+                    StockQuantity = p.StockQuantity,
+                    UnitOfMeasure = p.UnitOfMeasure,
+                    Sku = p.Sku,
+                    ImageUrl = p.ImageUrl,
+                    BulkPricingAvailable = p.BulkPricingAvailable,
+                    UpdatedAt = p.UpdatedAt,
+                    Variants = p.Variants.Select(v => new ProductVariantDto
+                    {
+                        Id = v.Id,
+                        ProductId = v.ProductId,
+                        Price = v.Price,
+                        StockQuantity = v.StockQuantity,
+                        Sku = v.Sku,
+                        Size = v.Size,
+                        Color = v.Color,
+                        PackagingUnit = v.PackagingUnit,
+                        CountryOfOrigin = v.CountryOfOrigin,
+                        ImageUrl = v.ImageUrl
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return new PagedList<ProductDto>(items, totalCount, pageIndex, pageSize);
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)
