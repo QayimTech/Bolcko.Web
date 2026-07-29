@@ -216,17 +216,26 @@
 }
 
 <!-- Variants Management Section -->
-<div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm mt-8 text-right">
+<div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm mt-8 text-right" id="variantsSection">
     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
         <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-[#E8A020] text-xl">inventory_2</span>
             <h3 class="text-sm font-bold text-slate-800">@(isRtl ? "متغيرات المنتج (الأسعار والمخزون لكل لون/قياس)" : "Product Variants (Price/Stock per Option)")</h3>
         </div>
-        <button type="button" onclick="addVariantRow()" 
+        <button type="button" onclick="addVariantRow()"
                 class="flex items-center gap-2 bg-[#E8A020] hover:bg-[#d69018] text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all">
             <span class="material-symbols-outlined text-sm">add</span>
             <span>@(isRtl ? "إضافة متغير" : "Add Variant")</span>
         </button>
+    </div>
+
+    <!-- ✅ Variant Validation Summary -->
+    <div id="variantsValidationSummary" class="hidden mb-4 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
+        <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-rose-500 text-base">error</span>
+            <span class="text-rose-700 text-xs font-bold">يرجى تصحيح الأخطاء التالية في المتغيرات:</span>
+        </div>
+        <ul id="variantsValidationList" class="list-disc list-inside space-y-1 text-rose-600 text-xs font-medium"></ul>
     </div>
 
     <!-- Variants Table/List -->
@@ -238,7 +247,7 @@
                     <th class="pb-3 text-right">@(isRtl ? "اللون" : "Color")</th>
                     <th class="pb-3 text-right">@(isRtl ? "وحدة البيع" : "Unit")</th>
                     <th class="pb-3 text-right">@(isRtl ? "بلد المنشأ" : "Origin")</th>
-                    <th class="pb-3 text-right">@(isRtl ? "السعر" : "Price")</th>
+                    <th class="pb-3 text-right">@(isRtl ? "السعر *" : "Price *")</th>
                     <th class="pb-3 text-right">@(isRtl ? "المخزون" : "Stock")</th>
                     <th class="pb-3 text-right">@(isRtl ? "SKU" : "SKU")</th>
                     <th class="pb-3 text-center">@(isRtl ? "صورة" : "Image")</th>
@@ -426,7 +435,16 @@ function addVariantRow(data = {}) {
             <input type="text" name="Variants[INDEX].CountryOfOrigin" value="${escV(data.countryOfOrigin)}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="إيطالي، صيني" />
         </td>
         <td class="py-3 pe-2">
-            <input type="number" step="0.01" name="Variants[INDEX].Price" value="${data.price || ''}" class="w-24 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="0.00" />
+            <div class="flex flex-col gap-1">
+                <input type="text"
+                       inputmode="decimal"
+                       name="Variants[INDEX].Price"
+                       value="${data.price > 0 ? data.price : ''}"
+                       class="w-24 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all variant-price-input"
+                       placeholder="0.00"
+                       autocomplete="off" />
+                <span class="variant-price-error text-rose-500 text-[10px] font-bold hidden">السعر مطلوب</span>
+            </div>
         </td>
         <td class="py-3 pe-2">
             <input type="number" name="Variants[INDEX].StockQuantity" value="${data.stockQuantity !== undefined ? data.stockQuantity : ''}" class="w-20 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-[#E8A020] outline-none transition-all" placeholder="0" />
@@ -463,6 +481,16 @@ function addVariantRow(data = {}) {
         if (!this.files || !this.files[0]) return;
         uploadVariantImage(this.files[0], tr);
     });
+
+    // Clear price error on input
+    const priceInput = tr.querySelector('.variant-price-input');
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            const errSpan = this.closest('td').querySelector('.variant-price-error');
+            if (errSpan) errSpan.classList.add('hidden');
+            this.classList.remove('border-rose-400', 'bg-rose-50/50');
+        });
+    }
 
     reindexVariants();
 }
@@ -525,6 +553,55 @@ function reindexVariants() {
             }
         });
     });
+}
+
+// ═══════════════════════════════════════════
+// Client-Side Variant Validation (no alerts!)
+// ═══════════════════════════════════════════
+function validateVariants() {
+    const rows = document.querySelectorAll('.variant-row');
+    const summary = document.getElementById('variantsValidationSummary');
+    const list    = document.getElementById('variantsValidationList');
+    if (!summary || !list) return true;
+
+    const errors = [];
+    let rowNum = 0;
+
+    // Normalize decimal separators before submit (comma -> dot)
+    document.querySelectorAll('.variant-price-input').forEach(inp => {
+        inp.value = inp.value.replace(/,/g, '.');
+    });
+
+    rows.forEach((row, idx) => {
+        rowNum = idx + 1;
+        const priceInput = row.querySelector('.variant-price-input');
+        const priceErr   = row.querySelector('.variant-price-error');
+        if (!priceInput) return;
+
+        const rawVal = priceInput.value.trim();
+        const numVal = parseFloat(rawVal);
+
+        if (rawVal === '' || isNaN(numVal) || numVal <= 0) {
+            // Highlight the field
+            priceInput.classList.add('border-rose-400', 'bg-rose-50/50');
+            if (priceErr) priceErr.classList.remove('hidden');
+            errors.push(`المتغير رقم ${rowNum}: السعر مطلوب ويجب أن يكون أكبر من صفر`);
+        } else {
+            priceInput.classList.remove('border-rose-400', 'bg-rose-50/50');
+            if (priceErr) priceErr.classList.add('hidden');
+        }
+    });
+
+    if (errors.length > 0) {
+        list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+        summary.classList.remove('hidden');
+        // Scroll to variants section
+        document.getElementById('variantsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return false;
+    } else {
+        summary.classList.add('hidden');
+        return true;
+    }
 }
 </script>
 

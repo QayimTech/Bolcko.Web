@@ -8,7 +8,10 @@ namespace Bolcko.Web.App.Extensions
     {
         public static IServiceCollection AddBlockoMvcInterface(this IServiceCollection services)
         {
-            services.AddControllersWithViews()
+            services.AddControllersWithViews(options =>
+            {
+                options.ModelBinderProviders.Insert(0, new Bolcko.Web.App.Binders.InvariantDecimalModelBinderProvider());
+            })
                 .AddViewLocalization()
                 .AddDataAnnotationsLocalization();
             

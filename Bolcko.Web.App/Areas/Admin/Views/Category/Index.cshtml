@@ -48,9 +48,19 @@
                             </a>
                         </th>
 
+                        <!-- Category Type (Parent vs Sub) -->
+                        <th class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">نوع الفئة</span>
+                        </th>
+
                         <!-- Parent Category -->
                         <th class="px-6 py-4">
                             <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["ParentCategory"]</span>
+                        </th>
+
+                        <!-- Product Count -->
+                        <th class="px-6 py-4 text-center">
+                            <span class="inline-flex items-center justify-center gap-1.5 py-1 px-2">عدد المنتجات</span>
                         </th>
 
                         <!-- Description -->
@@ -67,13 +77,36 @@
                 <tbody class="divide-y divide-slate-100">
                     @foreach (var item in Model.Categories.Items)
                     {
+                        var isParent = item.ParentCategoryId == null;
                         <tr class="hover:bg-amber-50/30 transition-colors group">
                             <td class="px-6 py-4">
                                 <span class="font-bold text-slate-900 group-hover:text-[#E8A020] transition-colors">@item.Name</span>
                             </td>
                             <td class="px-6 py-4">
+                                @if (isParent)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        رئيسية (Parent)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        فرعية (Sub)
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60">
                                     @(item.ParentCategoryName ?? "-")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold @(item.ProductCount > 0 ? "bg-amber-50 text-amber-800 border border-amber-200" : "bg-slate-50 text-slate-400 border border-slate-200")">
+                                    <span class="material-symbols-outlined text-sm">inventory_2</span>
+                                    @item.ProductCount منتج
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -96,7 +129,7 @@
                     @if (!Model.Categories.Items.Any())
                     {
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
                                 <div class="flex flex-col items-center gap-2">
                                     <span class="material-symbols-outlined text-4xl text-slate-300">category</span>
                                     <span>@L["NoCategoriesAvailable"]</span>

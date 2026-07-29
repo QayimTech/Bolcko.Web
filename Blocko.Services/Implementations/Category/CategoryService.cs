@@ -41,38 +41,40 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize, string? search = null)
         {
-            System.Linq.Expressions.Expression<Func<Bolcko.Domain.Entities.Catalog.Category, bool>>? predicate = null;
+            IQueryable<Bolcko.Domain.Entities.Catalog.Category> query = _unitOfWork.Categories.GetAllAsQueryable()
+                .AsNoTracking()
+                .Include(c => c.ParentCategory)
+                .Include(c => c.Products);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim().ToLower();
-                predicate = c => c.Name.ToLower().Contains(s) || (c.NameEn != null && c.NameEn.ToLower().Contains(s)) || (c.Description != null && c.Description.ToLower().Contains(s));
+                query = query.Where(c => c.Name.ToLower().Contains(s) || (c.NameEn != null && c.NameEn.ToLower().Contains(s)) || (c.Description != null && c.Description.ToLower().Contains(s)));
             }
 
-            var pagedCategories = await _unitOfWork.Categories.GetPagedAsync(
-                pageIndex,
-                pageSize,
-                predicate: predicate,
-                orderBy: q => q.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name),
-                includes: c => c.Products!
-            );
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Name)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    NameEn = c.NameEn,
+                    Description = c.Description,
+                    DescriptionEn = c.DescriptionEn,
+                    ParentCategoryId = c.ParentCategoryId,
+                    ParentCategoryName = c.ParentCategory != null ? c.ParentCategory.Name : null,
+                    ParentCategoryNameEn = c.ParentCategory != null ? c.ParentCategory.NameEn : null,
+                    DisplayOrder = c.DisplayOrder,
+                    ImageUrl = c.ImageUrl,
+                    ProductCount = c.Products.Count
+                })
+                .ToListAsync();
 
-            var dtos = pagedCategories.Items.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                NameEn = c.NameEn,
-                Description = c.Description,
-                DescriptionEn = c.DescriptionEn,
-                ParentCategoryId = c.ParentCategoryId,
-                ParentCategoryName = c.ParentCategory?.Name,
-                ParentCategoryNameEn = c.ParentCategory?.NameEn,
-                DisplayOrder = c.DisplayOrder,
-                ImageUrl = c.ImageUrl,
-                ProductCount = c.Products?.Count ?? 0
-            });
-
-            return new PagedList<CategoryDto>(dtos, pagedCategories.TotalCount, pageIndex, pageSize);
+            return new PagedList<CategoryDto>(items, totalCount, pageIndex, pageSize);
         }
 
         public async Task<IEnumerable<CategoryDto>> GetRootCategoriesAsync()
