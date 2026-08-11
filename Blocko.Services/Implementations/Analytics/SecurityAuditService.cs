@@ -140,5 +140,22 @@ namespace Blocko.Services.Implementations.Analytics
             }
             return false;
         }
+
+        public async Task<bool> ClearAllThreatLogsAndBlacklistAsync()
+        {
+            var allThreatLogs = await _unitOfWork.SecurityAuditLogs.GetAllAsQueryable().ToListAsync();
+            foreach (var log in allThreatLogs)
+            {
+                _unitOfWork.SecurityAuditLogs.Remove(log);
+            }
+
+            var allBlacklist = await _unitOfWork.IpBlacklists.GetAllAsQueryable().ToListAsync();
+            foreach (var item in allBlacklist)
+            {
+                _unitOfWork.IpBlacklists.Remove(item);
+            }
+
+            return await _unitOfWork.CompleteAsync() > 0;
+        }
     }
 }

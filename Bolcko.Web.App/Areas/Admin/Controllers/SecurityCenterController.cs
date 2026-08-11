@@ -34,6 +34,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> BlacklistIp(string ipAddress, string reason, int? durationHours)
         {
+            // Self-Blacklist Protection Protocol
+            var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            if (!string.IsNullOrEmpty(ipAddress) && (ipAddress == currentIp || ipAddress == "127.0.0.1" || ipAddress == "::1"))
+            {
+                return Json(new { success = false, message = "⚠️ بروتوكول الأمان يمنع حظر الـ IP الخاص بك الحالي لحماية حسابك والنظام من الإغلاق والتعطيل!" });
+            }
+
             var userId = User.Identity?.Name ?? "Admin";
             var success = await _securityAuditService.BlacklistIpAsync(ipAddress, string.IsNullOrWhiteSpace(reason) ? "حظر بناء على محاولات مشبوهة" : reason, userId, durationHours);
 
@@ -52,6 +59,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         {
             var success = await _securityAuditService.DismissThreatAsync(auditLogId);
             return Json(new { success });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ClearAllData()
+        {
+            var success = await _securityAuditService.ClearAllThreatLogsAndBlacklistAsync();
+            return Json(new { success, message = success ? "تم تنظيف كافة السجلات والحظر القديم بنجاح!" : "لا يوجد سجلات لتنظيفها." });
         }
 
         [HttpGet]

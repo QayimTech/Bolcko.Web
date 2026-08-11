@@ -54,7 +54,7 @@
                         </span>
                     </div>
 
-                    <!-- Role Full Title (Vertical Standalone Block) -->
+                    <!-- Role Full Title -->
                     <div class="space-y-1">
                         <h3 class="font-black text-slate-900 text-lg leading-snug break-words">@role.RoleName</h3>
                         <span class="text-xs text-slate-500 font-bold block">@role.UsersCount مستخدمين بهذا الدور</span>
@@ -79,7 +79,12 @@
                 </div>
 
                 <div class="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
-                    <button type="button" onclick="editRole(@role.Id, '@role.RoleName', @Json.Serialize(role.SelectedPermissions))" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-black transition-all text-center flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                    <button type="button" 
+                            data-role-id="@role.Id" 
+                            data-role-name="@role.RoleName" 
+                            data-permissions='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(role.SelectedPermissions))' 
+                            onclick="openEditRoleModal(this)" 
+                            class="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-black transition-all text-center flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
                         <span class="material-symbols-outlined text-sm text-[#E8A020]">tune</span>
                         <span>التحكم في الصلاحيات</span>
                     </button>
@@ -216,7 +221,17 @@
         document.getElementById('roleModal').classList.add('hidden');
     }
 
-    function editRole(roleId, roleName, selectedPermissions) {
+    function openEditRoleModal(btn) {
+        const roleId = btn.getAttribute('data-role-id');
+        const roleName = btn.getAttribute('data-role-name');
+        const rawPermissions = btn.getAttribute('data-permissions') || '[]';
+        let selectedPermissions = [];
+        try {
+            selectedPermissions = JSON.parse(rawPermissions);
+        } catch (e) {
+            console.error('Error parsing permissions:', e);
+        }
+
         document.getElementById('modalTitle').textContent = `تعديل صلاحيات الدور: (${roleName})`;
         document.getElementById('modalRoleId').value = roleId;
         document.getElementById('modalRoleName').value = roleName;

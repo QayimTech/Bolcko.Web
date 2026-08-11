@@ -38,6 +38,10 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     درع الحماية نشط (Active Sentinel)
                 </span>
+                <button type="button" onclick="clearAllSecurityLogs()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1.5" title="تفريغ السجلات والتنبيهات القديمة">
+                    <span class="material-symbols-outlined text-base">cleaning_services</span>
+                    <span>تنظيف السجلات القديمة 🧹</span>
+                </button>
                 <button type="button" onclick="openBlacklistModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
                     <span class="material-symbols-outlined text-lg">block</span>
                     <span>حظر IP جديد 🚫</span>
@@ -440,25 +444,30 @@
     }
 
     function removeBlacklist(ipAddress) {
-        if (confirm(`هل تريد إزالة الـ IP (${ipAddress}) من القائمة السوداء وإعادة السماح له بالدخول؟`)) {
-            fetch('@Url.Action("RemoveBlacklist", "SecurityCenter", new { area = "Admin" })', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': __antiForgeryToken
-                },
-                body: new URLSearchParams({ ipAddress: ipAddress })
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    location.reload();
-                } else {
-                    alert(res.message);
-                }
-            })
-            .catch(() => alert('تعذّر فك الحظر. حاول مجدداً.'));
-        }
+        openTailwindConfirmModal(
+            'تأكيد إزالة الحظر',
+            `هل تريد إزالة الـ IP (${ipAddress}) من القائمة السوداء وإعادة السماح له بالدخول؟`,
+            'lock_open',
+            '#10B981',
+            function() {
+                fetch('@Url.Action("RemoveBlacklist", "SecurityCenter", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': __antiForgeryToken
+                    },
+                    body: new URLSearchParams({ ipAddress: ipAddress })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    showTailwindToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(() => showTailwindToast('تعذّر فك الحظر. حاول مجدداً.', 'error'));
+            }
+        );
     }
 
     function dismissThreat(auditLogId) {
@@ -474,5 +483,115 @@
         .then(res => {
             if (res.success) location.reload();
         });
+    }
+
+    function clearAllSecurityLogs() {
+        openTailwindConfirmModal(
+            'تأكيد تنظيف السجلات',
+            'هل أنت متأكد من مسح وتنظيف كافة سجلات التهديدات والحظر القديمة والبدء بسجل ناصع جديد؟',
+            'cleaning_services',
+            '#E8A020',
+            function() {
+                fetch('@Url.Action("ClearAllData", "SecurityCenter", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': __antiForgeryToken
+                    }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    showTailwindToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1200);
+                    }
+                })
+                .catch(() => showTailwindToast('تعذّر التنظيف. حاول مجدداً.', 'error'));
+            }
+        );
+    }
+</script>
+
+<!-- Pure Tailwind Custom Confirm Modal -->
+<div id="tailwindConfirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 text-right font-sans">
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div id="tailwindConfirmIconBg" class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+                <span id="tailwindConfirmIcon" class="material-symbols-outlined text-2xl">help</span>
+            </div>
+            <div>
+                <h3 id="tailwindConfirmTitle" class="font-black text-slate-900 text-lg">تأكيد العملية</h3>
+                <p id="tailwindConfirmSub" class="text-slate-400 text-xs font-bold mt-0.5">يرجى التأكيد للمتابعة</p>
+            </div>
+        </div>
+
+        <p id="tailwindConfirmMessage" class="text-slate-700 text-xs font-bold leading-relaxed">هل أنت متأكد من الاستمرار؟</p>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closeTailwindConfirmModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all">
+                إلغاء
+            </button>
+            <button type="button" id="tailwindConfirmExecuteBtn" class="bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                <span>تأكيد التنفيذ ⚡</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Pure Tailwind Custom Toast Notification -->
+<div id="tailwindToastContainer" class="fixed top-6 left-1/2 -translate-x-1/2 z-[400] hidden transition-all duration-300 transform -translate-y-4" dir="rtl">
+    <div id="tailwindToastCard" class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-amber-500/50 flex items-center gap-3 text-xs font-black">
+        <span id="tailwindToastIcon" class="material-symbols-outlined text-xl text-[#E8A020]">check_circle</span>
+        <span id="tailwindToastMessage">تمت العملية بنجاح!</span>
+    </div>
+</div>
+
+<script>
+    let pendingConfirmAction = null;
+
+    function openTailwindConfirmModal(title, message, iconName, color, onConfirm) {
+        document.getElementById('tailwindConfirmTitle').textContent = title;
+        document.getElementById('tailwindConfirmMessage').textContent = message;
+        if (iconName) document.getElementById('tailwindConfirmIcon').textContent = iconName;
+        
+        pendingConfirmAction = onConfirm;
+        document.getElementById('tailwindConfirmModal').classList.remove('hidden');
+    }
+
+    function closeTailwindConfirmModal() {
+        document.getElementById('tailwindConfirmModal').classList.add('hidden');
+        pendingConfirmAction = null;
+    }
+
+    document.getElementById('tailwindConfirmExecuteBtn').addEventListener('click', function() {
+        if (pendingConfirmAction) {
+            const action = pendingConfirmAction;
+            closeTailwindConfirmModal();
+            action();
+        }
+    });
+
+    function showTailwindToast(message, type = 'success') {
+        const toast = document.getElementById('tailwindToastContainer');
+        const msgEl = document.getElementById('tailwindToastMessage');
+        const iconEl = document.getElementById('tailwindToastIcon');
+        const cardEl = document.getElementById('tailwindToastCard');
+
+        msgEl.textContent = message;
+        if (type === 'success') {
+            iconEl.textContent = 'check_circle';
+            iconEl.className = 'material-symbols-outlined text-xl text-emerald-400';
+            cardEl.className = 'bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-emerald-500/50 flex items-center gap-3 text-xs font-black';
+        } else {
+            iconEl.textContent = 'error';
+            iconEl.className = 'material-symbols-outlined text-xl text-rose-400';
+            cardEl.className = 'bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-rose-500/50 flex items-center gap-3 text-xs font-black';
+        }
+
+        toast.classList.remove('hidden', '-translate-y-4');
+        toast.classList.add('translate-y-0');
+
+        setTimeout(() => {
+            toast.classList.add('hidden', '-translate-y-4');
+        }, 3000);
     }
 </script>

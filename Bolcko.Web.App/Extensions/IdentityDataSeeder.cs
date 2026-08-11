@@ -12,17 +12,32 @@ namespace Bolcko.Web.App.Extensions
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-            // 1. Seed Roles
-            // NOTE:
-            // - Admin: full access (Users/SEO/Everything)
-            // - DashboardUser: محدود (Products/Orders/Categories)
-            // - Customer: متجر
+            // 1. Seed Roles & Sync AppPermissions
             string[] roles = { "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
                     await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
+                }
+            }
+
+            // Sync All System AppPermissions to Admin Role
+            var adminRole = await roleManager.FindByNameAsync("Admin");
+            if (adminRole != null)
+            {
+                var existingClaims = await roleManager.GetClaimsAsync(adminRole);
+                var existingPermissionValues = existingClaims.Where(c => c.Type == "Permission").Select(c => c.Value).ToHashSet();
+                var allPermissionKeys = Bolcko.Domain.Common.AppPermissions.GetAllPermissionGroups()
+                    .SelectMany(g => g.Permissions)
+                    .Select(p => p.Key);
+
+                foreach (var permKey in allPermissionKeys)
+                {
+                    if (!existingPermissionValues.Contains(permKey))
+                    {
+                        await roleManager.AddClaimAsync(adminRole, new System.Security.Claims.Claim("Permission", permKey));
+                    }
                 }
             }
 

@@ -14,5 +14,6 @@ namespace Blocko.Services.Interfaces.Analytics
         Task<bool> BlacklistIpAsync(string ipAddress, string reason, string blockedByUserId, int? durationHours = null);
         Task<bool> RemoveFromBlacklistAsync(string ipAddress);
         Task<bool> DismissThreatAsync(long auditLogId);
+        Task<bool> ClearAllThreatLogsAndBlacklistAsync();
     }
 }
