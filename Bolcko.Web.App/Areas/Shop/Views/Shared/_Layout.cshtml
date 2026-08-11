@@ -58,6 +58,22 @@
 </head>
 <body class="bg-surface text-on-surface font-body-md min-h-screen w-full overflow-x-hidden relative">
     <partial name="~/Areas/Shop/Views/Shared/Partials/_Header.cshtml" />
+
+    @if (Context.Session.GetString("IsImpersonating") == "true")
+    {
+        <div class="bg-slate-900 text-white px-6 py-2 shadow-sm flex items-center justify-between font-bold text-xs sticky top-0 z-30 border-b border-amber-500/40" dir="rtl">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-[#E8A020]">visibility</span>
+                <span>تصفح المنصة بوضع المحاكاة كـ: <strong class="text-[#E8A020] font-black">@Context.Session.GetString("ImpersonatedUserFullName")</strong></span>
+            </div>
+            <form asp-action="StopImpersonation" asp-controller="Impersonation" asp-area="" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="bg-[#E8A020] hover:bg-[#d49018] text-slate-950 px-3.5 py-1 rounded-lg text-xs font-black transition-all shadow-2xs flex items-center gap-1 active:scale-95">
+                    <span>إنهاء المحاكاة والعودة ↩️</span>
+                </button>
+            </form>
+        </div>
+    }
     
     @if (TempData["ErrorMessage"] != null)
     {

@@ -77,6 +77,7 @@ try
     app.UseEnvironmentSpecificMiddleware();
     app.UseSecurityMiddleware();
     app.UsePerformanceAndSecurityHeaders();
+    app.UseMiddleware<Bolcko.Web.App.Middleware.SecurityAndTrafficMiddleware>();
     app.UseStaticFilesWithCaching();
     app.UseFirstRunSetupMiddleware();
     app.UseSessionMiddleware();

@@ -44,6 +44,11 @@ namespace Blocko.Persistence
         public DbSet<DeliveryBid> DeliveryBids { get; set; }
         public DbSet<DeliveryRating> DeliveryRatings { get; set; }
 
+        // Analytics & Security Audit
+        public DbSet<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

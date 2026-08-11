@@ -49,6 +49,11 @@ namespace Blocko.Persistence
             DeliveryJobs = new GenericRepository<DeliveryJob>(_context);
             DeliveryBids = new GenericRepository<DeliveryBid>(_context);
             DeliveryRatings = new GenericRepository<DeliveryRating>(_context);
+
+            // Analytics & Security
+            VisitorLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog>(_context);
+            SecurityAuditLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog>(_context);
+            IpBlacklists = new GenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -76,6 +81,11 @@ namespace Blocko.Persistence
         public IGenericRepository<DeliveryJob> DeliveryJobs { get; private set; }
         public IGenericRepository<DeliveryBid> DeliveryBids { get; private set; }
         public IGenericRepository<DeliveryRating> DeliveryRatings { get; private set; }
+
+        // Analytics & Security
+        public IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

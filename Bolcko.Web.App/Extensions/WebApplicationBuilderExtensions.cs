@@ -92,6 +92,10 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, 
             Services.NotificationService>();
         
+        // Analytics & Security Audit Services
+        services.AddScoped<Blocko.Services.Interfaces.Analytics.IAnalyticsService, Blocko.Services.Implementations.Analytics.AnalyticsService>();
+        services.AddScoped<Blocko.Services.Interfaces.Analytics.ISecurityAuditService, Blocko.Services.Implementations.Analytics.SecurityAuditService>();
+
         // Background Job Processing
         services.AddBlockoHangfire(configuration);
     }

@@ -1,15 +1,7 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer L
 <!DOCTYPE html>
-@inject Bolcko.Domain.Interfaces.IUnitOfWork Uow
-@{
-    var soundEnabledSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundEnabled");
-    var soundUrlSetting = await Uow.AppSettings.GetByKeyAsync("NotificationSoundUrl");
-    
-    bool soundEnabled = (soundEnabledSetting?.Value ?? "true") == "true";
-    string soundUrl = soundUrlSetting?.Value ?? "https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav";
-    bool isRtl = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
-}
-<!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName" dir="@(isRtl ? "rtl" : "ltr")" class="h-full overflow-x-hidden">
+<html lang="@(System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName)" dir="@(System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")" class="h-full">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
@@ -18,355 +10,117 @@
     <link rel="icon" type="image/png" sizes="32x32" href="~/favicons/favicon-32x32.png?v=5" />
     <link rel="icon" type="image/png" sizes="16x16" href="~/favicons/favicon-16x16.png?v=5" />
     <link rel="shortcut icon" href="~/favicons/favicon.ico?v=5" />
-    <!-- Self-hosted Material Symbols font (instant, no Google CDN dependency) -->
+
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/material-symbols-outlined.woff2">
     <link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true">
-    <!-- Google Fonts: text fonts only (non-blocking async) -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Work+Sans:wght@600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap">
     <partial name="~/Areas/Admin/Views/Shared/Partials/_Styles.cshtml" />
 </head>
-<body class="bg-[#F8FAFC] text-slate-900 font-body-md min-h-screen w-full overflow-x-hidden relative">
-    <div class="min-h-screen relative flex">
+<body class="bg-[#F8FAFC] text-slate-900 font-body-md min-h-screen w-full overflow-x-hidden">
+
+    @if (Context.Session.GetString("IsImpersonating") == "true")
+    {
+        <div class="bg-slate-900 text-white px-6 py-2 shadow-sm flex items-center justify-between font-bold text-xs sticky top-0 z-30 border-b border-amber-500/40" dir="rtl">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-[#E8A020]">visibility</span>
+                <span>تصفح المنصة كـ: <strong class="text-[#E8A020] font-black">@Context.Session.GetString("ImpersonatedUserFullName")</strong></span>
+            </div>
+            <form asp-action="StopImpersonation" asp-controller="Impersonation" asp-area="" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="bg-[#E8A020] hover:bg-[#d49018] text-slate-950 px-3.5 py-1 rounded-lg text-xs font-black transition-all shadow-2xs flex items-center gap-1 active:scale-95">
+                    <span>إنهاء المحاكاة ↩️</span>
+                </button>
+            </form>
+        </div>
+    }
+
+    <div class="min-h-screen flex w-full relative">
         <!-- Sidebar -->
         <partial name="~/Areas/Admin/Views/Shared/Partials/Aside.cshtml" />
-        
 
-
-
-        <!-- Main Content Area -->
-        <div id="main-content" class="flex-1 flex flex-col min-h-screen sidebar-transition">
+        <!-- Main Content Area Wrapper -->
+        <div id="main-content" class="flex-1 flex flex-col min-h-screen sidebar-transition w-full overflow-hidden">
             <partial name="~/Areas/Admin/Views/Shared/Partials/Header.cshtml" />
-            
-            <main role="main" class="flex-1 p-4 md:p-6 lg:p-10">
-                <div class="max-w-[1600px] mx-auto">
+
+            <main role="main" class="flex-1 p-4 md:p-6 lg:p-10 w-full overflow-x-hidden">
+                <div class="max-w-[1600px] mx-auto w-full">
                     @RenderBody()
                 </div>
             </main>
-            
+
             <partial name="~/Areas/Admin/Views/Shared/Partials/Footer.cshtml" />
         </div>
-
-        <!-- Delete Confirmation Modal -->
-        <div id="deleteConfirmModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
-            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
-            <div class="bg-white rounded-3xl p-8 max-w-md w-full relative z-10 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 mx-4 border border-red-100">
-                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span class="material-symbols-outlined text-3xl">warning</span>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800 text-center mb-2">تأكيد الحذف</h3>
-                <p id="deleteModalMessage" class="text-slate-500 text-sm text-center mb-6 leading-relaxed">
-                    هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
-                </p>
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-slate-700 mb-2 text-start">للتأكيد، اكتب "<span class="text-red-600">حذف</span>" أو "<span class="text-red-600">delete</span>" في الصندوق أدناه:</label>
-                    <input type="text" id="deleteConfirmInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" autocomplete="off" />
-                </div>
-                <div class="flex flex-row-reverse gap-3">
-                    <button type="button" onclick="closeDeleteModal()" class="w-1/2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
-                        إلغاء
-                    </button>
-                    <button type="button" id="deleteConfirmBtn" class="w-1/2 px-6 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl transition-colors cursor-not-allowed" data-enabled="false">
-                        تأكيد الحذف
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toast Notifications -->
-        <div id="toast-container" class="fixed bottom-6 start-6 z-[100] flex flex-col gap-3">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-up-fade">
-                    <span class="material-symbols-outlined text-emerald-600">check_circle</span>
-                    <span class="font-bold text-sm">@TempData["SuccessMessage"]</span>
-                </div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="bg-rose-50 border border-rose-200 text-rose-800 px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-slide-up-fade">
-                    <span class="material-symbols-outlined text-rose-600">error</span>
-                    <span class="font-bold text-sm">@TempData["ErrorMessage"]</span>
-                </div>
-            }
-        </div>
-
     </div>
 
-    <style>
-        .animate-slide-up-fade {
-            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @@keyframes slideUpFade {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        /* Explicit styles to prevent Tailwind JIT purging issues */
-        .btn-delete-disabled {
-            background-color: #e2e8f0 !important;
-            color: #94a3b8 !important;
-            cursor: not-allowed !important;
-        }
-        .btn-delete-enabled {
-            background-color: #dc2626 !important;
-            color: #ffffff !important;
-            cursor: pointer !important;
-        }
-        .btn-delete-enabled:hover {
-            background-color: #b91c1c !important;
-        }
-    </style>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full relative z-10 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 mx-4 border border-red-100">
+            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-3xl">warning</span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 text-center mb-2">تأكيد الحذف</h3>
+            <p id="deleteModalMessage" class="text-slate-500 text-sm text-center mb-6 leading-relaxed">
+                هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+            </p>
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-700 mb-2 text-start">للتأكيد، اكتب "<span class="text-red-600">حذف</span>" أو "<span class="text-red-600">delete</span>" في الصندوق أدناه:</label>
+                <input type="text" id="deleteConfirmInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" autocomplete="off" />
+            </div>
+            <div class="flex flex-row-reverse gap-3">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
+                    إلغاء
+                </button>
+                <button type="button" id="deleteConfirmBtn" class="w-1/2 px-6 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl transition-colors cursor-not-allowed" data-enabled="false">
+                    تأكيد الحذف
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/microsoft-signalr/signalr.js"></script>
-    <script src="~/js/services/sound-service.js" asp-append-version="true"></script>
-    <script src="~/js/services/notification-service.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
-    <!-- Audio Notification Support (always rendered so JS can find it) -->
-    @{
-        var resolvedSoundUrl = soundUrl;
-        if (!string.IsNullOrEmpty(resolvedSoundUrl) && !resolvedSoundUrl.StartsWith("http") && !resolvedSoundUrl.StartsWith("/"))
-        {
-            resolvedSoundUrl = "/" + resolvedSoundUrl;
-        }
-    }
-    <audio id="notification-sound"
-           src="@resolvedSoundUrl"
-           preload="auto"
-           @(!soundEnabled ? "data-sound-disabled=\"true\"" : "")>
-    </audio>
-
     <script>
-        // Global SignalR setup
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/notificationHub")
-            .withAutomaticReconnect()
-            .build();
-
-        connection.on("ReceiveNotification", function (notification) {
-            // Play sound via AudioContext engine (bypasses browser autoplay restriction)
-            if (typeof window.playNotificationSound === 'function') {
-                window.playNotificationSound();
-            }
-
-            // Determine appropriate icon based on title/content
-            let iconName = "notifications";
-            const titleLower = (notification.title || "").toLowerCase();
-            const msgLower = (notification.message || "").toLowerCase();
-            if (titleLower.includes("order") || titleLower.includes("طلب") || msgLower.includes("order") || msgLower.includes("طلب")) {
-                iconName = "shopping_cart";
-            } else if (titleLower.includes("delivery") || titleLower.includes("توصيل") || titleLower.includes("سائق") || titleLower.includes("مندوب")) {
-                iconName = "local_shipping";
-            }
-
-            const isClickable = !!notification.actionUrl;
-            const clickAttr = isClickable ? `onclick="window.location.href='${notification.actionUrl}'"` : '';
-            const cursorClass = isClickable ? 'cursor-pointer hover:bg-[#161d2d]/90 hover:border-indigo-500/60 transition-all duration-300' : '';
-
-            // Create and append dynamic premium toast notification
-            const toastHtml = `
-                <div ${clickAttr} class="pointer-events-auto bg-[#0d111a]/85 backdrop-blur-md border border-indigo-500/30 text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3.5 transform translate-y-4 opacity-0 transition-all duration-500 ease-out select-none border-s-4 border-s-[#E8A020] ${cursorClass}" style="min-width: 320px; max-width: 400px;">
-                    <div class="w-10 h-10 rounded-xl bg-[#E8A020]/10 flex items-center justify-center text-[#E8A020] shrink-0">
-                        <span class="material-symbols-outlined text-[22px]">${iconName}</span>
-                    </div>
-                    <div class="flex-grow text-start">
-                        <strong class="block text-xs uppercase tracking-wider text-[#E8A020] font-bold">${notification.title || 'إشعار جديد'}</strong>
-                        <p class="text-xs text-slate-200 mt-1 font-medium leading-relaxed">${notification.message}</p>
-                    </div>
-                </div>
-            `;
-            
-            let container = $('#toast-container');
-            if (container.length === 0) {
-                $('body').append('<div id="toast-container" class="fixed bottom-6 start-6 z-[99999] flex flex-col gap-3 pointer-events-none"></div>');
-                container = $('#toast-container');
-            }
-            
-            const $toast = $(toastHtml);
-            container.append($toast);
-
-            // Trigger animation
-            setTimeout(() => {
-                $toast.removeClass('translate-y-4 opacity-0').addClass('translate-y-0 opacity-100');
-            }, 10);
-
-            // Auto fade out toast
-            setTimeout(function() {
-                $toast.removeClass('translate-y-0 opacity-100').addClass('translate-y-4 opacity-0');
-                setTimeout(() => {
-                    $toast.remove();
-                }, 500);
-            }, 10000);
-
-            // Inject new notification directly into dropdown UI dynamically (bypassing REST/API GET requests)
-            if (window.NotificationService && typeof window.NotificationService.injectNotification === 'function') {
-                window.NotificationService.injectNotification(notification);
-            }
-        });
-
-        // Floating developer diagnostics panel to track connection issues on localhost
-        function initSignalRDiagnostics(conn, prefix) {
-            // Check if debug=true is in the query string
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('debug') !== 'true') {
-                // If not in debug mode, just start connection silently
-                conn.start()
-                    .then(() => console.log("SignalR Connected successfully!"))
-                    .catch(err => console.error("SignalR Connection Error: ", err));
-                return;
-            }
-
-            const panelHtml = `
-                <div id="${prefix}-debug-panel" style="position:fixed; bottom:20px; right:20px; z-index:999999; background:rgba(15,23,42,0.95); border:1px solid #334155; color:#fff; padding:12px 16px; border-radius:12px; font-family:monospace; font-size:11px; box-shadow:0 10px 25px rgba(0,0,0,0.5); pointer-events:auto; display:flex; flex-direction:column; gap:4px; min-width:240px; border-left:4px solid #ef4444;">
-                    <div style="font-weight:bold; color:#E8A020; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-                        <span>SignalR Diagnostics</span>
-                        <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-weight:bold; font-size:14px; padding:0 4px;">×</button>
-                    </div>
-                    <div>Status: <span id="${prefix}-sig-status" style="color:#ef4444; font-weight:bold;">Connecting...</span></div>
-                    <div>Transport: <span id="${prefix}-sig-transport">-</span></div>
-                    <div>Auth: <span id="${prefix}-sig-auth">-</span></div>
-                    <div>User ID: <span id="${prefix}-sig-userid">-</span></div>
-                    <div>Roles: <span id="${prefix}-sig-roles">-</span></div>
-                    <div style="max-height:80px; overflow-y:auto; color:#f87171; margin-top:4px; font-size:10px;" id="${prefix}-sig-error"></div>
-                </div>
-            `;
-            $('body').append(panelHtml);
-
-            function updateAuthStatus() {
-                conn.invoke("GetConnectionStatus")
-                    .then(status => {
-                        $(`#${prefix}-sig-auth`).text(status.isAuthenticated ? 'Authenticated' : 'Unauthenticated')
-                            .css('color', status.isAuthenticated ? '#22c55e' : '#ef4444');
-                        $(`#${prefix}-sig-userid`).text(status.userId || 'N/A');
-                        $(`#${prefix}-sig-roles`).text(status.roles && status.roles.length ? status.roles.join(', ') : 'None');
-                    })
-                    .catch(err => {
-                        $(`#${prefix}-sig-error`).text('Auth check failed: ' + err.message);
-                    });
-            }
-
-            conn.onclose(err => {
-                $(`#${prefix}-sig-status`).text('Disconnected').css('color', '#ef4444');
-                $(`#${prefix}-debug-panel`).css('border-left-color', '#ef4444');
-                if (err) $(`#${prefix}-sig-error`).text(err.message);
-            });
-
-            conn.onreconnecting(err => {
-                $(`#${prefix}-sig-status`).text('Reconnecting...').css('color', '#eab308');
-                $(`#${prefix}-debug-panel`).css('border-left-color', '#eab308');
-                if (err) $(`#${prefix}-sig-error`).text(err.message);
-            });
-
-            conn.onreconnected(() => {
-                $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
-                $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
-                const transport = conn.connection?.transport?.name || 'WebSocket';
-                $(`#${prefix}-sig-transport`).text(transport);
-                updateAuthStatus();
-            });
-
-            conn.start()
-                .then(() => {
-                    $(`#${prefix}-sig-status`).text('Connected').css('color', '#22c55e');
-                    $(`#${prefix}-debug-panel`).css('border-left-color', '#22c55e');
-                    const transport = conn.connection?.transport?.name || 'WebSocket';
-                    $(`#${prefix}-sig-transport`).text(transport);
-                    updateAuthStatus();
-                })
-                .catch(err => {
-                    $(`#${prefix}-sig-status`).text('Failed').css('color', '#ef4444');
-                    $(`#${prefix}-sig-error`).text(err.message);
-                });
-        }
-
-        initSignalRDiagnostics(connection, "admin");
-    </script>
-    <script>
-        $(function () {
-            // Sidebar logic
-            const $body    = $('body');
-            const $sidebar = $('#admin-sidebar');
-            const $overlay = $('#sidebar-overlay');
-            const hideClasses = '-translate-x-full rtl:translate-x-full';
-
-            function openSidebar() {
-                $sidebar.removeClass(hideClasses);
-                $overlay.removeClass('hidden');
-                setTimeout(() => $overlay.removeClass('opacity-0'), 10);
-                $body.addClass('overflow-hidden');
-            }
-            function closeSidebar() {
-                $sidebar.addClass(hideClasses);
-                $overlay.addClass('opacity-0');
-                setTimeout(() => $overlay.addClass('hidden'), 300);
-                $body.removeClass('overflow-hidden');
-            }
-            $('#sidebar-toggle').on('click', function () {
-                if (window.innerWidth < 1024) {
-                    $sidebar.hasClass('-translate-x-full') ? openSidebar() : closeSidebar();
-                } else {
-                    $body.toggleClass('sidebar-collapsed');
-                }
-            });
-            $('#close-sidebar, #sidebar-overlay').on('click', closeSidebar);
-            $(window).on('resize', function () {
-                if (window.innerWidth >= 1024) {
-                    $overlay.addClass('hidden opacity-0');
-                    $body.removeClass('overflow-hidden');
-                    $sidebar.removeClass(hideClasses);
-                } else {
-                    if (!$sidebar.hasClass('-translate-x-full')) closeSidebar();
-                }
-            });
-
-            // Toast Auto-hide
-            setTimeout(function() {
-                $('#toast-container > div').fadeOut(500, function() { $(this).remove(); });
-            }, 6000);
-        });
-
-        // Delete Modal Logic
         let currentDeleteForm = null;
 
-        function requireDeleteConfirm(form, typeMsg) {
+        function requireDeleteConfirm(form, itemType = 'item') {
             currentDeleteForm = form;
             const modal = document.getElementById('deleteConfirmModal');
-            const msgEl = document.getElementById('deleteModalMessage');
             const input = document.getElementById('deleteConfirmInput');
             const btn = document.getElementById('deleteConfirmBtn');
-            
-            if(typeMsg === 'category') {
-                msgEl.textContent = "هل أنت متأكد من الحذف؟ سيتم حذف جميع المنتجات أو الفئات الفرعية التي تنتمي إلى هذه الفئة بشكل نهائي!";
-            } else {
-                msgEl.textContent = "هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.";
-            }
+            const msg = document.getElementById('deleteModalMessage');
+
+            if(itemType === 'user') msg.textContent = 'هل أنت متأكد من حذف هذا المستخدم؟ سيتم إلغاء وصوله نهائياً.';
+            else if(itemType === 'category') msg.textContent = 'هل أنت متأكد من حذف هذه الفئة؟ قد تؤثر على المنتجات المرتبطة بها.';
+            else if(itemType === 'product') msg.textContent = 'هل أنت متأكد من حذف هذا المنتج؟ سيتم رفعه من المتجر.';
+            else msg.textContent = 'هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.';
 
             input.value = '';
             btn.dataset.enabled = 'false';
-            btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-disabled';
-
+            btn.className = 'w-1/2 px-6 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl transition-colors cursor-not-allowed';
+            
             modal.classList.remove('hidden');
-            // small delay for transition
             setTimeout(() => {
-                modal.querySelector('.bg-white').classList.remove('scale-95', 'opacity-0');
-                modal.querySelector('.bg-white').classList.add('scale-100', 'opacity-100');
+                modal.firstElementChild.nextElementSibling.classList.remove('scale-95', 'opacity-0');
+                modal.firstElementChild.nextElementSibling.classList.add('scale-100', 'opacity-100');
                 input.focus();
             }, 10);
         }
 
         function closeDeleteModal() {
             const modal = document.getElementById('deleteConfirmModal');
-            modal.querySelector('.bg-white').classList.remove('scale-100', 'opacity-100');
-            modal.querySelector('.bg-white').classList.add('scale-95', 'opacity-0');
+            if(!modal) return;
+            const content = modal.firstElementChild.nextElementSibling;
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 modal.classList.add('hidden');
                 currentDeleteForm = null;
-            }, 300);
+            }, 200);
         }
 
         document.getElementById('deleteConfirmInput').addEventListener('input', function(e) {
@@ -374,20 +128,10 @@
             const btn = document.getElementById('deleteConfirmBtn');
             if(val === 'حذف' || val === 'delete') {
                 btn.dataset.enabled = 'true';
-                btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-enabled';
+                btn.className = 'w-1/2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-md cursor-pointer';
             } else {
                 btn.dataset.enabled = 'false';
-                btn.className = 'w-1/2 px-6 py-3 font-bold rounded-xl transition-colors btn-delete-disabled';
-            }
-        });
-
-        document.getElementById('deleteConfirmInput').addEventListener('keydown', function(e) {
-            if(e.key === 'Enter') {
-                e.preventDefault();
-                const btn = document.getElementById('deleteConfirmBtn');
-                if(btn.dataset.enabled === 'true') {
-                    btn.click();
-                }
+                btn.className = 'w-1/2 px-6 py-3 bg-slate-200 text-slate-400 font-bold rounded-xl transition-colors cursor-not-allowed';
             }
         });
 

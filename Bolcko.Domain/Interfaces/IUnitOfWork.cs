@@ -33,6 +33,11 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<DeliveryBid> DeliveryBids { get; }
         IGenericRepository<DeliveryRating> DeliveryRatings { get; }
 
+        // Analytics & Security
+        IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; }
+
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
