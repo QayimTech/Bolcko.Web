@@ -123,6 +123,41 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DispatchToLogesTechs(int orderId, string cityId, string regionId, string villageId, string? notes, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService, [FromServices] Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
+        {
+            var order = await unitOfWork.Orders.GetByIdAsync(orderId);
+            if (order == null) return Json(new { success = false, message = "الطلب غير موجود." });
+
+            var result = await logesTechsService.CreateShipmentAsync(order, cityId, regionId, villageId, notes);
+            if (result.Success)
+            {
+                order.Status = OrderStatus.Processing;
+                await unitOfWork.SaveChangesAsync();
+                return Json(new { success = true, message = result.Message, barcode = result.Barcode, packageId = result.PackageId });
+            }
+
+            return Json(new { success = false, message = result.Message, detail = result.ErrorDetail });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLogesTechsVillages(string? search, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService)
+        {
+            var list = await logesTechsService.GetVillagesAsync(search);
+            return Json(list);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PrintAwbPdf(long packageId, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService)
+        {
+            var pdfUrl = await logesTechsService.PrintShipmentAwbPdfAsync(new List<long> { packageId });
+            if (!string.IsNullOrEmpty(pdfUrl))
+            {
+                return Json(new { success = true, pdfUrl });
+            }
+            return Json(new { success = false, message = "تعذّر جلب رابط بوليصة الشحن AWB PDF." });
+        }
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignToCompany(int orderId, int companyId, decimal deliveryFee)
         {

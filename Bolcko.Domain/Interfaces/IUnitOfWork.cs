@@ -26,12 +26,14 @@ namespace Bolcko.Domain.Interfaces
         IShippingRateRepository ShippingRates { get; }
         ICouponRepository Coupons { get; }
         
-        // Delivery
+        // Delivery & External Integration
         IGenericRepository<DeliveryCompany> DeliveryCompanies { get; }
         IGenericRepository<DeliveryDriver> DeliveryDrivers { get; }
         IGenericRepository<DeliveryJob> DeliveryJobs { get; }
         IGenericRepository<DeliveryBid> DeliveryBids { get; }
         IGenericRepository<DeliveryRating> DeliveryRatings { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; }
 
         // Analytics & Security
         IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; }

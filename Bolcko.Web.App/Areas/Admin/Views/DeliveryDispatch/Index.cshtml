@@ -3,16 +3,30 @@
 @using Bolcko.Domain.Common
 @model IPagedList<DeliveryJob>
 @{
-    ViewData["Title"] = "مركز التوزيع والإرسال";
+    ViewData["Title"] = "مركز التوزيع واللوجستيات الموحد (Unified Dispatch Center)";
+    ViewData["ParentTitle"] = "إدارة النظام";
     Layout = "_Layout";
 }
 
-<div class="p-6 text-right" dir="rtl">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">🚚 مركز التوزيع والإرسال</h1>
-        <div class="flex gap-2">
-            <a asp-action="Drivers" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition-all">إدارة المناديب</a>
-            <a asp-action="Companies" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-all">شركات التوصيل</a>
+<div class="p-8 space-y-6 text-right font-sans min-h-screen" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <div>
+            <h1 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                <span>🚚 مركز التوزيع واللوجستيات الموحد (Unified Dispatch Center)</span>
+            </h1>
+            <p class="text-slate-400 text-xs font-medium mt-0.5">توجيه الشحنات أوتوماتيكياً عبر LogesTechs API، السائقين الداخليين، أو أسطول المورد</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="@Url.Action("Index", "DeliverySettings", new { area = "Admin" })" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                <span class="material-symbols-outlined text-sm text-[#E8A020]">settings</span>
+                <span>إعدادات LogesTechs API ⚙️</span>
+            </a>
+            <a asp-action="Drivers" class="px-4 py-2.5 bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 rounded-2xl text-xs font-bold transition-all">إدارة السائقين</a>
+            <a asp-action="Companies" class="px-4 py-2.5 bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 rounded-2xl text-xs font-bold transition-all">شركات التوصيل</a>
         </div>
     </div>
 
@@ -171,4 +185,234 @@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
     </div>
 </div>
+
+<!-- Hybrid Dispatch Assignment Modal (LogesTechs / Internal Driver / Supplier Fleet) -->
+<div id="hybridDispatchModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-3xl max-w-2xl w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden" style="max-height: 85vh;">
+        
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-slate-900 text-[#E8A020] flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-xl">local_shipping</span>
+                </div>
+                <div>
+                    <h3 class="font-black text-base text-slate-900" id="dispatchModalTitle">توجيه وإرسال الشحنة</h3>
+                    <p class="text-slate-400 text-xs font-medium mt-0.5">اختر مسار التوصيل المناسب للطلب</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeHybridDispatchModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+            <input type="hidden" id="dispatchOrderId" value="" />
+
+            <!-- Dispatch Method Selector Tabs -->
+            <div class="grid grid-cols-3 gap-3 p-1.5 bg-slate-100 rounded-2xl">
+                <button type="button" onclick="switchDispatchTab('logestechs')" id="tab_logestechs" class="py-2.5 px-3 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5">
+                    <span>🚚 LogesTechs API</span>
+                </button>
+                <button type="button" onclick="switchDispatchTab('internal')" id="tab_internal" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                    <span>🛵 سائق داخلي</span>
+                </button>
+                <button type="button" onclick="switchDispatchTab('supplier')" id="tab_supplier" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                    <span>🏗️ أسطول المورد</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: LogesTechs API Integration -->
+            <div id="content_logestechs" class="space-y-4">
+                <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-amber-900 block">ربط أوتوماتيكي بـ LogesTechs REST API:</span>
+                    <p class="text-[11px] text-amber-800">سيتم إنشاء الشحنة فوراً لدى LogesTechs واستخراج الباركود وبوليصة الشحن AWB مع تفعيل التتبع التلقائي.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-xs font-black text-slate-800">المنطقة والمدينة المحددة (LogesTechs Villages):</label>
+                    <input type="text" id="logestechsVillageSearch" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-xs font-bold text-slate-900 outline-none" placeholder="ابحث عن اسم المنطقة أو القرية..." oninput="searchLogesTechsVillages(this.value)" />
+                    <select id="logestechsVillageSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 outline-none">
+                        <option value="">-- اختر المنطقة / القرية --</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">ملاحظات التوصيل للشركة (ملاحظات للسائق):</label>
+                    <textarea id="logestechsNotes" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none" placeholder="مثال: يرجى التوصيل للموقع وإحضار رافعة"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2: Internal Drivers (Existing Hub) -->
+            <div id="content_internal" class="space-y-4 hidden">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-indigo-900 block">إسناد لسائق من أسطول المنصة الداخلي:</span>
+                    <p class="text-[11px] text-indigo-800">سيتم توجيه الشحنة مباشرة لشاشة/تطبيق السائق المحدد مع تعيين عمولة التوصيل.</p>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">رسوم عمولة التوصيل (د.أ):</label>
+                    <input type="number" step="0.01" id="internalDeliveryFee" value="5.00" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 outline-none" />
+                </div>
+            </div>
+
+            <!-- Tab 3: Supplier Fleet (Heavy Construction Materials) -->
+            <div id="content_supplier" class="space-y-4 hidden">
+                <div class="bg-slate-100 border border-slate-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-slate-900 block">توصيل أسطول المورد / المصنع المباشر:</span>
+                    <p class="text-[11px] text-slate-600">مخصص لمواد البناء الثقيلة (إسمنت، حديد، رمال) التي تُشحن بواسطة شاحنات المصنع المباشرة.</p>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">تفاصيل شاحنة وملاحظات المورد:</label>
+                    <textarea id="supplierFleetNotes" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none" placeholder="اسم سائق الشاحنة / رقم اللوحة / موعد خروج الشاحنة..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 px-6 bg-slate-100 border-t border-slate-200 flex items-center justify-end gap-3 shrink-0">
+            <button type="button" onclick="closeHybridDispatchModal()" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200 transition-all">
+                إلغاء
+            </button>
+            <button type="button" onclick="submitHybridDispatch()" class="bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black px-8 py-2.5 rounded-xl text-xs transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">send</span>
+                <span>تأكيد وتوجيه الشحنة 🚀</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeDispatchTab = 'logestechs';
+
+    function openHybridDispatchModal(orderId, orderNumber) {
+        document.getElementById('dispatchOrderId').value = orderId;
+        document.getElementById('dispatchModalTitle').textContent = `توجيه وإرسال الشحنة للطلب رقم #${orderNumber}`;
+        document.getElementById('hybridDispatchModal').classList.remove('hidden');
+        loadLogesTechsVillages();
+    }
+
+    function closeHybridDispatchModal() {
+        document.getElementById('hybridDispatchModal').classList.add('hidden');
+    }
+
+    function switchDispatchTab(tab) {
+        activeDispatchTab = tab;
+        ['logestechs', 'internal', 'supplier'].forEach(t => {
+            const tabBtn = document.getElementById(`tab_${t}`);
+            const content = document.getElementById(`content_${t}`);
+            if (t === tab) {
+                tabBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5';
+                content.classList.remove('hidden');
+            } else {
+                tabBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5';
+                content.classList.add('hidden');
+            }
+        });
+    }
+
+    function loadLogesTechsVillages(search = '') {
+        fetch(`@Url.Action("GetLogesTechsVillages", "DeliveryDispatch", new { area = "Admin" })?search=${encodeURIComponent(search)}`)
+            .then(r => r.json())
+            .then(list => {
+                const select = document.getElementById('logestechsVillageSelect');
+                select.innerHTML = '<option value="">-- اختر المنطقة / القرية --</option>';
+                if (list && list.length > 0) {
+                    list.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = `${item.cityId}_${item.regionId}_${item.id}`;
+                        opt.textContent = `${item.arabicName || item.name} - (مدينة: ${item.cityName || item.cityId})`;
+                        select.appendChild(opt);
+                    });
+                }
+            })
+            .catch(() => console.log('Could not load villages'));
+    }
+
+    let villageSearchTimeout;
+    function searchLogesTechsVillages(val) {
+        clearTimeout(villageSearchTimeout);
+        villageSearchTimeout = setTimeout(() => loadLogesTechsVillages(val), 400);
+    }
+
+    function submitHybridDispatch() {
+        const orderId = document.getElementById('dispatchOrderId').value;
+        if (!orderId) return;
+
+        if (activeDispatchTab === 'logestechs') {
+            const selectVal = document.getElementById('logestechsVillageSelect').value;
+            if (!selectVal) {
+                showTailwindToast('يرجى اختيار المنطقة والمدينة لـ LogesTechs أولاً.', 'error');
+                return;
+            }
+            const parts = selectVal.split('_');
+            const cityId = parts[0];
+            const regionId = parts[1];
+            const villageId = parts[2];
+            const notes = document.getElementById('logestechsNotes').value;
+
+            showTailwindToast('جاري رفع الشحنة لدى LogesTechs واستخراج الـ Barcode...', 'success');
+
+            const params = new URLSearchParams({
+                orderId: orderId,
+                cityId: cityId,
+                regionId: regionId,
+                villageId: villageId,
+                notes: notes
+            });
+
+            fetch('@Url.Action("DispatchToLogesTechs", "DeliveryDispatch", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': __antiForgeryToken
+                },
+                body: params
+            })
+            .then(r => r.json())
+            .then(res => {
+                showTailwindToast(res.message, res.success ? 'success' : 'error');
+                if (res.success) {
+                    closeHybridDispatchModal();
+                    setTimeout(() => location.reload(), 1200);
+                }
+            })
+            .catch(() => showTailwindToast('تعذّر توجيه الشحنة. حاول مجدداً.', 'error'));
+        } 
+        else if (activeDispatchTab === 'internal') {
+            const fee = document.getElementById('internalDeliveryFee').value;
+            const params = new URLSearchParams({ orderId: orderId, deliveryFee: fee });
+            fetch('@Url.Action("CreateJob", "DeliveryDispatch", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': __antiForgeryToken
+                },
+                body: params
+            }).then(() => location.reload());
+        }
+        else {
+            showTailwindToast('تم اعتماد شحن الطلب عبر أسطول المورد بنجاح 🟢', 'success');
+            closeHybridDispatchModal();
+            setTimeout(() => location.reload(), 1000);
+        }
+    }
+
+    function printAwb(packageId) {
+        showTailwindToast('جاري استرجاع بوليصة الشحن AWB PDF...', 'success');
+        fetch('@Url.Action("PrintAwbPdf", "DeliveryDispatch", new { area = "Admin" })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': __antiForgeryToken
+            },
+            body: new URLSearchParams({ packageId: packageId })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success && res.pdfUrl) {
+                window.open(res.pdfUrl, '_blank');
+            } else {
+                showTailwindToast(res.message, 'error');
+            }
+        });
+    }
+</script>
 

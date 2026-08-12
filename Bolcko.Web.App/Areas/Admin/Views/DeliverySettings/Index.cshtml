@@ -1,0 +1,138 @@
+@using Bolcko.Domain.Entities.Delivery
+@model DeliveryProviderConfig
+@{
+    ViewData["Title"] = "إعدادات شركات التوصيل والـ APIs";
+    ViewData["ParentTitle"] = "إدارة النظام";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var webhookUrl = ViewBag.WebhookUrl as string;
+}
+
+<div class="p-8 space-y-6 text-right font-sans min-h-screen" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-rose-600">error</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- Dynamic Delivery Provider Config Card -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#E8A020] border border-amber-200 flex items-center justify-center font-bold shadow-2xs">
+                    <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                        <span>إعدادات الربط الديناميكي - LogesTechs API</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] px-2.5 py-0.5 rounded-full font-black">Active Provider</span>
+                    </h2>
+                    <p class="text-slate-400 text-xs font-medium mt-0.5">ضبط مفاتيح الربط، بيانات الاعتماد، ورابط الـ Webhook التفاعلي</p>
+                </div>
+            </div>
+
+            <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-2xl text-xs font-black transition-all shadow-sm active:scale-95 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base text-[#E8A020]">sensors</span>
+                <span>اختبار الاتصال بالـ API 🧪</span>
+            </button>
+        </div>
+
+        <form asp-action="SaveConfig" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ProviderName" value="LogesTechs" />
+            <input type="hidden" asp-for="ProviderKey" value="LogesTechs" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Base URL -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">عنوان الـ REST API (Base URL) *</label>
+                    <input type="url" asp-for="BaseUrl" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
+                </div>
+
+                <!-- Company ID Header -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">معرّف الشركة (Company-ID Header) *</label>
+                    <input type="text" asp-for="CompanyId" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="مثال: 410" />
+                </div>
+
+                <!-- Api Email -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">البريد الإلكتروني للـ API (API Email) *</label>
+                    <input type="email" asp-for="ApiEmail" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="account@logestechs.com" />
+                </div>
+
+                <!-- Api Password -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">كلمة المرور للـ API (API Password) *</label>
+                    <input type="password" asp-for="ApiPassword" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="••••••••••••" />
+                </div>
+            </div>
+
+            <!-- Webhook Listener URL Box -->
+            <div class="bg-amber-50/60 border border-amber-200 rounded-2xl p-5 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-lg">webhook</span>
+                        <span>رابط الـ Webhook الخاص بموقعك (ضع هذا الرابط في لوحة LogesTechs):</span>
+                    </span>
+                    <button type="button" onclick="copyWebhookUrl()" class="text-xs font-black text-amber-800 bg-amber-200/80 px-3 py-1 rounded-lg hover:bg-amber-300 transition-colors">
+                        نسخ الرابط 📋
+                    </button>
+                </div>
+                <div class="bg-white border border-amber-300 rounded-xl p-3 text-xs font-mono font-bold text-slate-800 dir-ltr text-left select-all" id="webhookUrlText">
+                    @webhookUrl
+                </div>
+                <p class="text-[11px] text-amber-800 font-medium">يقوم LogesTechs بإرسال تحديثات حالة الشحنة والسائقين حياً على هذا الرابط لتحديث طلبياتك فورياً.</p>
+            </div>
+
+            <!-- Active Status Toggle -->
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" asp-for="IsActive" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
+                    <span class="ms-3 text-xs font-black text-slate-800">تفعيل الربط الديناميكي مع LogesTechs</span>
+                </label>
+
+                <button type="submit" class="bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black px-8 py-3 rounded-2xl text-xs transition-all shadow-sm active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">save</span>
+                    <span>حفظ وتطبيق الإعدادات 💾</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function copyWebhookUrl() {
+        const urlText = document.getElementById('webhookUrlText').innerText;
+        navigator.clipboard.writeText(urlText);
+        showTailwindToast('تم نسخ رابط الـ Webhook إلى الحافظة بنجاح 📋', 'success');
+    }
+
+    function testLogesTechsConnection() {
+        showTailwindToast('جاري فحص الاتصال بـ LogesTechs API...', 'success');
+        fetch('@Url.Action("TestConnection", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(res => {
+            showTailwindToast(res.message, res.success ? 'success' : 'error');
+        })
+        .catch(() => showTailwindToast('تعذّر اختبار الاتصال بالـ API.', 'error'));
+    }
+</script>

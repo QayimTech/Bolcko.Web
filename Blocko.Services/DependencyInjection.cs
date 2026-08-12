@@ -33,6 +33,9 @@ namespace Blocko.Services
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
+            // ─── LogesTechs API & HttpClient Registration ──────────────────────────────
+            services.AddHttpClient<Blocko.Services.Interfaces.Delivery.ILogesTechsApiService, Blocko.Services.Implementations.Delivery.LogesTechsApiService>();
+
             // ─── SEO Service (must be registered BEFORE ServiceManager) ───────────
             // Uses ILogger<T> which is always available from ASP.NET Core DI
             services.AddScoped<IProductSeoService>(sp =>

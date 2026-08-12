@@ -43,12 +43,14 @@ namespace Blocko.Persistence
             ShippingRates = new Blocko.Persistence.Repositories.Setting.ShippingRateRepository(_context);
             Coupons = new Blocko.Persistence.Repositories.Setting.CouponRepository(_context);
             
-            // Delivery
+            // Delivery & External Integration
             DeliveryCompanies = new GenericRepository<DeliveryCompany>(_context);
             DeliveryDrivers = new GenericRepository<DeliveryDriver>(_context);
             DeliveryJobs = new GenericRepository<DeliveryJob>(_context);
             DeliveryBids = new GenericRepository<DeliveryBid>(_context);
             DeliveryRatings = new GenericRepository<DeliveryRating>(_context);
+            DeliveryProviderConfigs = new GenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig>(_context);
+            OrderShipmentMappings = new GenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping>(_context);
 
             // Analytics & Security
             VisitorLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog>(_context);
@@ -75,12 +77,14 @@ namespace Blocko.Persistence
         public IShippingRateRepository ShippingRates { get; private set; }
         public ICouponRepository Coupons { get; private set; }
 
-        // Delivery
+        // Delivery & External Integration
         public IGenericRepository<DeliveryCompany> DeliveryCompanies { get; private set; }
         public IGenericRepository<DeliveryDriver> DeliveryDrivers { get; private set; }
         public IGenericRepository<DeliveryJob> DeliveryJobs { get; private set; }
         public IGenericRepository<DeliveryBid> DeliveryBids { get; private set; }
         public IGenericRepository<DeliveryRating> DeliveryRatings { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; private set; }
 
         // Analytics & Security
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; private set; }

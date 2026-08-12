@@ -37,12 +37,14 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Setting.Coupon> Coupons { get; set; }
         public DbSet<Bolcko.Domain.Entities.User.Notification> Notifications { get; set; }
         
-        // Delivery
+        // Delivery & External Integration
         public DbSet<DeliveryCompany> DeliveryCompanies { get; set; }
         public DbSet<DeliveryDriver> DeliveryDrivers { get; set; }
         public DbSet<DeliveryJob> DeliveryJobs { get; set; }
         public DbSet<DeliveryBid> DeliveryBids { get; set; }
         public DbSet<DeliveryRating> DeliveryRatings { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; set; }
 
         // Analytics & Security Audit
         public DbSet<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; set; }
