@@ -83,6 +83,72 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> TestProviderConnection([FromBody] DeliveryProviderConfig config)
+        {
+            if (config == null || string.IsNullOrWhiteSpace(config.BaseUrl) || string.IsNullOrWhiteSpace(config.ApiEmail))
+            {
+                return Json(new { success = false, message = "يرجى ملء عنوان الـ API والبريد الإلكتروني لاختبار الاتصال." });
+            }
+
+            try
+            {
+                var client = new System.Net.Http.HttpClient();
+                var requestUrl = config.BaseUrl.Contains("/ship/request") 
+                    ? config.BaseUrl.Trim() 
+                    : $"{config.BaseUrl.TrimEnd('/')}/ship/request/by-email";
+
+                var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Post, requestUrl);
+                
+                if (!string.IsNullOrWhiteSpace(config.CompanyId))
+                {
+                    request.Headers.Add("company-id", config.CompanyId);
+                }
+
+                var testPayload = new
+                {
+                    email = config.ApiEmail,
+                    password = config.ApiPassword,
+                    pkgUnitType = "METRIC",
+                    pkg = new
+                    {
+                        cod = 1.0,
+                        invoiceNumber = $"TEST-{DateTime.UtcNow.Ticks.ToString().Substring(10)}",
+                        receiverName = "اختبار اتصال بلوكو",
+                        receiverPhone = "0590000000",
+                        serviceType = "STANDARD",
+                        shipmentType = "COD",
+                        paymentType = "CASH",
+                        quantity = 1,
+                        contents = "شحنة تجريبية لفحص الـ API",
+                        notes = "اختبار صحة مفاتيح الاعتماد بالـ API"
+                    },
+                    destinationAddress = new { addressLine1 = "رام الله - الماصيون", cityId = 1, regionId = 1, villageId = 1 },
+                    originAddress = new { cityId = 1, regionId = 1, villageId = 1 }
+                };
+
+                request.Content = new System.Net.Http.StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(testPayload),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.SendAsync(request);
+                var responseStr = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = true, message = "🚀 تم فحص واختبار الـ API بنجاح 100%! سستم شركة التوصيل استلم الطلب التجريبي واسترجع استجابة ناجحة!" });
+                }
+
+                return Json(new { success = false, message = $"❌ فشل اختبار الاتصال بالـ API ({response.StatusCode}): {responseStr}" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"❌ خطأ في الاتصال بالشبكة أو الـ URL: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> TestConnection()
         {
             var config = await _logesTechsApiService.GetActiveConfigAsync();
