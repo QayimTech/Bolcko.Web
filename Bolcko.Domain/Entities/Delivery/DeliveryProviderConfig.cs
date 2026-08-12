@@ -12,6 +12,7 @@ namespace Bolcko.Domain.Entities.Delivery
         public string ApiEmail { get; set; } = string.Empty;
         public string ApiPassword { get; set; } = string.Empty;
         public string? WebhookSecret { get; set; }
+        public string? OutboundWebhookUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

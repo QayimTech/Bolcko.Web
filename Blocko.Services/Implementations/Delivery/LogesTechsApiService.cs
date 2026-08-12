@@ -42,6 +42,7 @@ namespace Blocko.Services.Implementations.Delivery
                 existing.ApiEmail = config.ApiEmail;
                 existing.ApiPassword = config.ApiPassword;
                 existing.WebhookSecret = config.WebhookSecret;
+                existing.OutboundWebhookUrl = config.OutboundWebhookUrl;
                 existing.IsActive = config.IsActive;
                 existing.UpdatedAt = DateTime.UtcNow;
             }
@@ -88,7 +89,8 @@ namespace Blocko.Services.Implementations.Delivery
                     serviceType = "STANDARD",
                     shipmentType = "COD",
                     quantity = 1,
-                    description = $"طلب مواد بناء - {order.Items?.Count ?? 1} أصناف"
+                    description = $"طلب مواد بناء - {order.Items?.Count ?? 1} أصناف",
+                    webhookUrl = config.OutboundWebhookUrl ?? ""
                 },
                 destinationAddress = new
                 {

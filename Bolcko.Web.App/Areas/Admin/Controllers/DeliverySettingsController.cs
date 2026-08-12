@@ -28,7 +28,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             };
 
             var request = HttpContext.Request;
-            ViewBag.WebhookUrl = $"{request.Scheme}://{request.Host}/api/v1/webhooks/logestechs/{(string.IsNullOrEmpty(config.CompanyId) ? "{CompanyId}" : config.CompanyId)}";
+            var realCompanyId = string.IsNullOrWhiteSpace(config.CompanyId) ? "YOUR_COMPANY_ID" : config.CompanyId;
+            ViewBag.WebhookUrl = $"{request.Scheme}://{request.Host}/api/v1/webhooks/logestechs/{realCompanyId}";
 
             return View(config);
         }

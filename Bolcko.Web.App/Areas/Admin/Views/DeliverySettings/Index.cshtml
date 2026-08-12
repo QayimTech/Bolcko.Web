@@ -113,27 +113,43 @@
                 </div>
             </div>
 
-            <!-- Webhook Listener URL Box -->
-            <div class="bg-gradient-to-br from-amber-500/5 to-amber-500/10 border border-amber-500/20 rounded-3xl p-6 md:p-8 space-y-4 shadow-sm">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <span class="text-xs md:text-sm font-black text-amber-950 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-xl text-[#E8A020]">webhook</span>
-                        <span>رابط الـ Webhook التفاعلي الخاص بموقعك:</span>
-                    </span>
-                    <button type="button" onclick="copyWebhookUrl()" class="text-xs font-black text-slate-900 bg-white border border-amber-300 hover:bg-amber-100 px-4 py-2 rounded-xl transition-all shadow-2xs flex items-center gap-1.5 active:scale-95">
-                        <span class="material-symbols-outlined text-sm">content_copy</span>
-                        <span>نسخ الرابط 📋</span>
-                    </button>
+            <!-- Webhook Dual Integration Zone -->
+            <div class="space-y-6 pt-4 border-t border-slate-100">
+                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#E8A020]">sync_alt</span>
+                    <span>إعدادات الـ Webhooks المزدوجة (Inbound & Outbound Webhooks)</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Outbound Webhook URL (Required by LogesTechs inside payload) -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-amber-600">output</span>
+                            <span>رابط الـ Webhook الخاص بشركة التوصيل (Outbound Webhook Target)</span>
+                        </label>
+                        <input type="url" asp-for="OutboundWebhookUrl" class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-12 px-4 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-4 focus:ring-[#E8A020]/10 outline-none transition-all dir-ltr text-left shadow-2xs" placeholder="https://delivery.xxx.co/api/updateFromLogestechs" />
+                        <p class="text-[11px] text-slate-400 font-bold">يتم إرفاق هذا الرابط تلقائياً في Payload الشحنة لتتصل به الشركة عند التحديث.</p>
+                    </div>
+
+                    <!-- Inbound Webhook Listener URL -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-emerald-600">input</span>
+                                <span>رابط الاستماع لموقعك (Inbound Webhook Listener)</span>
+                            </label>
+                            <button type="button" onclick="copyWebhookUrl()" class="text-[11px] font-black text-slate-900 bg-amber-100 border border-amber-300 hover:bg-amber-200 px-3 py-1 rounded-xl transition-all shadow-2xs flex items-center gap-1 active:scale-95">
+                                <span class="material-symbols-outlined text-xs">content_copy</span>
+                                <span>نسخ 📋</span>
+                            </button>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl h-12 px-4 flex items-center text-xs font-mono font-bold text-amber-400 dir-ltr text-left select-all shadow-inner overflow-x-auto" id="webhookUrlText">
+                            @webhookUrl
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-bold">رابط الاستقبال الحي على موقعك لتلقي التحديثات والمالية فوراً.</p>
+                    </div>
                 </div>
-                
-                <div class="bg-white border border-amber-300/80 rounded-2xl p-4 text-xs md:text-sm font-mono font-bold text-slate-800 dir-ltr text-left select-all shadow-inner overflow-x-auto" id="webhookUrlText">
-                    @webhookUrl
-                </div>
-                
-                <p class="text-xs text-amber-900/80 font-bold flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-base text-amber-600">info</span>
-                    <span>ترسل شركة التوصيل الخارجية تحديثات حالة الشحنة والسائقين حياً على هذا الرابط لتحديث طلبياتك والمالية أوتوماتيكياً.</span>
-                </p>
             </div>
 
             <!-- Active Status Toggle & Submit Zone -->
