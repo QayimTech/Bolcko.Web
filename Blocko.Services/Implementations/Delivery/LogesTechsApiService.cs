@@ -71,6 +71,14 @@ namespace Blocko.Services.Implementations.Delivery
                 };
             }
 
+            var mapsUrl = (order.ShippingAddress?.Latitude.HasValue == true && order.ShippingAddress?.Longitude.HasValue == true) 
+                ? $"https://maps.google.com/?q={order.ShippingAddress.Latitude},{order.ShippingAddress.Longitude}" 
+                : string.Empty;
+
+            var itemsSummary = order.Items != null && order.Items.Any()
+                ? string.Join(", ", order.Items.Select(i => $"{i.Quantity}x {i.Product?.Name ?? "منتج"}"))
+                : "مواد ومستلزمات بناء";
+
             var requestUrl = $"{config.BaseUrl.TrimEnd('/')}/ship/request/by-email";
 
             var payloadObj = new
@@ -81,18 +89,17 @@ namespace Blocko.Services.Implementations.Delivery
                 pkg = new
                 {
                     cod = (double)order.TotalAmount,
-                    notes = notes ?? $"طلب مواد بناء رقم #{order.OrderNumber}",
                     invoiceNumber = order.OrderNumber,
-                    senderName = "بلوكو لتوريدات البناء",
-                    businessSenderName = "Bolcko Building Materials",
-                    senderPhone = "0599000000",
-                    receiverName = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : "عميل بلوكو",
+                    receiverName = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : (order.ShippingAddress?.AddressLine1 ?? "عميل بلوكو"),
                     receiverPhone = order.User?.PhoneNumber ?? "0590000000",
                     serviceType = "STANDARD",
                     shipmentType = "COD",
+                    paymentType = "CASH",
                     quantity = 1,
-                    description = $"طلب مواد بناء - {order.Items?.Count ?? 1} أصناف",
-                    webhookUrl = config.OutboundWebhookUrl ?? ""
+                    contents = itemsSummary,
+                    locationUrl = mapsUrl,
+                    notes = string.IsNullOrWhiteSpace(notes) ? $"طلب رقم {order.OrderNumber} - متجر بلوكو {mapsUrl}" : $"{notes} {mapsUrl}",
+                    webhookUrl = config.OutboundWebhookUrl ?? string.Empty
                 },
                 destinationAddress = new
                 {
