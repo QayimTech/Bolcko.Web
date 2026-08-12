@@ -41,6 +41,12 @@ namespace Bolcko.Domain.Entities.Order.DTOs
 
         public double? Longitude { get; set; }
 
+        public string? GoogleMapsUrl { get; set; }
+
+        public string? AddressNotes { get; set; }
+
+        public long? SelectedVillageId { get; set; }
+
         public string? Notes { get; set; }
     }
 }
