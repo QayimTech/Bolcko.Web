@@ -17,44 +17,69 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _logesTechsApiService = logesTechsApiService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var config = await _logesTechsApiService.GetActiveConfigAsync() ?? new DeliveryProviderConfig
-            {
-                ProviderName = "LogesTechs",
-                ProviderKey = "LogesTechs",
-                BaseUrl = "https://apisv2.logestechs.com/api",
-                IsActive = true
-            };
-
-            var request = HttpContext.Request;
-            var realCompanyId = string.IsNullOrWhiteSpace(config.CompanyId) ? "YOUR_COMPANY_ID" : config.CompanyId;
-            ViewBag.WebhookUrl = $"{request.Scheme}://{request.Host}/api/v1/webhooks/logestechs/{realCompanyId}";
-
-            return View(config);
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var configs = await uow.DeliveryProviderConfigs.GetAllAsync();
+            
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            ViewBag.BaseWebhookUrl = $"{baseUrl}/api/v1/webhooks/delivery";
+            
+            return View(configs);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveConfig(DeliveryProviderConfig config)
+        public async Task<IActionResult> SaveConfig(DeliveryProviderConfig model)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(model.ProviderKey))
             {
-                TempData["ErrorMessage"] = "يرجى التأكد من ملء كافة الحقول المطلوبة بشكل صحيح.";
-                return RedirectToAction(nameof(Index));
+                model.ProviderKey = (model.ProviderName ?? "Provider").Replace(" ", "").ToLower();
             }
 
-            var success = await _logesTechsApiService.SaveConfigAsync(config);
-            if (success)
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var existing = await uow.DeliveryProviderConfigs.GetByIdAsync(model.Id);
+
+            if (existing == null)
             {
-                TempData["SuccessMessage"] = "تم حفظ وتحديث إعدادات ربط LogesTechs API ديناميكياً بنجاح! ⚡";
+                await uow.DeliveryProviderConfigs.AddAsync(model);
+                TempData["SuccessMessage"] = $"تم إضافة وإعداد شركة التوصيل ({model.ProviderName}) بنجاح! 🚀";
             }
             else
             {
-                TempData["ErrorMessage"] = "حدث خطأ أثناء حفظ الإعدادات في قاعدة البيانات.";
+                existing.ProviderName = model.ProviderName;
+                existing.ProviderKey = model.ProviderKey;
+                existing.BaseUrl = model.BaseUrl;
+                existing.CompanyId = model.CompanyId;
+                existing.ApiEmail = model.ApiEmail;
+                existing.ApiPassword = model.ApiPassword;
+                existing.OutboundWebhookUrl = model.OutboundWebhookUrl;
+                existing.CustomHeadersJson = model.CustomHeadersJson;
+                existing.CustomPayloadMappingJson = model.CustomPayloadMappingJson;
+                existing.IsActive = model.IsActive;
+                existing.UpdatedAt = DateTime.UtcNow;
+                uow.DeliveryProviderConfigs.Update(existing);
+                TempData["SuccessMessage"] = $"تم تحديث إعدادات شركة التوصيل ({model.ProviderName}) بنجاح! 💾";
             }
 
+            await uow.CompleteAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var config = await uow.DeliveryProviderConfigs.GetByIdAsync(id);
+            if (config != null)
+            {
+                config.IsActive = !config.IsActive;
+                uow.DeliveryProviderConfigs.Update(config);
+                await uow.CompleteAsync();
+                return Json(new { success = true, isActive = config.IsActive, message = "تم تغيير حالة تفعيل الشركة بنجاح" });
+            }
+            return Json(new { success = false, message = "لم يتم العثور على الشركة" });
         }
 
         [HttpPost]

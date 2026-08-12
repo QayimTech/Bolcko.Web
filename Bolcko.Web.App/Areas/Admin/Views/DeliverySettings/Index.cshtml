@@ -1,10 +1,10 @@
 @using Bolcko.Domain.Entities.Delivery
-@model DeliveryProviderConfig
+@model IEnumerable<DeliveryProviderConfig>
 @{
-    ViewData["Title"] = "تكامل شركات التوصيل والـ APIs";
+    ViewData["Title"] = "تكامل ومزودي شركات التوصيل (Multi-Provider API Hub)";
     ViewData["ParentTitle"] = "مركز اللوجستيات والتوزيع";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    var webhookUrl = ViewBag.WebhookUrl as string;
+    var baseWebhookUrl = ViewBag.BaseWebhookUrl as string;
 }
 
 <div class="p-4 md:p-8 space-y-6 text-right font-sans min-h-screen max-w-7xl mx-auto" dir="rtl">
@@ -27,158 +27,250 @@
         </div>
     }
 
-    <!-- Dynamic Delivery Provider Config Card -->
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 space-y-8">
-        
-        <!-- Header Zone -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-6">
-            
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
-                    <span class="material-symbols-outlined text-2xl">local_shipping</span>
-                </div>
-                <div class="space-y-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h2 class="text-lg md:text-xl font-black text-slate-900">
-                            تكامل شركات التوصيل والـ APIs (مثل Green Line / LogesTechs)
-                        </h2>
-                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-black">
-                            Active REST & Webhook Client
-                        </span>
-                    </div>
-                    <p class="text-slate-400 text-xs font-medium">
-                        رفع أوتوماتيكي للطلبات بـ POST Request وتحديث تلقائي فور حدوث أي حدث لدى السائق
-                    </p>
-                </div>
+    <!-- Header Actions Zone -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-2xl">hub</span>
             </div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-lg md:text-xl font-black text-slate-900">
+                        مركز تكامل شركات التوصيل المزدوجة (Multi-Provider Delivery Hub)
+                    </h2>
+                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-black">
+                        Dynamic Multi-API Engine
+                    </span>
+                </div>
+                <p class="text-slate-400 text-xs font-medium">
+                    إضافة وتفعيل أي عدد من شركات التوصيل الخارجية (GLC LogesTechs, Aramex, DHL) بروابط API و Webhooks مستقلة
+                </p>
+            </div>
+        </div>
 
-            <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-2xl text-xs font-black transition-all shadow-sm active:scale-95 flex items-center gap-2 shrink-0 border border-slate-800">
-                <span class="material-symbols-outlined text-base text-[#E8A020]">sensors</span>
-                <span>اختبار صحة الاتصال بالـ API 🧪</span>
+        <button type="button" onclick="openAddProviderModal()" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 shrink-0">
+            <span class="material-symbols-outlined text-lg text-[#E8A020]">add_circle</span>
+            <span>إضافة شركة توصيل جديدة ➕</span>
+        </button>
+    </div>
+
+    <!-- Active Providers Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var provider in Model)
+            {
+                var providerWebhookUrl = $"{baseWebhookUrl}/{provider.ProviderKey}/{provider.CompanyId ?? "0"}";
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all space-y-5">
+                    
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-black">
+                                <span class="material-symbols-outlined text-xl">local_shipping</span>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900">@provider.ProviderName</h3>
+                                <p class="text-[11px] font-mono text-slate-400">@provider.ProviderKey</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black @(provider.IsActive ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800")">
+                                @(provider.IsActive ? "مفعل شغال ⚡" : "معطل ⏸️")
+                            </span>
+                            <button type="button" onclick='editProviderModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(provider)))' class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs font-medium text-slate-600">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">عنوان الـ API:</span>
+                            <span class="font-mono font-bold text-slate-800 dir-ltr">@provider.BaseUrl</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">معرف الشركة (Company-ID):</span>
+                            <span class="font-bold text-slate-800">@(string.IsNullOrEmpty(provider.CompanyId) ? "غير محدد" : provider.CompanyId)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">البريد الإلكتروني للـ API:</span>
+                            <span class="font-bold text-slate-800">@provider.ApiEmail</span>
+                        </div>
+                    </div>
+
+                    <!-- Webhook Listener for this Provider -->
+                    <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-amber-400 text-xs font-mono font-bold space-y-1">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+                            <span>رابط الاستماع الخاص بها (Inbound Webhook):</span>
+                            <button type="button" onclick="copyText('@providerWebhookUrl')" class="text-amber-300 hover:underline">نسخ 📋</button>
+                        </div>
+                        <div class="dir-ltr text-left select-all overflow-x-auto">@providerWebhookUrl</div>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between">
+                        <button type="button" onclick="toggleProviderStatus(@provider.Id)" class="text-xs font-bold text-slate-600 hover:text-slate-900 underline">
+                            @(provider.IsActive ? "تعطيل الشركة" : "تفعيل الشركة")
+                        </button>
+                        <button type="button" onclick="testLogesTechsConnection()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-[#E8A020]">sensors</span>
+                            <span>فحص الاتصال بالـ API</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Default GLC LogesTechs Seed Provider Card -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-[#E8A020] flex items-center justify-center font-black">
+                            <span class="material-symbols-outlined text-xl">local_shipping</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Green Line Company (GLC / LogesTechs)</h3>
+                            <p class="text-[11px] font-mono text-slate-400">LogesTechs White Label API</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">مفعل شغال ⚡</span>
+                </div>
+
+                <p class="text-xs text-slate-500 font-bold">اضغط على زر [ إضافة شركة توصيل جديدة ] لربط أي شركة توصيل إضافية بروابط API و Webhook مستقلة!</p>
+                <button type="button" onclick="openAddProviderModal()" class="w-full bg-[#E8A020] text-slate-950 font-black py-2.5 rounded-2xl text-xs">إضافة وإعداد شركة للتوصيل المباشر ➕</button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add / Edit Provider Tailwind Modal -->
+<div id="providerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-right" dir="rtl">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-2" id="modalTitle">
+                <span class="material-symbols-outlined text-[#E8A020]">add_box</span>
+                <span>إعداد شركة توصيل وربط الـ API ديناميكياً</span>
+            </h3>
+            <button type="button" onclick="closeProviderModal()" class="text-slate-400 hover:text-slate-700">
+                <span class="material-symbols-outlined text-xl">close</span>
             </button>
         </div>
 
-        <form asp-action="SaveConfig" method="post" class="space-y-6">
+        <form asp-action="SaveConfig" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="ProviderName" value="LogesTechs" />
-            <input type="hidden" asp-for="ProviderKey" value="LogesTechs" />
+            <input type="hidden" id="p_Id" name="Id" value="0" />
 
-            <!-- 1. REST API Credentials Grid -->
-            <div class="space-y-4">
-                <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[#E8A020] text-lg">api</span>
-                    <span>بيانات الاعتماد للـ API (لرفع الطلبات تلقائياً باسم متجر بلوكو)</span>
-                </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">اسم شركة التوصيل *</label>
+                    <input type="text" id="p_ProviderName" name="ProviderName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-bold text-slate-900 focus:bg-white outline-none" placeholder="مثال: Green Line / Aramex" />
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">رمز الشركة (ProviderKey) *</label>
+                    <input type="text" id="p_ProviderKey" name="ProviderKey" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="glc / aramex" />
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Base URL -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">عنوان الـ REST API (Base URL) *</label>
-                        <input type="url" asp-for="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
-                    </div>
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">عنوان الـ REST API المباشر (Base URL) *</label>
+                    <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
+                </div>
 
-                    <!-- Company ID Header -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">معرّف الشركة لدى السستم (Company-ID Header) *</label>
-                        <input type="text" asp-for="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="مثال: GLC أو 410" />
-                    </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">معرّف الشركة لدى السستم (Company-ID) *</label>
+                    <input type="text" id="p_CompanyId" name="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="410 أو GLC" />
+                </div>
 
-                    <!-- Api Email -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">البريد الإلكتروني للـ API (API Email) *</label>
-                        <input type="email" asp-for="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="info@bolcko.com" />
-                    </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">البريد الإلكتروني للـ API *</label>
+                    <input type="email" id="p_ApiEmail" name="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="info@bolcko.com" />
+                </div>
 
-                    <!-- Api Password -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">كلمة المرور للـ API (API Password) *</label>
-                        <input type="password" asp-for="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="••••••••••••" />
-                    </div>
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">كلمة المرور للـ API *</label>
+                    <input type="password" id="p_ApiPassword" name="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="••••••••••••" />
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
+                    <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "GLC" }'></textarea>
                 </div>
             </div>
 
-            <!-- 2. Generic Dynamic API Request Builder Section -->
-            <div class="space-y-4 pt-4 border-t border-slate-100">
-                <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[#E8A020] text-lg">code</span>
-                    <span>محرك باني الطلبات الديناميكي (Generic Request & Custom Headers Builder)</span>
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Custom Headers JSON -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
-                        <textarea asp-for="CustomHeadersJson" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs font-mono font-bold text-amber-400 focus:border-[#E8A020] outline-none transition-all dir-ltr text-left" placeholder='{ "company-id": "GLC", "X-Custom-Header": "BolckoApp" }'></textarea>
-                        <p class="text-[11px] text-slate-400 font-bold">يمكنك إضافة أي Headers مخصصة يتطلبها الـ API بـ صيغة JSON.</p>
-                    </div>
-
-                    <!-- Custom Payload Mapping JSON -->
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-black text-slate-800">تخصيص الخرائط والحقول لـ Payload (Custom Payload Schema JSON):</label>
-                        <textarea asp-for="CustomPayloadMappingJson" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs font-mono font-bold text-emerald-400 focus:border-[#E8A020] outline-none transition-all dir-ltr text-left" placeholder='{ "senderName": "بلوكو لتوريدات البناء", "serviceType": "STANDARD", "shipmentType": "COD" }'></textarea>
-                        <p class="text-[11px] text-slate-400 font-bold">تحديد القيم الثابتة والتوجيهات المخصصة الصادرة لـ POST Request.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Webhook Listener Section -->
-            <div class="space-y-3 pt-4 border-t border-slate-100">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                        <span class="material-symbols-outlined text-emerald-600 text-lg">input</span>
-                        <span>رابط الاستماع الخاص بموقعك (استقبال الإشعارات والتحصيل الحي):</span>
-                    </h3>
-                    <button type="button" onclick="copyWebhookUrl()" class="text-xs font-black text-slate-900 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-xl transition-all flex items-center gap-1 shrink-0">
-                        <span class="material-symbols-outlined text-xs">content_copy</span>
-                        <span>نسخ الرابط 📋</span>
-                    </button>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 text-xs font-mono font-bold text-amber-400 dir-ltr text-left select-all overflow-x-auto shadow-inner" id="webhookUrlText">
-                    @webhookUrl
-                </div>
-                <p class="text-[11px] text-slate-400 font-bold">
-                    💡 تقوم شركة التوصيل بـ Push إشعارات الـ Webhook لهذا الرابط فور تغير حالة الطلب (تسليم، إلغاء، مرتجع) لتحديث سستم موقعك والمالية حياً.
-                </p>
-            </div>
-
-            <!-- Active Status Toggle & Submit Zone -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
-                
-                <label class="relative inline-flex items-center cursor-pointer gap-3">
-                    <input type="checkbox" asp-for="IsActive" class="sr-only peer" />
-                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
-                    <span class="text-xs font-black text-slate-800">
-                        تفعيل التوصيل المباشر والربط البرمجي
-                    </span>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                <label class="relative inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" id="p_IsActive" name="IsActive" value="true" checked class="sr-only peer" />
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+                    <span class="text-xs font-bold text-slate-800">تفعيل الشركة لرفع الطلبيات أوتوماتيكياً</span>
                 </label>
 
-                <button type="submit" class="w-full sm:w-auto bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black px-8 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-lg">save</span>
-                    <span>حفظ وتطبيق الإعدادات 💾</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeProviderModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">إلغاء</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl text-xs font-black text-slate-950 bg-[#E8A020] hover:bg-[#d49018] shadow-md">حفظ وإدراج الشركة 💾</button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    function copyWebhookUrl() {
-        const urlText = document.getElementById('webhookUrlText').innerText;
-        navigator.clipboard.writeText(urlText);
-        showTailwindToast('تم نسخ رابط الـ Webhook الخاص بموقعك بنجاح 📋', 'success');
+    function openAddProviderModal() {
+        document.getElementById('modalTitle').innerText = 'إضافة شركة توصيل وربط الـ API ديناميكياً';
+        document.getElementById('p_Id').value = '0';
+        document.getElementById('p_ProviderName').value = '';
+        document.getElementById('p_ProviderKey').value = '';
+        document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api';
+        document.getElementById('p_CompanyId').value = '';
+        document.getElementById('p_ApiEmail').value = '';
+        document.getElementById('p_ApiPassword').value = '';
+        document.getElementById('p_CustomHeadersJson').value = '';
+        document.getElementById('p_IsActive').checked = true;
+        document.getElementById('providerModal').classList.remove('hidden');
+    }
+
+    function editProviderModal(provider) {
+        document.getElementById('modalTitle').innerText = 'تعديل شركة التوصيل والـ API';
+        document.getElementById('p_Id').value = provider.Id;
+        document.getElementById('p_ProviderName').value = provider.ProviderName || '';
+        document.getElementById('p_ProviderKey').value = provider.ProviderKey || '';
+        document.getElementById('p_BaseUrl').value = provider.BaseUrl || '';
+        document.getElementById('p_CompanyId').value = provider.CompanyId || '';
+        document.getElementById('p_ApiEmail').value = provider.ApiEmail || '';
+        document.getElementById('p_ApiPassword').value = provider.ApiPassword || '';
+        document.getElementById('p_CustomHeadersJson').value = provider.CustomHeadersJson || '';
+        document.getElementById('p_IsActive').checked = provider.IsActive;
+        document.getElementById('providerModal').classList.remove('hidden');
+    }
+
+    function closeProviderModal() {
+        document.getElementById('providerModal').classList.add('hidden');
+    }
+
+    function copyText(txt) {
+        navigator.clipboard.writeText(txt);
+        showTailwindToast('تم نسخ الرابط بنجاح 📋', 'success');
+    }
+
+    function toggleProviderStatus(id) {
+        fetch('@Url.Action("ToggleStatus", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                showTailwindToast(res.message, 'success');
+                setTimeout(() => location.reload(), 800);
+            }
+        });
     }
 
     function testLogesTechsConnection() {
         showTailwindToast('جاري فحص الاتصال بالـ API...', 'success');
-        fetch('@Url.Action("TestConnection", "DeliverySettings", new { area = "Admin" })', {
-            method: 'POST'
-        })
+        fetch('@Url.Action("TestConnection", "DeliverySettings", new { area = "Admin" })', { method: 'POST' })
         .then(r => r.json())
-        .then(res => {
-            showTailwindToast(res.message, res.success ? 'success' : 'error');
-        })
-        .catch(() => showTailwindToast('تعذّر اختبار الاتصال بالـ API.', 'error'));
+        .then(res => showTailwindToast(res.message, res.success ? 'success' : 'error'));
     }
 </script>

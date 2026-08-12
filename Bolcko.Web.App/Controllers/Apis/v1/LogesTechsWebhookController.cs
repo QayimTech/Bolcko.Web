@@ -45,6 +45,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
     [AllowAnonymous]
     [ApiController]
     [Route("api/v1/webhooks/logestechs")]
+    [Route("api/v1/webhooks/delivery")]
     public class LogesTechsWebhookController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -56,7 +57,8 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
         [HttpPost]
         [HttpPost("{companyId}")]
-        public async Task<IActionResult> ReceiveStatusUpdate([FromBody] LogesTechsWebhookPayloadDto payload)
+        [HttpPost("{providerKey}/{companyId}")]
+        public async Task<IActionResult> ReceiveStatusUpdate([FromRoute] string companyId, [FromRoute] string? providerKey, [FromBody] LogesTechsWebhookPayloadDto payload)
         {
             if (payload == null)
             {
