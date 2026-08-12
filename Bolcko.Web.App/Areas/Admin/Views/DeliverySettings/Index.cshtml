@@ -173,8 +173,8 @@
                 </div>
 
                 <div class="md:col-span-2 space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">عنوان الـ REST API المباشر (Base URL) *</label>
-                    <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
+                    <label class="block text-xs font-bold text-slate-700">رابط الـ API المباشر لإنشاء الشحنة (Create Shipment Endpoint URL) *</label>
+                    <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api/ship/request/by-email" />
                 </div>
 
                 <div class="space-y-1">
@@ -220,7 +220,7 @@
         document.getElementById('p_Id').value = '0';
         document.getElementById('p_ProviderName').value = '';
         document.getElementById('p_ProviderKey').value = '';
-        document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api';
+        document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api/ship/request/by-email';
         document.getElementById('p_CompanyId').value = '';
         document.getElementById('p_ApiEmail').value = '';
         document.getElementById('p_ApiPassword').value = '';

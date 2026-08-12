@@ -79,7 +79,9 @@ namespace Blocko.Services.Implementations.Delivery
                 ? string.Join(", ", order.Items.Select(i => $"{i.Quantity}x {i.Product?.Name ?? "منتج"}"))
                 : "مواد ومستلزمات بناء";
 
-            var requestUrl = $"{config.BaseUrl.TrimEnd('/')}/ship/request/by-email";
+            var requestUrl = config.BaseUrl.Contains("/ship/request") 
+                ? config.BaseUrl.Trim() 
+                : $"{config.BaseUrl.TrimEnd('/')}/ship/request/by-email";
 
             var payloadObj = new
             {
