@@ -44,6 +44,8 @@ namespace Blocko.Services.Implementations.order
                     AddressLine1 = checkoutDto.DetailedAddress,
                     City = checkoutDto.City,
                     StateProvince = checkoutDto.Area,
+                    Latitude = checkoutDto.Latitude,
+                    Longitude = checkoutDto.Longitude,
                     AddressType = Bolcko.Domain.Enums.AddressType.Shipping
                 };
 

@@ -62,9 +62,24 @@
                             <span asp-validation-for="Area" class="text-error text-xs"></span>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["DetailedAddress"]</label>
-                            <textarea asp-for="DetailedAddress" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-24" placeholder="@SharedLocalizer["EnterDetailedAddress"]"></textarea>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-xs font-bold text-on-surface-variant uppercase">@SharedLocalizer["DetailedAddress"]</label>
+                                <button type="button" onclick="getCurrentGpsLocation()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-black px-4 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                                    <span class="material-symbols-outlined text-sm text-[#E8A020]">my_location</span>
+                                    <span>تحديد موقعي الدقيق عبر GPS 📍</span>
+                                </button>
+                            </div>
+                            <textarea asp-for="DetailedAddress" id="detailedAddressTextarea" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-24" placeholder="@SharedLocalizer["EnterDetailedAddress"]"></textarea>
                             <span asp-validation-for="DetailedAddress" class="text-error text-xs"></span>
+                            
+                            <!-- Hidden Coordinates -->
+                            <input type="hidden" asp-for="Latitude" id="gpsLatitude" />
+                            <input type="hidden" asp-for="Longitude" id="gpsLongitude" />
+                            
+                            <p id="gpsStatusMessage" class="text-xs font-bold text-emerald-600 mt-1 hidden flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">check_circle</span>
+                                <span id="gpsCoordsText">تم التقاط إحداثيات الموقع الدقيق بنجاح!</span>
+                            </p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Country"]</label>
@@ -174,6 +189,40 @@
             </div>
         </div>
     </div>
+    <script>
+        function getCurrentGpsLocation() {
+            if (navigator.geolocation) {
+                const statusMsg = document.getElementById('gpsStatusMessage');
+                const coordsText = document.getElementById('gpsCoordsText');
+                statusMsg.classList.remove('hidden');
+                coordsText.innerText = 'جاري تحديد موقعك عبر الـ GPS... 📡';
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('gpsLatitude').value = lat;
+                        document.getElementById('gpsLongitude').value = lng;
+                        
+                        coordsText.innerText = `تم تحديد الموقع بنجاح 📍 (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                        
+                        // Append to detailed address if empty
+                        const addrInput = document.getElementById('detailedAddressTextarea');
+                        if (addrInput && !addrInput.value.includes('GPS')) {
+                            addrInput.value = (addrInput.value ? addrInput.value + '\n' : '') + `[إحداثيات GPS: https://maps.google.com/?q=${lat},${lng}]`;
+                        }
+                    },
+                    (error) => {
+                        coordsText.innerText = 'تعذر تحديد الموقع تلقائياً. يرجى كتابة العنوان تفصيلياً.';
+                        statusMsg.classList.remove('text-emerald-600');
+                        statusMsg.classList.add('text-rose-600');
+                    }
+                );
+            } else {
+                alert('المتصفح لا يدعم تحديد الموقع.');
+            }
+        }
+    </script>
 </main>
 
 @section Scripts {

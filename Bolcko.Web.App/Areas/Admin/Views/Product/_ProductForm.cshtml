@@ -66,6 +66,21 @@
                 </div>
             </div>
 
+            <!-- Heavy / Oversized Cargo Switch -->
+            <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between">
+                <div class="space-y-0.5">
+                    <span class="text-xs font-black text-slate-900 block flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-amber-600 text-base">warning</span>
+                        <span>بضائع ضخمة وثقيلة (Oversized Heavy Goods)</span>
+                    </span>
+                    <p class="text-[11px] text-slate-500 font-bold">مثل: بانيوهات، سلالم، حديد، إسمنت (يُحظر شحنها بـ شركات الطرود وتوجه لشاحنات المورد).</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" asp-for="IsOversized" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
+                </label>
+            </div>
+
             <!-- Price + SKU -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">

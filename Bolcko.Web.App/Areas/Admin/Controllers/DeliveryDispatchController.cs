@@ -128,6 +128,17 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var order = await unitOfWork.Orders.GetByIdAsync(orderId);
             if (order == null) return Json(new { success = false, message = "الطلب غير موجود." });
 
+            // Audit Order items for Oversized Heavy Goods (baths, ladders, steel, cement)
+            var hasOversizedItems = order.Items != null && order.Items.Any(i => i.Product != null && i.Product.IsOversized);
+            if (hasOversizedItems)
+            {
+                return Json(new { 
+                    success = false, 
+                    isOversized = true,
+                    message = "⚠️ هذا الطلب يحتوي على مواد بناء ضخمة/ثقيلة (مثل بانيوهات، سلالم، أو حديد). تعذّر رفعه لشركة الطرود السريعة! يرجى تحويله لـ [أسطول المورد / الشاحنات الثقيلة]." 
+                });
+            }
+
             var result = await logesTechsService.CreateShipmentAsync(order, cityId, regionId, villageId, notes);
             if (result.Success)
             {

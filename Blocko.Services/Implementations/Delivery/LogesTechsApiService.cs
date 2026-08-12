@@ -99,7 +99,9 @@ namespace Blocko.Services.Implementations.Delivery
                     addressLine1 = order.ShippingAddress?.AddressLine1 ?? "عنوان العميل",
                     cityId = long.TryParse(destinationCityId, out var cId) ? cId : 1,
                     regionId = long.TryParse(destinationRegionId, out var rId) ? rId : 1,
-                    villageId = long.TryParse(destinationVillageId, out var vId) ? vId : 1
+                    villageId = long.TryParse(destinationVillageId, out var vId) ? vId : 1,
+                    latitude = order.ShippingAddress?.Latitude ?? 31.9038,
+                    longitude = order.ShippingAddress?.Longitude ?? 35.2058
                 },
                 originAddress = new
                 {

@@ -28,6 +28,7 @@ namespace Bolcko.Domain.Entities.Product
         // New properties based on user request
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }
+        public bool IsOversized { get; set; } = false; // بضائع ضخمة (بانيوهات، سلالم، حديد، إسمنت)
         public Bolcko.Domain.Enums.SeoStatus SeoStatus { get; set; } = Bolcko.Domain.Enums.SeoStatus.PendingSeo;
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
