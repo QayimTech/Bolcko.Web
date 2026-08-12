@@ -242,7 +242,7 @@
         document.getElementById('p_CompanyId').value = provider.CompanyId || '';
         document.getElementById('p_ApiEmail').value = provider.ApiEmail || '';
         document.getElementById('p_ApiPassword').value = provider.ApiPassword || '';
-        document.getElementById('p_CustomHeadersJson').value = provider.CustomHeadersJson || '';
+        document.getElementById('p_CustomHeadersJson').value = (provider.CustomHeadersJson && provider.CustomHeadersJson.includes('GLC')) ? '' : (provider.CustomHeadersJson || '');
         document.getElementById('p_IsActive').checked = provider.IsActive;
         document.getElementById('providerModal').classList.remove('hidden');
     }
