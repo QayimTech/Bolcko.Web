@@ -183,6 +183,30 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var order = await _orderService.PlaceOrderAsync(userId.Value, cart, checkoutDto);
             await _shoppingCartService.ClearCartAsync(sessionId, userId);
 
+            // Auto-Dispatch to Active Delivery Provider API (GLC / LogesTechs) if enabled and not oversized
+            try
+            {
+                var logesTechsService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.ILogesTechsApiService)) as Blocko.Services.Interfaces.Delivery.ILogesTechsApiService;
+                var uow = HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork)) as Bolcko.Domain.Interfaces.IUnitOfWork;
+
+                if (logesTechsService != null && uow != null)
+                {
+                    var fullOrder = await uow.Orders.GetByIdAsync(order.Id);
+                    var hasOversized = fullOrder?.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
+                    
+                    if (!hasOversized)
+                    {
+                        var dispatchRes = await logesTechsService.CreateShipmentAsync(fullOrder!, "1", "1", "1", "تحويل أوتوماتيكي تلقائي عند الطلب");
+                        if (dispatchRes.Success)
+                        {
+                            fullOrder!.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                            await uow.CompleteAsync();
+                        }
+                    }
+                }
+            }
+            catch { /* Fallback gracefully to manual dispatch */ }
+
             return RedirectToAction(nameof(Confirmation), new { orderId = order.Id });
         }
 
