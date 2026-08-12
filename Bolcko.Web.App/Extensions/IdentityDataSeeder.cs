@@ -1,6 +1,7 @@
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Bolcko.Web.App.Extensions
 {
@@ -9,6 +10,17 @@ namespace Bolcko.Web.App.Extensions
         public static async Task SeedIdentityDataAsync(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
+            try
+            {
+                var databaseCreator = db.Database.GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>();
+                if (databaseCreator != null)
+                {
+                    databaseCreator.CreateTables();
+                }
+            }
+            catch { /* Tables already created or created via migration */ }
+
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
