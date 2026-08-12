@@ -48,6 +48,8 @@ namespace Bolcko.Web.App.Extensions
                         ""LastStatusUpdatedAt"" timestamp with time zone NULL,
                         CONSTRAINT ""PK_OrderShipmentMappings"" PRIMARY KEY (""Id"")
                     );
+
+                    ALTER TABLE ""DeliveryProviderConfigs"" ADD COLUMN IF NOT EXISTS ""OutboundWebhookUrl"" text NULL;
                 ");
             }
             catch (Exception ex)
