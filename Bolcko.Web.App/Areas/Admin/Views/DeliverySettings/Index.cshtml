@@ -98,7 +98,31 @@
                 </div>
             </div>
 
-            <!-- 2. Webhook Listener Section -->
+            <!-- 2. Generic Dynamic API Request Builder Section -->
+            <div class="space-y-4 pt-4 border-t border-slate-100">
+                <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#E8A020] text-lg">code</span>
+                    <span>محرك باني الطلبات الديناميكي (Generic Request & Custom Headers Builder)</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Custom Headers JSON -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
+                        <textarea asp-for="CustomHeadersJson" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs font-mono font-bold text-amber-400 focus:border-[#E8A020] outline-none transition-all dir-ltr text-left" placeholder='{ "company-id": "GLC", "X-Custom-Header": "BolckoApp" }'></textarea>
+                        <p class="text-[11px] text-slate-400 font-bold">يمكنك إضافة أي Headers مخصصة يتطلبها الـ API بـ صيغة JSON.</p>
+                    </div>
+
+                    <!-- Custom Payload Mapping JSON -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">تخصيص الخرائط والحقول لـ Payload (Custom Payload Schema JSON):</label>
+                        <textarea asp-for="CustomPayloadMappingJson" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs font-mono font-bold text-emerald-400 focus:border-[#E8A020] outline-none transition-all dir-ltr text-left" placeholder='{ "senderName": "بلوكو لتوريدات البناء", "serviceType": "STANDARD", "shipmentType": "COD" }'></textarea>
+                        <p class="text-[11px] text-slate-400 font-bold">تحديد القيم الثابتة والتوجيهات المخصصة الصادرة لـ POST Request.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Webhook Listener Section -->
             <div class="space-y-3 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">

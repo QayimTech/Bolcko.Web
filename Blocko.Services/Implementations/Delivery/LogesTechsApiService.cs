@@ -43,6 +43,8 @@ namespace Blocko.Services.Implementations.Delivery
                 existing.ApiPassword = config.ApiPassword;
                 existing.WebhookSecret = config.WebhookSecret;
                 existing.OutboundWebhookUrl = config.OutboundWebhookUrl;
+                existing.CustomHeadersJson = config.CustomHeadersJson;
+                existing.CustomPayloadMappingJson = config.CustomPayloadMappingJson;
                 existing.IsActive = config.IsActive;
                 existing.UpdatedAt = DateTime.UtcNow;
             }

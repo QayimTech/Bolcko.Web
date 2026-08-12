@@ -50,6 +50,8 @@ namespace Bolcko.Web.App.Extensions
                     );
 
                     ALTER TABLE ""DeliveryProviderConfigs"" ADD COLUMN IF NOT EXISTS ""OutboundWebhookUrl"" text NULL;
+                    ALTER TABLE ""DeliveryProviderConfigs"" ADD COLUMN IF NOT EXISTS ""CustomHeadersJson"" text NULL;
+                    ALTER TABLE ""DeliveryProviderConfigs"" ADD COLUMN IF NOT EXISTS ""CustomPayloadMappingJson"" text NULL;
                 ");
             }
             catch (Exception ex)
