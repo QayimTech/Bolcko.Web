@@ -27,27 +27,27 @@
         </div>
     }
 
-    <!-- Premium Generic Delivery Provider Config Card -->
+    <!-- Dynamic Delivery Provider Config Card -->
     <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 space-y-8">
         
-        <!-- Header Zone with perfect alignment -->
+        <!-- Header Zone -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-6">
             
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
-                    <span class="material-symbols-outlined text-2xl">hub</span>
+                    <span class="material-symbols-outlined text-2xl">local_shipping</span>
                 </div>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h2 class="text-lg md:text-xl font-black text-slate-900">
-                            إعدادات وتكامل الـ APIs & Webhooks لـ شركة Green Line Company (GLC)
+                            تكامل شركات التوصيل والـ APIs (مثل Green Line / LogesTechs)
                         </h2>
                         <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-black">
-                            GLC White Label API Powered by LogesTechs
+                            Active REST & Webhook Client
                         </span>
                     </div>
                     <p class="text-slate-400 text-xs font-medium">
-                        ربط أوتوماتيكي لرفع الطلبيات وتتبع الحالات الحية والمالية مع أسطول شركة Green Line
+                        رفع أوتوماتيكي للطلبات بـ POST Request وتحديث تلقائي فور حدوث أي حدث لدى السائق
                     </p>
                 </div>
             </div>
@@ -58,89 +58,65 @@
             </button>
         </div>
 
-        <form asp-action="SaveConfig" method="post" class="space-y-8">
+        <form asp-action="SaveConfig" method="post" class="space-y-6">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="ProviderName" value="LogesTechs" />
             <input type="hidden" asp-for="ProviderKey" value="LogesTechs" />
 
-            <!-- Field Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <!-- Base URL -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base text-slate-400">link</span>
-                        <span>عنوان الـ REST API (Base URL) *</span>
-                    </label>
-                    <input type="url" asp-for="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
-                </div>
-
-                <!-- Company ID Header -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base text-slate-400">badge</span>
-                        <span>معرّف الشركة (Company-ID / GLC Code) *</span>
-                    </label>
-                    <input type="text" asp-for="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="مثال: GLC أو 410" />
-                </div>
-
-                <!-- Api Email -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base text-slate-400">mail</span>
-                        <span>البريد الإلكتروني للـ API (API Email) *</span>
-                    </label>
-                    <input type="email" asp-for="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="info@glc.com" />
-                </div>
-
-                <!-- Api Password -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base text-slate-400">key</span>
-                        <span>كلمة المرور للـ API (API Password) *</span>
-                    </label>
-                    <input type="password" asp-for="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="••••••••••••" />
-                </div>
-            </div>
-
-            <!-- Webhook Dual Integration Zone -->
-            <div class="space-y-4 pt-4 border-t border-slate-100">
-                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[#E8A020]">sync_alt</span>
-                    <span>إعدادات الـ Webhooks لتحديث الحالات والمالية (Inbound & Outbound Webhooks)</span>
+            <!-- 1. REST API Credentials Grid -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#E8A020] text-lg">api</span>
+                    <span>بيانات الاعتماد للـ API (لرفع الطلبات تلقائياً باسم متجر بلوكو)</span>
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Outbound Webhook URL -->
-                    <div class="space-y-2">
-                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base text-amber-600">output</span>
-                            <span>رابط الـ Webhook الخاص بشركة GLC / LogesTechs (اختياري)</span>
-                        </label>
-                        <input type="url" asp-for="OutboundWebhookUrl" class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="https://delivery.xxx.co/api/updateFromLogestechs" />
-                        <p class="text-[11px] text-slate-400 font-bold">يتم إرفاق هذا الرابط في Payload الشحنة إذا تطلب سستم الشركة ذلك.</p>
+                    <!-- Base URL -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">عنوان الـ REST API (Base URL) *</label>
+                        <input type="url" asp-for="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-mono font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api" />
                     </div>
 
-                    <!-- Inbound Webhook Listener URL -->
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-base text-emerald-600">input</span>
-                                <span>رابط الاستماع الخاص بموقعك (ضع هذا الرابط في لوحة GLC):</span>
-                            </label>
-                            <button type="button" onclick="copyWebhookUrl()" class="text-[11px] font-black text-slate-900 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-xl transition-all flex items-center gap-1 shrink-0">
-                                <span class="material-symbols-outlined text-xs">content_copy</span>
-                                <span>نسخ 📋</span>
-                            </button>
-                        </div>
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs font-mono font-bold text-amber-400 dir-ltr text-left select-all overflow-x-auto shadow-inner" id="webhookUrlText">
-                            @webhookUrl
-                        </div>
-                        <p class="text-[11px] text-slate-400 font-bold">تتصل شركة التوصيل بهذا الرابط فور تغير حالة الطلب لتحديث موقعك والمالية حياً.</p>
+                    <!-- Company ID Header -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">معرّف الشركة لدى السستم (Company-ID Header) *</label>
+                        <input type="text" asp-for="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="مثال: GLC أو 410" />
+                    </div>
+
+                    <!-- Api Email -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">البريد الإلكتروني للـ API (API Email) *</label>
+                        <input type="email" asp-for="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="info@bolcko.com" />
+                    </div>
+
+                    <!-- Api Password -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-black text-slate-800">كلمة المرور للـ API (API Password) *</label>
+                        <input type="password" asp-for="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl h-11 px-4 text-xs font-black text-slate-900 focus:border-[#E8A020] focus:bg-white outline-none transition-all dir-ltr text-left" placeholder="••••••••••••" />
                     </div>
                 </div>
+            </div>
+
+            <!-- 2. Webhook Listener Section -->
+            <div class="space-y-3 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">input</span>
+                        <span>رابط الاستماع الخاص بموقعك (استقبال الإشعارات والتحصيل الحي):</span>
+                    </h3>
+                    <button type="button" onclick="copyWebhookUrl()" class="text-xs font-black text-slate-900 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-xl transition-all flex items-center gap-1 shrink-0">
+                        <span class="material-symbols-outlined text-xs">content_copy</span>
+                        <span>نسخ الرابط 📋</span>
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 text-xs font-mono font-bold text-amber-400 dir-ltr text-left select-all overflow-x-auto shadow-inner" id="webhookUrlText">
+                    @webhookUrl
+                </div>
+                <p class="text-[11px] text-slate-400 font-bold">
+                    💡 تقوم شركة التوصيل بـ Push إشعارات الـ Webhook لهذا الرابط فور تغير حالة الطلب (تسليم، إلغاء، مرتجع) لتحديث سستم موقعك والمالية حياً.
+                </p>
             </div>
 
             <!-- Active Status Toggle & Submit Zone -->
@@ -150,7 +126,7 @@
                     <input type="checkbox" asp-for="IsActive" class="sr-only peer" />
                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
                     <span class="text-xs font-black text-slate-800">
-                        تفعيل الربط والدمج التلقائي مع شركة التوصيل
+                        تفعيل التوصيل المباشر والربط البرمجي
                     </span>
                 </label>
 
@@ -167,7 +143,7 @@
     function copyWebhookUrl() {
         const urlText = document.getElementById('webhookUrlText').innerText;
         navigator.clipboard.writeText(urlText);
-        showTailwindToast('تم نسخ رابط الـ Webhook إلى الحافظة بنجاح 📋', 'success');
+        showTailwindToast('تم نسخ رابط الـ Webhook الخاص بموقعك بنجاح 📋', 'success');
     }
 
     function testLogesTechsConnection() {
