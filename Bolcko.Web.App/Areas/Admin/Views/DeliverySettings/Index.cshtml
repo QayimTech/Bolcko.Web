@@ -205,8 +205,8 @@
 
                 <div class="md:col-span-2 space-y-1">
                     <label class="block text-xs font-bold text-slate-700">قالب الـ Payload المتوقع المخصص (Expected Dynamic JSON Payload Template):</label>
-                    <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
-                    <p class="text-[10px] text-slate-400 font-bold">يمكنك استخدام المتغيرات التلقائية: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {GoogleMapsUrl}, {OrderContents}</p>
+                    <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500 outline-none dir-ltr text-left resize-y" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
+                    <p class="text-[10px] text-slate-500 font-bold">يمكنك كتابة وتعديل أي قالب JSON مع استخدام المتغيرات التلقائية: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {GoogleMapsUrl}, {OrderContents}</p>
                 </div>
             </div>
 
@@ -241,7 +241,26 @@
         document.getElementById('p_ApiEmail').value = '';
         document.getElementById('p_ApiPassword').value = '';
         document.getElementById('p_CustomHeadersJson').value = '';
-        document.getElementById('p_CustomPayloadMappingJson').value = '';
+        document.getElementById('p_CustomPayloadMappingJson').value = JSON.stringify({
+            email: "{ApiEmail}",
+            password: "{ApiPassword}",
+            pkgUnitType: "METRIC",
+            pkg: {
+                cod: "{OrderTotal}",
+                invoiceNumber: "{OrderNumber}",
+                senderName: "متجر بلوكو لتوريدات البناء",
+                receiverName: "{CustomerName}",
+                receiverPhone: "{CustomerPhone}",
+                serviceType: "STANDARD",
+                shipmentType: "COD",
+                paymentType: "CASH",
+                quantity: 1,
+                contents: "{OrderContents}",
+                locationUrl: "{GoogleMapsUrl}"
+            },
+            destinationAddress: { addressLine1: "{CustomerAddress}", cityId: 1, regionId: 1, villageId: 1 },
+            originAddress: { addressLine1: "عمان", cityId: 1, regionId: 1, villageId: 1 }
+        }, null, 2);
         document.getElementById('p_IsActive').checked = true;
         document.getElementById('providerModal').classList.remove('hidden');
     }
