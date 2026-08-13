@@ -115,9 +115,15 @@
 
                     <!-- Bottom Actions -->
                     <div class="pt-1 flex items-center justify-between gap-2">
-                        <button type="button" onclick="toggleProviderStatus(@provider.Id)" class="text-xs font-bold text-slate-600 hover:text-slate-900 underline">
-                            @(provider.IsActive ? "تعطيل الشركة" : "تفعيل الشركة")
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="toggleProviderStatus(@provider.Id)" class="text-xs font-bold text-slate-600 hover:text-slate-900 underline">
+                                @(provider.IsActive ? "تعطيل الشركة" : "تفعيل الشركة")
+                            </button>
+                            <button type="button" onclick="deleteProviderConfig(@provider.Id, '@provider.ProviderName')" class="text-xs font-bold text-rose-600 hover:text-rose-800 underline flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">delete</span>
+                                <span>حذف</span>
+                            </button>
+                        </div>
                         <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm border border-slate-800">
                             <span class="material-symbols-outlined text-sm">sensors</span>
                             <span>فحص الاتصال بالـ API 📡</span>
@@ -319,6 +325,25 @@
         .catch(err => {
             showTailwindToast('حدث خطأ أثناء تجربة الاتصال بالـ API.', 'error');
         });
+    }
+
+    function deleteProviderConfig(id, name) {
+        if (confirm(`هل أنت تأكد من إزالة وحذف شركة التوصيل (${name}) نهائياً من السستم؟`)) {
+            fetch('@Url.Action("DeleteProvider", "DeliverySettings", new { area = "Admin" })/' + id, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+            .then(r => r.json())
+            .then(res => {
+                showTailwindToast(res.message, res.success ? 'success' : 'error');
+                if (res.success) {
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(err => {
+                showTailwindToast('حدث خطأ أثناء حذف الشركة.', 'error');
+            });
+        }
     }
 
     function toggleProviderStatus(id) {

@@ -68,6 +68,21 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DeleteProvider(int id)
+        {
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var config = await uow.DeliveryProviderConfigs.GetByIdAsync(id);
+            if (config != null)
+            {
+                uow.DeliveryProviderConfigs.Remove(config);
+                await uow.CompleteAsync();
+                TempData["SuccessMessage"] = $"تم حذف شركة التوصيل ({config.ProviderName}) وإزالة إعداداتها بنجاح 🗑️";
+                return Json(new { success = true, message = "تم حذف شركة التوصيل بنجاح" });
+            }
+            return Json(new { success = false, message = "لم يتم العثور على الشركة المراد حذفها" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
