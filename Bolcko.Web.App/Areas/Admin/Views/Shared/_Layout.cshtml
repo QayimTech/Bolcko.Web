@@ -55,7 +55,33 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Pure Tailwind Universal Dynamic Confirm Modal -->
+    <div id="tailwindConfirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 text-right font-sans">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <div id="tailwindConfirmIconBg" class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200">
+                    <span id="tailwindConfirmIcon" class="material-symbols-outlined text-2xl">warning</span>
+                </div>
+                <div>
+                    <h3 id="tailwindConfirmTitle" class="font-black text-slate-900 text-lg">تأكيد العملية</h3>
+                    <p id="tailwindConfirmSub" class="text-slate-400 text-xs font-bold mt-0.5">يرجى التأكيد للمتابعة</p>
+                </div>
+            </div>
+
+            <p id="tailwindConfirmMessage" class="text-slate-700 text-xs font-bold leading-relaxed">هل أنت متأكد من الاستمرار؟</p>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onclick="closeTailwindConfirmModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all">
+                    إلغاء
+                </button>
+                <button type="button" id="tailwindConfirmExecuteBtn" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-6 py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                    <span>تأكيد التنفيذ ⚡</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (Input confirmation) -->
     <div id="deleteConfirmModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
         <div class="bg-white rounded-3xl p-8 max-w-md w-full relative z-10 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 mx-4 border border-red-100">
@@ -86,6 +112,29 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         let currentDeleteForm = null;
+        let pendingTailwindConfirmAction = null;
+
+        window.openTailwindConfirmModal = function(title, message, iconName, color, onConfirm) {
+            document.getElementById('tailwindConfirmTitle').textContent = title || 'تأكيد العملية';
+            document.getElementById('tailwindConfirmMessage').textContent = message || 'هل أنت متأكد من المتابعة؟';
+            if (iconName) document.getElementById('tailwindConfirmIcon').textContent = iconName;
+            
+            pendingTailwindConfirmAction = typeof onConfirm === 'function' ? onConfirm : (typeof color === 'function' ? color : null);
+            document.getElementById('tailwindConfirmModal').classList.remove('hidden');
+        };
+
+        window.closeTailwindConfirmModal = function() {
+            document.getElementById('tailwindConfirmModal').classList.add('hidden');
+            pendingTailwindConfirmAction = null;
+        };
+
+        document.getElementById('tailwindConfirmExecuteBtn').addEventListener('click', function() {
+            if (pendingTailwindConfirmAction) {
+                const action = pendingTailwindConfirmAction;
+                closeTailwindConfirmModal();
+                action();
+            }
+        });
 
         function requireDeleteConfirm(form, itemType = 'item') {
             currentDeleteForm = form;

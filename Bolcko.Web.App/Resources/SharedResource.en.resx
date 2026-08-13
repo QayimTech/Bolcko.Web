@@ -967,6 +967,7 @@
   <data name="NotSpecified" xml:space="preserve"><value>Not Specified</value></data>
   <data name="PaymentAndShipping" xml:space="preserve"><value>Payment &amp; Shipping</value></data>
   <data name="PaymentStatus" xml:space="preserve"><value>Payment Status</value></data>
+  <data name="DeliveryAddress" xml:space="preserve"><value>Delivery Address</value></data>
   <data name="NoDeliveryAddressRegistered" xml:space="preserve"><value>No shipping address registered for this order.</value></data>
   <data name="UpdateOrderStatus" xml:space="preserve"><value>Update Order Status</value></data>
   <data name="SelectNewOrderStatus" xml:space="preserve"><value>Select new order status:</value></data>

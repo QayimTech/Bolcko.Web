@@ -90,7 +90,7 @@
                     </button>
                     @if (role.RoleName != "Admin" && role.RoleName != "SuperAdmin")
                     {
-                        <form asp-action="DeleteRole" method="post" onsubmit="return confirm('هل تريد حذف هذا الدور؟');">
+                        <form asp-action="DeleteRole" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'role');">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="roleId" value="@role.Id" />
                             <button type="submit" class="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" title="حذف الدور">

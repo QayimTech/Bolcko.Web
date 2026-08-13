@@ -1,229 +1,328 @@
 @model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
-@{
-    ViewData["Title"] = SharedLocalizer["CheckoutTitle"];
-}
-<main class="max-w-7xl mx-auto px-6 py-12 text-start">
-    <header class="mb-12 border-e-4 border-primary-container pe-6">
-        <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["CheckoutTitle"]</h1>
-        <p class="font-body-lg text-secondary">@SharedLocalizer["ShippingDeliveryInfo"]</p>
-    </header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-start font-sans">
+    
+    <!-- Step Progress Header -->
+    <div class="mb-8 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-900 rounded-full text-xs font-black mb-2">
+                    <span class="material-symbols-outlined text-sm text-[#E8A020]">verified_user</span>
+                    <span>الدفع والتسليم الآمن (Secure Checkout)</span>
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900">إتمام الشراء وإنشاء الطلب</h1>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1">يرجى مراجعة وتأكيد بيانات التوصيل والدفع لإرسال طلبك مباشرة للمستودع</p>
+            </div>
+            
+            <!-- Step Indicators -->
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-400 border-t md:border-t-0 pt-3 md:pt-0">
+                <span class="flex items-center gap-1 text-slate-900 font-black">
+                    <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">1</span>
+                    السلة
+                </span>
+                <span class="material-symbols-outlined text-sm text-slate-300">chevron_left</span>
+                <span class="flex items-center gap-1 text-[#E8A020] font-black">
+                    <span class="w-6 h-6 rounded-full bg-[#E8A020] text-slate-950 flex items-center justify-center text-xs">2</span>
+                    بيانات الشحن
+                </span>
+                <span class="material-symbols-outlined text-sm text-slate-300">chevron_left</span>
+                <span class="flex items-center gap-1">
+                    <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs">3</span>
+                    تأكيد الطلب
+                </span>
+            </div>
+        </div>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-        <!-- Checkout Form -->
-        <div class="lg:col-span-8">
-            <form id="checkoutForm" asp-action="PlaceOrder" asp-controller="ShoppingCart" method="post" class="space-y-8">
-                <!-- Customer Info -->
-                <div class="bg-white border border-outline-variant p-8 shadow-hard">
-                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">@SharedLocalizer["CustomerInfo"]</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["FullName"]</label>
-                            <input asp-for="FullName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="@SharedLocalizer["EnterFullName"]" />
-                            <span asp-validation-for="FullName" class="text-error text-xs"></span>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Main Form Column -->
+        <div class="lg:col-span-8 space-y-6">
+            <form id="checkoutForm" asp-action="PlaceOrder" asp-controller="ShoppingCart" method="post" class="space-y-6">
+                
+                <!-- 1. Customer Personal Information Card -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-xl">person</span>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Phone"]</label>
-                            <input asp-for="Phone" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="tel" placeholder="05xxxxxxxx" />
-                            <span asp-validation-for="Phone" class="text-error text-xs"></span>
+                            <h2 class="text-lg font-black text-slate-900">1. معلومات المشتري المستلم</h2>
+                            <p class="text-slate-400 text-xs font-medium">سيتم التواصل معك عبر هذا الاسم والهاتف لتنسيق استلام المواد</p>
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Email"]</label>
-                            <input asp-for="Email" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="email" placeholder="example@mail.com" />
-                            <span asp-validation-for="Email" class="text-error text-xs"></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["FullName"] <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <input asp-for="FullName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" placeholder="ادخل اسمك الكامل هنا..." />
+                                <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-lg">badge</span>
+                            </div>
+                            <span asp-validation-for="FullName" class="text-rose-500 text-xs font-bold block"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Phone"] <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <input asp-for="Phone" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-left" dir="ltr" type="tel" placeholder="07xxxxxxxx" />
+                                <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg">call</span>
+                            </div>
+                            <span asp-validation-for="Phone" class="text-rose-500 text-xs font-bold block"></span>
+                        </div>
+
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Email"] <span class="text-slate-400 font-normal">(اختياري لاستلام الفاتورة الإلكترونية)</span></label>
+                            <div class="relative">
+                                <input asp-for="Email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-left" dir="ltr" type="email" placeholder="name@example.com" />
+                                <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg">mail</span>
+                            </div>
+                            <span asp-validation-for="Email" class="text-rose-500 text-xs font-bold block"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Shipping Address -->
-                <div class="bg-white border border-outline-variant p-8 shadow-hard">
-                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">@SharedLocalizer["ShippingAddress"]</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["City"]</label>
-                            <select asp-for="City" id="checkout-city-select" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start">
+                <!-- 2. Shipping Address & Interactive Location Card -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                                <span class="material-symbols-outlined text-xl">location_on</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-black text-slate-900">2. عنوان وموقع الشحن والتوصيل</h2>
+                                <p class="text-slate-400 text-xs font-medium">حدد منطقتك وموقعك الدقيق لضمان وصول الشاحنة/السيارة للموقع مباشرة</p>
+                            </div>
+                        </div>
+
+                        <!-- GPS Button -->
+                        <button type="button" onclick="getCurrentGpsLocation()" class="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-4 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-2 active:scale-95 shrink-0 border border-slate-700">
+                            <span class="material-symbols-outlined text-base text-[#E8A020]">my_location</span>
+                            <span>تحديد موقعي التلقائي عبر GPS 📍</span>
+                        </button>
+                    </div>
+
+                    <!-- GPS Live Notification Status -->
+                    <div id="gpsStatusMessage" class="hidden p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-lg text-emerald-600">near_me</span>
+                        <span id="gpsCoordsText">جاري التقاط الإحداثيات...</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["City"] <span class="text-rose-500">*</span></label>
+                            <select asp-for="City" id="checkout-city-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
                                 @if (ViewBag.ShippingRates != null)
                                 {
                                     foreach (var rate in (IEnumerable<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
                                     {
-                                        <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@rate.CityName</option>
+                                        <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@rate.CityName (@rate.Rate.ToString("N2") د.أ توصيل)</option>
                                     }
                                 }
                                 else
                                 {
-                                    <option value="عمان" data-rate="3.00">@SharedLocalizer["Amman"]</option>
-                                    <option value="الزرقاء" data-rate="4.00">@SharedLocalizer["Zarqa"]</option>
-                                    <option value="إربد" data-rate="5.00">@SharedLocalizer["Irbid"]</option>
+                                    <option value="عمان" data-rate="3.00">عمان (3.00 د.أ)</option>
+                                    <option value="الزرقاء" data-rate="4.00">الزرقاء (4.00 د.أ)</option>
+                                    <option value="إربد" data-rate="5.00">إربد (5.00 د.أ)</option>
                                 }
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Area"]</label>
-                            <input asp-for="Area" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="text" placeholder="@SharedLocalizer["EnterArea"]" />
-                            <span asp-validation-for="Area" class="text-error text-xs"></span>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Area"] / الحي <span class="text-rose-500">*</span></label>
+                            <input asp-for="Area" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" type="text" placeholder="مثال: دابوق / الجبيهة / حي معصوم..." />
+                            <span asp-validation-for="Area" class="text-rose-500 text-xs font-bold block"></span>
                         </div>
-                        <div class="md:col-span-2">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="block text-xs font-bold text-on-surface-variant uppercase">@SharedLocalizer["DetailedAddress"]</label>
-                                <button type="button" onclick="getCurrentGpsLocation()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-black px-4 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
-                                    <span class="material-symbols-outlined text-sm text-[#E8A020]">my_location</span>
-                                    <span>تحديد موقعي الدقيق عبر GPS 📍</span>
-                                </button>
-                            </div>
-                            <textarea asp-for="DetailedAddress" id="detailedAddressTextarea" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-24" placeholder="@SharedLocalizer["EnterDetailedAddress"]"></textarea>
-                            <span asp-validation-for="DetailedAddress" class="text-error text-xs"></span>
+
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">العنوان التفصيلي واسم الشارع <span class="text-rose-500">*</span></label>
+                            <textarea asp-for="DetailedAddress" id="detailedAddressTextarea" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all leading-relaxed" placeholder="اذكر اسم الشارع، رقم العمارة، الطابق، أو أقرب معلم مشهور (مثال: بجانب حلويات أبو فريد، مقابل البنك)..."></textarea>
+                            <span asp-validation-for="DetailedAddress" class="text-rose-500 text-xs font-bold block"></span>
                             
                             <!-- Hidden Coordinates -->
                             <input type="hidden" asp-for="Latitude" id="gpsLatitude" />
                             <input type="hidden" asp-for="Longitude" id="gpsLongitude" />
-                            
-                            <p id="gpsStatusMessage" class="text-xs font-bold text-emerald-600 mt-1 hidden flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">check_circle</span>
-                                <span id="gpsCoordsText">تم التقاط إحداثيات الموقع الدقيق بنجاح!</span>
-                            </p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Country"]</label>
-                            <input asp-for="Country" value="@SharedLocalizer["Jordan"]" readonly class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start text-outline-variant" />
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Country"]</label>
+                            <input asp-for="Country" value="الأردن 🇯🇴" readonly class="w-full bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-500 outline-none cursor-not-allowed" />
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["PostalCode"]</label>
-                            <input asp-for="PostalCode" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="text" placeholder="11111" />
-                            <span asp-validation-for="PostalCode" class="text-error text-xs"></span>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["PostalCode"] <span class="text-slate-400 font-normal">(اختياري)</span></label>
+                            <input asp-for="PostalCode" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" type="text" placeholder="11111" />
                         </div>
                     </div>
                 </div>
 
-                <!-- Project Info (Optional) -->
-                <div class="bg-white border border-outline-variant p-8 shadow-hard">
-                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">@SharedLocalizer["ProjectInfo"]</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["ProjectName"]</label>
-                            <input asp-for="ProjectName" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="text" placeholder="@SharedLocalizer["EnterProjectName"]" />
+                <!-- 3. Optional Project Info -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                        <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-xl">domain</span>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["ProjectType"]</label>
-                            <select asp-for="ProjectType" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start">
-                                <option value="سكني">@SharedLocalizer["Residential"]</option>
-                                <option value="تجاري">@SharedLocalizer["Commercial"]</option>
-                                <option value="صناعي">@SharedLocalizer["Industrial"]</option>
+                            <h2 class="text-lg font-black text-slate-900">3. تفاصيل ورشة البناء / المشروع (اختياري)</h2>
+                            <p class="text-slate-400 text-xs font-medium">لتسهيل عمليات التوريد وتسليم الفواتير للمهندس أو المقاول</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["ProjectName"]</label>
+                            <input asp-for="ProjectName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" type="text" placeholder="مثال: فيلا عبد الله / مشروع المرج..." />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">@SharedLocalizer["ProjectType"]</label>
+                            <select asp-for="ProjectType" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
+                                <option value="سكني">سكني 🏠</option>
+                                <option value="تجاري">تجاري 🏢</option>
+                                <option value="صناعي">صناعي 🏭</option>
                             </select>
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Notes"]</label>
-                            <textarea asp-for="Notes" class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-24" placeholder="@SharedLocalizer["EnterNotes"]"></textarea>
+
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block text-xs font-black text-slate-700">ملاحظات وتعليمات التوصيل لسائق الشاحنة</label>
+                            <textarea asp-for="Notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" placeholder="مثال: يرجى التنسيق هاتفياً قبل الوصول بربع ساعة، إمكانية إنزال المواد بالونش..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- Payment Method -->
-                <div class="bg-white border border-outline-variant p-8 shadow-hard">
-                    <h2 class="font-headline-md text-on-surface mb-6 border-b border-outline-variant pb-2">@SharedLocalizer["PaymentMethod"]</h2>
-                    <div class="flex items-center gap-4 border border-primary p-4 bg-primary-container bg-opacity-10 cursor-pointer">
-                        <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-primary focus:ring-primary" id="cod" />
-                        <label for="cod" class="font-bold text-on-surface flex-grow cursor-pointer">
-                            @SharedLocalizer["CodLabel"]
-                            <span class="block text-xs font-normal text-secondary mt-1">@SharedLocalizer["CodDesc"]</span>
+                <!-- 4. Payment Method Options -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-xl">payments</span>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900">4. طريقة الدفع الفورية</h2>
+                            <p class="text-slate-400 text-xs font-medium">اختر وسيلة الدفع المناسبة لطلبك</p>
+                        </div>
+                    </div>
+
+                    <div class="relative border-2 border-[#E8A020] rounded-2xl p-5 bg-amber-50/40 flex items-center gap-4 cursor-pointer">
+                        <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020]" id="cod" />
+                        <label for="cod" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                            الدفع عند الاستلام (Cash On Delivery - COD)
+                            <span class="block text-xs font-bold text-slate-500 mt-0.5">ادفع نقدياً لسائق توصيل الشحنة فور الفحص والمعاينة بالموقع</span>
                         </label>
-                        <span class="material-symbols-outlined text-primary text-3xl">payments</span>
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-amber-200 text-[#E8A020] flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-2xl">local_atm</span>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- Order Summary -->
+        <!-- Sidebar Sticky Order Summary -->
         <div class="lg:col-span-4">
-            <div class="bg-white border-2 border-on-background p-md shadow-hard sticky top-24">
-                <h2 class="font-headline-md text-on-surface uppercase mb-6 pb-2 border-b-2 border-primary-container">@SharedLocalizer["OrderSummary"]</h2>
-                <div class="space-y-4 mb-8">
-                    <!-- Mini Cart Items -->
-                    @if (ViewBag.Cart != null)
-                    {
-                        var cart = (Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto)ViewBag.Cart;
-                        foreach (var item in cart.Items)
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-md sticky top-24 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#E8A020]">shopping_bag</span>
+                        <span>ملخص الطلب والمواد</span>
+                    </h2>
+                </div>
+
+                <!-- Cart Items List with Images & Quantities -->
+                @if (ViewBag.Cart != null)
+                {
+                    var cart = (Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto)ViewBag.Cart;
+                    <div class="space-y-4 max-h-80 overflow-y-auto pr-1">
+                        @foreach (var item in cart.Items)
                         {
-                            <div class="flex gap-4 border-b border-outline-variant pb-4">
+                            <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
                                 @if (!string.IsNullOrEmpty(item.ProductImage))
                                 {
-                                    <img class="w-16 h-16 object-cover" src="@item.ProductImage" alt="@item.ProductName" width="64" height="64" loading="lazy" decoding="async" />
+                                    <img class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" src="@item.ProductImage" alt="@item.ProductName" />
                                 }
                                 else
                                 {
-                                    <div class="w-16 h-16 bg-surface-container-high flex items-center justify-center text-outline">
-                                        <span class="material-symbols-outlined">image</span>
+                                    <div class="w-14 h-14 rounded-xl bg-slate-200 text-slate-400 flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-xl">inventory_2</span>
                                     </div>
                                 }
-                                <div class="flex-grow">
-                                    <h4 class="font-bold text-xs">@item.ProductName</h4>
-                                    <p class="text-[10px] text-outline-variant">@string.Format(SharedLocalizer["UnitsCount"], item.Quantity)</p>
-                                    <p class="font-bold text-xs">@item.TotalPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</p>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="font-black text-xs text-slate-900 truncate">@item.ProductName</h4>
+                                    <p class="text-[11px] font-bold text-slate-500 mt-0.5">الكمية: @item.Quantity قطعة</p>
+                                    <p class="font-black text-xs text-[#E8A020] mt-0.5">@item.TotalPrice.ToString("N2") د.أ</p>
                                 </div>
                             </div>
                         }
-                        
-                        <div class="flex justify-between items-center pt-2">
-                            <span class="text-outline-variant text-sm">@SharedLocalizer["Subtotal"]</span>
-                            <span class="font-bold"><span id="checkout-subtotal-val">@cart.Subtotal.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
+                    </div>
+                    
+                    <div class="space-y-3 pt-4 border-t border-slate-100 text-xs font-bold text-slate-600">
+                        <div class="flex justify-between items-center">
+                            <span>مجموع المواد Subtotal:</span>
+                            <span class="text-slate-900 font-black"><span id="checkout-subtotal-val">@cart.Subtotal.ToString("F2")</span> د.أ</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-outline-variant text-sm">@SharedLocalizer["ShippingEstimated"]</span>
-                            <span class="font-bold"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
+                            <span>رسوم التوصيل الشحن Estimated Shipping:</span>
+                            <span class="text-indigo-600 font-black"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> د.أ</span>
                         </div>
-                        <div class="flex justify-between items-center border-b border-outline-variant pb-4">
-                            <span class="text-outline-variant text-sm">@SharedLocalizer["Tax"]</span>
-                            <span class="font-bold"><span id="checkout-tax-val">@cart.Tax.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
+                        <div class="flex justify-between items-center">
+                            <span>الضريبة Tax:</span>
+                            <span class="text-slate-900 font-black"><span id="checkout-tax-val">@cart.Tax.ToString("F2")</span> د.أ</span>
                         </div>
-                        <div class="flex justify-between items-center pt-4">
-                            <span class="text-outline-variant font-bold">@SharedLocalizer["Total"]</span>
-                            <span class="font-headline-md text-primary"><span id="checkout-total-val">@cart.Total.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
+                        <div class="flex justify-between items-center text-sm pt-3 border-t border-slate-200 font-black text-slate-900">
+                            <span class="text-base">الإجمالي الكلي Total:</span>
+                            <span class="text-xl font-black text-[#E8A020]"><span id="checkout-total-val">@cart.Total.ToString("F2")</span> د.أ</span>
                         </div>
-                    }
-                </div>
-                
-                <button type="submit" form="checkoutForm" class="w-full bg-primary text-white font-bold py-4 flex items-center justify-center gap-2 uppercase shadow-hard hover:opacity-90 transition-all">
-                    @SharedLocalizer["ConfirmAndSendOrder"]
-                    <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                }
+
+                <button type="submit" form="checkoutForm" class="w-full bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 text-sm cursor-pointer">
+                    <span>تأكيد وإرسال الطلب الآن 🚀</span>
+                    <span class="material-symbols-outlined text-xl">arrow_back</span>
                 </button>
                 
-                <p class="mt-4 text-[10px] text-outline-variant text-center">@SharedLocalizer["AcceptTermsText"]</p>
+                <p class="text-[11px] text-slate-400 text-center leading-relaxed font-medium">
+                    بالضغط على زر التأكيد، فأنت توافق على شروط الاستخدام وسياسة التوصيل المتبعة في متجر بلوكو.
+                </p>
             </div>
         </div>
     </div>
-    <script>
-        function getCurrentGpsLocation() {
-            if (navigator.geolocation) {
-                const statusMsg = document.getElementById('gpsStatusMessage');
-                const coordsText = document.getElementById('gpsCoordsText');
-                statusMsg.classList.remove('hidden');
-                coordsText.innerText = 'جاري تحديد موقعك عبر الـ GPS... 📡';
-
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        document.getElementById('gpsLatitude').value = lat;
-                        document.getElementById('gpsLongitude').value = lng;
-                        
-                        coordsText.innerText = `تم تحديد الموقع بنجاح 📍 (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-                        
-                        // Append to detailed address if empty
-                        const addrInput = document.getElementById('detailedAddressTextarea');
-                        if (addrInput && !addrInput.value.includes('GPS')) {
-                            addrInput.value = (addrInput.value ? addrInput.value + '\n' : '') + `[إحداثيات GPS: https://maps.google.com/?q=${lat},${lng}]`;
-                        }
-                    },
-                    (error) => {
-                        coordsText.innerText = 'تعذر تحديد الموقع تلقائياً. يرجى كتابة العنوان تفصيلياً.';
-                        statusMsg.classList.remove('text-emerald-600');
-                        statusMsg.classList.add('text-rose-600');
-                    }
-                );
-            } else {
-                alert('المتصفح لا يدعم تحديد الموقع.');
-            }
-        }
-    </script>
 </main>
+
+<script>
+    function getCurrentGpsLocation() {
+        if (navigator.geolocation) {
+            const statusMsg = document.getElementById('gpsStatusMessage');
+            const coordsText = document.getElementById('gpsCoordsText');
+            statusMsg.classList.remove('hidden');
+            statusMsg.className = 'p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex items-center gap-2 transition-all mb-4';
+            coordsText.innerText = 'جاري تحديد موقعك الجغرافي الدقيق عبر الـ GPS... 📡';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    document.getElementById('gpsLatitude').value = lat;
+                    document.getElementById('gpsLongitude').value = lng;
+                    
+                    statusMsg.className = 'p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 transition-all mb-4';
+                    coordsText.innerText = `تم التقاط إحداثيات موقعك بنجاح! 📍 (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                    
+                    // Auto populate detailed address input with maps link
+                    const addrInput = document.getElementById('detailedAddressTextarea');
+                    if (addrInput) {
+                        const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                        if (!addrInput.value.includes('maps.google.com')) {
+                            addrInput.value = (addrInput.value ? addrInput.value + '\n' : '') + `[رابط خريطة موقعي GPS: ${mapsUrl}]`;
+                        }
+                    }
+                },
+                (error) => {
+                    statusMsg.className = 'p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2 transition-all mb-4';
+                    coordsText.innerText = 'تعذر الوصول للـ GPS تلقائياً. يرجى التأكد من السماح للمتصفح أو كتابة العنوان تفصيلياً.';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            alert('المتصفح لا يدعم تحديد الموقع الجغرافي.');
+        }
+    }
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -233,11 +332,9 @@
                 var selectedOption = $(this).find('option:selected');
                 var rate = parseFloat(selectedOption.data('rate')) || 0.0;
                 
-                // Read current values
                 var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
                 var tax = parseFloat($('#checkout-tax-val').text()) || 0.0;
                 
-                // Update UI values
                 $('#checkout-shipping-val').text(rate.toFixed(2));
                 
                 var total = subtotal + tax + rate;

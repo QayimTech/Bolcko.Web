@@ -971,6 +971,7 @@
   <data name="NotSpecified" xml:space="preserve"><value>غير محدد</value></data>
   <data name="PaymentAndShipping" xml:space="preserve"><value>الدفع والشحن</value></data>
   <data name="PaymentStatus" xml:space="preserve"><value>حالة الدفع</value></data>
+  <data name="DeliveryAddress" xml:space="preserve"><value>عنوان التوصيل</value></data>
   <data name="NoDeliveryAddressRegistered" xml:space="preserve"><value>لا يوجد عنوان توصيل مسجل لهذا الطلب.</value></data>
   <data name="UpdateOrderStatus" xml:space="preserve"><value>تحديث حالة الطلب</value></data>
   <data name="SelectNewOrderStatus" xml:space="preserve"><value>اختر الحالة الجديدة للطلب:</value></data>

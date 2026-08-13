@@ -110,6 +110,30 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
             var order = await _orderService.PlaceOrderAsync(userId.Value, cart, request);
             
+            // Auto-Dispatch to Active Delivery Provider API (GLC / LogesTechs) if enabled and not oversized
+            try
+            {
+                var deliveryApiService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.IDeliveryApiService)) as Blocko.Services.Interfaces.Delivery.IDeliveryApiService;
+                var uow = HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork)) as Bolcko.Domain.Interfaces.IUnitOfWork;
+
+                if (deliveryApiService != null && uow != null)
+                {
+                    var fullOrder = await uow.Orders.GetOrderByIdWithItemsAsync(order.Id);
+                    var hasOversized = fullOrder?.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
+                    
+                    if (!hasOversized && fullOrder != null)
+                    {
+                        var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder, "", "", "", "تحويل أوتوماتيكي تلقائي عند الطلب عبر التطبيق");
+                        if (dispatchRes.Success)
+                        {
+                            fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                            await uow.CompleteAsync();
+                        }
+                    }
+                }
+            }
+            catch { /* Fallback gracefully */ }
+
             // Clear the cart after successful checkout
             await _cartService.ClearCartAsync(sessionId, userId);
 

@@ -34,6 +34,7 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<DeliveryRating> DeliveryRatings { get; }
         IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; }
         IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; }
 
         // Analytics & Security
         IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; }

@@ -36,5 +36,6 @@ namespace Blocko.Services.Interfaces.Delivery
         Task<OrderShipmentMapping?> GetPackageStatusAsync(string barcodeOrId);
         Task<DeliveryProviderConfig?> GetActiveConfigAsync();
         Task<bool> SaveConfigAsync(DeliveryProviderConfig config);
+        Task<int> SyncProviderLocationsAsync(string? providerKey = null);
     }
 }

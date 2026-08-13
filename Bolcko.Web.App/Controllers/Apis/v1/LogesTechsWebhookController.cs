@@ -26,6 +26,9 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
         [JsonPropertyName("barcode")]
         public string? Barcode { get; set; }
 
+        [JsonPropertyName("packageBarcode")]
+        public string? PackageBarcode { get; set; }
+
         [JsonPropertyName("cod")]
         public double Cod { get; set; }
 
@@ -40,6 +43,9 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
         [JsonPropertyName("driverPhone")]
         public string? DriverPhone { get; set; }
+
+        [JsonPropertyName("attachmentUrls")]
+        public System.Collections.Generic.List<string>? AttachmentUrls { get; set; }
     }
 
     [AllowAnonymous]
@@ -58,7 +64,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
         [HttpPost]
         [HttpPost("{companyId}")]
         [HttpPost("{providerKey}/{companyId}")]
-        public async Task<IActionResult> ReceiveStatusUpdate([FromRoute] string companyId, [FromRoute] string? providerKey, [FromBody] LogesTechsWebhookPayloadDto payload)
+        public async Task<IActionResult> ReceiveStatusUpdate([FromRoute] string? companyId, [FromRoute] string? providerKey, [FromBody] LogesTechsWebhookPayloadDto payload)
         {
             if (payload == null)
             {
@@ -67,11 +73,16 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
             var statusStr = payload.NewStatus ?? payload.Status ?? "";
             var invoiceNum = payload.InvoiceNumber ?? "";
-            var barcodeStr = payload.Barcode ?? payload.PackageId.ToString();
+            var barcodeStr = payload.Barcode ?? payload.PackageBarcode ?? (payload.PackageId > 0 ? payload.PackageId.ToString() : "");
 
-            // Find matching OrderShipmentMapping by invoice number or barcode/packageId
+            // Log incoming Webhook to file for auditing
+            var firstAttachment = payload.AttachmentUrls != null && payload.AttachmentUrls.Count > 0 ? payload.AttachmentUrls[0] : "";
+            System.IO.File.AppendAllText("logs/delivery_api.log", $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] WEBHOOK RECEIVED: Provider={providerKey}, CompanyId={companyId}, Invoice={invoiceNum}, Barcode={barcodeStr}, Status={statusStr}, COD={payload.Cod}, Attachment={firstAttachment}\n===================================\n");
+
+            // Find matching OrderShipmentMapping by barcode/packageId or invoice number
             var mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable()
-                .FirstOrDefaultAsync(m => m.Barcode == barcodeStr || m.ExternalPackageId == payload.PackageId.ToString());
+                .FirstOrDefaultAsync(m => (barcodeStr != "" && (m.Barcode == barcodeStr || m.ExternalPackageId == barcodeStr)) || 
+                                          (payload.PackageId > 0 && m.ExternalPackageId == payload.PackageId.ToString()));
 
             Bolcko.Domain.Entities.Order.Order? order = null;
 
@@ -96,44 +107,90 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 return NotFound(new { success = false, message = "لم يتم العثور على الطلب المرتبط بهذا التحديث" });
             }
 
-            // Update mapping
+            // Update mapping details
             if (mapping != null)
             {
                 mapping.CurrentStatus = statusStr;
                 mapping.ArabicStatus = MapLogesTechsStatusToArabic(statusStr);
                 mapping.LastStatusUpdatedAt = DateTime.UtcNow;
-                if (!string.IsNullOrEmpty(payload.DriverName)) mapping.AssignedDriverName = payload.DriverName;
-                if (!string.IsNullOrEmpty(payload.DriverPhone)) mapping.AssignedDriverPhone = payload.DriverPhone;
+                if (!string.IsNullOrEmpty(payload.DriverName)) mapping.AssignedDriverName = payload.DriverName.Trim();
+                if (!string.IsNullOrEmpty(payload.DriverPhone)) mapping.AssignedDriverPhone = payload.DriverPhone.Trim();
+                if (!string.IsNullOrEmpty(firstAttachment)) mapping.AwbPdfUrl = firstAttachment; // Store Proof of Delivery (POD) link
                 mapping.RawWebhookPayload = JsonSerializer.Serialize(payload);
             }
 
-            // Update Order Domain Status & Finance Reconciliation
+            // Exhaustive Dynamic Domain Order Status Mapping & Inventory Stock Restoration Engine
             if (order != null)
             {
-                switch (statusStr.ToUpper())
+                var upperStatus = statusStr.ToUpperInvariant();
+                var previousStatus = order.Status;
+
+                switch (upperStatus)
                 {
+                    // 1. Successful Delivery & Financial Settlement
+                    case "DELIVERED":
                     case "DELIVERED_TO_RECIPIENT":
                     case "COMPLETED":
-                    case "DELIVERED":
+                    case "INVOICED":
                         order.Status = OrderStatus.Delivered;
-                        order.PaymentStatus = "Paid"; // COD Collected successfully
+                        order.PaymentStatus = "Paid";
+                        if (payload.Cod > 0)
+                        {
+                            order.TotalAmount = (decimal)payload.Cod;
+                        }
                         break;
 
+                    // 2. In Transit / Driver Out for Delivery
                     case "OUT_FOR_DELIVERY":
                     case "IN_TRANSIT":
                     case "IN_TRANSIT_TO_CUSTOMER":
                     case "SCANNED_BY_DRIVER_AND_IN_CAR":
+                    case "EXPORTED_TO_THIRD_PARTY":
+                    case "TRANSFERRED_OUT":
                         order.Status = OrderStatus.Shipped;
                         break;
 
+                    // 3. Order Returns / Cancellation -> Auto Stock Restored to Inventory
                     case "CANCELLED":
                     case "RETURNED_BY_RECIPIENT":
                     case "DELIVERED_TO_SENDER":
+                    case "RETURNED":
+                    case "REJECTED_BY_DRIVER_AND_PENDING_MANGEMENT":
+                    case "DELETED":
                         order.Status = OrderStatus.Cancelled;
+                        order.PaymentStatus = "Returned";
+
+                        // Restore product quantities if not already cancelled
+                        if (previousStatus != OrderStatus.Cancelled)
+                        {
+                            var fullOrder = await _unitOfWork.Orders.GetOrderByIdWithItemsAsync(order.Id);
+                            if (fullOrder?.Items != null)
+                            {
+                                foreach (var item in fullOrder.Items)
+                                {
+                                    if (item.Product != null)
+                                    {
+                                        item.Product.StockQuantity += item.Quantity;
+                                        _unitOfWork.Products.Update(item.Product);
+                                    }
+                                }
+                            }
+                        }
                         break;
 
+                    // 4. Warehouse Fulfillment & Hub Processing Stages
+                    case "CREATED":
+                    case "DRAFT":
                     case "ACCEPTED_BY_DRIVER_AND_PENDING_PICKUP":
                     case "ASSIGNED_TO_DRIVER_AND_PENDING_APPROVAL":
+                    case "IN_HUB":
+                    case "RECEIVED_IN_HUB":
+                    case "PICKED":
+                    case "PACKED":
+                    case "POSTPONED_DELIVERY":
+                    case "PENDING_CUSTOMER_CARE_APPROVAL":
+                    case "ARRIVED":
+                    case "BROUGHT":
                         order.Status = OrderStatus.Processing;
                         break;
                 }
@@ -152,7 +209,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
         private static string MapLogesTechsStatusToArabic(string status)
         {
-            return status.ToUpper() switch
+            return status.ToUpperInvariant() switch
             {
                 "PENDING_CUSTOMER_CARE_APPROVAL" => "طلب جديد بانتظار الموافقة",
                 "APPROVED_BY_CUSTOMER_CARE_AND_WAITING_FOR_DISPATCHER" => "جاهز للفرز والتوصيل",
@@ -160,10 +217,15 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 "SCANNED_BY_DRIVER_AND_IN_CAR" => "تم تحميل الشحنة بالمركبة 🚚",
                 "OUT_FOR_DELIVERY" => "خرج للتوصيل للزبون 🛵",
                 "DELIVERED_TO_RECIPIENT" => "تم التسليم للزبون بنجاح 🟢",
+                "DELIVERED" => "تم التسليم للزبون بنجاح 🟢",
                 "COMPLETED" => "شحنة مكتملة ومغلقة 🟢",
                 "POSTPONED_DELIVERY" => "تأجيل التوصيل لموعد آخر ⏰",
                 "RETURNED_BY_RECIPIENT" => "تم إرجاع الشحنة من الزبون 🔴",
+                "DELIVERED_TO_SENDER" => "تم إرجاع الشحنة للمستودع 🔄",
                 "CANCELLED" => "شحنة ملغاة ❌",
+                "PICKED" => "تم تجهيز وتجميع المنتجات 📦",
+                "PACKED" => "تم تغليف وتجهيز الشحنة 📦",
+                "IN_HUB" => "في مركز التوزيع (الفرز) 🏢",
                 _ => status
             };
         }

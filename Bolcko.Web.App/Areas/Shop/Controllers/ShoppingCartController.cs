@@ -189,23 +189,52 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var deliveryApiService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.IDeliveryApiService)) as Blocko.Services.Interfaces.Delivery.IDeliveryApiService;
                 var uow = HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork)) as Bolcko.Domain.Interfaces.IUnitOfWork;
 
-                if (deliveryApiService != null && uow != null)
+                var logMsg = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] AutoDispatch Triggered for Order #{order.Id} ({order.OrderNumber})\n";
+
+                if (deliveryApiService == null || uow == null)
                 {
-                    var fullOrder = await uow.Orders.GetByIdAsync(order.Id);
-                    var hasOversized = fullOrder?.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
-                    
-                    if (!hasOversized)
+                    logMsg += " -> ERROR: deliveryApiService or uow Service is NULL!\n";
+                }
+                else
+                {
+                    var fullOrder = await uow.Orders.GetOrderByIdWithItemsAsync(order.Id);
+                    var activeConfig = await deliveryApiService.GetActiveConfigAsync();
+
+                    if (activeConfig == null)
                     {
-                        var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder!, "1", "1", "1", "تحويل أوتوماتيكي تلقائي عند الطلب");
-                        if (dispatchRes.Success)
+                        logMsg += " -> SKIPPED: GetActiveConfigAsync returned NULL (No active provider in DB)!\n";
+                    }
+                    else if (fullOrder == null)
+                    {
+                        logMsg += " -> ERROR: fullOrder is NULL!\n";
+                    }
+                    else
+                    {
+                        var hasOversized = fullOrder.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
+                        if (hasOversized)
                         {
-                            fullOrder!.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
-                            await uow.CompleteAsync();
+                            logMsg += " -> SKIPPED: Order contains Heavy/Oversized items!\n";
+                        }
+                        else
+                        {
+                            logMsg += $" -> Invoking CreateShipmentAsync for Active Provider ({activeConfig.ProviderKey})...\n";
+                            var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder, "", "", "", "تحويل أوتوماتيكي تلقائي عند الطلب عبر المتجر");
+                            logMsg += $" -> Result Success={dispatchRes.Success}, Message={dispatchRes.Message}, ErrorDetail={dispatchRes.ErrorDetail}\n";
+
+                            if (dispatchRes.Success)
+                            {
+                                fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                                await uow.CompleteAsync();
+                            }
                         }
                     }
                 }
+                System.IO.File.AppendAllText("logs/delivery_api.log", logMsg + "===================================\n");
             }
-            catch { /* Fallback gracefully to manual dispatch */ }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("logs/delivery_api.log", $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] AutoDispatch EXCEPTION: {ex.Message}\n{ex.StackTrace}\n===================================\n");
+            }
 
             return RedirectToAction(nameof(Confirmation), new { orderId = order.Id });
         }

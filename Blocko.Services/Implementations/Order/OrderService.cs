@@ -271,7 +271,7 @@ namespace Blocko.Services.Implementations.order
                 Id = o.Id,
                 OrderNumber = o.OrderNumber,
                 UserId = o.UserId,
-                UserName = o.User?.UserName,
+                UserName = o.User != null ? (!string.IsNullOrEmpty($"{o.User.FirstName} {o.User.LastName}".Trim()) ? $"{o.User.FirstName} {o.User.LastName}".Trim() : (o.User.Email ?? o.User.UserName)) : null,
                 OrderDate = o.OrderDate,
                 TotalAmount = o.TotalAmount,
                 Status = o.Status,

@@ -180,5 +180,24 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             return Json(new { success = false, message = "فشل فحص الاتصال بسيرفر API التوصيل." });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SyncLocations(string? providerKey)
+        {
+            try
+            {
+                var count = await _deliveryApiService.SyncProviderLocationsAsync(providerKey);
+                if (count > 0)
+                {
+                    return Json(new { success = true, message = $"✅ تم مزامنة وفهرسة {count} مدينة ومنطقة وقرية في جدول التوصيل بنجاح!" });
+                }
+                return Json(new { success = false, message = "تعذر الاتصال بـ API القرى للشركة أو لا توجد قرى مرجعة." });
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("logs/delivery_api.log", $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] SyncLocations Controller EXCEPTION: {ex.Message}\n{ex.StackTrace}\n================ failure ===============\n");
+                return Json(new { success = false, message = $"❌ خطأ أثناء المزامنة: {ex.Message}" });
+            }
+        }
     }
 }

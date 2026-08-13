@@ -576,7 +576,7 @@
                 const data = await response.json();
 
                 if (!data.success) {
-                    alert('خطأ: ' + (data.message || 'حدث خطأ غير متوقع أثناء الرفع.'));
+                    window.showToast(data.message || 'حدث خطأ غير متوقع أثناء الرفع.', 'error');
                     resetBtn();
                     return;
                 }
@@ -588,12 +588,12 @@
                     resetBtn();
                 } else {
                     // Direct Import Results
-                    alert(`✅ اكتملت المعالجة بنجاح!\n• إجمالي الصفوف: ${data.totalRows}\n• المنتجات المحدثة: ${data.updatedCount}\n• الأخطاء: ${data.failureCount}`);
-                    location.reload();
+                    window.showToast(`اكتملت المعالجة بنجاح! تم تحديث ${data.updatedCount} منتج.`, 'success');
+                    setTimeout(() => location.reload(), 1500);
                 }
             } catch (err) {
                 console.error(err);
-                alert('حدث خطأ في الاتصال أثناء الاستيراد.');
+                window.showToast('حدث خطأ في الاتصال أثناء الاستيراد.', 'error');
                 resetBtn();
             }
 

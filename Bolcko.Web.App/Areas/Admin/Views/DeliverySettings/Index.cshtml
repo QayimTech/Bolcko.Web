@@ -124,10 +124,16 @@
                                 <span>حذف</span>
                             </button>
                         </div>
-                        <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm border border-slate-800">
-                            <span class="material-symbols-outlined text-sm">sensors</span>
-                            <span>فحص الاتصال بالـ API 📡</span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="syncProviderLocations('@provider.ProviderKey')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm">
+                                <span class="material-symbols-outlined text-sm">sync</span>
+                                <span>مزامنة مناطق وقرى الشركة 🗺️</span>
+                            </button>
+                            <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm border border-slate-800">
+                                <span class="material-symbols-outlined text-sm">sensors</span>
+                                <span>فحص الاتصال بالـ API 📡</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             }
@@ -157,82 +163,88 @@
 </div>
 
 <!-- Add / Edit Provider Tailwind Modal -->
-<div id="providerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto text-right" dir="rtl">
+<div id="providerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col text-right font-sans relative my-auto max-h-[70vh] overflow-hidden" dir="rtl">
         
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <!-- Modal Header (Fixed Height) -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white shrink-0 rounded-t-3xl">
             <h3 class="text-base font-black text-slate-900 flex items-center gap-2" id="modalTitle">
                 <span class="material-symbols-outlined text-[#E8A020]">add_box</span>
                 <span>إعداد شركة توصيل وربط الـ API ديناميكياً</span>
             </h3>
-            <button type="button" onclick="closeProviderModal()" class="text-slate-400 hover:text-slate-700">
+            <button type="button" onclick="closeProviderModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors">
                 <span class="material-symbols-outlined text-xl">close</span>
             </button>
         </div>
 
-        <form asp-action="SaveConfig" method="post" class="space-y-4">
-            @Html.AntiForgeryToken()
-            <input type="hidden" id="p_Id" name="Id" value="0" />
+        <!-- Modal Body (Pure Y-Axis Scroll Container) -->
+        <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <form id="providerForm" asp-action="SaveConfig" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="p_Id" name="Id" value="0" />
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">اسم شركة التوصيل *</label>
-                    <input type="text" id="p_ProviderName" name="ProviderName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-bold text-slate-900 focus:bg-white outline-none" placeholder="مثال: Green Line / Aramex" />
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">رمز الشركة (ProviderKey) *</label>
-                    <input type="text" id="p_ProviderKey" name="ProviderKey" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="glc / aramex" />
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">اسم شركة التوصيل *</label>
+                        <input type="text" id="p_ProviderName" name="ProviderName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-bold text-slate-900 focus:bg-white outline-none" placeholder="مثال: Green Line / Aramex" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رمز الشركة (ProviderKey) *</label>
+                        <input type="text" id="p_ProviderKey" name="ProviderKey" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="glc / aramex" />
+                    </div>
 
-                <div class="md:col-span-2 space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">رابط الـ API المباشر لإنشاء الشحنة (Create Shipment Endpoint URL) *</label>
-                    <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api/ship/request/by-email" />
-                </div>
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رابط الـ API المباشر لإنشاء الشحنة (Create Shipment Endpoint URL) *</label>
+                        <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api/ship/request/by-email" />
+                    </div>
 
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">معرّف الشركة لدى السستم (Company-ID) *</label>
-                    <input type="text" id="p_CompanyId" name="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="410 أو GLC" />
-                </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">معرّف الشركة لدى السستم (Company-ID) *</label>
+                        <input type="text" id="p_CompanyId" name="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="410 أو GLC" />
+                    </div>
 
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">البريد الإلكتروني للـ API *</label>
-                    <input type="email" id="p_ApiEmail" name="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="info@bolcko.com" />
-                </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">البريد الإلكتروني للـ API *</label>
+                        <input type="email" id="p_ApiEmail" name="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="info@bolcko.com" />
+                    </div>
 
-                <div class="md:col-span-2 space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">كلمة المرور للـ API *</label>
-                    <input type="password" id="p_ApiPassword" name="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="••••••••••••" />
-                </div>
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">كلمة المرور للـ API *</label>
+                        <input type="password" id="p_ApiPassword" name="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="••••••••••••" />
+                    </div>
 
-                <div class="md:col-span-2 space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
-                    <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "186" }'></textarea>
-                </div>
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
+                        <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "186" }'></textarea>
+                    </div>
 
-                <div class="md:col-span-2 space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">قالب الـ Payload المتوقع المخصص (Expected Dynamic JSON Payload Template):</label>
-                    <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500 outline-none dir-ltr text-left resize-y" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
-                    <p class="text-[10px] text-slate-500 font-bold">يمكنك كتابة وتعديل أي قالب JSON مع استخدام المتغيرات التلقائية: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {GoogleMapsUrl}, {OrderContents}</p>
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">قالب الـ Payload المتوقع المخصص (Expected Dynamic JSON Payload Template):</label>
+                        <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500 outline-none dir-ltr text-left resize-none" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
+                        <p class="text-[10px] text-slate-500 font-bold">المتغيرات التلقائية المدعومة: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {OrderQuantity}, {OrderContents}, {GoogleMapsUrl}, {CustomerAddress}, {CityId}, {RegionId}, {VillageId}</p>
+                    </div>
                 </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer (Fixed Height) -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 rounded-b-3xl">
+            <label class="relative inline-flex items-center cursor-pointer gap-2">
+                <input type="checkbox" id="p_IsActive" form="providerForm" name="IsActive" value="true" checked class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+                <span class="text-xs font-bold text-slate-800">تفعيل الشركة لرفع الطلبيات أوتوماتيكياً</span>
+            </label>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button type="button" onclick="testModalFormConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 border border-slate-800 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">sensors</span>
+                    <span>اختبار الـ API فورياً 📡</span>
+                </button>
+                <button type="button" onclick="closeProviderModal()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">إلغاء</button>
+                <button type="submit" form="providerForm" class="px-5 py-2 rounded-xl text-xs font-black text-slate-950 bg-[#E8A020] hover:bg-[#d49018] shadow-md">حفظ وإدراج 💾</button>
             </div>
+        </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100">
-                <label class="relative inline-flex items-center cursor-pointer gap-2">
-                    <input type="checkbox" id="p_IsActive" name="IsActive" value="true" checked class="sr-only peer" />
-                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
-                    <span class="text-xs font-bold text-slate-800">تفعيل الشركة لرفع الطلبيات أوتوماتيكياً</span>
-                </label>
-
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <button type="button" onclick="testModalFormConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 border border-slate-800 shadow-sm">
-                        <span class="material-symbols-outlined text-sm">sensors</span>
-                        <span>اختبار الـ API فورياً 📡</span>
-                    </button>
-                    <button type="button" onclick="closeProviderModal()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">إلغاء</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-black text-slate-950 bg-[#E8A020] hover:bg-[#d49018] shadow-md">حفظ وإدراج 💾</button>
-                </div>
-            </div>
-        </form>
     </div>
 </div>
 
@@ -240,13 +252,13 @@
     function openAddProviderModal() {
         document.getElementById('modalTitle').innerText = 'إعداد شركة توصيل وربط الـ API ديناميكياً';
         document.getElementById('p_Id').value = '0';
-        document.getElementById('p_ProviderName').value = '';
-        document.getElementById('p_ProviderKey').value = '';
+        document.getElementById('p_ProviderName').value = 'LogesTechs / GLC';
+        document.getElementById('p_ProviderKey').value = 'glc';
         document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api/ship/request/by-email';
         document.getElementById('p_CompanyId').value = '186';
-        document.getElementById('p_ApiEmail').value = '';
-        document.getElementById('p_ApiPassword').value = '';
-        document.getElementById('p_CustomHeadersJson').value = '';
+        document.getElementById('p_ApiEmail').value = 'hamza.a.alhmad@gmail.com';
+        document.getElementById('p_ApiPassword').value = 'Ham@123ham';
+        document.getElementById('p_CustomHeadersJson').value = JSON.stringify({ "company-id": "186" }, null, 2);
         document.getElementById('p_CustomPayloadMappingJson').value = JSON.stringify({
             email: "{ApiEmail}",
             password: "{ApiPassword}",
@@ -255,17 +267,20 @@
                 cod: "{OrderTotal}",
                 invoiceNumber: "{OrderNumber}",
                 senderName: "متجر بلوكو لتوريدات البناء",
+                businessSenderName: "GLC",
+                senderPhone: "0786791136",
                 receiverName: "{CustomerName}",
                 receiverPhone: "{CustomerPhone}",
                 serviceType: "STANDARD",
                 shipmentType: "COD",
                 paymentType: "CASH",
-                quantity: 1,
+                quantity: "{OrderQuantity}",
                 contents: "{OrderContents}",
+                notes: "{OrderItemsNotes}",
                 locationUrl: "{GoogleMapsUrl}"
             },
-            destinationAddress: { addressLine1: "{CustomerAddress}", cityId: 1, regionId: 1, villageId: 1 },
-            originAddress: { addressLine1: "عمان", cityId: 1, regionId: 1, villageId: 1 }
+            destinationAddress: { addressLine1: "{CustomerAddress}", cityId: "{CityId}", regionId: "{RegionId}", villageId: "{VillageId}" },
+            originAddress: { addressLine1: "عمان - حي معصوم", cityId: 395, regionId: 33, villageId: 18076 }
         }, null, 2);
         document.getElementById('p_IsActive').checked = true;
         document.getElementById('providerModal').classList.remove('hidden');
@@ -292,7 +307,7 @@
 
     function copyText(txt) {
         navigator.clipboard.writeText(txt);
-        showTailwindToast('تم نسخ الرابط بنجاح 📋', 'success');
+        window.showToast('تم نسخ الرابط بنجاح 📋', 'success');
     }
 
     function testModalFormConnection() {
@@ -307,11 +322,11 @@
         };
 
         if (!payload.BaseUrl || !payload.ApiEmail) {
-            showTailwindToast('يرجى ملء رابط الـ API والبريد الإلكتروني لاختبار الاتصال ⚠️', 'error');
+            window.showToast('يرجى ملء رابط الـ API والبريد الإلكتروني لاختبار الاتصال ⚠️', 'error');
             return;
         }
 
-        showTailwindToast('جاري تجربة وفحص الاتصال بالـ API فورياً... 📡', 'success');
+        window.showToast('جاري تجربة وفحص الاتصال بالـ API فورياً... 📡', 'success');
 
         fetch('@Url.Action("TestProviderConnection", "DeliverySettings", new { area = "Admin" })', {
             method: 'POST',
@@ -320,30 +335,36 @@
         })
         .then(r => r.json())
         .then(res => {
-            showTailwindToast(res.message, res.success ? 'success' : 'error');
+            window.showToast(res.message, res.success ? 'success' : 'error');
         })
         .catch(err => {
-            showTailwindToast('حدث خطأ أثناء تجربة الاتصال بالـ API.', 'error');
+            window.showToast('حدث خطأ أثناء تجربة الاتصال بالـ API.', 'error');
         });
     }
 
     function deleteProviderConfig(id, name) {
-        if (confirm(`هل أنت تأكد من إزالة وحذف شركة التوصيل (${name}) نهائياً من السستم؟`)) {
-            fetch('@Url.Action("DeleteProvider", "DeliverySettings", new { area = "Admin" })/' + id, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
-            .then(r => r.json())
-            .then(res => {
-                showTailwindToast(res.message, res.success ? 'success' : 'error');
-                if (res.success) {
-                    setTimeout(() => location.reload(), 1000);
-                }
-            })
-            .catch(err => {
-                showTailwindToast('حدث خطأ أثناء حذف الشركة.', 'error');
-            });
-        }
+        window.openTailwindConfirmModal(
+            'تأكيد إزالة شركة التوصيل',
+            `هل أنت تأكد من إزالة وحذف شركة التوصيل (${name}) نهائياً من السيستم؟`,
+            'delete',
+            'rose',
+            function() {
+                fetch('@Url.Action("DeleteProvider", "DeliverySettings", new { area = "Admin" })/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    window.showToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(err => {
+                    window.showToast('حدث خطأ أثناء حذف الشركة.', 'error');
+                });
+            }
+        );
     }
 
     function toggleProviderStatus(id) {
@@ -355,16 +376,36 @@
         .then(r => r.json())
         .then(res => {
             if (res.success) {
-                showTailwindToast(res.message, 'success');
+                if (window.showToast) window.showToast(res.message, 'success'); else alert(res.message);
                 setTimeout(() => location.reload(), 800);
             }
         });
     }
 
+    function syncProviderLocations(key) {
+        if (window.showToast) window.showToast('جاري مزامنة وحفظ جميع قرى ومناطق الشركة في قاعدة البيانات...', 'success');
+        fetch('@Url.Action("SyncLocations", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `providerKey=${encodeURIComponent(key)}`
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (window.showToast) window.showToast(res.message, res.success ? 'success' : 'error');
+            else alert(res.message);
+        })
+        .catch(err => {
+            if (window.showToast) window.showToast('حدث خطأ أثناء مزامنة مناطق الشركة.', 'error');
+        });
+    }
+
     function testLogesTechsConnection() {
-        showTailwindToast('جاري فحص الاتصال بالـ API...', 'success');
+        if (window.showToast) window.showToast('جاري فحص الاتصال بالـ API...', 'success');
         fetch('@Url.Action("TestConnection", "DeliverySettings", new { area = "Admin" })', { method: 'POST' })
         .then(r => r.json())
-        .then(res => showTailwindToast(res.message, res.success ? 'success' : 'error'));
+        .then(res => {
+            if (window.showToast) window.showToast(res.message, res.success ? 'success' : 'error');
+            else alert(res.message);
+        });
     }
 </script>

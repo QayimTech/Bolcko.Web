@@ -77,30 +77,36 @@
     <script>
         $(function () {
             $('#btn-seo-populate').on('click', function () {
-                if (!confirm('هل تريد ملء وإضافة اقتراحات تهيئة الصفحات SEO الافتراضية لقواعد البيانات تلقائياً؟')) return;
-                
-                var btn = $(this);
-                btn.prop('disabled', true).text('جاري التهيئة التلقائية...');
-                
-                $.ajax({
-                    url: '@Url.Action("PopulateDefaults", "SEO", new { area = "Admin" })',
-                    type: 'POST',
-                    data: {
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (res) {
-                        if (res.success) {
-                            window.BlockoModal.show({ title: 'عملية ناجحة', message: res.message, icon: 'success', onConfirm: () => window.location.reload() });
-                        } else {
-                            window.BlockoModal.show({ title: 'فشل العملية', message: res.message, icon: 'error' });
+                var executePopulate = function() {
+                    var btn = $('#btn-seo-populate');
+                    btn.prop('disabled', true).text('جاري التهيئة التلقائية...');
+                    
+                    $.ajax({
+                        url: '@Url.Action("PopulateDefaults", "SEO", new { area = "Admin" })',
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                window.showToast(res.message, 'success');
+                                setTimeout(() => window.location.reload(), 1200);
+                            } else {
+                                window.showToast(res.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            window.showToast('حدث خطأ أثناء محاولة تهيئة صفحات الـ SEO.', 'error');
+                            btn.prop('disabled', false).html('<span class="material-symbols-outlined text-[18px]">auto_awesome</span> تهيئة الصفحات تلقائياً');
                         }
-                    },
-                    error: function () {
-                        btn.disabled = false;
-                        window.BlockoModal.show({ title: 'خطأ في الخادم', message: 'حدث خطأ أثناء محاولة تهيئة صفحات الـ SEO.', icon: 'error' });
-                        btn.prop('disabled', false).html('<span class="material-symbols-outlined text-[18px]">auto_awesome</span> تهيئة الصفحات تلقائياً');
-                    }
-                });
+                    });
+                };
+
+                if (typeof openTailwindConfirmModal === 'function') {
+                    openTailwindConfirmModal('تهيئة صفحات SEO', 'هل تريد ملء وإضافة اقتراحات تهيئة الصفحات SEO الافتراضية لقواعد البيانات تلقائياً؟', 'auto_awesome', 'indigo', executePopulate);
+                } else if (confirm('هل تريد ملء وإضافة اقتراحات تهيئة الصفحات SEO الافتراضية لقواعد البيانات تلقائياً؟')) {
+                    executePopulate();
+                }
             });
         });
     </script>

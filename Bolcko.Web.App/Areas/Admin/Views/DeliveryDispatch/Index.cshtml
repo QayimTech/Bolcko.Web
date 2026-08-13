@@ -308,19 +308,34 @@
         });
     }
 
-    function loadLogesTechsVillages(search = '') {
+    function loadLogesTechsVillages(search = '', targetArea = '', targetCity = '') {
         fetch(`@Url.Action("GetLogesTechsVillages", "DeliveryDispatch", new { area = "Admin" })?search=${encodeURIComponent(search)}`)
             .then(r => r.json())
             .then(list => {
                 const select = document.getElementById('logestechsVillageSelect');
                 select.innerHTML = '<option value="">-- اختر المنطقة / القرية --</option>';
+                let matchedValue = '';
+
                 if (list && list.length > 0) {
                     list.forEach(item => {
                         const opt = document.createElement('option');
-                        opt.value = `${item.cityId}_${item.regionId}_${item.id}`;
+                        const val = `${item.cityId}_${item.regionId}_${item.id}`;
+                        opt.value = val;
                         opt.textContent = `${item.arabicName || item.name} - (مدينة: ${item.cityName || item.cityId})`;
                         select.appendChild(opt);
+
+                        if (!matchedValue && targetArea) {
+                            const itemName = (item.arabicName || item.name || '').toLowerCase();
+                            const queryArea = targetArea.toLowerCase();
+                            if (itemName.includes(queryArea) || queryArea.includes(itemName)) {
+                                matchedValue = val;
+                            }
+                        }
                     });
+
+                    if (matchedValue) {
+                        select.value = matchedValue;
+                    }
                 }
             })
             .catch(() => console.log('Could not load villages'));

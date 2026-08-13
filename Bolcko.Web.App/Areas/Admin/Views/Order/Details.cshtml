@@ -48,8 +48,8 @@
             
             @if (Model.ShippingAddress != null)
             {
-                <h3 class="font-bold mt-6 mb-2 border-b pb-1">@L["DeliveryAddress"]:</h3>
-                <p class="text-sm leading-relaxed">
+                <h3 class="font-bold mt-6 mb-2 border-b pb-1 text-slate-800">@L["DeliveryAddress"]:</h3>
+                <p class="text-sm leading-relaxed text-slate-700">
                     @Model.ShippingAddress.City, @Model.ShippingAddress.StateProvince<br />
                     @Model.ShippingAddress.AddressLine1<br />
                     @if (!string.IsNullOrEmpty(Model.ShippingAddress.AddressLine2)) { <span>@Model.ShippingAddress.AddressLine2<br /></span> }
@@ -125,19 +125,18 @@
             </div>
 
             <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0">
-                <h2 class="text-base font-bold mb-4 border-b pb-2">@L["Option2AssignToFreeDrivers"]</h2>
-                <form asp-controller="DeliveryDispatch" asp-action="CreateJob" method="post" class="space-y-4">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="orderId" value="@Model.Id" />
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SuggestedDeliveryFee"]</label>
-                        <input name="deliveryFee" type="number" step="0.01" min="0" value="5.00" required
-                               class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
+                <h2 class="text-base font-bold mb-4 border-b pb-2">التوصيل عبر شركات الشحن السريع API</h2>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                    <div class="font-bold text-amber-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">local_shipping</span>
+                        <span>شحن أوتوماتيكي لدى شركة Green Line (GLC / LogesTechs)</span>
                     </div>
-                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 transition-all w-full">
-                        @L["PostJobForFreeDrivers"]
-                    </button>
-                </form>
+                    <p class="text-amber-800 leading-relaxed">إرسال بيانات الشحنة مباشرة للشركة وتوليد الباركود وتفاصيل المواد والتطبيقات.</p>
+                </div>
+                <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black py-3.5 px-8 rounded-xl shadow-md transition-all w-full flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">send</span>
+                    <span>رفع الشحنة فوراً لـ LogesTechs API</span>
+                </button>
             </div>
         </div>
 
@@ -160,6 +159,34 @@
                     updateFee();
                 }
             });
+
+            function dispatchOrderDirectToLogesTechs(orderId) {
+                if (!confirm('هل ترغب بتأكيد رفع الشحنة فوراً لشركة التوصيل LogesTechs / GLC؟')) return;
+                
+                const params = new URLSearchParams({
+                    orderId: orderId,
+                    cityId: '0',
+                    regionId: '0',
+                    villageId: '0',
+                    notes: 'رفع مباشر عبر تفاصيل الطلب بـ Admin Dashboard'
+                });
+
+                fetch('@Url.Action("DispatchToLogesTechs", "DeliveryDispatch", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.success) {
+                        location.reload();
+                    }
+                })
+                .catch(() => alert('تعذّر التواصل مع السيرفر.'));
+            }
         </script>
     </div>
 

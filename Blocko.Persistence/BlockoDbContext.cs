@@ -45,6 +45,7 @@ namespace Blocko.Persistence
         public DbSet<DeliveryRating> DeliveryRatings { get; set; }
         public DbSet<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; set; }
         public DbSet<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; set; }
 
         // Analytics & Security Audit
         public DbSet<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; set; }

@@ -51,6 +51,7 @@ namespace Blocko.Persistence
             DeliveryRatings = new GenericRepository<DeliveryRating>(_context);
             DeliveryProviderConfigs = new GenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig>(_context);
             OrderShipmentMappings = new GenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping>(_context);
+            DeliveryProviderLocationMappings = new GenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping>(_context);
 
             // Analytics & Security
             VisitorLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog>(_context);
@@ -85,6 +86,7 @@ namespace Blocko.Persistence
         public IGenericRepository<DeliveryRating> DeliveryRatings { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; private set; }
 
         // Analytics & Security
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; private set; }
