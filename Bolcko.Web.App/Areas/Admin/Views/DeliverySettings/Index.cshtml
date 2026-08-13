@@ -200,7 +200,13 @@
 
                 <div class="md:col-span-2 space-y-1">
                     <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
-                    <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "GLC" }'></textarea>
+                    <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "186" }'></textarea>
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">قالب الـ Payload المتوقع المخصص (Expected Dynamic JSON Payload Template):</label>
+                    <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
+                    <p class="text-[10px] text-slate-400 font-bold">يمكنك استخدام المتغيرات التلقائية: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {GoogleMapsUrl}, {OrderContents}</p>
                 </div>
             </div>
 
@@ -226,15 +232,16 @@
 
 <script>
     function openAddProviderModal() {
-        document.getElementById('modalTitle').innerText = 'إضافة شركة توصيل وربط الـ API ديناميكياً';
+        document.getElementById('modalTitle').innerText = 'إعداد شركة توصيل وربط الـ API ديناميكياً';
         document.getElementById('p_Id').value = '0';
         document.getElementById('p_ProviderName').value = '';
         document.getElementById('p_ProviderKey').value = '';
         document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api/ship/request/by-email';
-        document.getElementById('p_CompanyId').value = '';
+        document.getElementById('p_CompanyId').value = '186';
         document.getElementById('p_ApiEmail').value = '';
         document.getElementById('p_ApiPassword').value = '';
         document.getElementById('p_CustomHeadersJson').value = '';
+        document.getElementById('p_CustomPayloadMappingJson').value = '';
         document.getElementById('p_IsActive').checked = true;
         document.getElementById('providerModal').classList.remove('hidden');
     }
@@ -249,6 +256,7 @@
         document.getElementById('p_ApiEmail').value = provider.ApiEmail || '';
         document.getElementById('p_ApiPassword').value = provider.ApiPassword || '';
         document.getElementById('p_CustomHeadersJson').value = (provider.CustomHeadersJson && provider.CustomHeadersJson.includes('GLC')) ? '' : (provider.CustomHeadersJson || '');
+        document.getElementById('p_CustomPayloadMappingJson').value = provider.CustomPayloadMappingJson || '';
         document.getElementById('p_IsActive').checked = provider.IsActive;
         document.getElementById('providerModal').classList.remove('hidden');
     }
