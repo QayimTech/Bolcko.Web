@@ -123,7 +123,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DispatchToLogesTechs(int orderId, string cityId, string regionId, string villageId, string? notes, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService, [FromServices] Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
+        public async Task<IActionResult> DispatchToLogesTechs(int orderId, string cityId, string regionId, string villageId, string? notes, [FromServices] Blocko.Services.Interfaces.Delivery.IDeliveryApiService deliveryApiService, [FromServices] Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
         {
             var order = await unitOfWork.Orders.GetByIdAsync(orderId);
             if (order == null) return Json(new { success = false, message = "الطلب غير موجود." });
@@ -139,7 +139,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 });
             }
 
-            var result = await logesTechsService.CreateShipmentAsync(order, cityId, regionId, villageId, notes);
+            var result = await deliveryApiService.CreateShipmentAsync(order, cityId, regionId, villageId, notes);
             if (result.Success)
             {
                 order.Status = OrderStatus.Processing;
