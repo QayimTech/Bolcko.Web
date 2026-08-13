@@ -83,45 +83,71 @@ namespace Blocko.Services.Implementations.Delivery
                 ? config.BaseUrl.Trim() 
                 : $"{config.BaseUrl.TrimEnd('/')}/ship/request/by-email";
 
-            var payloadObj = new
-            {
-                email = config.ApiEmail,
-                password = config.ApiPassword,
-                pkgUnitType = "METRIC",
-                pkg = new
-                {
-                    cod = (double)order.TotalAmount,
-                    invoiceNumber = order.OrderNumber,
-                    receiverName = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : (order.ShippingAddress?.AddressLine1 ?? "عميل بلوكو"),
-                    receiverPhone = order.User?.PhoneNumber ?? "0590000000",
-                    serviceType = "STANDARD",
-                    shipmentType = "COD",
-                    paymentType = "CASH",
-                    quantity = 1,
-                    contents = itemsSummary,
-                    locationUrl = mapsUrl,
-                    notes = string.IsNullOrWhiteSpace(notes) ? $"طلب رقم {order.OrderNumber} - متجر بلوكو {mapsUrl}" : $"{notes} {mapsUrl}",
-                    webhookUrl = config.OutboundWebhookUrl ?? string.Empty
-                },
-                destinationAddress = new
-                {
-                    addressLine1 = order.ShippingAddress?.AddressLine1 ?? "عنوان العميل",
-                    cityId = long.TryParse(destinationCityId, out var cId) ? cId : 1,
-                    regionId = long.TryParse(destinationRegionId, out var rId) ? rId : 1,
-                    villageId = long.TryParse(destinationVillageId, out var vId) ? vId : 1,
-                    latitude = order.ShippingAddress?.Latitude ?? 31.9038,
-                    longitude = order.ShippingAddress?.Longitude ?? 35.2058
-                },
-                originAddress = new
-                {
-                    addressLine1 = "المركز الرئيسي لتوريدات البناء",
-                    cityId = 1,
-                    regionId = 1,
-                    villageId = 1
-                }
-            };
+            string jsonPayloadString;
 
-            var jsonContent = new StringContent(JsonSerializer.Serialize(payloadObj), Encoding.UTF8, "application/json");
+            if (!string.IsNullOrWhiteSpace(config.CustomPayloadMappingJson) && config.CustomPayloadMappingJson.Contains("{"))
+            {
+                var template = config.CustomPayloadMappingJson;
+                var receiverNameVal = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : (order.ShippingAddress?.AddressLine1 ?? "عميل بلوكو");
+                var receiverPhoneVal = order.User?.PhoneNumber ?? "0590000000";
+                var addressVal = order.ShippingAddress?.AddressLine1 ?? "عنوان العميل";
+
+                jsonPayloadString = template
+                    .Replace("{ApiEmail}", config.ApiEmail)
+                    .Replace("{ApiPassword}", config.ApiPassword)
+                    .Replace("{OrderTotal}", ((double)order.TotalAmount).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))
+                    .Replace("\"{OrderTotal}\"", ((double)order.TotalAmount).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))
+                    .Replace("{OrderNumber}", order.OrderNumber)
+                    .Replace("{CustomerName}", receiverNameVal)
+                    .Replace("{CustomerPhone}", receiverPhoneVal)
+                    .Replace("{OrderContents}", itemsSummary)
+                    .Replace("{GoogleMapsUrl}", mapsUrl)
+                    .Replace("{CustomerAddress}", addressVal);
+            }
+            else
+            {
+                var payloadObj = new
+                {
+                    email = config.ApiEmail,
+                    password = config.ApiPassword,
+                    pkgUnitType = "METRIC",
+                    pkg = new
+                    {
+                        cod = (double)order.TotalAmount,
+                        invoiceNumber = order.OrderNumber,
+                        receiverName = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : (order.ShippingAddress?.AddressLine1 ?? "عميل بلوكو"),
+                        receiverPhone = order.User?.PhoneNumber ?? "0590000000",
+                        serviceType = "STANDARD",
+                        shipmentType = "COD",
+                        paymentType = "CASH",
+                        quantity = 1,
+                        contents = itemsSummary,
+                        locationUrl = mapsUrl,
+                        notes = string.IsNullOrWhiteSpace(notes) ? $"طلب رقم {order.OrderNumber} - متجر بلوكو {mapsUrl}" : $"{notes} {mapsUrl}",
+                        webhookUrl = config.OutboundWebhookUrl ?? string.Empty
+                    },
+                    destinationAddress = new
+                    {
+                        addressLine1 = order.ShippingAddress?.AddressLine1 ?? "عنوان العميل",
+                        cityId = long.TryParse(destinationCityId, out var cId) ? cId : 1,
+                        regionId = long.TryParse(destinationRegionId, out var rId) ? rId : 1,
+                        villageId = long.TryParse(destinationVillageId, out var vId) ? vId : 1,
+                        latitude = order.ShippingAddress?.Latitude ?? 31.9038,
+                        longitude = order.ShippingAddress?.Longitude ?? 35.2058
+                    },
+                    originAddress = new
+                    {
+                        addressLine1 = "المركز الرئيسي لتوريدات البناء",
+                        cityId = 1,
+                        regionId = 1,
+                        villageId = 1
+                    }
+                };
+
+                jsonPayloadString = JsonSerializer.Serialize(payloadObj);
+            }
+
+            var jsonContent = new StringContent(jsonPayloadString, Encoding.UTF8, "application/json");
 
             var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
             {
