@@ -166,19 +166,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> TestConnection()
         {
-            var config = await _logesTechsApiService.GetActiveConfigAsync();
+            var config = await _deliveryApiService.GetActiveConfigAsync();
             if (config == null || string.IsNullOrEmpty(config.CompanyId))
             {
-                return Json(new { success = false, message = "لم يتم تحديد إعدادات شركة التوصيل LogesTechs بعد." });
+                return Json(new { success = false, message = "لم يتم تفعيل إعدادات شركة التوصيل بعد." });
             }
 
-            var villages = await _logesTechsApiService.GetVillagesAsync();
-            if (villages != null && villages.Count > 0)
+            var villages = await _deliveryApiService.GetVillagesAsync();
+            if (villages != null && villages.Any())
             {
-                return Json(new { success = true, message = $"تم الاتصال بنجاح بـ LogesTechs API! تم استرجاع {villages.Count} منطقة توصيل 🟢" });
+                return Json(new { success = true, message = "تم فحص الاتصال بسيرفر API التوصيل بنجاح! الإعدادات صحيحة ومفعلة ⚡" });
             }
 
-            return Json(new { success = false, message = "تعذّر جلب البيانات من LogesTechs API. يرجى مراجعة الـ Company-Id والإيميل والباسورد." });
+            return Json(new { success = false, message = "فشل فحص الاتصال بسيرفر API التوصيل." });
         }
     }
 }
