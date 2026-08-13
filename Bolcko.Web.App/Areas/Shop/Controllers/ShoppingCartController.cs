@@ -186,17 +186,17 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             // Auto-Dispatch to Active Delivery Provider API (GLC / LogesTechs) if enabled and not oversized
             try
             {
-                var logesTechsService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.ILogesTechsApiService)) as Blocko.Services.Interfaces.Delivery.ILogesTechsApiService;
+                var deliveryApiService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.IDeliveryApiService)) as Blocko.Services.Interfaces.Delivery.IDeliveryApiService;
                 var uow = HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork)) as Bolcko.Domain.Interfaces.IUnitOfWork;
 
-                if (logesTechsService != null && uow != null)
+                if (deliveryApiService != null && uow != null)
                 {
                     var fullOrder = await uow.Orders.GetByIdAsync(order.Id);
                     var hasOversized = fullOrder?.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
                     
                     if (!hasOversized)
                     {
-                        var dispatchRes = await logesTechsService.CreateShipmentAsync(fullOrder!, "1", "1", "1", "تحويل أوتوماتيكي تلقائي عند الطلب");
+                        var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder!, "1", "1", "1", "تحويل أوتوماتيكي تلقائي عند الطلب");
                         if (dispatchRes.Success)
                         {
                             fullOrder!.Status = Bolcko.Domain.Enums.OrderStatus.Processing;

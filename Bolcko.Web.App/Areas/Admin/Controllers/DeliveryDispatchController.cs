@@ -151,16 +151,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetLogesTechsVillages(string? search, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService)
+        public async Task<IActionResult> GetLogesTechsVillages(string? search, [FromServices] Blocko.Services.Interfaces.Delivery.IDeliveryApiService deliveryApiService)
         {
-            var list = await logesTechsService.GetVillagesAsync(search);
+            var list = await deliveryApiService.GetVillagesAsync(search);
             return Json(list);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PrintAwbPdf(long packageId, [FromServices] Blocko.Services.Interfaces.Delivery.ILogesTechsApiService logesTechsService)
+        public async Task<IActionResult> PrintAwbPdf(long packageId, [FromServices] Blocko.Services.Interfaces.Delivery.IDeliveryApiService deliveryApiService)
         {
-            var pdfUrl = await logesTechsService.PrintShipmentAwbPdfAsync(new List<long> { packageId });
+            var pdfUrl = await deliveryApiService.PrintShipmentAwbPdfAsync(new List<long> { packageId });
             if (!string.IsNullOrEmpty(pdfUrl))
             {
                 return Json(new { success = true, pdfUrl });

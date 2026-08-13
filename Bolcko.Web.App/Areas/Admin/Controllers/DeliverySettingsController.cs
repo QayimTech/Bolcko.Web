@@ -10,11 +10,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class DeliverySettingsController : Controller
     {
-        private readonly ILogesTechsApiService _logesTechsApiService;
+        private readonly IDeliveryApiService _deliveryApiService;
 
-        public DeliverySettingsController(ILogesTechsApiService logesTechsApiService)
+        public DeliverySettingsController(IDeliveryApiService deliveryApiService)
         {
-            _logesTechsApiService = logesTechsApiService;
+            _deliveryApiService = deliveryApiService;
         }
 
         [HttpGet]

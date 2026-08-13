@@ -13,12 +13,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Delivery
 {
-    public class LogesTechsApiService : ILogesTechsApiService
+    public class DeliveryApiService : IDeliveryApiService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly HttpClient _httpClient;
 
-        public LogesTechsApiService(IUnitOfWork unitOfWork, HttpClient httpClient)
+        public DeliveryApiService(IUnitOfWork unitOfWork, HttpClient httpClient)
         {
             _unitOfWork = unitOfWork;
             _httpClient = httpClient;
@@ -27,16 +27,18 @@ namespace Blocko.Services.Implementations.Delivery
         public async Task<DeliveryProviderConfig?> GetActiveConfigAsync()
         {
             return await _unitOfWork.DeliveryProviderConfigs.GetAllAsQueryable()
-                .FirstOrDefaultAsync(c => c.ProviderKey == "LogesTechs" && c.IsActive);
+                .FirstOrDefaultAsync(c => c.IsActive);
         }
 
         public async Task<bool> SaveConfigAsync(DeliveryProviderConfig config)
         {
             var existing = await _unitOfWork.DeliveryProviderConfigs.GetAllAsQueryable()
-                .FirstOrDefaultAsync(c => c.ProviderKey == "LogesTechs");
+                .FirstOrDefaultAsync(c => c.ProviderKey == config.ProviderKey || c.Id == config.Id);
 
             if (existing != null)
             {
+                existing.ProviderName = config.ProviderName;
+                existing.ProviderKey = config.ProviderKey;
                 existing.BaseUrl = config.BaseUrl;
                 existing.CompanyId = config.CompanyId;
                 existing.ApiEmail = config.ApiEmail;
@@ -47,11 +49,10 @@ namespace Blocko.Services.Implementations.Delivery
                 existing.CustomPayloadMappingJson = config.CustomPayloadMappingJson;
                 existing.IsActive = config.IsActive;
                 existing.UpdatedAt = DateTime.UtcNow;
+                _unitOfWork.DeliveryProviderConfigs.Update(existing);
             }
             else
             {
-                config.ProviderName = "LogesTechs";
-                config.ProviderKey = "LogesTechs";
                 config.CreatedAt = DateTime.UtcNow;
                 await _unitOfWork.DeliveryProviderConfigs.AddAsync(config);
             }
@@ -62,12 +63,12 @@ namespace Blocko.Services.Implementations.Delivery
         public async Task<CreateShipmentResultDto> CreateShipmentAsync(Bolcko.Domain.Entities.Order.Order order, string destinationCityId, string destinationRegionId, string destinationVillageId, string? notes = null)
         {
             var config = await GetActiveConfigAsync();
-            if (config == null || string.IsNullOrEmpty(config.CompanyId) || string.IsNullOrEmpty(config.ApiEmail))
+            if (config == null || string.IsNullOrWhiteSpace(config.BaseUrl))
             {
                 return new CreateShipmentResultDto
                 {
                     Success = false,
-                    Message = "إعدادات LogesTechs API غير مكتملة في لوحة التحكم."
+                    Message = "إعدادات شركات التوصيل API غير مفعّلة في لوحة التحكم."
                 };
             }
 
@@ -153,7 +154,10 @@ namespace Blocko.Services.Implementations.Delivery
             {
                 Content = jsonContent
             };
-            request.Headers.Add("company-id", config.CompanyId);
+            if (!string.IsNullOrWhiteSpace(config.CompanyId))
+            {
+                request.Headers.Add("company-id", config.CompanyId);
+            }
 
             try
             {
@@ -165,7 +169,7 @@ namespace Blocko.Services.Implementations.Delivery
                     return new CreateShipmentResultDto
                     {
                         Success = false,
-                        Message = $"فشل الاتصال بـ LogesTechs API (Status: {response.StatusCode})",
+                        Message = $"فشل الاتصال بشركة التوصيل API (Status: {response.StatusCode})",
                         ErrorDetail = responseString
                     };
                 }
@@ -181,18 +185,18 @@ namespace Blocko.Services.Implementations.Delivery
                 var mapping = new OrderShipmentMapping
                 {
                     OrderId = order.Id,
-                    ProviderKey = "LogesTechs",
+                    ProviderKey = config.ProviderKey,
                     ExternalPackageId = packageId,
                     Barcode = barcode,
                     CodBarcode = codBarcode,
-                    CodAmount = (double)order.TotalAmount,
-                    CurrentStatus = "PENDING_CUSTOMER_CARE_APPROVAL",
-                    ArabicStatus = "طلب جديد بمجتمع LogesTechs",
-                    DispatchedAt = DateTime.UtcNow
+                    CurrentStatus = "CREATED",
+                    ArabicStatus = "تم إنشاء الشحنة بنجاح 📦",
+                    LastStatusUpdatedAt = DateTime.UtcNow,
+                    RawWebhookPayload = responseString
                 };
 
                 await _unitOfWork.OrderShipmentMappings.AddAsync(mapping);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CompleteAsync();
 
                 return new CreateShipmentResultDto
                 {
@@ -201,7 +205,7 @@ namespace Blocko.Services.Implementations.Delivery
                     Barcode = barcode,
                     CodBarcode = codBarcode,
                     CodAmount = (double)order.TotalAmount,
-                    Message = "تم إنشاء ورفع الشحنة لدى LogesTechs بنجاح!"
+                    Message = "تم إضافة وإنشاء الشحنة بنجاح 📦"
                 };
             }
             catch (Exception ex)
@@ -209,7 +213,7 @@ namespace Blocko.Services.Implementations.Delivery
                 return new CreateShipmentResultDto
                 {
                     Success = false,
-                    Message = "حدث خطأ غير متوقع أثناء الاتصال بالـ API.",
+                    Message = "حدث خطأ غير متوقع أثناء الاتصال بـ API التوصيل.",
                     ErrorDetail = ex.Message
                 };
             }
@@ -247,13 +251,13 @@ namespace Blocko.Services.Implementations.Delivery
                     {
                         list.Add(new LogesTechsVillageDto
                         {
-                            Id = item.GetProperty("id").GetInt64(),
-                            Name = item.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
-                            ArabicName = item.TryGetProperty("arabicName", out var an) ? an.GetString() ?? "" : "",
-                            CityId = item.TryGetProperty("cityId", out var c) ? c.GetInt64() : 0,
-                            CityName = item.TryGetProperty("cityName", out var cn) ? cn.GetString() ?? "" : "",
-                            RegionId = item.TryGetProperty("regionId", out var r) ? r.GetInt64() : 0,
-                            RegionName = item.TryGetProperty("regionName", out var rn) ? rn.GetString() ?? "" : ""
+                            Id = item.TryGetProperty("id", out var idP) ? idP.GetInt64() : 0,
+                            Name = item.TryGetProperty("name", out var nP) ? nP.GetString() ?? "" : "",
+                            ArabicName = item.TryGetProperty("arabicName", out var anP) ? anP.GetString() ?? "" : "",
+                            CityId = item.TryGetProperty("cityId", out var cP) ? cP.GetInt64() : 0,
+                            CityName = item.TryGetProperty("cityName", out var cnP) ? cnP.GetString() ?? "" : "",
+                            RegionId = item.TryGetProperty("regionId", out var rP) ? rP.GetInt64() : 0,
+                            RegionName = item.TryGetProperty("regionName", out var rnP) ? rnP.GetString() ?? "" : ""
                         });
                     }
                 }

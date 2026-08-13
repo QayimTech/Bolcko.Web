@@ -27,7 +27,7 @@ namespace Blocko.Services.Interfaces.Delivery
         public string RegionName { get; set; } = string.Empty;
     }
 
-    public interface ILogesTechsApiService
+    public interface IDeliveryApiService
     {
         Task<CreateShipmentResultDto> CreateShipmentAsync(Bolcko.Domain.Entities.Order.Order order, string destinationCityId, string destinationRegionId, string destinationVillageId, string? notes = null);
         Task<List<LogesTechsVillageDto>> GetVillagesAsync(string? search = null);
