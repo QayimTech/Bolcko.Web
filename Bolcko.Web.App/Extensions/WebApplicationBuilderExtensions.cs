@@ -21,12 +21,17 @@ public static class WebApplicationBuilderExtensions
     /// </summary>
     public static void ConfigureSerilogLogging(this WebApplicationBuilder builder)
     {
+        var logsFolder = Path.Combine(builder.Environment.ContentRootPath, "logs");
+        Directory.CreateDirectory(logsFolder);
+        var logFilePath = Path.Combine(logsFolder, "bolcko-.txt");
+
         Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
             .WriteTo.Console()
-            .WriteTo.File("logs/bolcko-.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         builder.Host.UseSerilog();
