@@ -32,8 +32,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             {
                 if (Directory.Exists(logsDirectory))
                 {
-                    logFiles = Directory.GetFiles(logsDirectory, "*.txt")
+                    var txtFiles = Directory.GetFiles(logsDirectory, "*.txt");
+                    var logExtFiles = Directory.GetFiles(logsDirectory, "*.log");
+
+                    logFiles = txtFiles.Concat(logExtFiles)
                         .Select(Path.GetFileName)
+                        .Where(f => !string.IsNullOrEmpty(f))
                         .OrderByDescending(x => x)
                         .ToList()!;
                 }
@@ -46,7 +50,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             // Set default file name if none selected
             fileName ??= logFiles.FirstOrDefault();
 
-            if (fileName != null)
+            if (!string.IsNullOrEmpty(fileName))
             {
                 var filePath = Path.Combine(logsDirectory, fileName);
                 try
@@ -74,9 +78,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                         }
 
                         // Apply pagination
-                        pageSize ??= 100;
-                        pageNumber ??= 1;
-                        logEntries = logEntries.Skip(((int)pageNumber - 1) * (int)pageSize).Take((int)pageSize).ToList();
+                        var size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 100;
+                        var page = pageNumber.HasValue && pageNumber.Value > 0 ? pageNumber.Value : 1;
+                        logEntries = logEntries.Skip((page - 1) * size).Take(size).ToList();
                     }
                 }
                 catch (Exception ex)
@@ -93,8 +97,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 AvailableLogFiles = logFiles,
                 SelectedFileName = fileName,
                 LogEntries = logEntries,
-                PageNumber = (int)pageNumber,
-                PageSize = (int)pageSize
+                PageNumber = pageNumber ?? 1,
+                PageSize = pageSize ?? 100
             };
 
             return View(model);
