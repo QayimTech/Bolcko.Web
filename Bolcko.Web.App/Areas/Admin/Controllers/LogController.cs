@@ -21,15 +21,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var logFiles = new List<string>();
             var logEntries = new List<LogEntryViewModel>();
             
-            // Fallback strategy for log directory resolution
-            var logsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
-            if (!Directory.Exists(logsDirectory))
-            {
-                logsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");
-            }
-
             try
             {
+                // Fallback strategy for log directory resolution
+                var logsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
+                if (!Directory.Exists(logsDirectory))
+                {
+                    logsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                }
+
                 if (Directory.Exists(logsDirectory))
                 {
                     var txtFiles = Directory.GetFiles(logsDirectory, "*.txt");
@@ -41,20 +41,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                         .OrderByDescending(x => x)
                         .ToList()!;
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[LogController] Error listing logs directory: {ex.Message}");
-            }
 
-            // Set default file name if none selected
-            fileName ??= logFiles.FirstOrDefault();
+                // Set default file name if none selected
+                fileName ??= logFiles.FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(fileName))
-            {
-                var filePath = Path.Combine(logsDirectory, fileName);
-                try
+                if (!string.IsNullOrEmpty(fileName))
                 {
+                    var filePath = Path.Combine(logsDirectory, fileName);
                     if (System.IO.File.Exists(filePath))
                     {
                         var lines = new List<string>();
@@ -68,8 +61,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                             }
                         }
 
-                        // Parse lines (assuming Serilog default output format)
-                        foreach (var line in lines.AsEnumerable().Reverse()) // Newest first
+                        foreach (var line in lines.AsEnumerable().Reverse())
                         {
                             logEntries.Add(new LogEntryViewModel
                             {
@@ -77,19 +69,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                             });
                         }
 
-                        // Apply pagination
                         var size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 100;
                         var page = pageNumber.HasValue && pageNumber.Value > 0 ? pageNumber.Value : 1;
                         logEntries = logEntries.Skip((page - 1) * size).Take(size).ToList();
                     }
                 }
-                catch (Exception ex)
-                {
-                    logEntries.Add(new LogEntryViewModel 
-                    { 
-                        RawText = $"[خطأ أثناء قراءة ملف السجل]: {ex.Message}" 
-                    });
-                }
+            }
+            catch (Exception ex)
+            {
+                logEntries.Add(new LogEntryViewModel 
+                { 
+                    RawText = $"[خطأ أثناء تحميل السجلات]: {ex.Message}" 
+                });
             }
 
             var model = new LogsViewModel
