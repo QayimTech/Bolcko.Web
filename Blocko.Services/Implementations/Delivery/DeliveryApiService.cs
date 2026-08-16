@@ -283,6 +283,7 @@ namespace Blocko.Services.Implementations.Delivery
                     {
                         foreach (var prop in hDoc.RootElement.EnumerateObject())
                         {
+                            request.Headers.Remove(prop.Name);
                             request.Headers.TryAddWithoutValidation(prop.Name, prop.Value.ToString());
                         }
                     }
