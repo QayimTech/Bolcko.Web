@@ -218,7 +218,8 @@ namespace Blocko.Services.Implementations.Delivery
                     .Replace("{RegionId}", targetRegionId.ToString())
                     .Replace("\"{RegionId}\"", targetRegionId.ToString())
                     .Replace("{VillageId}", targetVillageId.ToString())
-                    .Replace("\"{VillageId}\"", targetVillageId.ToString());
+                    .Replace("\"{VillageId}\"", targetVillageId.ToString())
+                    .Replace("{OutboundWebhookUrl}", config.OutboundWebhookUrl ?? string.Empty);
             }
             else
             {
