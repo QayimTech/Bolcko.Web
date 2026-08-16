@@ -15,46 +15,52 @@ public class LogCleanupService
         _logger = logger;
     }
 
-    public async Task CleanOldLogsAsync(int daysToKeep = 10)
+    public async Task CleanOldLogsAsync(int daysToKeep = 12)
     {
-        var logsPath = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
-        if (!Directory.Exists(logsPath))
+        var searchPaths = new[]
         {
-            _logger.LogInformation("Logs directory doesn't exist, nothing to clean");
-            return;
-        }
+            Path.Combine(_webHostEnvironment.ContentRootPath, "logs"),
+            Path.Combine(_webHostEnvironment.WebRootPath ?? _webHostEnvironment.ContentRootPath, "logs"),
+            Path.Combine(Directory.GetCurrentDirectory(), "logs")
+        }.Distinct();
 
-        try
+        var cutoffDate = DateTime.UtcNow.AddDays(-daysToKeep);
+        var deletedCount = 0;
+
+        foreach (var logsPath in searchPaths)
         {
-            var logFiles = Directory.GetFiles(logsPath, "*.txt");
-            var cutoffDate = DateTime.UtcNow.AddDays(-daysToKeep);
-            var deletedCount = 0;
+            if (!Directory.Exists(logsPath))
+                continue;
 
-            foreach (var logFile in logFiles)
+            try
             {
-                try
+                var logFiles = Directory.GetFiles(logsPath, "*.*"); // Clean all types of logs (txt, log)
+
+                foreach (var logFile in logFiles)
                 {
-                    var fileInfo = new FileInfo(logFile);
-                    if (fileInfo.LastWriteTimeUtc < cutoffDate)
+                    try
                     {
-                        fileInfo.Delete();
-                        deletedCount++;
-                        _logger.LogInformation("Deleted log file {LogFile}", fileInfo.Name);
+                        var fileInfo = new FileInfo(logFile);
+                        if (fileInfo.LastWriteTimeUtc < cutoffDate)
+                        {
+                            fileInfo.Delete();
+                            deletedCount++;
+                            _logger.LogInformation("Deleted log file {LogFile}", fileInfo.Name);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to delete log file {LogFile}", logFile);
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to delete log file {LogFile}", logFile);
-                }
             }
-
-            _logger.LogInformation("Log cleanup complete! Deleted {DeletedCount} old logs", deletedCount);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during log cleanup");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during log cleanup in path {LogsPath}", logsPath);
+            }
         }
 
+        _logger.LogInformation("Log cleanup complete! Deleted {DeletedCount} old logs", deletedCount);
         await Task.CompletedTask;
     }
 }

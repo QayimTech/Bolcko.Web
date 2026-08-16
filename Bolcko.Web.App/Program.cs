@@ -117,7 +117,7 @@ try
     // Schedule recurring log cleanup job (runs daily at midnight UTC)
     RecurringJob.AddOrUpdate<LogCleanupService>(
         "daily-log-cleanup", 
-        service => service.CleanOldLogsAsync(10), 
+        service => service.CleanOldLogsAsync(12), 
         Cron.Daily);
 
     // =========================================================================
