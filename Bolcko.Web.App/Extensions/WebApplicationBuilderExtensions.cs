@@ -17,22 +17,41 @@ public static class WebApplicationBuilderExtensions
     #region Logging Configuration
 
     /// <summary>
-    /// Configures Serilog logging with structured output to console and file
-    /// </summary>
     public static void ConfigureSerilogLogging(this WebApplicationBuilder builder)
     {
-        var logsFolder = Path.Combine(builder.Environment.ContentRootPath, "logs");
-        Directory.CreateDirectory(logsFolder);
-        var logFilePath = Path.Combine(logsFolder, "bolcko-.txt");
+        try
+        {
+            var logsFolder = Path.Combine(builder.Environment.ContentRootPath, "logs");
+            if (!Directory.Exists(logsFolder)) Directory.CreateDirectory(logsFolder);
+            var logFilePath = Path.Combine(logsFolder, "bolcko-.txt");
 
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .MinimumLevel.Debug()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+            var loggerConfig = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day, shared: true);
+
+            try
+            {
+                // Safely attempt reading from configuration if valid
+                loggerConfig.ReadFrom.Configuration(builder.Configuration);
+            }
+            catch
+            {
+                // Fallback gracefully without breaking application startup
+            }
+
+            Log.Logger = loggerConfig.CreateLogger();
+        }
+        catch
+        {
+            // Ultimate fallback to console logging
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+        }
 
         builder.Host.UseSerilog();
     }
