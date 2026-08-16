@@ -23,7 +23,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
             var configs = await uow.DeliveryProviderConfigs.GetAllAsync();
             
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var scheme = Request.Host.Host.Contains("localhost") ? Request.Scheme : "https";
+            var baseUrl = $"{scheme}://{Request.Host}";
             ViewBag.BaseWebhookUrl = $"{baseUrl}/api/v1/webhooks/delivery";
             
             return View(configs);
