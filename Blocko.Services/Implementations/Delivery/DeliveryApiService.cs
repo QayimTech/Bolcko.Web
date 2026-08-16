@@ -353,12 +353,8 @@ namespace Blocko.Services.Implementations.Delivery
             }
             catch (Exception ex)
             {
-                return new CreateShipmentResultDto
-                {
-                    Success = false,
-                    Message = "حدث خطأ غير متوقع أثناء الاتصال بـ API التوصيل.",
-                    ErrorDetail = ex.Message
-                };
+                _logger.LogError(ex, "Failed to create shipment mapping for Order {OrderId}", order.Id);
+                return new CreateShipmentResultDto { Success = false, Message = "حدث خطأ غير متوقع أثناء الاتصال بـ API التوصيل.", ErrorDetail = ex.ToString() };
             }
         }
 
