@@ -229,7 +229,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         }
                     }
                 }
-                System.IO.File.AppendAllText("logs/delivery_api.log", logMsg + "===================================\n");
+                var logFolder = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                if (!Directory.Exists(logFolder)) Directory.CreateDirectory(logFolder);
+                System.IO.File.AppendAllText(Path.Combine(logFolder, "delivery_api.log"), logMsg + "===================================\n");
             }
             catch (Exception ex)
             {
