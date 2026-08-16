@@ -111,6 +111,46 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public IActionResult Diagnostics()
+        {
+            var results = new Dictionary<string, object?>();
+            try
+            {
+                results["EnvironmentName"] = _webHostEnvironment.EnvironmentName;
+                results["ContentRootPath"] = _webHostEnvironment.ContentRootPath;
+                results["WebRootPath"] = _webHostEnvironment.WebRootPath;
+                results["CurrentDirectory"] = Directory.GetCurrentDirectory();
+
+                var testFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
+                results["LogsFolderExists"] = Directory.Exists(testFolder);
+                if (Directory.Exists(testFolder))
+                {
+                    results["FilesInLogsFolder"] = Directory.GetFiles(testFolder);
+                }
+
+                // Test creating/writing a test file
+                try
+                {
+                    if (!Directory.Exists(testFolder)) Directory.CreateDirectory(testFolder);
+                    var testFile = Path.Combine(testFolder, "test_write.tmp");
+                    System.IO.File.WriteAllText(testFile, "OK " + DateTime.UtcNow);
+                    results["WriteTest"] = "SUCCESS";
+                    System.IO.File.Delete(testFile);
+                }
+                catch (Exception writeEx)
+                {
+                    results["WriteTest"] = "FAILED: " + writeEx.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                results["Error"] = ex.ToString();
+            }
+
+            return Json(results);
+        }
     }
 }
 

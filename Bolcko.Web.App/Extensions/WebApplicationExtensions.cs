@@ -18,7 +18,8 @@ public static class WebApplicationExtensions
     /// </summary>
     public static void UseEnvironmentSpecificMiddleware(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        // Always show Developer Exception Page on Development or Staging on Render for diagnostics
+        if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Staging", StringComparison.OrdinalIgnoreCase))
         {
             app.UseDeveloperExceptionPage();
         }
