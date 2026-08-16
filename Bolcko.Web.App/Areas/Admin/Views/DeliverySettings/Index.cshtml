@@ -214,6 +214,12 @@
                     </div>
 
                     <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رابط الاستماع (Webhook URL) الذي سيتم إرساله للشركة:</label>
+                        <input type="url" id="p_OutboundWebhookUrl" name="OutboundWebhookUrl" class="w-full bg-slate-900 text-amber-400 border border-slate-800 rounded-xl h-10 px-3 text-xs font-mono font-bold focus:bg-slate-950 outline-none dir-ltr text-left" placeholder="https://bolcko.com/api/v1/webhooks/delivery/glc/186" />
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">قم بنسخ (رابط الاستماع الخاص بها) الموجود في البطاقة بالخارج، والصقه هنا ليتم إرساله مع كل طلب جديد لتقوم الشركة بالرد عليه بالتحديثات.</p>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
                         <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
                         <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "186" }'></textarea>
                     </div>
@@ -255,6 +261,7 @@
         document.getElementById('p_ProviderName').value = 'LogesTechs / GLC';
         document.getElementById('p_ProviderKey').value = 'glc';
         document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api/ship/request/by-email';
+        document.getElementById('p_OutboundWebhookUrl').value = 'https://bolcko.com/api/v1/webhooks/delivery/glc/186';
         document.getElementById('p_CompanyId').value = '186';
         document.getElementById('p_ApiEmail').value = 'hamza.a.alhmad@gmail.com';
         document.getElementById('p_ApiPassword').value = 'Ham@123ham';
@@ -292,6 +299,7 @@
         document.getElementById('p_ProviderName').value = provider.ProviderName || '';
         document.getElementById('p_ProviderKey').value = provider.ProviderKey || '';
         document.getElementById('p_BaseUrl').value = provider.BaseUrl || '';
+        document.getElementById('p_OutboundWebhookUrl').value = provider.OutboundWebhookUrl || '';
         document.getElementById('p_CompanyId').value = provider.CompanyId || '';
         document.getElementById('p_ApiEmail').value = provider.ApiEmail || '';
         document.getElementById('p_ApiPassword').value = provider.ApiPassword || '';
