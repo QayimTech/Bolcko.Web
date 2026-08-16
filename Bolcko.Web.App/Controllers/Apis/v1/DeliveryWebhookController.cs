@@ -9,9 +9,11 @@ using Bolcko.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Bolcko.Web.App.Controllers.Apis.v1
 {
+    // Keeping the DTO for Logestechs mapping. In a larger refactor, this could move to a separate folder.
     public class LogesTechsWebhookPayloadDto
     {
         [JsonPropertyName("packageId")]
@@ -50,22 +52,67 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
     [AllowAnonymous]
     [ApiController]
-    [Route("api/v1/webhooks/logestechs")]
     [Route("api/v1/webhooks/delivery")]
-    public class LogesTechsWebhookController : ControllerBase
+    // Legacy support for GLC endpoints already shared
+    [Route("api/v1/webhooks/logestechs")] 
+    public class DeliveryWebhookController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<DeliveryWebhookController> _logger;
 
-        public LogesTechsWebhookController(IUnitOfWork unitOfWork)
+        public DeliveryWebhookController(IUnitOfWork unitOfWork, ILogger<DeliveryWebhookController> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
-        [HttpPost]
-        [HttpPost("{companyId}")]
-        [HttpPost("{providerKey}/{companyId}")]
-        public async Task<IActionResult> ReceiveStatusUpdate([FromRoute] string? companyId, [FromRoute] string? providerKey, [FromBody] LogesTechsWebhookPayloadDto payload)
+        [HttpPost("{providerKey}/{companyId?}")]
+        // Using JsonElement allows the endpoint to accept ANY valid JSON without throwing 400 Bad Request Model Validation errors.
+        public async Task<IActionResult> ReceiveStatusUpdate([FromRoute] string providerKey, [FromRoute] string? companyId, [FromBody] JsonElement rawPayload)
         {
+            if (string.IsNullOrWhiteSpace(providerKey))
+            {
+                return BadRequest(new { success = false, message = "Provider Key is missing" });
+            }
+
+            var providerLower = providerKey.ToLowerInvariant();
+            _logger.LogInformation("Received Webhook from provider: {ProviderKey}, CompanyId: {CompanyId}", providerKey, companyId);
+
+            // Generic Strategy Router
+            switch (providerLower)
+            {
+                case "glc":
+                case "logestechs":
+                    return await ProcessLogestechsWebhookAsync(providerKey, companyId, rawPayload);
+                
+                // Future providers like Aramex, DHL, etc can be added here
+                // case "aramex":
+                //     return await ProcessAramexWebhookAsync(providerKey, companyId, rawPayload);
+
+                default:
+                    // If we receive a webhook for an unknown provider, we log it and return 200 so they stop retrying.
+                    _logger.LogWarning("Unknown delivery provider webhook received: {ProviderKey}", providerKey);
+                    return Ok(new { success = true, message = $"Webhook received but provider '{providerKey}' is not supported yet." });
+            }
+        }
+
+        // =========================================================================
+        // GLC / Logestechs Strategy Implementation
+        // =========================================================================
+        private async Task<IActionResult> ProcessLogestechsWebhookAsync(string providerKey, string? companyId, JsonElement rawPayload)
+        {
+            LogesTechsWebhookPayloadDto? payload = null;
+            try
+            {
+                // Deserialize the generic JSON into the strongly-typed Logestechs DTO
+                payload = JsonSerializer.Deserialize<LogesTechsWebhookPayloadDto>(rawPayload.GetRawText());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize Logestechs webhook payload");
+                return BadRequest(new { success = false, message = "Invalid payload format for Logestechs" });
+            }
+
             if (payload == null)
             {
                 return BadRequest(new { success = false, message = "Payload null" });
@@ -116,7 +163,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 if (!string.IsNullOrEmpty(payload.DriverName)) mapping.AssignedDriverName = payload.DriverName.Trim();
                 if (!string.IsNullOrEmpty(payload.DriverPhone)) mapping.AssignedDriverPhone = payload.DriverPhone.Trim();
                 if (!string.IsNullOrEmpty(firstAttachment)) mapping.AwbPdfUrl = firstAttachment; // Store Proof of Delivery (POD) link
-                mapping.RawWebhookPayload = JsonSerializer.Serialize(payload);
+                mapping.RawWebhookPayload = rawPayload.GetRawText();
             }
 
             // Exhaustive Dynamic Domain Order Status Mapping & Inventory Stock Restoration Engine
