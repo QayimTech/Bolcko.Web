@@ -30,8 +30,9 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Oo]ut/
-[Ll]og/
-[Ll]ogs/
+/[Ll]og/
+/[Ll]ogs/
+/Bolcko.Web.App/wwwroot/[Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
