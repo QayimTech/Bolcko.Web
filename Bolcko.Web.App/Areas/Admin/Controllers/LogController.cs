@@ -1,4 +1,9 @@
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -23,35 +28,47 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             
             try
             {
-                // Fallback strategy for log directory resolution
-                var logsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "logs");
-                if (!Directory.Exists(logsDirectory))
+                var searchDirs = new List<string>
                 {
-                    logsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                    Path.Combine(_webHostEnvironment.ContentRootPath, "logs"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "logs"),
+                    Path.Combine(_webHostEnvironment.WebRootPath ?? string.Empty, "logs")
+                }.Where(d => !string.IsNullOrEmpty(d) && Directory.Exists(d)).Distinct().ToList();
+
+                var foundFiles = new List<string>();
+                foreach (var dir in searchDirs)
+                {
+                    try
+                    {
+                        var txtFiles = Directory.GetFiles(dir, "*.txt");
+                        var logExtFiles = Directory.GetFiles(dir, "*.log");
+                        foundFiles.AddRange(txtFiles.Concat(logExtFiles).Select(Path.GetFileName).Where(f => !string.IsNullOrEmpty(f))!);
+                    }
+                    catch { }
                 }
 
-                if (Directory.Exists(logsDirectory))
-                {
-                    var txtFiles = Directory.GetFiles(logsDirectory, "*.txt");
-                    var logExtFiles = Directory.GetFiles(logsDirectory, "*.log");
-
-                    logFiles = txtFiles.Concat(logExtFiles)
-                        .Select(Path.GetFileName)
-                        .Where(f => !string.IsNullOrEmpty(f))
-                        .OrderByDescending(x => x)
-                        .ToList()!;
-                }
+                logFiles = foundFiles.Distinct().OrderByDescending(x => x).ToList()!;
 
                 // Set default file name if none selected
                 fileName ??= logFiles.FirstOrDefault();
 
                 if (!string.IsNullOrEmpty(fileName))
                 {
-                    var filePath = Path.Combine(logsDirectory, fileName);
-                    if (System.IO.File.Exists(filePath))
+                    string? targetFilePath = null;
+                    foreach (var dir in searchDirs)
+                    {
+                        var candidate = Path.Combine(dir, fileName);
+                        if (System.IO.File.Exists(candidate))
+                        {
+                            targetFilePath = candidate;
+                            break;
+                        }
+                    }
+
+                    if (targetFilePath != null && System.IO.File.Exists(targetFilePath))
                     {
                         var lines = new List<string>();
-                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var fs = new FileStream(targetFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         using (var sr = new StreamReader(fs))
                         {
                             string? line;
@@ -94,20 +111,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             return View(model);
         }
-
-        public class LogEntryViewModel
-        {
-            public string RawText { get; set; } = string.Empty;
-        }
-
-        public class LogsViewModel
-        {
-            public List<string> AvailableLogFiles { get; set; } = new();
-            public string? SelectedFileName { get; set; }
-            public List<LogEntryViewModel> LogEntries { get; set; } = new();
-            public int PageNumber { get; set; }
-            public int PageSize { get; set; }
-        }
     }
 }
+
 
