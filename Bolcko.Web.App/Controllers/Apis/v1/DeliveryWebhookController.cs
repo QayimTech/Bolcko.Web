@@ -122,11 +122,10 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             var invoiceNum = payload.InvoiceNumber ?? "";
             var barcodeStr = payload.Barcode ?? payload.PackageBarcode ?? (payload.PackageId > 0 ? payload.PackageId.ToString() : "");
 
-            // Log incoming Webhook to file for auditing
+            // Log incoming Webhook using standard logger to prevent file I/O exceptions on Render
             var firstAttachment = payload.AttachmentUrls != null && payload.AttachmentUrls.Count > 0 ? payload.AttachmentUrls[0] : "";
-            var logFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "logs");
-            if (!System.IO.Directory.Exists(logFolder)) System.IO.Directory.CreateDirectory(logFolder);
-            System.IO.File.AppendAllText(System.IO.Path.Combine(logFolder, "delivery_api.log"), $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] WEBHOOK RECEIVED: Provider={providerKey}, CompanyId={companyId}, Invoice={invoiceNum}, Barcode={barcodeStr}, Status={statusStr}, COD={payload.Cod}, Attachment={firstAttachment}\n===================================\n");
+            _logger.LogInformation("WEBHOOK RECEIVED: Provider={ProviderKey}, CompanyId={CompanyId}, Invoice={InvoiceNum}, Barcode={BarcodeStr}, Status={StatusStr}, COD={Cod}, Attachment={FirstAttachment}", 
+                providerKey, companyId, invoiceNum, barcodeStr, statusStr, payload.Cod, firstAttachment);
 
             // Find matching OrderShipmentMapping by barcode/packageId or invoice number
             var mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable()
