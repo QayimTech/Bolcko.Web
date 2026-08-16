@@ -1,0 +1,115 @@
+
+@using Bolcko.Web.App.Areas.Admin.Models.ViewModels
+@model LogsViewModel
+@{
+    ViewData["Title"] = L["SystemLogs"];
+}
+
+<section class="p-8 space-y-8 text-right">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-lg text-on-surface">سجلات النظام</h1>
+            <p class="text-on-surface-variant text-sm mt-1">عرض سجلات الخادم</p>
+        </div>
+        <button id="copy-log-btn" class="bg-[#E8A020] hover:bg-[#d18f1c] text-white px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined">content_copy</span>
+            نسخ السجل
+        </button>
+    </div>
+
+    <!-- Log File Selector -->
+    <div class="bg-white border border-slate-200 shadow-hard p-6 rounded-xl">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <label class="font-bold text-slate-700 text-sm">اختر ملف السجل:</label>
+            <div class="flex-1 flex items-center gap-3">
+                <select id="log-file-selector" 
+                        class="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#E8A020]">
+                    @if (Model.AvailableLogFiles != null && Model.AvailableLogFiles.Any())
+                    {
+                        @foreach (var file in Model.AvailableLogFiles)
+                        {
+                            <option value="@file" 
+                                    selected="@(file == Model.SelectedFileName)">
+                                @file
+                            </option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="">لا توجد ملفات سجل متاحة</option>
+                    }
+                </select>
+                <button onclick="refreshLogs()" 
+                        class="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined">refresh</span>
+                    تحديث
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Entries Display -->
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-xl">
+        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
+            <h3 class="font-bold text-slate-700">
+                سجلات ملف: <span class="text-[#E8A020]">@(Model.SelectedFileName ?? "لا يوجد ملف")</span>
+            </h3>
+        </div>
+
+        <div id="log-content" class="p-6 max-h-[70vh] overflow-y-auto bg-slate-900">
+            @if (Model.LogEntries != null && Model.LogEntries.Any())
+            {
+                <div class="space-y-1 font-mono text-xs text-left" dir="ltr">
+                    @foreach (var log in Model.LogEntries)
+                    {
+                        <div class="text-slate-300 break-all">@log.RawText</div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-slate-500 py-12">
+                    <span class="material-symbols-outlined text-4xl mb-3 block">description</span>
+                    لا توجد سجلات لعرضها
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const selector = document.getElementById('log-file-selector');
+        if (selector) {
+            selector.addEventListener('change', function() {
+                var selectedFile = this.value;
+                if (selectedFile) {
+                    window.location.href = '@Url.Action("Index")?fileName=' + encodeURIComponent(selectedFile);
+                }
+            });
+        }
+
+        function refreshLogs() {
+            window.location.reload();
+        }
+
+        // Copy log text
+        document.getElementById('copy-log-btn').addEventListener('click', async function() {
+            const logContent = document.getElementById('log-content');
+            if (logContent) {
+                const text = logContent.innerText;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="material-symbols-outlined">check</span> تم النسخ!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    alert('فشل نسخ السجل');
+                }
+            }
+        });
+    </script>
+}
