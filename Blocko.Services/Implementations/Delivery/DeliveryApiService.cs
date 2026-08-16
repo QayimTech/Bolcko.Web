@@ -219,7 +219,7 @@ namespace Blocko.Services.Implementations.Delivery
                     .Replace("\"{RegionId}\"", targetRegionId.ToString())
                     .Replace("{VillageId}", targetVillageId.ToString())
                     .Replace("\"{VillageId}\"", targetVillageId.ToString())
-                    .Replace("{OutboundWebhookUrl}", config.OutboundWebhookUrl ?? string.Empty);
+                    .Replace("{OutboundWebhookUrl}", (config.OutboundWebhookUrl ?? string.Empty).Replace("http://", "https://"));
             }
             else
             {
@@ -241,7 +241,7 @@ namespace Blocko.Services.Implementations.Delivery
                         contents = itemsSummary,
                         locationUrl = mapsUrl,
                         notes = string.IsNullOrWhiteSpace(notes) ? $"طلب رقم {order.OrderNumber} - {fullAddressLine} {mapsUrl}" : $"{notes} - {fullAddressLine} {mapsUrl}",
-                        webhookUrl = config.OutboundWebhookUrl ?? string.Empty
+                        webhookUrl = (config.OutboundWebhookUrl ?? string.Empty).Replace("http://", "https://")
                     },
                     destinationAddress = new
                     {
