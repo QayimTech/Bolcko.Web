@@ -12,8 +12,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
-    [Route("Admin/[controller]")]
-    [Route("Admin/SystemLogs")]
     public class LogController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -23,8 +21,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        [HttpGet("")]
-        [HttpGet("Index")]
         public IActionResult Index(string? fileName = null, int? pageNumber = 1, int? pageSize = 100)
         {
             var logFiles = new List<string>();
