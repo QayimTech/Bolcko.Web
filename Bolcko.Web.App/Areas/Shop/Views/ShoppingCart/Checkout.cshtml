@@ -260,10 +260,7 @@
                             <span>@SharedLocalizer["EstimatedShipping"]:</span>
                             <span class="text-indigo-600 font-black"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span>@SharedLocalizer["Tax"]:</span>
-                            <span class="text-slate-900 font-black"><span id="checkout-tax-val">@cart.Tax.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
-                        </div>
+
                         <div class="flex justify-between items-center text-sm pt-3 border-t border-slate-200 font-black text-slate-900">
                             <span class="text-base">@SharedLocalizer["Total"]:</span>
                             <span class="text-xl font-black text-[#E8A020]"><span id="checkout-total-val">@cart.Total.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
@@ -333,11 +330,10 @@
                 var rate = parseFloat(selectedOption.data('rate')) || 0.0;
                 
                 var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
-                var tax = parseFloat($('#checkout-tax-val').text()) || 0.0;
                 
                 $('#checkout-shipping-val').text(rate.toFixed(2));
                 
-                var total = subtotal + tax + rate;
+                var total = subtotal + rate;
                 $('#checkout-total-val').text(total.toFixed(2));
             });
         });
