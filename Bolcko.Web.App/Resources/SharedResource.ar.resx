@@ -1018,7 +1018,7 @@
     <value>حدد منطقتك وموقعك الدقيق لضمان وصول الشاحنة/السيارة للموقع مباشرة</value>
   </data>
   <data name="GPSButton" xml:space="preserve">
-    <value>تحديد موقعي التلقائي عبر GPS 📍</value>
+    <value>تحديد موقعي التلقائي عبر GPS</value>
   </data>
   <data name="GPSStatusWait" xml:space="preserve">
     <value>جاري التقاط الإحداثيات...</value>
@@ -1033,7 +1033,7 @@
     <value>اذكر اسم الشارع، رقم العمارة، الطابق، أو أقرب معلم مشهور...</value>
   </data>
   <data name="JordanCountry" xml:space="preserve">
-    <value>الأردن 🇯🇴</value>
+    <value>الأردن</value>
   </data>
   <data name="ProjectInfoDesc" xml:space="preserve">
     <value>لتسهيل عمليات التوريد وتسليم الفواتير للمهندس أو المقاول</value>
@@ -1042,13 +1042,13 @@
     <value>مثال: فيلا عبد الله / مشروع المرج...</value>
   </data>
   <data name="ProjectTypeResidential" xml:space="preserve">
-    <value>سكني 🏠</value>
+    <value>سكني</value>
   </data>
   <data name="ProjectTypeCommercial" xml:space="preserve">
-    <value>تجاري 🏢</value>
+    <value>تجاري</value>
   </data>
   <data name="ProjectTypeIndustrial" xml:space="preserve">
-    <value>صناعي 🏭</value>
+    <value>صناعي</value>
   </data>
   <data name="DeliveryNotes" xml:space="preserve">
     <value>ملاحظات وتعليمات التوصيل لسائق الشاحنة</value>
@@ -1078,7 +1078,7 @@
     <value>قطعة</value>
   </data>
   <data name="SubmitOrderBtn" xml:space="preserve">
-    <value>تأكيد وإرسال الطلب الآن 🚀</value>
+    <value>تأكيد وإرسال الطلب الآن</value>
   </data>
   <data name="SubmitTerms" xml:space="preserve">
     <value>بالضغط على زر التأكيد، فأنت توافق على شروط الاستخدام وسياسة التوصيل المتبعة في متجر بلوكو.</value>

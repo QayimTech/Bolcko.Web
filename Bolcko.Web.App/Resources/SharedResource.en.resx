@@ -1014,7 +1014,7 @@
     <value>Specify your area and exact location to ensure direct truck delivery</value>
   </data>
   <data name="GPSButton" xml:space="preserve">
-    <value>Auto-detect location via GPS 📍</value>
+    <value>Auto-detect location via GPS</value>
   </data>
   <data name="GPSStatusWait" xml:space="preserve">
     <value>Fetching coordinates...</value>
@@ -1029,7 +1029,7 @@
     <value>Mention street name, building number, floor, or nearest landmark...</value>
   </data>
   <data name="JordanCountry" xml:space="preserve">
-    <value>Jordan 🇯🇴</value>
+    <value>Jordan</value>
   </data>
   <data name="ProjectInfoDesc" xml:space="preserve">
     <value>To facilitate supply and invoice delivery to the engineer or contractor</value>
@@ -1038,13 +1038,13 @@
     <value>e.g., Abdullah Villa / Al-Marj Project...</value>
   </data>
   <data name="ProjectTypeResidential" xml:space="preserve">
-    <value>Residential 🏠</value>
+    <value>Residential</value>
   </data>
   <data name="ProjectTypeCommercial" xml:space="preserve">
-    <value>Commercial 🏢</value>
+    <value>Commercial</value>
   </data>
   <data name="ProjectTypeIndustrial" xml:space="preserve">
-    <value>Industrial 🏭</value>
+    <value>Industrial</value>
   </data>
   <data name="DeliveryNotes" xml:space="preserve">
     <value>Delivery Notes &amp; Instructions for Driver</value>
@@ -1074,7 +1074,7 @@
     <value>pcs</value>
   </data>
   <data name="SubmitOrderBtn" xml:space="preserve">
-    <value>Confirm &amp; Submit Order Now 🚀</value>
+    <value>Confirm &amp; Submit Order Now</value>
   </data>
   <data name="SubmitTerms" xml:space="preserve">
     <value>By clicking confirm, you agree to the Terms of Use and Delivery Policy.</value>
