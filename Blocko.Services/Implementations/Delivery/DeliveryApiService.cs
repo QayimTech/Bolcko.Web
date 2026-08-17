@@ -199,20 +199,26 @@ namespace Blocko.Services.Implementations.Delivery
 
                 var pwdVal = !string.IsNullOrWhiteSpace(config.ApiPassword) ? config.ApiPassword : "Ham@123ham";
 
+                // JSON Escape Protection to prevent Malformed JSON if fields contain double quotes (e.g. 1/2")
+                var safeReceiverName = receiverNameVal?.Replace("\"", "\\\"").Replace("\n", " ").Replace("\r", "") ?? "";
+                var safeAddress = addressVal?.Replace("\"", "\\\"").Replace("\n", " ").Replace("\r", "") ?? "";
+                var safeItemsSummary = itemsSummary?.Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") ?? "";
+                var safeItemsNotes = itemsNotesFormatted?.Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") ?? "";
+
                 jsonPayloadString = template
                     .Replace("{ApiEmail}", config.ApiEmail)
                     .Replace("{ApiPassword}", pwdVal)
                     .Replace("{OrderTotal}", ((double)order.TotalAmount).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))
                     .Replace("\"{OrderTotal}\"", ((double)order.TotalAmount).ToString("F2", System.Globalization.CultureInfo.InvariantCulture))
                     .Replace("{OrderNumber}", order.OrderNumber)
-                    .Replace("{CustomerName}", receiverNameVal)
+                    .Replace("{CustomerName}", safeReceiverName)
                     .Replace("{CustomerPhone}", receiverPhoneVal)
                     .Replace("{OrderQuantity}", itemsCount.ToString())
                     .Replace("\"{OrderQuantity}\"", itemsCount.ToString())
-                    .Replace("{OrderContents}", itemsSummary)
-                    .Replace("{OrderItemsNotes}", itemsNotesFormatted)
+                    .Replace("{OrderContents}", safeItemsSummary)
+                    .Replace("{OrderItemsNotes}", safeItemsNotes)
                     .Replace("{GoogleMapsUrl}", mapsUrl)
-                    .Replace("{CustomerAddress}", addressVal)
+                    .Replace("{CustomerAddress}", safeAddress)
                     .Replace("{CityId}", targetCityId.ToString())
                     .Replace("\"{CityId}\"", targetCityId.ToString())
                     .Replace("{RegionId}", targetRegionId.ToString())
