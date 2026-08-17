@@ -243,9 +243,17 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                         break;
                 }
             }
+            if (mapping != null)
+            {
+                _unitOfWork.OrderShipmentMappings.Update(mapping);
+            }
+
+            if (order != null)
+            {
+                _unitOfWork.Orders.Update(order);
+            }
 
             await _unitOfWork.SaveChangesAsync();
-
             return Ok(new
             {
                 success = true,
