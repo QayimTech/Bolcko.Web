@@ -352,7 +352,9 @@ namespace Blocko.Services.Implementations.order
         public async Task<decimal> GetTotalSalesAsync()
         {
             var orders = await _unitOfWork.Orders.GetAllAsync();
-            return orders.Sum(o => o.TotalAmount);
+            return orders
+                .Where(o => o.Status != Bolcko.Domain.Enums.OrderStatus.Cancelled)
+                .Sum(o => o.TotalAmount);
         }
 
         public async Task<int> GetTotalCountAsync()

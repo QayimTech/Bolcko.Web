@@ -96,6 +96,21 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             }
         }
 
+        // Temporary endpoint to fetch last order details
+        [HttpGet("test-order")]
+        public async Task<IActionResult> GetLastOrder()
+        {
+            var mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable()
+                .OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+            var order = await _unitOfWork.Orders.GetAllAsQueryable()
+                .OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+
+            return Ok(new {
+                orderInvoice = order?.OrderNumber,
+                barcode = mapping?.Barcode ?? mapping?.ExternalPackageId
+            });
+        }
+
         // =========================================================================
         // GLC / Logestechs Strategy Implementation
         // =========================================================================
@@ -152,7 +167,9 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
             if (mapping == null && order == null)
             {
-                return NotFound(new { success = false, message = "لم يتم العثور على الشحنة أو الطلب المطابق لهذا الـ Webhook." });
+                // To prevent webhook providers from disabling the URL, always return 200 OK even if not found.
+                _logger.LogWarning("Webhook received but order/shipment not found in DB. Barcode: {BarcodeStr}", barcodeStr);
+                return Ok(new { success = true, message = "Webhook received. No matching order found (ignored)." });
             }
 
             // Update mapping details
@@ -173,6 +190,12 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 var upperStatus = statusStr.ToUpperInvariant();
                 var previousStatus = order.Status;
 
+                if (payload.Cod >= 0)
+                {
+                    order.TotalAmount = (decimal)payload.Cod;
+                    if (mapping != null) mapping.CodAmount = payload.Cod;
+                }
+
                 switch (upperStatus)
                 {
                     // 2. Successful Delivery & Financial Settlement
@@ -182,10 +205,6 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                     case "INVOICED":
                         order.Status = OrderStatus.Delivered;
                         order.PaymentStatus = "Paid";
-                        if (payload.Cod > 0)
-                        {
-                            order.TotalAmount = (decimal)payload.Cod;
-                        }
                         break;
 
                     // 3. In Transit / Driver Out for Delivery
@@ -196,6 +215,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                     case "EXPORTED_TO_THIRD_PARTY":
                     case "TRANSFERRED_OUT":
                         order.Status = OrderStatus.Shipped;
+                        if (order.PaymentStatus != "Paid") order.PaymentStatus = "Pending";
                         break;
 
                     // 4. Order Returns / Cancellation -> Auto Stock Restored to Inventory
@@ -242,9 +262,11 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                     case "APPROVED_BY_CUSTOMER_CARE_AND_WAITING_FOR_DISPATCHER":
                     case "ARRIVED":
                     case "PROCESSING":
+                    case "PROCESSED":
                     case "PREPARED":
                     case "BROUGHT":
                         order.Status = OrderStatus.Processing;
+                        if (order.PaymentStatus != "Paid") order.PaymentStatus = "Pending";
                         break;
                 }
             }
