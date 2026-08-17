@@ -112,9 +112,11 @@
                             <select asp-for="City" id="checkout-city-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
                                 @if (ViewBag.ShippingRates != null)
                                 {
+                                    bool isEnglish = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en");
                                     foreach (var rate in (IEnumerable<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
                                     {
-                                        <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@rate.CityName (@rate.Rate.ToString("N2") @SharedLocalizer["JordanDinarShort"] @SharedLocalizer["CityDelivery"])</option>
+                                        string displayName = isEnglish && !string.IsNullOrWhiteSpace(rate.CityNameEn) ? rate.CityNameEn : rate.CityName;
+                                        <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@displayName (@rate.Rate.ToString("N2") @SharedLocalizer["JordanDinarShort"] @SharedLocalizer["CityDelivery"])</option>
                                     }
                                 }
                                 else
@@ -153,6 +155,32 @@
                         </div>
                     </div>
                 </div>
+
+                @if (ViewBag.EnableExpressDelivery == true)
+                {
+                    <!-- Express Delivery Option -->
+                    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
+                                    <span class="material-symbols-outlined text-xl">bolt</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-900">توصيل فوري (Express Delivery)</h2>
+                                    <p class="text-slate-400 text-xs font-medium">احصل على طلبيتك بشكل أسرع</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative border border-slate-200 rounded-2xl p-4 bg-slate-50 flex items-center gap-4 cursor-pointer hover:border-[#E8A020] hover:bg-amber-50/20 transition-all">
+                            <input asp-for="IsExpressDelivery" type="checkbox" class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020] rounded border-slate-300" id="isExpressDelivery" />
+                            <label for="isExpressDelivery" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                                أريد توصيل فوري
+                                <span class="block text-xs font-bold text-slate-500 mt-0.5">يضاف رسوم توصيل فوري بقيمة @(ViewBag.ExpressDeliveryFee) دينار</span>
+                            </label>
+                        </div>
+                    </div>
+                }
 
                 <!-- 3. Optional Project Info -->
                 <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
@@ -260,6 +288,10 @@
                             <span>@SharedLocalizer["EstimatedShipping"]:</span>
                             <span class="text-indigo-600 font-black"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
+                        <div class="flex justify-between items-center hidden" id="express-delivery-row">
+                            <span>رسوم توصيل فوري:</span>
+                            <span class="text-rose-600 font-black">+<span id="checkout-express-fee-val">0.00</span> @SharedLocalizer["JordanDinarShort"]</span>
+                        </div>
 
                         <div class="flex justify-between items-center text-sm pt-3 border-t border-slate-200 font-black text-slate-900">
                             <span class="text-base">@SharedLocalizer["Total"]:</span>
@@ -325,17 +357,31 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(function () {
-            $('#checkout-city-select').on('change', function () {
-                var selectedOption = $(this).find('option:selected');
+            var expressDeliveryFee = @(ViewBag.ExpressDeliveryFee ?? "0.00");
+
+            function calculateTotal() {
+                var selectedOption = $('#checkout-city-select').find('option:selected');
                 var rate = parseFloat(selectedOption.data('rate')) || 0.0;
-                
                 var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
                 
                 $('#checkout-shipping-val').text(rate.toFixed(2));
                 
                 var total = subtotal + rate;
+
+                // Add Express Delivery fee if checked
+                if ($('#isExpressDelivery').is(':checked')) {
+                    $('#express-delivery-row').removeClass('hidden').addClass('flex');
+                    $('#checkout-express-fee-val').text(expressDeliveryFee.toFixed(2));
+                    total += expressDeliveryFee;
+                } else {
+                    $('#express-delivery-row').addClass('hidden').removeClass('flex');
+                }
+
                 $('#checkout-total-val').text(total.toFixed(2));
-            });
+            }
+
+            $('#checkout-city-select').on('change', calculateTotal);
+            $('#isExpressDelivery').on('change', calculateTotal);
         });
     </script>
 }

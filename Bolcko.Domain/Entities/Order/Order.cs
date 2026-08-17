@@ -20,6 +20,7 @@ namespace Bolcko.Domain.Entities.Order
         public string? PaymentStatus { get; set; }
         public string? AppliedCouponCode { get; set; }
         public decimal DiscountAmount { get; set; } = 0.00m;
+        public bool IsExpressDelivery { get; set; } = false;
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Blocko.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blocko.Persistence.Migrations
 {
     [DbContext(typeof(BlockoDbContext))]
-    partial class BlockoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260817080016_AddExpressDeliveryToOrder")]
+    partial class AddExpressDeliveryToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -997,10 +1000,6 @@ namespace Blocko.Persistence.Migrations
 
                     b.Property<string>("CityName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("CityNameEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 

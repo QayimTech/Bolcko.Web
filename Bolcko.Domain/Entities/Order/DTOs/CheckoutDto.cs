@@ -48,5 +48,7 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         public long? SelectedVillageId { get; set; }
 
         public string? Notes { get; set; }
+
+        public bool IsExpressDelivery { get; set; } = false;
     }
 }

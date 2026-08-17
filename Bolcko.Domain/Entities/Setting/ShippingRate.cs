@@ -11,6 +11,9 @@ namespace Bolcko.Domain.Entities.Setting
         [MaxLength(100)]
         public string CityName { get; set; } = string.Empty;
 
+        [MaxLength(100)]
+        public string? CityNameEn { get; set; }
+
         [Required]
         public decimal Rate { get; set; }
     }

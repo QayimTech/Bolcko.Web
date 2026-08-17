@@ -84,22 +84,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             ViewBag.MarketCurrencyAr = mCurrencyAr?.Value ?? "دينار أردني";
             ViewBag.MarketCurrencyEn = mCurrencyEn?.Value ?? "JOD";
 
-            var rates = await _uow.ShippingRates.GetAllAsync();
-            
-            // Seed defaults if table is empty
-            if (!rates.Any())
-            {
-                var amman = new ShippingRate { CityName = "عمان", Rate = 3.00m };
-                var zarqa = new ShippingRate { CityName = "الزرقاء", Rate = 4.00m };
-                var irbid = new ShippingRate { CityName = "إربد", Rate = 5.00m };
-                await _uow.ShippingRates.AddAsync(amman);
-                await _uow.ShippingRates.AddAsync(zarqa);
-                await _uow.ShippingRates.AddAsync(irbid);
-                await _uow.CompleteAsync();
-                rates = await _uow.ShippingRates.GetAllAsync();
-            }
-
-            ViewBag.ShippingRates = rates.ToList();
             return View();
         }
 
@@ -130,8 +114,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             string marketCountryEn,
             bool marketIsOnlineOnly,
             string marketCurrencyAr,
-            string marketCurrencyEn,
-            Dictionary<string, decimal> cityRates)
+            string marketCurrencyEn)
         {
             await SaveSettingAsync("ShippingFee", shippingFee, "رسوم الشحن والتوصيل المقدرة");
             await SaveSettingAsync("ContactEmail", contactEmail, "بريد التواصل الإلكتروني الأساسي");
@@ -189,37 +172,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             await SaveSettingAsync("NotificationSoundUrl", finalSoundUrl, "رابط ملف الصوت للتنبيهات");
             await SaveSettingAsync("NotificationEmailEnabled", notificationEmailEnabled ? "true" : "false", "إرسال إشعارات البريد لشركات التوصيل");
 
-            // Sync dynamic shipping rates
-            var existingRates = await _uow.ShippingRates.GetAllAsync();
-            var incomingCities = cityRates != null ? cityRates.Keys.ToList() : new List<string>();
 
-            // 1. Delete removed cities
-            foreach (var existing in existingRates)
-            {
-                if (!incomingCities.Contains(existing.CityName, StringComparer.OrdinalIgnoreCase))
-                {
-                    _uow.ShippingRates.Remove(existing);
-                }
-            }
-
-            // 2. Add or Update
-            if (cityRates != null)
-            {
-                foreach (var r in cityRates)
-                {
-                    var rateObj = await _uow.ShippingRates.GetByCityNameAsync(r.Key);
-                    if (rateObj != null)
-                    {
-                        rateObj.Rate = r.Value;
-                        _uow.ShippingRates.Update(rateObj);
-                    }
-                    else
-                    {
-                        var newRateObj = new ShippingRate { CityName = r.Key, Rate = r.Value };
-                        await _uow.ShippingRates.AddAsync(newRateObj);
-                    }
-                }
-            }
             await _uow.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم حفظ الإعدادات وتحديث تكاليف شحن المحافظات بنجاح!";

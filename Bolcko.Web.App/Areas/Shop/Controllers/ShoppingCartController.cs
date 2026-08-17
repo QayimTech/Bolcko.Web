@@ -150,6 +150,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
             ViewBag.ShippingRates = await uow.ShippingRates.GetAllAsync();
 
+            var enableExpressSetting = await uow.AppSettings.GetByKeyAsync("EnableExpressDelivery");
+            var feeSetting = await uow.AppSettings.GetByKeyAsync("ExpressDeliveryFee");
+
+            bool enableExpress = enableExpressSetting?.Value?.ToLower() == "true";
+            decimal expressFee = decimal.TryParse(feeSetting?.Value, out decimal f) ? f : 5.0m;
+
+            ViewBag.EnableExpressDelivery = enableExpress;
+            ViewBag.ExpressDeliveryFee = expressFee;
+
             return View(new CheckoutDto());
         }
 

@@ -160,6 +160,115 @@
             </div>
         }
     </div>
+
+    <!-- Governorates and Shipping Rates -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-xl">map</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-900">المحافظات ورسوم التوصيل العادي</h3>
+                <p class="text-slate-400 text-xs font-medium">إدارة تكلفة التوصيل لكل محافظة على حدة</p>
+            </div>
+        </div>
+        
+        <div class="bg-slate-50 p-6 border border-slate-100 rounded-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-xs font-bold text-slate-600 uppercase tracking-widest text-start">تكاليف توصيل المحافظات المحددة</h4>
+                <button type="button" id="btn-add-city" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    إضافة محافظة جديدة
+                </button>
+            </div>
+            
+            <div id="city-rates-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @if (ViewBag.ShippingRates != null)
+                {
+                    foreach (var rate in (List<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
+                    {
+                        <div class="city-rate-row bg-white p-4 border border-slate-200 rounded relative group">
+                            <form asp-action="UpdateShippingRate" method="post" class="flex flex-col gap-2">
+                                <input type="hidden" name="id" value="@rate.Id" />
+                                <input type="hidden" name="cityName" value="@rate.CityName" />
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1 text-start">توصيل إلى (@rate.CityName)</label>
+                                <input name="cityNameEn" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="@rate.CityNameEn" placeholder="الاسم (إنجليزي)" />
+                                <div class="flex items-center gap-2">
+                                    <input name="rate" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="@rate.Rate.ToString("F2")" required />
+                                    <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white text-[10px] px-2 py-1.5 rounded font-bold">تحديث</button>
+                                </div>
+                            </form>
+                            <form asp-action="DeleteShippingRate" method="post">
+                                <input type="hidden" name="id" value="@rate.Id" />
+                                <button type="submit" onclick="return confirm('هل أنت متأكد من حذف محافظة (@rate.CityName)؟')" class="absolute top-2 left-2 text-slate-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Express Delivery Settings -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] border border-amber-200 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-xl">bolt</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-900">إعدادات التوصيل الفوري (Express Delivery)</h3>
+                <p class="text-slate-400 text-xs font-medium">تفعيل وإدارة خيار التوصيل السريع وتكلفته</p>
+            </div>
+        </div>
+        
+        <form asp-action="SaveExpressDeliverySettings" method="post" class="bg-slate-50 p-6 border border-slate-100 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">حالة التفعيل</label>
+                <div class="flex items-center gap-3 bg-white border border-slate-200 px-4 py-3 rounded">
+                    <input type="checkbox" name="enableExpressDelivery" value="true" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" @(ViewBag.EnableExpressDelivery == "true" ? "checked" : "") />
+                    <span class="text-sm text-slate-700 font-bold">تفعيل خيار التوصيل الفوري للعملاء</span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رسوم التوصيل الفوري (دينار)</label>
+                <input name="expressDeliveryFee" type="text" dir="ltr" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-bold" value="@(ViewBag.ExpressDeliveryFee ?? "5.00")" required />
+            </div>
+            <div class="md:col-span-2 mt-2">
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-6 rounded-2xl shadow-md transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">save</span>
+                    حفظ إعدادات التوصيل الفوري
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Custom Modal for Adding City -->
+<div id="cityModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-slate-900 bg-opacity-55 backdrop-blur-sm transition-all duration-300 animate-in fade-in">
+    <div class="bg-white border border-slate-200 p-8 w-full max-w-md shadow-2xl rounded-sm transform scale-95 transition-all duration-300">
+        <h3 class="text-base font-bold text-slate-800 border-b pb-3 mb-4 text-start">إضافة محافظة جديدة للتوصيل</h3>
+        <form asp-action="AddShippingRate" method="post" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اسم المحافظة</label>
+                <input name="cityName" id="modalCityName" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" placeholder="مثال: العقبة، الطفيلة" required />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اسم المحافظة (إنجليزي)</label>
+                <input name="cityNameEn" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" placeholder="e.g. Aqaba, Tafilah" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">تكلفة التوصيل</label>
+                <input name="rate" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="5.00" required />
+            </div>
+            <div class="flex items-center gap-3 pt-4 justify-end">
+                <button type="button" id="modalCloseBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 transition-all">إلغاء</button>
+                <button type="submit" class="bg-primary text-white text-xs font-bold px-5 py-2.5 shadow-hard hover:opacity-90 transition-all">إضافة المحافظة</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Add / Edit Provider Tailwind Modal -->
@@ -254,8 +363,24 @@
     </div>
 </div>
 
-<script>
-    function openAddProviderModal() {
+@section Scripts {
+    <script>
+        $(function () {
+            // Open Add City modal
+            $('#btn-add-city').on('click', function () {
+                $('#modalCityName').val('');
+                $('#cityModal').removeClass('hidden').addClass('flex');
+                setTimeout(() => $('#modalCityName').focus(), 150);
+            });
+
+            // Close Add City modal
+            $('#modalCloseBtn').on('click', function () {
+                $('#cityModal').addClass('hidden').removeClass('flex');
+            });
+        });
+    </script>
+    <script>
+        function openAddProviderModal() {
         document.getElementById('modalTitle').innerText = 'إعداد شركة توصيل وربط الـ API ديناميكياً';
         document.getElementById('p_Id').value = '0';
         document.getElementById('p_ProviderName').value = 'LogesTechs / GLC';
@@ -418,3 +543,4 @@
         });
     }
 </script>
+}
