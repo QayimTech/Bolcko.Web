@@ -15,6 +15,7 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         public string? PaymentStatus { get; set; }
         public string? AppliedCouponCode { get; set; }
         public decimal DiscountAmount { get; set; }
+        public bool HasOversizedItems { get; set; }
         public AddressDto? ShippingAddress { get; set; }
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }

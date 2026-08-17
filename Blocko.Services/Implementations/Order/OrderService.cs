@@ -65,17 +65,24 @@ namespace Blocko.Services.Implementations.order
                 await _unitOfWork.CompleteAsync(); // To get Address IDs
 
                 decimal shippingFeeVal = 5.00m;
-                var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(checkoutDto.City);
-                if (rateObj != null)
+                if (cart.HasOversizedItems)
                 {
-                    shippingFeeVal = rateObj.Rate;
+                    shippingFeeVal = 0.00m;
                 }
                 else
                 {
-                    var generalSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee");
-                    if (generalSetting != null && decimal.TryParse(generalSetting.Value, out decimal parsed))
+                    var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(checkoutDto.City);
+                    if (rateObj != null)
                     {
-                        shippingFeeVal = parsed;
+                        shippingFeeVal = rateObj.Rate;
+                    }
+                    else
+                    {
+                        var generalSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee");
+                        if (generalSetting != null && decimal.TryParse(generalSetting.Value, out decimal parsed))
+                        {
+                            shippingFeeVal = parsed;
+                        }
                     }
                 }
 
@@ -116,6 +123,7 @@ namespace Blocko.Services.Implementations.order
                     PaymentStatus = "Pending",
                     ShippingAddressId = shippingAddress.Id,
                     BillingAddressId = billingAddress.Id,
+                    HasOversizedItems = cart.HasOversizedItems,
                     AppliedCouponCode = appliedCoupon,
                     DiscountAmount = discountAmt,
                     Items = cart.Items.Select(i => new OrderItem
@@ -279,6 +287,7 @@ namespace Blocko.Services.Implementations.order
                 PaymentStatus = o.PaymentStatus,
                 AppliedCouponCode = o.AppliedCouponCode,
                 DiscountAmount = o.DiscountAmount,
+                HasOversizedItems = o.HasOversizedItems,
                 ShippingAddress = o.ShippingAddress != null ? new AddressDto
                 {
                     AddressLine1 = o.ShippingAddress.AddressLine1,

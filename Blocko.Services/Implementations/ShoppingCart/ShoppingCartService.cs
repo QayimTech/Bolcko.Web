@@ -274,15 +274,24 @@ namespace Blocko.Services.Implementations.shoppingCart
         private ShoppingCartDto MapToDto(ShoppingCart cart)
         {
             decimal feeVal = 5.00m;
-            try
+            bool hasOversized = cart.Items.Any(i => i.Product != null && i.Product.IsOversized);
+
+            if (hasOversized)
             {
-                var setting = _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee").GetAwaiter().GetResult();
-                if (setting != null && decimal.TryParse(setting.Value, out decimal parsed))
-                {
-                    feeVal = parsed;
-                }
+                feeVal = 0.00m; // dynamic quote later
             }
-            catch { }
+            else
+            {
+                try
+                {
+                    var setting = _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee").GetAwaiter().GetResult();
+                    if (setting != null && decimal.TryParse(setting.Value, out decimal parsed))
+                    {
+                        feeVal = parsed;
+                    }
+                }
+                catch { }
+            }
 
             return new ShoppingCartDto
             {
@@ -290,6 +299,7 @@ namespace Blocko.Services.Implementations.shoppingCart
                 SessionId = cart.SessionId,
                 UserId = cart.UserId,
                 Shipping = feeVal,
+                HasOversizedItems = hasOversized,
                 Items = cart.Items.Select(i => new ShoppingCartItemDto
                 {
                     Id = i.Id,

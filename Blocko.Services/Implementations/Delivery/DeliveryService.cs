@@ -243,7 +243,7 @@ namespace Blocko.Services.Implementations.Delivery
         {
             return await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
                 .Include(d => d.User)
-                .Include(d => d.Company)
+                .Include(d => d.DeliveryCompany)
                 .FirstOrDefaultAsync(d => d.UserId == userId);
         }
 
@@ -251,7 +251,7 @@ namespace Blocko.Services.Implementations.Delivery
         {
             return await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
                 .Include(d => d.User)
-                .Include(d => d.Company)
+                .Include(d => d.DeliveryCompany)
                 .FirstOrDefaultAsync(d => d.Id == driverId);
         }
 
@@ -259,7 +259,7 @@ namespace Blocko.Services.Implementations.Delivery
         {
             return await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
                 .Include(d => d.User)
-                .Include(d => d.Company)
+                .Include(d => d.DeliveryCompany)
                 .ToListAsync();
         }
 
@@ -378,6 +378,10 @@ namespace Blocko.Services.Implementations.Delivery
             job.DeliveryFee = fee;
             job.Status = DeliveryJobStatus.Assigned;
             job.AssignedAt = DateTime.UtcNow;
+            if (string.IsNullOrEmpty(job.DeliveryToken))
+            {
+                job.DeliveryToken = System.Guid.NewGuid().ToString("N");
+            }
 
             _unitOfWork.DeliveryJobs.Update(job);
             await _unitOfWork.CompleteAsync();
@@ -430,6 +434,31 @@ namespace Blocko.Services.Implementations.Delivery
                     job.Order.Status = OrderStatus.Delivered;
                     _unitOfWork.Orders.Update(job.Order);
                 }
+                
+                if (job.DriverId.HasValue)
+                {
+                    var driver = await _unitOfWork.DeliveryDrivers.GetByIdAsync(job.DriverId.Value);
+                    if (driver != null)
+                    {
+                        driver.TotalDeliveredOrders++;
+                        
+                        // Recalculate Tier Level
+                        if (driver.TotalDeliveredOrders >= 50 && driver.AverageRating >= 4.8m)
+                        {
+                            driver.TierLevel = "Gold";
+                        }
+                        else if (driver.TotalDeliveredOrders >= 20 && driver.AverageRating >= 4.5m)
+                        {
+                            driver.TierLevel = "Silver";
+                        }
+                        else
+                        {
+                            driver.TierLevel = "Bronze";
+                        }
+
+                        _unitOfWork.DeliveryDrivers.Update(driver);
+                    }
+                }
             }
             else if (status == DeliveryJobStatus.Returned || status == DeliveryJobStatus.Cancelled)
             {
@@ -470,7 +499,7 @@ namespace Blocko.Services.Implementations.Delivery
                 .Include(j => j.Order)
                 .ThenInclude(o => o.User)
                 .Include(j => j.Driver)
-                .ThenInclude(d => d.Company)
+                .ThenInclude(d => d.DeliveryCompany)
                 .Include(j => j.Driver)
                 .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(j => j.Id == jobId);
@@ -485,7 +514,7 @@ namespace Blocko.Services.Implementations.Delivery
             string? recipientEmail = overrideEmail;
             if (string.IsNullOrWhiteSpace(recipientEmail))
             {
-                recipientEmail = driver.Company?.Email;
+                recipientEmail = driver.DeliveryCompany?.Email;
             }
 
             if (string.IsNullOrWhiteSpace(recipientEmail))
@@ -493,7 +522,7 @@ namespace Blocko.Services.Implementations.Delivery
                 throw new ArgumentException("البريد الإلكتروني للشركة غير مهيأ، يرجى إدخال البريد يدوياً.");
             }
 
-            var companyName = driver.Company?.Name ?? "سائق مستقل";
+            var companyName = driver.DeliveryCompany?.Name ?? "سائق مستقل";
 
             // Generate attachments
             var attachments = new List<(byte[] content, string fileName, string contentType)>();
@@ -682,6 +711,21 @@ namespace Blocko.Services.Implementations.Delivery
                 var ratings = driver.Ratings.ToList();
                 driver.TotalRatings = ratings.Count;
                 driver.AverageRating = (decimal)ratings.Average(r => r.RatingValue);
+
+                // Recalculate Tier Level
+                if (driver.TotalDeliveredOrders >= 50 && driver.AverageRating >= 4.8m)
+                {
+                    driver.TierLevel = "Gold";
+                }
+                else if (driver.TotalDeliveredOrders >= 20 && driver.AverageRating >= 4.5m)
+                {
+                    driver.TierLevel = "Silver";
+                }
+                else
+                {
+                    driver.TierLevel = "Bronze";
+                }
+
                 _unitOfWork.DeliveryDrivers.Update(driver);
                 await _unitOfWork.CompleteAsync();
             }
@@ -712,7 +756,7 @@ namespace Blocko.Services.Implementations.Delivery
                 pageIndex, 
                 pageSize, 
                 orderBy: q => q.OrderByDescending(d => d.Id),
-                includes: new System.Linq.Expressions.Expression<Func<DeliveryDriver, object>>[] { d => d.User!, d => d.Company! });
+                includes: new System.Linq.Expressions.Expression<Func<DeliveryDriver, object>>[] { d => d.User!, d => d.DeliveryCompany! });
         }
 
         public async Task<Bolcko.Domain.Common.IPagedList<DeliveryJob>> GetPagedAvailableJobsAsync(int pageIndex, int pageSize)

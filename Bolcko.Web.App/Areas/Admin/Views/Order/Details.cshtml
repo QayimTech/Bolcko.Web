@@ -97,7 +97,13 @@
         <!-- Delivery Dispatch Section -->
         <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h2 class="text-base font-bold mb-4 border-b pb-2">@L["Option1AssignToCompany"]</h2>
+                <h2 class="text-base font-bold mb-4 border-b pb-2 flex items-center gap-2">
+                    @L["Option1AssignToCompany"]
+                    @if (Model.HasOversizedItems)
+                    {
+                        <span class="px-2 py-0.5 text-[10px] bg-red-100 text-red-700 rounded-full font-bold">⚠️ يحتوي شحن ثقيل</span>
+                    }
+                </h2>
                 <form asp-controller="DeliveryDispatch" asp-action="AssignToCompany" method="post" class="space-y-4">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="orderId" value="@Model.Id" />
@@ -107,9 +113,17 @@
                         <select name="companyId" id="companySelect" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
                             @foreach (var company in ViewBag.DeliveryCompanies as IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany>)
                             {
+                                if (Model.HasOversizedItems && !company.SupportsOversized)
+                                {
+                                    continue; // Skip companies that don't support oversized items if the order is oversized
+                                }
                                 <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (@L["Price"]: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
                             }
                         </select>
+                        @if (Model.HasOversizedItems)
+                        {
+                            <p class="text-[10px] text-red-600 font-bold mt-1">تم إخفاء الشركات التي لا تمتلك سيارات نقل ثقيل (شاحنات).</p>
+                        }
                     </div>
 
                     <div>
@@ -126,17 +140,34 @@
 
             <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0">
                 <h2 class="text-base font-bold mb-4 border-b pb-2">التوصيل عبر شركات الشحن السريع API</h2>
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
-                    <div class="font-bold text-amber-900 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">local_shipping</span>
-                        <span>شحن أوتوماتيكي لدى شركة Green Line (GLC / LogesTechs)</span>
+                @if (Model.HasOversizedItems)
+                {
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                        <div class="font-bold text-red-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">warning</span>
+                            <span>الطلب غير مؤهل لشركات الطرود</span>
+                        </div>
+                        <p class="text-red-800 leading-relaxed">هذا الطلب يحتوي على مواد بناء ضخمة لا يمكن رفعها لشركة الطرود السريعة (GLC). يرجى تعيينه لأسطول النقل الثقيل من القائمة المجاورة.</p>
                     </div>
-                    <p class="text-amber-800 leading-relaxed">إرسال بيانات الشحنة مباشرة للشركة وتوليد الباركود وتفاصيل المواد والتطبيقات.</p>
-                </div>
-                <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black py-3.5 px-8 rounded-xl shadow-md transition-all w-full flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">send</span>
-                    <span>رفع الشحنة فوراً لـ LogesTechs API</span>
-                </button>
+                    <button type="button" disabled class="bg-slate-300 text-slate-500 font-black py-3.5 px-8 rounded-xl shadow-none w-full flex items-center justify-center gap-2 cursor-not-allowed">
+                        <span class="material-symbols-outlined">block</span>
+                        <span>مغلق بسبب الحجم</span>
+                    </button>
+                }
+                else
+                {
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                        <div class="font-bold text-amber-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">local_shipping</span>
+                            <span>شحن أوتوماتيكي لدى شركة Green Line (GLC / LogesTechs)</span>
+                        </div>
+                        <p class="text-amber-800 leading-relaxed">إرسال بيانات الشحنة مباشرة للشركة وتوليد الباركود وتفاصيل المواد والتطبيقات.</p>
+                    </div>
+                    <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black py-3.5 px-8 rounded-xl shadow-md transition-all w-full flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">send</span>
+                        <span>رفع الشحنة فوراً لـ LogesTechs API</span>
+                    </button>
+                }
             </div>
         </div>
 

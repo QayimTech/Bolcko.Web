@@ -15,6 +15,8 @@ namespace Bolcko.Domain.Entities.Delivery
         public string? ManagerUserId { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public bool SupportsOversized { get; set; } = false;
+        public bool IsApiIntegration { get; set; } = true;
         
         public ICollection<DeliveryDriver> Drivers { get; set; } = new List<DeliveryDriver>();
     }

@@ -11,5 +11,6 @@ namespace Bolcko.Domain.Entities.ShoppingCart.DTOs
         public decimal Tax => Subtotal * 0.15m;
         public decimal Shipping { get; set; } = 5.00m;
         public decimal Total => Subtotal + Tax + Shipping;
+        public bool HasOversizedItems { get; set; } = false;
     }
 }

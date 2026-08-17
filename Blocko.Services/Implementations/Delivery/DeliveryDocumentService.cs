@@ -21,7 +21,7 @@ namespace Blocko.Services.Implementations.Delivery
             var customer = order?.User;
             var address = order?.ShippingAddress;
             var driver = job.Driver;
-            var company = driver?.Company;
+            var company = driver?.DeliveryCompany;
 
             using (var workbook = new XLWorkbook())
             {
@@ -158,7 +158,7 @@ namespace Blocko.Services.Implementations.Delivery
             var customer = order?.User;
             var address = order?.ShippingAddress;
             var driver = job.Driver;
-            var company = driver?.Company;
+            var company = driver?.DeliveryCompany;
 
             var document = Document.Create(container =>
             {

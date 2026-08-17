@@ -335,7 +335,7 @@
      aria-hidden="true"></div>
 
 <div id="mobile-drawer"
-     class="fixed top-0 end- h-full w-[300px] max-w-[85vw] bg-[#0D111A] z-[201] translate-x-full
+     class="fixed top-0 end-0 h-full w-[300px] max-w-[85vw] bg-[#0D111A] z-[201] ltr:translate-x-full rtl:-translate-x-full
             transition-transform duration-300 ease-out flex flex-col lg:hidden
             shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden">
 
@@ -490,7 +490,7 @@
 
     function openDrawer() {
         if (!drawer) return;
-        drawer.classList.remove("translate-x-full");
+        drawer.classList.remove("ltr:translate-x-full", "rtl:-translate-x-full");
         backdrop.classList.remove("opacity-0", "pointer-events-none");
         backdrop.classList.add("opacity-100");
         if (hamIcon) hamIcon.textContent = "close";
@@ -499,7 +499,7 @@
 
     function closeDrawer() {
         if (!drawer) return;
-        drawer.classList.add("translate-x-full");
+        drawer.classList.add("ltr:translate-x-full", "rtl:-translate-x-full");
         backdrop.classList.add("opacity-0", "pointer-events-none");
         backdrop.classList.remove("opacity-100");
         if (hamIcon) hamIcon.textContent = "menu";

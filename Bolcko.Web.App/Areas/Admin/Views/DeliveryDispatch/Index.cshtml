@@ -151,7 +151,15 @@
                         };
                         <tr class="hover:bg-slate-50">
                             <td class="px-4 py-3 font-mono">#@job.Id</td>
-                            <td class="px-4 py-3">@(job.Order?.OrderNumber ?? "-")</td>
+                            <td class="px-4 py-3">
+                                @(job.Order?.OrderNumber ?? "-")
+                                @if (job.Order != null && job.Order.HasOversizedItems)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 ml-2 text-xs font-bold text-amber-700 bg-amber-100 rounded-full" title="طلب شحن ثقيل">
+                                        🚚 ثقيل
+                                    </span>
+                                }
+                            </td>
                             <td class="px-4 py-3 text-slate-600">@job.DropoffLocation</td>
                             <td class="px-4 py-3">
                                 @if (job.Driver?.User != null)

@@ -226,7 +226,7 @@ namespace Blocko.Persistence
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(d => d.Company)
+                entity.HasOne(d => d.DeliveryCompany)
                     .WithMany(p => p.Drivers)
                     .HasForeignKey(d => d.DeliveryCompanyId)
                     .OnDelete(DeleteBehavior.SetNull);

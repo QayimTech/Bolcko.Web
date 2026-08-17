@@ -9,7 +9,12 @@ namespace Bolcko.Domain.Entities.Delivery
         public Bolcko.Domain.Entities.User.User User { get; set; } = null!;
 
         public int? DeliveryCompanyId { get; set; }
-        public DeliveryCompany? Company { get; set; }
+        public DeliveryCompany? DeliveryCompany { get; set; }
+
+        // Freelancer & Oversized Tracking
+        public bool HasTruck { get; set; } = false;
+        public string TierLevel { get; set; } = "Bronze";
+        public int TotalDeliveredOrders { get; set; } = 0;
 
         public string? VehicleType { get; set; }
         public string? VehiclePlateNumber { get; set; }
