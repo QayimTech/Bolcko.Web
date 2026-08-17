@@ -175,12 +175,6 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
                 switch (upperStatus)
                 {
-                    // 1. Return Stages
-                    case "RETURNING":
-                    case "REFUSED":
-                        order.Status = OrderStatus.Returning;
-                        break;
-
                     // 2. Successful Delivery & Financial Settlement
                     case "DELIVERED":
                     case "DELIVERED_TO_RECIPIENT":
@@ -206,6 +200,8 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
                     // 4. Order Returns / Cancellation -> Auto Stock Restored to Inventory
                     case "CANCELLED":
+                    case "RETURNING":
+                    case "REFUSED":
                     case "RETURNED_BY_RECIPIENT":
                     case "DELIVERED_TO_SENDER":
                     case "RETURNED":
