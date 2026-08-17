@@ -17,14 +17,14 @@
             <div class="flex items-center gap-2 text-xs font-bold text-slate-400 border-t md:border-t-0 pt-3 md:pt-0">
                 <span class="flex items-center gap-1 text-slate-900 font-black">
                     <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">1</span>
-                    السلة
+                    @SharedLocalizer["StepCart"]
                 </span>
-                <span class="material-symbols-outlined text-sm text-slate-300">chevron_left</span>
+                <span class="material-symbols-outlined text-sm text-slate-300 rtl:rotate-180">chevron_right</span>
                 <span class="flex items-center gap-1 text-[#E8A020] font-black">
                     <span class="w-6 h-6 rounded-full bg-[#E8A020] text-slate-950 flex items-center justify-center text-xs">2</span>
                     @SharedLocalizer["StepShipping"]
                 </span>
-                <span class="material-symbols-outlined text-sm text-slate-300">chevron_left</span>
+                <span class="material-symbols-outlined text-sm text-slate-300 rtl:rotate-180">chevron_right</span>
                 <span class="flex items-center gap-1">
                     <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs">3</span>
                     @SharedLocalizer["StepConfirm"]
@@ -253,19 +253,19 @@
                     
                     <div class="space-y-3 pt-4 border-t border-slate-100 text-xs font-bold text-slate-600">
                         <div class="flex justify-between items-center">
-                            <span>مجموع المواد Subtotal:</span>
+                            <span>@SharedLocalizer["Subtotal"]:</span>
                             <span class="text-slate-900 font-black"><span id="checkout-subtotal-val">@cart.Subtotal.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span>رسوم التوصيل الشحن Estimated Shipping:</span>
+                            <span>@SharedLocalizer["EstimatedShipping"]:</span>
                             <span class="text-indigo-600 font-black"><span id="checkout-shipping-val">@cart.Shipping.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span>الضريبة Tax:</span>
+                            <span>@SharedLocalizer["Tax"]:</span>
                             <span class="text-slate-900 font-black"><span id="checkout-tax-val">@cart.Tax.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                         <div class="flex justify-between items-center text-sm pt-3 border-t border-slate-200 font-black text-slate-900">
-                            <span class="text-base">الإجمالي الكلي Total:</span>
+                            <span class="text-base">@SharedLocalizer["Total"]:</span>
                             <span class="text-xl font-black text-[#E8A020]"><span id="checkout-total-val">@cart.Total.ToString("F2")</span> @SharedLocalizer["JordanDinarShort"]</span>
                         </div>
                     </div>
