@@ -986,4 +986,100 @@
   <data name="ConfirmDeleteMessage" xml:space="preserve"><value>Are you sure? This action cannot be undone.</value></data>
   <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>To confirm, type &quot;delete&quot; in the box below:</value></data>
   <data name="ConfirmDeleteButton" xml:space="preserve"><value>Confirm Delete</value></data>
+  <data name="CheckoutSubtitle" xml:space="preserve">
+    <value>Please review and confirm delivery and payment details to send your order directly to the warehouse</value>
+  </data>
+  <data name="SecureCheckout" xml:space="preserve">
+    <value>Secure Checkout &amp; Delivery</value>
+  </data>
+  <data name="StepCart" xml:space="preserve">
+    <value>Cart</value>
+  </data>
+  <data name="StepShipping" xml:space="preserve">
+    <value>Shipping Details</value>
+  </data>
+  <data name="StepConfirm" xml:space="preserve">
+    <value>Order Confirmation</value>
+  </data>
+  <data name="BuyerInfo" xml:space="preserve">
+    <value>1. Recipient Buyer Information</value>
+  </data>
+  <data name="BuyerInfoDesc" xml:space="preserve">
+    <value>You will be contacted via this name and phone to coordinate material receipt</value>
+  </data>
+  <data name="OptionalInvoice" xml:space="preserve">
+    <value>(Optional for e-invoice)</value>
+  </data>
+  <data name="ShippingAddressDesc" xml:space="preserve">
+    <value>Specify your area and exact location to ensure direct truck delivery</value>
+  </data>
+  <data name="GPSButton" xml:space="preserve">
+    <value>Auto-detect location via GPS 📍</value>
+  </data>
+  <data name="GPSStatusWait" xml:space="preserve">
+    <value>Fetching coordinates...</value>
+  </data>
+  <data name="CityDelivery" xml:space="preserve">
+    <value>Delivery</value>
+  </data>
+  <data name="AreaPlaceholder" xml:space="preserve">
+    <value>e.g., Dabouq / Jubeiha / Masoum...</value>
+  </data>
+  <data name="DetailedAddressPlaceholder" xml:space="preserve">
+    <value>Mention street name, building number, floor, or nearest landmark...</value>
+  </data>
+  <data name="JordanCountry" xml:space="preserve">
+    <value>Jordan 🇯🇴</value>
+  </data>
+  <data name="ProjectInfoDesc" xml:space="preserve">
+    <value>To facilitate supply and invoice delivery to the engineer or contractor</value>
+  </data>
+  <data name="ProjectNamePlaceholder" xml:space="preserve">
+    <value>e.g., Abdullah Villa / Al-Marj Project...</value>
+  </data>
+  <data name="ProjectTypeResidential" xml:space="preserve">
+    <value>Residential 🏠</value>
+  </data>
+  <data name="ProjectTypeCommercial" xml:space="preserve">
+    <value>Commercial 🏢</value>
+  </data>
+  <data name="ProjectTypeIndustrial" xml:space="preserve">
+    <value>Industrial 🏭</value>
+  </data>
+  <data name="DeliveryNotes" xml:space="preserve">
+    <value>Delivery Notes &amp; Instructions for Driver</value>
+  </data>
+  <data name="DeliveryNotesPlaceholder" xml:space="preserve">
+    <value>e.g., Please coordinate by phone 15 mins before arrival...</value>
+  </data>
+  <data name="PaymentMethodTitle" xml:space="preserve">
+    <value>4. Instant Payment Method</value>
+  </data>
+  <data name="PaymentMethodDesc" xml:space="preserve">
+    <value>Choose the suitable payment method for your order</value>
+  </data>
+  <data name="CODTitle" xml:space="preserve">
+    <value>Cash On Delivery (COD)</value>
+  </data>
+  <data name="CODDesc" xml:space="preserve">
+    <value>Pay in cash to the delivery driver upon inspection at the site</value>
+  </data>
+  <data name="OrderSummaryTitle" xml:space="preserve">
+    <value>Order &amp; Materials Summary</value>
+  </data>
+  <data name="QuantityPrefix" xml:space="preserve">
+    <value>Quantity:</value>
+  </data>
+  <data name="PieceSuffix" xml:space="preserve">
+    <value>pcs</value>
+  </data>
+  <data name="SubmitOrderBtn" xml:space="preserve">
+    <value>Confirm &amp; Submit Order Now 🚀</value>
+  </data>
+  <data name="SubmitTerms" xml:space="preserve">
+    <value>By clicking confirm, you agree to the Terms of Use and Delivery Policy.</value>
+  </data>
+  <data name="OptionalHint" xml:space="preserve">
+    <value>(Optional)</value>
+  </data>
 </root>

@@ -990,4 +990,100 @@
   <data name="ConfirmDeleteMessage" xml:space="preserve"><value>هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</value></data>
   <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>للتأكيد، اكتب &quot;حذف&quot; أو &quot;delete&quot; في الصندوق أدناه:</value></data>
   <data name="ConfirmDeleteButton" xml:space="preserve"><value>تأكيد الحذف</value></data>
+  <data name="CheckoutSubtitle" xml:space="preserve">
+    <value>يرجى مراجعة وتأكيد بيانات التوصيل والدفع لإرسال طلبك مباشرة للمستودع</value>
+  </data>
+  <data name="SecureCheckout" xml:space="preserve">
+    <value>الدفع والتسليم الآمن (Secure Checkout)</value>
+  </data>
+  <data name="StepCart" xml:space="preserve">
+    <value>السلة</value>
+  </data>
+  <data name="StepShipping" xml:space="preserve">
+    <value>بيانات الشحن</value>
+  </data>
+  <data name="StepConfirm" xml:space="preserve">
+    <value>تأكيد الطلب</value>
+  </data>
+  <data name="BuyerInfo" xml:space="preserve">
+    <value>1. معلومات المشتري المستلم</value>
+  </data>
+  <data name="BuyerInfoDesc" xml:space="preserve">
+    <value>سيتم التواصل معك عبر هذا الاسم والهاتف لتنسيق استلام المواد</value>
+  </data>
+  <data name="OptionalInvoice" xml:space="preserve">
+    <value>(اختياري لاستلام الفاتورة الإلكترونية)</value>
+  </data>
+  <data name="ShippingAddressDesc" xml:space="preserve">
+    <value>حدد منطقتك وموقعك الدقيق لضمان وصول الشاحنة/السيارة للموقع مباشرة</value>
+  </data>
+  <data name="GPSButton" xml:space="preserve">
+    <value>تحديد موقعي التلقائي عبر GPS 📍</value>
+  </data>
+  <data name="GPSStatusWait" xml:space="preserve">
+    <value>جاري التقاط الإحداثيات...</value>
+  </data>
+  <data name="CityDelivery" xml:space="preserve">
+    <value>توصيل</value>
+  </data>
+  <data name="AreaPlaceholder" xml:space="preserve">
+    <value>مثال: دابوق / الجبيهة / حي معصوم...</value>
+  </data>
+  <data name="DetailedAddressPlaceholder" xml:space="preserve">
+    <value>اذكر اسم الشارع، رقم العمارة، الطابق، أو أقرب معلم مشهور...</value>
+  </data>
+  <data name="JordanCountry" xml:space="preserve">
+    <value>الأردن 🇯🇴</value>
+  </data>
+  <data name="ProjectInfoDesc" xml:space="preserve">
+    <value>لتسهيل عمليات التوريد وتسليم الفواتير للمهندس أو المقاول</value>
+  </data>
+  <data name="ProjectNamePlaceholder" xml:space="preserve">
+    <value>مثال: فيلا عبد الله / مشروع المرج...</value>
+  </data>
+  <data name="ProjectTypeResidential" xml:space="preserve">
+    <value>سكني 🏠</value>
+  </data>
+  <data name="ProjectTypeCommercial" xml:space="preserve">
+    <value>تجاري 🏢</value>
+  </data>
+  <data name="ProjectTypeIndustrial" xml:space="preserve">
+    <value>صناعي 🏭</value>
+  </data>
+  <data name="DeliveryNotes" xml:space="preserve">
+    <value>ملاحظات وتعليمات التوصيل لسائق الشاحنة</value>
+  </data>
+  <data name="DeliveryNotesPlaceholder" xml:space="preserve">
+    <value>مثال: يرجى التنسيق هاتفياً قبل الوصول بربع ساعة، إمكانية إنزال المواد بالونش...</value>
+  </data>
+  <data name="PaymentMethodTitle" xml:space="preserve">
+    <value>4. طريقة الدفع الفورية</value>
+  </data>
+  <data name="PaymentMethodDesc" xml:space="preserve">
+    <value>اختر وسيلة الدفع المناسبة لطلبك</value>
+  </data>
+  <data name="CODTitle" xml:space="preserve">
+    <value>الدفع عند الاستلام (Cash On Delivery - COD)</value>
+  </data>
+  <data name="CODDesc" xml:space="preserve">
+    <value>ادفع نقدياً لسائق توصيل الشحنة فور الفحص والمعاينة بالموقع</value>
+  </data>
+  <data name="OrderSummaryTitle" xml:space="preserve">
+    <value>ملخص الطلب والمواد</value>
+  </data>
+  <data name="QuantityPrefix" xml:space="preserve">
+    <value>الكمية:</value>
+  </data>
+  <data name="PieceSuffix" xml:space="preserve">
+    <value>قطعة</value>
+  </data>
+  <data name="SubmitOrderBtn" xml:space="preserve">
+    <value>تأكيد وإرسال الطلب الآن 🚀</value>
+  </data>
+  <data name="SubmitTerms" xml:space="preserve">
+    <value>بالضغط على زر التأكيد، فأنت توافق على شروط الاستخدام وسياسة التوصيل المتبعة في متجر بلوكو.</value>
+  </data>
+  <data name="OptionalHint" xml:space="preserve">
+    <value>(اختياري)</value>
+  </data>
 </root>
