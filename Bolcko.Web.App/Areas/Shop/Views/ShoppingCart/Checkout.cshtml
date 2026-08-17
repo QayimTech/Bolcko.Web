@@ -54,8 +54,8 @@
                         <div class="space-y-1.5">
                             <label class="block text-xs font-black text-slate-700">@SharedLocalizer["FullName"] <span class="text-rose-500">*</span></label>
                             <div class="relative">
-                                <input asp-for="FullName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" placeholder="ادخل اسمك الكامل هنا..." />
-                                <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-lg">badge</span>
+                                <input asp-for="FullName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pe-10 ps-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" placeholder="ادخل اسمك الكامل هنا..." />
+                                <span class="material-symbols-outlined absolute end-3 top-3 text-slate-400 text-lg pointer-events-none">badge</span>
                             </div>
                             <span asp-validation-for="FullName" class="text-rose-500 text-xs font-bold block"></span>
                         </div>
@@ -63,8 +63,8 @@
                         <div class="space-y-1.5">
                             <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Phone"] <span class="text-rose-500">*</span></label>
                             <div class="relative">
-                                <input asp-for="Phone" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-left" dir="ltr" type="tel" placeholder="07xxxxxxxx" />
-                                <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg">call</span>
+                                <input asp-for="Phone" class="w-full bg-slate-50 border border-slate-200 rounded-2xl ps-10 pe-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-start" dir="ltr" type="tel" placeholder="07xxxxxxxx" />
+                                <span class="material-symbols-outlined absolute start-3 top-3 text-slate-400 text-lg pointer-events-none">call</span>
                             </div>
                             <span asp-validation-for="Phone" class="text-rose-500 text-xs font-bold block"></span>
                         </div>
@@ -72,8 +72,8 @@
                         <div class="sm:col-span-2 space-y-1.5">
                             <label class="block text-xs font-black text-slate-700">@SharedLocalizer["Email"] <span class="text-slate-400 font-normal">(اختياري لاستلام الفاتورة الإلكترونية)</span></label>
                             <div class="relative">
-                                <input asp-for="Email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-left" dir="ltr" type="email" placeholder="name@example.com" />
-                                <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 text-lg">mail</span>
+                                <input asp-for="Email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl ps-10 pe-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all text-start" dir="ltr" type="email" placeholder="name@example.com" />
+                                <span class="material-symbols-outlined absolute start-3 top-3 text-slate-400 text-lg pointer-events-none">mail</span>
                             </div>
                             <span asp-validation-for="Email" class="text-rose-500 text-xs font-bold block"></span>
                         </div>
@@ -228,7 +228,7 @@
                 @if (ViewBag.Cart != null)
                 {
                     var cart = (Bolcko.Domain.Entities.ShoppingCart.DTOs.ShoppingCartDto)ViewBag.Cart;
-                    <div class="space-y-4 max-h-80 overflow-y-auto pr-1">
+                    <div class="space-y-4 max-h-80 overflow-y-auto pe-">
                         @foreach (var item in cart.Items)
                         {
                             <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
@@ -271,9 +271,9 @@
                     </div>
                 }
 
-                <button type="submit" form="checkoutForm" class="w-full bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 text-sm cursor-pointer">
+                <button type="submit" form="checkoutForm" class="w-full bg-gradient-to-r from-[#E8A020] to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black py-4 px-6 rounded-full flex items-center justify-center gap-3 transition-all shadow-xl shadow-amber-500/20 active:scale-95 text-base cursor-pointer">
                     <span>تأكيد وإرسال الطلب الآن 🚀</span>
-                    <span class="material-symbols-outlined text-xl">arrow_back</span>
+                    <span class="material-symbols-outlined text-xl rtl:rotate-180">arrow_forward</span>
                 </button>
                 
                 <p class="text-[11px] text-slate-400 text-center leading-relaxed font-medium">
