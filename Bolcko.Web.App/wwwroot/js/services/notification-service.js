@@ -111,17 +111,14 @@
                     if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
                     else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
 
-                    const textAlignment = isArabic ? 'text-end' : 'text-start';
-                    const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
-
                     list.innerHTML += `
                         <a ${href} onclick="window.NotificationService.markAsRead(${n.id}, event, '${n.actionUrl || ''}')"
-                           class="block p-4.5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'}">
-                            <div class="flex items-start gap-4 ${flexDir}">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} group-hover:scale-105">
+                           class="block p-5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'} hover:bg-white/5">
+                            <div class="flex items-start gap-4">
+                                <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} shadow-sm group-hover:scale-105">
                                     <span class="material-symbols-outlined text-[20px]">${icon}</span>
                                 </div>
-                                <div class="flex-grow min-w-0 ${textAlignment}">
+                                <div class="flex-grow min-w-0 text-start">
                                     <h4 class="text-xs font-black ${textClass} mb-1 ${titleHover} transition-colors truncate">${n.title || ''}</h4>
                                     <p class="text-[11px] ${subText} leading-relaxed font-medium break-words">${n.message || ''}</p>
                                     <span class="text-[9px] font-bold text-slate-500 mt-2 block">${n.createdAt || ''}</span>
@@ -181,20 +178,17 @@
                 if (tl.includes('طلب') || tl.includes('order') || ml.includes('طلب') || ml.includes('order')) icon = 'shopping_cart';
                 else if (tl.includes('توصيل') || tl.includes('delivery')) icon = 'local_shipping';
 
-                const textAlignment = isArabic ? 'text-end' : 'text-start';
-                const flexDir = isArabic ? 'flex-row-reverse' : 'flex-row';
-
                 // Format time dynamically for fresh notification
                 const timeString = isArabic ? 'الآن' : 'Just now';
 
                 const itemHtml = `
                     <a ${href} onclick="window.NotificationService.markAsRead(${notification.Id || notification.id}, event, '${notification.ActionUrl || notification.actionUrl || ''}')"
-                       class="block p-4.5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'}">
-                        <div class="flex items-start gap-4 ${flexDir}">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} group-hover:scale-105">
+                       class="block p-5 ${bgClass} ${cursor} transition-all duration-300 group border-b ${isAdmin ? 'border-slate-100' : 'border-white/5'} hover:bg-white/5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${iconClass} shadow-sm group-hover:scale-105">
                                 <span class="material-symbols-outlined text-[20px]">${icon}</span>
                             </div>
-                            <div class="flex-grow min-w-0 ${textAlignment}">
+                            <div class="flex-grow min-w-0 text-start">
                                 <h4 class="text-xs font-black ${textClass} mb-1 ${titleHover} transition-colors truncate">${notification.Title || notification.title || ''}</h4>
                                 <p class="text-[11px] ${subText} leading-relaxed font-medium break-words">${notification.Message || notification.message || ''}</p>
                                 <span class="text-[9px] font-bold text-slate-500 mt-2 block">${timeString}</span>
