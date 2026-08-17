@@ -128,7 +128,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                 providerKey, companyId, invoiceNum, barcodeStr, statusStr, payload.Cod, firstAttachment);
 
             // Find matching OrderShipmentMapping by barcode/packageId or invoice number
-            var mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable()
+            var mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable(trackChanges: true)
                 .FirstOrDefaultAsync(m => (barcodeStr != "" && (m.Barcode == barcodeStr || m.ExternalPackageId == barcodeStr)) || 
                                           (payload.PackageId > 0 && m.ExternalPackageId == payload.PackageId.ToString()));
 
@@ -140,19 +140,19 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             }
             else if (!string.IsNullOrEmpty(invoiceNum))
             {
-                order = await _unitOfWork.Orders.GetAllAsQueryable()
+                order = await _unitOfWork.Orders.GetAllAsQueryable(trackChanges: true)
                     .FirstOrDefaultAsync(o => o.OrderNumber == invoiceNum);
 
                 if (order != null)
                 {
-                    mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable()
+                    mapping = await _unitOfWork.OrderShipmentMappings.GetAllAsQueryable(trackChanges: true)
                         .FirstOrDefaultAsync(m => m.OrderId == order.Id);
                 }
             }
 
-            if (order == null && mapping == null)
+            if (mapping == null && order == null)
             {
-                return NotFound(new { success = false, message = "لم يتم العثور على الطلب المرتبط بهذا التحديث" });
+                return NotFound(new { success = false, message = "لم يتم العثور على الشحنة أو الطلب المطابق لهذا الـ Webhook." });
             }
 
             // Update mapping details
@@ -168,14 +168,20 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             }
 
             // Exhaustive Dynamic Domain Order Status Mapping & Inventory Stock Restoration Engine
-            if (order != null)
+            if (order != null && !string.IsNullOrEmpty(statusStr))
             {
                 var upperStatus = statusStr.ToUpperInvariant();
                 var previousStatus = order.Status;
 
                 switch (upperStatus)
                 {
-                    // 1. Successful Delivery & Financial Settlement
+                    // 1. Return Stages
+                    case "RETURNING":
+                    case "REFUSED":
+                        order.Status = OrderStatus.Returning;
+                        break;
+
+                    // 2. Successful Delivery & Financial Settlement
                     case "DELIVERED":
                     case "DELIVERED_TO_RECIPIENT":
                     case "COMPLETED":
@@ -188,7 +194,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                         }
                         break;
 
-                    // 2. In Transit / Driver Out for Delivery
+                    // 3. In Transit / Driver Out for Delivery
                     case "OUT_FOR_DELIVERY":
                     case "IN_TRANSIT":
                     case "IN_TRANSIT_TO_CUSTOMER":
@@ -198,7 +204,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                         order.Status = OrderStatus.Shipped;
                         break;
 
-                    // 3. Order Returns / Cancellation -> Auto Stock Restored to Inventory
+                    // 4. Order Returns / Cancellation -> Auto Stock Restored to Inventory
                     case "CANCELLED":
                     case "RETURNED_BY_RECIPIENT":
                     case "DELIVERED_TO_SENDER":
@@ -226,7 +232,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                         }
                         break;
 
-                    // 4. Warehouse Fulfillment & Hub Processing Stages
+                    // 5. Warehouse Fulfillment & Hub Processing Stages
                     case "CREATED":
                     case "DRAFT":
                     case "ACCEPTED_BY_DRIVER_AND_PENDING_PICKUP":
@@ -237,20 +243,14 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
                     case "PACKED":
                     case "POSTPONED_DELIVERY":
                     case "PENDING_CUSTOMER_CARE_APPROVAL":
+                    case "APPROVED_BY_CUSTOMER_CARE_AND_WAITING_FOR_DISPATCHER":
                     case "ARRIVED":
+                    case "PROCESSING":
+                    case "PREPARED":
                     case "BROUGHT":
                         order.Status = OrderStatus.Processing;
                         break;
                 }
-            }
-            if (mapping != null)
-            {
-                _unitOfWork.OrderShipmentMappings.Update(mapping);
-            }
-
-            if (order != null)
-            {
-                _unitOfWork.Orders.Update(order);
             }
 
             await _unitOfWork.SaveChangesAsync();

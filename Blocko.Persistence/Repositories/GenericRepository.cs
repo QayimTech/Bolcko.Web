@@ -24,14 +24,16 @@ namespace Blocko.Persistence.Repositories
             return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
-        public IQueryable<T> GetAllAsQueryable()
+        public IQueryable<T> GetAllAsQueryable(bool trackChanges = false)
         {
-            return _context.Set<T>().AsNoTracking().AsQueryable();
+            return trackChanges ? _context.Set<T>().AsQueryable() : _context.Set<T>().AsNoTracking().AsQueryable();
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, bool trackChanges = false)
         {
-            return await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
+            return trackChanges
+                ? await _context.Set<T>().Where(predicate).ToListAsync()
+                : await _context.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
         }
 
         public async Task AddAsync(T entity)
