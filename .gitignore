@@ -567,3 +567,4 @@ secrets.json
 *.json
 /Bolcko.Web.App/wwwroot/images/products
 /Bolcko.Web.App/wwwroot/products
+/Bolcko.Web.App/App_Data/Imports/ImageLibrary
