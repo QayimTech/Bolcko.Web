@@ -63,10 +63,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 var featuredProducts = await _serviceManager.ProductService.GetFeaturedProductsAsync();
                 translatedProducts = await featuredProducts.TranslateAsync(_translationService, culture, HttpContext.RequestServices);
-                using (var entry = cache.CreateEntry(productsKey))
+                if (translatedProducts.Any())
                 {
-                    entry.Value = translatedProducts;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                    using (var entry = cache.CreateEntry(productsKey))
+                    {
+                        entry.Value = translatedProducts;
+                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    }
                 }
             }
 
@@ -76,10 +79,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 var rootCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
                 translatedCategories = await rootCategories.TranslateAsync(_translationService, culture);
-                using (var entry = cache.CreateEntry(categoriesKey))
+                if (translatedCategories.Any())
                 {
-                    entry.Value = translatedCategories;
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12);
+                    using (var entry = cache.CreateEntry(categoriesKey))
+                    {
+                        entry.Value = translatedCategories;
+                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    }
                 }
             }
             

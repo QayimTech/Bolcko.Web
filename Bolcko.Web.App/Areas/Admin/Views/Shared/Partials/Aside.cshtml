@@ -91,53 +91,6 @@
                 }
             </nav>
         </div>
-
-        @* ===== Import Tools Section ===== *@
-        <div>
-            <p class="sidebar-text px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">
-                أدوات الاستيراد
-            </p>
-            <nav class="space-y-1">
-                @{
-                    bool isImportActive = currentController == "Import" && currentAction == "BulkImport";
-                }
-
-                @* Unified Import *@
-                <a href="@Url.Action("BulkImport", "Import", new { area = "Admin" })"
-                   class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group @(isImportActive ? "bg-slate-900 text-white shadow-lg" : "text-slate-600 hover:bg-slate-50")">
-
-                    <span class="material-symbols-outlined transition-colors @(isImportActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
-                        upload_file
-                    </span>
-
-                    <span class="sidebar-text text-sm font-bold truncate">
-                        استيراد الفئات والمنتجات
-                    </span>
-
-                    @if (isImportActive)
-                    {
-                        <div class="sidebar-text ms-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
-                    }
-                </a>
-
-                @* Hangfire Monitor *@
-                <a href="/hangfire"
-                   target="_blank"
-                   class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group text-slate-600 hover:bg-violet-50 hover:text-violet-700">
-
-                    <span class="material-symbols-outlined transition-colors text-slate-400 group-hover:text-violet-600">
-                        monitoring
-                    </span>
-
-                    <span class="sidebar-text text-sm font-bold truncate">
-                        مراقبة المهام
-                    </span>
-                    <span class="sidebar-text ms-auto">
-                        <span class="text-[9px] font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">Live</span>
-                    </span>
-                </a>
-            </nav>
-        </div>
     </div>
 
 

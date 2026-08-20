@@ -26,8 +26,19 @@ namespace Bolcko.Domain.Entities.Product.DTOs
 
         public string? Brand { get; set; }
         public string? CountryOfOrigin { get; set; }
+        public bool IsOversized { get; set; }
 
-        // Image extracted from Excel embedded picture
+        // Product Variant Attributes (Optional, for child variant rows or variant-specific attributes)
+        public string? ParentSku { get; set; }
+        public string? VariantSku { get; set; }
+        public string? Size { get; set; }
+        public string? Color { get; set; }
+        public string? PackagingUnit { get; set; }
+        public decimal? VariantPrice { get; set; }
+        public int? VariantStock { get; set; }
+        public string? VariantImageUrl { get; set; }
+
+        // Image extracted from Excel embedded picture or URL
         public byte[]? ImageData { get; set; }
         public string? ImageMimeType { get; set; }
         public string? ImageExtension { get; set; }
@@ -39,7 +50,7 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public string? ParentCategoryName { get; set; }
         public string? MicroCategoryName { get; set; }
 
-        // Image from JSON base64 string (e.g. "data:image/jpeg;base64,...")
+        // Image from JSON base64 string or direct URL
         public string? ImageBase64 { get; set; }
 
         // SEO Metadata from sheet

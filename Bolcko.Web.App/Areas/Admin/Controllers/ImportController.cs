@@ -112,7 +112,24 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     _logger.LogInformation("ZIP extraction complete: {Count} images extracted", extracted);
                 }
 
-                // ── 2. Handle Google Sheet ──────────────────────────────────────
+                // ── 2. Handle Images-Only ZIP Import ────────────────────────────
+                bool isImagesOnly = format.Equals("images-only", StringComparison.OrdinalIgnoreCase) ||
+                                    (file == null && imagesZip != null && imagesZip.Length > 0);
+
+                if (isImagesOnly)
+                {
+                    if (extractedImagesFolder == null)
+                    {
+                        return Json(new { success = false, message = "الرجاء اختيار ملف ZIP يحتوي على الصور." });
+                    }
+
+                    _jobs.Enqueue<IBulkImportService>(svc =>
+                        svc.ProcessImagesZipImportJobAsync(importId, extractedImagesFolder));
+
+                    return Json(new { success = true, message = "بدأت معالجة وربط حزمة الصور بالمنتجات في الخلفية.", jobId = importId });
+                }
+
+                // ── 3. Handle Google Sheet ──────────────────────────────────────
                 if (isGoogleSheet)
                 {
                     if (string.IsNullOrWhiteSpace(googleSheetUrl))
@@ -124,7 +141,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     return Json(new { success = true, message = "بدأت المعالجة في الخلفية لشيت جوجل.", jobId = importId });
                 }
 
-                // ── 3. Handle Excel upload ──────────────────────────────────────
+                // ── 4. Handle Excel upload ──────────────────────────────────────
                 if (file == null || file.Length == 0)
                     return Json(new { success = false, message = "الرجاء اختيار ملف للرفع." });
 

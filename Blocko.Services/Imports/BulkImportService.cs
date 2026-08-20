@@ -75,6 +75,7 @@ namespace Blocko.Services.Imports
             ["parentcat"]                    = "ParentCategoryName",  // sheet alias
             ["parent_category"]              = "ParentCategoryName",
             ["parent cat"]                   = "ParentCategoryName",
+            ["parent category"]              = "ParentCategoryName",  // Python pipeline alias
 
             // ── Micro / leaf category ─────────────────────────────────────────
             ["التصنيف الدقيق (Micro)"]       = "MicroCategoryName",
@@ -97,6 +98,11 @@ namespace Blocko.Services.Imports
             ["stock"]                        = "Stock",
             ["stockquantity"]                = "Stock",
             ["stock_quantity"]               = "Stock",
+            ["stock quantity"]               = "Stock",
+            ["quantity"]                     = "Stock",
+            ["المخزون"]                      = "Stock",
+            ["كمية المخزون"]                 = "Stock",
+            ["الكمية المتوفرة"]              = "Stock",
             // ── Unit of measure ───────────────────────────────────────────────
             ["وحدة القياس"]                  = "UnitOfMeasure",
             ["الوحدة"]                       = "UnitOfMeasure",
@@ -156,7 +162,113 @@ namespace Blocko.Services.Imports
             ["seo keywords"]                 = "MetaKeywords",
             ["metakeywords"]                 = "MetaKeywords",
             ["الكلمات المفتاحية"]             = "MetaKeywords",
+
+            // Python Pipeline SEO Aliases
+            ["seo meta title (ar)"]          = "MetaTitle",
+            ["seo meta description (ar)"]    = "MetaDescription",
+            ["seo meta keywords (ar)"]       = "MetaKeywords",
+            ["seo meta title (en)"]          = "MetaTitle",
+            ["seo meta description (en)"]    = "MetaDescription",
+            ["seo meta keywords (en)"]       = "MetaKeywords",
+            ["seo meta title"]               = "MetaTitle",
+            ["seo meta description"]         = "MetaDescription",
+            ["seo meta keywords"]            = "MetaKeywords",
+
+            // ── Oversized & Heavy Logistics ─────────────────────────────────────
+            ["بضاعة ضخمة"]                   = "IsOversized",
+            ["شحن ثقيل"]                     = "IsOversized",
+            ["حجم كبير"]                     = "IsOversized",
+            ["oversized"]                    = "IsOversized",
+            ["is_oversized"]                 = "IsOversized",
+            ["isoversized"]                  = "IsOversized",
+            ["is oversized"]                 = "IsOversized",
+
+            // ── Product Variants (Parent-Child) ─────────────────────────────────
+            ["كود المنتج الأساسي"]           = "ParentSku",
+            ["كود_المنتج_الأساسي"]           = "ParentSku",
+            ["parent sku"]                   = "ParentSku",
+            ["parent_sku"]                   = "ParentSku",
+            ["parentsku"]                    = "ParentSku",
+
+            ["كود الفارينت"]                 = "VariantSku",
+            ["كود_الفارينت"]                 = "VariantSku",
+            ["variant sku"]                  = "VariantSku",
+            ["variant_sku"]                  = "VariantSku",
+            ["variantsku"]                   = "VariantSku",
+
+            ["اللون"]                        = "Color",
+            ["color"]                        = "Color",
+            ["option 2 value (color)"]       = "Color",
+            ["option 2 value"]               = "Color",
+
+            ["المقاس / الحجم"]               = "Size",
+            ["size"]                         = "Size",
+            ["option 1 value (size/model)"]  = "Size",
+            ["option 1 value (size)"]        = "Size",
+            ["option 1 value"]               = "Size",
+
+            ["وحدة التعبئة"]                 = "PackagingUnit",
+            ["packaging unit"]               = "PackagingUnit",
+            ["packaging_unit"]               = "PackagingUnit",
+
+            ["سعر الفارينت"]                 = "VariantPrice",
+            ["سعر_الفارينت"]                 = "VariantPrice",
+            ["variant price"]                = "VariantPrice",
+            ["variant_price"]                = "VariantPrice",
+            ["variantprice"]                 = "VariantPrice",
+            ["variant price (jd)"]           = "VariantPrice",
+
+            ["مخزون الفارينت"]               = "VariantStock",
+            ["كمية الفارينت"]                = "VariantStock",
+            ["variant stock"]                = "VariantStock",
+            ["variant_stock"]                = "VariantStock",
+            ["variantstock"]                 = "VariantStock",
+
+            ["صورة الفارينت"]                = "VariantImage",
+            ["variant image"]                = "VariantImage",
+            ["variant_image"]                = "VariantImage",
+            ["variantimage"]                 = "VariantImage",
+            ["variant image file"]           = "VariantImage",
+
+            // ── Additional Python Pipeline Aliases ──────────────────────────────
+            ["product code / sku"]           = "Sku",
+            ["product code/sku"]             = "Sku",
+            ["product name (ar)"]            = "Name",
+            ["product name (en)"]            = "NameEn",
+            ["sub category"]                 = "CategoryName",
+            ["subcategory"]                  = "CategoryName",
+            ["sub_category"]                 = "CategoryName",
+            ["description (ar)"]             = "Description",
+            ["description (en)"]             = "DescriptionEn",
+            ["sale price (jd)"]              = "Price",
+            ["sale price"]                   = "Price",
+            ["cost price (jd)"]              = "CostPrice",
+            ["cost price"]                   = "CostPrice",
+            ["compare at price (jd)"]        = "ComparePrice",
+            ["compare at price"]             = "ComparePrice",
+            ["brand name"]                   = "Brand",
+            ["primary image file"]           = "Image",
+            ["primary image"]                = "Image",
+            ["country of origin"]            = "CountryOfOrigin",
+            ["unit of measure"]              = "UnitOfMeasure",
+            ["option 1 value (size)"]        = "Size",
+            ["option 2 value (color)"]       = "Color",
+            ["variant price (jd)"]           = "VariantPrice",
+            ["variant stock"]                = "VariantStock",
+            ["variant image file"]           = "VariantImage",
+            ["category icon"]                = "CategoryIcon",
         };
+
+        public BulkImportService(
+            IUnitOfWork unitOfWork,
+            IValidator<ProductImportDto> productValidator,
+            IValidator<CategoryImportDto> categoryValidator,
+            ILogger<BulkImportService> logger,
+            IMemoryCache memoryCache,
+            IImageService imageService)
+            : this(unitOfWork, productValidator, categoryValidator, logger, memoryCache, imageService, AppContext.BaseDirectory)
+        {
+        }
 
         public BulkImportService(
             IUnitOfWork unitOfWork,
@@ -173,7 +285,7 @@ namespace Blocko.Services.Imports
             _logger = logger;
             _memoryCache = memoryCache;
             _imageService = imageService;
-            _contentRootPath = contentRootPath;
+            _contentRootPath = string.IsNullOrWhiteSpace(contentRootPath) ? AppContext.BaseDirectory : contentRootPath;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -211,6 +323,22 @@ namespace Blocko.Services.Imports
                 }
 
                 _logger.LogInformation("Unified Excel import completed. {Summary}", result.Summary);
+
+                // Evict Header & Home Caches so Mega Menu and Featured Products update immediately!
+                _memoryCache.Remove("Header_Categories_ar");
+                _memoryCache.Remove("Header_Categories_ar-JO");
+                _memoryCache.Remove("Header_Categories_en");
+                _memoryCache.Remove("Header_Categories_en-US");
+
+                _memoryCache.Remove("Home_FeaturedProducts_ar");
+                _memoryCache.Remove("Home_FeaturedProducts_ar-JO");
+                _memoryCache.Remove("Home_FeaturedProducts_en");
+                _memoryCache.Remove("Home_FeaturedProducts_en-US");
+
+                _memoryCache.Remove("Home_RootCategories_ar");
+                _memoryCache.Remove("Home_RootCategories_ar-JO");
+                _memoryCache.Remove("Home_RootCategories_en");
+                _memoryCache.Remove("Home_RootCategories_en-US");
             }
             catch (Exception ex)
             {
@@ -356,8 +484,8 @@ namespace Blocko.Services.Imports
                     Name            = GetCell(row, colIndex, "Name"),
                     NameEn          = GetCell(row, colIndex, "NameEn"),
                     CategoryName    = GetCell(row, colIndex, "CategoryName"),
-                    Description     = GetCell(row, colIndex, "Description"),
-                    DescriptionEn   = GetCell(row, colIndex, "DescriptionEn"),
+                    Description     = CleanHtmlDescription(GetCell(row, colIndex, "Description")),
+                    DescriptionEn   = CleanHtmlDescription(GetCell(row, colIndex, "DescriptionEn")),
                     UnitOfMeasure   = GetCell(row, colIndex, "UnitOfMeasure") is { Length: > 0 } uom ? uom : "Unit",
                     Status          = GetCell(row, colIndex, "Status")  is { Length: > 0 } st  ? st  : "Active",
                     Brand           = GetCell(row, colIndex, "Brand"),
@@ -367,10 +495,26 @@ namespace Blocko.Services.Imports
                     CategoryIcon    = GetCell(row, colIndex, "CategoryIcon"),
                     MetaTitle       = GetCell(row, colIndex, "MetaTitle"),
                     MetaDescription = GetCell(row, colIndex, "MetaDescription"),
-                    MetaKeywords    = GetCell(row, colIndex, "MetaKeywords")
+                    MetaKeywords    = GetCell(row, colIndex, "MetaKeywords"),
+                    ParentSku       = GetCell(row, colIndex, "ParentSku"),
+                    VariantSku      = GetCell(row, colIndex, "VariantSku"),
+                    Size            = GetCell(row, colIndex, "Size"),
+                    Color           = GetCell(row, colIndex, "Color"),
+                    PackagingUnit   = GetCell(row, colIndex, "PackagingUnit"),
+                    VariantImageUrl = GetCell(row, colIndex, "VariantImage")
                 };
 
-                if (string.IsNullOrWhiteSpace(dto.Name)) continue;
+                var oversizedVal = GetCell(row, colIndex, "IsOversized");
+                if (!string.IsNullOrWhiteSpace(oversizedVal))
+                {
+                    dto.IsOversized = oversizedVal.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                                      oversizedVal.Equals("1") ||
+                                      oversizedVal.Equals("نعم", StringComparison.OrdinalIgnoreCase) ||
+                                      oversizedVal.Equals("yes", StringComparison.OrdinalIgnoreCase);
+                }
+
+                // If ParentSku is provided, Name can be inferred from parent product if blank
+                if (string.IsNullOrWhiteSpace(dto.Name) && string.IsNullOrWhiteSpace(dto.ParentSku)) continue;
 
                 result.TotalRows++;
 
@@ -378,7 +522,16 @@ namespace Blocko.Services.Imports
                 var cleanPrice = CleanAndParsePrice(rawPrice);
                 if (cleanPrice.HasValue) dto.RetailPrice = cleanPrice.Value;
 
-                if (int.TryParse(GetCell(row, colIndex, "Stock"), out var qty))  dto.StockQuantity = qty;
+                var rawVarPrice = GetCell(row, colIndex, "VariantPrice");
+                var cleanVarPrice = CleanAndParsePrice(rawVarPrice);
+                if (cleanVarPrice.HasValue) dto.VariantPrice = cleanVarPrice.Value;
+
+                var cleanStock = CleanAndParseInt(GetCell(row, colIndex, "Stock"));
+                if (cleanStock.HasValue) dto.StockQuantity = cleanStock.Value;
+
+                var cleanVarStock = CleanAndParseInt(GetCell(row, colIndex, "VariantStock"));
+                if (cleanVarStock.HasValue) dto.VariantStock = cleanVarStock.Value;
+
                 if (decimal.TryParse(GetCell(row, colIndex, "Weight"), out var w)) dto.Weight = w;
                 dto.Dimensions = GetCell(row, colIndex, "Dimensions");
 
@@ -425,8 +578,12 @@ namespace Blocko.Services.Imports
                 if (dto.ImageData == null)
                 {
                     var imgStr = GetCell(row, colIndex, "Image");
-                    _logger.LogInformation("Product '{ProductName}' - Read image column value: '{ImageValue}', LocalFolderExists: {LocalFolderExists} ({FolderPath})", 
-                        dto.Name, imgStr, !string.IsNullOrWhiteSpace(localImageFolderPath) && Directory.Exists(localImageFolderPath), localImageFolderPath);
+                    if (string.IsNullOrWhiteSpace(imgStr))
+                    {
+                        imgStr = GetCell(row, colIndex, "VariantImage");
+                    }
+                    _logger.LogInformation("Product/Variant '{ProductName}' - Read image column value: '{ImageValue}', LocalFolderExists: {LocalFolderExists} ({FolderPath})", 
+                        dto.Name ?? dto.VariantSku, imgStr, !string.IsNullOrWhiteSpace(localImageFolderPath) && Directory.Exists(localImageFolderPath), localImageFolderPath);
 
                     if (!string.IsNullOrWhiteSpace(imgStr))
                     {
@@ -442,33 +599,82 @@ namespace Blocko.Services.Imports
                         {
                             dto.ImageBase64 = imgStr;
                         }
-                        else if (!string.IsNullOrWhiteSpace(localImageFolderPath))
+                        else
                         {
-                            // Try loading from local folder with case-insensitive matching
-                            try
+                            // Search in both uploaded folder and persistent ImageLibrary
+                            var searchFolders = new List<string>();
+                            if (!string.IsNullOrWhiteSpace(localImageFolderPath) && Directory.Exists(localImageFolderPath))
+                                searchFolders.Add(localImageFolderPath);
+
+                            var libraryFolder = Path.Combine(_contentRootPath, "App_Data", "Imports", "ImageLibrary");
+                            if (Directory.Exists(libraryFolder))
+                                searchFolders.Add(libraryFolder);
+
+                            foreach (var folder in searchFolders)
                             {
-                                var directoryFiles = Directory.GetFiles(localImageFolderPath);
-                                _logger.LogInformation("Looking for image {ImageName} in {Folder}, found {FileCount} files: {Files}", 
-                                    imgStr, localImageFolderPath, directoryFiles.Length, string.Join(", ", directoryFiles.Select(Path.GetFileName)));
-                                
-                                var matchingFile = directoryFiles.FirstOrDefault(f => 
-                                    string.Equals(Path.GetFileName(f), imgStr, StringComparison.OrdinalIgnoreCase));
-                                
-                                if (matchingFile != null)
+                                try
                                 {
-                                    dto.ImageData = await File.ReadAllBytesAsync(matchingFile);
-                                    dto.ImageExtension = Path.GetExtension(matchingFile).TrimStart('.').ToLower();
-                                    dto.ImageMimeType = $"image/{dto.ImageExtension}";
-                                    _logger.LogInformation("Found matching image: {Path}", matchingFile);
+                                    var directoryFiles = Directory.GetFiles(folder);
+                                    var matchingFile = directoryFiles.FirstOrDefault(f => 
+                                        string.Equals(Path.GetFileName(f), imgStr, StringComparison.OrdinalIgnoreCase));
+                                    
+                                    if (matchingFile != null)
+                                    {
+                                        dto.ImageData = await File.ReadAllBytesAsync(matchingFile);
+                                        dto.ImageExtension = Path.GetExtension(matchingFile).TrimStart('.').ToLower();
+                                        dto.ImageMimeType = $"image/{dto.ImageExtension}";
+                                        _logger.LogInformation("Found matching image: {Path}", matchingFile);
+                                        break;
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    _logger.LogWarning("Could not find image {ImageName} in {Folder}", imgStr, localImageFolderPath);
+                                    _logger.LogWarning(ex, "Failed to search images in {Folder}", folder);
                                 }
                             }
-                            catch (Exception ex)
+                        }
+                    }
+                    else
+                    {
+                        // imgStr was empty in Excel — try finding matching image in library by SKU!
+                        var skuToFind = dto.Sku ?? dto.VariantSku;
+                        if (!string.IsNullOrWhiteSpace(skuToFind))
+                        {
+                            var searchFolders = new List<string>();
+                            if (!string.IsNullOrWhiteSpace(localImageFolderPath) && Directory.Exists(localImageFolderPath))
+                                searchFolders.Add(localImageFolderPath);
+
+                            var libraryFolder = Path.Combine(_contentRootPath, "App_Data", "Imports", "ImageLibrary");
+                            if (Directory.Exists(libraryFolder))
+                                searchFolders.Add(libraryFolder);
+
+                            var cleanTargetSku = skuToFind.Trim();
+                            var candidateNames = new[]
                             {
-                                _logger.LogWarning(ex, "Failed to load local image from {Folder} for {ImageName}", localImageFolderPath, imgStr);
+                                $"{cleanTargetSku}.webp", $"SKU-{cleanTargetSku}.webp",
+                                $"{cleanTargetSku}.jpg",  $"SKU-{cleanTargetSku}.jpg",
+                                $"{cleanTargetSku}.jpeg", $"SKU-{cleanTargetSku}.jpeg",
+                                $"{cleanTargetSku}.png",  $"SKU-{cleanTargetSku}.png"
+                            };
+
+                            foreach (var folder in searchFolders)
+                            {
+                                try
+                                {
+                                    var directoryFiles = Directory.GetFiles(folder);
+                                    var matchingFile = directoryFiles.FirstOrDefault(f =>
+                                        candidateNames.Any(c => string.Equals(Path.GetFileName(f), c, StringComparison.OrdinalIgnoreCase)));
+
+                                    if (matchingFile != null)
+                                    {
+                                        dto.ImageData = await File.ReadAllBytesAsync(matchingFile);
+                                        dto.ImageExtension = Path.GetExtension(matchingFile).TrimStart('.').ToLower();
+                                        dto.ImageMimeType = $"image/{dto.ImageExtension}";
+                                        _logger.LogInformation("Found SKU-matched image in library: {Path}", matchingFile);
+                                        break;
+                                    }
+                                }
+                                catch { /* ignore */ }
                             }
                         }
                     }
@@ -528,27 +734,51 @@ namespace Blocko.Services.Imports
             _categoryCache[existing.Name.Trim()] = existing;
 
             // Save SEO metadata for category details page
-            if (!string.IsNullOrWhiteSpace(dto.MetaTitle) || !string.IsNullOrWhiteSpace(dto.MetaDescription) || !string.IsNullOrWhiteSpace(dto.MetaKeywords))
-            {
-                await SaveSeoMetadataAsync($"/Category/Index/{existing.Id}", dto.MetaTitle, dto.MetaDescription, dto.MetaKeywords);
-            }
+            await GenerateAndSaveCategorySeoAsync(existing, dto.MetaTitle, dto.MetaDescription, dto.MetaKeywords);
         }
 
         /// <summary>Returns (status, reason) for the product row.</summary>
         private async Task<(ImportRowStatus status, string reason)> SaveProductAsync(ProductImportDto dto)
         {
+            // ── 1. Check if this is a child variant row under a parent SKU ──────
+            bool isChildVariantRow = !string.IsNullOrWhiteSpace(dto.ParentSku) && 
+                                     !string.Equals(dto.ParentSku.Trim(), dto.Sku?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            if (isChildVariantRow)
+            {
+                var parentSku = dto.ParentSku!.Trim();
+                var parentProduct = (await _unitOfWork.Products.FindAsync(p => p.Sku == parentSku)).FirstOrDefault();
+                if (parentProduct == null && !string.IsNullOrWhiteSpace(dto.Name))
+                {
+                    parentProduct = (await _unitOfWork.Products.FindAsync(p => p.Name == dto.Name)).FirstOrDefault();
+                }
+
+                if (parentProduct != null)
+                {
+                    await SaveProductVariantAsync(parentProduct, dto);
+                    return (ImportRowStatus.Imported, $"تم استيراد الفارينت ({dto.Size ?? dto.Color ?? dto.VariantSku}) للمنتج {parentProduct.Name}");
+                }
+                else
+                {
+                    _logger.LogWarning("Parent product with SKU '{ParentSku}' not found for variant row '{VariantSku}'", parentSku, dto.VariantSku);
+                    return (ImportRowStatus.Skipped, $"لم يتم العثور على المنتج الأساسي برمز SKU: {parentSku}");
+                }
+            }
+
+            // ── 2. Standard Parent Product Row ──────────────────────────────────
             if (string.IsNullOrWhiteSpace(dto.Name))
                 return (ImportRowStatus.Skipped, "اسم المنتج فارغ");
+
+            // Auto-fill category if only ParentCategory is specified
+            if (string.IsNullOrWhiteSpace(dto.CategoryName) && !string.IsNullOrWhiteSpace(dto.ParentCategoryName))
+            {
+                dto.CategoryName = dto.ParentCategoryName;
+            }
 
             // Use sheet SKU if provided; otherwise auto-generate
             bool hasSku = !string.IsNullOrWhiteSpace(dto.Sku);
             if (!hasSku)
                 dto.Sku = GenerateSku(dto.Name);
-            else
-            {
-                // Ensure uniqueness when using a provided SKU (only for truly new products)
-                // Collision check is deferred below after we know if it's an existing product
-            }
 
             var validation = await _productValidator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -580,6 +810,11 @@ namespace Blocko.Services.Imports
             string? subCatName = hasParentCol
                 ? dto.CategoryName?.Trim()         // CategoryName column is the sub
                 : null;
+
+            if (string.Equals(subCatName, rootCatName, StringComparison.OrdinalIgnoreCase))
+            {
+                subCatName = null;
+            }
 
             if (string.IsNullOrWhiteSpace(rootCatName))
             {
@@ -723,7 +958,9 @@ namespace Blocko.Services.Imports
                 product = new Product { Sku = dto.Sku, CreatedAt = DateTime.UtcNow };
 
             product!.Name               = dto.Name;
+            product.NameEn             = dto.NameEn;
             product.Description         = dto.Description;
+            product.DescriptionEn       = dto.DescriptionEn;
             product.CategoryId          = leafCategory.Id;
             product.RetailPrice         = dto.RetailPrice;
             product.UnitOfMeasure       = dto.UnitOfMeasure;
@@ -732,6 +969,7 @@ namespace Blocko.Services.Imports
             product.Dimensions          = dto.Dimensions;
             product.Brand               = dto.Brand;
             product.CountryOfOrigin     = dto.CountryOfOrigin;
+            product.IsOversized         = dto.IsOversized;
             product.BulkPricingAvailable = dto.BulkPricingAvailable;
             product.Status              = status;
             product.UpdatedAt           = DateTime.UtcNow;
@@ -756,15 +994,105 @@ namespace Blocko.Services.Imports
             // Save image
             await SaveProductImageAsync(product, dto);
 
-            // Save SEO metadata for product details page
-            if (!string.IsNullOrWhiteSpace(dto.MetaTitle) || !string.IsNullOrWhiteSpace(dto.MetaDescription) || !string.IsNullOrWhiteSpace(dto.MetaKeywords))
+            // Save Variant if the main product row contains variant parameters
+            if (!string.IsNullOrWhiteSpace(dto.Size) || !string.IsNullOrWhiteSpace(dto.Color) || !string.IsNullOrWhiteSpace(dto.VariantSku))
             {
-                await SaveSeoMetadataAsync($"/Product/Index/{product.Id}", dto.MetaTitle, dto.MetaDescription, dto.MetaKeywords);
+                await SaveProductVariantAsync(product, dto);
             }
+
+            // Always generate & save rich SEO metadata for product details pages
+            await GenerateAndSaveProductSeoAsync(product, leafCategory, dto);
 
             return isNew
                 ? (ImportRowStatus.Imported, string.Empty)
                 : (ImportRowStatus.Updated,  string.Empty);
+        }
+
+        private async Task SaveProductVariantAsync(Product product, ProductImportDto dto)
+        {
+            try
+            {
+                var variantSku = !string.IsNullOrWhiteSpace(dto.VariantSku) 
+                    ? dto.VariantSku.Trim() 
+                    : (!string.IsNullOrWhiteSpace(dto.Sku) && dto.Sku != product.Sku ? dto.Sku.Trim() : $"{product.Sku}-VAR-{Guid.NewGuid():N}"[..12]);
+
+                var existingVariant = (await _unitOfWork.ProductVariants.FindAsync(v => 
+                    (v.ProductId == product.Id && v.Sku == variantSku) || 
+                    (v.ProductId == product.Id && v.Size == dto.Size && v.Color == dto.Color))).FirstOrDefault();
+
+                bool isNewVariant = existingVariant == null;
+                if (isNewVariant)
+                {
+                    existingVariant = new ProductVariant
+                    {
+                        ProductId = product.Id,
+                        Sku = variantSku,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                }
+
+                existingVariant!.Size = dto.Size;
+                existingVariant.Color = dto.Color;
+                existingVariant.PackagingUnit = dto.PackagingUnit;
+                existingVariant.CountryOfOrigin = dto.CountryOfOrigin ?? product.CountryOfOrigin;
+                existingVariant.Price = dto.VariantPrice ?? dto.RetailPrice;
+                existingVariant.StockQuantity = dto.VariantStock ?? dto.StockQuantity;
+                existingVariant.UpdatedAt = DateTime.UtcNow;
+
+                // Handle Variant Image
+                if (dto.ImageData is { Length: > 0 })
+                {
+                    try
+                    {
+                        using var ms = new MemoryStream(dto.ImageData);
+                        var savedImg = await _imageService.SaveImageAsync(ms, $"variant.{dto.ImageExtension ?? "webp"}", "variants");
+                        if (!string.IsNullOrEmpty(savedImg)) existingVariant.ImageUrl = savedImg;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to save variant image for SKU {Sku}", variantSku);
+                    }
+                }
+                else if (!string.IsNullOrWhiteSpace(dto.VariantImageUrl))
+                {
+                    if (dto.VariantImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        try
+                        {
+                            var savedImg = await _imageService.DownloadAndCompressImageAsync(dto.VariantImageUrl, "variants");
+                            if (!string.IsNullOrEmpty(savedImg)) existingVariant.ImageUrl = savedImg;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to download variant image from {Url}", dto.VariantImageUrl);
+                        }
+                    }
+                    else
+                    {
+                        existingVariant.ImageUrl = dto.VariantImageUrl;
+                    }
+                }
+                else if (string.IsNullOrEmpty(existingVariant.ImageUrl))
+                {
+                    existingVariant.ImageUrl = product.ImageUrl;
+                }
+
+                if (isNewVariant)
+                {
+                    await _unitOfWork.ProductVariants.AddAsync(existingVariant);
+                }
+                else
+                {
+                    _unitOfWork.ProductVariants.Update(existingVariant);
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Saved variant {Sku} for product ID {ProductId}", variantSku, product.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save variant for product ID {ProductId}", product.Id);
+            }
         }
 
         private async Task SaveProductImageAsync(Product product, ProductImportDto dto)
@@ -870,9 +1198,30 @@ namespace Blocko.Services.Imports
             foreach (var cell in headerRow.CellsUsed())
             {
                 var raw = cell.GetString().Trim();
-                var key = _colMap.TryGetValue(raw, out var mapped) ? mapped : raw;
-                if (!map.ContainsKey(key))
-                    map[key] = cell.Address.ColumnNumber;
+                if (string.IsNullOrWhiteSpace(raw)) continue;
+
+                // 1. Direct dictionary match
+                if (_colMap.TryGetValue(raw, out var mappedDirect))
+                {
+                    if (!map.ContainsKey(mappedDirect))
+                        map[mappedDirect] = cell.Address.ColumnNumber;
+                }
+                else
+                {
+                    // 2. Normalized match (remove extra whitespace)
+                    var cleanHeader = Regex.Replace(raw, @"\s+", " ").Trim();
+                    if (_colMap.TryGetValue(cleanHeader, out var mappedClean))
+                    {
+                        if (!map.ContainsKey(mappedClean))
+                            map[mappedClean] = cell.Address.ColumnNumber;
+                    }
+                    else
+                    {
+                        // 3. Fallback: match by key itself
+                        if (!map.ContainsKey(raw))
+                            map[raw] = cell.Address.ColumnNumber;
+                    }
+                }
             }
             return map;
         }
@@ -882,11 +1231,19 @@ namespace Blocko.Services.Imports
             if (colIdx.TryGetValue(key, out var colNum))
             {
                 var cell = row.Cell(colNum);
+                
+                // إذا كانت الخلية رقمية، نقرأ قيمتها كـ Double لتجنب مشاكل فواصل الثقافة المحلية (Culture)
+                if (cell.Value.IsNumber)
+                {
+                    return cell.Value.GetNumber().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                }
+
                 if (cell.HasFormula)
                 {
                     var f = cell.FormulaA1;
                     if (!string.IsNullOrWhiteSpace(f)) return "=" + f;
                 }
+                
                 return cell.GetString().Trim();
             }
             return string.Empty;
@@ -926,11 +1283,47 @@ namespace Blocko.Services.Imports
         private decimal? CleanAndParsePrice(string? priceStr)
         {
             if (string.IsNullOrWhiteSpace(priceStr)) return null;
-            // تنظيف القيمة من العملة مثل JD أو د.أ أو المسافات والرموز غير الرقمية
-            var cleaned = System.Text.RegularExpressions.Regex.Replace(priceStr, @"[^\d\.]", "");
-            if (decimal.TryParse(cleaned, out var price))
+
+            var s = priceStr.Trim();
+            // استبدال الفاصلة العشرية العربية ٫ بنقطة
+            s = s.Replace('٫', '.');
+
+            // إذا كانت الفاصلة عادية ولا يوجد نقطة مثل "8,45" أو "1,82"
+            if (s.Contains(',') && !s.Contains('.'))
+            {
+                var commaIdx = s.LastIndexOf(',');
+                var afterComma = s[(commaIdx + 1)..].Trim();
+                var digitsAfter = Regex.Replace(afterComma, @"[^\d]", "");
+                // إذا كان بعد الفاصلة خانة إلى 3 خانات، فهي فاصلة عشرية وليست فاصلة آلاف
+                if (digitsAfter.Length > 0 && digitsAfter.Length <= 3)
+                {
+                    s = s[..commaIdx] + "." + afterComma;
+                }
+                else
+                {
+                    s = s.Replace(",", "");
+                }
+            }
+            else
+            {
+                s = s.Replace(",", "");
+            }
+
+            var cleaned = Regex.Replace(s, @"[^\d\.]", "");
+            if (decimal.TryParse(cleaned, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var price))
             {
                 return price;
+            }
+            return null;
+        }
+
+        private static int? CleanAndParseInt(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+            var cleaned = Regex.Replace(raw.Trim(), @"[^\d\.]", "");
+            if (decimal.TryParse(cleaned, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var dec))
+            {
+                return (int)Math.Round(dec);
             }
             return null;
         }
@@ -938,9 +1331,21 @@ namespace Blocko.Services.Imports
         private string? CleanAndExtractSku(string? skuStr)
         {
             if (string.IsNullOrWhiteSpace(skuStr)) return null;
-            // إذا كان يحتوي على فواصل، خذ الجزء الأول ونظفه
-            var parts = skuStr.Split(new[] { ',', ';', '-' }, StringSplitOptions.RemoveEmptyEntries);
+            // فصل على الفواصل والأسطر فقط وتجنب فصل الـ SKU الذي يحتوي على شرطة (-)
+            var parts = skuStr.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             return parts.Length > 0 ? parts[0].Trim() : null;
+        }
+
+        private static string CleanHtmlDescription(string? desc)
+        {
+            if (string.IsNullOrWhiteSpace(desc)) return string.Empty;
+            var trimmed = desc.Trim();
+            // تنظيف وسوم الـ HTML البسيطة مثل <p> و </p> من الوصف
+            if (trimmed.StartsWith("<p>", StringComparison.OrdinalIgnoreCase) && trimmed.EndsWith("</p>", StringComparison.OrdinalIgnoreCase))
+            {
+                return Regex.Replace(trimmed, @"<[^>]+>", " ").Trim();
+            }
+            return trimmed;
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -1116,6 +1521,247 @@ namespace Blocko.Services.Imports
                     _logger.LogWarning(cleanupEx, "Failed to clean up files after background Google Sheets import job");
                 }
             }
+        }
+
+        public async Task ProcessImagesZipImportJobAsync(string importId, string zipFileOrFolderPath)
+        {
+            var result = new ImportResult();
+            _logger.LogInformation("Starting background Images-only ZIP import job {ImportId}", importId);
+
+            string? extractedImagesFolderPath = null;
+            try
+            {
+                var libraryFolder = Path.Combine(_contentRootPath, "App_Data", "Imports", "ImageLibrary");
+                Directory.CreateDirectory(libraryFolder);
+
+                if (!string.IsNullOrWhiteSpace(zipFileOrFolderPath))
+                {
+                    if (Directory.Exists(zipFileOrFolderPath))
+                    {
+                        extractedImagesFolderPath = zipFileOrFolderPath;
+                    }
+                    else if (File.Exists(zipFileOrFolderPath))
+                    {
+                        extractedImagesFolderPath = Path.Combine(_contentRootPath, "App_Data", "Imports", "Extracted", Guid.NewGuid().ToString());
+                        Directory.CreateDirectory(extractedImagesFolderPath);
+
+                        using var zipStream = File.OpenRead(zipFileOrFolderPath);
+                        using var archive = new System.IO.Compression.ZipArchive(zipStream, System.IO.Compression.ZipArchiveMode.Read);
+                        foreach (var entry in archive.Entries)
+                        {
+                            if (string.IsNullOrWhiteSpace(entry.Name) || entry.Name.StartsWith('.')) continue;
+                            var fileName = Path.GetFileName(entry.FullName);
+                            if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+                            var destPath = Path.Combine(extractedImagesFolderPath, fileName);
+                            using var entryStream = entry.Open();
+                            using var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                            await entryStream.CopyToAsync(fileStream);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(extractedImagesFolderPath) && Directory.Exists(extractedImagesFolderPath))
+                {
+                    var imageFiles = Directory.GetFiles(extractedImagesFolderPath);
+                    _logger.LogInformation("Processing {Count} images from ZIP to match with database products...", imageFiles.Length);
+
+                    // Copy all into persistent ImageLibrary as well
+                    foreach (var imgFile in imageFiles)
+                    {
+                        var fileName = Path.GetFileName(imgFile);
+                        var libTarget = Path.Combine(libraryFolder, fileName);
+                        try { File.Copy(imgFile, libTarget, true); } catch { /* ignore */ }
+                    }
+
+                    int matchedProducts = 0;
+                    int matchedVariants = 0;
+                    int totalFiles = imageFiles.Length;
+                    int batchPending = 0;
+
+                    // Match with DB Products & Variants
+                    foreach (var imgFile in imageFiles)
+                    {
+                        var fileName = Path.GetFileName(imgFile);
+                        var rawName = Path.GetFileNameWithoutExtension(fileName).Trim();
+                        var cleanSku = rawName.StartsWith("SKU-", StringComparison.OrdinalIgnoreCase)
+                            ? rawName[4..].Trim()
+                            : rawName;
+
+                        bool matched = false;
+
+                        // 1. Try matching with Product (trackChanges: true)
+                        var product = (await _unitOfWork.Products.FindAsync(p => p.Sku == rawName || p.Sku == cleanSku || ("SKU-" + p.Sku) == rawName, trackChanges: true)).FirstOrDefault();
+                        if (product != null)
+                        {
+                            try
+                            {
+                                await using var fileStream = File.OpenRead(imgFile);
+                                var savedUrl = await _imageService.SaveImageAsync(fileStream, fileName, "products");
+                                if (!string.IsNullOrEmpty(savedUrl))
+                                {
+                                    product.ImageUrl = savedUrl;
+                                    product.UpdatedAt = DateTime.UtcNow;
+
+                                    var existingImage = (await _unitOfWork.ProductImages.FindAsync(pi => pi.ProductId == product.Id && pi.Url == savedUrl, trackChanges: true)).FirstOrDefault();
+                                    if (existingImage == null)
+                                    {
+                                        await _unitOfWork.ProductImages.AddAsync(new ProductImage
+                                        {
+                                            ProductId = product.Id,
+                                            Url = savedUrl,
+                                            DisplayOrder = 1
+                                        });
+                                    }
+                                    matchedProducts++;
+                                    matched = true;
+                                    batchPending++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to attach image {File} to product {Sku}", fileName, product.Sku);
+                            }
+                        }
+
+                        // 2. Try matching with ProductVariant (trackChanges: true)
+                        var variant = (await _unitOfWork.ProductVariants.FindAsync(v => v.Sku == rawName || v.Sku == cleanSku || ("SKU-" + v.Sku) == rawName, trackChanges: true)).FirstOrDefault();
+                        if (variant != null)
+                        {
+                            try
+                            {
+                                await using var fileStream = File.OpenRead(imgFile);
+                                var savedUrl = await _imageService.SaveImageAsync(fileStream, fileName, "variants");
+                                if (!string.IsNullOrEmpty(savedUrl))
+                                {
+                                    variant.ImageUrl = savedUrl;
+                                    variant.UpdatedAt = DateTime.UtcNow;
+                                    matchedVariants++;
+                                    matched = true;
+                                    batchPending++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to attach image {File} to variant {Sku}", fileName, variant.Sku);
+                            }
+                        }
+
+                        if (batchPending >= 50)
+                        {
+                            try
+                            {
+                                await _unitOfWork.SaveChangesAsync();
+                                batchPending = 0;
+                            }
+                            catch (Exception saveEx)
+                            {
+                                _logger.LogWarning(saveEx, "Batch save error during image matching");
+                            }
+                        }
+
+                        result.Rows.Add(new ImportRowResult
+                        {
+                            RowNumber = result.Rows.Count + 1,
+                            Name = fileName,
+                            Status = matched ? ImportRowStatus.Updated : ImportRowStatus.Imported,
+                            Reason = matched ? $"تم الربط بنجاح مع المنتج أو المقاس (SKU: {cleanSku})" : "تم الحفظ في مكتبة الصور للربط المستقبلي"
+                        });
+
+                        if (matched) result.Updated++;
+                        else result.Imported++;
+                    }
+
+                    if (batchPending > 0)
+                    {
+                        try
+                        {
+                            await _unitOfWork.SaveChangesAsync();
+                        }
+                        catch (Exception finalSaveEx)
+                        {
+                            _logger.LogWarning(finalSaveEx, "Final batch save error during image matching");
+                        }
+                    }
+
+                    // Evict Caches
+                    _memoryCache.Remove("Header_Categories_ar");
+                    _memoryCache.Remove("Header_Categories_ar-JO");
+                    _memoryCache.Remove("Header_Categories_en");
+                    _memoryCache.Remove("Header_Categories_en-US");
+                    _memoryCache.Remove("Home_FeaturedProducts_ar");
+                    _memoryCache.Remove("Home_FeaturedProducts_ar-JO");
+                    _memoryCache.Remove("Home_FeaturedProducts_en");
+                    _memoryCache.Remove("Home_FeaturedProducts_en-US");
+
+                    _logger.LogInformation("Images ZIP import processed {Total} files: {Products} products matched, {Variants} variants matched.",
+                        totalFiles, matchedProducts, matchedVariants);
+                }
+                else
+                {
+                    result.HasError = true;
+                    result.ErrorMessage = "لم يتم العثور على ملفات الصور.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing images ZIP import");
+                result.HasError = true;
+                result.ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                await WriteResultFileAsync(importId, result);
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(zipFileOrFolderPath) && File.Exists(zipFileOrFolderPath)) File.Delete(zipFileOrFolderPath);
+                    if (!string.IsNullOrWhiteSpace(extractedImagesFolderPath) && Directory.Exists(extractedImagesFolderPath))
+                        Directory.Delete(extractedImagesFolderPath, true);
+                }
+                catch { /* ignore */ }
+            }
+        }
+
+        private async Task GenerateAndSaveProductSeoAsync(Product product, Category? leafCategory, ProductImportDto dto)
+        {
+            var brandText = !string.IsNullOrWhiteSpace(product.Brand) ? $" {product.Brand}" : "";
+            var originText = !string.IsNullOrWhiteSpace(product.CountryOfOrigin) ? $" منشأ {product.CountryOfOrigin}" : "";
+            var catText = leafCategory != null ? $" | قسم {leafCategory.Name}" : "";
+
+            string metaTitle = !string.IsNullOrWhiteSpace(dto.MetaTitle) 
+                ? dto.MetaTitle 
+                : $"شراء {product.Name}{brandText}{originText} | أسعار التوريد الأردن بلوكو BLOCKO";
+
+            string metaDescription = !string.IsNullOrWhiteSpace(dto.MetaDescription) 
+                ? dto.MetaDescription 
+                : $"احصل على {product.Name}{brandText}{originText}{catText} بأفضل سعر للبيع والتوريد للمشاريع الإنشائية في الأردن. جودة معتمدة، مواصفات قياسية، وتوصيل فوري من بلوكو BLOCKO.";
+
+            string metaKeywords = !string.IsNullOrWhiteSpace(dto.MetaKeywords) 
+                ? dto.MetaKeywords 
+                : $"شراء {product.Name}, {product.Brand}, {product.CountryOfOrigin}, {leafCategory?.Name}, مواد بناء الأردن, توريد مشاريع, أسعار مواد البناء, متجر بلوكو, blocko";
+
+            await SaveSeoMetadataAsync($"/Product/Index/{product.Id}", metaTitle, metaDescription, metaKeywords);
+            await SaveSeoMetadataAsync($"/Shop/Product/Index/{product.Id}", metaTitle, metaDescription, metaKeywords);
+            await SaveSeoMetadataAsync($"Product-{product.Id}", metaTitle, metaDescription, metaKeywords);
+        }
+
+        private async Task GenerateAndSaveCategorySeoAsync(Category category, string? metaTitleDto = null, string? metaDescDto = null, string? metaKeyDto = null)
+        {
+            string metaTitle = !string.IsNullOrWhiteSpace(metaTitleDto) 
+                ? metaTitleDto 
+                : $"قسم {category.Name} | توريد مواد ومعدات إنشائية - بلوكو BLOCKO";
+
+            string metaDescription = !string.IsNullOrWhiteSpace(metaDescDto) 
+                ? metaDescDto 
+                : $"تصفح واطلب أفضل منتجات ومستلزمات {category.Name} بالجملة والمفرق في الأردن. أسعار منافسة وتوريد فوري للمشاريع من منصة بلوكو.";
+
+            string metaKeywords = !string.IsNullOrWhiteSpace(metaKeyDto) 
+                ? metaKeyDto 
+                : $"{category.Name}, لوازم {category.Name}, أسعار {category.Name}, مواد بناء الأردن, توريد مشاريع, بلوكو";
+
+            await SaveSeoMetadataAsync($"/Category/Index/{category.Id}", metaTitle, metaDescription, metaKeywords);
+            await SaveSeoMetadataAsync($"/Shop/Category/Index/{category.Id}", metaTitle, metaDescription, metaKeywords);
+            await SaveSeoMetadataAsync($"Category-{category.Id}", metaTitle, metaDescription, metaKeywords);
         }
 
         private async Task SaveSeoMetadataAsync(string pageName, string? title, string? desc, string? keywords)

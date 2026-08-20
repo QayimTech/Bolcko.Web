@@ -17,17 +17,28 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _webHostEnvironment;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IBulkImportService _bulkImportService;
+        private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _memoryCache;
 
         public CategoryController(
             IServiceManager serviceManager,
             Microsoft.AspNetCore.Hosting.IWebHostEnvironment webHostEnvironment,
             IBackgroundJobClient backgroundJobClient,
-            IBulkImportService bulkImportService)
+            IBulkImportService bulkImportService,
+            Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache)
         {
             _serviceManager = serviceManager;
             _webHostEnvironment = webHostEnvironment;
             _backgroundJobClient = backgroundJobClient;
             _bulkImportService = bulkImportService;
+            _memoryCache = memoryCache;
+        }
+
+        private void InvalidateCategoryCache()
+        {
+            _memoryCache.Remove("Header_Categories_ar");
+            _memoryCache.Remove("Header_Categories_ar-JO");
+            _memoryCache.Remove("Header_Categories_en");
+            _memoryCache.Remove("Header_Categories_en-US");
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null, string? sortOrder = null)
@@ -56,6 +67,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _serviceManager.CategoryService.AddCategoryAsync(categoryDto);
+                InvalidateCategoryCache();
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.ParentCategories = await _serviceManager.CategoryService.GetRootCategoriesAsync();
@@ -80,6 +92,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 try 
                 {
                     await _serviceManager.CategoryService.UpdateCategoryAsync(categoryDto);
+                    InvalidateCategoryCache();
                     TempData["SuccessMessage"] = "تم تحديث الفئة بنجاح.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -99,6 +112,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             try
             {
                 await _serviceManager.CategoryService.DeleteCategoryAsync(id);
+                InvalidateCategoryCache();
                 TempData["SuccessMessage"] = "Category deleted successfully.";
             }
             catch

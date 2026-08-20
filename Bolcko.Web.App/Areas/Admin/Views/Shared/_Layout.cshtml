@@ -46,7 +46,21 @@
             <partial name="~/Areas/Admin/Views/Shared/Partials/Header.cshtml" />
 
             <main role="main" class="flex-1 p-4 md:p-6 lg:p-10 w-full overflow-x-hidden">
-                <div class="max-w-[1600px] mx-auto w-full">
+                <div class="max-w-[1600px] mx-auto w-full space-y-4">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="bg-red-50 border-s-4 border-red-500 p-4 rounded-xl shadow-xs flex items-center gap-3" dir="rtl">
+                            <span class="material-symbols-outlined text-red-500 shrink-0">error</span>
+                            <p class="text-sm text-red-700 font-bold">@TempData["ErrorMessage"]</p>
+                        </div>
+                    }
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="bg-emerald-50 border-s-4 border-emerald-500 p-4 rounded-xl shadow-xs flex items-center gap-3" dir="rtl">
+                            <span class="material-symbols-outlined text-emerald-500 shrink-0">check_circle</span>
+                            <p class="text-sm text-emerald-700 font-bold">@TempData["SuccessMessage"]</p>
+                        </div>
+                    }
                     @RenderBody()
                 </div>
             </main>

@@ -8,14 +8,14 @@ namespace Blocko.Services.Validation
         public ProductImportDtoValidator()
         {
             RuleFor(x => x.Sku)
-                .NotEmpty().WithMessage("SKU is required.");
+                .NotEmpty().When(x => string.IsNullOrWhiteSpace(x.ParentSku)).WithMessage("SKU is required.");
             
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Product name is required.")
-                .MaximumLength(100).WithMessage("Product name must not exceed 100 characters.");
+                .NotEmpty().When(x => string.IsNullOrWhiteSpace(x.ParentSku)).WithMessage("Product name is required.")
+                .MaximumLength(500).WithMessage("Product name must not exceed 500 characters.");
             
             RuleFor(x => x.CategoryName)
-                .NotEmpty().WithMessage("Category name is required.");
+                .NotEmpty().When(x => string.IsNullOrWhiteSpace(x.ParentSku) && string.IsNullOrWhiteSpace(x.ParentCategoryName)).WithMessage("Category name is required.");
 
             RuleFor(x => x.RetailPrice)
                 .GreaterThanOrEqualTo(0).WithMessage("Retail price must be greater than or equal to 0.");

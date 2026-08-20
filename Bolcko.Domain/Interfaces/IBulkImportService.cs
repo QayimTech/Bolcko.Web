@@ -18,5 +18,6 @@ namespace Bolcko.Domain.Interfaces
         // Background Job Runners
         Task ProcessUnifiedExcelImportJobAsync(string importId, string filePath, string? zipFilePath = null);
         Task ProcessGoogleSheetImportJobAsync(string importId, string googleSheetUrl, string? zipFilePath = null);
+        Task ProcessImagesZipImportJobAsync(string importId, string zipFilePath);
     }
 }

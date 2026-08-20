@@ -91,6 +91,7 @@ namespace Blocko.Services
                     sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
                     sp.GetRequiredService<IImageService>(),
                     contentRootPath));
+            services.AddScoped<Blocko.Services.Imports.BulkImportService>();
 
             services.AddScoped<Blocko.Services.Interfaces.Auth.ITokenService, Blocko.Services.Implementations.Auth.TokenService>();
             services.AddMemoryCache();
