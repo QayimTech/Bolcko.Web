@@ -1,0 +1,597 @@
+@using Bolcko.Domain.Entities.Analytics
+@using Blocko.Services.Interfaces.Analytics
+@using System.Text.Json
+@{
+    ViewData["Title"] = "مركز الأمان والزيارات (Security & Analytics Command Center)";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var kpis = ViewBag.TrafficKpis as TrafficKpiDto ?? new TrafficKpiDto();
+    var pendingThreats = ViewBag.PendingThreats as IEnumerable<SecurityAuditLog> ?? new List<SecurityAuditLog>();
+    var blacklist = ViewBag.Blacklist as IEnumerable<IpBlacklist> ?? new List<IpBlacklist>();
+
+    var hourlyLabelsJson = JsonSerializer.Serialize(kpis.HourlyVisits.Select(h => h.HourLabel));
+    var hourlyCountsJson = JsonSerializer.Serialize(kpis.HourlyVisits.Select(h => h.Count));
+
+    var currentStartDate = ViewBag.StartDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+    var currentEndDate = ViewBag.EndDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+}
+
+<div class="p-8 space-y-8 text-right font-sans min-h-screen" dir="rtl">
+    
+    <!-- Top Executive Header & Filter Bar (Clean Modern Aesthetic) -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-slate-100 pb-6">
+            <div class="space-y-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-sm border border-rose-100">
+                        <span class="material-symbols-outlined text-3xl">shield_lock</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">مركز الأمان ورادار الزوار (Security & Traffic Hub)</h1>
+                        <p class="text-slate-400 text-xs mt-0.5 font-medium">مراقبة حركة الزيارات الحية، الفلترة الزمنية التفاعلية، وكشف المحاولات المشبوهة</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    درع الحماية نشط (Active Sentinel)
+                </span>
+                <button type="button" onclick="clearAllSecurityLogs()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1.5" title="تفريغ السجلات والتنبيهات القديمة">
+                    <span class="material-symbols-outlined text-base">cleaning_services</span>
+                    <span>تنظيف السجلات القديمة 🧹</span>
+                </button>
+                <button type="button" onclick="openBlacklistModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">block</span>
+                    <span>حظر IP جديد 🚫</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Date Range Filter Bar (Sleek Clean Controls) -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/60">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                <span class="material-symbols-outlined text-indigo-600 text-xl">calendar_month</span>
+                <span>تخصيص النطاق الزمني للتحليل:</span>
+            </div>
+
+            <form method="get" action="@Url.Action("Index", "SecurityCenter", new { area = "Admin" })" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <!-- Preset Quick Buttons -->
+                <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-[11px] font-bold shadow-sm">
+                    <a href="@Url.Action("Index", "SecurityCenter", new { area = "Admin", startDate = DateTime.UtcNow.ToString("yyyy-MM-dd"), endDate = DateTime.UtcNow.ToString("yyyy-MM-dd") })" class="px-3.5 py-1.5 rounded-lg transition-all @(currentStartDate == DateTime.UtcNow.ToString("yyyy-MM-dd") && currentEndDate == DateTime.UtcNow.ToString("yyyy-MM-dd") ? "bg-[#E8A020] text-slate-950 shadow-sm font-extrabold" : "text-slate-600 hover:bg-slate-50")">اليوم</a>
+                    <a href="@Url.Action("Index", "SecurityCenter", new { area = "Admin", startDate = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd"), endDate = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd") })" class="px-3.5 py-1.5 rounded-lg transition-all @(currentStartDate == DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd") ? "bg-[#E8A020] text-slate-950 shadow-sm font-extrabold" : "text-slate-600 hover:bg-slate-50")">أمس</a>
+                    <a href="@Url.Action("Index", "SecurityCenter", new { area = "Admin", startDate = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd"), endDate = DateTime.UtcNow.ToString("yyyy-MM-dd") })" class="px-3.5 py-1.5 rounded-lg transition-all @(currentStartDate == DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd") ? "bg-[#E8A020] text-slate-950 shadow-sm font-extrabold" : "text-slate-600 hover:bg-slate-50")">آخر 7 أيام</a>
+                    <a href="@Url.Action("Index", "SecurityCenter", new { area = "Admin", startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).ToString("yyyy-MM-dd"), endDate = DateTime.UtcNow.ToString("yyyy-MM-dd") })" class="px-3.5 py-1.5 rounded-lg transition-all @(currentStartDate == new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).ToString("yyyy-MM-dd") ? "bg-[#E8A020] text-slate-950 shadow-sm font-extrabold" : "text-slate-600 hover:bg-slate-50")">هذا الشهر</a>
+                </div>
+
+                <!-- Custom Range Inputs -->
+                <div class="flex items-center gap-2">
+                    <input type="date" name="startDate" value="@currentStartDate" class="bg-white border border-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs outline-none focus:border-[#E8A020] shadow-sm font-semibold" />
+                    <span class="text-slate-400 text-xs font-bold">إلى</span>
+                    <input type="date" name="endDate" value="@currentEndDate" class="bg-white border border-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs outline-none focus:border-[#E8A020] shadow-sm font-semibold" />
+                    <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1">
+                        <span>فلترة</span>
+                        <span class="material-symbols-outlined text-sm">search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Traffic & Security KPI Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Visits in Selected Period -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">زيارات الفترة المحددة</p>
+                    <h3 class="text-3xl font-black text-slate-900 mt-2">@kpis.TotalViews.ToString("N0")</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">analytics</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs">
+                <span class="text-emerald-600 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">group</span>
+                    @kpis.UniqueVisitors زائر فريد بالفترة
+                </span>
+                <span class="text-slate-400 font-medium">الشهر: @kpis.TotalViewsThisMonth.ToString("N0")</span>
+            </div>
+        </div>
+
+        <!-- Live Active Visitors -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">النشطون الآن (Live Visitors)</p>
+                    <h3 class="text-3xl font-black text-emerald-600 mt-2">@kpis.ActiveLiveVisitors</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl animate-spin">sync</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs">
+                <span class="text-slate-500 font-medium">خلال الـ 15 دقيقة الأخيرة</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            </div>
+        </div>
+
+        <!-- Threat Probes in Selected Period -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">تهديدات ومسحات الفترة</p>
+                    <h3 class="text-3xl font-black text-rose-600 mt-2">@kpis.SuspiciousThreats</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">crisis_alert</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs">
+                <span class="text-rose-600 font-bold">@pendingThreats.Count() تنبيهات بحاجة لقرار</span>
+                <span class="material-symbols-outlined text-rose-500 text-sm">warning</span>
+            </div>
+        </div>
+
+        <!-- Active Blacklist -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">الـ IPs المحظورة (Blacklist)</p>
+                    <h3 class="text-3xl font-black text-slate-900 mt-2">@kpis.ActiveBlockedIps</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">block</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs">
+                <span class="text-slate-600 font-bold">محظورون من الوصول تلقائياً</span>
+                <span class="material-symbols-outlined text-slate-400 text-sm">verified_user</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Hourly/Daily Visits Chart Section -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-50 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-indigo-600 text-2xl">show_chart</span>
+                <div>
+                    <h3 class="text-sm font-black text-slate-900">منحنى حركة وتوزيع الزيارات للفترة المحددة</h3>
+                    <p class="text-slate-400 text-xs">توزيع تدفق الزيارات المباشرة خلال الفترة المعروضة</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-56 w-full">
+            <canvas id="hourlyTrafficChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Suspicious Requests & Threats Panel -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-rose-600 text-2xl">gpp_bad</span>
+                <div>
+                    <h3 class="text-base font-black text-slate-900">سجل التهديدات والمسحات المشبوهة</h3>
+                    <p class="text-slate-400 text-xs mt-0.5">محاولات الوصول للمسارات الممنوعة أو ثغرات الاستعلام المكتشفة بواسطة Security Middleware</p>
+                </div>
+            </div>
+            <span class="text-xs font-bold text-rose-600 bg-rose-50 px-3.5 py-1.5 rounded-full border border-rose-200 shadow-sm">
+                @pendingThreats.Count() تنبيه معلق
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100 uppercase tracking-wider">
+                        <th class="py-3.5 px-4">عنوان الـ IP</th>
+                        <th class="py-3.5 px-4">نوع التهديد / المخالفة</th>
+                        <th class="py-3.5 px-4">المسار المطلوبة (Endpoint)</th>
+                        <th class="py-3.5 px-4">التاريخ والوقت</th>
+                        <th class="py-3.5 px-4 text-center">القرار والتصرف المباشر</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var threat in pendingThreats)
+                    {
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-4 px-4 font-mono font-bold text-slate-900 dir-ltr text-right">
+                                <span class="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-lg border border-slate-200">@threat.IpAddress</span>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="px-2.5 py-1 rounded-lg font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                    @threat.ThreatType
+                                </span>
+                                <p class="text-[11px] text-slate-500 mt-1 font-medium">@threat.Description</p>
+                            </td>
+                            <td class="py-4 px-4 font-mono text-slate-600 dir-ltr text-right">
+                                @threat.RequestPath
+                            </td>
+                            <td class="py-4 px-4 text-slate-500 font-medium">
+                                @threat.DetectedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" 
+                                            onclick="openBlacklistModal('@threat.IpAddress', '@threat.ThreatType: @threat.Description')"
+                                            class="bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                                        <span class="material-symbols-outlined text-sm">block</span>
+                                        <span>حظر الـ IP 🚫</span>
+                                    </button>
+                                    <button type="button"
+                                            onclick="dismissThreat(@threat.Id)"
+                                            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">visibility_off</span>
+                                        <span>تجاهل</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!pendingThreats.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="py-10 text-center text-slate-400 italic">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-4xl text-emerald-500">verified_user</span>
+                                    <span class="text-xs font-bold text-slate-600">لا توجد تهديدات معلقة حالياً. المنصة في أقصى درجات الأمان!</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Active Blacklist Management Panel -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-rose-600 text-2xl">block</span>
+                <div>
+                    <h3 class="text-base font-black text-slate-900">إدارة القائمة السوداء (IP Blacklist Manager)</h3>
+                    <p class="text-slate-400 text-xs mt-0.5">عناوين الـ IP الممنوعة فورياً من الوصول إلى المتجر والخدمات</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100 uppercase tracking-wider">
+                        <th class="py-3.5 px-4">عنوان الـ IP</th>
+                        <th class="py-3.5 px-4">سبب الحظر</th>
+                        <th class="py-3.5 px-4">تم بواسطة</th>
+                        <th class="py-3.5 px-4">تاريخ الحظر</th>
+                        <th class="py-3.5 px-4">تاريخ الانتهاء</th>
+                        <th class="py-3.5 px-4 text-center">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in blacklist)
+                    {
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-4 px-4 font-mono font-bold text-slate-900 dir-ltr text-right">
+                                <span class="bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-1 rounded-lg">@item.IpAddress</span>
+                            </td>
+                            <td class="py-4 px-4 text-slate-700 font-medium">
+                                @item.Reason
+                            </td>
+                            <td class="py-4 px-4 text-slate-500 font-medium">
+                                @item.BlockedByUserId
+                            </td>
+                            <td class="py-4 px-4 text-slate-500">
+                                @item.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="px-2.5 py-1 rounded-lg font-bold @(item.ExpiresAt.HasValue ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-slate-900 text-white")">
+                                    @(item.ExpiresAt.HasValue ? item.ExpiresAt.Value.ToString("yyyy-MM-dd HH:mm") : "دائم (Permanent)")
+                                </span>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <button type="button" onclick="removeBlacklist('@item.IpAddress')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-sm active:scale-95">
+                                    فك الحظر 🔓
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!blacklist.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="py-10 text-center text-slate-400 italic bg-slate-50/40">
+                                لا يوجد عناوين IP في القائمة السوداء حالياً.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Blacklist Modal (Clean Modern UI) -->
+<div id="blacklistModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">block</span>
+                </div>
+                <h3 class="font-black text-base text-slate-900">إضافة IP إلى القائمة السوداء</h3>
+            </div>
+            <button type="button" onclick="closeBlacklistModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="blacklistForm" onsubmit="handleBlacklistSubmit(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">عنوان الـ IP *</label>
+                <input type="text" id="modalIpAddress" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono text-slate-900 focus:bg-white focus:border-rose-500 outline-none transition-all dir-ltr" placeholder="مثال: 192.168.1.50" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">سبب الحظر *</label>
+                <input type="text" id="modalReason" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-medium text-slate-900 focus:bg-white focus:border-rose-500 outline-none transition-all" placeholder="مثال: محاولة مسح ثغرات أو طلبات مشبوهة متكررة" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">مدة الحظر</label>
+                <select id="modalDuration" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-700 focus:bg-white focus:border-rose-500 outline-none transition-all">
+                    <option value="">دائم (Permanent)</option>
+                    <option value="1">ساعة واحدة (1 Hour)</option>
+                    <option value="24">24 ساعة (1 Day)</option>
+                    <option value="168">أسبوع واحد (1 Week)</option>
+                </select>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95">
+                    تأكيد حظر الـ IP 🚫
+                </button>
+                <button type="button" onclick="closeBlacklistModal()" class="px-5 py-3 border border-slate-200 text-slate-600 font-bold rounded-2xl text-xs hover:bg-slate-50 transition-all">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Chart.js Script for Dynamic Traffic Sparkline -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const __antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+    // Initialize Dynamic Traffic Sparkline Chart
+    const ctx = document.getElementById('hourlyTrafficChart')?.getContext('2d');
+    if (ctx) {
+        const labels = @Html.Raw(hourlyLabelsJson);
+        const counts = @Html.Raw(hourlyCountsJson);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'عدد الزيارات (Views)',
+                    data: counts,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#4f46e5'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: { grid: { color: '#f1f5f9' }, ticks: { precision: 0, font: { size: 10 } } }
+                }
+            }
+        });
+    }
+
+    function openBlacklistModal(ip = '', reason = '') {
+        document.getElementById('modalIpAddress').value = ip;
+        document.getElementById('modalReason').value = reason || 'حظر بناءً على نشاط مشبوه';
+        document.getElementById('blacklistModal').classList.remove('hidden');
+    }
+
+    function closeBlacklistModal() {
+        document.getElementById('blacklistModal').classList.add('hidden');
+    }
+
+    function handleBlacklistSubmit(e) {
+        e.preventDefault();
+        const ipAddress = document.getElementById('modalIpAddress').value.trim();
+        const reason = document.getElementById('modalReason').value.trim();
+        const durationHours = document.getElementById('modalDuration').value;
+
+        fetch('@Url.Action("BlacklistIp", "SecurityCenter", new { area = "Admin" })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': __antiForgeryToken
+            },
+            body: new URLSearchParams({
+                ipAddress: ipAddress,
+                reason: reason,
+                durationHours: durationHours
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            closeBlacklistModal();
+            if (res.success) {
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        })
+        .catch(() => alert('تعذّر إجراء الحظر. حاول مجدداً.'));
+    }
+
+    function removeBlacklist(ipAddress) {
+        openTailwindConfirmModal(
+            'تأكيد إزالة الحظر',
+            `هل تريد إزالة الـ IP (${ipAddress}) من القائمة السوداء وإعادة السماح له بالدخول؟`,
+            'lock_open',
+            '#10B981',
+            function() {
+                fetch('@Url.Action("RemoveBlacklist", "SecurityCenter", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': __antiForgeryToken
+                    },
+                    body: new URLSearchParams({ ipAddress: ipAddress })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    showTailwindToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(() => showTailwindToast('تعذّر فك الحظر. حاول مجدداً.', 'error'));
+            }
+        );
+    }
+
+    function dismissThreat(auditLogId) {
+        fetch('@Url.Action("DismissThreat", "SecurityCenter", new { area = "Admin" })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': __antiForgeryToken
+            },
+            body: new URLSearchParams({ auditLogId: auditLogId })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) location.reload();
+        });
+    }
+
+    function clearAllSecurityLogs() {
+        openTailwindConfirmModal(
+            'تأكيد تنظيف السجلات',
+            'هل أنت متأكد من مسح وتنظيف كافة سجلات التهديدات والحظر القديمة والبدء بسجل ناصع جديد؟',
+            'cleaning_services',
+            '#E8A020',
+            function() {
+                fetch('@Url.Action("ClearAllData", "SecurityCenter", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': __antiForgeryToken
+                    }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    showTailwindToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1200);
+                    }
+                })
+                .catch(() => showTailwindToast('تعذّر التنظيف. حاول مجدداً.', 'error'));
+            }
+        );
+    }
+</script>
+
+<!-- Pure Tailwind Custom Confirm Modal -->
+<div id="tailwindConfirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[300] hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 text-right font-sans">
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div id="tailwindConfirmIconBg" class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+                <span id="tailwindConfirmIcon" class="material-symbols-outlined text-2xl">help</span>
+            </div>
+            <div>
+                <h3 id="tailwindConfirmTitle" class="font-black text-slate-900 text-lg">تأكيد العملية</h3>
+                <p id="tailwindConfirmSub" class="text-slate-400 text-xs font-bold mt-0.5">يرجى التأكيد للمتابعة</p>
+            </div>
+        </div>
+
+        <p id="tailwindConfirmMessage" class="text-slate-700 text-xs font-bold leading-relaxed">هل أنت متأكد من الاستمرار؟</p>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closeTailwindConfirmModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all">
+                إلغاء
+            </button>
+            <button type="button" id="tailwindConfirmExecuteBtn" class="bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-2.5 rounded-xl text-xs transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                <span>تأكيد التنفيذ ⚡</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Pure Tailwind Custom Toast Notification -->
+<div id="tailwindToastContainer" class="fixed top-6 left-1/2 -translate-x-1/2 z-[400] hidden transition-all duration-300 transform -translate-y-4" dir="rtl">
+    <div id="tailwindToastCard" class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-amber-500/50 flex items-center gap-3 text-xs font-black">
+        <span id="tailwindToastIcon" class="material-symbols-outlined text-xl text-[#E8A020]">check_circle</span>
+        <span id="tailwindToastMessage">تمت العملية بنجاح!</span>
+    </div>
+</div>
+
+<script>
+    let pendingConfirmAction = null;
+
+    function openTailwindConfirmModal(title, message, iconName, color, onConfirm) {
+        document.getElementById('tailwindConfirmTitle').textContent = title;
+        document.getElementById('tailwindConfirmMessage').textContent = message;
+        if (iconName) document.getElementById('tailwindConfirmIcon').textContent = iconName;
+        
+        pendingConfirmAction = onConfirm;
+        document.getElementById('tailwindConfirmModal').classList.remove('hidden');
+    }
+
+    function closeTailwindConfirmModal() {
+        document.getElementById('tailwindConfirmModal').classList.add('hidden');
+        pendingConfirmAction = null;
+    }
+
+    document.getElementById('tailwindConfirmExecuteBtn').addEventListener('click', function() {
+        if (pendingConfirmAction) {
+            const action = pendingConfirmAction;
+            closeTailwindConfirmModal();
+            action();
+        }
+    });
+
+    function showTailwindToast(message, type = 'success') {
+        const toast = document.getElementById('tailwindToastContainer');
+        const msgEl = document.getElementById('tailwindToastMessage');
+        const iconEl = document.getElementById('tailwindToastIcon');
+        const cardEl = document.getElementById('tailwindToastCard');
+
+        msgEl.textContent = message;
+        if (type === 'success') {
+            iconEl.textContent = 'check_circle';
+            iconEl.className = 'material-symbols-outlined text-xl text-emerald-400';
+            cardEl.className = 'bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-emerald-500/50 flex items-center gap-3 text-xs font-black';
+        } else {
+            iconEl.textContent = 'error';
+            iconEl.className = 'material-symbols-outlined text-xl text-rose-400';
+            cardEl.className = 'bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-rose-500/50 flex items-center gap-3 text-xs font-black';
+        }
+
+        toast.classList.remove('hidden', '-translate-y-4');
+        toast.classList.add('translate-y-0');
+
+        setTimeout(() => {
+            toast.classList.add('hidden', '-translate-y-4');
+        }, 3000);
+    }
+</script>

@@ -1,9 +1,11 @@
+using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Category;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Common;
 using Blocko.Persistence.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blocko.Services.Implementations.Category
 {
@@ -14,42 +16,65 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
-            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var categories = await _unitOfWork.Categories.GetAllAsQueryable()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(c => c.ParentCategory)
+                .Include(c => c.Products)
+                .ToListAsync();
+
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 ParentCategoryName = c.ParentCategory?.Name,
+                ParentCategoryNameEn = c.ParentCategory?.NameEn,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
                 ProductCount = c.Products?.Count ?? 0
             });
         }
 
-        public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize)
+        public async Task<IPagedList<CategoryDto>> GetPagedCategoriesAsync(int pageIndex, int pageSize, string? search = null)
         {
-            var pagedCategories = await _unitOfWork.Categories.GetPagedAsync(
-                pageIndex,
-                pageSize,
-                orderBy: q => q.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name),
-                includes: c => c.Products!
-            );
+            IQueryable<Bolcko.Domain.Entities.Catalog.Category> query = _unitOfWork.Categories.GetAllAsQueryable()
+                .AsNoTracking()
+                .Include(c => c.ParentCategory)
+                .Include(c => c.Products);
 
-            var dtos = pagedCategories.Items.Select(c => new CategoryDto
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                ParentCategoryId = c.ParentCategoryId,
-                ParentCategoryName = c.ParentCategory?.Name,
-                DisplayOrder = c.DisplayOrder,
-                ImageUrl = c.ImageUrl,
-                ProductCount = c.Products?.Count ?? 0
-            });
+                var s = search.Trim().ToLower();
+                query = query.Where(c => c.Name.ToLower().Contains(s) || (c.NameEn != null && c.NameEn.ToLower().Contains(s)) || (c.Description != null && c.Description.ToLower().Contains(s)));
+            }
 
-            return new PagedList<CategoryDto>(dtos, pagedCategories.TotalCount, pageIndex, pageSize);
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Name)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    NameEn = c.NameEn,
+                    Description = c.Description,
+                    DescriptionEn = c.DescriptionEn,
+                    ParentCategoryId = c.ParentCategoryId,
+                    ParentCategoryName = c.ParentCategory != null ? c.ParentCategory.Name : null,
+                    ParentCategoryNameEn = c.ParentCategory != null ? c.ParentCategory.NameEn : null,
+                    DisplayOrder = c.DisplayOrder,
+                    ImageUrl = c.ImageUrl,
+                    ProductCount = c.Products.Count
+                })
+                .ToListAsync();
+
+            return new PagedList<CategoryDto>(items, totalCount, pageIndex, pageSize);
         }
 
         public async Task<IEnumerable<CategoryDto>> GetRootCategoriesAsync()
@@ -59,7 +84,9 @@ namespace Blocko.Services.Implementations.Category
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -69,12 +96,14 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<IEnumerable<CategoryDto>> GetSubCategoriesAsync(int parentId)
         {
-            var categories = await _unitOfWork.Categories.FindAsync(c => c.ParentCategoryId == parentId);
+            var categories = await _unitOfWork.Categories.GetSubCategoriesWithProductsAsync(parentId);
             return categories.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
+                NameEn = c.NameEn,
                 Description = c.Description,
+                DescriptionEn = c.DescriptionEn,
                 ParentCategoryId = c.ParentCategoryId,
                 DisplayOrder = c.DisplayOrder,
                 ImageUrl = c.ImageUrl,
@@ -84,16 +113,19 @@ namespace Blocko.Services.Implementations.Category
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            var category = await _unitOfWork.Categories.GetCategoryWithParentAsync(id);
             if (category == null) return null;
 
             return new CategoryDto
             {
                 Id = category.Id,
                 Name = category.Name,
+                NameEn = category.NameEn,
                 Description = category.Description,
+                DescriptionEn = category.DescriptionEn,
                 ParentCategoryId = category.ParentCategoryId,
                 ParentCategoryName = category.ParentCategory?.Name,
+                ParentCategoryNameEn = category.ParentCategory?.NameEn,
                 DisplayOrder = category.DisplayOrder,
                 ImageUrl = category.ImageUrl,
                 ProductCount = category.Products?.Count ?? 0
@@ -105,7 +137,9 @@ namespace Blocko.Services.Implementations.Category
             var category = new Bolcko.Domain.Entities.Catalog.Category
             {
                 Name = categoryDto.Name,
+                NameEn = categoryDto.NameEn,
                 Description = categoryDto.Description,
+                DescriptionEn = categoryDto.DescriptionEn,
                 ParentCategoryId = categoryDto.ParentCategoryId,
                 DisplayOrder = categoryDto.DisplayOrder,
                 ImageUrl = categoryDto.ImageUrl
@@ -120,7 +154,9 @@ namespace Blocko.Services.Implementations.Category
             if (category != null)
             {
                 category.Name = categoryDto.Name;
+                category.NameEn = categoryDto.NameEn;
                 category.Description = categoryDto.Description;
+                category.DescriptionEn = categoryDto.DescriptionEn;
                 category.ParentCategoryId = categoryDto.ParentCategoryId;
                 category.DisplayOrder = categoryDto.DisplayOrder;
                 category.ImageUrl = categoryDto.ImageUrl;
@@ -189,6 +225,63 @@ namespace Blocko.Services.Implementations.Category
 
             // 3. Finally remove the category
             _unitOfWork.Categories.Remove(category);
+        }
+
+        /// <summary>
+        /// One-time bulk translation for all categories where NameEn is null or empty.
+        /// </summary>
+        public async Task<(int translated, int skipped, int failed)> BulkTranslateCategoriesAsync(ITranslationService translationService)
+        {
+            var categories = await _unitOfWork.Categories.GetAllAsQueryable()
+                .Where(c => string.IsNullOrEmpty(c.NameEn))
+                .ToListAsync();
+
+            int translated = 0, skipped = 0, failed = 0;
+
+            foreach (var category in categories)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(category.Name))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    var nameEn = await translationService.TranslateAsync(category.Name, "en");
+
+                    // Check if it's still Arabic (Translation failed)
+                    bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(nameEn, @"[\u0600-\u06FF]");
+                    if (isStillArabic)
+                    {
+                        failed++;
+                        continue;
+                    }
+
+                    category.NameEn = nameEn;
+
+                    if (!string.IsNullOrWhiteSpace(category.Description))
+                    {
+                        var descEn = await translationService.TranslateAsync(category.Description, "en");
+                        bool descStillArabic = System.Text.RegularExpressions.Regex.IsMatch(descEn, @"[\u0600-\u06FF]");
+                        category.DescriptionEn = descStillArabic ? null : descEn;
+                    }
+
+                    _unitOfWork.Categories.Update(category);
+                    translated++;
+                }
+                catch
+                {
+                    failed++;
+                }
+            }
+
+            if (translated > 0)
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return (translated, skipped, failed);
         }
     }
 }

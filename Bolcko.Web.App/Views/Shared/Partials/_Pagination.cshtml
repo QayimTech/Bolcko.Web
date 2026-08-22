@@ -1,47 +1,77 @@
 @using Bolcko.Domain.Common
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Bolcko.Web.App.SharedResource> SharedLocalizer
 @model IPagedList<object>
+
+@{
+    // Build base URL preserving existing querystring except page/pageSize
+    var currentQuery = Context.Request.Query
+        .Where(q => !q.Key.Equals("page", StringComparison.OrdinalIgnoreCase)
+                 && !q.Key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
+        .Select(q => $"{q.Key}={Uri.EscapeDataString(q.Value.ToString())}")
+        .ToList();
+    string baseQs = currentQuery.Count > 0 ? "&" + string.Join("&", currentQuery) : "";
+
+    string PageUrl(int p) => $"?page={p}&pageSize={Model.PageSize}{baseQs}";
+}
 
 @if (Model.TotalPages > 1)
 {
-    <div class="flex items-center justify-between border-t border-slate-200 px-6 py-4">
-        <div class="text-sm text-slate-500">
-            عرض @(((Model.PageIndex - 1) * Model.PageSize + 1)) - @Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount) من @Model.TotalCount
+    <div class="flex items-center justify-between border-t border-slate-200 px-4 sm:px-6 py-4 flex-wrap gap-3">
+        <div class="text-xs text-slate-500 font-medium">
+            @string.Format(SharedLocalizer["PaginationSummary"].Value,
+                ((Model.PageIndex - 1) * Model.PageSize + 1),
+                Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount),
+                Model.TotalCount)
         </div>
         <div class="flex items-center gap-2">
+
+            @* Previous button — arrow flips via rtl:-scale-x-100 *@
             @if (Model.HasPreviousPage)
             {
-                <a href="?page=@(Model.PageIndex - 1)&pageSize=@Model.PageSize" 
-                   class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    السابق
+                <a href="@PageUrl(Model.PageIndex - 1)"
+                   aria-label="@SharedLocalizer["Previous"]"
+                   class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-[#E8A020] hover:text-[#151B26] rounded-xl transition-all">
+                    <span class="material-symbols-outlined text-base leading-none rtl:-scale-x-100">arrow_back</span>
+                    @SharedLocalizer["Previous"]
                 </a>
             }
-            
+
             <div class="flex items-center gap-1">
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    if (i == Model.PageIndex - 2 || i == Model.PageIndex - 1 || i == Model.PageIndex || i == Model.PageIndex + 1 || i == Model.PageIndex + 2 || i == 1 || i == Model.TotalPages)
+                    bool isActive   = i == Model.PageIndex;
+                    bool isNear     = Math.Abs(i - Model.PageIndex) <= 2;
+                    bool isEndpoint = i == 1 || i == Model.TotalPages;
+                    bool isEllipsis = Math.Abs(i - Model.PageIndex) == 3;
+
+                    if (isActive || isNear || isEndpoint)
                     {
-                        <a href="?page=@i&pageSize=@Model.PageSize" 
-                           class="@(i == Model.PageIndex ? "bg-[#E8A020] text-[#1B2235]" : "bg-slate-100 text-slate-700 hover:bg-slate-200") px-3 py-2 text-sm font-medium rounded-lg transition-all">
+                        <a href="@PageUrl(i)"
+                           aria-label="@string.Format(SharedLocalizer["GoToPage"].ResourceNotFound ? "Page {0}" : SharedLocalizer["GoToPage"].Value, i)"
+                           aria-current="@(isActive ? "page" : null)"
+                           class="@(isActive ? "bg-[#E8A020] text-[#1B2235] shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200") px-3 py-2 text-xs font-bold rounded-xl transition-all min-w-[36px] text-center">
                             @i
                         </a>
                     }
-                    else if (i == Model.PageIndex - 3 || i == Model.PageIndex + 3)
+                    else if (isEllipsis)
                     {
-                        <span class="text-slate-400 px-1">...</span>
+                        <span class="text-slate-400 px-1 select-none">...</span>
                     }
                 }
             </div>
-            
+
+            @* Next button — arrow flips via rtl:-scale-x-100 *@
             @if (Model.HasNextPage)
             {
-                <a href="?page=@(Model.PageIndex + 1)&pageSize=@Model.PageSize" 
-                   class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
-                    التالي
-                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <a href="@PageUrl(Model.PageIndex + 1)"
+                   aria-label="@SharedLocalizer["Next"]"
+                   class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-[#E8A020] hover:text-[#151B26] rounded-xl transition-all">
+                    @SharedLocalizer["Next"]
+                    <span class="material-symbols-outlined text-base leading-none rtl:-scale-x-100">arrow_forward</span>
                 </a>
             }
+
         </div>
     </div>
 }

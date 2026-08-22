@@ -3,12 +3,19 @@
 }
 
 <div class="max-w-4xl mx-auto px-6 py-20">
-    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">سياسة الخصوصية</h1>
+    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
     <div class="prose prose-slate max-w-none prose-h2:text-on-surface prose-h2:font-bold prose-h2:mt-8 prose-p:text-on-surface-variant leading-relaxed">
-        <p>نحن في BLOCKO نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية...</p>
-        <h2>جمع المعلومات</h2>
-        <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو تقديم طلب تسعير.</p>
-        <h2>استخدام المعلومات</h2>
-        <p>تستخدم معلوماتك لتوفير خدماتنا، ومعالجة الطلبات، والتواصل معك بشأن مستجدات البناء والمقاولات.</p>
+        @if (ViewBag.Content != null)
+        {
+            @Html.Raw(ViewBag.Content)
+        }
+        else
+        {
+            <p>نحن في BLOCKO نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية...</p>
+            <h2>جمع المعلومات</h2>
+            <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو تقديم طلب تسعير.</p>
+            <h2>استخدام المعلومات</h2>
+            <p>تستخدم معلوماتك لتوفير خدماتنا، ومعالجة الطلبات، والتواصل معك بشأن مستجدات البناء والمقاولات.</p>
+        }
     </div>
 </div>

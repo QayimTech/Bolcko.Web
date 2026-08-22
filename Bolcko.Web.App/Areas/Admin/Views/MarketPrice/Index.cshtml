@@ -1,0 +1,56 @@
+@model IEnumerable<Bolcko.Domain.Entities.Catalog.MarketPrice>
+@{
+    ViewData["Title"] = "إدارة أسعار السوق";
+}
+
+<section class="p-8 space-y-8 text-right" dir="rtl">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">إدارة أسعار السوق المحلية</h1>
+            <p class="text-on-surface-variant text-sm mt-1">تعديل الأسعار الأساسية لمواد البناء الرئيسية الظاهرة في الصفحة الرئيسية.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-2 text-sm">
+            <span class="material-symbols-outlined text-emerald-500">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="bg-white border border-slate-200 shadow-hard overflow-hidden">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">المادة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">السعر الحالي</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">الوحدة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">العملة</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">آخر تحديث</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">المصدر</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">العمليات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-bold text-slate-900">@item.MaterialName</td>
+                        <td class="px-6 py-4 font-bold text-[#E8A020]">@item.Price.ToString("N2")</td>
+                        <td class="px-6 py-4 text-slate-600">@item.UnitOfMeasure</td>
+                        <td class="px-6 py-4 text-slate-600">@item.Currency</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">@item.LastUpdated.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td class="px-6 py-4 text-slate-600 text-xs">@item.Source</td>
+                        <td class="px-6 py-4">
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 w-max">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                                <span>تعديل السعر</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

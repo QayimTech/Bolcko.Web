@@ -1,0 +1,47 @@
+@* Performance Optimizations Partial View
+   Include this in the <head> section of your layout
+   These optimizations follow Google's PageSpeed Insights best practices *@
+
+@* 1. Preconnect handled in the layout <head> (avoid duplicate hints) *@
+
+@* 2. No hero image preload: the homepage hero is text/CSS only *@
+
+@* 3. Critical CSS (Above the fold styles) - Prevents CLS and optimizes FCP *@
+<style>
+    /* Critical CSS - Above the fold content */
+    :root {
+        --primary-color: #E8A020;
+        --bg-dark: #0D111A;
+        --text-light: #ffffff;
+    }
+    
+    /* Prevent layout shifts */
+    html {
+        box-sizing: border-box;
+    }
+    *, *::before, *::after {
+        box-sizing: inherit;
+    }
+    
+    /* CLS prevention for media */
+    img, video, picture, iframe {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Optimize hero section rendering */
+    .hero-section {
+        min-height: 60vh;
+        contain: layout style;
+    }
+    
+    /* Reduce motion for accessibility */
+    @@media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>

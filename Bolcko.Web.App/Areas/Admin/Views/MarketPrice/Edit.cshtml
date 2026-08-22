@@ -1,0 +1,57 @@
+@model Bolcko.Domain.Entities.Catalog.MarketPrice
+@{
+    ViewData["Title"] = "تعديل سعر المادة";
+}
+
+<section class="p-8 space-y-8 text-right" dir="rtl">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="font-headline-md text-on-surface">تعديل سعر المادة</h1>
+            <p class="text-on-surface-variant text-sm mt-1">تحديث السعر يدوياً وإعادة تعيين قاعدة الأسعار للمحاكاة اليومية.</p>
+        </div>
+        <a href="@Url.Action("Index")" class="border border-slate-200 hover:bg-slate-50 px-6 py-2 text-sm font-bold transition-all">
+            رجوع للقائمة
+        </a>
+    </div>
+
+    <div class="bg-white border border-slate-200 shadow-hard p-8 max-w-xl">
+        <form asp-action="Edit" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">اسم المادة</label>
+                <input asp-for="MaterialName" class="w-full bg-slate-50 border border-slate-200 p-3 outline-none focus:border-[#E8A020]" />
+                <span asp-validation-for="MaterialName" class="text-error text-xs"></span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">السعر الجديد</label>
+                    <input type="number" step="0.01" asp-for="Price" class="w-full bg-slate-50 border border-slate-200 p-3 outline-none focus:border-[#E8A020]" />
+                    <span asp-validation-for="Price" class="text-error text-xs"></span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">العملة</label>
+                    <input asp-for="Currency" class="w-full bg-slate-50 border border-slate-200 p-3 outline-none focus:border-[#E8A020]" />
+                    <span asp-validation-for="Currency" class="text-error text-xs"></span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">وحدة القياس</label>
+                <input asp-for="UnitOfMeasure" class="w-full bg-slate-50 border border-slate-200 p-3 outline-none focus:border-[#E8A020]" placeholder="مثال: طن، متر مكعب" />
+                <span asp-validation-for="UnitOfMeasure" class="text-error text-xs"></span>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex gap-4">
+                <button type="submit" class="bg-[#E8A020] text-white px-8 py-3 font-bold hover:bg-[#d18f1c] transition-all">
+                    حفظ التعديلات
+                </button>
+                <a href="@Url.Action("Index")" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-8 py-3 font-bold transition-all">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</section>

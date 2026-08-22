@@ -3,27 +3,85 @@
     ViewData["Title"] = SharedLocalizer["ProductDetails"];
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+@section Head {
+    @{
+        var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+        var productName = isArabic ? Model.Name : (Model.NameEn ?? Model.Name);
+        var productDesc = isArabic ? Model.Description : (Model.DescriptionEn ?? Model.Description);
+        
+        var isLocal = Context.Request.Host.Host.Contains("localhost");
+        var siteDomain = isLocal ? $"https://{Context.Request.Host}" : "https://www.block-o.com";
+        
+        var imageUrls = new List<string>();
+        if (Model.Images != null && Model.Images.Any())
+        {
+            imageUrls.AddRange(Model.Images.OrderBy(img => img.DisplayOrder).Select(img => img.Url.StartsWith("http") ? img.Url : $"{siteDomain}/" + img.Url.TrimStart('/')));
+        }
+        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            imageUrls.AddRange(Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(img => img.StartsWith("http") ? img : $"{siteDomain}/" + img.TrimStart('/')));
+        }
+        else
+        {
+            imageUrls.Add($"{siteDomain}/images/default-product.png");
+        }
+
+        var schemaObj = new Dictionary<string, object>
+        {
+            { "@context", "https://schema.org/" },
+            { "@type", "Product" },
+            { "name", productName },
+            { "image", imageUrls },
+            { "description", productDesc ?? productName },
+            { "sku", Model.Sku },
+            { "offers", new Dictionary<string, object>
+                {
+                    { "@type", "Offer" },
+                    { "url", $"{siteDomain}/Shop/Product/Index/{Model.Id}" },
+                    { "priceCurrency", "JOD" },
+                    { "price", Model.RetailPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                    { "availability", Model.StockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" },
+                    { "itemCondition", "https://schema.org/NewCondition" },
+                    { "priceValidUntil", "2027-12-31" }
+                }
+            },
+            { "brand", new Dictionary<string, object>
+                {
+                    { "@type", "Brand" },
+                    { "name", !string.IsNullOrEmpty(Model.Brand) ? Model.Brand : "BLOCKO" }
+                }
+            }
+        };
+
+        var schemaJson = System.Text.Json.JsonSerializer.Serialize(schemaObj, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    <script type="application/ld+json">
+        @Html.Raw(schemaJson)
+    </script>
+}
+
+<main class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 text-start overflow-hidden">
     @if (Model != null)
     {
+        var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
         <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-2 mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            <a class="hover:text-[#E8A020] transition-colors" href="/">الرئيسية</a>
-            <span class="material-symbols-outlined text-xs">chevron_left</span>
+        <nav class="flex items-center gap-2 mb-8 md:mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest flex-wrap">
+            <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
             @if (!string.IsNullOrEmpty(Model.CategoryName))
             {
                 <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
-                <span class="material-symbols-outlined text-xs">chevron_left</span>
+                <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
             }
-            <span class="text-slate-800 font-bold">@Model.Name</span>
+            <span class="text-slate-800 font-bold truncate max-w-[200px] sm:max-w-xs">@Model.Name</span>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
             <!-- Product Gallery Section (7 columns) -->
             <div class="lg:col-span-7 space-y-6">
                 <div class="border border-slate-100 bg-white rounded-3xl overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.02)] p-4 relative group">
                     <!-- SKU Badge -->
-                    <span class="absolute top-8 right-8 bg-[#151B26] text-white font-bold px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-wider shadow-md z-10">
+                    <span class="absolute top-8 end-8 bg-[#151B26] text-white font-bold px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-wider shadow-md z-10">
                         SKU: @Model.Sku
                     </span>
                     
@@ -31,8 +89,9 @@
                     {
                         var firstImage = Model.Images.OrderBy(img => img.DisplayOrder).First().Url;
                         
-                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out" 
+                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out"
                              src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
+                             width="800" height="550" fetchpriority="high" decoding="async"
                              onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
                              
                         @if (Model.Images.Count > 1)
@@ -47,8 +106,9 @@
                                     var activeClass = i == 0 ? "border-[#E8A020] ring-1 ring-[#E8A020]" : "border-slate-100 hover:border-[#E8A020]/50";
                                     <div class="w-20 h-20 bg-slate-50 border-2 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 thumbnail-image-box @activeClass"
                                          data-image-url="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))">
-                                        <img src="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))" 
-                                             class="w-full h-full object-cover" 
+                                        <img src="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))"
+                                             class="w-full h-full object-cover"
+                                             width="80" height="80" loading="lazy" decoding="async"
                                              onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
                                              alt="Thumbnail @(i+1)" />
                                     </div>
@@ -61,8 +121,9 @@
                         var imageUrls = Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         var firstImage = imageUrls.FirstOrDefault() ?? string.Empty;
                         
-                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out" 
+                        <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out"
                              src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
+                             width="800" height="550" fetchpriority="high" decoding="async"
                              onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
                              
                         @if (imageUrls.Length > 1)
@@ -74,8 +135,9 @@
                                     var activeClass = i == 0 ? "border-[#E8A020] ring-1 ring-[#E8A020]" : "border-slate-100 hover:border-[#E8A020]/50";
                                     <div class="w-20 h-20 bg-slate-50 border-2 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 thumbnail-image-box @activeClass"
                                          data-image-url="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))">
-                                        <img src="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))" 
-                                             class="w-full h-full object-cover" 
+                                        <img src="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))"
+                                             class="w-full h-full object-cover"
+                                             width="80" height="80" loading="lazy" decoding="async"
                                              onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
                                              alt="Thumbnail @(i+1)" />
                                     </div>
@@ -119,13 +181,61 @@
                 
                 <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
                     <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-50 pb-6">
-                        <span class="text-4xl font-extrabold text-slate-900">@Model.RetailPrice.ToString("N2")</span>
-                        <span class="text-sm font-bold text-slate-400">د.أ / @Model.UnitOfMeasure</span>
+                        <span class="text-4xl font-extrabold text-slate-900" id="product-display-price">@Model.RetailPrice.ToString("N2")</span>
+                        <span class="text-sm font-bold text-slate-400">@SharedLocalizer["JordanDinarShort"] / @Model.UnitOfMeasure</span>
                         <span class="text-sm font-medium">@SharedLocalizer["VatIncluded"]</span>
                     </div>
-                    
+                    <!-- Premium Variant Selector (Size / Color / Unit) -->
+                    @if (Model.Variants != null && Model.Variants.Any())
+                    {
+                        <div class="border-t border-slate-100 pt-6 mb-6">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">@SharedLocalizer["AvailableOptionsVariants"]</h3>
+                            <div class="flex flex-wrap gap-2.5" id="variant-selector-container">
+                                @{
+                                    var defaultProductImg = "";
+                                    if (Model.Images != null && Model.Images.Any())
+                                    {
+                                        var firstImg = Model.Images.OrderBy(img => img.DisplayOrder).First().Url;
+                                        defaultProductImg = firstImg.StartsWith("http") ? firstImg : "/" + firstImg.TrimStart('/');
+                                    }
+                                    else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                    {
+                                        defaultProductImg = Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/');
+                                    }
+                                }
+                                @for (int i = 0; i < Model.Variants.Count; i++)
+                                {
+                                    var v = Model.Variants[i];
+                                    var variantLabel = new List<string>();
+                                    if (!string.IsNullOrEmpty(v.Size)) variantLabel.Add(v.Size);
+                                    if (!string.IsNullOrEmpty(v.Color)) variantLabel.Add(v.Color);
+                                    if (!string.IsNullOrEmpty(v.PackagingUnit)) variantLabel.Add(v.PackagingUnit);
+                                    if (!string.IsNullOrEmpty(v.CountryOfOrigin)) variantLabel.Add(v.CountryOfOrigin);
+                                    var displayLabel = string.Join(" - ", variantLabel);
+                                    if (string.IsNullOrEmpty(displayLabel)) displayLabel = $"Option #{v.Id}";
+
+                                    var vImg = !string.IsNullOrEmpty(v.ImageUrl) ? (v.ImageUrl.StartsWith("http") ? v.ImageUrl : "/" + v.ImageUrl.TrimStart('/')) : defaultProductImg;
+
+                                    <button type="button" 
+                                            class="variant-select-btn px-4 py-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer active:scale-95 border-slate-200 text-slate-600 hover:border-[#E8A020] hover:bg-slate-50"
+                                            data-variant-id="@v.Id"
+                                            data-price="@v.Price.ToString("N2")"
+                                            data-sku="@v.Sku"
+                                            data-stock="@v.StockQuantity"
+                                            data-image="@vImg"
+                                            data-default-price="@Model.RetailPrice.ToString("N2")"
+                                            data-default-sku="@Model.Sku"
+                                            data-default-image="@defaultProductImg">
+                                        @displayLabel
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex flex-col gap-6">
                         <input type="hidden" name="productId" value="@Model.Id" />
+                        <input type="hidden" name="productVariantId" id="selected-variant-id-input" value="" />
                         
                         <div class="flex flex-col gap-2">
                             <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">@SharedLocalizer["QuantityRequired"]</label>
@@ -171,7 +281,7 @@
                     @if (!string.IsNullOrEmpty(Model.Description))
                     {
                         <div>
-                            <h3 class="font-bold text-slate-800 mb-3 border-r-4 border-[#E8A020] pr-3">@SharedLocalizer["ProductDetails"]</h3>
+                            <h3 class="font-bold text-slate-800 mb-3 border-s-4 border-[#E8A020] ps-3">@SharedLocalizer["ProductDetails"]</h3>
                             <p class="font-body-md text-slate-500 leading-relaxed">
                                 @Model.Description
                             </p>
@@ -197,34 +307,145 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            const quantityInput = $('#quantity-input');
-            
-            $('[data-quantity-btn="add"]').click(function() {
-                let current = parseInt(quantityInput.val());
-                quantityInput.val(current + 1);
-            });
-            
-            $('[data-quantity-btn="remove"]').click(function() {
-                let current = parseInt(quantityInput.val());
-                if (current > 1) {
-                    quantityInput.val(current - 1);
-                }
-            });
+        (function() {
+            function initProductPage() {
+                const quantityInput = document.getElementById('quantity-input');
 
-            // Thumbnail Click Switch Logic with Smooth Transition
-            $('.thumbnail-image-box').click(function() {
-                $('.thumbnail-image-box').removeClass('border-[#E8A020] ring-1 ring-[#E8A020]').addClass('border-slate-100');
-                $(this).addClass('border-[#E8A020] ring-1 ring-[#E8A020]').removeClass('border-slate-100');
-                
-                const newUrl = $(this).data('image-url');
-                const mainImg = $('#main-product-image');
-                
-                mainImg.fadeOut(150, function() {
-                    mainImg.attr('src', newUrl);
-                    mainImg.fadeIn(150);
+                // Universal Click Delegate
+                document.addEventListener('click', function(e) {
+                    // 1. Quantity Add Button
+                    const addBtn = e.target.closest('[data-quantity-btn="add"]');
+                    if (addBtn && quantityInput) {
+                        let current = parseInt(quantityInput.value) || 1;
+                        quantityInput.value = current + 1;
+                        return;
+                    }
+
+                    // 2. Quantity Remove Button
+                    const removeBtn = e.target.closest('[data-quantity-btn="remove"]');
+                    if (removeBtn && quantityInput) {
+                        let current = parseInt(quantityInput.value) || 1;
+                        if (current > 1) {
+                            quantityInput.value = current - 1;
+                        }
+                        return;
+                    }
+
+                    // 3. Thumbnail Image Switch
+                    const thumbBox = e.target.closest('.thumbnail-image-box');
+                    if (thumbBox) {
+                        document.querySelectorAll('.thumbnail-image-box').forEach(box => {
+                            box.classList.remove('border-[#E8A020]', 'ring-1', 'ring-[#E8A020]');
+                            box.classList.add('border-slate-100');
+                        });
+                        thumbBox.classList.add('border-[#E8A020]', 'ring-1', 'ring-[#E8A020]');
+                        thumbBox.classList.remove('border-slate-100');
+
+                        const newUrl = thumbBox.getAttribute('data-image-url');
+                        const mainImg = document.getElementById('main-product-image');
+                        if (mainImg && newUrl) {
+                            if (typeof $ !== 'undefined') {
+                                $(mainImg).fadeOut(150, function() {
+                                    $(mainImg).attr('src', newUrl).fadeIn(150);
+                                });
+                            } else {
+                                mainImg.src = newUrl;
+                            }
+                        }
+                        return;
+                    }
+
+                    // 4. Variant Selection Button Click Handler
+                    const variantBtn = e.target.closest('.variant-select-btn');
+                    if (variantBtn) {
+                        const isAlreadyActive = variantBtn.classList.contains('border-[#E8A020]');
+                        
+                        if (isAlreadyActive) {
+                            // Toggle OFF: Unselect clicked variant & revert back to main product
+                            variantBtn.classList.remove('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                            variantBtn.classList.add('border-slate-200', 'text-slate-600');
+
+                            const variantIdInput = document.getElementById('selected-variant-id-input');
+                            if (variantIdInput) variantIdInput.value = '';
+
+                            const defaultPrice = variantBtn.getAttribute('data-default-price');
+                            const priceDisplay = document.getElementById('product-display-price');
+                            if (priceDisplay && defaultPrice) priceDisplay.textContent = defaultPrice;
+
+                            const defaultSku = variantBtn.getAttribute('data-default-sku');
+                            const skuBadge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.trim().includes('SKU:'));
+                            if (skuBadge && defaultSku) skuBadge.textContent = 'SKU: ' + defaultSku;
+
+                            const defaultImg = variantBtn.getAttribute('data-default-image');
+                            if (defaultImg && defaultImg.trim() !== '') {
+                                const mainImg = document.getElementById('main-product-image');
+                                if (mainImg) {
+                                    if (typeof $ !== 'undefined') {
+                                        $(mainImg).fadeOut(150, function() {
+                                            $(mainImg).attr('src', defaultImg).fadeIn(150);
+                                        });
+                                    } else {
+                                        mainImg.src = defaultImg;
+                                    }
+                                }
+                            }
+                        } else {
+                            // Select Clicked Variant & Highlight
+                            document.querySelectorAll('.variant-select-btn').forEach(btn => {
+                                btn.classList.remove('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                                btn.classList.add('border-slate-200', 'text-slate-600');
+                            });
+                            variantBtn.classList.add('border-[#E8A020]', 'bg-amber-50/20', 'text-[#E8A020]', 'ring-2', 'ring-[#E8A020]/20');
+                            variantBtn.classList.remove('border-slate-200', 'text-slate-600');
+
+                            // Read variant datasets
+                            const variantId = variantBtn.getAttribute('data-variant-id');
+                            const price = variantBtn.getAttribute('data-price');
+                            const sku = variantBtn.getAttribute('data-sku');
+                            const imageUrl = variantBtn.getAttribute('data-image');
+
+                            // Update hidden variant ID input for AddToCart form
+                            const variantIdInput = document.getElementById('selected-variant-id-input');
+                            if (variantIdInput && variantId) {
+                                variantIdInput.value = variantId;
+                            }
+
+                            // Update displayed price
+                            const priceDisplay = document.getElementById('product-display-price');
+                            if (priceDisplay && price) {
+                                priceDisplay.textContent = price;
+                            }
+
+                            // Update SKU badge text
+                            const skuBadge = Array.from(document.querySelectorAll('span')).find(s => s.textContent.trim().includes('SKU:'));
+                            if (skuBadge && sku) {
+                                skuBadge.textContent = 'SKU: ' + sku;
+                            }
+
+                            // Swap main product image
+                            if (imageUrl && imageUrl.trim() !== '') {
+                                const finalUrl = (imageUrl.startsWith('http') || imageUrl.startsWith('/')) ? imageUrl : '/' + imageUrl;
+                                const mainImg = document.getElementById('main-product-image');
+                                if (mainImg) {
+                                    if (typeof $ !== 'undefined') {
+                                        $(mainImg).fadeOut(150, function() {
+                                            $(mainImg).attr('src', finalUrl).fadeIn(150);
+                                        });
+                                    } else {
+                                        mainImg.src = finalUrl;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
-            });
-        });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initProductPage);
+            } else {
+                initProductPage();
+            }
+        })();
     </script>
 }

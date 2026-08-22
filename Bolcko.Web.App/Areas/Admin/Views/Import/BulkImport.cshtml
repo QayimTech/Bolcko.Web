@@ -1,0 +1,600 @@
+@{
+    ViewBag.Title = "الاستيراد الموحد";
+}
+
+<div class="max-w-5xl mx-auto space-y-8 pb-12">
+
+    @* ── Page Header ── *@
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-emerald-600 text-3xl">cloud_upload</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 mb-1">الاستيراد الموحد للفئات والمنتجات</h1>
+                <p class="text-slate-500 text-sm leading-relaxed max-w-xl">
+                    ارفع ملفاً واحداً بصيغة Excel لإنشاء الفئات والمنتجات معاً بضغطة زر.
+                    يقوم النظام بمعالجة البيانات وتوليد رموز SKU تلقائياً.
+                </p>
+            </div>
+        </div>
+        <a href="/hangfire" target="_blank"
+           class="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-50 hover:bg-violet-100 border border-violet-200 text-violet-700 rounded-xl text-sm font-bold transition-colors whitespace-nowrap">
+            <span class="material-symbols-outlined text-xl">monitoring</span>
+            مراقبة المهام
+            <span class="text-[10px] font-black bg-violet-200 text-violet-800 px-2 py-0.5 rounded-full uppercase">Live</span>
+        </a>
+    </div>
+
+    @* ── Upload Section ── *@
+    <div id="uploadSection" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+
+        @* Format Selector Header *@
+        <div class="px-6 py-6 sm:px-8 border-b border-slate-100 bg-slate-50/50">
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400">settings</span>
+                الخطوة 1: اختر طريقة الاستيراد
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="formatSelector">
+                <button type="button" data-format="excel"
+                        class="format-btn active-format flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-start group"
+                        onclick="selectFormat('excel', this)">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-emerald-600 text-2xl">table_view</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-slate-800 text-sm sm:text-base">Excel (.xlsx)</p>
+                        <p class="text-slate-500 text-xs mt-0.5 truncate">رفع الشيت (مع أو بدون صور)</p>
+                    </div>
+                </button>
+
+                <button type="button" data-format="images-only"
+                        class="format-btn flex items-center gap-4 px-5 py-4 rounded-2xl border-2 border-slate-100 transition-all text-start group hover:border-blue-200 hover:bg-blue-50/30"
+                        onclick="selectFormat('images-only', this)">
+                    <div class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-blue-600 text-2xl">photo_library</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-slate-800 text-sm sm:text-base">حزمة صور فقط (.zip)</p>
+                        <p class="text-slate-500 text-xs mt-0.5 truncate">ربط تلقائي بالمنتجات عبر SKU</p>
+                    </div>
+                </button>
+
+                <button type="button" data-format="google-sheet"
+                        class="format-btn flex items-center gap-4 px-5 py-4 rounded-2xl border-2 border-slate-100 transition-all text-start group hover:border-amber-200 hover:bg-amber-50/30"
+                        onclick="selectFormat('google-sheet', this)">
+                    <div class="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-amber-600 text-2xl">cloud</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-slate-800 text-sm sm:text-base">Google Sheet</p>
+                        <p class="text-slate-500 text-xs mt-0.5 truncate">رابط شيت مباشر أونلاين</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        @* Upload Form *@
+        <form asp-controller="Import" asp-action="BulkImport" method="post" enctype="multipart/form-data" id="importForm" class="p-6 sm:p-8">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="format" id="formatInput" value="excel" />
+
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400">upload</span>
+                الخطوة 2: تقديم البيانات
+            </h2>
+
+            @* Drop Zone (for Excel/ZIP) *@
+            <div id="dropZone"
+                 class="relative border-2 border-dashed border-slate-300 rounded-2xl p-10 sm:p-14 text-center cursor-pointer
+                        hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-300 group mb-6 bg-slate-50/30"
+                 onclick="document.getElementById('fileInput').click()">
+
+                <input type="file" id="fileInput" name="file" accept=".xlsx" required class="hidden"
+                       onchange="handleFileSelect(this)" />
+
+                <div id="dropZoneContent" class="flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-4 group-hover:-translate-y-2 transition-transform duration-300">
+                        <span id="dropIcon" class="material-symbols-outlined text-emerald-500 text-4xl">table_view</span>
+                    </div>
+                    <h3 id="dropTitle" class="font-bold text-slate-800 text-lg mb-1">اسحب وأفلت ملف الإكسل هنا</h3>
+                    <p id="dropSubtitle" class="text-slate-500 text-sm mb-3">أو انقر لاختيار ملف من جهازك</p>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">
+                        يدعم <span id="acceptHint" class="text-emerald-600">.xlsx</span>
+                        <span class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
+                        أقصى حجم 500 ميغابايت
+                    </span>
+                </div>
+
+                <div id="fileSelected" class="hidden flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-emerald-100 border-4 border-white shadow-md rounded-full flex items-center justify-center mb-4 animate-bounce">
+                        <span class="material-symbols-outlined text-emerald-600 text-3xl">task_alt</span>
+                    </div>
+                    <p id="selectedFileName" class="font-bold text-slate-800 text-lg mb-1"></p>
+                    <p class="text-emerald-600 text-xs font-bold bg-emerald-50 px-3 py-1 rounded-full">الملف جاهز ومُحدد</p>
+                    <button type="button" onclick="resetFile(event)"
+                            class="mt-4 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-all">
+                        إلغاء واختيار ملف آخر
+                    </button>
+                </div>
+            </div>
+
+            @* Google Sheet URL Input (hidden by default) *@
+            <div id="googleSheetSection" class="hidden mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">رابط Google Sheet</label>
+                <input type="url" id="googleSheetUrl" name="googleSheetUrl" 
+                       placeholder="https://docs.google.com/spreadsheets/d/..." 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all text-sm" />
+            </div>
+
+            @* Images Zip File Input (shown on excel/google-sheet mode as optional) *@
+            <div id="imagesZipSection" class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">ملف صور مضغوط إضافي مع الشيت (اختياري - .zip)</label>
+                <input type="file" id="imagesZip" name="imagesZip" accept=".zip" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-sm" />
+                <p class="text-xs text-slate-400 mt-2">إذا رغبت برفع الصور مع الشيت مباشرة، اختر ملف الـ ZIP هنا. أو يمكنك رفع الصور بشكل مستقل لاحقاً.</p>
+            </div>
+
+            @* Local Image Folder Input (optional) *@
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 mb-2">مجلد الصور المحلي (اختياري)</label>
+                <input type="text" id="localImageFolder" name="localImageFolder" 
+                       placeholder="C:\Images\Products أو /home/user/images" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-sm" />
+                <p class="text-xs text-slate-400 mt-2">إذا كان عمود "الصورة" يحتوي على أسماء ملفات، سيتم تحميلها من هذا المجلد. يتجاوز ملف ZIP إذا تم اختيار كليهما.</p>
+            </div>
+
+            @* Actions / Status *@
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <div id="statusContainer" class="flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-100 text-slate-400 font-bold rounded-2xl transition-all duration-300 shadow-inner">
+                    <span class="material-symbols-outlined text-xl">hourglass_empty</span>
+                    <span class="text-sm">في انتظار تقديم البيانات...</span>
+                </div>
+                <button type="button" onclick="submitImport()"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl transition-all text-sm shadow-sm group">
+                    <span class="material-symbols-outlined text-xl group-hover:-translate-y-1 transition-transform">cloud_upload</span>
+                    استيراد البيانات
+                </button>
+                <a id="downloadTemplateBtn" href="@Url.Action("DownloadTemplate", "Import", new { area = "Admin", format = "excel" })"
+                   class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl transition-all text-sm shadow-sm group">
+                    <span class="material-symbols-outlined text-xl group-hover:-translate-y-1 transition-transform">download</span>
+                    تحميل القالب الفارغ
+                </a>
+            </div>
+        </form>
+    </div>
+
+    @* ── Results Panel (hidden until upload completes) ── *@
+    <div id="resultsPanel" class="hidden">
+
+        @* Summary Cards *@
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined text-slate-500 text-xl">table_rows</span>
+                </div>
+                <p class="text-3xl font-black text-slate-800" id="statTotal">0</p>
+                <p class="text-xs font-bold text-slate-400 mt-1">إجمالي الصفوف</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-emerald-200 p-5 text-center shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined text-emerald-600 text-xl">add_circle</span>
+                </div>
+                <p class="text-3xl font-black text-emerald-600" id="statImported">0</p>
+                <p class="text-xs font-bold text-emerald-500 mt-1">مُضاف جديد</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-blue-200 p-5 text-center shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined text-blue-600 text-xl">sync</span>
+                </div>
+                <p class="text-3xl font-black text-blue-600" id="statUpdated">0</p>
+                <p class="text-xs font-bold text-blue-500 mt-1">محدَّث</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-amber-200 p-5 text-center shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined text-amber-600 text-xl">block</span>
+                </div>
+                <p class="text-3xl font-black text-amber-600" id="statSkipped">0</p>
+                <p class="text-xs font-bold text-amber-500 mt-1">متخطى</p>
+            </div>
+        </div>
+
+        @* Detailed rows table (skipped + updated only) *@
+        <div id="detailsCard" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400">list_alt</span>
+                    تفاصيل الصفوف غير المُضافة
+                </h3>
+                <button onclick="resetAll()"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-colors">
+                    <span class="material-symbols-outlined text-base">upload_file</span>
+                    رفع ملف جديد
+                </button>
+            </div>
+
+            @* All-good message *@
+            <div id="allGoodMsg" class="hidden p-10 text-center">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-emerald-600 text-3xl">verified</span>
+                </div>
+                <p class="font-bold text-slate-700 text-lg">جميع الصفوف تمت معالجتها بنجاح!</p>
+                <p class="text-slate-400 text-sm mt-1">لا توجد صفوف متخطاة أو تتطلب مراجعة.</p>
+            </div>
+
+            @* Rows table *@
+            <div id="rowsTableWrap" class="overflow-auto max-h-96">
+                <table class="w-full text-sm" id="rowsTable">
+                    <thead class="bg-slate-50 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-3 text-right text-xs font-bold text-slate-500 w-16">#</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold text-slate-500">اسم المنتج</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold text-slate-500 w-28">الحالة</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold text-slate-500">السبب</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rowsTableBody" class="divide-y divide-slate-50">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @* ── Info Cards Grid ── *@
+    <div class="pt-6" id="infoSection">
+        <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-500">lightbulb</span>
+            تعليمات وإرشادات الاستيراد
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            @* Feature: SKU *@
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
+                        <span class="material-symbols-outlined">auto_awesome</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-emerald-900 text-base mb-1">توليد تلقائي لرموز SKU</h4>
+                        <p class="text-emerald-700 text-sm leading-relaxed mb-3">
+                            إذا أدخلت قيمة في عمود <strong>كود المنتج</strong> ستُستخدم مباشرةً، وإلا يولّد النظام رمزاً تلقائياً.
+                        </p>
+                        <div class="inline-flex items-center gap-2 bg-white border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-mono text-emerald-800">
+                            <span class="text-emerald-400">مثال:</span> IPHONE15-001
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Feature: Translation *@
+            <div class="bg-blue-50/50 border border-blue-100 rounded-3xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+                        <span class="material-symbols-outlined">translate</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-blue-900 text-base mb-1">دعم ثنائي اللغة (عربي/إنجليزي)</h4>
+                        <p class="text-blue-700 text-sm leading-relaxed mb-3">
+                            يتعرف النظام على أسماء الأعمدة سواء كانت باللغة العربية أو الإنجليزية بمرونة تامة.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">اسم المنتج (عربي) <span class="text-blue-400">=</span> Name</span>
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">التصنيف الرئيسي <span class="text-blue-400">=</span> Category</span>
+                            <span class="inline-flex items-center gap-1.5 bg-white border border-blue-200 px-2.5 py-1 rounded-md text-[11px] font-bold text-blue-800">كود المنتج <span class="text-blue-400">=</span> SKU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Structure Details *@
+            <div class="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <h4 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400">schema</span>
+                    هيكل البيانات المطلوب
+                </h4>
+
+                <div id="excelInfo" class="space-y-6">
+                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                        <h5 class="text-sm font-bold text-emerald-700 mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">table_view</span> ورقة واحدة — المنتجات
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2">
+                            @foreach (var c in new[] {
+                                ("الصورة / Image", false),
+                                ("اسم المنتج (عربي)", true),
+                                ("Product Name (English)", false),
+                                ("البراند / Brand", false),
+                                ("اسم المورد", false),
+                                ("بلد المنشأ / Country", false),
+                                ("الوصف (العربي)", false),
+                                ("Description (English)", false),
+                                ("التصنيف الرئيسي", true),
+                                ("التصنيف الفرعي", false),
+                                ("السعر / Price", true),
+                                ("الكمية / Stock", false),
+                                ("الوحدة / Unit", false),
+                                ("الوزن / Weight", false),
+                                ("المقاس (Meters)", false),
+                                ("كود المنتج / SKU", false),
+                                ("صلاح المنتج / Status", false),
+                                ("أيقونة الفئة", false)
+                            })
+                            {
+                                <div class="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-slate-100">
+                                    <code class="text-xs font-mono text-slate-600 truncate max-w-[160px]" title="@c.Item1">@c.Item1</code>
+                                    @if (c.Item2) { <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md flex-shrink-0">مطلوب</span> }
+                                    else { <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md flex-shrink-0">اختياري</span> }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- jsonInfo removed to reduce over-engineering -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<style>
+    .active-format {
+        border-color: #10b981 !important;
+        background-color: rgba(16, 185, 129, 0.05);
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+    const formatInput = document.getElementById('formatInput');
+    const dropIcon    = document.getElementById('dropIcon');
+    const acceptHint  = document.getElementById('acceptHint');
+    const dlBtn       = document.getElementById('downloadTemplateBtn');
+
+    function selectFormat(fmt, btn) {
+        document.querySelectorAll('.format-btn').forEach(b => {
+            b.classList.remove('active-format');
+            b.classList.add('border-slate-200');
+        });
+        btn.classList.add('active-format');
+        btn.classList.remove('border-slate-200');
+
+        formatInput.value = fmt;
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const dropTitle = document.getElementById('dropTitle');
+        const dropSubtitle = document.getElementById('dropSubtitle');
+        const googleSheetSection = document.getElementById('googleSheetSection');
+        const imagesZipSection = document.getElementById('imagesZipSection');
+
+        if (fmt === 'excel') {
+            fileInput.name         = 'file';
+            fileInput.accept       = '.xlsx';
+            fileInput.required     = true;
+            dropIcon.textContent   = 'table_view';
+            dropIcon.className     = 'material-symbols-outlined text-emerald-500 text-3xl';
+            dropTitle.textContent  = 'اسحب وأفلت ملف الإكسل هنا';
+            dropSubtitle.textContent = 'أو انقر لاختيار ملف من جهازك';
+            acceptHint.textContent = '.xlsx';
+            acceptHint.className   = 'font-bold text-emerald-600';
+            document.getElementById('excelInfo').classList.remove('hidden');
+            dropZone.classList.remove('hidden');
+            googleSheetSection.classList.add('hidden');
+            if (imagesZipSection) imagesZipSection.classList.remove('hidden');
+            dlBtn.classList.remove('hidden');
+            dlBtn.href = dlBtn.href.replace('format-sheet', 'format=excel');
+        } else if (fmt === 'images-only') {
+            fileInput.name         = 'imagesZip';
+            fileInput.accept       = '.zip';
+            fileInput.required     = true;
+            dropIcon.textContent   = 'photo_library';
+            dropIcon.className     = 'material-symbols-outlined text-blue-500 text-3xl';
+            dropTitle.textContent  = 'اسحب وأفلت ملف الصور (ZIP) هنا';
+            dropSubtitle.textContent = 'سيتم مطابقة الصور مع الـ SKU وحفظها في المكتبة';
+            acceptHint.textContent = '.zip';
+            acceptHint.className   = 'font-bold text-blue-600';
+            document.getElementById('excelInfo').classList.add('hidden');
+            dropZone.classList.remove('hidden');
+            googleSheetSection.classList.add('hidden');
+            if (imagesZipSection) imagesZipSection.classList.add('hidden');
+            dlBtn.classList.add('hidden');
+        } else if (fmt === 'google-sheet') {
+            fileInput.required     = false;
+            dropZone.classList.add('hidden');
+            googleSheetSection.classList.remove('hidden');
+            document.getElementById('excelInfo').classList.remove('hidden');
+            if (imagesZipSection) imagesZipSection.classList.remove('hidden');
+            dlBtn.classList.remove('hidden');
+            dlBtn.href = dlBtn.href.replace('format=excel', 'format=google-sheet');
+        }
+        resetFile();
+    }
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────────
+    const zone = document.getElementById('dropZone');
+
+    ['dragenter', 'dragover'].forEach(e => zone.addEventListener(e, ev => {
+        ev.preventDefault();
+        zone.classList.add('border-emerald-400', 'bg-emerald-50');
+    }));
+
+    ['dragleave', 'drop'].forEach(e => zone.addEventListener(e, ev => {
+        ev.preventDefault();
+        zone.classList.remove('border-emerald-400', 'bg-emerald-50');
+        if (e === 'drop' && ev.dataTransfer.files.length) {
+            const input = document.getElementById('fileInput');
+            input.files = ev.dataTransfer.files;
+            handleFileSelect(input);
+        }
+    }));
+
+    let pollInterval = null;
+
+    async function submitImport() {
+        if (pollInterval) clearInterval(pollInterval);
+        
+        const format = document.getElementById('formatInput').value;
+
+        // Hide any previous results
+        document.getElementById('resultsPanel').classList.add('hidden');
+
+        const statusContainer = document.getElementById('statusContainer');
+        statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">جاري رفع البيانات وبدء المهمة...</span>';
+
+        const form     = document.getElementById('importForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body:   formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.jobId) {
+                    startPolling(data.jobId, data.message);
+                } else {
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span class="text-sm">' + data.message + '</span>';
+
+                    if (data.result) {
+                        showResults(data.result);
+                    }
+                    setTimeout(() => resetFile(), 500);
+                }
+            } else {
+                statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                statusContainer.title     = data.message;
+                statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> <span class="text-sm">' + data.message + '</span>';
+            }
+        } catch (error) {
+            statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner cursor-help';
+            statusContainer.title     = 'حدث خطأ غير متوقع';
+            statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> <span class="text-sm">خطأ في الاتصال بالخادم</span>';
+        }
+    }
+
+    function startPolling(jobId, initialMessage) {
+        const statusContainer = document.getElementById('statusContainer');
+        statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+        statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">' + initialMessage + '</span>';
+
+        pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch('@Url.Action("GetImportStatus", "Import", new { area = "Admin" })?jobId=' + jobId);
+                const data = await response.json();
+
+                if (!data.success) {
+                    clearInterval(pollInterval);
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.title     = data.message;
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">error</span> <span class="text-sm">' + data.message + '</span>';
+                    return;
+                }
+
+                if (data.completed) {
+                    clearInterval(pollInterval);
+                    statusContainer.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 text-white font-bold rounded-2xl transition-all duration-300 shadow-inner';
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span class="text-sm">' + (data.message || 'اكتمل الاستيراد بنجاح!') + '</span>';
+
+                    if (data.result) {
+                        showResults(data.result);
+                    }
+                    setTimeout(() => resetFile(), 500);
+                } else {
+                    statusContainer.innerHTML = '<span class="material-symbols-outlined text-base" style="animation:spin 1s linear infinite">progress_activity</span> <span class="text-sm">' + data.message + '</span>';
+                }
+            } catch (error) {
+                console.warn('Error polling job status:', error);
+            }
+        }, 2000);
+    }
+
+    async function handleFileSelect(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+
+        document.getElementById('dropZoneContent').classList.add('hidden');
+        document.getElementById('fileSelected').classList.remove('hidden');
+        document.getElementById('selectedFileName').textContent = file.name;
+        // Don't auto-submit, let user click "استيراد البيانات" after adding zip too!
+    }
+
+    // Add event listener for Google Sheet URL input to submit when Enter is pressed
+    document.addEventListener('DOMContentLoaded', function() {
+        const googleSheetUrlInput = document.getElementById('googleSheetUrl');
+        googleSheetUrlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitImport();
+            }
+        });
+    });
+
+    function showResults(result) {
+        document.getElementById('statTotal').textContent    = result.totalRows;
+        document.getElementById('statImported').textContent = result.imported;
+        document.getElementById('statUpdated').textContent  = result.updated;
+        document.getElementById('statSkipped').textContent  = result.skipped;
+
+        const tbody      = document.getElementById('rowsTableBody');
+        const allGoodMsg = document.getElementById('allGoodMsg');
+        const tableWrap  = document.getElementById('rowsTableWrap');
+
+        tbody.innerHTML = '';
+
+        const nonImported = (result.rows || []);
+
+        if (nonImported.length === 0) {
+            allGoodMsg.classList.remove('hidden');
+            tableWrap.classList.add('hidden');
+        } else {
+            allGoodMsg.classList.add('hidden');
+            tableWrap.classList.remove('hidden');
+
+            nonImported.forEach(row => {
+                const statusBadge = row.status === 'Skipped'
+                    ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700"><span class="material-symbols-outlined text-xs">block</span>متخطى</span>'
+                    : '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700"><span class="material-symbols-outlined text-xs">sync</span>محدَّث</span>';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">${row.rowNumber}</td>
+                    <td class="px-4 py-3 font-medium text-slate-700">${row.name || '—'}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3 text-slate-500 text-xs">${row.reason || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('resultsPanel').classList.remove('hidden');
+        document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetFile(e) {
+        if (e) e.stopPropagation();
+        document.getElementById('fileInput').value = '';
+        document.getElementById('imagesZip').value = '';
+        document.getElementById('dropZoneContent').classList.remove('hidden');
+        document.getElementById('fileSelected').classList.add('hidden');
+
+        const sc = document.getElementById('statusContainer');
+        sc.className = 'flex-1 w-full flex items-center justify-center gap-3 px-6 py-4 bg-slate-100 text-slate-400 font-bold rounded-2xl transition-all duration-300 shadow-inner';
+        sc.title     = '';
+        sc.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span> <span class="text-sm">في انتظار الملف...</span>';
+    }
+
+    function resetAll() {
+        document.getElementById('resultsPanel').classList.add('hidden');
+        resetFile();
+        document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+</script>
+}

@@ -1,4 +1,5 @@
 using Blocko.Persistence.Common;
+using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Product;
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.Product;
@@ -20,54 +21,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category?.Name,
-                RetailPrice = p.RetailPrice,
-                StockQuantity = p.StockQuantity,
-                UnitOfMeasure = p.UnitOfMeasure,
-                Sku = p.Sku,
-                ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
-            });
-        }
-
-        public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize)
-        {
-            var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
-                pageIndex,
-                pageSize,
-                orderBy: q => q.OrderByDescending(p => p.Id),
-                includes: p => p.Category!
-            );
-
-            var dtos = pagedProducts.Items.Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category?.Name,
-                RetailPrice = p.RetailPrice,
-                StockQuantity = p.StockQuantity,
-                UnitOfMeasure = p.UnitOfMeasure,
-                Sku = p.Sku,
-                ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
-            });
-
-            return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
-        }
-
-        public async Task<ProductDto?> GetProductByIdAsync(int id)
-        {
-            var p = await _unitOfWork.Products.GetByIdWithImagesAsync(id);
-            if (p == null) return null;
-            return new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -76,6 +32,108 @@ namespace Blocko.Services.Implementations.Product
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
                 BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
+            });
+        }
+
+        public async Task<IPagedList<ProductDto>> GetPagedProductsAsync(int pageIndex, int pageSize, string? search = null, int? categoryId = null, string? sortOrder = null)
+        {
+            System.Linq.Expressions.Expression<Func<Bolcko.Domain.Entities.Product.Product, bool>>? predicate = null;
+
+            if (!string.IsNullOrWhiteSpace(search) || categoryId.HasValue)
+            {
+                var s = search?.Trim().ToLower();
+                predicate = p =>
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value) &&
+                    (string.IsNullOrEmpty(s) ||
+                     p.Name.ToLower().Contains(s) ||
+                     (p.NameEn != null && p.NameEn.ToLower().Contains(s)) ||
+                     (p.Description != null && p.Description.ToLower().Contains(s)) ||
+                     (p.Sku != null && p.Sku.ToLower().Contains(s)) ||
+                     (p.Variants != null && p.Variants.Any(v => v.Sku.ToLower().Contains(s) || (v.Size != null && v.Size.ToLower().Contains(s)) || (v.Color != null && v.Color.ToLower().Contains(s)))));
+            }
+
+            Func<IQueryable<Bolcko.Domain.Entities.Product.Product>, IOrderedQueryable<Bolcko.Domain.Entities.Product.Product>> orderBy = sortOrder switch
+            {
+                "asc" => q => q.OrderBy(p => p.Id),
+                "name_asc" => q => q.OrderBy(p => p.Name),
+                "name_desc" => q => q.OrderByDescending(p => p.Name),
+                "price_asc" => q => q.OrderBy(p => p.RetailPrice),
+                "price_desc" => q => q.OrderByDescending(p => p.RetailPrice),
+                _ => q => q.OrderByDescending(p => p.Id)
+            };
+
+            IQueryable<Bolcko.Domain.Entities.Product.Product> query = _unitOfWork.Products.GetAllAsQueryable()
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Variants);
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await orderBy(query)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NameEn = p.NameEn,
+                    Description = p.Description,
+                    DescriptionEn = p.DescriptionEn,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : null,
+                    RetailPrice = p.RetailPrice,
+                    StockQuantity = p.StockQuantity,
+                    UnitOfMeasure = p.UnitOfMeasure,
+                    Sku = p.Sku,
+                    ImageUrl = p.ImageUrl,
+                    BulkPricingAvailable = p.BulkPricingAvailable,
+                    UpdatedAt = p.UpdatedAt,
+                    Variants = p.Variants.Select(v => new ProductVariantDto
+                    {
+                        Id = v.Id,
+                        ProductId = v.ProductId,
+                        Price = v.Price,
+                        StockQuantity = v.StockQuantity,
+                        Sku = v.Sku,
+                        Size = v.Size,
+                        Color = v.Color,
+                        PackagingUnit = v.PackagingUnit,
+                        CountryOfOrigin = v.CountryOfOrigin,
+                        ImageUrl = v.ImageUrl
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return new PagedList<ProductDto>(items, totalCount, pageIndex, pageSize);
+        }
+
+        public async Task<ProductDto?> GetProductByIdAsync(int id)
+        {
+            var p = await _unitOfWork.Products.GetByIdWithImagesAndVariantsAsync(id);
+            if (p == null) return null;
+            return new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                NameEn = p.NameEn,
+                Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name,
+                RetailPrice = p.RetailPrice,
+                StockQuantity = p.StockQuantity,
+                UnitOfMeasure = p.UnitOfMeasure,
+                Sku = p.Sku,
+                ImageUrl = p.ImageUrl,
+                Brand = p.Brand,
+                CountryOfOrigin = p.CountryOfOrigin,
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt,
                 Images = p.Images.Select(img => new ProductImageDto
                 {
                     Id = img.Id,
@@ -83,6 +141,19 @@ namespace Blocko.Services.Implementations.Product
                     AltText = img.AltText,
                     Caption = img.Caption,
                     DisplayOrder = img.DisplayOrder
+                }).ToList(),
+                Variants = p.Variants.Select(v => new ProductVariantDto
+                {
+                    Id = v.Id,
+                    ProductId = v.ProductId,
+                    Size = v.Size,
+                    Color = v.Color,
+                    PackagingUnit = v.PackagingUnit,
+                    CountryOfOrigin = v.CountryOfOrigin,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    Sku = v.Sku,
+                    ImageUrl = v.ImageUrl
                 }).ToList()
             };
         }
@@ -94,7 +165,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -102,7 +175,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -113,7 +187,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -121,7 +197,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -132,7 +209,9 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
                 Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
                 RetailPrice = p.RetailPrice,
@@ -140,7 +219,8 @@ namespace Blocko.Services.Implementations.Product
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
                 ImageUrl = p.ImageUrl,
-                BulkPricingAvailable = p.BulkPricingAvailable
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
         }
 
@@ -164,11 +244,20 @@ namespace Blocko.Services.Implementations.Product
             {
                 Id = p.Id,
                 Name = p.Name,
+                NameEn = p.NameEn,
+                Description = p.Description,
+                DescriptionEn = p.DescriptionEn,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name,
+                RetailPrice = p.RetailPrice,
+                StockQuantity = p.StockQuantity,
                 UnitOfMeasure = p.UnitOfMeasure,
                 Sku = p.Sku,
-                ImageUrl = p.ImageUrl
+                ImageUrl = p.ImageUrl,
+                Brand = p.Brand,
+                CountryOfOrigin = p.CountryOfOrigin,
+                BulkPricingAvailable = p.BulkPricingAvailable,
+                UpdatedAt = p.UpdatedAt
             });
 
             return new PagedList<ProductDto>(dtos, pagedProducts.TotalCount, pageIndex, pageSize);
@@ -179,13 +268,17 @@ namespace Blocko.Services.Implementations.Product
             var product = new Bolcko.Domain.Entities.Product.Product
             {
                 Name = productDto.Name,
+                NameEn = productDto.NameEn,
                 Description = productDto.Description,
+                DescriptionEn = productDto.DescriptionEn,
                 CategoryId = productDto.CategoryId,
                 RetailPrice = productDto.RetailPrice,
                 StockQuantity = productDto.StockQuantity,
                 UnitOfMeasure = productDto.UnitOfMeasure,
                 Sku = productDto.Sku,
                 ImageUrl = productDto.ImageUrl,
+                Brand = productDto.Brand,
+                CountryOfOrigin = productDto.CountryOfOrigin,
                 BulkPricingAvailable = productDto.BulkPricingAvailable,
                 Images = productDto.Images.Select(img => new ProductImage
                 {
@@ -193,6 +286,17 @@ namespace Blocko.Services.Implementations.Product
                     AltText = img.AltText ?? productDto.Name,
                     Caption = img.Caption,
                     DisplayOrder = img.DisplayOrder
+                }).ToList(),
+                Variants = productDto.Variants.Select(v => new ProductVariant
+                {
+                    Size = v.Size,
+                    Color = v.Color,
+                    PackagingUnit = v.PackagingUnit,
+                    CountryOfOrigin = v.CountryOfOrigin,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    Sku = v.Sku,
+                    ImageUrl = v.ImageUrl
                 }).ToList()
             };
             await _unitOfWork.Products.AddAsync(product);
@@ -201,17 +305,67 @@ namespace Blocko.Services.Implementations.Product
 
         public async Task UpdateProductAsync(ProductDto productDto, List<int>? deleteImageIds = null)
         {
-            var product = await _unitOfWork.Products.GetByIdWithImagesAsync(productDto.Id);
+            var product = await _unitOfWork.Products.GetByIdWithImagesAndVariantsAsync(productDto.Id);
             if (product != null)
             {
                 product.Name = productDto.Name;
+                product.NameEn = productDto.NameEn;
                 product.Description = productDto.Description;
+                product.DescriptionEn = productDto.DescriptionEn;
                 product.CategoryId = productDto.CategoryId;
                 product.RetailPrice = productDto.RetailPrice;
                 product.StockQuantity = productDto.StockQuantity;
                 product.UnitOfMeasure = productDto.UnitOfMeasure;
                 product.Sku = productDto.Sku;
+                product.Brand = productDto.Brand;
+                product.CountryOfOrigin = productDto.CountryOfOrigin;
                 product.BulkPricingAvailable = productDto.BulkPricingAvailable;
+                product.UpdatedAt = DateTime.UtcNow;
+
+                // Merge Variants
+                if (productDto.Variants != null)
+                {
+                    var incomingVariantIds = productDto.Variants.Select(v => v.Id).ToList();
+                    var variantsToRemove = product.Variants.Where(v => !incomingVariantIds.Contains(v.Id)).ToList();
+                    foreach (var variant in variantsToRemove)
+                    {
+                        product.Variants.Remove(variant);
+                    }
+
+                    foreach (var vDto in productDto.Variants)
+                    {
+                        if (vDto.Id == 0)
+                        {
+                            product.Variants.Add(new ProductVariant
+                            {
+                                Size = vDto.Size,
+                                Color = vDto.Color,
+                                PackagingUnit = vDto.PackagingUnit,
+                                CountryOfOrigin = vDto.CountryOfOrigin,
+                                Price = vDto.Price,
+                                StockQuantity = vDto.StockQuantity,
+                                Sku = vDto.Sku,
+                                ImageUrl = vDto.ImageUrl
+                            });
+                        }
+                        else
+                        {
+                            var existingVariant = product.Variants.FirstOrDefault(v => v.Id == vDto.Id);
+                            if (existingVariant != null)
+                            {
+                                existingVariant.Size = vDto.Size;
+                                existingVariant.Color = vDto.Color;
+                                existingVariant.PackagingUnit = vDto.PackagingUnit;
+                                existingVariant.CountryOfOrigin = vDto.CountryOfOrigin;
+                                existingVariant.Price = vDto.Price;
+                                existingVariant.StockQuantity = vDto.StockQuantity;
+                                existingVariant.Sku = vDto.Sku;
+                                existingVariant.ImageUrl = vDto.ImageUrl;
+                                existingVariant.UpdatedAt = DateTime.UtcNow;
+                            }
+                        }
+                    }
+                }
 
                 // Handle deletions
                 if (deleteImageIds != null && deleteImageIds.Any())
@@ -244,6 +398,16 @@ namespace Blocko.Services.Implementations.Product
                 {
                     product.ImageUrl = product.Images.OrderBy(img => img.DisplayOrder).First().Url;
                 }
+                else if (productDto.Images != null && productDto.Images.Any())
+                {
+                    // New images were added but not yet saved — URL already set above
+                    product.ImageUrl = productDto.Images.First().Url;
+                }
+                else if (!string.IsNullOrEmpty(productDto.ImageUrl))
+                {
+                    // No Images records and no new uploads — preserve the existing ImageUrl
+                    product.ImageUrl = productDto.ImageUrl;
+                }
                 else
                 {
                     product.ImageUrl = null;
@@ -262,6 +426,87 @@ namespace Blocko.Services.Implementations.Product
                 _unitOfWork.Products.Remove(product);
                 await _unitOfWork.CompleteAsync();
             }
+        }
+
+        /// <summary>
+        /// One-time bulk translation: translates all products where NameEn is null/empty,
+        /// or contains Arabic characters (due to previous failed fallbacks).
+        /// Processes in batches of 10 with a 300ms delay to respect rate limits.
+        /// </summary>
+        public async Task<(int translated, int skipped, int failed)> BulkTranslateAsync(ITranslationService translationService)
+        {
+            var products = await _unitOfWork.Products.GetAllAsQueryable()
+                .ToListAsync();
+
+            // Filter: pick up any product with missing/Arabic NameEn OR missing/Arabic DescriptionEn
+            // This catches products like "60 80" (numeric NameEn is fine but DescriptionEn is empty/Arabic)
+            var targetProducts = products.Where(p => 
+                string.IsNullOrEmpty(p.NameEn) || 
+                System.Text.RegularExpressions.Regex.IsMatch(p.NameEn, @"[\u0600-\u06FF]") ||
+                string.IsNullOrEmpty(p.DescriptionEn) ||
+                System.Text.RegularExpressions.Regex.IsMatch(p.DescriptionEn ?? "", @"[\u0600-\u06FF]")
+            ).ToList();
+
+            int translated = 0, skipped = 0, failed = 0;
+            const int batchSize = 10;
+
+            for (int i = 0; i < targetProducts.Count; i += batchSize)
+            {
+                var batch = targetProducts.Skip(i).Take(batchSize).ToList();
+
+                foreach (var product in batch)
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(product.Name))
+                        {
+                            skipped++;
+                            continue;
+                        }
+
+                        var nameEn = await translationService.TranslateAsync(product.Name, "en");
+
+                        // If translation returned same Arabic text (API failed/blocked), skip to avoid bad data
+                        bool isStillArabic = System.Text.RegularExpressions.Regex.IsMatch(nameEn, @"[\u0600-\u06FF]");
+                        if (isStillArabic)
+                        {
+                            failed++;
+                            continue;
+                        }
+
+                        product.NameEn = nameEn;
+
+                        if (!string.IsNullOrWhiteSpace(product.Description))
+                        {
+                            var descEn = await translationService.TranslateAsync(product.Description, "en");
+                            bool descStillArabic = System.Text.RegularExpressions.Regex.IsMatch(descEn, @"[\u0600-\u06FF]");
+                            product.DescriptionEn = descStillArabic ? null : descEn;
+                        }
+
+                        product.UpdatedAt = DateTime.UtcNow;
+                        _unitOfWork.Products.Update(product);
+                        translated++;
+                    }
+                    catch
+                    {
+                        failed++;
+                    }
+                }
+
+                // Save each batch to DB
+                if (translated > 0 || failed > 0)
+                {
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                // Small delay between batches to avoid API rate limiting
+                if (i + batchSize < targetProducts.Count)
+                {
+                    await Task.Delay(300);
+                }
+            }
+
+            return (translated, skipped, failed);
         }
     }
 }

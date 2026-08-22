@@ -1,4 +1,6 @@
+using Blocko.Persistence.Common;
 using Blocko.Services.Interfaces.SEO;
+using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.SEO;
 using Bolcko.Domain.Entities.SEO.DTOs;
 using Bolcko.Domain.Interfaces;
@@ -12,6 +14,27 @@ namespace Blocko.Services.Implementations.SEO
         public SEOService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<IPagedList<SEOMetadataDto>> GetPagedSEOAsync(int pageIndex, int pageSize)
+        {
+            var paged = await _unitOfWork.SEO.GetPagedAsync(
+                pageIndex,
+                pageSize,
+                orderBy: q => q.OrderBy(s => s.PageOrder).ThenBy(s => s.PageName));
+
+            var dtos = paged.Items.Select(s => new SEOMetadataDto
+            {
+                Id = s.Id,
+                PageName = s.PageName,
+                PageTitle = s.PageTitle,
+                MetaDescription = s.MetaDescription,
+                MetaKeywords = s.MetaKeywords,
+                PageUrl = s.PageUrl,
+                PageOrder = s.PageOrder
+            });
+
+            return new PagedList<SEOMetadataDto>(dtos, paged.TotalCount, paged.PageIndex, paged.PageSize);
         }
 
         public async Task<IEnumerable<SEOMetadataDto>> GetAllSEOAsync()

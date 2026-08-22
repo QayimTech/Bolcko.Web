@@ -18,6 +18,10 @@ namespace Bolcko.Domain.Entities.Order
         public Address BillingAddress { get; set; } = null!;
         public string? PaymentMethod { get; set; }
         public string? PaymentStatus { get; set; }
+        public string? AppliedCouponCode { get; set; }
+        public decimal DiscountAmount { get; set; } = 0.00m;
+        public bool IsExpressDelivery { get; set; } = false;
+        public bool HasOversizedItems { get; set; } = false;
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

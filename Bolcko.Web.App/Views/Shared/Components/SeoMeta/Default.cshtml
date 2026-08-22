@@ -1,0 +1,18 @@
+@model Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+
+@if (Model != null)
+{
+    <title>@Model.PageTitle</title>
+    @if (!string.IsNullOrEmpty(Model.MetaDescription))
+    {
+        <meta name="description" content="@Model.MetaDescription" />
+    }
+    @if (!string.IsNullOrEmpty(Model.MetaKeywords))
+    {
+        <meta name="keywords" content="@Model.MetaKeywords" />
+    }
+}
+else
+{
+    <title>@ViewBag.DefaultTitle</title>
+}

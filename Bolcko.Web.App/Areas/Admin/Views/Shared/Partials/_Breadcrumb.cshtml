@@ -1,0 +1,41 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer L
+@{
+    var title = ViewData["Title"] as string ?? L["Dashboard"].Value;
+    var parentTitle = ViewData["ParentTitle"] as string;
+    var parentUrl = ViewData["ParentUrl"] as string;
+}
+
+<div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div class="space-y-1">
+        <nav class="flex items-center gap-2 text-xs font-bold text-slate-400">
+            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="hover:text-slate-700 transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">home</span>
+                <span>@L["Home"]</span>
+            </a>
+            @if (!string.IsNullOrEmpty(parentTitle))
+            {
+                <span class="text-slate-300">/</span>
+                @if (!string.IsNullOrEmpty(parentUrl))
+                {
+                    <a href="@parentUrl" class="hover:text-slate-700 transition-colors">@parentTitle</a>
+                }
+                else
+                {
+                    <span>@parentTitle</span>
+                }
+            }
+            <span class="text-slate-300">/</span>
+            <span class="text-[#E8A020] font-black">@title</span>
+        </nav>
+        <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">@title</h1>
+    </div>
+
+    @if (ViewData["HeaderActions"] != null)
+    {
+        <div class="flex items-center gap-3">
+            @Html.Raw(ViewData["HeaderActions"])
+        </div>
+    }
+</div>
+

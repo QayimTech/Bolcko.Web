@@ -4,10 +4,10 @@
     Layout = "_Layout";
 }
 
-<div class="p-6 text-right">
+<div class="p-6 text-start">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">تفاصيل الطلب: @Model.OrderNumber</h1>
-        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-800 rounded hover:bg-slate-300">عودة للقائمة</a>
+        <h1 class="text-2xl font-bold">@L["OrderDetails"]: @Model.OrderNumber</h1>
+        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-800 rounded hover:bg-slate-300">@L["BackToList"]</a>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -19,95 +19,263 @@
     }
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- General Info -->
         <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">معلومات عامة</h2>
-            <p class="mb-2"><span class="font-bold">رقم الطلب:</span> @Model.OrderNumber</p>
-            <p class="mb-2"><span class="font-bold">التاريخ:</span> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
-            <p class="mb-3"><span class="font-bold">الحالة:</span>
-                <span class="inline-block mr-2 px-3 py-1 text-[11px] font-bold uppercase rounded-full
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["GeneralInformation"]</h2>
+            <p class="mb-2"><span class="font-bold">@L["OrderNumber"]:</span> @Model.OrderNumber</p>
+            <p class="mb-2"><span class="font-bold">@L["Date"]:</span> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+            <p class="mb-3"><span class="font-bold">@L["Status"]:</span>
+                <span class="inline-block ms-2 px-3 py-1 text-[11px] font-bold uppercase rounded-full
                     @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "bg-amber-100 text-amber-700" :
                       Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" :
                       Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700")">
-                    @Model.Status
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")">
+                    @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? L["StatusPending"] :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? L["StatusProcessing"] :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? L["StatusShipped"] :
+                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"])
                 </span>
             </p>
-            <p class="mb-2"><span class="font-bold">العميل:</span> @(Model.UserName ?? "غير محدد")</p>
+            <p class="mb-2"><span class="font-bold">@L["Customer"]:</span> @(Model.UserName ?? L["NotSpecified"].Value)</p>
         </div>
 
+        <!-- Payment & Shipping -->
         <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">الدفع والشحن</h2>
-            <p class="mb-2"><span class="font-bold">المبلغ الإجمالي:</span> @Model.TotalAmount.ToString("N2") د.أ</p>
-            <p class="mb-2"><span class="font-bold">طريقة الدفع:</span> @(Model.PaymentMethod ?? "غير محدد")</p>
-            <p class="mb-2"><span class="font-bold">حالة الدفع:</span> @Model.PaymentStatus</p>
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["PaymentAndShipping"]</h2>
+            <p class="mb-2"><span class="font-bold">@L["Total"]:</span> @Model.TotalAmount.ToString("N2") @L["Currency"]</p>
+            <p class="mb-2"><span class="font-bold">@L["PaymentMethodLabel"]:</span> @(Model.PaymentMethod ?? L["NotSpecified"].Value)</p>
+            <p class="mb-2"><span class="font-bold">@L["PaymentStatus"]:</span> @Model.PaymentStatus</p>
             
             @if (Model.ShippingAddress != null)
             {
-                <h3 class="font-bold mt-6 mb-2 border-b pb-1">عنوان التوصيل:</h3>
-                <p class="text-sm leading-relaxed">
+                <h3 class="font-bold mt-6 mb-2 border-b pb-1 text-slate-800">@L["DeliveryAddress"]:</h3>
+                <p class="text-sm leading-relaxed text-slate-700">
                     @Model.ShippingAddress.City, @Model.ShippingAddress.StateProvince<br />
                     @Model.ShippingAddress.AddressLine1<br />
                     @if (!string.IsNullOrEmpty(Model.ShippingAddress.AddressLine2)) { <span>@Model.ShippingAddress.AddressLine2<br /></span> }
-                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.PostalCode)) { <span>الرمز البريدي: @Model.ShippingAddress.PostalCode</span> }
+                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.PostalCode)) { <span>@L["PostalCode"]: @Model.ShippingAddress.PostalCode</span> }
                 </p>
             }
             else
             {
-                <p class="text-sm mt-4 text-slate-500 italic">لا يوجد عنوان توصيل مسجل لهذا الطلب.</p>
+                <p class="text-sm mt-4 text-slate-500 italic">@L["NoDeliveryAddressRegistered"]</p>
             }
         </div>
 
+        <!-- Update Status -->
         <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">تحديث حالة الطلب</h2>
+            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["UpdateOrderStatus"]</h2>
             <form asp-action="UpdateStatus" method="post" class="flex flex-col sm:flex-row gap-4 items-end">
                 <input type="hidden" name="id" value="@Model.Id" />
-                <div class="flex-grow">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">اختر الحالة الجديدة:</label>
-                    <select name="status" class="w-full border border-slate-300 p-2 rounded focus:ring-primary focus:border-primary">
+                <div class="flex-grow w-full">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SelectNewOrderStatus"]</label>
+                    <select name="status" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
                         @foreach (Bolcko.Domain.Enums.OrderStatus status in Enum.GetValues(typeof(Bolcko.Domain.Enums.OrderStatus)))
                         {
+                            var localizedStatus = status == Bolcko.Domain.Enums.OrderStatus.Pending ? L["StatusPending"] :
+                                                 status == Bolcko.Domain.Enums.OrderStatus.Processing ? L["StatusProcessing"] :
+                                                 status == Bolcko.Domain.Enums.OrderStatus.Shipped ? L["StatusShipped"] :
+                                                 status == Bolcko.Domain.Enums.OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"];
+
                             if (Model.Status == status)
                             {
-                                <option value="@status" selected>@status</option>
+                                <option value="@status" selected>@localizedStatus</option>
                             }
                             else
                             {
-                                <option value="@status">@status</option>
+                                <option value="@status">@localizedStatus</option>
                             }
                         }
                     </select>
                 </div>
-                <button type="submit" class="bg-primary text-white font-bold py-2 px-6 rounded hover:bg-primary-dark transition-colors">
-                    حفظ التغييرات
+                <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 transition-all shadow-hard w-full sm:w-auto">
+                    @L["SaveOrderStatus"]
                 </button>
             </form>
         </div>
+
+        <!-- Delivery Dispatch Section -->
+        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-base font-bold mb-4 border-b pb-2 flex items-center gap-2">
+                    @L["Option1AssignToCompany"]
+                    @if (Model.HasOversizedItems)
+                    {
+                        <span class="px-2 py-0.5 text-[10px] bg-red-100 text-red-700 rounded-full font-bold">⚠️ يحتوي شحن ثقيل</span>
+                    }
+                </h2>
+                <form asp-controller="DeliveryDispatch" asp-action="AssignToCompany" method="post" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.Id" />
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SelectShippingCompany"]</label>
+                        <select name="companyId" id="companySelect" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
+                            @foreach (var company in ViewBag.DeliveryCompanies as IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany>)
+                            {
+                                if (Model.HasOversizedItems && !company.SupportsOversized)
+                                {
+                                    continue; // Skip companies that don't support oversized items if the order is oversized
+                                }
+                                <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (@L["Price"]: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
+                            }
+                        </select>
+                        @if (Model.HasOversizedItems)
+                        {
+                            <p class="text-[10px] text-red-600 font-bold mt-1">تم إخفاء الشركات التي لا تمتلك سيارات نقل ثقيل (شاحنات).</p>
+                        }
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SuggestedDeliveryFee"]</label>
+                        <input name="deliveryFee" id="companyDeliveryFee" type="number" step="0.01" min="0" value="5.00" required
+                               class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
+                    </div>
+
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-8 transition-all w-full">
+                        @L["AssignToShippingCompany"]
+                    </button>
+                </form>
+            </div>
+
+            <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0">
+                <h2 class="text-base font-bold mb-4 border-b pb-2">التوصيل عبر شركات الشحن السريع API</h2>
+                @if (Model.HasOversizedItems)
+                {
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                        <div class="font-bold text-red-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">warning</span>
+                            <span>الطلب غير مؤهل لشركات الطرود</span>
+                        </div>
+                        <p class="text-red-800 leading-relaxed">هذا الطلب يحتوي على مواد بناء ضخمة لا يمكن رفعها لشركة الطرود السريعة (GLC). يرجى تعيينه لأسطول النقل الثقيل من القائمة المجاورة.</p>
+                    </div>
+                    <button type="button" disabled class="bg-slate-300 text-slate-500 font-black py-3.5 px-8 rounded-xl shadow-none w-full flex items-center justify-center gap-2 cursor-not-allowed">
+                        <span class="material-symbols-outlined">block</span>
+                        <span>مغلق بسبب الحجم</span>
+                    </button>
+                }
+                else
+                {
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                        <div class="font-bold text-amber-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">local_shipping</span>
+                            <span>شحن أوتوماتيكي لدى شركة Green Line (GLC / LogesTechs)</span>
+                        </div>
+                        <p class="text-amber-800 leading-relaxed">إرسال بيانات الشحنة مباشرة للشركة وتوليد الباركود وتفاصيل المواد والتطبيقات.</p>
+                    </div>
+                    <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black py-3.5 px-8 rounded-xl shadow-md transition-all w-full flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">send</span>
+                        <span>رفع الشحنة فوراً لـ LogesTechs API</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var select = document.getElementById("companySelect");
+                var feeInput = document.getElementById("companyDeliveryFee");
+                
+                function updateFee() {
+                    if(select && select.selectedOptions.length > 0) {
+                        var rate = select.selectedOptions[0].getAttribute("data-rate");
+                        if(rate && feeInput) {
+                            feeInput.value = parseFloat(rate).toFixed(2);
+                        }
+                    }
+                }
+                
+                if (select) {
+                    select.addEventListener("change", updateFee);
+                    updateFee();
+                }
+            });
+
+            function dispatchOrderDirectToLogesTechs(orderId) {
+                if (!confirm('هل ترغب بتأكيد رفع الشحنة فوراً لشركة التوصيل LogesTechs / GLC؟')) return;
+                
+                const params = new URLSearchParams({
+                    orderId: orderId,
+                    cityId: '0',
+                    regionId: '0',
+                    villageId: '0',
+                    notes: 'رفع مباشر عبر تفاصيل الطلب بـ Admin Dashboard'
+                });
+
+                fetch('@Url.Action("DispatchToLogesTechs", "DeliveryDispatch", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.success) {
+                        location.reload();
+                    }
+                })
+                .catch(() => alert('تعذّر التواصل مع السيرفر.'));
+            }
+        </script>
     </div>
 
+    <!-- Items Section -->
     <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg mb-6">
-        <h2 class="text-lg font-bold mb-4 border-b pb-2">العناصر</h2>
+        <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["Items"]</h2>
         @if (Model.Items != null && Model.Items.Any())
         {
             <div class="overflow-x-auto">
-                <table class="w-full text-right border-collapse">
+                <table class="w-full text-start border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200">
-                            <th class="p-3">معرف المنتج</th>
-                            <th class="p-3">الاسم</th>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
+                            <th class="p-3">المنتج</th>
+                            <th class="p-3">رمز الـ SKU</th>
+                            <th class="p-3">المتغير / المواصفة</th>
                             <th class="p-3">الكمية</th>
-                            <th class="p-3">السعر</th>
+                            <th class="p-3">سعر الوحدة</th>
                             <th class="p-3">الإجمالي</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-sm">
                         @foreach (var item in Model.Items)
                         {
-                            <tr class="border-b border-slate-100">
-                                <td class="p-3">@item.ProductId</td>
-                                <td class="p-3">@item.ProductName</td>
-                                <td class="p-3">@item.Quantity</td>
-                                <td class="p-3">@item.UnitPrice.ToString("N2") د.أ</td>
-                                <td class="p-3">@item.TotalPrice.ToString("N2") د.أ</td>
+                            var imgUrl = !string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/product-placeholder.png";
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="p-3 flex items-center gap-3">
+                                    <img src="@imgUrl" alt="@item.ProductName" class="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                                    <div>
+                                        <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = item.ProductId })" target="_blank" class="font-bold text-slate-800 hover:text-primary transition-colors flex items-center gap-1">
+                                            <span>@item.ProductName</span>
+                                            <span class="material-symbols-outlined text-xs text-slate-400">open_in_new</span>
+                                        </a>
+                                        <span class="text-[10px] text-slate-400 block">ID: #@item.ProductId</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 font-mono text-xs">
+                                    @if (!string.IsNullOrEmpty(item.Sku))
+                                    {
+                                        <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded font-bold text-slate-700">@item.Sku</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 italic">غير محدد</span>
+                                    }
+                                </td>
+                                <td class="p-3">
+                                    @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                    {
+                                        <span class="px-2 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs font-bold">@item.VariantInfo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 text-xs">-</span>
+                                    }
+                                </td>
+                                <td class="p-3 font-bold text-slate-800">@item.Quantity</td>
+                                <td class="p-3">@item.UnitPrice.ToString("N2") @L["Currency"]</td>
+                                <td class="p-3 font-black text-emerald-600">@item.TotalPrice.ToString("N2") @L["Currency"]</td>
                             </tr>
                         }
                     </tbody>
@@ -116,7 +284,7 @@
         }
         else
         {
-            <p class="text-secondary">لا توجد عناصر لهذا الطلب.</p>
+            <p class="text-secondary">@L["NoItemsForThisOrder"]</p>
         }
     </div>
 </div>

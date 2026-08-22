@@ -5,7 +5,7 @@
     ViewData["Title"] = "مشاريعي";
     var user = ViewBag.User as User;
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
+<main class="max-w-7xl mx-auto px-6 py-12 text-end">
     <div class="flex flex-col lg:flex-row-reverse gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
@@ -38,7 +38,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
+                            <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-e-4 border-primary font-bold text-on-surface">
                                 <span>مشاريعي</span>
                                 <span class="material-symbols-outlined text-sm">architecture</span>
                             </a>
@@ -58,7 +58,7 @@
 
         <!-- Main Content -->
         <div class="flex-1 space-y-8">
-            <header class="border-r-4 border-primary-container pr-6 mb-8">
+            <header class="border-e-4 border-primary-container pe- mb-8">
                 <h1 class="font-headline-xl text-on-surface uppercase mb-2">مشاريعي</h1>
                 <p class="font-body-lg text-secondary">قائمة بجميع مشاريعك.</p>
             </header>
@@ -66,7 +66,7 @@
             <!-- Projects Table -->
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-right">
+                    <table class="w-full text-end">
                         <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                             <tr>
                                 <th class="p-4">اسم المشروع</th>

@@ -1,0 +1,305 @@
+@using Bolcko.Domain.Entities.User.DTOs
+@using Bolcko.Domain.Common
+@model List<RoleDetailsDto>
+@{
+    ViewData["Title"] = "إدارة الصلاحيات (Privilege Control)";
+    ViewData["ParentTitle"] = "إدارة المستخدمين";
+    ViewData["ParentUrl"] = Url.Action("Index", "User", new { area = "Admin" });
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var allGroups = ViewBag.AllPermissionGroups as List<PermissionGroupDto> ?? new List<PermissionGroupDto>();
+
+    ViewData["HeaderActions"] = @"
+        <button type='button' onclick='openRoleModal()' class='bg-[#E8A020] hover:bg-[#d49018] text-slate-950 px-5 py-2.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 active:scale-95'>
+            <span class='material-symbols-outlined text-base'>add</span>
+            <span>إضافة دور وظيفي جديد</span>
+        </button>
+    ";
+}
+
+<div class="p-8 space-y-6 text-right font-sans min-h-screen" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-rose-600">error</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- Executive Vertical Hierarchy Role Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var role in Model)
+        {
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-400 transition-all group">
+                <div class="space-y-4">
+                    
+                    <!-- Card Top Bar: Icon + Permission Count Badge -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="w-10 h-10 rounded-xl bg-slate-900 text-[#E8A020] flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+                        </div>
+                        <span class="bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-xl text-xs font-black">
+                            @role.SelectedPermissions.Count صلاحية مفعلة
+                        </span>
+                    </div>
+
+                    <!-- Role Full Title -->
+                    <div class="space-y-1">
+                        <h3 class="font-black text-slate-900 text-lg leading-snug break-words">@role.RoleName</h3>
+                        <span class="text-xs text-slate-500 font-bold block">@role.UsersCount مستخدمين بهذا الدور</span>
+                    </div>
+
+                    <!-- Clean Permissions Preview Badges -->
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        @foreach (var perm in role.SelectedPermissions.Take(3))
+                        {
+                            var cleanName = perm.Replace("Permissions.", "");
+                            <span class="bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold">
+                                ⚡ @cleanName
+                            </span>
+                        }
+                        @if (role.SelectedPermissions.Count > 3)
+                        {
+                            <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-1 rounded-lg text-[11px] font-black">
+                                +@(role.SelectedPermissions.Count - 3) إضافية
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
+                    <button type="button" 
+                            data-role-id="@role.Id" 
+                            data-role-name="@role.RoleName" 
+                            data-permissions='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(role.SelectedPermissions))' 
+                            onclick="openEditRoleModal(this)" 
+                            class="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-black transition-all text-center flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                        <span class="material-symbols-outlined text-sm text-[#E8A020]">tune</span>
+                        <span>التحكم في الصلاحيات</span>
+                    </button>
+                    @if (role.RoleName != "Admin" && role.RoleName != "SuperAdmin")
+                    {
+                        <form asp-action="DeleteRole" method="post" onsubmit="event.preventDefault(); requireDeleteConfirm(this, 'role');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="roleId" value="@role.Id" />
+                            <button type="submit" class="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors" title="حذف الدور">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Privilege Control Modal Window with Animated Royal Navy Toggle Switches -->
+<div id="roleModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-2xl max-w-3xl w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden" style="max-height: 85vh;">
+        
+        <!-- Modal Fixed Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-[#E8A020] flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+                </div>
+                <div>
+                    <h3 class="font-black text-base text-slate-900" id="modalTitle">إدارة وتعديل الصلاحيات</h3>
+                    <p class="text-slate-500 text-xs mt-0.5 font-medium">مفاتيح التبديل المنزلقة (Switches) بكل موديول</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeRoleModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+
+        <form asp-action="SaveRole" method="post" id="roleForm" class="flex flex-col flex-1 overflow-hidden">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="modalRoleId" name="RoleId" value="" />
+
+            <!-- Pure Tailwind Scrollable Body -->
+            <div class="p-6 space-y-6 flex-1 overflow-y-auto" style="max-height: 60vh; overflow-y: auto !important;">
+                
+                <!-- Role Name Input -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">اسم الدور الوظيفي (Role Name) *</label>
+                    <input type="text" id="modalRoleName" name="RoleName" required class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs font-black text-slate-900 focus:border-[#E8A020] outline-none transition-all" placeholder="مثال: مدخل بيانات / مدير المبيعات / مسؤول التوصيل" />
+                </div>
+
+                <!-- Switches Header Bar -->
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span class="text-xs font-black text-slate-900 uppercase">جدول الصلاحيات (Switches Matrix):</span>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="selectAllSwitches(true)" class="text-[11px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-lg hover:bg-emerald-200">
+                            تفعيل الكل ⚡
+                        </button>
+                        <button type="button" onclick="selectAllSwitches(false)" class="text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 rounded-lg hover:bg-slate-200">
+                            إلغاء الكل ❌
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Module Groups Matrix -->
+                <div class="space-y-6">
+                    @foreach (var group in allGroups)
+                    {
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                                <h5 class="text-xs font-black text-slate-900 flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                                    <span>@group.GroupName</span>
+                                </h5>
+                                <button type="button" onclick="toggleGroupSwitches(this)" class="text-[11px] font-bold text-indigo-700 hover:underline">
+                                    عكس الموديول
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach (var perm in group.Permissions)
+                                {
+                                    <div class="switch-card flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-900 transition-all select-none cursor-pointer" onclick="toggleSwitchOnClick(this, event)">
+                                        <div class="space-y-0.5 pe-3 min-w-0">
+                                            <span class="text-xs font-bold text-slate-900 block truncate">@perm.Name</span>
+                                            <span class="text-[10px] font-mono text-slate-400 block dir-ltr text-right truncate">@perm.Key</span>
+                                        </div>
+
+                                        <!-- Royal Navy Smooth Animated Switch Component -->
+                                        <div class="relative inline-block w-12 h-6.5 shrink-0">
+                                            <input type="checkbox" name="SelectedPermissions" value="@perm.Key" id="sw_@perm.Key" class="sr-only toggle-checkbox" onchange="updateSwitchCardStyle(this)" />
+                                            <div class="switch-track w-12 h-6.5 bg-slate-300 rounded-full transition-colors duration-300 ease-in-out relative p-0.5">
+                                                <div class="switch-thumb w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out translate-x-0"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Fixed Footer -->
+            <div class="p-4 px-6 bg-slate-100 border-t border-slate-200 flex items-center justify-end gap-3 shrink-0">
+                <button type="button" onclick="closeRoleModal()" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200 transition-all">
+                    إلغاء
+                </button>
+                <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-black px-8 py-2.5 rounded-xl text-xs transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base text-[#E8A020]">save</span>
+                    <span>حفظ الصلاحيات 💾</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRoleModal() {
+        document.getElementById('modalTitle').textContent = 'إضافة دور وظيفي جديد';
+        document.getElementById('modalRoleId').value = '';
+        document.getElementById('modalRoleName').value = '';
+        
+        document.querySelectorAll('.toggle-checkbox').forEach(cb => {
+            cb.checked = false;
+            updateSwitchCardStyle(cb);
+        });
+
+        document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    function closeRoleModal() {
+        document.getElementById('roleModal').classList.add('hidden');
+    }
+
+    function openEditRoleModal(btn) {
+        const roleId = btn.getAttribute('data-role-id');
+        const roleName = btn.getAttribute('data-role-name');
+        const rawPermissions = btn.getAttribute('data-permissions') || '[]';
+        let selectedPermissions = [];
+        try {
+            selectedPermissions = JSON.parse(rawPermissions);
+        } catch (e) {
+            console.error('Error parsing permissions:', e);
+        }
+
+        document.getElementById('modalTitle').textContent = `تعديل صلاحيات الدور: (${roleName})`;
+        document.getElementById('modalRoleId').value = roleId;
+        document.getElementById('modalRoleName').value = roleName;
+
+        document.querySelectorAll('.toggle-checkbox').forEach(cb => {
+            cb.checked = selectedPermissions.includes(cb.value);
+            updateSwitchCardStyle(cb);
+        });
+
+        document.getElementById('roleModal').classList.remove('hidden');
+    }
+
+    function toggleSwitchOnClick(card, e) {
+        if (e.target.tagName === 'INPUT') return;
+        const cb = card.querySelector('.toggle-checkbox');
+        if (cb) {
+            cb.checked = !cb.checked;
+            updateSwitchCardStyle(cb);
+        }
+    }
+
+    function updateSwitchCardStyle(checkbox) {
+        const card = checkbox.closest('.switch-card');
+        if (!card) return;
+        
+        const track = card.querySelector('.switch-track');
+        const thumb = card.querySelector('.switch-thumb');
+
+        if (checkbox.checked) {
+            card.classList.add('bg-slate-900/5', 'border-slate-900');
+            card.classList.remove('bg-white', 'border-slate-200');
+            
+            if (track) {
+                track.classList.add('bg-slate-900');
+                track.classList.remove('bg-slate-300');
+            }
+            if (thumb) {
+                thumb.style.transform = 'translateX(-1.35rem)';
+            }
+        } else {
+            card.classList.remove('bg-slate-900/5', 'border-slate-900');
+            card.classList.add('bg-white', 'border-slate-200');
+
+            if (track) {
+                track.classList.remove('bg-slate-900');
+                track.classList.add('bg-slate-300');
+            }
+            if (thumb) {
+                thumb.style.transform = 'translateX(0rem)';
+            }
+        }
+    }
+
+    function selectAllSwitches(enable) {
+        document.querySelectorAll('.toggle-checkbox').forEach(cb => {
+            cb.checked = enable;
+            updateSwitchCardStyle(cb);
+        });
+    }
+
+    function toggleGroupSwitches(btn) {
+        const groupContainer = btn.closest('.bg-slate-50');
+        if (!groupContainer) return;
+        const checkboxes = groupContainer.querySelectorAll('.toggle-checkbox');
+        const anyUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+        checkboxes.forEach(cb => {
+            cb.checked = anyUnchecked;
+            updateSwitchCardStyle(cb);
+        });
+    }
+</script>

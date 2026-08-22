@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var langCode = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+}
+<html lang="@langCode" dir="@(isRtl ? "rtl" : "ltr")" class="h-full overflow-x-hidden">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>بلوكو للتوصيل - @(ViewData["Title"] ?? "لوحة المندوب")</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png?v=5" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png?v=5" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png?v=5" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="msapplication-TileColor" content="#0d111a" />
+    <meta name="theme-color" content="#0d111a" />
+    <!-- Self-hosted Material Symbols font (instant, no Google CDN dependency) -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/material-symbols-outlined.woff2">
+    <link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true">
+    <!-- Google Fonts: text fonts only (non-blocking async) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style"
+          href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <partial name="Partials/_Styles" />
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 min-h-screen w-full overflow-x-hidden relative" style="font-family: 'Noto Kufi Arabic', sans-serif;">
+
+    <!-- Driver Navbar -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-lg">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🚚</span>
+            <span class="font-bold text-lg">بلوكو — لوحة المناديب</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a asp-area="Delivery" asp-controller="Home" asp-action="Index"
+               class="text-sm text-slate-300 hover:text-white transition-colors">الرئيسية</a>
+            <form asp-area="Delivery" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="text-sm text-red-400 hover:text-red-300 transition-colors">
+                    تسجيل الخروج
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto py-6 px-4">
+        @RenderBody()
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

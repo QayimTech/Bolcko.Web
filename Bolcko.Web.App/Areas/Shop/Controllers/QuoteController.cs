@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Bolcko.Domain.Entities.Tender.DTOs;
 using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces;
+using Bolcko.Web.App.Extensions;
 
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
@@ -11,12 +12,18 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         private readonly ITenderService _tenderService;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
         private readonly IServiceManager _serviceManager;
+        private readonly ITranslationService _translationService;
 
-        public QuoteController(ITenderService tenderService, Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager, IServiceManager serviceManager)
+        public QuoteController(
+            ITenderService tenderService, 
+            Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager, 
+            IServiceManager serviceManager,
+            ITranslationService translationService)
         {
             _tenderService = tenderService;
             _userManager = userManager;
             _serviceManager = serviceManager;
+            _translationService = translationService;
         }
 
         [HttpGet]
@@ -27,8 +34,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             ModelState.Clear();
 
             var categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
+            var targetCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+            var translatedCategories = await categories.TranslateAsync(_translationService, targetCulture);
 
-            ViewBag.CategoriesJson = System.Text.Json.JsonSerializer.Serialize(categories.Select(c => new {
+            ViewBag.CategoriesJson = System.Text.Json.JsonSerializer.Serialize(translatedCategories.Select(c => new {
                 id = c.Id,
                 name = c.Name
             }));
@@ -40,9 +49,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> SearchCatalog(string? query, int? categoryId, int page = 1)
         {
             var pagedProducts = await _serviceManager.ProductService.SearchCatalogProductsPagedAsync(query, categoryId, page, 4);
+            var targetCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+            var translatedProducts = await pagedProducts.TranslateAsync(_translationService, targetCulture);
             
             // Return PartialView with the list of items
-            return PartialView("Partials/_CatalogProductGrid", pagedProducts.Items);
+            return PartialView("Partials/_CatalogProductGrid", translatedProducts.Items);
         }
 
         [HttpPost]

@@ -1,13 +1,13 @@
 @{
-    ViewData["Title"] = "تسجيل الدخول";
-    Layout = "_Layout"; // Or a simplified layout if preferred
+    ViewData["Title"] = SharedLocalizer["Login"];
+    Layout = "_Layout";
 }
-<main class="min-h-[70vh] flex items-center justify-center py-12 px-6 text-right">
+<main class="min-h-[70vh] flex items-center justify-center py-12 px-6 text-start">
     <div class="max-w-md w-full space-y-8 bg-white p-10 border border-outline-variant shadow-hard">
         <div class="text-center">
             <h1 class="text-3xl font-black tracking-tighter text-slate-900 uppercase mb-2">BLOCKO</h1>
-            <h2 class="text-xl font-bold text-on-surface">تسجيل الدخول إلى حسابك</h2>
-            <p class="mt-2 text-sm text-on-surface-variant">أو <a href="@Url.Action("Register", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">إنشاء حساب جديد</a></p>
+            <h2 class="text-xl font-bold text-on-surface">@SharedLocalizer["LoginTitle"]</h2>
+            <p class="mt-2 text-sm text-on-surface-variant">@SharedLocalizer["OrCreateNewAccount"] <a href="@Url.Action("Register", "Account", new { area = "Shop" })" class="text-primary font-bold hover:underline">@SharedLocalizer["Register"]</a></p>
         </div>
         
         @if (ViewBag.Error != null)
@@ -20,23 +20,24 @@
         <form class="mt-8 space-y-6" asp-area="Shop" asp-controller="Account" asp-action="Login" method="post">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">البريد الإلكتروني</label>
-                    <input type="email" name="email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="example@mail.com" />
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Email"]</label>
+                    <input type="email" name="email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="example@mail.com" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">كلمة المرور</label>
-                    <input type="password" name="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right" placeholder="********" />
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-1">@SharedLocalizer["Password"]</label>
+                    <input type="password" name="password" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" placeholder="********" />
                 </div>
-            </div>            <div class="flex items-center justify-between text-sm">
+            </div>
+            <div class="flex items-center justify-between text-sm">
                 <label class="flex items-center cursor-pointer gap-2 select-none text-on-surface-variant font-bold text-xs uppercase">
                     <input type="checkbox" name="rememberMe" value="true" class="w-4 h-4 rounded border-outline bg-surface-container-low text-primary focus:ring-0" />
-                    <span>تذكرني</span>
+                    <span>@SharedLocalizer["RememberMe"]</span>
                 </label>
-                <a href="@Url.Action("ForgotPassword", "Account", new { area = "Shop" })" class="text-xs font-bold text-primary hover:underline uppercase">نسيت كلمة المرور؟</a>
+                <a href="@Url.Action("ForgotPassword", "Account", new { area = "Shop" })" class="text-xs font-bold text-primary hover:underline uppercase">@SharedLocalizer["ForgotPasswordQuestion"]</a>
             </div>
             <div>
                 <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-lg hover:bg-primary/90 transition-all rounded-md">
-                    دخول
+                    @SharedLocalizer["LoginBtnText"]
                 </button>
             </div>
         </form>

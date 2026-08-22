@@ -65,7 +65,7 @@ namespace Blocko.Services.Implementations.shoppingCart
             return MapToDto(cart);
         }
 
-        public async Task<ShoppingCartDto> AddToCartAsync(string sessionId, int productId, int quantity, int? userId = null)
+        public async Task<ShoppingCartDto> AddToCartAsync(string sessionId, int productId, int quantity, int? userId = null, int? productVariantId = null)
         {
             var cart = await GetOrCreateCartAsync(sessionId, userId);
             var product = await _unitOfWork.Products.GetByIdAsync(productId);
@@ -73,18 +73,35 @@ namespace Blocko.Services.Implementations.shoppingCart
             if (product == null)
                 throw new Exception("Product not found");
 
-            if (quantity > product.StockQuantity)
+            // Resolve price and stock from variant if provided
+            decimal unitPrice = product.RetailPrice;
+            int availableStock = product.StockQuantity;
+
+            Bolcko.Domain.Entities.Product.ProductVariant? variant = null;
+            if (productVariantId.HasValue)
+            {
+                variant = await _unitOfWork.ProductVariants.GetByIdAsync(productVariantId.Value);
+                if (variant != null)
+                {
+                    unitPrice = variant.Price;
+                    availableStock = variant.StockQuantity;
+                }
+            }
+
+            if (quantity > availableStock)
                 throw new Exception("Not enough stock available");
 
-            var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+            var existingItem = cart.Items.FirstOrDefault(i =>
+                i.ProductId == productId &&
+                i.ProductVariantId == productVariantId);
 
             if (existingItem != null)
             {
-                if (existingItem.Quantity + quantity > product.StockQuantity)
+                if (existingItem.Quantity + quantity > availableStock)
                     throw new Exception("Not enough stock available");
-                    
+
                 existingItem.Quantity += quantity;
-                existingItem.UnitPrice = product.RetailPrice;
+                existingItem.UnitPrice = unitPrice;
             }
             else
             {
@@ -92,8 +109,9 @@ namespace Blocko.Services.Implementations.shoppingCart
                 {
                     ShoppingCartId = cart.Id,
                     ProductId = productId,
+                    ProductVariantId = productVariantId,
                     Quantity = quantity,
-                    UnitPrice = product.RetailPrice,
+                    UnitPrice = unitPrice,
                     AddedAt = DateTime.UtcNow
                 };
                 cart.Items.Add(newItem);
@@ -255,21 +273,48 @@ namespace Blocko.Services.Implementations.shoppingCart
 
         private ShoppingCartDto MapToDto(ShoppingCart cart)
         {
+            decimal feeVal = 5.00m;
+            bool hasOversized = cart.Items.Any(i => i.Product != null && i.Product.IsOversized);
+
+            if (hasOversized)
+            {
+                feeVal = 0.00m; // dynamic quote later
+            }
+            else
+            {
+                try
+                {
+                    var setting = _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee").GetAwaiter().GetResult();
+                    if (setting != null && decimal.TryParse(setting.Value, out decimal parsed))
+                    {
+                        feeVal = parsed;
+                    }
+                }
+                catch { }
+            }
+
             return new ShoppingCartDto
             {
                 Id = cart.Id,
                 SessionId = cart.SessionId,
                 UserId = cart.UserId,
+                Shipping = feeVal,
+                HasOversizedItems = hasOversized,
                 Items = cart.Items.Select(i => new ShoppingCartItemDto
                 {
                     Id = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product?.Name ?? string.Empty,
-                    ProductImage = i.Product?.ImageUrl,
-                    ProductSku = i.Product?.Sku ?? string.Empty,
+                    ProductImage = i.ProductVariant != null && !string.IsNullOrEmpty(i.ProductVariant.ImageUrl) ? i.ProductVariant.ImageUrl : i.Product?.ImageUrl,
+                    ProductSku = i.ProductVariant != null && !string.IsNullOrEmpty(i.ProductVariant.Sku) ? i.ProductVariant.Sku : (i.Product?.Sku ?? string.Empty),
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPrice,
-                    StockQuantity = i.Product?.StockQuantity ?? 0
+                    StockQuantity = i.ProductVariant != null ? i.ProductVariant.StockQuantity : (i.Product?.StockQuantity ?? 0),
+                    ProductVariantId = i.ProductVariantId,
+                    Size = i.ProductVariant?.Size,
+                    Color = i.ProductVariant?.Color,
+                    PackagingUnit = i.ProductVariant?.PackagingUnit,
+                    CountryOfOrigin = i.ProductVariant?.CountryOfOrigin
                 }).ToList()
             };
         }

@@ -1,21 +1,33 @@
-@model IEnumerable<Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto>
+@using Bolcko.Domain.Common
+@model IPagedList<Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto>
 @{
     ViewData["Title"] = L["ManageSEO"];
 }
 
+@Html.AntiForgeryToken()
 <section class="p-8 space-y-8 text-right animate-in fade-in duration-500">
     <div class="flex justify-between items-center">
         <div>
             <h1 class="font-headline-md text-on-surface">@L["ManageSEO"]</h1>
             <p class="text-on-surface-variant text-sm mt-1">@L["ManageSEODescription"]</p>
         </div>
-        <a href="@Url.Action("Create")" class="bg-primary text-white px-6 py-2 font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-hard">
-            <span class="material-symbols-outlined">add</span>
-            @L["AddPage"]
-        </a>
+        <div class="flex gap-3">
+            <button type="button" id="btn-seo-populate" class="bg-indigo-600 text-white px-5 py-2 font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-hard">
+                <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                تهيئة الصفحات تلقائياً
+            </button>
+            <a href="@Url.Action("Create")" class="bg-primary text-white px-6 py-2 font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-hard">
+                <span class="material-symbols-outlined">add</span>
+                @L["AddPage"]
+            </a>
+        </div>
     </div>
 
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-sm transition-all hover:shadow-lg">
+        @if (Model.TotalPages > 1)
+        {
+            <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
+        }
         <table class="w-full text-right border-collapse">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
@@ -26,7 +38,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach (var item in Model)
+                @foreach (var item in Model.Items)
                 {
                     <tr class="hover:bg-slate-50 transition-colors group">
                         <td class="px-6 py-4 font-bold text-slate-900">@item.PageName</td>
@@ -44,7 +56,7 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Any())
+                @if (!Model.Items.Any())
                 {
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
@@ -54,5 +66,48 @@
                 }
             </tbody>
         </table>
+        @if (Model.TotalPages > 1)
+        {
+            <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
+        }
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#btn-seo-populate').on('click', function () {
+                var executePopulate = function() {
+                    var btn = $('#btn-seo-populate');
+                    btn.prop('disabled', true).text('جاري التهيئة التلقائية...');
+                    
+                    $.ajax({
+                        url: '@Url.Action("PopulateDefaults", "SEO", new { area = "Admin" })',
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                window.showToast(res.message, 'success');
+                                setTimeout(() => window.location.reload(), 1200);
+                            } else {
+                                window.showToast(res.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            window.showToast('حدث خطأ أثناء محاولة تهيئة صفحات الـ SEO.', 'error');
+                            btn.prop('disabled', false).html('<span class="material-symbols-outlined text-[18px]">auto_awesome</span> تهيئة الصفحات تلقائياً');
+                        }
+                    });
+                };
+
+                if (typeof openTailwindConfirmModal === 'function') {
+                    openTailwindConfirmModal('تهيئة صفحات SEO', 'هل تريد ملء وإضافة اقتراحات تهيئة الصفحات SEO الافتراضية لقواعد البيانات تلقائياً؟', 'auto_awesome', 'indigo', executePopulate);
+                } else if (confirm('هل تريد ملء وإضافة اقتراحات تهيئة الصفحات SEO الافتراضية لقواعد البيانات تلقائياً؟')) {
+                    executePopulate();
+                }
+            });
+        });
+    </script>
+}

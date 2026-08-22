@@ -8,7 +8,10 @@ namespace Bolcko.Web.App.Extensions
     {
         public static IServiceCollection AddBlockoMvcInterface(this IServiceCollection services)
         {
-            services.AddControllersWithViews()
+            services.AddControllersWithViews(options =>
+            {
+                options.ModelBinderProviders.Insert(0, new Bolcko.Web.App.Binders.InvariantDecimalModelBinderProvider());
+            })
                 .AddViewLocalization()
                 .AddDataAnnotationsLocalization();
             
@@ -17,12 +20,19 @@ namespace Bolcko.Web.App.Extensions
 
         public static IApplicationBuilder MapBlockoAppEndpoints(this IEndpointRouteBuilder endpoints)
         {
-            // Root Redirect
-            endpoints.MapGet("/", context =>
-            {
-                context.Response.Redirect("/Shop/Home/Index");
-                return Task.CompletedTask;
-            });
+            // Map SignalR Hubs
+            endpoints.MapHub<Bolcko.Web.App.Hubs.NotificationHub>("/notificationHub");
+
+            // Map API Controllers (must be before MVC routes)
+            endpoints.MapControllers();
+
+            // Root route: serve the shop home page directly at "/"
+            // (a 302 redirect here added a full round-trip before first byte
+            //  and made PageSpeed measure /Shop/Home/Index instead of /)
+            endpoints.MapControllerRoute(
+                name: "root",
+                pattern: "",
+                defaults: new { area = "Shop", controller = "Home", action = "Index" });
 
             // Areas Support
             endpoints.MapControllerRoute(

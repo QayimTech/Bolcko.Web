@@ -5,6 +5,7 @@ using Blocko.Services.Interfaces.Tender;
 using Blocko.Services.Interfaces.User;
 using Blocko.Services.Interfaces.SEO;
 using Blocko.Services.Interfaces.ShoppingCart;
+using Blocko.Services.Interfaces.Delivery;
 
 namespace Blocko.Services.Interfaces
 {
@@ -17,7 +18,9 @@ namespace Blocko.Services.Interfaces
         IOrderService OrderService { get; }
         ITenderService TenderService { get; }
         ISEOService SEOService { get; }
+        IProductSeoService ProductSeoService { get; }
         IShoppingCartService ShoppingCartService { get; }
         IProjectService ProjectService { get; }
+        IDeliveryService DeliveryService { get; }
     }
 }

@@ -6,5 +6,7 @@ namespace Blocko.Services.Interfaces.Category
     {
         Task<IEnumerable<MarketPrice>> GetAllMarketPricesAsync();
         Task<MarketPrice?> GetLatestPriceByMaterialAsync(string materialName);
+        Task<MarketPrice?> GetMarketPriceByIdAsync(int id);
+        Task UpdateMarketPriceAsync(MarketPrice marketPrice);
     }
 }

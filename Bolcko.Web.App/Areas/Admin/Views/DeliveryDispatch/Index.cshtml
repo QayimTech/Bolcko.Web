@@ -1,0 +1,441 @@
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
+@using Bolcko.Domain.Common
+@model IPagedList<DeliveryJob>
+@{
+    ViewData["Title"] = "مركز التوزيع واللوجستيات الموحد (Unified Dispatch Center)";
+    ViewData["ParentTitle"] = "إدارة النظام";
+    Layout = "_Layout";
+}
+
+<div class="p-8 space-y-6 text-right font-sans min-h-screen" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <div>
+            <h1 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                <span>🚚 مركز التوزيع واللوجستيات الموحد (Unified Dispatch Center)</span>
+            </h1>
+            <p class="text-slate-400 text-xs font-medium mt-0.5">توجيه الشحنات أوتوماتيكياً عبر LogesTechs API، السائقين الداخليين، أو أسطول المورد</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="@Url.Action("Index", "DeliverySettings", new { area = "Admin" })" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                <span class="material-symbols-outlined text-sm text-[#E8A020]">extension</span>
+                <span>إعدادات شركات التوصيل والـ APIs 🔌</span>
+            </a>
+            <a asp-action="Drivers" class="px-4 py-2.5 bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 rounded-2xl text-xs font-bold transition-all">إدارة السائقين</a>
+            <a asp-action="Companies" class="px-4 py-2.5 bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 rounded-2xl text-xs font-bold transition-all">شركات التوصيل</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["ErrorMessage"]</div>
+    }
+
+    <!-- Dynamic KPI Summary Cards (Date-bound & Net Sales) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">إجمالي الشحنات</span>
+                <span class="text-xl font-black text-slate-800">@(ViewBag.KpiTotalJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">inventory_2</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">قيد التوصيل</span>
+                <span class="text-xl font-black text-blue-600">@(ViewBag.KpiInTransitJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">local_shipping</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">الشحنات المسلمة</span>
+                <span class="text-xl font-black text-emerald-600">@(ViewBag.KpiDeliveredJobs ?? 0)</span>
+            </div>
+            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">check_circle</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block">التحصيل المالي COD</span>
+                <span class="text-xl font-black text-[#E8A020]">@(((decimal)(ViewBag.KpiTotalCollected ?? 0m)).ToString("N2")) د.أ</span>
+            </div>
+            <div class="w-10 h-10 bg-amber-50 text-[#E8A020] rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">payments</span>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm flex items-center justify-between bg-emerald-50/20">
+            <div>
+                <span class="text-xs text-emerald-700 font-black block">صافي البيع (بعد التوصيل)</span>
+                <span class="text-xl font-black text-emerald-700">@(((decimal)(ViewBag.KpiNetSales ?? 0m)).ToString("N2")) د.أ</span>
+            </div>
+            <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter & Quick Actions Bar (DRY Partial) -->
+    <partial name="~/Views/Shared/Partials/Logistics/_DateRangeFilter.cshtml" view-data='new ViewDataDictionary(ViewData) { { "AreaName", "Admin" }, { "ControllerName", "DeliveryDispatch" }, { "ActionName", "Index" } }' />
+
+    <!-- Charts & Analytics Section (DRY Partial) -->
+    <partial name="~/Views/Shared/Partials/Logistics/_LogisticsCharts.cshtml" view-data='new ViewDataDictionary(ViewData) { { "ChartSuffix", "AdminDispatch" } }' />
+
+    <!-- Status Filter Tabs -->
+    @{
+        var currentStatus = ViewBag.CurrentStatus as DeliveryJobStatus?;
+    }
+    <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-3">
+        <a asp-action="Index" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == null ? "bg-slate-900 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">الكل</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Available" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Available ? "bg-amber-500 text-white shadow-sm" : "bg-amber-50 text-amber-700 hover:bg-amber-100")">متاح (سوق العمل)</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Assigned" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Assigned ? "bg-blue-600 text-white shadow-sm" : "bg-blue-50 text-blue-700 hover:bg-blue-100")">تم التعيين</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.PickedUp" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.PickedUp ? "bg-purple-600 text-white shadow-sm" : "bg-purple-50 text-purple-700 hover:bg-purple-100")">تم الاستلام</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.InTransit" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.InTransit ? "bg-indigo-600 text-white shadow-sm" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100")">في الطريق</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Delivered" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Delivered ? "bg-emerald-600 text-white shadow-sm" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100")">تم التسليم</a>
+        <a asp-action="Index" asp-route-status="@DeliveryJobStatus.Returned" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all @(currentStatus == DeliveryJobStatus.Returned ? "bg-rose-600 text-white shadow-sm" : "bg-rose-50 text-rose-700 hover:bg-rose-100")">مرتجع</a>
+    </div>
+
+    <!-- Jobs Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+            <h2 class="font-bold text-slate-700">جميع مهام التوصيل</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-right">رقم المهمة</th>
+                        <th class="px-4 py-3 text-right">رقم الطلب</th>
+                        <th class="px-4 py-3 text-right">موقع التسليم</th>
+                        <th class="px-4 py-3 text-right">المندوب</th>
+                        <th class="px-4 py-3 text-right">رسوم التوصيل</th>
+                        <th class="px-4 py-3 text-right">الحالة</th>
+                        <th class="px-4 py-3 text-right">إجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var job in Model.Items)
+                    {
+                        var statusClass = job.Status switch
+                        {
+                            DeliveryJobStatus.Available => "bg-amber-100 text-amber-700",
+                            DeliveryJobStatus.Assigned => "bg-blue-100 text-blue-700",
+                            DeliveryJobStatus.PickedUp => "bg-purple-100 text-purple-700",
+                            DeliveryJobStatus.InTransit => "bg-indigo-100 text-indigo-700",
+                            DeliveryJobStatus.Delivered => "bg-emerald-100 text-emerald-700",
+                            DeliveryJobStatus.Cancelled => "bg-red-100 text-red-700",
+                            _ => "bg-slate-100 text-slate-700"
+                        };
+                        var statusText = job.Status switch
+                        {
+                            DeliveryJobStatus.Available => "متاح",
+                            DeliveryJobStatus.Assigned => "تم التعيين",
+                            DeliveryJobStatus.PickedUp => "تم الاستلام",
+                            DeliveryJobStatus.InTransit => "في الطريق",
+                            DeliveryJobStatus.Delivered => "تم التسليم",
+                            DeliveryJobStatus.Cancelled => "ملغي",
+                            _ => job.Status.ToString()
+                        };
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3 font-mono">#@job.Id</td>
+                            <td class="px-4 py-3">
+                                @(job.Order?.OrderNumber ?? "-")
+                                @if (job.Order != null && job.Order.HasOversizedItems)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 ml-2 text-xs font-bold text-amber-700 bg-amber-100 rounded-full" title="طلب شحن ثقيل">
+                                        🚚 ثقيل
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-4 py-3 text-slate-600">@job.DropoffLocation</td>
+                            <td class="px-4 py-3">
+                                @if (job.Driver?.User != null)
+                                {
+                                    <span class="font-medium">@job.Driver.User.FirstName @job.Driver.User.LastName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400">—</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3 font-medium">@job.DeliveryFee.ToString("N2") د.أ</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 text-xs font-bold rounded-full @statusClass">@statusText</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <a asp-action="JobDetails" asp-route-id="@job.Id"
+                                   class="text-blue-600 hover:underline text-sm">التفاصيل</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-slate-400">لا توجد مهام توصيل حتى الآن</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="@(Model as IPagedList<object>)" />
+    </div>
+</div>
+
+<!-- Hybrid Dispatch Assignment Modal (LogesTechs / Internal Driver / Supplier Fleet) -->
+<div id="hybridDispatchModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4" dir="rtl">
+    <div class="bg-white rounded-3xl max-w-2xl w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden" style="max-height: 85vh;">
+        
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-slate-900 text-[#E8A020] flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-xl">local_shipping</span>
+                </div>
+                <div>
+                    <h3 class="font-black text-base text-slate-900" id="dispatchModalTitle">توجيه وإرسال الشحنة</h3>
+                    <p class="text-slate-400 text-xs font-medium mt-0.5">اختر مسار التوصيل المناسب للطلب</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeHybridDispatchModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+            <input type="hidden" id="dispatchOrderId" value="" />
+
+            <!-- Dispatch Method Selector Tabs -->
+            <div class="grid grid-cols-3 gap-3 p-1.5 bg-slate-100 rounded-2xl">
+                <button type="button" onclick="switchDispatchTab('logestechs')" id="tab_logestechs" class="py-2.5 px-3 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5">
+                    <span>🚚 شركة Green Line (GLC API)</span>
+                </button>
+                <button type="button" onclick="switchDispatchTab('internal')" id="tab_internal" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                    <span>🛵 سائق داخلي</span>
+                </button>
+                <button type="button" onclick="switchDispatchTab('supplier')" id="tab_supplier" class="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                    <span>🏗️ أسطول المورد</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: LogesTechs API Integration -->
+            <div id="content_logestechs" class="space-y-4">
+                <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-amber-900 block">ربط أوتوماتيكي بـ LogesTechs REST API:</span>
+                    <p class="text-[11px] text-amber-800">سيتم إنشاء الشحنة فوراً لدى LogesTechs واستخراج الباركود وبوليصة الشحن AWB مع تفعيل التتبع التلقائي.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-xs font-black text-slate-800">المنطقة والمدينة المحددة (LogesTechs Villages):</label>
+                    <input type="text" id="logestechsVillageSearch" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-xs font-bold text-slate-900 outline-none" placeholder="ابحث عن اسم المنطقة أو القرية..." oninput="searchLogesTechsVillages(this.value)" />
+                    <select id="logestechsVillageSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 outline-none">
+                        <option value="">-- اختر المنطقة / القرية --</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">ملاحظات التوصيل للشركة (ملاحظات للسائق):</label>
+                    <textarea id="logestechsNotes" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none" placeholder="مثال: يرجى التوصيل للموقع وإحضار رافعة"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2: Internal Drivers (Existing Hub) -->
+            <div id="content_internal" class="space-y-4 hidden">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-indigo-900 block">إسناد لسائق من أسطول المنصة الداخلي:</span>
+                    <p class="text-[11px] text-indigo-800">سيتم توجيه الشحنة مباشرة لشاشة/تطبيق السائق المحدد مع تعيين عمولة التوصيل.</p>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">رسوم عمولة التوصيل (د.أ):</label>
+                    <input type="number" step="0.01" id="internalDeliveryFee" value="5.00" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 outline-none" />
+                </div>
+            </div>
+
+            <!-- Tab 3: Supplier Fleet (Heavy Construction Materials) -->
+            <div id="content_supplier" class="space-y-4 hidden">
+                <div class="bg-slate-100 border border-slate-200 rounded-2xl p-4 space-y-1">
+                    <span class="text-xs font-black text-slate-900 block">توصيل أسطول المورد / المصنع المباشر:</span>
+                    <p class="text-[11px] text-slate-600">مخصص لمواد البناء الثقيلة (إسمنت، حديد، رمال) التي تُشحن بواسطة شاحنات المصنع المباشرة.</p>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-black text-slate-800">تفاصيل شاحنة وملاحظات المورد:</label>
+                    <textarea id="supplierFleetNotes" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none" placeholder="اسم سائق الشاحنة / رقم اللوحة / موعد خروج الشاحنة..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 px-6 bg-slate-100 border-t border-slate-200 flex items-center justify-end gap-3 shrink-0">
+            <button type="button" onclick="closeHybridDispatchModal()" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200 transition-all">
+                إلغاء
+            </button>
+            <button type="button" onclick="submitHybridDispatch()" class="bg-[#E8A020] hover:bg-[#d49018] text-slate-950 font-black px-8 py-2.5 rounded-xl text-xs transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">send</span>
+                <span>تأكيد وتوجيه الشحنة 🚀</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeDispatchTab = 'logestechs';
+
+    function openHybridDispatchModal(orderId, orderNumber) {
+        document.getElementById('dispatchOrderId').value = orderId;
+        document.getElementById('dispatchModalTitle').textContent = `توجيه وإرسال الشحنة للطلب رقم #${orderNumber}`;
+        document.getElementById('hybridDispatchModal').classList.remove('hidden');
+        loadLogesTechsVillages();
+    }
+
+    function closeHybridDispatchModal() {
+        document.getElementById('hybridDispatchModal').classList.add('hidden');
+    }
+
+    function switchDispatchTab(tab) {
+        activeDispatchTab = tab;
+        ['logestechs', 'internal', 'supplier'].forEach(t => {
+            const tabBtn = document.getElementById(`tab_${t}`);
+            const content = document.getElementById(`content_${t}`);
+            if (t === tab) {
+                tabBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5';
+                content.classList.remove('hidden');
+            } else {
+                tabBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1.5';
+                content.classList.add('hidden');
+            }
+        });
+    }
+
+    function loadLogesTechsVillages(search = '', targetArea = '', targetCity = '') {
+        fetch(`@Url.Action("GetLogesTechsVillages", "DeliveryDispatch", new { area = "Admin" })?search=${encodeURIComponent(search)}`)
+            .then(r => r.json())
+            .then(list => {
+                const select = document.getElementById('logestechsVillageSelect');
+                select.innerHTML = '<option value="">-- اختر المنطقة / القرية --</option>';
+                let matchedValue = '';
+
+                if (list && list.length > 0) {
+                    list.forEach(item => {
+                        const opt = document.createElement('option');
+                        const val = `${item.cityId}_${item.regionId}_${item.id}`;
+                        opt.value = val;
+                        opt.textContent = `${item.arabicName || item.name} - (مدينة: ${item.cityName || item.cityId})`;
+                        select.appendChild(opt);
+
+                        if (!matchedValue && targetArea) {
+                            const itemName = (item.arabicName || item.name || '').toLowerCase();
+                            const queryArea = targetArea.toLowerCase();
+                            if (itemName.includes(queryArea) || queryArea.includes(itemName)) {
+                                matchedValue = val;
+                            }
+                        }
+                    });
+
+                    if (matchedValue) {
+                        select.value = matchedValue;
+                    }
+                }
+            })
+            .catch(() => console.log('Could not load villages'));
+    }
+
+    let villageSearchTimeout;
+    function searchLogesTechsVillages(val) {
+        clearTimeout(villageSearchTimeout);
+        villageSearchTimeout = setTimeout(() => loadLogesTechsVillages(val), 400);
+    }
+
+    function submitHybridDispatch() {
+        const orderId = document.getElementById('dispatchOrderId').value;
+        if (!orderId) return;
+
+        if (activeDispatchTab === 'logestechs') {
+            const selectVal = document.getElementById('logestechsVillageSelect').value;
+            if (!selectVal) {
+                showTailwindToast('يرجى اختيار المنطقة والمدينة لـ LogesTechs أولاً.', 'error');
+                return;
+            }
+            const parts = selectVal.split('_');
+            const cityId = parts[0];
+            const regionId = parts[1];
+            const villageId = parts[2];
+            const notes = document.getElementById('logestechsNotes').value;
+
+            showTailwindToast('جاري رفع الشحنة لدى LogesTechs واستخراج الـ Barcode...', 'success');
+
+            const params = new URLSearchParams({
+                orderId: orderId,
+                cityId: cityId,
+                regionId: regionId,
+                villageId: villageId,
+                notes: notes
+            });
+
+            fetch('@Url.Action("DispatchToLogesTechs", "DeliveryDispatch", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': __antiForgeryToken
+                },
+                body: params
+            })
+            .then(r => r.json())
+            .then(res => {
+                showTailwindToast(res.message, res.success ? 'success' : 'error');
+                if (res.success) {
+                    closeHybridDispatchModal();
+                    setTimeout(() => location.reload(), 1200);
+                }
+            })
+            .catch(() => showTailwindToast('تعذّر توجيه الشحنة. حاول مجدداً.', 'error'));
+        } 
+        else if (activeDispatchTab === 'internal') {
+            const fee = document.getElementById('internalDeliveryFee').value;
+            const params = new URLSearchParams({ orderId: orderId, deliveryFee: fee });
+            fetch('@Url.Action("CreateJob", "DeliveryDispatch", new { area = "Admin" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': __antiForgeryToken
+                },
+                body: params
+            }).then(() => location.reload());
+        }
+        else {
+            showTailwindToast('تم اعتماد شحن الطلب عبر أسطول المورد بنجاح 🟢', 'success');
+            closeHybridDispatchModal();
+            setTimeout(() => location.reload(), 1000);
+        }
+    }
+
+    function printAwb(packageId) {
+        showTailwindToast('جاري استرجاع بوليصة الشحن AWB PDF...', 'success');
+        fetch('@Url.Action("PrintAwbPdf", "DeliveryDispatch", new { area = "Admin" })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': __antiForgeryToken
+            },
+            body: new URLSearchParams({ packageId: packageId })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success && res.pdfUrl) {
+                window.open(res.pdfUrl, '_blank');
+            } else {
+                showTailwindToast(res.message, 'error');
+            }
+        });
+    }
+</script>
+

@@ -7,34 +7,34 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
     {
         public int? ProductId { get; set; }
 
-        [Required(ErrorMessage = "Product Name is required.")]
+        [Required(ErrorMessage = "اسم المنتج مطلوب / Product Name is required.")]
         public string ProductName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Quantity is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
+        [Required(ErrorMessage = "الكمية مطلوبة / Quantity is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "الكمية يجب أن تكون 1 على الأقل / Quantity must be at least 1.")]
         public int Quantity { get; set; }
 
-        [Required(ErrorMessage = "Unit is required.")]
+        [Required(ErrorMessage = "الوحدة مطلوبة / Unit is required.")]
         public string Unit { get; set; } = string.Empty;
     }
 
     public class QuoteRequestDto
     {
-        [Required(ErrorMessage = "Full Name is required.")]
+        [Required(ErrorMessage = "الاسم الكامل مطلوب / Full Name is required.")]
         public string FullName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Company Name is required.")]
+        [Required(ErrorMessage = "اسم الشركة مطلوب / Company Name is required.")]
         public string CompanyName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid Email Address.")]
+        [Required(ErrorMessage = "البريد الإلكتروني مطلوب / Email is required.")]
+        [EmailAddress(ErrorMessage = "بريد إلكتروني غير صالح / Invalid Email Address.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Phone is required.")]
-        [Phone(ErrorMessage = "Invalid Phone Number.")]
+        [Required(ErrorMessage = "رقم الهاتف مطلوب / Phone is required.")]
+        [Phone(ErrorMessage = "رقم هاتف غير صالح / Invalid Phone Number.")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "City is required.")]
+        [Required(ErrorMessage = "المدينة مطلوبة / City is required.")]
         public string City { get; set; } = string.Empty;
 
         public string? ProjectName { get; set; }

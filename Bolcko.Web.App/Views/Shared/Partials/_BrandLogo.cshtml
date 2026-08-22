@@ -1,61 +1,79 @@
 @model (bool IsIconOnly, bool IsAdmin, string Theme, string Height)
 @{
     bool isIconOnly = Model.IsIconOnly;
-    bool isAdmin = Model.IsAdmin;
-    string theme = Model.Theme ?? "light"; // "light" or "dark"
-    string height = Model.Height ?? "h-10"; // CSS height class
+    bool isAdmin    = Model.IsAdmin;
+    string theme    = Model.Theme ?? "light";
+    string heightCls = Model.Height ?? "h-10";
 
-    string darkColor = "#0F172A";
-    string lightColor = "#FFFFFF";
-    string brandColor = "#E8A020";
-    
-    string fillTextMain = theme == "dark" ? lightColor : darkColor;
-    string fillTextSubtitle = theme == "dark" ? "#94A3B8" : "#64748B";
+    // Dynamic width class derived directly from the height class to prevent horizontal squishing
+    // e.g. "h-10" -> "w-10", "h-6 lg:h-9" -> "w-6 lg:w-9"
+    string widthCls = heightCls.Replace("h-", "w-");
+
+    // Detect language culture
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+    // Dynamic classes based on theme
+    string textColorClass = theme == "dark" ? "text-white" : "text-slate-900";
+    string subtitleColorClass = theme == "dark" ? "text-slate-400" : "text-slate-500";
 }
 
-<div class="flex items-center gap-3" dir="ltr">
-    @if (isIconOnly)
-    {
-        <!-- Icon Only (Collapsed Sidebar) -->
-        <svg viewBox="0 0 100 100" class="@height aspect-square w-auto" xmlns="http://www.w3.org/2000/svg">
-            <!-- Yellow Rounded Square Icon -->
-            <rect x="10" y="10" width="80" height="80" rx="20" fill="#E8A020" />
-            <!-- Stylized White Blocks inside the Icon -->
-            <rect x="28" y="26" width="12" height="48" rx="6" fill="#FFFFFF" />
-            <rect x="52" y="30" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
-            <rect x="52" y="58" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
-        </svg>
-    }
-    else
-    {
-        <!-- Full Logo (Header, Footer, Open Sidebar) -->
-        <svg viewBox="0 0 450 100" class="@height w-auto" xmlns="http://www.w3.org/2000/svg">
-            <!-- Icon -->
-            <rect x="10" y="10" width="80" height="80" rx="20" fill="#E8A020" />
-            <rect x="28" y="26" width="12" height="48" rx="6" fill="#FFFFFF" />
-            <rect x="52" y="30" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
-            <rect x="52" y="58" width="16" height="12" rx="4" fill="none" stroke="#FFFFFF" stroke-width="6" />
+@*
+    BLOCKO Bilingual Premium Logo
+    - Icon: Yellow rounded square with B cutout (SVG Mask based for true transparency).
+    - Text: Space Grotesk (for English) or Noto Kufi Arabic (for Arabic).
+    - Layout Order: Always [Icon] then [Text] in HTML.
+      - In LTR (English): Icon on Left, Text on Right -> reads B + LOCKO = BLOCKO.
+      - In RTL (Arabic): Icon on Right, Text on Left -> reads B + لوكو = بلوكو.
+*@
 
-            <!-- Brand Text -->
-            @if (isAdmin)
-            {
-                <!-- Admin Mode -->
-                @Html.Raw($"<text x=\"110\" y=\"56\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"44\" font-weight=\"900\" fill=\"{fillTextMain}\" letter-spacing=\"1\">BOLCKO</text>")
-                @Html.Raw($"<text x=\"295\" y=\"56\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"44\" font-weight=\"900\" fill=\"{brandColor}\" letter-spacing=\"1\">ADMIN</text>")
-                
-                <line x1="110" y1="72" x2="385" y2="72" stroke="#E8A020" stroke-width="4" />
-                @Html.Raw($"<text x=\"110\" y=\"88\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"12\" font-weight=\"900\" fill=\"{fillTextSubtitle}\" letter-spacing=\"2\">DASHBOARD MANAGEMENT</text>")
-            }
-            else
-            {
-                <!-- Standard/Shop Mode -->
-                @Html.Raw($"<text x=\"110\" y=\"65\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"62\" font-weight=\"900\" fill=\"{fillTextMain}\" letter-spacing=\"1\">BOLCKO</text>")
-                @Html.Raw($"<text x=\"380\" y=\"30\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"{fillTextMain}\">®</text>")
+<div class="flex items-center gap-2.5 select-none @heightCls" @(isAdmin ? "dir=ltr" : "")>
+    <!-- B Icon (Always first in HTML) -->
+    <svg viewBox="0 0 56 56" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg" class="@heightCls @widthCls flex-shrink-0 hover:scale-105 transition-transform duration-200">
+        <defs>
+            <mask id="brand-b-mask">
+                <rect width="56" height="56" fill="white" />
+                <path d="M 24.5,12 H 30 A 5,5 0 0 1 35,17 V 19 A 5,5 0 0 1 30,24 H 24.5 Z" fill="black" />
+                <path d="M 24.5,32 H 31 A 6,6 0 0 1 37,38 V 43 A 6,6 0 0 1 31,49 H 24.5 Z" fill="black" />
+            </mask>
+        </defs>
+        <rect width="56" height="56" rx="12" fill="#E8A020" mask="url(#brand-b-mask)" />
+    </svg>
 
-                <line x1="110" y1="76" x2="385" y2="76" stroke="#E8A020" stroke-width="3" />
-                @Html.Raw($"<text x=\"120\" y=\"88\" font-family=\"'Work Sans', 'Inter', sans-serif\" font-size=\"11\" font-weight=\"900\" fill=\"{fillTextSubtitle}\" letter-spacing=\"5\">CONSTRUCTION SUPPLIES</text>")
-                <line x1="110" y1="94" x2="385" y2="94" stroke="#E8A020" stroke-width="1.5" />
-            }
-        </svg>
+    @if (!isIconOnly)
+    {
+        @if (isAdmin)
+        {
+            <!-- Admin Sidebar Text (Forced LTR) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="ltr">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-extrabold text-[17px] tracking-[1.5px] uppercase font-display leading-none @textColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">LOCKO</span>
+                    <span class="font-bold text-[11px] text-[#E8A020] tracking-[1px] uppercase leading-none ms-1" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">ADMIN</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">DASHBOARD MANAGEMENT</span>
+            </div>
+        }
+        else if (isArabic)
+        {
+            <!-- Arabic Shop Text (RTL friendly, naturally aligns to the left of the Icon) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="rtl">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-black text-[18px] tracking-[0.5px] uppercase leading-none @textColorClass" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">بلوكو</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[0.5px] uppercase mt-1.5 @subtitleColorClass hidden sm:block" style="font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif;">التوريدات الإنشائية</span>
+            </div>
+        }
+        else
+        {
+            <!-- English Shop Text (LTR friendly, naturally aligns to the right of the Icon) -->
+            <div class="flex flex-col justify-center leading-none text-start" dir="ltr">
+                <div class="flex items-baseline gap-1">
+                    <span class="font-extrabold text-[17px] tracking-[1.5px] uppercase font-display leading-none @textColorClass" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">BLOCKO</span>
+                    <sup class="text-[8px] font-bold opacity-40 @textColorClass leading-none">&#174;</sup>
+                </div>
+                <span class="text-[6.5px] font-bold tracking-[3.5px] uppercase mt-1.5 @subtitleColorClass hidden sm:block" style="font-family: 'Space Grotesk', 'Work Sans', sans-serif;">CONSTRUCTION SUPPLIES</span>
+            </div>
+        }
     }
 </div>

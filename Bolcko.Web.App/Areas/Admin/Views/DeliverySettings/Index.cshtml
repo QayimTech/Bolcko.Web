@@ -1,0 +1,546 @@
+@using Bolcko.Domain.Entities.Delivery
+@model IEnumerable<DeliveryProviderConfig>
+@{
+    ViewData["Title"] = "تكامل ومزودي شركات التوصيل (Multi-Provider API Hub)";
+    ViewData["ParentTitle"] = "مركز اللوجستيات والتوزيع";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var baseWebhookUrl = ViewBag.BaseWebhookUrl as string;
+}
+
+<div class="p-4 md:p-8 space-y-6 text-right font-sans min-h-screen max-w-7xl mx-auto" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-emerald-600 text-xl">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-rose-600 text-xl">error</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- Header Actions Zone -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-2xl">hub</span>
+            </div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-lg md:text-xl font-black text-slate-900">
+                        مركز تكامل شركات التوصيل المزدوجة (Multi-Provider Delivery Hub)
+                    </h2>
+                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-black">
+                        Dynamic Multi-API Engine
+                    </span>
+                </div>
+                <p class="text-slate-400 text-xs font-medium">
+                    إضافة وتفعيل أي عدد من شركات التوصيل الخارجية (GLC LogesTechs, Aramex, DHL) بروابط API و Webhooks مستقلة
+                </p>
+            </div>
+        </div>
+
+        <button type="button" onclick="openAddProviderModal()" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 shrink-0">
+            <span class="material-symbols-outlined text-lg text-[#E8A020]">add_circle</span>
+            <span>إضافة شركة توصيل جديدة ➕</span>
+        </button>
+    </div>
+
+    <!-- Active Providers Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var provider in Model)
+            {
+                var providerWebhookUrl = $"{baseWebhookUrl}/{provider.ProviderKey}/{provider.CompanyId ?? "0"}";
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all space-y-4">
+                    
+                    <!-- Top Bar -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] border border-amber-200 flex items-center justify-center font-black">
+                                <span class="material-symbols-outlined text-xl">local_shipping</span>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900">@provider.ProviderName</h3>
+                                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 font-mono text-[10px] text-slate-600 font-bold">@provider.ProviderKey</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black @(provider.IsActive ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200")">
+                                @(provider.IsActive ? "مفعل شغال ⚡" : "معطل ⏸️")
+                            </span>
+                            <button type="button" onclick='editProviderModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(provider)))' class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Config Attributes Grid -->
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 space-y-2.5 text-xs">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-slate-500 font-bold shrink-0">عنوان الـ API:</span>
+                            <span class="font-mono font-bold text-slate-900 truncate text-left dir-ltr" title="@provider.BaseUrl">@provider.BaseUrl</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-slate-500 font-bold shrink-0">معرّف الشركة (Company-ID):</span>
+                            <span class="font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-mono">@(string.IsNullOrEmpty(provider.CompanyId) ? "غير محدد" : provider.CompanyId)</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-slate-500 font-bold shrink-0">البريد الإلكتروني للـ API:</span>
+                            <span class="font-bold text-slate-800 font-mono truncate text-left dir-ltr">@provider.ApiEmail</span>
+                        </div>
+                    </div>
+
+                    <!-- Webhook Box -->
+                    <div class="p-3 rounded-2xl bg-slate-900 text-amber-300 text-xs font-mono space-y-1 shadow-inner">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-sans font-bold">
+                            <span>رابط الاستماع الخاص بها (Inbound Webhook):</span>
+                            <button type="button" onclick="copyText('@providerWebhookUrl')" class="text-amber-400 hover:text-amber-300 font-black flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">content_copy</span>
+                                <span>نسخ</span>
+                            </button>
+                        </div>
+                        <div class="dir-ltr text-left select-all truncate text-slate-200 text-[11px]" title="@providerWebhookUrl">@providerWebhookUrl</div>
+                    </div>
+
+                    <!-- Bottom Actions -->
+                    <div class="pt-1 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="toggleProviderStatus(@provider.Id)" class="text-xs font-bold text-slate-600 hover:text-slate-900 underline">
+                                @(provider.IsActive ? "تعطيل الشركة" : "تفعيل الشركة")
+                            </button>
+                            <button type="button" onclick="deleteProviderConfig(@provider.Id, '@provider.ProviderName')" class="text-xs font-bold text-rose-600 hover:text-rose-800 underline flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs">delete</span>
+                                <span>حذف</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="syncProviderLocations('@provider.ProviderKey')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm">
+                                <span class="material-symbols-outlined text-sm">sync</span>
+                                <span>مزامنة مناطق وقرى الشركة 🗺️</span>
+                            </button>
+                            <button type="button" onclick="testLogesTechsConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm border border-slate-800">
+                                <span class="material-symbols-outlined text-sm">sensors</span>
+                                <span>فحص الاتصال بالـ API 📡</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Default GLC LogesTechs Seed Provider Card -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-[#E8A020] flex items-center justify-center font-black">
+                            <span class="material-symbols-outlined text-xl">local_shipping</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Green Line Company (GLC / LogesTechs)</h3>
+                            <p class="text-[11px] font-mono text-slate-400">LogesTechs White Label API</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">مفعل شغال ⚡</span>
+                </div>
+
+                <p class="text-xs text-slate-500 font-bold">اضغط على زر [ إضافة شركة توصيل جديدة ] لربط أي شركة توصيل إضافية بروابط API و Webhook مستقلة!</p>
+                <button type="button" onclick="openAddProviderModal()" class="w-full bg-[#E8A020] text-slate-950 font-black py-2.5 rounded-2xl text-xs">إضافة وإعداد شركة للتوصيل المباشر ➕</button>
+            </div>
+        }
+    </div>
+
+    <!-- Governorates and Shipping Rates -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-xl">map</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-900">المحافظات ورسوم التوصيل العادي</h3>
+                <p class="text-slate-400 text-xs font-medium">إدارة تكلفة التوصيل لكل محافظة على حدة</p>
+            </div>
+        </div>
+        
+        <div class="bg-slate-50 p-6 border border-slate-100 rounded-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-xs font-bold text-slate-600 uppercase tracking-widest text-start">تكاليف توصيل المحافظات المحددة</h4>
+                <button type="button" id="btn-add-city" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    إضافة محافظة جديدة
+                </button>
+            </div>
+            
+            <div id="city-rates-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @if (ViewBag.ShippingRates != null)
+                {
+                    foreach (var rate in (List<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
+                    {
+                        <div class="city-rate-row bg-white p-4 border border-slate-200 rounded relative group">
+                            <form asp-action="UpdateShippingRate" method="post" class="flex flex-col gap-2">
+                                <input type="hidden" name="id" value="@rate.Id" />
+                                <input type="hidden" name="cityName" value="@rate.CityName" />
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1 text-start">توصيل إلى (@rate.CityName)</label>
+                                <input name="cityNameEn" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="@rate.CityNameEn" placeholder="الاسم (إنجليزي)" />
+                                <div class="flex items-center gap-2">
+                                    <input name="rate" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 text-slate-900 focus:border-primary outline-none text-start text-xs font-bold rounded" value="@rate.Rate.ToString("F2")" required />
+                                    <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white text-[10px] px-2 py-1.5 rounded font-bold">تحديث</button>
+                                </div>
+                            </form>
+                            <form asp-action="DeleteShippingRate" method="post">
+                                <input type="hidden" name="id" value="@rate.Id" />
+                                <button type="submit" onclick="return confirm('هل أنت متأكد من حذف محافظة (@rate.CityName)؟')" class="absolute top-2 left-2 text-slate-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Express Delivery Settings -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col gap-6">
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] border border-amber-200 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-xl">bolt</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-900">إعدادات التوصيل الفوري (Express Delivery)</h3>
+                <p class="text-slate-400 text-xs font-medium">تفعيل وإدارة خيار التوصيل السريع وتكلفته</p>
+            </div>
+        </div>
+        
+        <form asp-action="SaveExpressDeliverySettings" method="post" class="bg-slate-50 p-6 border border-slate-100 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">حالة التفعيل</label>
+                <div class="flex items-center gap-3 bg-white border border-slate-200 px-4 py-3 rounded">
+                    <input type="checkbox" name="enableExpressDelivery" value="true" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" @(ViewBag.EnableExpressDelivery == "true" ? "checked" : "") />
+                    <span class="text-sm text-slate-700 font-bold">تفعيل خيار التوصيل الفوري للعملاء</span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رسوم التوصيل الفوري (دينار)</label>
+                <input name="expressDeliveryFee" type="text" dir="ltr" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-bold" value="@(ViewBag.ExpressDeliveryFee ?? "5.00")" required />
+            </div>
+            <div class="md:col-span-2 mt-2">
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-6 rounded-2xl shadow-md transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">save</span>
+                    حفظ إعدادات التوصيل الفوري
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Custom Modal for Adding City -->
+<div id="cityModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-slate-900 bg-opacity-55 backdrop-blur-sm transition-all duration-300 animate-in fade-in">
+    <div class="bg-white border border-slate-200 p-8 w-full max-w-md shadow-2xl rounded-sm transform scale-95 transition-all duration-300">
+        <h3 class="text-base font-bold text-slate-800 border-b pb-3 mb-4 text-start">إضافة محافظة جديدة للتوصيل</h3>
+        <form asp-action="AddShippingRate" method="post" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اسم المحافظة</label>
+                <input name="cityName" id="modalCityName" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" placeholder="مثال: العقبة، الطفيلة" required />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">اسم المحافظة (إنجليزي)</label>
+                <input name="cityNameEn" type="text" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" placeholder="e.g. Aqaba, Tafilah" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">تكلفة التوصيل</label>
+                <input name="rate" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="5.00" required />
+            </div>
+            <div class="flex items-center gap-3 pt-4 justify-end">
+                <button type="button" id="modalCloseBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 transition-all">إلغاء</button>
+                <button type="submit" class="bg-primary text-white text-xs font-bold px-5 py-2.5 shadow-hard hover:opacity-90 transition-all">إضافة المحافظة</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add / Edit Provider Tailwind Modal -->
+<div id="providerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col text-right font-sans relative my-auto max-h-[70vh] overflow-hidden" dir="rtl">
+        
+        <!-- Modal Header (Fixed Height) -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white shrink-0 rounded-t-3xl">
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-2" id="modalTitle">
+                <span class="material-symbols-outlined text-[#E8A020]">add_box</span>
+                <span>إعداد شركة توصيل وربط الـ API ديناميكياً</span>
+            </h3>
+            <button type="button" onclick="closeProviderModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body (Pure Y-Axis Scroll Container) -->
+        <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <form id="providerForm" asp-action="SaveConfig" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="p_Id" name="Id" value="0" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">اسم شركة التوصيل *</label>
+                        <input type="text" id="p_ProviderName" name="ProviderName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-bold text-slate-900 focus:bg-white outline-none" placeholder="مثال: Green Line / Aramex" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رمز الشركة (ProviderKey) *</label>
+                        <input type="text" id="p_ProviderKey" name="ProviderKey" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="glc / aramex" />
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رابط الـ API المباشر لإنشاء الشحنة (Create Shipment Endpoint URL) *</label>
+                        <input type="url" id="p_BaseUrl" name="BaseUrl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-mono font-bold text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="https://apisv2.logestechs.com/api/ship/request/by-email" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">معرّف الشركة لدى السستم (Company-ID) *</label>
+                        <input type="text" id="p_CompanyId" name="CompanyId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="410 أو GLC" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">البريد الإلكتروني للـ API *</label>
+                        <input type="email" id="p_ApiEmail" name="ApiEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="info@bolcko.com" />
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">كلمة المرور للـ API *</label>
+                        <input type="password" id="p_ApiPassword" name="ApiPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 px-3 text-xs font-black text-slate-900 focus:bg-white outline-none dir-ltr text-left" placeholder="••••••••••••" />
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">رابط الاستماع (Webhook URL) الذي سيتم إرساله للشركة:</label>
+                        <input type="url" id="p_OutboundWebhookUrl" name="OutboundWebhookUrl" class="w-full bg-slate-900 text-amber-400 border border-slate-800 rounded-xl h-10 px-3 text-xs font-mono font-bold focus:bg-slate-950 outline-none dir-ltr text-left" placeholder="https://bolcko.com/api/v1/webhooks/delivery/glc/186" />
+                        <p class="text-[10px] text-slate-500 font-bold mt-1">قم بنسخ (رابط الاستماع الخاص بها) الموجود في البطاقة بالخارج، والصقه هنا ليتم إرساله مع كل طلب جديد لتقوم الشركة بالرد عليه بالتحديثات.</p>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">تخصيص الهيدرز لـ HTTP Requests (Custom Headers JSON):</label>
+                        <textarea id="p_CustomHeadersJson" name="CustomHeadersJson" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono font-bold text-amber-400 focus:bg-slate-900 outline-none dir-ltr text-left" placeholder='{ "company-id": "186" }'></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-xs font-bold text-slate-700">قالب الـ Payload المتوقع المخصص (Expected Dynamic JSON Payload Template):</label>
+                        <textarea id="p_CustomPayloadMappingJson" name="CustomPayloadMappingJson" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500 outline-none dir-ltr text-left resize-none" placeholder='{ "email": "{ApiEmail}", "password": "{ApiPassword}", "pkg": { "cod": {OrderTotal}, "invoiceNumber": "{OrderNumber}", "receiverName": "{CustomerName}", "receiverPhone": "{CustomerPhone}" } }'></textarea>
+                        <p class="text-[10px] text-slate-500 font-bold">المتغيرات التلقائية المدعومة: {OrderTotal}, {OrderNumber}, {CustomerName}, {CustomerPhone}, {OrderQuantity}, {OrderContents}, {GoogleMapsUrl}, {CustomerAddress}, {CityId}, {RegionId}, {VillageId}</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer (Fixed Height) -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 rounded-b-3xl">
+            <label class="relative inline-flex items-center cursor-pointer gap-2">
+                <input type="checkbox" id="p_IsActive" form="providerForm" name="IsActive" value="true" checked class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+                <span class="text-xs font-bold text-slate-800">تفعيل الشركة لرفع الطلبيات أوتوماتيكياً</span>
+            </label>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button type="button" onclick="testModalFormConnection()" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 border border-slate-800 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">sensors</span>
+                    <span>اختبار الـ API فورياً 📡</span>
+                </button>
+                <button type="button" onclick="closeProviderModal()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">إلغاء</button>
+                <button type="submit" form="providerForm" class="px-5 py-2 rounded-xl text-xs font-black text-slate-950 bg-[#E8A020] hover:bg-[#d49018] shadow-md">حفظ وإدراج 💾</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Open Add City modal
+            $('#btn-add-city').on('click', function () {
+                $('#modalCityName').val('');
+                $('#cityModal').removeClass('hidden').addClass('flex');
+                setTimeout(() => $('#modalCityName').focus(), 150);
+            });
+
+            // Close Add City modal
+            $('#modalCloseBtn').on('click', function () {
+                $('#cityModal').addClass('hidden').removeClass('flex');
+            });
+        });
+    </script>
+    <script>
+        function openAddProviderModal() {
+        document.getElementById('modalTitle').innerText = 'إعداد شركة توصيل وربط الـ API ديناميكياً';
+        document.getElementById('p_Id').value = '0';
+        document.getElementById('p_ProviderName').value = 'LogesTechs / GLC';
+        document.getElementById('p_ProviderKey').value = 'glc';
+        document.getElementById('p_BaseUrl').value = 'https://apisv2.logestechs.com/api/ship/request/by-email';
+        document.getElementById('p_OutboundWebhookUrl').value = 'https://bolcko.com/api/v1/webhooks/delivery/glc/186';
+        document.getElementById('p_CompanyId').value = '186';
+        document.getElementById('p_ApiEmail').value = 'hamza.a.alhmad@gmail.com';
+        document.getElementById('p_ApiPassword').value = 'Ham@123ham';
+        document.getElementById('p_CustomHeadersJson').value = JSON.stringify({ "company-id": "186" }, null, 2);
+        document.getElementById('p_CustomPayloadMappingJson').value = JSON.stringify({
+            email: "{ApiEmail}",
+            password: "{ApiPassword}",
+            pkgUnitType: "METRIC",
+            pkg: {
+                cod: "{OrderTotal}",
+                invoiceNumber: "{OrderNumber}",
+                senderName: "متجر بلوكو لتوريدات البناء",
+                businessSenderName: "GLC",
+                senderPhone: "0786791136",
+                receiverName: "{CustomerName}",
+                receiverPhone: "{CustomerPhone}",
+                serviceType: "STANDARD",
+                shipmentType: "COD",
+                paymentType: "CASH",
+                quantity: "{OrderQuantity}",
+                contents: "{OrderContents}",
+                notes: "{OrderItemsNotes}",
+                locationUrl: "{GoogleMapsUrl}"
+            },
+            webhookUrl: "{OutboundWebhookUrl}",
+            destinationAddress: { addressLine1: "{CustomerAddress}", cityId: "{CityId}", regionId: "{RegionId}", villageId: "{VillageId}" },
+            originAddress: { addressLine1: "عمان - حي معصوم", cityId: 395, regionId: 33, villageId: 18076 }
+        }, null, 2);
+        document.getElementById('p_IsActive').checked = true;
+        document.getElementById('providerModal').classList.remove('hidden');
+    }
+
+    function editProviderModal(provider) {
+        document.getElementById('modalTitle').innerText = 'تعديل شركة التوصيل والـ API';
+        document.getElementById('p_Id').value = provider.Id;
+        document.getElementById('p_ProviderName').value = provider.ProviderName || '';
+        document.getElementById('p_ProviderKey').value = provider.ProviderKey || '';
+        document.getElementById('p_BaseUrl').value = provider.BaseUrl || '';
+        document.getElementById('p_OutboundWebhookUrl').value = provider.OutboundWebhookUrl || '';
+        document.getElementById('p_CompanyId').value = provider.CompanyId || '';
+        document.getElementById('p_ApiEmail').value = provider.ApiEmail || '';
+        document.getElementById('p_ApiPassword').value = provider.ApiPassword || '';
+        document.getElementById('p_CustomHeadersJson').value = (provider.CustomHeadersJson && provider.CustomHeadersJson.includes('GLC')) ? '' : (provider.CustomHeadersJson || '');
+        document.getElementById('p_CustomPayloadMappingJson').value = provider.CustomPayloadMappingJson || '';
+        document.getElementById('p_IsActive').checked = provider.IsActive;
+        document.getElementById('providerModal').classList.remove('hidden');
+    }
+
+    function closeProviderModal() {
+        document.getElementById('providerModal').classList.add('hidden');
+    }
+
+    function copyText(txt) {
+        navigator.clipboard.writeText(txt);
+        window.showToast('تم نسخ الرابط بنجاح 📋', 'success');
+    }
+
+    function testModalFormConnection() {
+        const payload = {
+            ProviderName: document.getElementById('p_ProviderName').value,
+            ProviderKey: document.getElementById('p_ProviderKey').value,
+            BaseUrl: document.getElementById('p_BaseUrl').value,
+            CompanyId: document.getElementById('p_CompanyId').value,
+            ApiEmail: document.getElementById('p_ApiEmail').value,
+            ApiPassword: document.getElementById('p_ApiPassword').value,
+            CustomHeadersJson: document.getElementById('p_CustomHeadersJson').value
+        };
+
+        if (!payload.BaseUrl || !payload.ApiEmail) {
+            window.showToast('يرجى ملء رابط الـ API والبريد الإلكتروني لاختبار الاتصال ⚠️', 'error');
+            return;
+        }
+
+        window.showToast('جاري تجربة وفحص الاتصال بالـ API فورياً... 📡', 'success');
+
+        fetch('@Url.Action("TestProviderConnection", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(res => {
+            window.showToast(res.message, res.success ? 'success' : 'error');
+        })
+        .catch(err => {
+            window.showToast('حدث خطأ أثناء تجربة الاتصال بالـ API.', 'error');
+        });
+    }
+
+    function deleteProviderConfig(id, name) {
+        window.openTailwindConfirmModal(
+            'تأكيد إزالة شركة التوصيل',
+            `هل أنت تأكد من إزالة وحذف شركة التوصيل (${name}) نهائياً من السيستم؟`,
+            'delete',
+            'rose',
+            function() {
+                fetch('@Url.Action("DeleteProvider", "DeliverySettings", new { area = "Admin" })/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    window.showToast(res.message, res.success ? 'success' : 'error');
+                    if (res.success) {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(err => {
+                    window.showToast('حدث خطأ أثناء حذف الشركة.', 'error');
+                });
+            }
+        );
+    }
+
+    function toggleProviderStatus(id) {
+        fetch('@Url.Action("ToggleStatus", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}`
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                if (window.showToast) window.showToast(res.message, 'success'); else alert(res.message);
+                setTimeout(() => location.reload(), 800);
+            }
+        });
+    }
+
+    function syncProviderLocations(key) {
+        if (window.showToast) window.showToast('جاري مزامنة وحفظ جميع قرى ومناطق الشركة في قاعدة البيانات...', 'success');
+        fetch('@Url.Action("SyncLocations", "DeliverySettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `providerKey=${encodeURIComponent(key)}`
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (window.showToast) window.showToast(res.message, res.success ? 'success' : 'error');
+            else alert(res.message);
+        })
+        .catch(err => {
+            if (window.showToast) window.showToast('حدث خطأ أثناء مزامنة مناطق الشركة.', 'error');
+        });
+    }
+
+    function testLogesTechsConnection() {
+        if (window.showToast) window.showToast('جاري فحص الاتصال بالـ API...', 'success');
+        fetch('@Url.Action("TestConnection", "DeliverySettings", new { area = "Admin" })', { method: 'POST' })
+        .then(r => r.json())
+        .then(res => {
+            if (window.showToast) window.showToast(res.message, res.success ? 'success' : 'error');
+            else alert(res.message);
+        });
+    }
+</script>
+}

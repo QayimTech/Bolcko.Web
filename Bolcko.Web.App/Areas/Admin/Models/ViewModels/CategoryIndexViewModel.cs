@@ -6,5 +6,8 @@ namespace Bolcko.Web.App.Areas.Admin.Models.ViewModels
     public class CategoryIndexViewModel
     {
         public IPagedList<CategoryDto> Categories { get; set; } = null!;
+        public string? Search { get; set; }
+        public string? SortOrder { get; set; }
     }
+
 }

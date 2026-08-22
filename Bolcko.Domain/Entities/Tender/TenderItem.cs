@@ -9,6 +9,8 @@ namespace Bolcko.Domain.Entities.Tender
         public Tender Tender { get; set; } = null!;
         public int? ProductId { get; set; }
         public Bolcko.Domain.Entities.Product.Product? Product { get; set; }
+        public int? ProductVariantId { get; set; }
+        public Bolcko.Domain.Entities.Product.ProductVariant? ProductVariant { get; set; }
         public string? ProductName { get; set; }
         public string? Unit { get; set; }
         public decimal RequestedQuantity { get; set; }

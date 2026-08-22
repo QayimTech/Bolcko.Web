@@ -30,14 +30,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int productId, int quantity = 1, int? productVariantId = null)
         {
             string sessionId = GetSessionId();
             int? userId = GetUserId();
 
             try
             {
-                await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId);
+                await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId, productVariantId);
             }
             catch (Exception ex)
             {
@@ -146,6 +146,19 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), userId);
             ViewBag.Cart = cart;
+
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            ViewBag.ShippingRates = await uow.ShippingRates.GetAllAsync();
+
+            var enableExpressSetting = await uow.AppSettings.GetByKeyAsync("EnableExpressDelivery");
+            var feeSetting = await uow.AppSettings.GetByKeyAsync("ExpressDeliveryFee");
+
+            bool enableExpress = enableExpressSetting?.Value?.ToLower() == "true";
+            decimal expressFee = decimal.TryParse(feeSetting?.Value, out decimal f) ? f : 5.0m;
+
+            ViewBag.EnableExpressDelivery = enableExpress;
+            ViewBag.ExpressDeliveryFee = expressFee;
+
             return View(new CheckoutDto());
         }
 
@@ -178,6 +191,61 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             var order = await _orderService.PlaceOrderAsync(userId.Value, cart, checkoutDto);
             await _shoppingCartService.ClearCartAsync(sessionId, userId);
+
+            // Auto-Dispatch to Active Delivery Provider API (GLC / LogesTechs) if enabled and not oversized
+            try
+            {
+                var deliveryApiService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Delivery.IDeliveryApiService)) as Blocko.Services.Interfaces.Delivery.IDeliveryApiService;
+                var uow = HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork)) as Bolcko.Domain.Interfaces.IUnitOfWork;
+
+                var logMsg = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] AutoDispatch Triggered for Order #{order.Id} ({order.OrderNumber})\n";
+
+                if (deliveryApiService == null || uow == null)
+                {
+                    logMsg += " -> ERROR: deliveryApiService or uow Service is NULL!\n";
+                }
+                else
+                {
+                    var fullOrder = await uow.Orders.GetOrderByIdWithItemsAsync(order.Id);
+                    var activeConfig = await deliveryApiService.GetActiveConfigAsync();
+
+                    if (activeConfig == null)
+                    {
+                        logMsg += " -> SKIPPED: GetActiveConfigAsync returned NULL (No active provider in DB)!\n";
+                    }
+                    else if (fullOrder == null)
+                    {
+                        logMsg += " -> ERROR: fullOrder is NULL!\n";
+                    }
+                    else
+                    {
+                        var hasOversized = fullOrder.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
+                        if (hasOversized)
+                        {
+                            logMsg += " -> SKIPPED: Order contains Heavy/Oversized items!\n";
+                        }
+                        else
+                        {
+                            logMsg += $" -> Invoking CreateShipmentAsync for Active Provider ({activeConfig.ProviderKey})...\n";
+                            var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder, "", "", "", "تحويل أوتوماتيكي تلقائي عند الطلب عبر المتجر");
+                            logMsg += $" -> Result Success={dispatchRes.Success}, Message={dispatchRes.Message}, ErrorDetail={dispatchRes.ErrorDetail}\n";
+
+                            if (dispatchRes.Success)
+                            {
+                                fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                                await uow.CompleteAsync();
+                            }
+                        }
+                    }
+                }
+                var logFolder = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                if (!Directory.Exists(logFolder)) Directory.CreateDirectory(logFolder);
+                System.IO.File.AppendAllText(Path.Combine(logFolder, "delivery_api.log"), logMsg + "===================================\n");
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("logs/delivery_api.log", $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss UTC}] AutoDispatch EXCEPTION: {ex.Message}\n{ex.StackTrace}\n===================================\n");
+            }
 
             return RedirectToAction(nameof(Confirmation), new { orderId = order.Id });
         }

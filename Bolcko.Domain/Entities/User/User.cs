@@ -17,6 +17,12 @@ namespace Bolcko.Domain.Entities.User
         public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }
 
+        /// <summary>
+        /// Forces the user to change their password on next login.
+        /// Used for seeded admin accounts to avoid hardcoded password exposure.
+        /// </summary>
+        public bool MustChangePassword { get; set; } = false;
+
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
         public ICollection<Bolcko.Domain.Entities.Order.Order> Orders { get; set; } = new List<Bolcko.Domain.Entities.Order.Order>();
         public ICollection<Bolcko.Domain.Entities.Project.Project> Projects { get; set; } = new List<Bolcko.Domain.Entities.Project.Project>();

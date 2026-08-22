@@ -3,12 +3,13 @@
 @using Bolcko.Domain.Enums
 @model Bolcko.Domain.Entities.Tender.Tender
 @{
-    ViewData["Title"] = "تفاصيل عرض السعر";
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    ViewData["Title"] = isAr ? "تفاصيل عرض السعر" : "Quote Details";
     var user = ViewBag.User as User;
 }
 
-<main class="max-w-7xl mx-auto px-6 py-12 text-right">
-    <div class="flex flex-col lg:flex-row-reverse gap-gutter">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+    <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
@@ -23,32 +24,32 @@
                     <ul class="space-y-2">
                         <li>
                             <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>لوحة التحكم</span>
+                                <span>@SharedLocalizer["MyDashboard"]</span>
                                 <span class="material-symbols-outlined text-sm">dashboard</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>طلباتي</span>
+                                <span>@SharedLocalizer["MyOrders"]</span>
                                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
                             </a>
                         </li>
                         <li>
-                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-r-4 border-primary font-bold text-on-surface">
-                                <span>عروض الأسعار</span>
+                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-s-4 border-primary font-bold text-on-surface">
+                                <span>@SharedLocalizer["QuoteRequests"]</span>
                                 <span class="material-symbols-outlined text-sm">request_quote</span>
                             </a>
                         </li>
                         <li>
                             <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>مشاريعي</span>
+                                <span>@SharedLocalizer["MyProjects"]</span>
                                 <span class="material-symbols-outlined text-sm">architecture</span>
                             </a>
                         </li>
                         <li class="pt-4 mt-4 border-t border-outline-variant">
                             <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
-                                    <span>تسجيل الخروج</span>
+                                    <span>@SharedLocalizer["Logout"]</span>
                                     <span class="material-symbols-outlined text-sm">logout</span>
                                 </button>
                             </form>
@@ -60,10 +61,10 @@
 
         <!-- Main Content -->
         <div class="flex-1 space-y-8">
-            <header class="flex justify-between items-center border-r-4 border-primary-container pr-6 mb-8">
+            <header class="flex justify-between items-center border-s-4 border-primary-container ps-6 mb-8">
                 <div>
-                    <h1 class="font-headline-xl text-on-surface uppercase mb-2">عرض سعر #QT-@Model.Id.ToString("D5")</h1>
-                    <p class="font-body-lg text-secondary">حالة العرض: 
+                    <h1 class="font-headline-xl text-on-surface uppercase mb-2">@(isAr ? "عرض سعر" : "Quote") #QT-@Model.Id.ToString("D5")</h1>
+                    <p class="font-body-lg text-secondary">@(isAr ? "حالة العرض:" : "Quote Status:") 
                         @{
                             string statusClass = Model.Status.ToString() switch
                             {
@@ -76,11 +77,11 @@
                             };
                             string statusLabel = Model.Status.ToString() switch
                             {
-                                "Pending" => "قيد الانتظار وتحديد المواد",
-                                "Priced" => "تم تقديم الأسعار من الإدارة",
-                                "Negotiation" => "قيد التفاوض والمفاصلة",
-                                "Accepted" => "تم قبول الأسعار والموافقة",
-                                "Rejected" => "مرفوض",
+                                "Pending" => isAr ? "قيد الانتظار وتحديد المواد" : "Pending material selection",
+                                "Priced" => isAr ? "تم تقديم الأسعار من الإدارة" : "Priced by management",
+                                "Negotiation" => isAr ? "قيد التفاوض والمفاصلة" : "Under negotiation",
+                                "Accepted" => isAr ? "تم قبول الأسعار والموافقة" : "Accepted",
+                                "Rejected" => isAr ? "مرفوض" : "Rejected",
                                 _ => Model.Status.ToString()
                             };
                         }
@@ -89,7 +90,7 @@
                 </div>
                 <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="text-slate-500 hover:text-primary flex items-center gap-1 font-bold text-sm">
                     <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_back</span>
-                    الرجوع للقائمة
+                    @(isAr ? "الرجوع للقائمة" : "Back to list")
                 </a>
             </header>
 
@@ -97,43 +98,43 @@
             <div class="bg-white border border-outline-variant shadow-hard p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-outline-variant pb-6">
                     <div>
-                        <h3 class="font-bold text-on-surface mb-2">تفاصيل العطاء</h3>
-                        <p class="text-sm text-slate-600"><span class="font-bold">العنوان:</span> @Model.TenderTitle</p>
-                        <p class="text-sm text-slate-600"><span class="font-bold">التاريخ:</span> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
-                        <p class="text-sm text-slate-600"><span class="font-bold">موقع المشروع:</span> @(Model.GuestCity ?? "غير محدد")</p>
+                        <h3 class="font-bold text-on-surface mb-2">@(isAr ? "تفاصيل العطاء" : "Tender Details")</h3>
+                        <p class="text-sm text-slate-600"><span class="font-bold">@(isAr ? "العنوان:" : "Title:")</span> @Model.TenderTitle</p>
+                        <p class="text-sm text-slate-600"><span class="font-bold">@(isAr ? "التاريخ:" : "Date:")</span> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                        <p class="text-sm text-slate-600"><span class="font-bold">@(isAr ? "موقع المشروع:" : "Project Site:")</span> @(Model.GuestCity ?? (isAr ? "غير محدد" : "Unspecified"))</p>
                     </div>
                     <div>
-                        <h3 class="font-bold text-on-surface mb-2">ملاحظات العطاء</h3>
+                        <h3 class="font-bold text-on-surface mb-2">@(isAr ? "ملاحظات العطاء" : "Tender Notes")</h3>
                         <p class="text-sm text-slate-600">@Model.TenderDescription</p>
                     </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.NegotiationNotes))
                 {
-                    <div class="bg-surface-container-low border-r-4 border-primary p-4 rounded text-sm text-on-surface space-y-1">
-                        <span class="font-bold block text-primary">رسائل المفاوضات / ملاحظات الإدارة:</span>
+                    <div class="bg-surface-container-low border-s-4 border-primary p-4 rounded text-sm text-on-surface space-y-1">
+                        <span class="font-bold block text-primary">@(isAr ? "رسائل المفاوضات / ملاحظات الإدارة:" : "Negotiation Messages / Management Notes:")</span>
                         <p class="italic">"@Model.NegotiationNotes"</p>
                     </div>
                 }
 
                 <!-- Items Table -->
                 <div>
-                    <h3 class="font-bold text-lg text-on-surface mb-4">المواد المطلوبة والأسعار</h3>
+                    <h3 class="font-bold text-lg text-on-surface mb-4">@(isAr ? "المواد المطلوبة والأسعار" : "Requested Materials & Prices")</h3>
                     <form id="negotiationForm" asp-area="Shop" asp-controller="Quote" asp-action="Negotiate" asp-route-id="@Model.Id" method="post">
                         @Html.AntiForgeryToken()
                         <div class="overflow-x-auto">
-                            <table class="w-full text-right border-collapse">
+                            <table class="w-full text-start border-collapse">
                                 <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                                     <tr class="border-b border-outline-variant">
-                                        <th class="p-4">اسم المادة</th>
-                                        <th class="p-4 text-center">الوحدة</th>
-                                        <th class="p-4 text-center">الكمية</th>
-                                        <th class="p-4 text-center">السعر المقدم (د.أ)</th>
+                                        <th class="p-4">@(isAr ? "اسم المادة" : "Material Name")</th>
+                                        <th class="p-4 text-center">@(isAr ? "الوحدة" : "Unit")</th>
+                                        <th class="p-4 text-center">@(isAr ? "الكمية" : "Quantity")</th>
+                                        <th class="p-4 text-center">@(isAr ? $"السعر المقدم ({SharedLocalizer["JordanDinarShort"]})" : $"Proposed Price ({SharedLocalizer["JordanDinarShort"]})")</th>
                                         @if (Model.Status == TenderStatus.Priced || Model.Status == TenderStatus.Negotiation)
                                         {
-                                            <th class="p-4 text-center">سعرك المستهدف (د.أ)</th>
+                                            <th class="p-4 text-center">@(isAr ? $"سعرك المستهدف ({SharedLocalizer["JordanDinarShort"]})" : $"Your Target Price ({SharedLocalizer["JordanDinarShort"]})")</th>
                                         }
-                                        <th class="p-4 text-left">المجموع الفرعي</th>
+                                        <th class="p-4 text-end">@SharedLocalizer["SubtotalHeader"]</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-sm">
@@ -159,7 +160,7 @@
                                             <td class="p-4 text-center">@item.Unit</td>
                                             <td class="p-4 text-center font-semibold">@item.RequestedQuantity</td>
                                             <td class="p-4 text-center text-primary font-bold">
-                                                @(item.ProposedPricePerUnit.HasValue ? item.ProposedPricePerUnit.Value.ToString("N2") : "قيد التسعير")
+                                                @(item.ProposedPricePerUnit.HasValue ? item.ProposedPricePerUnit.Value.ToString("N2") : (isAr ? "قيد التسعير" : "Being priced"))
                                             </td>
                                             @if (Model.Status == TenderStatus.Priced || Model.Status == TenderStatus.Negotiation)
                                             {
@@ -171,8 +172,8 @@
                                                            @(Model.Status == TenderStatus.Negotiation ? "disabled" : "") />
                                                 </td>
                                             }
-                                            <td class="p-4 text-left font-bold text-slate-800">
-                                                @(item.SubtotalItem.HasValue ? item.SubtotalItem.Value.ToString("N2") + " د.أ" : "-")
+                                            <td class="p-4 text-end font-bold text-slate-800">
+                                                @(item.SubtotalItem.HasValue ? item.SubtotalItem.Value.ToString("N2") + " " + SharedLocalizer["JordanDinarShort"] : "-")
                                             </td>
                                         </tr>
                                     }
@@ -185,8 +186,8 @@
                             <div>
                                 @if (Model.TotalQuotedAmount.HasValue)
                                 {
-                                    <span class="text-xs text-slate-500 block">إجمالي السعر المقدم</span>
-                                    <strong class="text-2xl text-primary font-black">@Model.TotalQuotedAmount.Value.ToString("N2") د.أ</strong>
+                                    <span class="text-xs text-slate-500 block">@(isAr ? "إجمالي السعر المقدم" : "Total Proposed Price")</span>
+                                    <strong class="text-2xl text-primary font-black">@Model.TotalQuotedAmount.Value.ToString("N2") @SharedLocalizer["JordanDinarShort"]</strong>
                                 }
                             </div>
                             
@@ -196,12 +197,12 @@
                                 {
                                     <button type="button" onclick="openNegotiationModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded transition-colors flex items-center gap-2">
                                         <span class="material-symbols-outlined text-sm">chat_bubble</span>
-                                        طلب فاوض/مفاصلة الأسعار
+                                        @(isAr ? "طلب فاوض/مفاصلة الأسعار" : "Negotiate Prices")
                                     </button>
                                     
                                     <button type="button" onclick="confirmAcceptance()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded transition-colors flex items-center gap-2">
                                         <span class="material-symbols-outlined text-sm">check_circle</span>
-                                        اعتماد وقبول عرض السعر
+                                        @(isAr ? "اعتماد وقبول عرض السعر" : "Accept & Confirm Quote")
                                     </button>
                                 }
                             </div>
@@ -209,19 +210,19 @@
 
                         <!-- Negotiation Feedback Overlay Modal -->
                         <div id="negotiationModal" class="fixed inset-0 bg-[#151B26]/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-                            <div class="bg-white border border-outline-variant shadow-hard w-full max-w-lg p-8 space-y-6 text-right animate-in zoom-in duration-200">
-                                <h3 class="font-headline-md text-on-surface border-b border-outline-variant pb-2">طلب تفاوض على الأسعار</h3>
+                            <div class="bg-white border border-outline-variant shadow-hard w-full max-w-lg p-8 space-y-6 text-start animate-in zoom-in duration-200">
+                                <h3 class="font-headline-md text-on-surface border-b border-outline-variant pb-2">@(isAr ? "طلب تفاوض على الأسعار" : "Price Negotiation Request")</h3>
                                 <p class="text-sm text-secondary leading-relaxed">
-                                    قم بتحديد الأسعار المستهدفة لكل مادة في الجدول، واكتب ملاحظاتك أو سبب التفاوض للإدارة.
+                                    @(isAr ? "قم بتحديد الأسعار المستهدفة لكل مادة في الجدول، واكتب ملاحظاتك أو سبب التفاوض للإدارة." : "Specify target prices for each item in the table, and write your negotiation notes for management.")
                                 </p>
                                 <div>
-                                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">رسالة للشركة (ملاحظات التفاوض) <span class="text-error">*</span></label>
-                                    <textarea name="feedback" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-right h-28" placeholder="مثال: نرجو تخفيض سعر حديد التسليح ليتناسب مع ميزانية المشروع..."></textarea>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@(isAr ? "رسالة للشركة (ملاحظات التفاوض)" : "Message to Company (Negotiation Notes)") <span class="text-error">*</span></label>
+                                    <textarea name="feedback" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-28" placeholder="@(isAr ? "مثال: نرجو تخفيض سعر حديد التسليح ليتناسب مع ميزانية المشروع..." : "e.g., Please lower the rebar price to fit the project budget...")"></textarea>
                                 </div>
                                 <div class="flex justify-end gap-4 border-t border-outline-variant pt-4">
-                                    <button type="button" onclick="closeNegotiationModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-6 py-2 rounded transition-colors">إلغاء</button>
+                                    <button type="button" onclick="closeNegotiationModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-6 py-2 rounded transition-colors">@(isAr ? "إلغاء" : "Cancel")</button>
                                     <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded transition-colors flex items-center gap-1">
-                                        <span>إرسال طلب التفاوض</span>
+                                        <span>@(isAr ? "إرسال طلب التفاوض" : "Submit Request")</span>
                                         <span class="material-symbols-outlined text-sm">send</span>
                                     </button>
                                 </div>
@@ -247,7 +248,7 @@
         $('#negotiationModal').addClass('hidden');
     }
     function confirmAcceptance() {
-        if(confirm("هل أنت متأكد من رغبتك في قبول الأسعار المقدمة واعتماد هذا العرض؟ سيتم تحويله لطلب رسمي.")) {
+        if(confirm("@(isAr ? "هل أنت متأكد من رغبتك في قبول الأسعار المقدمة واعتماد هذا العرض؟ سيتم تحويله لطلب رسمي." : "Are you sure you want to accept the proposed prices and confirm this quote? It will be converted to an official order.")")) {
             $('#acceptForm').submit();
         }
     }

@@ -18,6 +18,8 @@ namespace Blocko.Persistence.Repositories
             return await _context.ShoppingCarts
                 .Include(sc => sc.Items)
                 .ThenInclude(i => i.Product)
+                .Include(sc => sc.Items)
+                .ThenInclude(i => i.ProductVariant)
                 .FirstOrDefaultAsync(sc => sc.SessionId == sessionId);
         }
 
@@ -26,6 +28,8 @@ namespace Blocko.Persistence.Repositories
             return await _context.ShoppingCarts
                 .Include(sc => sc.Items)
                 .ThenInclude(i => i.Product)
+                .Include(sc => sc.Items)
+                .ThenInclude(i => i.ProductVariant)
                 .FirstOrDefaultAsync(sc => sc.UserId == userId);
         }
 
@@ -34,6 +38,8 @@ namespace Blocko.Persistence.Repositories
             return await _context.ShoppingCarts
                 .Include(sc => sc.Items)
                 .ThenInclude(i => i.Product)
+                .Include(sc => sc.Items)
+                .ThenInclude(i => i.ProductVariant)
                 .FirstOrDefaultAsync(sc => sc.Id == id);
         }
 
@@ -42,6 +48,8 @@ namespace Blocko.Persistence.Repositories
             return await _context.ShoppingCarts
                 .Include(sc => sc.Items)
                 .ThenInclude(i => i.Product)
+                .Include(sc => sc.Items)
+                .ThenInclude(i => i.ProductVariant)
                 .ToListAsync();
         }
 

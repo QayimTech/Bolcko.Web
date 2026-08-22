@@ -7,7 +7,9 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "اسم المنتج مطلوب")]
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
         public string? Description { get; set; }
+        public string? DescriptionEn { get; set; }
         [Required(ErrorMessage = "الفئة مطلوبة")]
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
@@ -24,5 +26,24 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public string? ImageUrl { get; set; }
         public bool BulkPricingAvailable { get; set; }
         public List<ProductImageDto> Images { get; set; } = new();
+        public List<ProductVariantDto> Variants { get; set; } = new();
+
+        public string? Brand { get; set; }
+        public string? CountryOfOrigin { get; set; }
+        public bool IsOversized { get; set; } = false;
+        public Bolcko.Domain.Enums.SeoStatus SeoStatus { get; set; } = Bolcko.Domain.Enums.SeoStatus.PendingSeo;
+        public DateTime UpdatedAt { get; set; }
+
+        public decimal DisplayPrice
+        {
+            get
+            {
+                if (Variants != null && Variants.Any(v => v.Price > 0))
+                {
+                    return Variants.Where(v => v.Price > 0).Min(v => v.Price);
+                }
+                return RetailPrice;
+            }
+        }
     }
 }

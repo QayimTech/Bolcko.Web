@@ -1,0 +1,105 @@
+@model Bolcko.Domain.Entities.Delivery.DeliveryJob
+@using Bolcko.Domain.Enums
+
+@{
+    Layout = null; // Lightweight standalone page for drivers
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تحديث حالة التوصيل - بلوكو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased p-4 sm:p-8">
+
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        
+        <div class="bg-slate-900 px-6 py-8 text-center text-white relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-[#E8A020] rounded-full opacity-20 blur-2xl"></div>
+            <h1 class="text-2xl font-black tracking-tight mb-2 relative z-10">بوابة المندوب 🚚</h1>
+            <p class="text-slate-300 text-sm relative z-10">يرجى تحديث حالة تسليم الطلب من هنا</p>
+        </div>
+
+        <div class="p-6">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="mb-6 bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl text-sm font-bold flex gap-2">
+                    <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                    <span>@TempData["SuccessMessage"]</span>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="mb-6 bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-xl text-sm font-bold flex gap-2">
+                    <span class="material-symbols-outlined text-red-600">error</span>
+                    <span>@TempData["ErrorMessage"]</span>
+                </div>
+            }
+
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-6">
+                <h2 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">تفاصيل المهمة</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between border-b border-slate-200 pb-2">
+                        <span class="text-slate-500 text-sm">رقم الطلب</span>
+                        <span class="font-bold font-mono">@(Model.Order?.OrderNumber ?? "-")</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200 pb-2">
+                        <span class="text-slate-500 text-sm">أجرة التوصيل لك</span>
+                        <span class="font-bold text-blue-700">@Model.DeliveryFee.ToString("N2") د.أ</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200 pb-2">
+                        <span class="text-slate-500 text-sm">المبلغ المطلوب تحصيله (COD)</span>
+                        <span class="font-bold text-emerald-600">@(Model.Order?.TotalAmount.ToString("N2") ?? "0.00") د.أ</span>
+                    </div>
+                    <div class="flex flex-col gap-1 pb-2">
+                        <span class="text-slate-500 text-sm">موقع التوصيل</span>
+                        <span class="font-bold text-sm">@Model.DropoffLocation</span>
+                        <a href="https://maps.google.com/?q=@(Model.Order?.ShippingAddress?.Latitude),@(Model.Order?.ShippingAddress?.Longitude)" target="_blank" class="text-blue-600 hover:underline text-xs flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined text-sm">pin_drop</span>
+                            فتح في خرائط جوجل
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="UpdateStatus" asp-route-token="@Model.DeliveryToken" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">تحديث الحالة:</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500">
+                            <input type="radio" name="status" value="@((int)DeliveryJobStatus.InTransit)" @(Model.Status == DeliveryJobStatus.InTransit ? "checked" : "") class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">في الطريق للعميل 🚀</span>
+                        </label>
+
+                        <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-emerald-50 has-[:checked]:border-emerald-500">
+                            <input type="radio" name="status" value="@((int)DeliveryJobStatus.Delivered)" @(Model.Status == DeliveryJobStatus.Delivered ? "checked" : "") class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
+                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">تم التسليم بنجاح ✅</span>
+                        </label>
+                        
+                        <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-red-50 has-[:checked]:border-red-500">
+                            <input type="radio" name="status" value="@((int)DeliveryJobStatus.Returned)" @(Model.Status == DeliveryJobStatus.Returned ? "checked" : "") class="w-4 h-4 text-red-600 border-slate-300 focus:ring-red-500">
+                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">تعذر التسليم (مرتجع) ❌</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" @(Model.Status == DeliveryJobStatus.Delivered ? "disabled" : "") class="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-bold py-4 rounded-xl shadow-md transition-all text-lg mt-4 flex items-center justify-center gap-2">
+                    <span>حفظ التحديث</span>
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>

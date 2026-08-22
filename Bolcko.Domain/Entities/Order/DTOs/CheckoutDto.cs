@@ -37,6 +37,18 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         
         public string? PostalCode { get; set; }
 
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
+        public string? GoogleMapsUrl { get; set; }
+
+        public string? AddressNotes { get; set; }
+
+        public long? SelectedVillageId { get; set; }
+
         public string? Notes { get; set; }
+
+        public bool IsExpressDelivery { get; set; } = false;
     }
 }
