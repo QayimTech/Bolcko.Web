@@ -776,4 +776,9 @@
   <data name="UnitPriceLabel" xml:space="preserve"><value>Unit Price</value></data>
   <data name="TotalAmountLabel" xml:space="preserve"><value>Total</value></data>
   <data name="Logout" xml:space="preserve"><value>Logout</value></data>
+  <data name="PageNotFoundTitle" xml:space="preserve"><value>Page Not Found</value></data>
+  <data name="PageNotFoundHeading" xml:space="preserve"><value>Sorry, this page doesn't exist</value></data>
+  <data name="PageNotFoundDesc" xml:space="preserve"><value>The link you tried to reach is unavailable or has been moved. Check the URL or return to the homepage.</value></data>
+  <data name="BackToHomepage" xml:space="preserve"><value>Back to Homepage</value></data>
+  <data name="NeedHelpContactSupport" xml:space="preserve"><value>Need help? Contact Support</value></data>
 </root>

@@ -56,6 +56,10 @@ try
         app.UseHsts();
     }
 
+    // Catch-all handler for 404s and other unhandled status codes (re-executes the pipeline
+    // against the Shop area's NotFound page instead of returning an empty response body).
+    app.UseStatusCodePagesWithReExecute("/Shop/Home/PageNotFound");
+
     app.UseHttpsRedirection();
     app.UseStaticFiles();
 

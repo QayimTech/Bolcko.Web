@@ -782,4 +782,9 @@
   <data name="UnitPriceLabel" xml:space="preserve"><value>السعر للوحدة</value></data>
   <data name="TotalAmountLabel" xml:space="preserve"><value>الإجمالي</value></data>
   <data name="Logout" xml:space="preserve"><value>تسجيل الخروج</value></data>
+  <data name="PageNotFoundTitle" xml:space="preserve"><value>الصفحة غير موجودة</value></data>
+  <data name="PageNotFoundHeading" xml:space="preserve"><value>عذراً، الصفحة غير موجودة</value></data>
+  <data name="PageNotFoundDesc" xml:space="preserve"><value>الرابط الذي حاولت الوصول إليه غير متاح أو تم نقله. تأكد من الرابط أو عد إلى الصفحة الرئيسية.</value></data>
+  <data name="BackToHomepage" xml:space="preserve"><value>العودة للصفحة الرئيسية</value></data>
+  <data name="NeedHelpContactSupport" xml:space="preserve"><value>تحتاج مساعدة؟ تواصل مع الدعم</value></data>
 </root>
