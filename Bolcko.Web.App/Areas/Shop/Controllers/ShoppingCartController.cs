@@ -162,6 +162,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View(new CheckoutDto());
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetShippingFee(string city)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
+            var fee = await _orderService.GetShippingFeeAsync(city ?? string.Empty, cart.HasOversizedItems);
+            return Json(new { success = true, rate = fee });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(CheckoutDto checkoutDto)

@@ -1,4 +1,5 @@
 @model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
+@using Bolcko.Web.App.Extensions
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-start font-sans">
     
     <!-- Step Progress Header -->
@@ -259,10 +260,11 @@
                     <div class="space-y-4 max-h-80 overflow-y-auto pe-">
                         @foreach (var item in cart.Items)
                         {
+                            var itemImgSrc = item.ProductImage.ToImageUrl();
                             <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                                @if (!string.IsNullOrEmpty(item.ProductImage))
+                                @if (itemImgSrc != null)
                                 {
-                                    <img class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" src="@item.ProductImage" alt="@item.ProductName" />
+                                    <img class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" src="@itemImgSrc" alt="@item.ProductName" />
                                 }
                                 else
                                 {
@@ -358,15 +360,17 @@
     <script>
         $(function () {
             var expressDeliveryFee = @(ViewBag.ExpressDeliveryFee ?? "0.00");
+            var shippingFeeUrl = '@Url.Action("GetShippingFee", "ShoppingCart", new { area = "Shop" })';
 
             function calculateTotal() {
                 var selectedOption = $('#checkout-city-select').find('option:selected');
                 var rate = parseFloat(selectedOption.data('rate')) || 0.0;
                 var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
-                
+                var tax = subtotal * 0.15;
+
                 $('#checkout-shipping-val').text(rate.toFixed(2));
-                
-                var total = subtotal + rate;
+
+                var total = subtotal + tax + rate;
 
                 // Add Express Delivery fee if checked
                 if ($('#isExpressDelivery').is(':checked')) {
@@ -380,7 +384,36 @@
                 $('#checkout-total-val').text(total.toFixed(2));
             }
 
-            $('#checkout-city-select').on('change', calculateTotal);
+            // Fetches the real shipping fee for the selected city (same lookup PlaceOrder uses)
+            // so the on-screen total matches what will actually be saved on the order.
+            function updateShippingFeeFromServer() {
+                var selectedOption = $('#checkout-city-select').find('option:selected');
+                var city = selectedOption.val();
+
+                if (!city) {
+                    calculateTotal();
+                    return;
+                }
+
+                $.ajax({
+                    url: shippingFeeUrl,
+                    method: 'GET',
+                    data: { city: city },
+                    dataType: 'json'
+                }).done(function (response) {
+                    if (response && response.success && typeof response.rate !== 'undefined') {
+                        selectedOption.data('rate', response.rate);
+                    } else {
+                        console.warn('GetShippingFee: unexpected response, falling back to listed rate.');
+                    }
+                }).fail(function () {
+                    console.warn('GetShippingFee: request failed, falling back to listed rate.');
+                }).always(function () {
+                    calculateTotal();
+                });
+            }
+
+            $('#checkout-city-select').on('change', updateShippingFeeFromServer);
             $('#isExpressDelivery').on('change', calculateTotal);
         });
     </script>

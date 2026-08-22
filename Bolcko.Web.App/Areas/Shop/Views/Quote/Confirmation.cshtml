@@ -1,6 +1,6 @@
 @{
     ViewData["Title"] = "تأكيد طلب عرض السعر";
-    var tenderId = ViewBag.TenderId;
+    int? tenderId = ViewBag.TenderId as int?;
     var tenderNumber = tenderId.HasValue ? $"#QT-{tenderId.Value.ToString("D5")}" : "#QT-00000";
 }
 <main class="max-w-3xl mx-auto px-6 py-24 text-center">

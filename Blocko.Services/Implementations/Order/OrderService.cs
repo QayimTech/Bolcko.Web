@@ -64,27 +64,7 @@ namespace Blocko.Services.Implementations.order
                 await _unitOfWork.Addresses.AddAsync(billingAddress);
                 await _unitOfWork.CompleteAsync(); // To get Address IDs
 
-                decimal shippingFeeVal = 5.00m;
-                if (cart.HasOversizedItems)
-                {
-                    shippingFeeVal = 0.00m;
-                }
-                else
-                {
-                    var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(checkoutDto.City);
-                    if (rateObj != null)
-                    {
-                        shippingFeeVal = rateObj.Rate;
-                    }
-                    else
-                    {
-                        var generalSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee");
-                        if (generalSetting != null && decimal.TryParse(generalSetting.Value, out decimal parsed))
-                        {
-                            shippingFeeVal = parsed;
-                        }
-                    }
-                }
+                decimal shippingFeeVal = await GetShippingFeeAsync(checkoutDto.City, cart.HasOversizedItems);
 
                 // Coupon Calculations
                 decimal discountAmt = 0.00m;
@@ -159,7 +139,7 @@ namespace Blocko.Services.Implementations.order
                     if (user != null && !string.IsNullOrEmpty(user.Email))
                     {
                         var emailSubject = $"تأكيد استلام طلبك #{order.OrderNumber} - BLOCKO";
-                        var detailsUrl = $"https://bolcko.com/Shop/Account/OrderDetails/{order.Id}"; // Staging/Production link structure
+                        var detailsUrl = $"https://www.block-o.com/Shop/Account/OrderDetails/{order.Id}"; // Staging/Production link structure
                         var emailBody = Blocko.Services.Helpers.EmailTemplates.GetOrderConfirmationTemplate(
                             order.OrderNumber,
                             $"{user.FirstName} {user.LastName}",
@@ -339,7 +319,7 @@ namespace Blocko.Services.Implementations.order
                 if (user != null && !string.IsNullOrEmpty(user.Email))
                 {
                     var emailSubject = $"تحديث حالة طلبك #{order.OrderNumber} - BLOCKO";
-                    var detailsUrl = $"https://bolcko.com/Shop/Account/OrderDetails/{order.Id}";
+                    var detailsUrl = $"https://www.block-o.com/Shop/Account/OrderDetails/{order.Id}";
                     var emailBody = Blocko.Services.Helpers.EmailTemplates.GetOrderStatusTemplate(
                         order.OrderNumber,
                         "تحت المراجعة",
@@ -370,6 +350,28 @@ namespace Blocko.Services.Implementations.order
         {
             var orders = await _unitOfWork.Orders.GetAllAsync();
             return orders.Count();
+        }
+
+        public async Task<decimal> GetShippingFeeAsync(string city, bool hasOversizedItems)
+        {
+            if (hasOversizedItems)
+            {
+                return 0.00m;
+            }
+
+            var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(city);
+            if (rateObj != null)
+            {
+                return rateObj.Rate;
+            }
+
+            var generalSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ShippingFee");
+            if (generalSetting != null && decimal.TryParse(generalSetting.Value, out decimal parsed))
+            {
+                return parsed;
+            }
+
+            return 5.00m;
         }
     }
 }

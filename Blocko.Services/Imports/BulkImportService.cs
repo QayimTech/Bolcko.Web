@@ -1139,7 +1139,7 @@ namespace Blocko.Services.Imports
 
                 if (!string.IsNullOrWhiteSpace(imageUrl))
                 {
-                    product.ImageUrl = imageUrl;
+                    product.ImageUrl = "/" + imageUrl.Replace("\\", "/").TrimStart('/');
                 }
 
                 if (dto.AdditionalImages != null && dto.AdditionalImages.Any())
@@ -1600,6 +1600,7 @@ namespace Blocko.Services.Imports
                                 var savedUrl = await _imageService.SaveImageAsync(fileStream, fileName, "products");
                                 if (!string.IsNullOrEmpty(savedUrl))
                                 {
+                                    savedUrl = "/" + savedUrl.Replace("\\", "/").TrimStart('/');
                                     product.ImageUrl = savedUrl;
                                     product.UpdatedAt = DateTime.UtcNow;
 
@@ -1634,6 +1635,7 @@ namespace Blocko.Services.Imports
                                 var savedUrl = await _imageService.SaveImageAsync(fileStream, fileName, "variants");
                                 if (!string.IsNullOrEmpty(savedUrl))
                                 {
+                                    savedUrl = "/" + savedUrl.Replace("\\", "/").TrimStart('/');
                                     variant.ImageUrl = savedUrl;
                                     variant.UpdatedAt = DateTime.UtcNow;
                                     matchedVariants++;
