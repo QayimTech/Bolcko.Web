@@ -92,7 +92,7 @@
                         <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out"
                              src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
                              width="800" height="550" fetchpriority="high" decoding="async"
-                             onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
                              
                         @if (Model.Images.Count > 1)
                         {
@@ -109,7 +109,7 @@
                                         <img src="@(img.Url.StartsWith("http") ? img.Url : "/" + img.Url.TrimStart('/'))"
                                              class="w-full h-full object-cover"
                                              width="80" height="80" loading="lazy" decoding="async"
-                                             onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
+                                             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';"
                                              alt="Thumbnail @(i+1)" />
                                     </div>
                                 }
@@ -124,7 +124,7 @@
                         <img id="main-product-image" alt="@Model.Name" class="w-full h-[550px] object-cover rounded-2xl group-hover:scale-[1.01] transition-all duration-500 ease-out"
                              src="@(firstImage.StartsWith("http") ? firstImage : "/" + firstImage.TrimStart('/'))"
                              width="800" height="550" fetchpriority="high" decoding="async"
-                             onerror="this.src='https://placehold.co/800x550/f8fafc/475569?text=@(Uri.EscapeDataString(Model.Name))'" />
+                             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
                              
                         @if (imageUrls.Length > 1)
                         {
@@ -138,7 +138,7 @@
                                         <img src="@(img.StartsWith("http") ? img : "/" + img.TrimStart('/'))"
                                              class="w-full h-full object-cover"
                                              width="80" height="80" loading="lazy" decoding="async"
-                                             onerror="this.src='https://placehold.co/100x100/f8fafc/475569?text=Image'"
+                                             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';"
                                              alt="Thumbnail @(i+1)" />
                                     </div>
                                 }
@@ -422,18 +422,36 @@
                                 skuBadge.textContent = 'SKU: ' + sku;
                             }
 
-                            // Swap main product image
+                            // Swap main product image with graceful fallback
                             if (imageUrl && imageUrl.trim() !== '') {
                                 const finalUrl = (imageUrl.startsWith('http') || imageUrl.startsWith('/')) ? imageUrl : '/' + imageUrl;
+                                const defaultImg = variantBtn.getAttribute('data-default-image');
+                                const fallbackUrl = (defaultImg && defaultImg.trim() !== '') 
+                                    ? ((defaultImg.startsWith('http') || defaultImg.startsWith('/')) ? defaultImg : '/' + defaultImg)
+                                    : '/images/product-placeholder.svg';
+
                                 const mainImg = document.getElementById('main-product-image');
                                 if (mainImg) {
-                                    if (typeof $ !== 'undefined') {
-                                        $(mainImg).fadeOut(150, function() {
-                                            $(mainImg).attr('src', finalUrl).fadeIn(150);
-                                        });
-                                    } else {
-                                        mainImg.src = finalUrl;
-                                    }
+                                    const testImg = new Image();
+                                    testImg.onload = function() {
+                                        if (typeof $ !== 'undefined') {
+                                            $(mainImg).fadeOut(150, function() {
+                                                $(mainImg).attr('src', finalUrl).fadeIn(150);
+                                            });
+                                        } else {
+                                            mainImg.src = finalUrl;
+                                        }
+                                    };
+                                    testImg.onerror = function() {
+                                        if (typeof $ !== 'undefined') {
+                                            $(mainImg).fadeOut(150, function() {
+                                                $(mainImg).attr('src', fallbackUrl).fadeIn(150);
+                                            });
+                                        } else {
+                                            mainImg.src = fallbackUrl;
+                                        }
+                                    };
+                                    testImg.src = finalUrl;
                                 }
                             }
                         }

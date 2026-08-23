@@ -23,6 +23,18 @@
                 </div>
                 <nav class="p-4">
                     <ul class="space-y-2">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li>
+                                <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold hover:bg-indigo-100 transition-colors shadow-sm mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+                                        <span>لوحة تحكم الإدارة (Admin Panel)</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                            </li>
+                        }
                         <li>
                             <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-s-4 border-primary font-bold text-on-surface">
                                 <span>@SharedLocalizer["MyDashboard"]</span>

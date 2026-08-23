@@ -47,18 +47,18 @@
     </div>
 
     <!-- Symmetrical Flex Row Layout (Flex-based spacing prevents columns from overlapping) -->
-    <div class="flex justify-between items-center w-full px-6 py-3.5 max-w-7xl mx-auto gap-4">
+    <div class="flex justify-between items-center w-full px-4 sm:px-6 py-3 max-w-[1536px] mx-auto gap-2 lg:gap-3">
         
         <!-- Column 1: Logo & Nav Links (Opaque text, flex-shrink-0 prevents squash) -->
-        <div class="flex items-center gap-6 flex-shrink-0">
+        <div class="flex items-center gap-3 xl:gap-5 flex-shrink-0">
             <a href="/" class="flex items-center flex-shrink-0 text-white hover:opacity-90 transition-opacity">
-                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 lg:h-9")' />
+                <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 lg:h-8")' />
             </a>
-            <nav class="hidden lg:flex items-center gap-1 flex-shrink-0 ms-2">
+            <nav class="hidden lg:flex items-center gap-1 flex-shrink-0 ms-1">
                 <!-- Categories Mega Menu Trigger -->
                 <div class="relative" id="mega-menu-trigger">
                     <button type="button" id="mega-menu-btn"
-                            class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-100 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all focus:outline-none"
+                            class="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-slate-100 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all focus:outline-none"
                             aria-expanded="false" aria-controls="mega-menu-panel">
                         <span class="material-symbols-outlined text-[15px]">grid_view</span>
                         <span>@SharedLocalizer["Categories"]</span>
@@ -79,11 +79,11 @@
         </div>
 
         <!-- Column 2: Centered Search Bar -->
-        <div class="flex-1 max-w-sm xl:max-w-lg mx-auto hidden lg:block">
+        <div class="flex-1 max-w-xs xl:max-w-md mx-auto hidden lg:block">
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
-                  class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-2 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
+                  class="flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
                 <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer" aria-label="@(isArabic ? "بحث" : "Search")">
-                    <span class="material-symbols-outlined text-[18px]">search</span>
+                    <span class="material-symbols-outlined text-[17px]">search</span>
                 </button>
                 <input name="query"
                        class="flex-1 min-w-0 bg-transparent border-none text-white placeholder-slate-500 focus:outline-none text-xs text-start"
@@ -93,7 +93,7 @@
         </div>
 
         <!-- Column 3: Actions row (Aligned to end, flex-shrink-0) -->
-        <div class="flex items-center gap-2 sm:gap-4 justify-end flex-shrink-0">
+        <div class="flex items-center gap-1 sm:gap-2 xl:gap-2.5 justify-end flex-shrink-0">
 
             <!-- Mobile/Tablet Search Button (Icon only, visible on < lg) -->
             <div class="relative group block lg:hidden">
@@ -154,24 +154,34 @@
                     </div>
                 </div>
 
-                <div class="relative group" onclick="this.classList.toggle('active')" tabindex="0">
-                    <button type="button" class="flex items-center gap-1 px-1.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true" aria-label="@SharedLocalizer["Account"]">
+                <div class="relative group hidden sm:block" onclick="this.classList.toggle('active')" tabindex="0">
+                    <button type="button" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true" aria-label="@(isArabic ? "حسابي" : "Account")">
                         <span class="material-symbols-outlined text-[18px] text-slate-400">person</span>
-                        <span class="text-[11px] font-bold hidden xl:block max-w-[140px] truncate">@User.Identity.Name</span>
-                        <span class="material-symbols-outlined text-[10px] text-slate-500">expand_more</span>
+                        <span class="text-xs font-bold hidden xl:block">@(isArabic ? "حسابي" : "Account")</span>
+                        <span class="material-symbols-outlined text-[10px] text-slate-500 hidden xl:block">expand_more</span>
                     </button>
-                    <div class="absolute end-0 top-full mt-2 w-48 bg-[#161d2d] border border-white/10 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100]">
+                    <div class="absolute end-0 top-full mt-2 w-56 bg-[#161d2d] border border-white/10 shadow-2xl rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100]">
+                        <!-- User Card Header -->
+                        <div class="px-4 py-3 bg-white/5 border-b border-white/10 text-start">
+                            <p class="text-xs font-bold text-white truncate" title="@User.Identity.Name">@User.Identity.Name</p>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <span class="inline-block mt-1 text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                    Admin
+                                </span>
+                            }
+                        </div>
                         <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start">
-                            <span class="material-symbols-outlined text-[16px]">dashboard</span> @SharedLocalizer["Dashboard"]
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">dashboard</span> @SharedLocalizer["Dashboard"]
                         </a>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start border-t border-white/5">
-                                <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> @SharedLocalizer["AdminPanel"]
+                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-indigo-300 hover:bg-indigo-500/10 hover:text-indigo-200 transition-colors text-start border-t border-white/5">
+                                <span class="material-symbols-outlined text-[16px] text-indigo-400">admin_panel_settings</span> @SharedLocalizer["AdminPanel"]
                             </a>
                         }
                         <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/5">
-                            <button type="submit" class="w-full flex items-center gap-3 text-start px-4 py-3 text-xs font-bold text-red-400 hover:bg-white/5 transition-colors">
+                            <button type="submit" class="w-full flex items-center gap-3 text-start px-4 py-3 text-xs font-bold text-red-400 hover:bg-red-500/10 transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">logout</span> @SharedLocalizer["Logout"]
                             </button>
                         </form>
@@ -180,14 +190,14 @@
             }
             else
             {
-                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all">
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="hidden sm:flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-[20px] text-slate-400">person</span>
                     <span class="text-xs font-bold hidden md:block">@SharedLocalizer["Login"]</span>
                 </a>
             }
 
             <!-- Quote Requests (hidden on very small screens to reduce clutter) -->
-            <div class="relative group hidden sm:block">
+            <div class="relative group hidden sm:block flex-shrink-0">
                 <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" aria-label="@SharedLocalizer["QuoteRequests"]" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-[20px]">request_quote</span>
                     <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
@@ -198,7 +208,7 @@
             </div>
 
             <!-- Shopping Cart -->
-            <div class="relative group">
+            <div class="relative group flex-shrink-0">
                 <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" aria-label="@SharedLocalizer["ShoppingCartTitle"]" class="relative flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
                     @await Component.InvokeAsync("CartCount")
@@ -375,8 +385,23 @@
             @(isArabic ? "التصفح" : "Navigation")
         </p>
 
+        <!-- Featured Cost Calculator in Mobile Drawer -->
+        <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })"
+           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all group mb-2 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">calculate</span>
+                </div>
+                <div>
+                    <span class="font-bold text-sm block text-emerald-400">@(isArabic ? "حاسبة تكاليف البناء" : "Cost Estimator")</span>
+                    <span class="text-[10px] text-emerald-500/80 font-medium block">@(isArabic ? "حساب كميات وتكاليف حية" : "Live Quantities & Costs")</span>
+                </div>
+            </div>
+            <span class="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+        </a>
+
         <a href="@Url.Action("Index", "Category", new { area = "Shop" })"
-           class="flex items-center justify-between px-3 py-3.5 rounded-2xl text-slate-200 hover:text-white hover:bg-white/5 transition-all group mb-1">
+           class="flex items-center justify-between px-3 py-3 rounded-2xl text-slate-200 hover:text-white hover:bg-white/5 transition-all group mb-1">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-[#E8A020]/15 flex items-center justify-center text-[#E8A020] flex-shrink-0">
                     <span class="material-symbols-outlined text-[18px]">grid_view</span>
@@ -419,7 +444,7 @@
                 <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-white/10 group-hover:text-white flex-shrink-0 transition-all">
                     <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
                 </div>
-                <span class="font-bold text-sm">@SharedLocalizer["ShoppingCart"]</span>
+                <span class="font-bold text-sm">@(isArabic ? "سلة المشتريات" : "Shopping Cart")</span>
             </div>
             <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
@@ -438,6 +463,22 @@
         @if (User.Identity.IsAuthenticated)
         {
             <div class="my-3 h-px bg-white/5"></div>
+            @if (User.IsInRole("Admin"))
+            {
+                <a href="@Url.Action("Index", "Home", new { area = "Admin" })"
+                   class="flex items-center justify-between px-3 py-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all mb-2 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold text-sm text-indigo-300">@(isArabic ? "لوحة تحكم الإدارة (Admin)" : "Admin Panel")</span>
+                            <span class="text-[10px] text-indigo-400/80 font-medium">@(isArabic ? "إدارة المتجر والطلبات والأسعار" : "Manage Store & Catalog")</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-[16px] text-indigo-400 rtl:-scale-x-100">chevron_right</span>
+                </a>
+            }
             <a href="@Url.Action("Index", "Account", new { area = "Shop" })"
                class="flex items-center gap-3 px-3 py-3 rounded-2xl text-slate-200 hover:bg-white/5 transition-all mb-1">
                 <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 flex-shrink-0">
@@ -445,7 +486,7 @@
                 </div>
                 <div class="flex flex-col min-w-0">
                     <span class="font-bold text-sm truncate">@User.Identity.Name</span>
-                    <span class="text-[10px] text-slate-500">@(isArabic ? "إعدادات الحساب" : "Account Settings")</span>
+                    <span class="text-[10px] text-slate-500">@(isArabic ? "لوحة تحكم المشتري" : "Customer Dashboard")</span>
                 </div>
             </a>
             <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">

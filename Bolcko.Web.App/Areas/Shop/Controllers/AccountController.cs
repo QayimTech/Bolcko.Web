@@ -23,19 +23,23 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             _emailSender = emailSender;
         }
 
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index");
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+                return RedirectToAction("Index", "Product", new { area = "Shop" });
             }
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false)
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
@@ -55,7 +59,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     {
                         return RedirectToAction("Index", "Home", new { area = "Delivery" });
                     }
-                    return RedirectToAction("Index");
+
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
+                    return RedirectToAction("Index", "Product", new { area = "Shop" });
                 }
             }
 
@@ -75,7 +85,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Product", new { area = "Shop" });
             }
             return View();
         }
@@ -100,7 +110,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Product", new { area = "Shop" });
             }
 
             foreach (var error in result.Errors)

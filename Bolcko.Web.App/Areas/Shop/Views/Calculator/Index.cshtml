@@ -183,28 +183,33 @@
         </div>
 
         <!-- Quick Template Presets -->
-        <div id="quickPresetsContainer" class="mt-6 pt-5 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs">
-            <span class="text-slate-400 font-semibold me-2">@(isEn ? "Quick Presets:" : "نماذج جاهزة:")</span>
-            <button type="button" onclick="applyPreset(this, 120, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-1"
-                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">home</span>
-                <span>@(isEn ? "Apartment / Annex (120 m²)" : "ملحق / شقة (120 م²)")</span>
-            </button>
-            <button type="button" onclick="applyPreset(this, 250, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-2"
-                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">villa</span>
-                <span>@(isEn ? "Ground Floor Villa (250 m²)" : "طابق أرضي فيلا (250 م²)")</span>
-            </button>
-            <button type="button" onclick="applyPreset(this, 250, 2, 'Residential', 'IsolatedFootings')" id="preset-btn-3"
-                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/50 font-bold transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-emerald-400">apartment</span>
-                <span>@(isEn ? "Two-Storey Villa (500 m²)" : "فيلا طابقين (500 م²)")</span>
-            </button>
-            <button type="button" onclick="applyPreset(this, 250, 4, 'Residential', 'Raft')" id="preset-btn-4"
-                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-slate-400">domain</span>
-                <span>@(isEn ? "4-Storey Building (1000 m²)" : "مبنى سكني 4 طوابق (1000 م²)")</span>
-            </button>
+        <div id="quickPresetsContainer" class="mt-6 pt-5 border-t border-slate-800">
+            <div class="flex items-center gap-2 mb-2 sm:mb-3">
+                <span class="material-symbols-outlined text-sm text-emerald-400">tune</span>
+                <span class="text-slate-300 font-bold text-xs">@(isEn ? "Quick Project Presets:" : "نماذج جاهزة للمشروع (نقرة واحدة):")</span>
+            </div>
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 text-xs">
+                <button type="button" onclick="applyPreset(this, 120, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-1"
+                        class="preset-btn p-2.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center justify-center sm:justify-start gap-1.5 text-center sm:text-start">
+                    <span class="material-symbols-outlined text-sm text-slate-400 flex-shrink-0">home</span>
+                    <span class="truncate">@(isEn ? "Apartment (120 m²)" : "شقة / ملحق (120 م²)")</span>
+                </button>
+                <button type="button" onclick="applyPreset(this, 250, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-2"
+                        class="preset-btn p-2.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center justify-center sm:justify-start gap-1.5 text-center sm:text-start">
+                    <span class="material-symbols-outlined text-sm text-slate-400 flex-shrink-0">villa</span>
+                    <span class="truncate">@(isEn ? "1-Flr Villa (250 m²)" : "فيلا أرضي (250 م²)")</span>
+                </button>
+                <button type="button" onclick="applyPreset(this, 250, 2, 'Residential', 'IsolatedFootings')" id="preset-btn-3"
+                        class="preset-btn p-2.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-emerald-400 border border-emerald-500/50 font-bold transition-all flex items-center justify-center sm:justify-start gap-1.5 text-center sm:text-start">
+                    <span class="material-symbols-outlined text-sm text-emerald-400 flex-shrink-0">apartment</span>
+                    <span class="truncate">@(isEn ? "2-Flr Villa (500 m²)" : "فيلا طابقين (500 م²)")</span>
+                </button>
+                <button type="button" onclick="applyPreset(this, 250, 4, 'Residential', 'Raft')" id="preset-btn-4"
+                        class="preset-btn p-2.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center justify-center sm:justify-start gap-1.5 text-center sm:text-start">
+                    <span class="material-symbols-outlined text-sm text-slate-400 flex-shrink-0">domain</span>
+                    <span class="truncate">@(isEn ? "4-Flrs (1000 m²)" : "عمارة 4 طوابق (1000 م²)")</span>
+                </button>
+            </div>
         </div>
 
     </div>
@@ -238,12 +243,12 @@
                             <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                                 <span>@(isEn ? "Single Floor Footprint Area" : "مساحة الطابق الواحد (المسطح)")</span>
                             </label>
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="adjustArea(-10)" class="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors">-</button>
-                                <span class="text-sm font-bold text-slate-900 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 min-w-[70px] text-center font-mono" id="areaDisplay">
+                            <div class="flex items-center gap-1.5" dir="ltr">
+                                <button type="button" onclick="adjustArea(-10)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-base transition-colors select-none">-</button>
+                                <span class="text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 min-w-[75px] text-center font-mono select-none" id="areaDisplay">
                                     @(isEn ? "250 m²" : "250 م²")
                                 </span>
-                                <button type="button" onclick="adjustArea(10)" class="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors">+</button>
+                                <button type="button" onclick="adjustArea(10)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-base transition-colors select-none">+</button>
                             </div>
                         </div>
                         <input type="range" id="areaInput" min="50" max="1500" step="10" value="250"
