@@ -209,9 +209,24 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         [RequestSizeLimit(524_288_000)] // 500 MB
-        public async Task<IActionResult> UploadSeoImport(IFormFile? file, IFormFile? imagesZip, bool backgroundJob = false, bool autoApprove = true)
+        public async Task<IActionResult> UploadSeoImport(
+            List<IFormFile>? files, 
+            IFormFile? file, 
+            IFormFile? imagesZip, 
+            bool backgroundJob = false, 
+            bool autoApprove = true)
         {
-            if ((file == null || file.Length == 0) && (imagesZip == null || imagesZip.Length == 0))
+            var uploadedFiles = new List<IFormFile>();
+            if (files != null && files.Any())
+            {
+                uploadedFiles.AddRange(files.Where(f => f != null && f.Length > 0));
+            }
+            else if (file != null && file.Length > 0)
+            {
+                uploadedFiles.Add(file);
+            }
+
+            if (!uploadedFiles.Any() && (imagesZip == null || imagesZip.Length == 0))
                 return Json(new { success = false, message = "الرجاء اختيار ملف Excel أو ملف صور ZIP." });
 
             var tempDir = Path.Combine(Path.GetTempPath(), "BolckoDataHubImports", Guid.NewGuid().ToString("N"));
@@ -234,7 +249,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
 
             // ── Case 1: Images ZIP Only (no Excel) ──────────────────────────
-            if (file == null || file.Length == 0)
+            if (!uploadedFiles.Any())
             {
                 var jobId = Guid.NewGuid().ToString("N");
                 Hangfire.BackgroundJob.Enqueue<IBulkImportService>(service =>
@@ -249,50 +264,84 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 });
             }
 
-            // ── Case 2: Excel (with or without ZIP) ─────────────────────────
-            var ext = Path.GetExtension(file.FileName)?.ToLower();
-            if (ext != ".xlsx" && ext != ".xls")
-                return Json(new { success = false, message = "صيغة الملف غير مدعومة. يرجى رفع ملف .xlsx فقط." });
-
-            var excelPath = Path.Combine(tempDir, file.FileName);
-            using (var fs = new FileStream(excelPath, FileMode.Create))
+            // ── Case 2: Excel Files (Single or Multiple) ───────────────────
+            var validExcelPaths = new List<string>();
+            foreach (var uploadedFile in uploadedFiles)
             {
-                await file.CopyToAsync(fs);
+                var ext = Path.GetExtension(uploadedFile.FileName)?.ToLower();
+                if (ext != ".xlsx" && ext != ".xls")
+                    continue;
+
+                var excelPath = Path.Combine(tempDir, uploadedFile.FileName);
+                using (var fs = new FileStream(excelPath, FileMode.Create))
+                {
+                    await uploadedFile.CopyToAsync(fs);
+                }
+                validExcelPaths.Add(excelPath);
             }
+
+            if (!validExcelPaths.Any())
+                return Json(new { success = false, message = "صيغة الملف غير مدعومة. يرجى رفع ملفات .xlsx فقط." });
 
             if (backgroundJob)
             {
-                var jobId = Guid.NewGuid().ToString("N");
-                Hangfire.BackgroundJob.Enqueue<IBulkImportService>(service =>
-                    service.ProcessUnifiedExcelImportJobAsync(jobId, excelPath, extractedImagesFolder ?? zipPath));
+                string firstJobId = Guid.NewGuid().ToString("N");
+                for (int i = 0; i < validExcelPaths.Count; i++)
+                {
+                    var path = validExcelPaths[i];
+                    var jobId = i == 0 ? firstJobId : Guid.NewGuid().ToString("N");
+                    Hangfire.BackgroundJob.Enqueue<IBulkImportService>(service =>
+                        service.ProcessUnifiedExcelImportJobAsync(jobId, path, extractedImagesFolder ?? zipPath));
+                }
+
+                string msg = validExcelPaths.Count == 1
+                    ? "تم جدولة ملف الاستيراد كمهام خلفية بنجاح. يمكنك متابعة تقدم المعالجة."
+                    : $"تم جدولة {validExcelPaths.Count} ملفات إكسل للمعالجة بالتتابع في طابور الخلفية بنجاح.";
 
                 return Json(new
                 {
                     success = true,
                     isAsync = true,
-                    jobId = jobId,
-                    message = "تم جدولة ملف الاستيراد كمهام خلفية بنجاح. يمكنك متابعة تقدم المعالجة."
+                    jobId = firstJobId,
+                    totalJobs = validExcelPaths.Count,
+                    message = msg
                 });
             }
             else
             {
-                var result = await _bulkImportService.ProcessUnifiedExcelImportAsync(excelPath, extractedImagesFolder);
+                int totalRows = 0, imported = 0, updated = 0, skipped = 0;
+                var allErrors = new List<string>();
+                bool hasAnyError = false;
 
-                var errorRows = result.Rows
-                    .Where(r => r.Status == Bolcko.Domain.Interfaces.ImportRowStatus.Skipped && !string.IsNullOrWhiteSpace(r.Reason))
-                    .Select(r => $"الصف {r.RowNumber}: {r.Reason}")
-                    .ToList();
+                foreach (var excelPath in validExcelPaths)
+                {
+                    var result = await _bulkImportService.ProcessUnifiedExcelImportAsync(excelPath, extractedImagesFolder);
+                    totalRows += result.TotalRows;
+                    imported += result.Imported;
+                    updated += result.Updated;
+                    skipped += result.Skipped;
+
+                    var errorRows = result.Rows
+                        .Where(r => r.Status == Bolcko.Domain.Interfaces.ImportRowStatus.Skipped && !string.IsNullOrWhiteSpace(r.Reason))
+                        .Select(r => $"({Path.GetFileName(excelPath)}) الصف {r.RowNumber}: {r.Reason}")
+                        .ToList();
+
+                    allErrors.AddRange(errorRows);
+                    if (result.HasError) hasAnyError = true;
+                }
 
                 return Json(new
                 {
-                    success = !result.HasError,
+                    success = !hasAnyError,
                     isAsync = false,
-                    totalRows = result.TotalRows,
-                    successCount = result.Imported,
-                    updatedCount = result.Updated + result.Imported,
-                    failureCount = result.Skipped,
-                    errors = errorRows,
-                    message = !result.HasError ? $"تمت معالجة البيانات بنجاح: {result.Imported} منتج/فارينت جديد، وتحديث {result.Updated}." : (result.ErrorMessage ?? "حدثت أخطاء أثناء المعالجة.")
+                    totalRows = totalRows,
+                    successCount = imported,
+                    updatedCount = updated + imported,
+                    failureCount = skipped,
+                    errors = allErrors,
+                    message = !hasAnyError 
+                        ? $"تمت معالجة {validExcelPaths.Count} ملفات بنجاح: {imported} منتج/فارينت جديد، وتحديث {updated}." 
+                        : "حدثت أخطاء أثناء المعالجة."
                 });
             }
         }

@@ -265,13 +265,13 @@
                             <!-- Drag and Drop Area -->
                             <div id="drop-zone" onclick="document.getElementById('file-input').click()"
                                  class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-emerald-50/20 cursor-pointer transition-all">
-                                <input type="file" id="file-input" name="file" accept=".xlsx, .xls" class="hidden" onchange="handleFileSelect(this)" />
+                                <input type="file" id="file-input" name="files" accept=".xlsx, .xls" multiple class="hidden" onchange="handleFileSelect(this)" />
 
                                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-3">
                                     <span class="material-symbols-outlined text-2xl">cloud_upload</span>
                                 </div>
-                                <h3 class="font-bold text-slate-800 text-sm mb-1" id="file-label-title">اسحب ملف Excel إلى هنا أو اضغط للاختيار</h3>
-                                <p class="text-slate-400 text-xs" id="file-label-sub">يدعم صيغ .xlsx بحجم أقصى 500 ميجابايت (الصور تُسحب تلقائياً من الروابط بالشيت)</p>
+                                <h3 class="font-bold text-slate-800 text-sm mb-1" id="file-label-title">اسحب ملف أو ملفات Excel إلى هنا أو اضغط للاختيار</h3>
+                                <p class="text-slate-400 text-xs" id="file-label-sub">يدعم رفع ملفات إكسل متعددة (.xlsx) وشيتات متعددة معاً بحجم أقصى 500 ميجابايت</p>
                             </div>
 
                             <!-- Optional Images ZIP Area -->
@@ -559,10 +559,23 @@
         }
 
         function handleFileSelect(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                document.getElementById('file-label-title').innerText = file.name;
-                document.getElementById('file-label-sub').innerText = `الحجم: ${(file.size / (1024 * 1024)).toFixed(2)} ميجابايت`;
+            if (input.files && input.files.length > 0) {
+                if (input.files.length === 1) {
+                    const file = input.files[0];
+                    document.getElementById('file-label-title').innerText = file.name;
+                    document.getElementById('file-label-sub').innerText = `الحجم: ${(file.size / (1024 * 1024)).toFixed(2)} ميجابايت (جاهز للرفع)`;
+                } else {
+                    let totalSize = 0;
+                    const names = [];
+                    for (let i = 0; i < input.files.length; i++) {
+                        totalSize += input.files[i].size;
+                        if (i < 3) names.push(input.files[i].name);
+                    }
+                    const totalMb = (totalSize / (1024 * 1024)).toFixed(2);
+                    const extra = input.files.length > 3 ? ` و ${input.files.length - 3} ملفات أخرى` : '';
+                    document.getElementById('file-label-title').innerText = `تم اختيار ${input.files.length} ملفات إكسل (${totalMb} MB)`;
+                    document.getElementById('file-label-sub').innerText = `${names.join(', ')}${extra}`;
+                }
             }
         }
 

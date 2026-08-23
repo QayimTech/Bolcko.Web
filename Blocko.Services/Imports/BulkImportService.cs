@@ -314,12 +314,35 @@ namespace Blocko.Services.Imports
                     await ImportCategoriesFromWorksheet(categorySheet);
                 }
 
-                // ── Step 2: import products ─────────────────────────────────
-                var productSheet = FindSheet(workbook, "products", "المنتجات", "product", "منتجات") ?? workbook.Worksheets.FirstOrDefault();
-                if (productSheet != null)
+                // ── Step 2: import all product sheets in the workbook ────────
+                var processedSheets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (categorySheet != null)
                 {
-                    _logger.LogInformation("Processing product sheet: {Name}", productSheet.Name);
-                    await ImportProductsFromWorksheet(productSheet, result, localImageFolderPath);
+                    processedSheets.Add(categorySheet.Name);
+                }
+
+                // If explicit products sheet exists, process it first
+                var primaryProductSheet = FindSheet(workbook, "products", "المنتجات", "product", "منتجات");
+                if (primaryProductSheet != null)
+                {
+                    _logger.LogInformation("Processing primary product sheet: {Name}", primaryProductSheet.Name);
+                    await ImportProductsFromWorksheet(primaryProductSheet, result, localImageFolderPath);
+                    processedSheets.Add(primaryProductSheet.Name);
+                }
+
+                // Process every other non-empty worksheet in the workbook (supporting full multi-sheet catalogs)
+                foreach (var ws in workbook.Worksheets)
+                {
+                    if (processedSheets.Contains(ws.Name))
+                        continue;
+
+                    var lastRow = ws.LastRowUsed();
+                    if (lastRow != null && lastRow.RowNumber() > 1)
+                    {
+                        _logger.LogInformation("Processing additional product sheet: {Name} ({Rows} rows)", ws.Name, lastRow.RowNumber());
+                        await ImportProductsFromWorksheet(ws, result, localImageFolderPath);
+                        processedSheets.Add(ws.Name);
+                    }
                 }
 
                 _logger.LogInformation("Unified Excel import completed. {Summary}", result.Summary);

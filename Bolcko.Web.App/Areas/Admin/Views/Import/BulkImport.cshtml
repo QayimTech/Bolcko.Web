@@ -90,17 +90,17 @@
                         hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-300 group mb-6 bg-slate-50/30"
                  onclick="document.getElementById('fileInput').click()">
 
-                <input type="file" id="fileInput" name="file" accept=".xlsx" required class="hidden"
+                <input type="file" id="fileInput" name="files" accept=".xlsx" multiple required class="hidden"
                        onchange="handleFileSelect(this)" />
 
                 <div id="dropZoneContent" class="flex flex-col items-center justify-center">
                     <div class="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-4 group-hover:-translate-y-2 transition-transform duration-300">
                         <span id="dropIcon" class="material-symbols-outlined text-emerald-500 text-4xl">table_view</span>
                     </div>
-                    <h3 id="dropTitle" class="font-bold text-slate-800 text-lg mb-1">اسحب وأفلت ملف الإكسل هنا</h3>
-                    <p id="dropSubtitle" class="text-slate-500 text-sm mb-3">أو انقر لاختيار ملف من جهازك</p>
+                    <h3 id="dropTitle" class="font-bold text-slate-800 text-lg mb-1">اسحب وأفلت ملف أو ملفات الإكسل هنا</h3>
+                    <p id="dropSubtitle" class="text-slate-500 text-sm mb-3">أو انقر لاختيار ملف أو عدة ملفات إكسل معاً (.xlsx)</p>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">
-                        يدعم <span id="acceptHint" class="text-emerald-600">.xlsx</span>
+                        يدعم <span id="acceptHint" class="text-emerald-600">.xlsx (ملفات متعددة وشيتات متعددة)</span>
                         <span class="w-1 h-1 rounded-full bg-slate-300 mx-1"></span>
                         أقصى حجم 500 ميغابايت
                     </span>
@@ -110,11 +110,11 @@
                     <div class="w-16 h-16 bg-emerald-100 border-4 border-white shadow-md rounded-full flex items-center justify-center mb-4 animate-bounce">
                         <span class="material-symbols-outlined text-emerald-600 text-3xl">task_alt</span>
                     </div>
-                    <p id="selectedFileName" class="font-bold text-slate-800 text-lg mb-1"></p>
-                    <p class="text-emerald-600 text-xs font-bold bg-emerald-50 px-3 py-1 rounded-full">الملف جاهز ومُحدد</p>
+                    <p id="selectedFileName" class="font-bold text-slate-800 text-lg mb-1 text-center max-w-lg"></p>
+                    <p id="selectedFileSub" class="text-emerald-600 text-xs font-bold bg-emerald-50 px-3 py-1 rounded-full">جاهز للرفع والمعالجة في طابور الخلفية</p>
                     <button type="button" onclick="resetFile(event)"
                             class="mt-4 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-all">
-                        إلغاء واختيار ملف آخر
+                        إلغاء واختيار ملفات أخرى
                     </button>
                 </div>
             </div>
@@ -516,13 +516,30 @@
     }
 
     async function handleFileSelect(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-
+        if (!input.files || input.files.length === 0) return;
+        
         document.getElementById('dropZoneContent').classList.add('hidden');
         document.getElementById('fileSelected').classList.remove('hidden');
-        document.getElementById('selectedFileName').textContent = file.name;
-        // Don't auto-submit, let user click "استيراد البيانات" after adding zip too!
+
+        if (input.files.length === 1) {
+            const file = input.files[0];
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            document.getElementById('selectedFileName').textContent = `${file.name} (${sizeMb} MB)`;
+            const sub = document.getElementById('selectedFileSub');
+            if (sub) sub.textContent = 'ملف الإكسل جاهز ومُحدد';
+        } else {
+            let totalSize = 0;
+            const names = [];
+            for (let i = 0; i < input.files.length; i++) {
+                totalSize += input.files[i].size;
+                if (i < 3) names.push(input.files[i].name);
+            }
+            const totalMb = (totalSize / (1024 * 1024)).toFixed(2);
+            const extra = input.files.length > 3 ? ` و ${input.files.length - 3} ملفات أخرى` : '';
+            document.getElementById('selectedFileName').textContent = `تم اختيار ${input.files.length} ملفات إكسل (${totalMb} MB): ${names.join(', ')}${extra}`;
+            const sub = document.getElementById('selectedFileSub');
+            if (sub) sub.textContent = `جاهزة للرفع والمعالجة بالتتابع في طابور الخلفية (${input.files.length} مهام)`;
+        }
     }
 
     // Add event listener for Google Sheet URL input to submit when Enter is pressed

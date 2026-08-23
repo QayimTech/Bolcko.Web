@@ -45,15 +45,30 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(524_288_000)] // 500 MB
-        public async Task<IActionResult> BulkImport(IFormFile? file, IFormFile? imagesZip, string format = "excel", string googleSheetUrl = "", string localImageFolder = "")
+        public async Task<IActionResult> BulkImport(
+            List<IFormFile>? files, 
+            IFormFile? file, 
+            IFormFile? imagesZip, 
+            string format = "excel", 
+            string googleSheetUrl = "", 
+            string localImageFolder = "")
         {
-            _logger.LogInformation("=== BulkImport request received. Format={Format}, FileSize={FileSize}, ZipSize={ZipSize} ===",
+            var uploadedFiles = new List<IFormFile>();
+            if (files != null && files.Any())
+            {
+                uploadedFiles.AddRange(files.Where(f => f != null && f.Length > 0));
+            }
+            else if (file != null && file.Length > 0)
+            {
+                uploadedFiles.Add(file);
+            }
+
+            _logger.LogInformation("=== BulkImport request received. Format={Format}, FileCount={FileCount}, ZipSize={ZipSize} ===",
                 format,
-                file?.Length ?? 0,
+                uploadedFiles.Count,
                 imagesZip?.Length ?? 0);
 
             bool isGoogleSheet = format.Equals("google-sheet", StringComparison.OrdinalIgnoreCase);
-
             var importId = Guid.NewGuid().ToString();
 
             // Base folder: ContentRootPath ensures the same physical path is seen
@@ -61,7 +76,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var importFolder  = Path.Combine(_env.ContentRootPath, "App_Data", "Imports");
             Directory.CreateDirectory(importFolder);
 
-            string? tempFilePath          = null;
             string? extractedImagesFolder = null;
 
             try
@@ -114,7 +128,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
                 // ── 2. Handle Images-Only ZIP Import ────────────────────────────
                 bool isImagesOnly = format.Equals("images-only", StringComparison.OrdinalIgnoreCase) ||
-                                    (file == null && imagesZip != null && imagesZip.Length > 0);
+                                    (!uploadedFiles.Any() && imagesZip != null && imagesZip.Length > 0);
 
                 if (isImagesOnly)
                 {
@@ -141,28 +155,49 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     return Json(new { success = true, message = "بدأت المعالجة في الخلفية لشيت جوجل.", jobId = importId });
                 }
 
-                // ── 4. Handle Excel upload ──────────────────────────────────────
-                if (file == null || file.Length == 0)
-                    return Json(new { success = false, message = "الرجاء اختيار ملف للرفع." });
+                // ── 4. Handle Excel Uploads (Single or Multiple) ────────────────
+                if (!uploadedFiles.Any())
+                    return Json(new { success = false, message = "الرجاء اختيار ملف إكسل واحد على الأقل للرفع." });
 
-                var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
-                if (fileExt != ".xlsx")
-                    return Json(new { success = false, message = "الرجاء رفع ملف بصيغة Excel (.xlsx) فقط." });
+                var jobIds = new List<string>();
 
-                tempFilePath = Path.Combine(importFolder, $"{importId}_data{fileExt}");
-                await using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                for (int i = 0; i < uploadedFiles.Count; i++)
                 {
-                    await file.CopyToAsync(stream);
+                    var uploadedFile = uploadedFiles[i];
+                    var fileExt = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
+                    if (fileExt != ".xlsx")
+                    {
+                        _logger.LogWarning("Skipping non-xlsx file: {FileName}", uploadedFile.FileName);
+                        continue;
+                    }
+
+                    var subImportId = i == 0 ? importId : Guid.NewGuid().ToString();
+                    var tempFilePath = Path.Combine(importFolder, $"{subImportId}_{uploadedFile.FileName}");
+                    
+                    await using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                    {
+                        await uploadedFile.CopyToAsync(stream);
+                    }
+
+                    _logger.LogInformation("Excel file #{Index} saved to {Path}. Enqueueing into Hangfire queue.", i + 1, tempFilePath);
+
+                    // Pass extractedImagesFolder so all queued jobs have access to the extracted images
+                    _jobs.Enqueue<IBulkImportService>(svc =>
+                        svc.ProcessUnifiedExcelImportJobAsync(subImportId, tempFilePath, extractedImagesFolder));
+
+                    jobIds.Add(subImportId);
                 }
 
-                _logger.LogInformation("Excel file saved to {Path}. Enqueueing background job.", tempFilePath);
+                if (!jobIds.Any())
+                {
+                    return Json(new { success = false, message = "لم يتم العثور على ملفات إكسل صالحة بصيغة (.xlsx)." });
+                }
 
-                // Pass extractedImagesFolder (not the raw ZIP path) so the job
-                // uses already-extracted images — no re-extraction needed in the job.
-                _jobs.Enqueue<IBulkImportService>(svc =>
-                    svc.ProcessUnifiedExcelImportJobAsync(importId, tempFilePath, extractedImagesFolder));
+                string responseMsg = jobIds.Count == 1
+                    ? "بدأت معالجة ملف الإكسل وجدولة المهام في الخلفية بنجاح."
+                    : $"تمت جدولة {jobIds.Count} ملفات إكسل للمعالجة بالتتابع في طابور الخلفية بنجاح.";
 
-                return Json(new { success = true, message = "بدأت معالجة ملف Excel في الخلفية.", jobId = importId });
+                return Json(new { success = true, message = responseMsg, jobId = importId, totalJobs = jobIds.Count });
             }
             catch (Exception ex)
             {
