@@ -66,6 +66,11 @@
                     </button>
                 </div>
 
+                <a href="/calculator" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-[11px] font-black transition-all whitespace-nowrap border border-emerald-500/20">
+                    <span class="material-symbols-outlined text-[15px]">calculate</span>
+                    <span class="truncate">@(isArabic ? "حاسبة البناء الذكية" : "Cost Estimator")</span>
+                </a>
+
                 <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="flex items-center gap-1 px-2 py-2 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-[11px] font-bold transition-all whitespace-nowrap">
                     <span class="material-symbols-outlined text-[15px]">local_shipping</span>
                     <span class="truncate">@SharedLocalizer["TrackOrder"]</span>

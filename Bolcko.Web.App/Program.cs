@@ -120,6 +120,12 @@ try
         service => service.CleanOldLogsAsync(12), 
         Cron.Daily);
 
+    // Schedule recurring live market commodity prices sync (runs hourly)
+    RecurringJob.AddOrUpdate<Blocko.Services.Interfaces.Category.IMarketPriceService>(
+        "hourly-market-prices-sync",
+        service => service.SyncLiveGlobalMarketPricesAsync(),
+        Cron.Hourly);
+
     // =========================================================================
     // STEP 6: Map Endpoints
     // =========================================================================

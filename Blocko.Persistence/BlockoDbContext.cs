@@ -1,4 +1,4 @@
-using Bolcko.Domain.Entities.User;
+﻿using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Order;
@@ -51,6 +51,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; set; }
         public DbSet<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; set; }
         public DbSet<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Content.FAQItem> FAQItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,4 +1,4 @@
-using Blocko.Services.Interfaces.Category;
+﻿using Blocko.Services.Interfaces.Category;
 using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.Tender;
@@ -18,6 +18,7 @@ namespace Blocko.Services.Interfaces
         IOrderService OrderService { get; }
         ITenderService TenderService { get; }
         ISEOService SEOService { get; }
+        Blocko.Services.Interfaces.Content.IFAQService FAQService { get; }
         IProductSeoService ProductSeoService { get; }
         IShoppingCartService ShoppingCartService { get; }
         IProjectService ProjectService { get; }

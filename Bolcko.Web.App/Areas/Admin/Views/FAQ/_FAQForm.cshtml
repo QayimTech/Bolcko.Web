@@ -1,0 +1,70 @@
+@model Bolcko.Domain.Entities.Content.FAQItem
+
+<div class="space-y-6">
+    
+    <!-- Arabic Content Section -->
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="material-symbols-outlined text-slate-700 text-lg">translate</span>
+            <h3 class="text-xs font-bold text-slate-900">المحتوى باللغة العربية (الأساسي)</h3>
+        </div>
+
+        <div>
+            <label asp-for="QuestionAr" class="block text-xs font-bold text-slate-800 mb-1.5"></label>
+            <input asp-for="QuestionAr" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-bold text-slate-900 outline-none transition-all" placeholder="مثال: كم طن حديد يحتاج سقف 200 متر في الأردن؟" required />
+            <span asp-validation-for="QuestionAr" class="text-xs text-rose-600 mt-1 block font-semibold"></span>
+        </div>
+
+        <div>
+            <label asp-for="AnswerAr" class="block text-xs font-bold text-slate-800 mb-1.5"></label>
+            <textarea asp-for="AnswerAr" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-medium text-slate-900 outline-none transition-all leading-relaxed" placeholder="اكتب الإجابة الهندسية والتفصيلية بالعربية..." required></textarea>
+            <span asp-validation-for="AnswerAr" class="text-xs text-rose-600 mt-1 block font-semibold"></span>
+        </div>
+    </div>
+
+    <!-- English Content Section -->
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <span class="material-symbols-outlined text-slate-700 text-lg">language</span>
+            <h3 class="text-xs font-bold text-slate-900">المحتوى باللغة الإنجليزية (English Translation)</h3>
+        </div>
+
+        <div>
+            <label asp-for="QuestionEn" class="block text-xs font-bold text-slate-800 mb-1.5">Question (English)</label>
+            <input asp-for="QuestionEn" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-medium text-slate-900 outline-none transition-all" placeholder="e.g. How many tons of steel are needed for a 200 sqm slab in Jordan?" dir="ltr" />
+            <span asp-validation-for="QuestionEn" class="text-xs text-rose-600 mt-1 block font-semibold"></span>
+        </div>
+
+        <div>
+            <label asp-for="AnswerEn" class="block text-xs font-bold text-slate-800 mb-1.5">Answer (English)</label>
+            <textarea asp-for="AnswerEn" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-medium text-slate-900 outline-none transition-all leading-relaxed" placeholder="Write detailed English engineering answer..." dir="ltr"></textarea>
+            <span asp-validation-for="AnswerEn" class="text-xs text-rose-600 mt-1 block font-semibold"></span>
+        </div>
+    </div>
+
+    <!-- Metadata & Settings -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+        <div>
+            <label asp-for="PageTarget" class="block text-xs font-bold text-slate-800 mb-1.5"></label>
+            <select asp-for="PageTarget" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-semibold text-slate-900 outline-none transition-all">
+                <option value="Calculator">حاسبة البناء (Calculator)</option>
+                <option value="General">عام (General)</option>
+                <option value="Delivery">الشحن والتوصيل (Delivery)</option>
+                <option value="Payment">طرق الدفع والتوريد (Payment)</option>
+            </select>
+        </div>
+
+        <div>
+            <label asp-for="DisplayOrder" class="block text-xs font-bold text-slate-800 mb-1.5"></label>
+            <input asp-for="DisplayOrder" type="number" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-semibold text-slate-900 outline-none transition-all" />
+        </div>
+
+        <div class="flex items-center pt-6">
+            <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                <input asp-for="IsActive" type="checkbox" class="w-4 h-4 rounded text-slate-900 focus:ring-slate-900" />
+                <span class="text-xs font-bold text-slate-800">مفعل وظاهر في الموقع ومحرك البحث</span>
+            </label>
+        </div>
+    </div>
+
+</div>

@@ -16,6 +16,8 @@ using Blocko.Services.Implementations.Delivery;
 using Blocko.Services.Implementations.SEO;
 using Blocko.Services.Implementations.user;
 using Bolcko.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Blocko.Services.Implementations
 {
@@ -32,6 +34,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IOrderService> _lazyOrderService;
         private readonly Lazy<ITenderService> _lazyTenderService;
         private readonly Lazy<ISEOService> _lazySEOService;
+        private readonly Lazy<Blocko.Services.Interfaces.Content.IFAQService> _lazyFAQService;
         private readonly Lazy<IProductSeoService> _lazyProductSeoService;
         private readonly Lazy<IShoppingCartService> _lazyShoppingCartService;
         private readonly Lazy<IProjectService> _lazyProjectService;
@@ -50,10 +53,11 @@ namespace Blocko.Services.Implementations
             _lazyUserService        = new Lazy<IUserService>(() => new UserService(unitOfWork));
             _lazyProductService     = new Lazy<IProductService>(() => new ProductService(unitOfWork));
             _lazyCategoryService    = new Lazy<ICategoryService>(() => new CategoryService(unitOfWork));
-            _lazyMarketPriceService = new Lazy<IMarketPriceService>(() => new MarketPriceService(unitOfWork));
+            _lazyMarketPriceService = new Lazy<IMarketPriceService>(() => new MarketPriceService(unitOfWork, cache, loggerFactory.CreateLogger<MarketPriceService>()));
             _lazyOrderService       = new Lazy<IOrderService>(() => new OrderService(unitOfWork, notificationService, emailSender, userManager));
             _lazyTenderService      = new Lazy<ITenderService>(() => new TenderService(unitOfWork));
             _lazySEOService         = new Lazy<ISEOService>(() => new SEOService(unitOfWork));
+            _lazyFAQService         = new Lazy<Blocko.Services.Interfaces.Content.IFAQService>(() => new Blocko.Services.Implementations.Content.FAQService(unitOfWork));
 
             // IProductSeoService is resolved from the DI container (has ILogger<T> correctly injected)
             _lazyProductSeoService  = new Lazy<IProductSeoService>(() => productSeoService);
@@ -70,6 +74,7 @@ namespace Blocko.Services.Implementations
         public IOrderService OrderService      => _lazyOrderService.Value;
         public ITenderService TenderService    => _lazyTenderService.Value;
         public ISEOService SEOService          => _lazySEOService.Value;
+        public Blocko.Services.Interfaces.Content.IFAQService FAQService => _lazyFAQService.Value;
         public IProductSeoService ProductSeoService => _lazyProductSeoService.Value;
         public IShoppingCartService ShoppingCartService => _lazyShoppingCartService.Value;
         public IProjectService ProjectService  => _lazyProjectService.Value;

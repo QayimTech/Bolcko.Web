@@ -1,0 +1,109 @@
+@model IEnumerable<Bolcko.Domain.Entities.Content.FAQItem>
+@{
+    ViewData["Title"] = "إدارة الأسئلة الشائعة (FAQ) والـ SEO";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+    
+    <!-- Top Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold mb-2">
+                <span>Google Rich Snippets & Bilingual FAQ Engine</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900">إدارة الأسئلة الشائعة (FAQ) والـ SEO</h1>
+            <p class="text-xs text-slate-500 mt-1">تحكم بالأسئلة والأجوبة الثنائية (عربي / إنجليزي) لحاسبة البناء وصفحات الموقع والـ Rich Snippets في جوجل.</p>
+        </div>
+        <a href="@Url.Action("Create", "FAQ", new { area = "Admin" })" 
+           class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-base">add</span>
+            <span>إضافة سؤال جديد</span>
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600 text-base">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    <!-- FAQs Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                        <th class="py-3.5 px-5 text-start">الترتيب</th>
+                        <th class="py-3.5 px-5 text-start">السؤال بالعربية (Arabic)</th>
+                        <th class="py-3.5 px-5 text-start">السؤال بالإنجليزية (English)</th>
+                        <th class="py-3.5 px-5 text-center">الصفحة</th>
+                        <th class="py-3.5 px-5 text-center">الحالة</th>
+                        <th class="py-3.5 px-5 text-end">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-800">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="py-10 text-center text-slate-400 font-medium">لا توجد أسئلة شائعة مضافة حالياً.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-slate-50/70 transition-colors">
+                                <td class="py-3.5 px-5 font-mono font-bold text-slate-900">#@item.DisplayOrder</td>
+                                <td class="py-3.5 px-5 max-w-xs">
+                                    <p class="font-bold text-slate-900 text-xs line-clamp-1">@item.QuestionAr</p>
+                                    <p class="text-slate-500 text-[11px] mt-0.5 line-clamp-1">@item.AnswerAr</p>
+                                </td>
+                                <td class="py-3.5 px-5 max-w-xs" dir="ltr">
+                                    @if (!string.IsNullOrEmpty(item.QuestionEn))
+                                    {
+                                        <p class="font-medium text-slate-900 text-xs line-clamp-1">@item.QuestionEn</p>
+                                        <span class="inline-block mt-0.5 px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[10px] font-semibold">مترجم En</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 text-[11px] italic">غير مترجم</span>
+                                    }
+                                </td>
+                                <td class="py-3.5 px-5 text-center">
+                                    <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold text-[11px]">@item.PageTarget</span>
+                                </td>
+                                <td class="py-3.5 px-5 text-center">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 text-[11px]">نشط</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold border border-rose-200 text-[11px]">معطل</span>
+                                    }
+                                </td>
+                                <td class="py-3.5 px-5 text-end space-x-1.5 space-x-reverse">
+                                    <a href="@Url.Action("Edit", "FAQ", new { area = "Admin", id = item.Id })" 
+                                       class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                        <span>تعديل</span>
+                                    </a>
+                                    <form method="post" action="@Url.Action("Delete", "FAQ", new { area = "Admin", id = item.Id })" class="inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا السؤال؟');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold transition-all inline-flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">delete</span>
+                                            <span>حذف</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

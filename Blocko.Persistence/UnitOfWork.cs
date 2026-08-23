@@ -1,4 +1,4 @@
-using Bolcko.Domain.Interfaces;
+﻿using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Delivery;
 using Bolcko.Domain.Entities.Order;
@@ -55,6 +55,7 @@ namespace Blocko.Persistence
 
             // Analytics & Security
             VisitorLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog>(_context);
+            FAQs = new GenericRepository<Bolcko.Domain.Entities.Content.FAQItem>(_context);
             SecurityAuditLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog>(_context);
             IpBlacklists = new GenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist>(_context);
         }
@@ -90,6 +91,7 @@ namespace Blocko.Persistence
 
         // Analytics & Security
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Content.FAQItem> FAQs { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; private set; }
 

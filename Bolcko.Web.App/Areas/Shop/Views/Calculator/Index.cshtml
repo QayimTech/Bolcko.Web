@@ -1,0 +1,1162 @@
+@model Bolcko.Domain.Entities.Catalog.DTOs.ConstructionEstimateResultDto
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+
+    ViewData["Title"] = isEn 
+        ? "Construction Cost & Material Quantity Calculator Jordan 2026 | BLOCKO" 
+        : "حاسبة تكلفة البناء وكميات المواد في الأردن 2026 | بلوكو لتوريد مواد البناء";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var prices = ViewBag.Prices as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.MarketPriceDto> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.DTOs.MarketPriceDto>();
+    var faqs = ViewBag.FAQs as IEnumerable<Bolcko.Domain.Entities.Content.FAQItem> ?? Enumerable.Empty<Bolcko.Domain.Entities.Content.FAQItem>();
+
+    var faqEntities = faqs.Select(f => new Dictionary<string, object> {
+        ["\u0040type"] = "Question",
+        ["name"] = isEn && !string.IsNullOrEmpty(f.QuestionEn) ? f.QuestionEn : f.QuestionAr,
+        ["acceptedAnswer"] = new Dictionary<string, object> {
+            ["\u0040type"] = "Answer",
+            ["text"] = isEn && !string.IsNullOrEmpty(f.AnswerEn) ? f.AnswerEn : f.AnswerAr
+        }
+    }).ToList();
+
+    var schemaData = new Dictionary<string, object> {
+        ["\u0040context"] = "https://schema.org",
+        ["\u0040graph"] = new object[] {
+            new Dictionary<string, object> {
+                ["\u0040type"] = "WebApplication",
+                ["name"] = isEn ? "Structural Construction Cost & Quantity Calculator Jordan" : "حاسبة تكلفة وكميات البناء الهندسية الأردن",
+                ["url"] = "https://bolcko.com/calculator",
+                ["applicationCategory"] = "BusinessApplication",
+                ["operatingSystem"] = "All",
+                ["description"] = isEn 
+                    ? "Smart structural engineering system to estimate rebar steel, ready-mix concrete, cement, masonry blocks, and workmanship costs in Jordan."
+                    : "حاسبة هندسية متقدمة لتقدير كميات وتكاليف مواد البناء الإنشائية في الأردن وفق كودات البناء وأسعار السوق اللحظية."
+            },
+            new Dictionary<string, object> {
+                ["\u0040type"] = "BreadcrumbList",
+                ["itemListElement"] = new object[] {
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 1, ["name"] = isEn ? "Home" : "الرئيسية", ["item"] = "https://bolcko.com" },
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 2, ["name"] = isEn ? "Cost Estimator" : "حاسبة تكاليف البناء", ["item"] = "https://bolcko.com/calculator" }
+                }
+            },
+            new Dictionary<string, object> {
+                ["\u0040type"] = "FAQPage",
+                ["mainEntity"] = faqEntities
+            }
+        }
+    };
+
+    var jsonOptions = new System.Text.Json.JsonSerializerOptions {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+    var schemaJson = System.Text.Json.JsonSerializer.Serialize(schemaData, jsonOptions);
+
+    // Item notes & units localization helper
+    string GetItemName(string category, string defaultAr, string defaultEn) {
+        return isEn ? (!string.IsNullOrEmpty(defaultEn) ? defaultEn : defaultAr) : defaultAr;
+    }
+
+    string GetItemUnit(string category) {
+        if (!isEn) {
+            return category switch {
+                "Steel" => "طن",
+                "Concrete" => "م³",
+                "Cement" => "كيس",
+                "Blocks" => "حبة",
+                "Sand" => "م³",
+                "Labor" => "م² مسطح",
+                _ => "وحدة"
+            };
+        } else {
+            return category switch {
+                "Steel" => "Tons",
+                "Concrete" => "m³",
+                "Cement" => "Bags",
+                "Blocks" => "Pcs",
+                "Sand" => "m³",
+                "Labor" => "m² Built-up",
+                _ => "Unit"
+            };
+        }
+    }
+
+    string GetItemNote(string category, string noteAr) {
+        if (!isEn) return noteAr;
+        return category switch {
+            "Steel" => "Includes footings, columns, beams & slabs (8-25mm)",
+            "Concrete" => "Cast for foundations, beams, columns & slabs with pump",
+            "Cement" => "For masonry walls, ground sub-base, and plastering",
+            "Blocks" => "For exterior walls, interior partitions, and rib slabs",
+            "Sand" => "For mortar mixes, masonry, and ground slabs",
+            "Labor" => "Carpentry, steel fixing, concrete casting, and mason workforce",
+            _ => noteAr
+        };
+    }
+}
+
+<!-- Structured Data for Google Rich Snippets (Schema.org) -->
+<script type="application/ld+json">
+@Html.Raw(schemaJson)
+</script>
+
+<style>
+    /* ══════════════════════ PRINT STYLESHEET ══════════════════════ */
+    @@media print {
+        header, footer, nav, #quickPresetsContainer, #calcFormContainer, #liveTickerSection, #faqSection, .no-print, .action-buttons-group {
+            display: none !important;
+        }
+
+        body, main, .calculator-main-wrapper {
+            background: #ffffff !important;
+            color: #000000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 11pt !important;
+        }
+
+        .print-only-report {
+            display: block !important;
+        }
+
+        .page-break-avoid {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            page-break-inside: auto !important;
+        }
+
+        tr {
+            page-break-inside: avoid !important;
+            page-break-after: auto !important;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 6px 10px !important;
+        }
+
+        th {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+    }
+
+    @@media screen {
+        .print-only-report {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- ══════════════════════ SCREEN VIEW: HERO SECTION ══════════════════════ -->
+<section class="relative bg-slate-900 text-white pt-8 pb-14 border-b border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Breadcrumb Navigation -->
+        <nav class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6">
+            <a href="/" class="hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined text-[15px]">home</span>
+                <span>@(isEn ? "Home" : "الرئيسية")</span>
+            </a>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-200">@(isEn ? "Construction Cost & Quantity Calculator" : "حاسبة تكاليف وكميات البناء")</span>
+        </nav>
+
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>@(isEn ? "Verified prices based on Jordanian Construction Markets & Commodity Exchanges" : "مؤشرات أسعار معتمدة وفق السوق الأردني وبورصات المواد الإنشائية")</span>
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+                @(isEn ? "Structural Construction Cost & Quantity Calculator" : "حاسبة تكاليف وكميات البناء الإنشائية")
+            </h1>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed font-normal">
+                @(isEn 
+                    ? "Smart structural engineering system to estimate quantities of rebar steel, ready-mix concrete, cement, masonry blocks, and workmanship costs according to Jordanian building codes with live market pricing."
+                    : "نظام هندسي لحساب كميات حديد التسليح، الخرسانة الجاهزة، الإسمنت، الطوب، والمصنعية وفق المعايير المعمارية والكودات الأردنية بالأسعار الحية المحدثة.")
+            </p>
+        </div>
+
+        <!-- Quick Template Presets -->
+        <div id="quickPresetsContainer" class="mt-6 pt-5 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-semibold me-2">@(isEn ? "Quick Presets:" : "نماذج جاهزة:")</span>
+            <button type="button" onclick="applyPreset(this, 120, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-1"
+                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-slate-400">home</span>
+                <span>@(isEn ? "Apartment / Annex (120 m²)" : "ملحق / شقة (120 م²)")</span>
+            </button>
+            <button type="button" onclick="applyPreset(this, 250, 1, 'Residential', 'IsolatedFootings')" id="preset-btn-2"
+                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-slate-400">villa</span>
+                <span>@(isEn ? "Ground Floor Villa (250 m²)" : "طابق أرضي فيلا (250 م²)")</span>
+            </button>
+            <button type="button" onclick="applyPreset(this, 250, 2, 'Residential', 'IsolatedFootings')" id="preset-btn-3"
+                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/50 font-bold transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-emerald-400">apartment</span>
+                <span>@(isEn ? "Two-Storey Villa (500 m²)" : "فيلا طابقين (500 م²)")</span>
+            </button>
+            <button type="button" onclick="applyPreset(this, 250, 4, 'Residential', 'Raft')" id="preset-btn-4"
+                    class="preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-slate-400">domain</span>
+                <span>@(isEn ? "4-Storey Building (1000 m²)" : "مبنى سكني 4 طوابق (1000 م²)")</span>
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════ SCREEN VIEW: MAIN WORKSPACE ══════════════════════ -->
+<div class="calculator-main-wrapper max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 no-print">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- ────────────── LEFT COLUMN: CONTROLS & INPUTS ────────────── -->
+        <div id="calcFormContainer" class="lg:col-span-5 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-slate-700 text-xl">tune</span>
+                        <h2 class="font-bold text-slate-900 text-sm sm:text-base">
+                            @(isEn ? "Project Parameters & Specifications" : "محددات ومواصفات المشروع")
+                        </h2>
+                    </div>
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] font-semibold rounded border border-slate-200">
+                        @(isEn ? "Live Instant" : "احتساب فوري")
+                    </span>
+                </div>
+
+                <form id="calcForm" class="space-y-6" onsubmit="event.preventDefault();">
+                    
+                    <!-- 1. Built-up Area Input + Steppers -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span>@(isEn ? "Single Floor Footprint Area" : "مساحة الطابق الواحد (المسطح)")</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="adjustArea(-10)" class="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors">-</button>
+                                <span class="text-sm font-bold text-slate-900 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 min-w-[70px] text-center font-mono" id="areaDisplay">
+                                    @(isEn ? "250 m²" : "250 م²")
+                                </span>
+                                <button type="button" onclick="adjustArea(10)" class="w-7 h-7 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors">+</button>
+                            </div>
+                        </div>
+                        <input type="range" id="areaInput" min="50" max="1500" step="10" value="250"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900 transition-all"
+                               oninput="onInputChange()" />
+                        <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium font-mono">
+                            <span>@(isEn ? "50 m²" : "50 م²")</span>
+                            <span>@(isEn ? "500 m²" : "500 م²")</span>
+                            <span>@(isEn ? "1500 m²" : "1500 م²")</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Floors Input + Segmented Buttons -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-slate-800">
+                                <span>@(isEn ? "Total Number of Floors" : "عدد الطوابق الإجمالي")</span>
+                            </label>
+                            <span class="text-xs font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200" id="floorsDisplay">
+                                @(isEn ? "2 Floors" : "2 طوابق")
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="floorsButtonGroup">
+                            <button type="button" onclick="setFloors(1)" id="floor-btn-1" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">@(isEn ? "1 Flr" : "1 طابق")</button>
+                            <button type="button" onclick="setFloors(2)" id="floor-btn-2" class="floor-btn py-2 rounded-lg border text-xs font-bold transition-all bg-slate-900 text-white border-slate-900">@(isEn ? "2 Flrs" : "2 طابقين")</button>
+                            <button type="button" onclick="setFloors(3)" id="floor-btn-3" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">@(isEn ? "3 Flrs" : "3 طوابق")</button>
+                            <button type="button" onclick="setFloors(4)" id="floor-btn-4" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">@(isEn ? "4 Flrs" : "4 طوابق")</button>
+                            <button type="button" onclick="setFloors(5)" id="floor-btn-5" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">@(isEn ? "5 Flrs" : "5 طوابق")</button>
+                            <button type="button" onclick="setFloors(6)" id="floor-btn-6" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">@(isEn ? "6 Flrs" : "6 طوابق")</button>
+                        </div>
+                        <input type="hidden" id="floorsInput" value="2" />
+                    </div>
+
+                    <!-- 3. Building Type -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Building Usage" : "نوع الاستخدام")</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-50">
+                                <input type="radio" name="buildingType" value="Residential" checked class="mt-0.5 w-4 h-4 text-slate-900 focus:ring-slate-900" onchange="onInputChange()" />
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">@(isEn ? "Residential / Villa" : "سكني / فيلا")</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">@(isEn ? "Standard loads" : "أحمال وتسليح قياسي")</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-50">
+                                <input type="radio" name="buildingType" value="Commercial" class="mt-0.5 w-4 h-4 text-slate-900 focus:ring-slate-900" onchange="onInputChange()" />
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">@(isEn ? "Commercial / Offices" : "تجاري / مكاتب")</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">@(isEn ? "Higher loads" : "أحمال وتسليح أعلى")</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 4. Foundation Type -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Foundation System" : "نوع الأساسات الإنشائية")</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-50">
+                                <input type="radio" name="foundationType" value="IsolatedFootings" checked class="mt-0.5 w-4 h-4 text-slate-900 focus:ring-slate-900" onchange="onInputChange()" />
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">@(isEn ? "Isolated Footings" : "قواعد منفصلة")</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">@(isEn ? "Standard/Rocky soil" : "للتربة الصخرية والعادية")</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-50">
+                                <input type="radio" name="foundationType" value="Raft" class="mt-0.5 w-4 h-4 text-slate-900 focus:ring-slate-900" onchange="onInputChange()" />
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">@(isEn ? "Raft / Mat (Raft)" : "لبشة / حصيرة (Raft)")</p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">@(isEn ? "Clay/Weak soil" : "للتربة الضعيفة")</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 5. City Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-1.5">@(isEn ? "Project Location (For Freight Delivery)" : "موقع المشروع (لحساب نولون التوصيل)")</label>
+                        <select id="citySelect" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-semibold text-slate-800 outline-none transition-all" onchange="onInputChange()">
+                            <option value="Amman">@(isEn ? "Amman Governorate (Capital)" : "محافظة العاصمة عمان")</option>
+                            <option value="Zarqa">@(isEn ? "Zarqa & Ruseifa" : "محافظة الزرقاء والرصيفة")</option>
+                            <option value="Irbid">@(isEn ? "Irbid & North" : "محافظة إربد والشمال")</option>
+                            <option value="Aqaba">@(isEn ? "Aqaba Special Economic Zone" : "محافظة العقبة والمنطقة الخاصة")</option>
+                            <option value="Balqa">@(isEn ? "Balqa (Salt / Fuheis / Mahis)" : "محافظة البلقاء (السلط / الفحيص / ماحص)")</option>
+                            <option value="Madaba">@(isEn ? "Madaba Governorate" : "محافظة مأدبا")</option>
+                            <option value="Mafraq">@(isEn ? "Mafraq & Badia" : "محافظة المفرق والبادية")</option>
+                            <option value="Jerash">@(isEn ? "Jerash Governorate" : "محافظة جرش")</option>
+                            <option value="Ajloun">@(isEn ? "Ajloun Governorate" : "محافظة عجلون")</option>
+                            <option value="Karak">@(isEn ? "Karak & South" : "محافظة الكرك والجنوب")</option>
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Engineering Standards Reference Box -->
+            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 text-xs text-slate-700 space-y-2.5">
+                <div class="flex items-center gap-2 font-bold text-slate-900 border-b border-slate-200 pb-2">
+                    <span class="material-symbols-outlined text-slate-700 text-base">verified</span>
+                    <span>@(isEn ? "Approved Jordanian Engineering Standards:" : "المعايير الهندسية الأردنية المعتمدة:")</span>
+                </div>
+                <div class="space-y-1.5 text-[11px] text-slate-600 leading-relaxed">
+                    <p>• <strong>@(isEn ? "Steel Rebar:" : "حديد التسليح:")</strong> @(isEn ? "High-strength Grade 60 at average rate of 38-45 kg/m²." : "درجة Grade 60 عالي المقاومة بمعدل (38-45 كغم/م² مسطح).")</p>
+                    <p>• <strong>@(isEn ? "Ready-Mix Concrete:" : "الخرسانة الجاهزة:")</strong> @(isEn ? "B250 for foundations and B300 for columns/slabs (0.38 m³/m²)." : "B250 للقواعد و B300 للأعمدة والأسقف بمعدل (0.38 م³/م²).")</p>
+                    <p>• <strong>@(isEn ? "Portland Cement:" : "الإسمنت المكيس:")</strong> @(isEn ? "Ordinary Portland CEM I 42.5 N for masonry and plastering." : "بورتلاندي عادي CEM I 42.5 N لأعمال البناء والقصارة.")</p>
+                    <p>• <strong>@(isEn ? "Pricing:" : "الأسعار:")</strong> @(isEn ? "Delivered to site in designated governorate, including 16% sales tax." : "واصلة الموقع في المحافظة المحددة وشاملة ضريبة المبيعات 16%.")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ────────────── RIGHT COLUMN: ESTIMATE RESULTS & BOQ ────────────── -->
+        <div class="lg:col-span-7 space-y-6">
+
+            <!-- 1. EXECUTIVE SUMMARY TOTAL COST CARD -->
+            <div class="bg-slate-900 rounded-2xl p-6 sm:p-7 text-white shadow-lg border border-slate-800">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                            @(isEn ? "Estimated Total Construction Cost (Skeleton Materials & Labor)" : "التكلفة الإجمالية التقديرية (عظم شامل المواد والمصنعية)")
+                        </span>
+                        
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white font-mono" id="totalSkeletonCost">
+                                @Model.TotalSkeletonCostJod.ToString("N0")
+                            </span>
+                            <span class="text-base sm:text-lg font-bold text-emerald-400">
+                                @(isEn ? "JOD" : "دينار أردني")
+                            </span>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-slate-800 text-xs text-slate-300">
+                            <span>@(isEn ? "Total Built-up Area:" : "إجمالي مسطح البناء:") <strong class="text-white font-semibold font-mono" id="summaryTotalArea">@Model.TotalBuiltUpArea @(isEn ? "m²" : "م²")</strong></span>
+                            <span class="text-slate-600">•</span>
+                            <span>@(isEn ? "Average Cost per m²:" : "متوسط سعر المتر المربع:") <strong class="text-emerald-400 font-semibold font-mono" id="summaryCostPerM2">@Model.CostPerSquareMeterJod @(isEn ? "JOD/m²" : "د.أ/م²")</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons-group flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0">
+                        <a href="@Url.Action("RequestQuote", "Quote", new { area = "Shop" })" 
+                           class="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+                            <span class="material-symbols-outlined text-base">request_quote</span>
+                            <span>@(isEn ? "Request Official Quote & Supply" : "طلب تسعيرة وتوريد رسمي")</span>
+                        </a>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="shareWhatsApp()" 
+                                    class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-emerald-400">share</span>
+                                <span>@(isEn ? "Share" : "مشاركة")</span>
+                            </button>
+                            <button type="button" onclick="triggerPrintReport()" 
+                                    class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-slate-300">print</span>
+                                <span>@(isEn ? "Print PDF" : "طباعة تقرير PDF")</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Budget Distribution Progress Bar -->
+                <div class="mt-6 pt-4 border-t border-slate-800">
+                    <div class="flex justify-between text-[11px] text-slate-400 mb-1.5">
+                        <span class="font-medium">@(isEn ? "Relative Budget Breakdown (Materials & Labor):" : "التوزيع النسبي لتكاليف المواد والعمالة:")</span>
+                        <span id="budgetSummaryText" class="font-mono text-slate-300">
+                            @(isEn ? "Steel 24% • Labor 39% • Concrete 19% • Blocks & Cement 18%" : "حديد 24% • عمالة 39% • خرسانة 19% • طوب وإسمنت 18%")
+                        </span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden flex gap-0.5 p-0.5 border border-slate-700/60">
+                        <div id="barSteel" class="bg-indigo-500 rounded-full transition-all duration-300" style="width: 24%" title="@(isEn ? "Steel Rebar" : "حديد التسليح")"></div>
+                        <div id="barConcrete" class="bg-blue-500 rounded-full transition-all duration-300" style="width: 19%" title="@(isEn ? "Ready-Mix Concrete" : "خرسانة جاهزة")"></div>
+                        <div id="barLabor" class="bg-purple-500 rounded-full transition-all duration-300" style="width: 39%" title="@(isEn ? "Labor & Workmanship" : "أجور المقاولة والعمالة")"></div>
+                        <div id="barBlocks" class="bg-rose-500 rounded-full transition-all duration-300" style="width: 8%" title="@(isEn ? "Masonry Blocks" : "طوب")"></div>
+                        <div id="barCement" class="bg-amber-500 rounded-full transition-all duration-300" style="width: 6%" title="@(isEn ? "Cement" : "إسمنت")"></div>
+                        <div id="barSand" class="bg-teal-500 rounded-full transition-all duration-300" style="width: 4%" title="@(isEn ? "Sand & Aggregate" : "رمل وحصمة")"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 2. QUANTITY METRICS GRID (6 CLEAN FORMAL CARDS) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                
+                <!-- Steel Rebar Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Steel Rebar" : "حديد التسليح")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Grade 60</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900 font-mono" id="metricSteelQty">
+                        @Model.SteelQuantityTons.ToString("N1") <span class="text-xs font-normal text-slate-500">@(isEn ? "Tons" : "طن")</span>
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricSteelCost">
+                        @Model.SteelCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+                <!-- Ready-Mix Concrete Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Ready-Mix Concrete" : "خرسانة جاهزة")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">@(isEn ? "With Pump" : "مع المضخة")</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900 font-mono" id="metricConcreteQty">
+                        @Model.ConcreteCubicMeters.ToString("N1") <span class="text-xs font-normal text-slate-500">@(isEn ? "m³" : "م³")</span>
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricConcreteCost">
+                        @Model.ConcreteCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+                <!-- Cement Bags Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Portland Cement" : "إسمنت مكيس")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">@(isEn ? "50 kg" : "50 كغم")</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900 font-mono" id="metricCementQty">
+                        @Model.CementBagsCount <span class="text-xs font-normal text-slate-500">@(isEn ? "Bags" : "كيس")</span>
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricCementCost">
+                        @Model.CementCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+                <!-- Masonry Blocks Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Masonry Blocks" : "طوب إسمنتي")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">@(isEn ? "Hollow & Ribbed" : "مفرغ وهوردي")</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900 font-mono" id="metricBlocksQty">
+                        @Model.MasonryBlocksCount <span class="text-xs font-normal text-slate-500">@(isEn ? "Pcs" : "حبة")</span>
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricBlocksCost">
+                        @Model.MasonryBlocksCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+                <!-- Sand & Aggregates Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Sand & Aggregate" : "رمل وحصمة")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">@(isEn ? "Sweileh & Pea" : "صويلح وسمسمية")</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900 font-mono" id="metricSandQty">
+                        @Model.SandAggregatesCubicMeters.ToString("N1") <span class="text-xs font-normal text-slate-500">@(isEn ? "m³" : "م³")</span>
+                    </p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricSandCost">
+                        @Model.SandAggregatesCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+                <!-- Estimated Labor Card -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700">@(isEn ? "Labor & Workmanship" : "أجور المصنعية والمقاول")</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">@(isEn ? "Full Skeleton" : "عظم كامل")</span>
+                    </div>
+                    <p class="text-xl font-bold text-slate-900">@(isEn ? "Contracting" : "مصنعية") <span class="text-xs font-normal text-slate-500">@(isEn ? "Complete" : "كاملة")</span></p>
+                    <p class="text-xs font-semibold text-slate-700 mt-1 pt-1 border-t border-slate-100 font-mono" id="metricLaborCost">
+                        @Model.EstimatedLaborCostJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- 3. ITEMIZED BILL OF QUANTITIES (BOQ TABLE) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <h3 class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-slate-700 text-base">table_chart</span>
+                        <span>@(isEn ? "Itemized Bill of Quantities (BOQ)" : "جدول حصر الكميات والتسعير الفوري (BOQ)")</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-500 font-medium">@(isEn ? "Delivered to site & updated" : "الأسعار واصلة الموقع ومحدثة")</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-start text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-slate-700 font-bold">
+                                <th class="py-3 px-4 text-start">@(isEn ? "Structural Item" : "البند الإنشائي")</th>
+                                <th class="py-3 px-4 text-center">@(isEn ? "Estimated Qty" : "الكمية التقديرية")</th>
+                                <th class="py-3 px-4 text-center">@(isEn ? "Unit Rate" : "سعر الوحدة")</th>
+                                <th class="py-3 px-4 text-end">@(isEn ? "Estimated Total" : "التكلفة التقديرية")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="breakdownTbody" class="divide-y divide-slate-100 text-slate-800">
+                            @foreach (var item in Model.MaterialItems)
+                            {
+                                var itemName = GetItemName(item.Category, item.ItemNameAr, item.ItemNameEn);
+                                var itemUnit = GetItemUnit(item.Category);
+                                var itemNote = GetItemNote(item.Category, item.Note);
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="py-3 px-4">
+                                        <p class="font-bold text-slate-900 text-xs">@itemName</p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">@itemNote</p>
+                                    </td>
+                                    <td class="py-3 px-4 text-center font-bold text-slate-900 text-xs font-mono">
+                                        @item.Quantity.ToString("N1") @itemUnit
+                                    </td>
+                                    <td class="py-3 px-4 text-center font-medium text-slate-600 font-mono">
+                                        @item.UnitPriceJod.ToString("N2") @(isEn ? "JOD" : "د.أ")
+                                    </td>
+                                    <td class="py-3 px-4 text-end font-bold text-slate-900 text-xs font-mono">
+                                        @item.TotalPriceJod.ToString("N0") @(isEn ? "JOD" : "د.أ")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════ SCREEN VIEW: COMMODITY TICKER ══════════════════════ -->
+    <div id="liveTickerSection" class="mt-10 bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-sm no-print">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                        @(isEn ? "Approved Jordanian Building Materials Price Index" : "مؤشر أسعار المواد الإنشائية المعتمدة في السوق الأردني")
+                    </h3>
+                </div>
+                <p class="text-xs text-slate-500">
+                    @(isEn ? "Official delivered site prices including 16% sales tax & transportation freight" : "الأسعار المعتمدة من المصانع الأردنية واصلة أرض المشروع وشاملة ضريبة المبيعات 16% ونولون التوصيل")
+                </p>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+                    <span class="material-symbols-outlined text-sm text-emerald-600">sync</span>
+                    <span>@(isEn ? "Live Market Rates" : "محدث لحظياً وفق البورصة والمصانع")</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach (var price in prices.Take(8))
+            {
+                var isUp = price.Trend == "up";
+                var isDown = price.Trend == "down";
+                var materialName = isEn && !string.IsNullOrEmpty(price.MaterialNameEn) ? price.MaterialNameEn : price.MaterialName;
+                
+                var unitFormatted = isEn 
+                    ? (price.MaterialCategory switch {
+                        "Steel" => "Ton",
+                        "Cement" => "Ton",
+                        "Concrete" => "m³",
+                        "Blocks" => "Pcs",
+                        _ => price.UnitOfMeasure
+                    })
+                    : price.UnitOfMeasure;
+                var currencyFormatted = isEn ? "JOD" : "د.أ";
+                var priceDisplay = isEn 
+                    ? $"{price.Price:N2} {currencyFormatted}/{unitFormatted}"
+                    : $"{price.Price:N2} {currencyFormatted}/{unitFormatted}";
+
+                var specDisplay = isEn 
+                    ? (price.MaterialCategory switch {
+                        "Steel" => "Jordanian Code JS 29 Grade 60 (8-25mm)",
+                        "Cement" => "Ordinary Portland 42.5N Bulk & 50kg Bags",
+                        "Concrete" => "Pump cast for footings, columns & slabs",
+                        "Blocks" => "High-strength automated blocks (10/15/20cm)",
+                        _ => price.Specification
+                    })
+                    : price.Specification;
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 hover:border-slate-300 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h4 class="text-xs font-bold text-slate-900 leading-snug">
+                                @materialName
+                            </h4>
+                            <span class="text-xs font-bold font-mono flex-shrink-0 px-2 py-0.5 rounded @(isUp ? "bg-emerald-100 text-emerald-800" : (isDown ? "bg-rose-100 text-rose-800" : "bg-slate-200 text-slate-700"))">
+                                @price.FormattedChange
+                            </span>
+                        </div>
+                        <p class="text-lg font-extrabold text-slate-900 font-mono tracking-tight">
+                            @priceDisplay
+                        </p>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-slate-200/70">
+                        <p class="text-[11px] text-slate-600 font-medium leading-normal">
+                            @specDisplay
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ══════════════════════ SCREEN VIEW: FAQ ACCORDION ══════════════════════ -->
+    <div id="faqSection" class="mt-10 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 no-print">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+                <h2 class="text-lg font-bold text-slate-900">
+                    @(isEn ? "Frequently Asked Questions on Construction Costs in Jordan" : "الأسئلة الشائعة حول تكاليف وكميات البناء في الأردن")
+                </h2>
+                <p class="text-slate-500 text-xs mt-1">
+                    @(isEn ? "Engineering guidance and answers based on Jordanian Building Standards." : "إرشادات هندسية وتوضيحات حول حساب الكميات والأسعار وفق المعايير الأردنية.")
+                </p>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 self-start sm:self-auto">
+                @(faqs.Count()) @(isEn ? "Approved FAQs" : "أسئلة منشورة")
+            </span>
+        </div>
+
+        <div class="space-y-2.5" id="faqAccordionContainer">
+            @if (!faqs.Any())
+            {
+                <p class="text-center text-slate-400 text-xs py-6">@(isEn ? "No published FAQs at the moment." : "لا توجد أسئلة شائعة منشورة حالياً.")</p>
+            }
+            else
+            {
+                var faqIndex = 1;
+                @foreach (var faq in faqs)
+                {
+                    var question = isEn && !string.IsNullOrEmpty(faq.QuestionEn) ? faq.QuestionEn : faq.QuestionAr;
+                    var answer = isEn && !string.IsNullOrEmpty(faq.AnswerEn) ? faq.AnswerEn : faq.AnswerAr;
+                    <div class="faq-item rounded-xl border border-slate-200 bg-slate-50/40 overflow-hidden transition-all" id="faq-card-@faq.Id">
+                        <button type="button" 
+                                onclick="toggleFaq(@faq.Id)"
+                                class="w-full p-4 text-start font-bold text-slate-900 text-xs sm:text-sm flex justify-between items-center gap-3 hover:bg-slate-100/60 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <span class="text-slate-400 text-xs font-semibold font-mono">@faqIndex.</span>
+                                <span>@question</span>
+                            </span>
+                            <span id="faq-icon-@faq.Id" class="material-symbols-outlined text-slate-400 text-base transition-transform duration-200 flex-shrink-0">
+                                expand_more
+                            </span>
+                        </button>
+                        <div id="faq-content-@faq.Id" class="hidden px-4 pb-4 pt-1 text-slate-600 text-xs leading-relaxed border-t border-slate-100">
+                            @answer
+                        </div>
+                    </div>
+                    faqIndex++;
+                }
+            }
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════════════ DEDICATED OFFICIAL PRINT REPORT (A4) ══════════════════════ -->
+<div class="print-only-report p-6 max-w-4xl mx-auto text-black bg-white" dir="@(isRtl ? "rtl" : "ltr")">
+    
+    <!-- Report Header -->
+    <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-5">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="text-2xl font-black tracking-tight text-slate-900">BLOCKO</span>
+                <span class="text-xs bg-slate-900 text-white px-2 py-0.5 rounded font-bold">
+                    @(isEn ? "Building Materials Direct Supply Platform" : "بلوكو لتوريد مواد البناء")
+                </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1">@(isEn ? "Hashemite Kingdom of Jordan • Direct Construction Supplies" : "المملكة الأردنية الهاشمية • منصة التوريد الإنشائي المباشر")</p>
+            <p class="text-xs text-slate-600">@(isEn ? "Website: bolcko.com • Projects & Commercial Sales" : "الموقع الإلكتروني: bolcko.com • خدمة العملاء والمبيعات")</p>
+        </div>
+        <div class="text-end text-xs space-y-1">
+            <p class="font-bold text-sm text-slate-900">@(isEn ? "Construction Cost & Quantity Estimate Report" : "تقرير تقدير كميات وتكاليف البناء")</p>
+            <p class="text-slate-600">@(isEn ? "Reference No:" : "الرقم المرجعي:") <span class="font-mono font-bold" id="printReportRef">BLK-@DateTime.Now.ToString("yyMMdd-HHmm")</span></p>
+            <p class="text-slate-600">@(isEn ? "Issue Date:" : "تاريخ الإصدار:") <span class="font-mono">@DateTime.Now.ToString("yyyy/MM/dd - HH:mm")</span></p>
+            <p class="text-emerald-700 font-semibold">@(isEn ? "Status: Verified with Live Market Rates" : "حالة التقدير: معتمد وفق أسعار السوق اليوم")</p>
+        </div>
+    </div>
+
+    <!-- Project Specifications Summary Grid -->
+    <div class="border border-slate-300 rounded-lg p-3.5 mb-5 bg-slate-50 page-break-avoid">
+        <h4 class="font-bold text-xs text-slate-900 border-b border-slate-200 pb-1.5 mb-2.5">
+            @(isEn ? "1. Project Specifications & Scope:" : "1. مواصفات ومحددات المشروع:")
+        </h4>
+        <div class="grid grid-cols-4 gap-3 text-xs">
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Floor Footprint Area:" : "مساحة الطابق المسطح:")</span>
+                <strong class="text-slate-900 font-mono" id="printArea">250 @(isEn ? "m²" : "م²")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Number of Floors:" : "عدد الطوابق:")</span>
+                <strong class="text-slate-900" id="printFloors">2 @(isEn ? "Floors" : "طوابق")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Total Built-up Area:" : "إجمالي مسطح البناء:")</span>
+                <strong class="text-slate-900 font-mono" id="printTotalArea">@Model.TotalBuiltUpArea @(isEn ? "m²" : "م²")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Location / Governorate:" : "المحافظة / الموقع:")</span>
+                <strong class="text-slate-900" id="printCity">@(isEn ? "Amman" : "عمان")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Usage Type:" : "نوع الاستخدام:")</span>
+                <strong class="text-slate-900" id="printBuildingType">@(isEn ? "Residential / Villa" : "سكني / فيلا")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Foundation System:" : "نوع الأساسات:")</span>
+                <strong class="text-slate-900" id="printFoundationType">@(isEn ? "Isolated Footings" : "قواعد منفصلة")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Standard Specification:" : "المواصفة القياسية:")</span>
+                <strong class="text-slate-900">@(isEn ? "Jordanian Code Grade 60" : "الكود الأردني Grade 60")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px]">@(isEn ? "Sales Tax & Freight:" : "ضريبة المبيعات:")</span>
+                <strong class="text-slate-900">@(isEn ? "Includes 16% Tax & Freight" : "شاملة 16% ونولون النقل")</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Financial Total -->
+    <div class="border-2 border-slate-900 rounded-lg p-4 mb-5 flex justify-between items-center bg-slate-900 text-white page-break-avoid">
+        <div>
+            <span class="text-xs text-slate-300 block">
+                @(isEn ? "Total Estimated Construction Cost (Full Skeleton Materials & Labor):" : "التكلفة التقديرية الإجمالية للمشروع (عظم كامل بالمواد والمصنعية):")
+            </span>
+            <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-3xl font-extrabold text-white font-mono" id="printTotalCost">@Model.TotalSkeletonCostJod.ToString("N0")</span>
+                <span class="text-sm font-bold text-emerald-400">@(isEn ? "JOD" : "دينار أردني")</span>
+            </div>
+        </div>
+        <div class="text-end border-s border-slate-700 ps-5">
+            <span class="text-[11px] text-slate-400 block">@(isEn ? "Average Cost per m²:" : "متوسط تكلفة المتر المربع مسطح:")</span>
+            <span class="text-lg font-bold text-white font-mono" id="printCostPerM2">@Model.CostPerSquareMeterJod @(isEn ? "JOD/m²" : "د.أ/م²")</span>
+        </div>
+    </div>
+
+    <!-- Itemized Bill of Quantities (BOQ) -->
+    <div class="mb-5 page-break-avoid">
+        <h4 class="font-bold text-xs text-slate-900 mb-2">
+            @(isEn ? "2. Itemized Bill of Quantities (BOQ):" : "2. جدول حصر الكميات والتسعير التفصيلي (Bill of Quantities):")
+        </h4>
+        <table class="w-full text-xs">
+            <thead>
+                <tr class="bg-slate-100 text-slate-900 font-bold border border-slate-300">
+                    <th class="py-2 px-3 text-start">@(isEn ? "Structural Item" : "البند الإنشائي")</th>
+                    <th class="py-2 px-3 text-center">@(isEn ? "Estimated Qty" : "الكمية التقديرية")</th>
+                    <th class="py-2 px-3 text-center">@(isEn ? "Unit Rate" : "سعر الوحدة")</th>
+                    <th class="py-2 px-3 text-end">@(isEn ? "Total Amount" : "التكلفة الإجمالية")</th>
+                </tr>
+            </thead>
+            <tbody id="printBreakdownTbody" class="divide-y divide-slate-200">
+                @foreach (var item in Model.MaterialItems)
+                {
+                    var itemName = GetItemName(item.Category, item.ItemNameAr, item.ItemNameEn);
+                    var itemUnit = GetItemUnit(item.Category);
+                    var itemNote = GetItemNote(item.Category, item.Note);
+                    <tr>
+                        <td class="py-2 px-3">
+                            <strong class="text-slate-900">@itemName</strong>
+                            <span class="text-slate-500 block text-[10px]">@itemNote</span>
+                        </td>
+                        <td class="py-2 px-3 text-center font-mono font-bold">@item.Quantity.ToString("N1") @itemUnit</td>
+                        <td class="py-2 px-3 text-center font-mono">@item.UnitPriceJod.ToString("N2") @(isEn ? "JOD" : "د.أ")</td>
+                        <td class="py-2 px-3 text-end font-mono font-bold">@item.TotalPriceJod.ToString("N0") @(isEn ? "JOD" : "د.أ")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Engineering Compliance Notes & Signatures -->
+    <div class="border-t border-slate-300 pt-3 text-[10px] text-slate-600 space-y-1.5 page-break-avoid">
+        <p>• <strong>@(isEn ? "Engineering Note:" : "ملاحظات هندسية:")</strong> @(isEn ? "This estimate is based on standard structural engineering consumption ratios in Jordanian Building Codes. Actual final quantities may vary ±5% depending on structural design drawings prepared by the supervising engineering firm." : "هذا التقدير مبني على معادلات التصميم الإنشائي المعتمدة ومعدلات الاستهلاك في الكودات الأردنية، وقد تختلف الكميات النهائية بنسبة ±5% تبعاً للمخططات الإنشائية التفصيلية المعدة من المكتب الهندسي المشرف.")</p>
+        <p>• <strong>@(isEn ? "Price Validity:" : "صلاحية الأسعار:")</strong> @(isEn ? "Prices are linked to building commodity exchanges and local factory prices at the date of this report." : "الأسعار مرتبطة ببورصات المواد الإنشائية وأسعار المصانع المحلية في تاريخ إصدار هذا التقرير.")</p>
+        <p>• @(isEn ? "To request supply and lock in material prices, contact BLOCKO Sales & Project Supplies via platform or phone." : "لطلب التوريد وتثبيت الأسعار، يرجى التواصل مع قسم المبيعات والمشاريع عبر منصة BLOCKO أو عبر الهاتف.")</p>
+        
+        <div class="flex justify-between items-center pt-6 text-xs text-slate-700">
+            <div>
+                <p class="font-bold">@(isEn ? "Prepared by: Structural Estimation Department" : "إعداد: قسم الحسابات والتسعير الإنشائي")</p>
+                <p class="text-[10px] text-slate-500">@(isEn ? "BLOCKO Building Materials Direct Platform" : "منصة بلوكو لتوريد مواد البناء")</p>
+            </div>
+            <div class="text-end">
+                <p class="font-bold">@(isEn ? "Official Platform Approval" : "ختم المنصة والاعتماد")</p>
+                <p class="text-[10px] text-slate-400">BLOCKO JORDAN</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    const isEnMode = @(isEn ? "true" : "false");
+    let debounceTimer = null;
+
+    // Item dictionary for localized notes and units
+    const itemDictionary = {
+        'Steel': {
+            nameEn: 'High-Strength Steel Rebar (Grade 60)',
+            nameAr: 'حديد تسليح عالي المقاومة (Grade 60)',
+            unitEn: 'Tons',
+            unitAr: 'طن',
+            noteEn: 'Includes footings, columns, beams & slabs (8-25mm)',
+            noteAr: 'يشمل أقطار القواعد والأعمدة والأسقف (8-25 ملم)'
+        },
+        'Concrete': {
+            nameEn: 'Ready-Mix Concrete B250/B300 with Pump',
+            nameAr: 'خرسانة جاهزة B250 / B300 مع المضخة',
+            unitEn: 'm³',
+            unitAr: 'م³',
+            noteEn: 'Cast for foundations, beams, columns & slabs with pump',
+            noteAr: 'مصبوبة بالقواعد والجسور والأسقف والأعمدة مع نولون المضخة'
+        },
+        'Cement': {
+            nameEn: 'Portland Cement Bags (50 kg)',
+            nameAr: 'إسمنت بورتلاندي مكيس 50 كغم',
+            unitEn: 'Bags',
+            unitAr: 'كيس',
+            noteEn: 'For masonry walls, ground sub-base, and plastering',
+            noteAr: 'لأعمال البناء، مدات الأرضيات، والقصارة الأولية'
+        },
+        'Blocks': {
+            nameEn: 'Hollow & Rib Concrete Blocks (10/15/20 cm)',
+            nameAr: 'طوب إسمنتي مفرغ وهوردي (10/15/20 سم)',
+            unitEn: 'Pcs',
+            unitAr: 'حبة',
+            noteEn: 'For exterior walls, interior partitions, and rib slabs',
+            noteAr: 'للجدران الخارجية والقواطع الداخلية وسقف الهوردي'
+        },
+        'Sand': {
+            nameEn: 'Sweileh Sand & Graded Aggregates',
+            nameAr: 'رمل صويلح وحصمة سمسمية وعدسية',
+            unitEn: 'm³',
+            unitAr: 'م³',
+            noteEn: 'For mortar mixes, masonry, and ground slabs',
+            noteAr: 'لخلطات المونة والبناء والمدات الأرضية'
+        },
+        'Labor': {
+            nameEn: 'Skeleton Contracting & Labor Workforce',
+            nameAr: 'أجور عمالة مقاولة العظم والآليات',
+            unitEn: 'm² Built-up',
+            unitAr: 'م² مسطح',
+            noteEn: 'Carpentry, steel fixing, concrete casting, and mason workforce',
+            noteAr: 'أجور النجار، الحداد، البناء، ومعدات الحفر والدك'
+        }
+    };
+
+    // Smooth Accordion Toggle
+    function toggleFaq(id) {
+        const content = document.getElementById('faq-content-' + id);
+        const icon = document.getElementById('faq-icon-' + id);
+        const card = document.getElementById('faq-card-' + id);
+
+        if (!content || !icon) return;
+
+        const isHidden = content.classList.contains('hidden');
+
+        if (isHidden) {
+            content.classList.remove('hidden');
+            icon.classList.add('rotate-180');
+            card.classList.remove('bg-slate-50/40', 'border-slate-200');
+            card.classList.add('bg-white', 'border-slate-400', 'shadow-sm');
+        } else {
+            content.classList.add('hidden');
+            icon.classList.remove('rotate-180');
+            card.classList.remove('bg-white', 'border-slate-400', 'shadow-sm');
+            card.classList.add('bg-slate-50/40', 'border-slate-200');
+        }
+    }
+
+    function applyPreset(btn, area, floors, bType, fType) {
+        // Reset all preset buttons styling
+        document.querySelectorAll('.preset-btn').forEach(b => {
+            b.className = 'preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-all flex items-center gap-1.5';
+            const icon = b.querySelector('.material-symbols-outlined');
+            if (icon) icon.className = 'material-symbols-outlined text-sm text-slate-400';
+        });
+
+        // Activate the clicked button
+        if (btn) {
+            btn.className = 'preset-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/50 font-bold transition-all flex items-center gap-1.5';
+            const icon = btn.querySelector('.material-symbols-outlined');
+            if (icon) icon.className = 'material-symbols-outlined text-sm text-emerald-400';
+        }
+
+        document.getElementById('areaInput').value = area;
+        document.getElementById('floorsInput').value = floors;
+        
+        document.querySelector(`input[name="buildingType"][value="${bType}"]`).checked = true;
+        document.querySelector(`input[name="foundationType"][value="${fType}"]`).checked = true;
+
+        updateFloorButtons(floors);
+        onInputChange();
+    }
+
+    function adjustArea(delta) {
+        const input = document.getElementById('areaInput');
+        let val = parseInt(input.value) + delta;
+        val = Math.max(50, Math.min(1500, val));
+        input.value = val;
+        onInputChange();
+    }
+
+    function setFloors(n) {
+        document.getElementById('floorsInput').value = n;
+        updateFloorButtons(n);
+        onInputChange();
+    }
+
+    function updateFloorButtons(activeFloor) {
+        document.querySelectorAll('.floor-btn').forEach(btn => {
+            btn.className = 'floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
+        });
+        const active = document.getElementById('floor-btn-' + activeFloor);
+        if (active) {
+            active.className = 'floor-btn py-2 rounded-lg border text-xs font-bold transition-all bg-slate-900 text-white border-slate-900';
+        }
+    }
+
+    function onInputChange() {
+        const area = document.getElementById('areaInput').value;
+        const floors = document.getElementById('floorsInput').value;
+        
+        const areaUnit = isEnMode ? ' m²' : ' م²';
+        const floorsText = isEnMode 
+            ? (floors === '1' ? '1 Floor' : floors + ' Floors')
+            : (floors === '1' ? ' طابق واحد' : floors + ' طوابق');
+
+        document.getElementById('areaDisplay').innerText = area + areaUnit;
+        document.getElementById('floorsDisplay').innerText = floorsText;
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            fetchEstimate();
+        }, 120);
+    }
+
+    async function fetchEstimate() {
+        const area = parseFloat(document.getElementById('areaInput').value);
+        const floors = parseInt(document.getElementById('floorsInput').value);
+        const buildingType = document.querySelector('input[name="buildingType"]:checked').value;
+        const foundationType = document.querySelector('input[name="foundationType"]:checked').value;
+        const citySelect = document.getElementById('citySelect');
+        const city = citySelect.value;
+        const cityName = citySelect.options[citySelect.selectedIndex].text;
+
+        const payload = {
+            builtUpAreaSquareMeters: area,
+            numberOfFloors: floors,
+            buildingType: buildingType,
+            foundationType: foundationType,
+            city: city
+        };
+
+        try {
+            const res = await fetch('/api/v1/market/calculator/estimate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const json = await res.json();
+            if (json.success && json.data) {
+                updateUI(json.data, area, floors, buildingType, foundationType, cityName);
+            }
+        } catch (err) {
+            console.error("Calculator fetch error:", err);
+        }
+    }
+
+    function updateUI(data, area, floors, buildingType, foundationType, cityName) {
+        const curr = isEnMode ? ' JOD' : ' د.أ';
+        const m2Unit = isEnMode ? ' m²' : ' م²';
+        const costM2Unit = isEnMode ? ' JOD/m²' : ' د.أ/م²';
+        const tonUnit = isEnMode ? 'Tons' : 'طن';
+        const m3Unit = isEnMode ? 'm³' : 'م³';
+        const bagUnit = isEnMode ? 'Bags' : 'كيس';
+        const pcsUnit = isEnMode ? 'Pcs' : 'حبة';
+
+        // Update Screen Elements
+        document.getElementById('totalSkeletonCost').innerText = Math.round(data.totalSkeletonCostJod).toLocaleString();
+        document.getElementById('summaryTotalArea').innerText = data.totalBuiltUpArea + m2Unit;
+        document.getElementById('summaryCostPerM2').innerText = Math.round(data.costPerSquareMeterJod).toLocaleString() + costM2Unit;
+
+        document.getElementById('metricSteelQty').innerHTML = data.steelQuantityTons.toFixed(1) + ` <span class="text-xs font-normal text-slate-500">${tonUnit}</span>`;
+        document.getElementById('metricSteelCost').innerText = Math.round(data.steelCostJod).toLocaleString() + curr;
+
+        document.getElementById('metricConcreteQty').innerHTML = data.concreteCubicMeters.toFixed(1) + ` <span class="text-xs font-normal text-slate-500">${m3Unit}</span>`;
+        document.getElementById('metricConcreteCost').innerText = Math.round(data.concreteCostJod).toLocaleString() + curr;
+
+        document.getElementById('metricCementQty').innerHTML = data.cementBagsCount + ` <span class="text-xs font-normal text-slate-500">${bagUnit}</span>`;
+        document.getElementById('metricCementCost').innerText = Math.round(data.cementCostJod).toLocaleString() + curr;
+
+        document.getElementById('metricBlocksQty').innerHTML = data.masonryBlocksCount + ` <span class="text-xs font-normal text-slate-500">${pcsUnit}</span>`;
+        document.getElementById('metricBlocksCost').innerText = Math.round(data.masonryBlocksCostJod).toLocaleString() + curr;
+
+        document.getElementById('metricSandQty').innerHTML = data.sandAggregatesCubicMeters.toFixed(1) + ` <span class="text-xs font-normal text-slate-500">${m3Unit}</span>`;
+        document.getElementById('metricSandCost').innerText = Math.round(data.sandAggregatesCostJod).toLocaleString() + curr;
+
+        document.getElementById('metricLaborCost').innerText = Math.round(data.estimatedLaborCostJod).toLocaleString() + curr;
+
+        // Update Progress Bar
+        const total = data.totalSkeletonCostJod || 1;
+        const pSteel = ((data.steelCostJod / total) * 100).toFixed(1);
+        const pConcrete = ((data.concreteCostJod / total) * 100).toFixed(1);
+        const pLabor = ((data.estimatedLaborCostJod / total) * 100).toFixed(1);
+        const pBlocks = ((data.masonryBlocksCostJod / total) * 100).toFixed(1);
+        const pCement = ((data.cementCostJod / total) * 100).toFixed(1);
+        const pSand = ((data.sandAggregatesCostJod / total) * 100).toFixed(1);
+
+        document.getElementById('barSteel').style.width = pSteel + '%';
+        document.getElementById('barConcrete').style.width = pConcrete + '%';
+        document.getElementById('barLabor').style.width = pLabor + '%';
+        document.getElementById('barBlocks').style.width = pBlocks + '%';
+        document.getElementById('barCement').style.width = pCement + '%';
+        document.getElementById('barSand').style.width = pSand + '%';
+
+        document.getElementById('budgetSummaryText').innerText = isEnMode 
+            ? `Steel ${pSteel}% • Labor ${pLabor}% • Concrete ${pConcrete}% • Blocks & Cement ${(parseFloat(pBlocks)+parseFloat(pCement)).toFixed(1)}%`
+            : `حديد ${pSteel}% • عمالة ${pLabor}% • خرسانة ${pConcrete}% • طوب وإسمنت ${(parseFloat(pBlocks)+parseFloat(pCement)).toFixed(1)}%`;
+
+        // Update Screen Breakdown Table
+        const tbody = document.getElementById('breakdownTbody');
+        if (tbody && data.materialItems) {
+            let html = '';
+            data.materialItems.forEach(item => {
+                const dict = itemDictionary[item.category] || {};
+                const itemName = isEnMode ? (dict.nameEn || item.itemNameEn || item.itemNameAr) : (dict.nameAr || item.itemNameAr);
+                const itemNote = isEnMode ? (dict.noteEn || item.note) : (dict.noteAr || item.note);
+                const itemUnit = isEnMode ? (dict.unitEn || item.unit) : (dict.unitAr || item.unit);
+
+                html += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-4">
+                            <p class="font-bold text-slate-900 text-xs">${itemName}</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${itemNote}</p>
+                        </td>
+                        <td class="py-3 px-4 text-center font-bold text-slate-900 text-xs font-mono">
+                            ${item.quantity.toFixed(1)} ${itemUnit}
+                        </td>
+                        <td class="py-3 px-4 text-center font-medium text-slate-600 font-mono">
+                            ${item.unitPriceJod.toFixed(2)} ${curr}
+                        </td>
+                        <td class="py-3 px-4 text-end font-bold text-slate-900 text-xs font-mono">
+                            ${Math.round(item.totalPriceJod).toLocaleString()} ${curr}
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Update Dedicated Print Report Elements
+        if (area) document.getElementById('printArea').innerText = area + m2Unit;
+        if (floors) document.getElementById('printFloors').innerText = isEnMode ? (floors === 1 ? '1 Floor' : floors + ' Floors') : (floors === 1 ? '1 طابق' : floors + ' طوابق');
+        document.getElementById('printTotalArea').innerText = data.totalBuiltUpArea + m2Unit;
+        if (cityName) document.getElementById('printCity').innerText = cityName;
+        if (buildingType) {
+            document.getElementById('printBuildingType').innerText = isEnMode 
+                ? (buildingType === 'Residential' ? 'Residential / Villa' : 'Commercial / Offices')
+                : (buildingType === 'Residential' ? 'سكني / فيلا' : 'تجاري / مكاتب');
+        }
+        if (foundationType) {
+            document.getElementById('printFoundationType').innerText = isEnMode 
+                ? (foundationType === 'IsolatedFootings' ? 'Isolated Footings' : 'Raft / Mat Foundation')
+                : (foundationType === 'IsolatedFootings' ? 'قواعد منفصلة' : 'لبشة / حصيرة (Raft)');
+        }
+        document.getElementById('printTotalCost').innerText = Math.round(data.totalSkeletonCostJod).toLocaleString();
+        document.getElementById('printCostPerM2').innerText = Math.round(data.costPerSquareMeterJod).toLocaleString() + costM2Unit;
+
+        const printTbody = document.getElementById('printBreakdownTbody');
+        if (printTbody && data.materialItems) {
+            let printHtml = '';
+            data.materialItems.forEach(item => {
+                const dict = itemDictionary[item.category] || {};
+                const itemName = isEnMode ? (dict.nameEn || item.itemNameEn || item.itemNameAr) : (dict.nameAr || item.itemNameAr);
+                const itemNote = isEnMode ? (dict.noteEn || item.note) : (dict.noteAr || item.note);
+                const itemUnit = isEnMode ? (dict.unitEn || item.unit) : (dict.unitAr || item.unit);
+
+                printHtml += `
+                    <tr>
+                        <td class="py-2 px-3">
+                            <strong class="text-slate-900">${itemName}</strong>
+                            <span class="text-slate-500 block text-[10px]">${itemNote}</span>
+                        </td>
+                        <td class="py-2 px-3 text-center font-mono font-bold">${item.quantity.toFixed(1)} ${itemUnit}</td>
+                        <td class="py-2 px-3 text-center font-mono">${item.unitPriceJod.toFixed(2)} ${curr}</td>
+                        <td class="py-2 px-3 text-end font-mono font-bold">${Math.round(item.totalPriceJod).toLocaleString()} ${curr}</td>
+                    </tr>
+                `;
+            });
+            printTbody.innerHTML = printHtml;
+        }
+    }
+
+    function triggerPrintReport() {
+        window.print();
+    }
+
+    function shareWhatsApp() {
+        const area = document.getElementById('summaryTotalArea').innerText;
+        const total = document.getElementById('totalSkeletonCost').innerText;
+        const steel = document.getElementById('metricSteelQty').innerText;
+        const concrete = document.getElementById('metricConcreteQty').innerText;
+        const costPerM = document.getElementById('summaryCostPerM2').innerText;
+
+        const text = isEnMode
+            ? `Estimated Construction Costs & Quantities for my project via BLOCKO:%0A` +
+              `• Total Built-up Area: ${area}%0A` +
+              `• Estimated Total Cost: ${total} JOD (${costPerM})%0A` +
+              `• Steel Rebar: ${steel}%0A` +
+              `• Ready-mix Concrete: ${concrete}%0A` +
+              `Calculator link: https://bolcko.com/calculator`
+            : `تقدير تكلفة وكميات البناء لمشروعي عبر منصة بلوكو (BLOCKO):%0A` +
+              `• إجمالي مسطح البناء: ${area}%0A` +
+              `• التكلفة الإجمالية التقديرية: ${total} دينار أردني (${costPerM})%0A` +
+              `• كمية حديد التسليح: ${steel}%0A` +
+              `• كمية الخرسانة الجاهزة: ${concrete}%0A` +
+              `رابط الحساب المباشر: https://bolcko.com/calculator`;
+
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+</script>
+}

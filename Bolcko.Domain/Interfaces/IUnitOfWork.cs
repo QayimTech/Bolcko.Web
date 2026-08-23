@@ -1,4 +1,4 @@
-using Bolcko.Domain.Entities.Tender;
+﻿using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Delivery;
@@ -38,6 +38,7 @@ namespace Bolcko.Domain.Interfaces
 
         // Analytics & Security
         IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Content.FAQItem> FAQs { get; }
         IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; }
         IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; }
 
