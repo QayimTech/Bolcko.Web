@@ -216,10 +216,23 @@ public static class DatabaseExtensions
                 SELECT 
                     'كيف يتم احتساب كمية حديد التسليح للمشروع؟',
                     'يتم احتساب كمية الحديد بناءً على الكودات الهندسية الأردنية المعتمدة للمباني السكنية والتجارية بمعدل يتراوح بين 38 إلى 45 كغم لكل متر مربع مسطح من إجمالي مساحة البناء (Built-up Area)، وتزداد النسبة تلقائياً في حال اختيار أساسات اللبشة (Raft) أو الاستخدام التجاري.',
-                    'How is the rebar quantity calculated for the project?',
-                    'Rebar quantity is estimated based on Jordanian National Building Codes, averaging 38 to 45 kg per m² of total built-up area for standard residential rib slabs and isolated footings, automatically scaled for commercial structures and raft foundations.',
                     'calculator', 1, true, now()
                 WHERE NOT EXISTS (SELECT 1 FROM "FAQItems" LIMIT 1);
+                """);
+
+            // Seed default SEO Metadata for Calculator if not exists
+            await db.Database.ExecuteSqlRawAsync(
+                """
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator',
+                    'حاسبة تكلفة البناء وكميات المواد في الأردن 2026 | بلوكو',
+                    'احسب كميات وتكاليف حديد التسليح، الإسمنت، الخرسانة الجاهزة، والطوب الإسمنتي لمشروعك في الأردن بدقة هندسية وفق كودات البناء وأسعار السوق اللحظية.',
+                    'حاسبة تكلفة البناء الأردن, حساب كميات الحديد, اسعار الاسمنت في الاردن, اسعار الحديد اليوم عمان, تكلفة بناء بيت عظم, اسعار الخرسانة الجاهزة, بلوكو',
+                    '/calculator',
+                    3,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator');
                 """);
 
             Log.Information("Database tables (Delivery, FAQItems, MarketPrices, SEOMetadata) verified/created successfully via raw SQL.");
