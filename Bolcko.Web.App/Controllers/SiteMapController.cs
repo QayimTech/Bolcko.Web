@@ -99,40 +99,84 @@ namespace Bolcko.Web.App.Controllers
         }
 
         /// <summary>
-        /// إضافة الصفحات الديناميكية (المنتجات والفئات)
+        /// إضافة الصفحات الديناميكية (جداول SEOMetadata، الفئات، والمنتجات)
         /// </summary>
         private async Task AddDynamicPages(List<SitemapUrl> urls, string baseUrl)
         {
             try
             {
-                // جلب جميع الفئات
+                var existingUrls = new HashSet<string>(urls.Select(u => u.Loc.TrimEnd('/')), StringComparer.OrdinalIgnoreCase);
+
+                // 1. جلب كافة الصفحات المعرفة في جدول SEOMetadata ديناميكياً من قاعدة البيانات
+                var seoPages = await _serviceManager.SEOService.GetAllSEOAsync();
+                foreach (var page in seoPages)
+                {
+                    if (string.IsNullOrWhiteSpace(page.PageUrl)) continue;
+
+                    var urlPath = page.PageUrl.Trim();
+                    var fullUrl = urlPath.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                        ? urlPath
+                        : $"{baseUrl.TrimEnd('/')}/{(urlPath.StartsWith("/") ? urlPath.TrimStart('/') : urlPath)}";
+
+                    var normalized = fullUrl.TrimEnd('/');
+                    if (!existingUrls.Contains(normalized))
+                    {
+                        var priority = "0.8";
+                        if (page.PageName.Equals("calculator", StringComparison.OrdinalIgnoreCase) ||
+                            page.PageName.Equals("home", StringComparison.OrdinalIgnoreCase))
+                        {
+                            priority = "0.9";
+                        }
+
+                        urls.Add(new SitemapUrl
+                        {
+                            Loc = fullUrl,
+                            LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                            ChangeFreq = "weekly",
+                            Priority = priority
+                        });
+                        existingUrls.Add(normalized);
+                    }
+                }
+
+                // 2. جلب جميع الفئات
                 var categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
                 foreach (var category in categories)
                 {
-                    urls.Add(new SitemapUrl
+                    var catUrl = $"{baseUrl}/Shop/Category/Index/{category.Id}";
+                    if (!existingUrls.Contains(catUrl.TrimEnd('/')))
                     {
-                        Loc = $"{baseUrl}/Shop/Category/Index/{category.Id}",
-                        LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
-                        ChangeFreq = "weekly",
-                        Priority = "0.8"
-                    });
+                        urls.Add(new SitemapUrl
+                        {
+                            Loc = catUrl,
+                            LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                            ChangeFreq = "weekly",
+                            Priority = "0.8"
+                        });
+                        existingUrls.Add(catUrl.TrimEnd('/'));
+                    }
                 }
 
-                // جلب جميع المنتجات
+                // 3. جلب جميع المنتجات
                 var products = await _serviceManager.ProductService.GetAllProductsAsync();
                 foreach (var product in products)
                 {
-                    urls.Add(new SitemapUrl
+                    var prodUrl = $"{baseUrl}/Shop/Product/Index/{product.Id}";
+                    if (!existingUrls.Contains(prodUrl.TrimEnd('/')))
                     {
-                        Loc = $"{baseUrl}/Shop/Product/Index/{product.Id}",
-                        LastMod = product.UpdatedAt.ToString("yyyy-MM-dd"),
-                        ChangeFreq = "weekly",
-                        Priority = "0.7"
-                    });
+                        urls.Add(new SitemapUrl
+                        {
+                            Loc = prodUrl,
+                            LastMod = product.UpdatedAt.ToString("yyyy-MM-dd"),
+                            ChangeFreq = "weekly",
+                            Priority = "0.7"
+                        });
+                        existingUrls.Add(prodUrl.TrimEnd('/'));
+                    }
                 }
 
-                _logger.LogInformation("Sitemap: Added {CategoryCount} categories and {ProductCount} products", 
-                    categories.Count(), products.Count());
+                _logger.LogInformation("Sitemap: Added {SeoCount} SEO pages, {CategoryCount} categories and {ProductCount} products", 
+                    seoPages.Count(), categories.Count(), products.Count());
             }
             catch (Exception ex)
             {

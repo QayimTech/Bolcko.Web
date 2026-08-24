@@ -53,7 +53,8 @@ namespace Bolcko.Web.App.ViewComponents
             {
                 // Fallback attempt with page name mapping
                 var pageName = "Home";
-                if (path.Contains("/Product", StringComparison.OrdinalIgnoreCase)) pageName = "Products";
+                if (path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase)) pageName = "calculator";
+                else if (path.Contains("/Product", StringComparison.OrdinalIgnoreCase)) pageName = "Products";
                 else if (path.Contains("/Category", StringComparison.OrdinalIgnoreCase)) pageName = "Categories";
                 else if (path.Contains("/Contact", StringComparison.OrdinalIgnoreCase)) pageName = "Contact";
                 else if (path.Contains("/About", StringComparison.OrdinalIgnoreCase)) pageName = "About";
