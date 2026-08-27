@@ -27,6 +27,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         [HttpGet]
+        [Route("Shop/Quote/Request")]
+        [Route("Shop/Quote/RequestQuote")]
+        [Route("Quote/Request")]
         [ActionName("Request")]
         public async Task<IActionResult> RequestGet([FromQuery] QuoteRequestDto? dto)
         {

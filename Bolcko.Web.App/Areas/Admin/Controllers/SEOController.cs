@@ -86,12 +86,21 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 },
                 new SEOMetadataDto
                 {
+                    PageName = "calculator",
+                    PageTitle = "حاسبة تكلفة البناء وكميات المواد في الأردن 2026 | بلوكو",
+                    MetaDescription = "احسب كميات وتكاليف حديد التسليح، الإسمنت، الخرسانة الجاهزة، والطوب الإسمنتي لمشروعك في الأردن بدقة هندسية وفق كودات البناء وأسعار السوق اللحظية.",
+                    MetaKeywords = "حاسبة تكلفة البناء الأردن, حساب كميات الحديد, اسعار الاسمنت في الاردن, اسعار الحديد اليوم عمان, تكلفة بناء بيت عظم, اسعار الخرسانة الجاهزة, بلوكو",
+                    PageUrl = "/calculator",
+                    PageOrder = 2
+                },
+                new SEOMetadataDto
+                {
                     PageName = "Products",
                     PageTitle = "تصفح كافة المنتجات ومواد البناء | BLOCKO Products",
                     MetaDescription = "تسوق أفضل العلامات التجارية لحديد التسليح، التمديدات الصحية، العدد والأدوات، ومعدات المسابح بأسعار تنافسية وجودة مضمونة.",
                     MetaKeywords = "منتجات بناء، لوازم صحية، مضخات مياه، عدد يدوية، كهربائيات، حديد، بلوكو الأردن",
                     PageUrl = "/Shop/Product",
-                    PageOrder = 2
+                    PageOrder = 3
                 },
                 new SEOMetadataDto
                 {
@@ -100,7 +109,25 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "استكشف مجموعات توريد مواد البناء والأقسام الرئيسية للعدد، الأدوات، الأدوات الصحية، والمواد اللاصقة.",
                     MetaKeywords = "أقسام مواد البناء، مستلزمات سباكة، مواد لاصقة، لوازم إنشائية",
                     PageUrl = "/Shop/Category",
-                    PageOrder = 3
+                    PageOrder = 4
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "About",
+                    PageTitle = "من نحن | بلوكو لتوريد مواد البناء والحلول الإنشائية",
+                    MetaDescription = "تعرف على منصة بلوكو، الرائدة في توريد مواد البناء والمستلزمات الإنشائية في المملكة الأردنية الهاشمية بأعلى معايير الجودة والسرعة.",
+                    MetaKeywords = "عن بلوكو, شركة مواد بناء الاردن, توريد مشاريع عمان, من نحن بلوكو",
+                    PageUrl = "/Shop/Home/AboutUs",
+                    PageOrder = 5
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "Quote",
+                    PageTitle = "طلب تسعيرة وتوريد مشاريع رسمي | استدراج عروض أسعار بلوكو",
+                    MetaDescription = "اطلب عرض سعر رسمي لمشروعك الإنشائي لتوريد كميات الحديد، الإسمنت، الخرسانة، ومواد التشطيب بأسعار الجملة المعتمدة.",
+                    MetaKeywords = "طلب تسعيرة مواد بناء, استدراج عروض اسعار, تسعير مشاريع عظم, عروض اسعار حديد واسمنت",
+                    PageUrl = "/Shop/Quote/Request",
+                    PageOrder = 6
                 },
                 new SEOMetadataDto
                 {
@@ -109,7 +136,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "تواصل مع مستشاري توريد مواد البناء في الأردن. نحن متواجدون لمساعدتك في تسعير مشاريعك الإنشائية وتوريدها.",
                     MetaKeywords = "اتصال بلوكو، خدمة العملاء، تسعير مواد البناء، توريد خرسانة الأردن",
                     PageUrl = "/Shop/Home/Contact",
-                    PageOrder = 4
+                    PageOrder = 7
                 }
             };
 

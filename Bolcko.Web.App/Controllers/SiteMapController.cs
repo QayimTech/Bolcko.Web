@@ -63,6 +63,15 @@ namespace Bolcko.Web.App.Controllers
                 Priority = "1.0"
             });
 
+            // صفحة حاسبة تكاليف وكميات البناء (High Priority)
+            urls.Add(new SitemapUrl
+            {
+                Loc = $"{baseUrl}/calculator",
+                LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                ChangeFreq = "weekly",
+                Priority = "0.9"
+            });
+
             // صفحات Shop Area
             urls.Add(new SitemapUrl
             {
@@ -92,6 +101,15 @@ namespace Bolcko.Web.App.Controllers
             urls.Add(new SitemapUrl
             {
                 Loc = $"{baseUrl}/Shop/Category",
+                LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                ChangeFreq = "weekly",
+                Priority = "0.9"
+            });
+
+            // صفحة المنتجات الرئيسية
+            urls.Add(new SitemapUrl
+            {
+                Loc = $"{baseUrl}/Shop/Product",
                 LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
                 ChangeFreq = "weekly",
                 Priority = "0.9"
