@@ -22,6 +22,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         public async Task<IActionResult> Index(int id)
         {
+            if (id <= 0)
+            {
+                return RedirectToAction("Index", "Category", new { area = "Shop" });
+            }
+
             var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
             if (product == null)
             {

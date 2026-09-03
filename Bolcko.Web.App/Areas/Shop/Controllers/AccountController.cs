@@ -29,7 +29,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
-                return RedirectToAction("Index", "Product", new { area = "Shop" });
+                return RedirectToAction("Index", "Category", new { area = "Shop" });
             }
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -65,7 +65,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         return Redirect(returnUrl);
                     }
 
-                    return RedirectToAction("Index", "Product", new { area = "Shop" });
+                    return RedirectToAction("Index", "Category", new { area = "Shop" });
                 }
             }
 
@@ -85,7 +85,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Product", new { area = "Shop" });
+                return RedirectToAction("Index", "Category", new { area = "Shop" });
             }
             return View();
         }
@@ -110,7 +110,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 
-                return RedirectToAction("Index", "Product", new { area = "Shop" });
+                return RedirectToAction("Index", "Category", new { area = "Shop" });
             }
 
             foreach (var error in result.Errors)
@@ -214,7 +214,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var order = await _serviceManager.OrderService.GetOrderByIdAsync(id);
             if (order == null || order.UserId != user.Id)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "الطلب المطلوب غير متوفر أو تم حذفه.";
+                return RedirectToAction("Orders");
             }
 
             ViewBag.User = user;
@@ -230,7 +231,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             var order = await _serviceManager.OrderService.GetOrderByIdAsync(id);
             if (order == null || order.UserId != user.Id)
-                return NotFound();
+            {
+                TempData["ErrorMessage"] = "الطلب المطلوب غير متوفر أو تم حذفه.";
+                return RedirectToAction("Orders");
+            }
 
             if (order.Status == Bolcko.Domain.Enums.OrderStatus.Shipped)
             {
