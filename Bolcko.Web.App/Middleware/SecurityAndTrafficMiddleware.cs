@@ -150,28 +150,35 @@ namespace Bolcko.Web.App.Middleware
             var userId = context.User.Identity?.IsAuthenticated == true ? context.User.Identity.Name : null;
             var executionTime = stopwatch.Elapsed.TotalMilliseconds;
 
-            _ = Task.Run(async () =>
+            bool isHealthCheck = path.StartsWith("/health", StringComparison.OrdinalIgnoreCase) || 
+                                 path.Equals("/ping", StringComparison.OrdinalIgnoreCase) || 
+                                 path.Equals("/healthz", StringComparison.OrdinalIgnoreCase);
+
+            if (!isHealthCheck)
             {
-                try
+                _ = Task.Run(async () =>
                 {
-                    using var scope = scopeFactory.CreateScope();
-                    var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
-                    await analyticsService.RecordVisitAsync(
-                        ipAddress,
-                        path,
-                        method,
-                        userAgent,
-                        referrer,
-                        userId,
-                        statusCode,
-                        executionTime
-                    );
-                }
-                catch
-                {
-                    // Silent fallback for analytics background tasks
-                }
-            });
+                    try
+                    {
+                        using var scope = scopeFactory.CreateScope();
+                        var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
+                        await analyticsService.RecordVisitAsync(
+                            ipAddress,
+                            path,
+                            method,
+                            userAgent,
+                            referrer,
+                            userId,
+                            statusCode,
+                            executionTime
+                        );
+                    }
+                    catch
+                    {
+                        // Silent fallback for analytics background tasks
+                    }
+                });
+            }
         }
     }
 }
