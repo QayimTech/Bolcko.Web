@@ -2,6 +2,7 @@
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Delivery;
+using Bolcko.Domain.Entities.Supplier;
 
 namespace Bolcko.Domain.Interfaces
 {
@@ -32,9 +33,10 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<DeliveryJob> DeliveryJobs { get; }
         IGenericRepository<DeliveryBid> DeliveryBids { get; }
         IGenericRepository<DeliveryRating> DeliveryRatings { get; }
-        IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; }
-        IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; }
-        IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; }
+        IGenericRepository<DeliveryProviderConfig> DeliveryProviderConfigs { get; }
+        IGenericRepository<OrderShipmentMapping> OrderShipmentMappings { get; }
+        IGenericRepository<DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; }
+        IGenericRepository<SupplierProviderConfig> SupplierProviderConfigs { get; }
 
         // Analytics & Security
         IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; }

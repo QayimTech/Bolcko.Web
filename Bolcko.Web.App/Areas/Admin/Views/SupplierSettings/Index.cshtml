@@ -1,0 +1,267 @@
+﻿@using Bolcko.Domain.Entities.Supplier
+@model SupplierProviderConfig
+@{
+    ViewData["Title"] = "تكامل الموردين وتجار الجملة (Supplier & Sourcing Gateway)";
+    ViewData["ParentTitle"] = "مركز اللوجستيات والتوريد";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var allConfigs = ViewBag.AllConfigs as List<SupplierProviderConfig> ?? new List<SupplierProviderConfig>();
+}
+
+<div class="p-4 md:p-8 space-y-6 text-right font-sans min-h-screen max-w-7xl mx-auto" dir="rtl">
+    
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-emerald-600 text-xl">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-rose-600 text-xl">error</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- Header Actions Zone -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-2xl">warehouse</span>
+            </div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-lg md:text-xl font-black text-slate-900">
+                        إدارة الموردين وتجار الجملة ونقاط البيك أب (Wholesale Sourcing Hub)
+                    </h2>
+                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-0.5 rounded-full font-black">
+                        Qannas API Active
+                    </span>
+                </div>
+                <p class="text-slate-400 text-xs font-medium">
+                    ربط حسابات الموردين ورفع أوامر الشراء آلياً لموظف التبكيج في مستودع رأس العين لتسليمها لشركة GLC
+                </p>
+            </div>
+        </div>
+
+        <button type="button" onclick="testQannasConnection(@Model.Id)" id="btnTestConn" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 shrink-0">
+            <span class="material-symbols-outlined text-lg text-[#E8A020]">wifi_tethering</span>
+            <span>فحص الاتصال والتوكن بـ Qannas API ⚡</span>
+        </button>
+    </div>
+
+    <!-- Active Sourcing & Pickup Configuration Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Form Section -->
+        <div class="lg:col-span-8">
+            <form asp-action="Save" asp-controller="SupplierSettings" method="post" class="space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <!-- 1. Supplier Basic & API Credentials -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
+                                <span class="material-symbols-outlined text-xl">key</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-black text-slate-900">بيانات وحساب المورد الرسمي (Supplier API)</h3>
+                                <p class="text-slate-400 text-xs font-medium">البيانات المستخدمة لإنشاء الطلبات تلقائياً في حساب المورد</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            مورد الجملة المعتمد
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">اسم المورد</label>
+                            <input asp-for="SupplierName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-900 focus:border-[#E8A020] outline-none" placeholder="شركة القناص لتجارة الجملة" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">مفتاح المورد (Supplier Key)</label>
+                            <input asp-for="SupplierKey" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="qannas" />
+                        </div>
+
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block font-black text-slate-700">رابط الـ API الأساسي (Base URL)</label>
+                            <input asp-for="BaseUrl" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="https://api.qannasjo.com/" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">رقم هاتف حساب المورد (Login Phone)</label>
+                            <input asp-for="ApiPhoneNumber" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="0782023800" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">كلمة المرور (API Password)</label>
+                            <input asp-for="ApiPassword" type="password" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="••••••••" />
+                        </div>
+
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block font-black text-slate-700">البريد الإلكتروني المعتمد</label>
+                            <input asp-for="ApiEmail" type="email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="qannasco@gmail.com" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Pickup Warehouse Origin Location for GLC Delivery -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                                <span class="material-symbols-outlined text-xl">pin_drop</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-black text-slate-900">نقطة استلام الطرود لشركة التوصيل GLC (Warehouse Pickup)</h3>
+                                <p class="text-slate-400 text-xs font-medium">الموقع الذي تذهب إليه سيارة GLC يومياً لاستلام الطرود المبكجة من موظفنا</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block font-black text-slate-700">عنوان مستودع الاستلام التفصيلي</label>
+                            <input asp-for="PickupAddressLine" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-900 focus:border-[#E8A020] outline-none" placeholder="عمان - رأس العين - مستودع القناص [استلام موظف بلوكو]" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">اسم موظف الاستلام المسؤول</label>
+                            <input asp-for="ContactPersonName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-900 focus:border-[#E8A020] outline-none" placeholder="موظف بلوكو - مستودع رأس العين" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">رقم هاتف موظف الاستلام (للتنسيق مع سائق GLC)</label>
+                            <input asp-for="ContactPhoneNumber" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none dir-ltr text-left" placeholder="0782023800" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">معرف المدينة لـ GLC (City ID)</label>
+                            <input asp-for="PickupCityId" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none text-center" />
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block font-black text-slate-700">معرف المنطقة لـ GLC (Region ID - رأس العين)</label>
+                            <input asp-for="PickupRegionId" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold font-mono text-slate-900 focus:border-[#E8A020] outline-none text-center" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Toggle Options -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <input asp-for="AutoDispatchEnabled" type="checkbox" id="autoDispatch" class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020] rounded border-slate-300" />
+                        <label for="autoDispatch" class="cursor-pointer text-xs font-bold text-slate-900">
+                            تفعيل الرفع التلقائي الفوري لـ Qannas API عند طلب العميل
+                            <span class="block text-[11px] text-slate-400 font-normal mt-0.5">يتم إنشاء الطلب فورياً في حساب القناص ليظهر لموظفنا في رأس العين</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <input asp-for="IsActive" type="checkbox" id="isActive" class="w-5 h-5 text-emerald-600 focus:ring-emerald-500 rounded border-slate-300" />
+                        <label for="isActive" class="cursor-pointer text-xs font-bold text-slate-900">
+                            تفعيل المورد كشغال (Active)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="submit" class="bg-gradient-to-r from-[#E8A020] to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black py-3.5 px-8 rounded-2xl transition-all shadow-md active:scale-95 text-xs flex items-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">save</span>
+                        <span>حفظ إعدادات المورد ونقطة رأس العين</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar Info & Status -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <h4 class="text-sm font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <span class="material-symbols-outlined text-[#E8A020]">info</span>
+                    <span>كيف تعمل دورة العمل الحالية؟</span>
+                </h4>
+
+                <div class="space-y-3 text-xs text-slate-600 leading-relaxed font-medium">
+                    <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-200/50 space-y-1">
+                        <p class="font-bold text-amber-900">1. طلب العميل:</p>
+                        <p class="text-slate-600 text-[11px]">يتم رفع الطلب لـ Qannas API فورياً.</p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-indigo-50/50 border border-indigo-200/50 space-y-1">
+                        <p class="font-bold text-indigo-900">2. موظف رأس العين:</p>
+                        <p class="text-slate-600 text-[11px]">يجهز الطرد ويبكجه بكرتونة وهوية بلوكو.</p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-200/50 space-y-1">
+                        <p class="font-bold text-emerald-900">3. بيك أب شركة GLC:</p>
+                        <p class="text-slate-600 text-[11px]">تأتي سيارة GLC يومياً لمستودع رأس العين لاستلام الطرود وتوصيلها للزبائن.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Connection Result Card -->
+            <div id="testConnResultCard" class="hidden bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-3">
+                <div class="flex items-center gap-2 font-black text-xs" id="testConnTitle"></div>
+                <p class="text-xs text-slate-600 leading-relaxed" id="testConnMsg"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function testQannasConnection(supplierId) {
+        const btn = document.getElementById('btnTestConn');
+        const card = document.getElementById('testConnResultCard');
+        const title = document.getElementById('testConnTitle');
+        const msg = document.getElementById('testConnMsg');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span> جاري فحص الاتصال...';
+
+        fetch('@Url.Action("TestConnection", "SupplierSettings", new { area = "Admin" })', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ id: supplierId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg text-[#E8A020]">wifi_tethering</span> فحص الاتصال والتوكن بـ Qannas API ⚡';
+            card.classList.remove('hidden');
+
+            if (data.success) {
+                card.className = 'bg-emerald-50 border border-emerald-200 rounded-3xl p-6 shadow-sm space-y-3';
+                title.className = 'flex items-center gap-2 font-black text-xs text-emerald-900';
+                title.innerHTML = '<span class="material-symbols-outlined text-emerald-600">check_circle</span> الاتصال ناجح وموثق!';
+                msg.className = 'text-xs text-emerald-800 leading-relaxed font-bold';
+                msg.innerText = data.message;
+            } else {
+                card.className = 'bg-rose-50 border border-rose-200 rounded-3xl p-6 shadow-sm space-y-3';
+                title.className = 'flex items-center gap-2 font-black text-xs text-rose-900';
+                title.innerHTML = '<span class="material-symbols-outlined text-rose-600">error</span> فشل الاتصال!';
+                msg.className = 'text-xs text-rose-800 leading-relaxed font-bold';
+                msg.innerText = data.message;
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg text-[#E8A020]">wifi_tethering</span> فحص الاتصال والتوكن بـ Qannas API ⚡';
+            card.classList.remove('hidden');
+            card.className = 'bg-rose-50 border border-rose-200 rounded-3xl p-6 shadow-sm space-y-3';
+            title.className = 'flex items-center gap-2 font-black text-xs text-rose-900';
+            title.innerHTML = '<span class="material-symbols-outlined text-rose-600">error</span> خطأ في الشبكة!';
+            msg.className = 'text-xs text-rose-800 leading-relaxed font-bold';
+            msg.innerText = err.message;
+        });
+    }
+</script>

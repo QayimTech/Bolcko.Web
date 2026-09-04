@@ -10,5 +10,9 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+        public string? SupplierKey { get; set; }
+        public int? ExternalSupplierVariantId { get; set; }
+        public string? ExternalSupplierOrderId { get; set; }
+        public Bolcko.Domain.Enums.SourcingStatus SourcingStatus { get; set; } = Bolcko.Domain.Enums.SourcingStatus.PendingSourcing;
     }
 }

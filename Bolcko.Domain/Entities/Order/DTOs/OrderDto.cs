@@ -16,6 +16,13 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         public string? AppliedCouponCode { get; set; }
         public decimal DiscountAmount { get; set; }
         public bool HasOversizedItems { get; set; }
+        
+        // Multi-Supplier Sourcing Tracking
+        public string? PrimarySupplierKey { get; set; } = "qannas";
+        public string? ExternalSupplierOrderNumber { get; set; }
+        public Bolcko.Domain.Enums.SourcingStatus SourcingStatus { get; set; } = Bolcko.Domain.Enums.SourcingStatus.PendingSourcing;
+        public string? SourcingNotes { get; set; }
+
         public AddressDto? ShippingAddress { get; set; }
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }

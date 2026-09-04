@@ -33,8 +33,9 @@ namespace Blocko.Services
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
-            // ─── Delivery API & HttpClient Registration ──────────────────────────────
+            // ─── Delivery & Supplier API HttpClient Registration ─────────────────────
             services.AddHttpClient<Blocko.Services.Interfaces.Delivery.IDeliveryApiService, Blocko.Services.Implementations.Delivery.DeliveryApiService>();
+            services.AddHttpClient<Blocko.Services.Interfaces.Supplier.ISupplierApiService, Blocko.Services.Implementations.Supplier.SupplierApiService>();
 
             // ─── SEO Service (must be registered BEFORE ServiceManager) ───────────
             // Uses ILogger<T> which is always available from ASP.NET Core DI

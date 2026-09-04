@@ -72,6 +72,10 @@ namespace Blocko.Services.Implementations.Delivery
                 };
             }
 
+            var supplierKey = order.PrimarySupplierKey ?? "qannas";
+            var supplierConfig = await _unitOfWork.SupplierProviderConfigs.GetAllAsQueryable()
+                .FirstOrDefaultAsync(s => s.SupplierKey.ToLower() == supplierKey.ToLower() && s.IsActive);
+
             var mapsUrl = (order.ShippingAddress?.Latitude.HasValue == true && order.ShippingAddress?.Longitude.HasValue == true) 
                 ? $"https://maps.google.com/?q={order.ShippingAddress.Latitude},{order.ShippingAddress.Longitude}" 
                 : string.Empty;
@@ -260,10 +264,10 @@ namespace Blocko.Services.Implementations.Delivery
                     },
                     originAddress = new
                     {
-                        addressLine1 = "عمان - حي معصوم",
-                        cityId = 395,
-                        regionId = 33,
-                        villageId = 18076
+                        addressLine1 = supplierConfig?.PickupAddressLine ?? "عمان - رأس العين - مستودع القناص",
+                        cityId = supplierConfig?.PickupCityId ?? 395,
+                        regionId = supplierConfig?.PickupRegionId ?? 33,
+                        villageId = supplierConfig?.PickupVillageId ?? 18076
                     }
                 };
 

@@ -138,35 +138,76 @@
                 </form>
             </div>
 
-            <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0">
-                <h2 class="text-base font-bold mb-4 border-b pb-2">التوصيل عبر شركات الشحن السريع API</h2>
+            <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0 space-y-4">
+                <h2 class="text-base font-bold border-b pb-2 flex items-center justify-between">
+                    <span>التوريد والتوصيل الآلي (Sourcing & Dispatch)</span>
+                    <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">مستودع رأس العين</span>
+                </h2>
+
+                <!-- 1. Sourcing Step (Qannas API) -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="font-black text-slate-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[#E8A020]">warehouse</span>
+                            <span>أمر الشراء من المورد (القناص بالجملة)</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.ExternalSupplierOrderNumber))
+                        {
+                            <span class="bg-emerald-100 text-emerald-800 font-mono font-bold px-2 py-0.5 rounded-md">
+                                طلب القناص: #@Model.ExternalSupplierOrderNumber
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md">
+                                بانتظار الرفع
+                            </span>
+                        }
+                    </div>
+                    <p class="text-slate-500 leading-relaxed">
+                        رفع الطلب لمستودع القناص برأس العين ليقوم موظف بلوكو بتجهيزه وتبكيجه لتسليمه لـ GLC.
+                    </p>
+                    <button type="button" onclick="dispatchToSupplier(@Model.Id)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[#E8A020] text-base">cloud_upload</span>
+                        <span>@(string.IsNullOrEmpty(Model.ExternalSupplierOrderNumber) ? "رفع أمر الشراء للقناص API ⚡" : "إعادة رفع / تحديث أمر القناص")</span>
+                    </button>
+                </div>
+
+                <!-- 2. Delivery Step (GLC Dispatch from Ras Al-Ain) -->
                 @if (Model.HasOversizedItems)
                 {
-                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2 text-xs">
                         <div class="font-bold text-red-900 flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-base">warning</span>
                             <span>الطلب غير مؤهل لشركات الطرود</span>
                         </div>
                         <p class="text-red-800 leading-relaxed">هذا الطلب يحتوي على مواد بناء ضخمة لا يمكن رفعها لشركة الطرود السريعة (GLC). يرجى تعيينه لأسطول النقل الثقيل من القائمة المجاورة.</p>
                     </div>
-                    <button type="button" disabled class="bg-slate-300 text-slate-500 font-black py-3.5 px-8 rounded-xl shadow-none w-full flex items-center justify-center gap-2 cursor-not-allowed">
+                    <button type="button" disabled class="bg-slate-300 text-slate-500 font-black py-3 px-8 rounded-xl shadow-none w-full flex items-center justify-center gap-2 cursor-not-allowed text-xs">
                         <span class="material-symbols-outlined">block</span>
                         <span>مغلق بسبب الحجم</span>
                     </button>
                 }
                 else
                 {
-                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 space-y-2 text-xs">
-                        <div class="font-bold text-amber-900 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">local_shipping</span>
-                            <span>شحن أوتوماتيكي لدى شركة Green Line (GLC / LogesTechs)</span>
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3 text-xs">
+                        <div class="font-black text-amber-900 flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base">local_shipping</span>
+                                <span>شحن شركة Green Line (GLC API)</span>
+                            </div>
+                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md text-[10px]">
+                                بيك أب: رأس العين
+                            </span>
                         </div>
-                        <p class="text-amber-800 leading-relaxed">إرسال بيانات الشحنة مباشرة للشركة وتوليد الباركود وتفاصيل المواد والتطبيقات.</p>
+                        <p class="text-amber-800 leading-relaxed">
+                            استدعاء سيارة GLC لاستلام الطرد من موظفنا في مستودع رأس العين وتوصيله للعميل.
+                        </p>
+                        <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-[#E8A020] hover:bg-amber-500 text-slate-950 font-black py-2.5 px-4 rounded-xl shadow-sm transition-all w-full flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-base">send</span>
+                            <span>رفع الشحنة واستدعاء بيك أب GLC 🚚</span>
+                        </button>
                     </div>
-                    <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black py-3.5 px-8 rounded-xl shadow-md transition-all w-full flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined">send</span>
-                        <span>رفع الشحنة فوراً لـ LogesTechs API</span>
-                    </button>
                 }
             </div>
         </div>
@@ -217,6 +258,24 @@
                     }
                 })
                 .catch(() => alert('تعذّر التواصل مع السيرفر.'));
+            }
+
+            function dispatchToSupplier(orderId) {
+                if (!confirm('هل ترغب بتأكيد رفع أمر الشراء لمستودع القناص برأس العين عبر Qannas API؟')) return;
+
+                fetch('@Url.Action("DispatchOrderToSupplier", "SupplierSettings", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ orderId: orderId })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.success) {
+                        location.reload();
+                    }
+                })
+                .catch(() => alert('تعذّر التواصل مع سيرفر المورد.'));
             }
         </script>
     </div>

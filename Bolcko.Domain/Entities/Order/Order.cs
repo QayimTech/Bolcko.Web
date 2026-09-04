@@ -22,6 +22,13 @@ namespace Bolcko.Domain.Entities.Order
         public decimal DiscountAmount { get; set; } = 0.00m;
         public bool IsExpressDelivery { get; set; } = false;
         public bool HasOversizedItems { get; set; } = false;
+
+        // Multi-Supplier Sourcing Tracking
+        public string? PrimarySupplierKey { get; set; } = "qannas";
+        public string? ExternalSupplierOrderNumber { get; set; } // e.g. "3684"
+        public Bolcko.Domain.Enums.SourcingStatus SourcingStatus { get; set; } = Bolcko.Domain.Enums.SourcingStatus.PendingSourcing;
+        public string? SourcingNotes { get; set; }
+
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

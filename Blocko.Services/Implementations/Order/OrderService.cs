@@ -268,6 +268,10 @@ namespace Blocko.Services.Implementations.order
                 AppliedCouponCode = o.AppliedCouponCode,
                 DiscountAmount = o.DiscountAmount,
                 HasOversizedItems = o.HasOversizedItems,
+                PrimarySupplierKey = o.PrimarySupplierKey,
+                ExternalSupplierOrderNumber = o.ExternalSupplierOrderNumber,
+                SourcingStatus = o.SourcingStatus,
+                SourcingNotes = o.SourcingNotes,
                 ShippingAddress = o.ShippingAddress != null ? new AddressDto
                 {
                     AddressLine1 = o.ShippingAddress.AddressLine1,

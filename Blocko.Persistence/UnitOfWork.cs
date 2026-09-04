@@ -3,6 +3,7 @@ using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Delivery;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Product;
+using Bolcko.Domain.Entities.Supplier;
 using Blocko.Persistence.Repositories.Product;
 using Blocko.Persistence.Repositories.Category;
 using Blocko.Persistence.Repositories.Order;
@@ -49,9 +50,10 @@ namespace Blocko.Persistence
             DeliveryJobs = new GenericRepository<DeliveryJob>(_context);
             DeliveryBids = new GenericRepository<DeliveryBid>(_context);
             DeliveryRatings = new GenericRepository<DeliveryRating>(_context);
-            DeliveryProviderConfigs = new GenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig>(_context);
-            OrderShipmentMappings = new GenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping>(_context);
-            DeliveryProviderLocationMappings = new GenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping>(_context);
+            DeliveryProviderConfigs = new GenericRepository<DeliveryProviderConfig>(_context);
+            OrderShipmentMappings = new GenericRepository<OrderShipmentMapping>(_context);
+            DeliveryProviderLocationMappings = new GenericRepository<DeliveryProviderLocationMapping>(_context);
+            SupplierProviderConfigs = new GenericRepository<SupplierProviderConfig>(_context);
 
             // Analytics & Security
             VisitorLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog>(_context);
@@ -85,9 +87,10 @@ namespace Blocko.Persistence
         public IGenericRepository<DeliveryJob> DeliveryJobs { get; private set; }
         public IGenericRepository<DeliveryBid> DeliveryBids { get; private set; }
         public IGenericRepository<DeliveryRating> DeliveryRatings { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderConfig> DeliveryProviderConfigs { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Delivery.OrderShipmentMapping> OrderShipmentMappings { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Delivery.DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; private set; }
+        public IGenericRepository<DeliveryProviderConfig> DeliveryProviderConfigs { get; private set; }
+        public IGenericRepository<OrderShipmentMapping> OrderShipmentMappings { get; private set; }
+        public IGenericRepository<DeliveryProviderLocationMapping> DeliveryProviderLocationMappings { get; private set; }
+        public IGenericRepository<SupplierProviderConfig> SupplierProviderConfigs { get; private set; }
 
         // Analytics & Security
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.VisitorLog> VisitorLogs { get; private set; }
