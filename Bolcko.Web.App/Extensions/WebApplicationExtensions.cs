@@ -139,6 +139,11 @@ public static class WebApplicationExtensions
     /// </summary>
     public static void MapApplicationEndpoints(this WebApplication app)
     {
+        // Direct Minimal API Health Endpoints (Fastest, zero-overhead for AWS ALB)
+        app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
+        app.MapGet("/healthz", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
+        app.MapGet("/ping", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
+
         app.MapBlockoAppEndpoints();
     }
 

@@ -12,6 +12,8 @@ namespace Bolcko.Web.App.Controllers
 {
     [ApiController]
     [AllowAnonymous]
+    [Route("health")]
+    [Route("api/health")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public class HealthController : ControllerBase
     {
@@ -34,10 +36,9 @@ namespace Bolcko.Web.App.Controllers
         /// AWS ALB Primary Liveness Probe (Fast, lightweight, < 5ms)
         /// Accessible via: /health, /healthz, /ping, /api/health
         /// </summary>
-        [HttpGet("/health")]
+        [HttpGet("")]
         [HttpGet("/healthz")]
         [HttpGet("/ping")]
-        [HttpGet("api/health")]
         public IActionResult GetLiveness()
         {
             return Ok(new
@@ -54,8 +55,8 @@ namespace Bolcko.Web.App.Controllers
         /// Deep Readiness Probe for ECS, RDS PostgreSQL, and System Diagnostics
         /// Accessible via: /health/ready, /health/live
         /// </summary>
-        [HttpGet("/health/ready")]
-        [HttpGet("/health/live")]
+        [HttpGet("ready")]
+        [HttpGet("live")]
         public async Task<IActionResult> GetReadiness()
         {
             var sw = Stopwatch.StartNew();
@@ -111,7 +112,7 @@ namespace Bolcko.Web.App.Controllers
         /// Comprehensive Diagnostic Endpoint for DevOps and CloudVests
         /// Accessible via: /health/detail
         /// </summary>
-        [HttpGet("/health/detail")]
+        [HttpGet("detail")]
         public async Task<IActionResult> GetDetailedHealth()
         {
             var sw = Stopwatch.StartNew();
