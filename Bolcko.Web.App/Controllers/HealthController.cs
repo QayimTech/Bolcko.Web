@@ -37,9 +37,10 @@ namespace Bolcko.Web.App.Controllers
         /// Accessible via: /health, /healthz, /ping, /api/health
         /// </summary>
         [HttpGet("")]
+        [HttpGet("index")]
         [HttpGet("/healthz")]
         [HttpGet("/ping")]
-        public IActionResult GetLiveness()
+        public IActionResult Index()
         {
             return Ok(new
             {
@@ -57,7 +58,7 @@ namespace Bolcko.Web.App.Controllers
         /// </summary>
         [HttpGet("ready")]
         [HttpGet("live")]
-        public async Task<IActionResult> GetReadiness()
+        public async Task<IActionResult> Ready()
         {
             var sw = Stopwatch.StartNew();
             bool isDbHealthy = false;
@@ -113,7 +114,7 @@ namespace Bolcko.Web.App.Controllers
         /// Accessible via: /health/detail
         /// </summary>
         [HttpGet("detail")]
-        public async Task<IActionResult> GetDetailedHealth()
+        public async Task<IActionResult> Detail()
         {
             var sw = Stopwatch.StartNew();
             bool isDbHealthy = false;
