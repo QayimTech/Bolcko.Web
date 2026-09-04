@@ -26,13 +26,23 @@ namespace Bolcko.Web.App.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var path = context.Request.Path.Value ?? "";
+
+            // Immediate bypass for health checks (AWS ALB / Keep-alive) to guarantee 0ms latency and 0 DB overhead
+            if (path.StartsWith("/health", StringComparison.OrdinalIgnoreCase) || 
+                path.Equals("/ping", StringComparison.OrdinalIgnoreCase) || 
+                path.Equals("/healthz", StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context);
+                return;
+            }
+
             var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
             if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
             {
                 ipAddress = forwardedFor.FirstOrDefault()?.Split(',')[0].Trim() ?? ipAddress;
             }
 
-            var path = context.Request.Path.Value ?? "";
             var method = context.Request.Method;
 
             // Resolve scope-based security audit service

@@ -25,7 +25,7 @@ public static class WebApplicationExtensions
         }
         else
         {
-            app.UseExceptionHandler("/Home/Error");
+            app.UseExceptionHandler("/Shop/Home/Error");
             app.UseHsts();
         }
     }
