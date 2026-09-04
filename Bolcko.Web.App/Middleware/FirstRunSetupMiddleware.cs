@@ -20,8 +20,11 @@ namespace Bolcko.Web.App.Middleware
         {
             var path = context.Request.Path.Value ?? "";
 
-            // Always allow /Setup and static files through
+            // Always allow /Setup, health checks, and static files through
             bool isSetupPath   = path.StartsWith("/Setup",   StringComparison.OrdinalIgnoreCase);
+            bool isHealthPath  = path.StartsWith("/health",  StringComparison.OrdinalIgnoreCase)
+                              || path.Equals("/ping",        StringComparison.OrdinalIgnoreCase)
+                              || path.Equals("/healthz",     StringComparison.OrdinalIgnoreCase);
             bool isStaticFile  = path.StartsWith("/lib",     StringComparison.OrdinalIgnoreCase)
                               || path.StartsWith("/css",     StringComparison.OrdinalIgnoreCase)
                               || path.StartsWith("/js",      StringComparison.OrdinalIgnoreCase)
@@ -29,7 +32,7 @@ namespace Bolcko.Web.App.Middleware
                               || path.StartsWith("/favicon", StringComparison.OrdinalIgnoreCase)
                               || path.Contains(".");
 
-            if (isSetupPath || isStaticFile)
+            if (isSetupPath || isHealthPath || isStaticFile)
             {
                 await _next(context);
                 return;
