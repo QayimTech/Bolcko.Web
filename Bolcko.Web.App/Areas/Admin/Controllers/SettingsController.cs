@@ -60,12 +60,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var legalSupportAr = await _uow.AppSettings.GetByKeyAsync("LegalSupportContentAr");
             var legalSupportEn = await _uow.AppSettings.GetByKeyAsync("LegalSupportContentEn");
 
-            ViewBag.LegalPrivacyContentAr = legalPrivacyAr?.Value ?? "نحن في BLOCKO نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية...";
-            ViewBag.LegalPrivacyContentEn = legalPrivacyEn?.Value ?? "We at BLOCKO value your privacy and commit to protecting your personal data...";
-            ViewBag.LegalTermsContentAr = legalTermsAr?.Value ?? "باستخدامك لمنصة BLOCKO، فإنك توافق على الشروط والأحكام التالية...";
-            ViewBag.LegalTermsContentEn = legalTermsEn?.Value ?? "By using BLOCKO platform, you agree to the following terms and conditions...";
-            ViewBag.LegalSupportContentAr = legalSupportAr?.Value ?? "فريق الدعم الفني لدينا متاح للإجابة على جميع استفساراتك المتعلقة بالموقع...";
-            ViewBag.LegalSupportContentEn = legalSupportEn?.Value ?? "Our technical support team is available to answer all your inquiries regarding the site...";
+            ViewBag.LegalPrivacyContentAr = CleanLegalContent(legalPrivacyAr?.Value);
+            ViewBag.LegalPrivacyContentEn = CleanLegalContent(legalPrivacyEn?.Value);
+            ViewBag.LegalTermsContentAr = CleanLegalContent(legalTermsAr?.Value);
+            ViewBag.LegalTermsContentEn = CleanLegalContent(legalTermsEn?.Value);
+            ViewBag.LegalSupportContentAr = CleanLegalContent(legalSupportAr?.Value);
+            ViewBag.LegalSupportContentEn = CleanLegalContent(legalSupportEn?.Value);
 
             // Load Market Info Settings
             var mCityAr = await _uow.AppSettings.GetByKeyAsync("MarketCityAr");
@@ -128,12 +128,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             await SaveSettingAsync("HomeHeroDescEn", homeHeroDescEn, "وصف الهيرو الرئيسي - إنجليزي");
 
             // Save Legal Content
-            await SaveSettingAsync("LegalPrivacyContentAr", legalPrivacyContentAr, "محتوى صفحة سياسة الخصوصية - عربي");
-            await SaveSettingAsync("LegalPrivacyContentEn", legalPrivacyContentEn, "محتوى صفحة سياسة الخصوصية - إنجليزي");
-            await SaveSettingAsync("LegalTermsContentAr", legalTermsContentAr, "محتوى صفحة شروط الخدمة - عربي");
-            await SaveSettingAsync("LegalTermsContentEn", legalTermsContentEn, "محتوى صفحة شروط الخدمة - إنجليزي");
-            await SaveSettingAsync("LegalSupportContentAr", legalSupportContentAr, "محتوى صفحة الدعم الفني - عربي");
-            await SaveSettingAsync("LegalSupportContentEn", legalSupportContentEn, "محتوى صفحة الدعم الفني - إنجليزي");
+            await SaveSettingAsync("LegalPrivacyContentAr", CleanLegalContent(legalPrivacyContentAr), "محتوى صفحة سياسة الخصوصية - عربي");
+            await SaveSettingAsync("LegalPrivacyContentEn", CleanLegalContent(legalPrivacyContentEn), "محتوى صفحة سياسة الخصوصية - إنجليزي");
+            await SaveSettingAsync("LegalTermsContentAr", CleanLegalContent(legalTermsContentAr), "محتوى صفحة شروط الخدمة - عربي");
+            await SaveSettingAsync("LegalTermsContentEn", CleanLegalContent(legalTermsContentEn), "محتوى صفحة شروط الخدمة - إنجليزي");
+            await SaveSettingAsync("LegalSupportContentAr", CleanLegalContent(legalSupportContentAr), "محتوى صفحة الدعم الفني - عربي");
+            await SaveSettingAsync("LegalSupportContentEn", CleanLegalContent(legalSupportContentEn), "محتوى صفحة الدعم الفني - إنجليزي");
 
             // Save Market Info
             await SaveSettingAsync("MarketCityAr", marketCityAr, "المدينة - عربي");
@@ -177,6 +177,35 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             TempData["SuccessMessage"] = "تم حفظ الإعدادات وتحديث تكاليف شحن المحافظات بنجاح!";
             return RedirectToAction(nameof(Index));
+        }
+
+        private string CleanLegalContent(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return "";
+            string content = raw.Trim();
+
+            // If it has <section class="content">...</section>
+            var sectionMatch = System.Text.RegularExpressions.Regex.Match(content, @"<section class=""content"">(.*?)</section>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (sectionMatch.Success)
+            {
+                return sectionMatch.Groups[1].Value.Trim();
+            }
+
+            // If it has <article...>...</article>
+            var articleMatch = System.Text.RegularExpressions.Regex.Match(content, @"<article[^>]*>(.*?)</article>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (articleMatch.Success)
+            {
+                return articleMatch.Groups[1].Value.Trim();
+            }
+
+            // If it has <body...>...</body>
+            var bodyMatch = System.Text.RegularExpressions.Regex.Match(content, @"<body[^>]*>(.*?)</body>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (bodyMatch.Success)
+            {
+                return bodyMatch.Groups[1].Value.Trim();
+            }
+
+            return content;
         }
 
         private async Task SaveSettingAsync(string key, string value, string description)

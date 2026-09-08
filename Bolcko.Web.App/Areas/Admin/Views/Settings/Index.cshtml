@@ -99,37 +99,40 @@
                 </div>
             </div>
 
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2 pt-6">محتوى الصفحات القانونية والتعليمات (Legal Pages)</h3>
+            <div class="flex items-center justify-between border-b pb-2 pt-6">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">محتوى الصفحات القانونية والتعليمات (Legal Pages)</h3>
+                <span class="text-xs text-amber-600 font-bold bg-amber-50 border border-amber-200 px-3 py-1 rounded-md">ملاحظة: أدخل فقط فقرات المحتوى الداخلي (&lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;) - القالب والتصميم الفخم مدمج تلقائياً</span>
+            </div>
             <div class="grid grid-cols-1 gap-6 bg-slate-50 p-6 border border-slate-100 rounded-xl">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى سياسة الخصوصية (عربي - HTML مدعوم)</label>
-                    <textarea name="legalPrivacyContentAr" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalPrivacyContentAr</textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى سياسة الخصوصية (عربي)</label>
+                    <textarea name="legalPrivacyContentAr" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalPrivacyContentAr</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Privacy Policy Content (English - HTML supported)</label>
-                    <textarea name="legalPrivacyContentEn" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalPrivacyContentEn</textarea>
-                </div>
-                
-                <hr class="border-white/20" />
-                
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى شروط الخدمة (عربي - HTML مدعوم)</label>
-                    <textarea name="legalTermsContentAr" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalTermsContentAr</textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Terms of Service Content (English - HTML supported)</label>
-                    <textarea name="legalTermsContentEn" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalTermsContentEn</textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Privacy Policy Content (English)</label>
+                    <textarea name="legalPrivacyContentEn" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalPrivacyContentEn</textarea>
                 </div>
                 
-                <hr class="border-white/20" />
+                <hr class="border-slate-200" />
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى الدعم الفني (عربي - HTML مدعوم)</label>
-                    <textarea name="legalSupportContentAr" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalSupportContentAr</textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى شروط الخدمة (عربي)</label>
+                    <textarea name="legalTermsContentAr" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalTermsContentAr</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Technical Support Content (English - HTML supported)</label>
-                    <textarea name="legalSupportContentEn" rows="4" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalSupportContentEn</textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Terms of Service Content (English)</label>
+                    <textarea name="legalTermsContentEn" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalTermsContentEn</textarea>
+                </div>
+                
+                <hr class="border-slate-200" />
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">محتوى الدعم الفني (عربي)</label>
+                    <textarea name="legalSupportContentAr" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalSupportContentAr</textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">Technical Support Content (English)</label>
+                    <textarea name="legalSupportContentEn" rows="5" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start font-mono text-xs leading-relaxed" required>@ViewBag.LegalSupportContentEn</textarea>
                 </div>
             </div>
 
