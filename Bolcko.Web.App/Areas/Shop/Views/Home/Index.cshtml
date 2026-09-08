@@ -1,5 +1,7 @@
 @{
     ViewData["Title"] = SharedLocalizer["Home"];
+    var categories = (ViewData["Categories"] ?? ViewBag.Categories) as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>();
+    var featuredProducts = (ViewData["FeaturedProducts"] ?? ViewBag.FeaturedProducts) as IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto> ?? Enumerable.Empty<Bolcko.Domain.Entities.Product.DTOs.ProductDto>();
 }
 
 <main class="bg-[#faf8ff] text-[#161b28] w-full overflow-hidden">
@@ -61,7 +63,7 @@
         </div>
         
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-5">
-            @foreach (var cat in (IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)ViewBag.Categories)
+            @foreach (var cat in categories)
             {
                 <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" 
                    class="group flex flex-col items-center text-center bg-white border border-slate-100 rounded-[24px] p-4 sm:p-6 shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
@@ -100,7 +102,7 @@
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                @foreach (var product in (IEnumerable<Bolcko.Domain.Entities.Product.DTOs.ProductDto>)ViewBag.FeaturedProducts)
+                @foreach (var product in featuredProducts)
                 {
                     <partial name="Partials/_ProductCard" model="product" />
                 }

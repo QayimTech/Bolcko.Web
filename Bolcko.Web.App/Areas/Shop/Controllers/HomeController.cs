@@ -89,8 +89,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 }
             }
             
-            ViewBag.FeaturedProducts = translatedProducts;
-            ViewBag.Categories = translatedCategories;
+            var safeProducts = translatedProducts ?? Enumerable.Empty<Bolcko.Domain.Entities.Product.DTOs.ProductDto>();
+            var safeCategories = translatedCategories ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>();
+
+            ViewData["FeaturedProducts"] = safeProducts;
+            ViewData["Categories"] = safeCategories;
+            ViewBag.FeaturedProducts = safeProducts;
+            ViewBag.Categories = safeCategories;
             
             return View();
         }
