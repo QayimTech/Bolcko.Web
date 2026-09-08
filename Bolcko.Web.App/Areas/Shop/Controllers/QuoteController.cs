@@ -33,8 +33,28 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [ActionName("Request")]
         public async Task<IActionResult> RequestGet([FromQuery] QuoteRequestDto? dto)
         {
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) });
+            }
+
             // Clear model state to prevent validation messages on initial load
             ModelState.Clear();
+
+            dto ??= new QuoteRequestDto();
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                if (string.IsNullOrWhiteSpace(dto.FullName))
+                    dto.FullName = $"{user.FirstName} {user.LastName}".Trim();
+                if (string.IsNullOrWhiteSpace(dto.Email))
+                    dto.Email = user.Email ?? "";
+                if (string.IsNullOrWhiteSpace(dto.Phone))
+                    dto.Phone = user.PhoneNumber ?? "";
+                if (string.IsNullOrWhiteSpace(dto.CompanyName) && !string.IsNullOrWhiteSpace(user.CompanyName))
+                    dto.CompanyName = user.CompanyName;
+            }
 
             var categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
             var targetCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
@@ -45,7 +65,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 name = c.Name
             }));
 
-            return View("Request", dto ?? new QuoteRequestDto());
+            return View("Request", dto);
         }
 
         [HttpGet]
@@ -63,6 +83,21 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Request(QuoteRequestDto dto)
         {
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "يرجى تسجيل الدخول أولاً للمتابعة.", redirectUrl = Url.Action("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) }) });
+                }
+                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) });
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Shop" });
+            }
+
             if (!ModelState.IsValid)
             {
                 if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -70,11 +105,19 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                     return Json(new { success = false, message = "يرجى التحقق من المدخلات.", errors });
                 }
+
+                var categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
+                var targetCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+                var translatedCategories = await categories.TranslateAsync(_translationService, targetCulture);
+                ViewBag.CategoriesJson = System.Text.Json.JsonSerializer.Serialize(translatedCategories.Select(c => new {
+                    id = c.Id,
+                    name = c.Name
+                }));
+
                 return View(dto);
             }
 
-            int? userId = User.Identity.IsAuthenticated ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "") : null;
-            var result = await _tenderService.CreateQuoteRequestAsync(dto, userId);
+            var result = await _tenderService.CreateQuoteRequestAsync(dto, user.Id);
 
             if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {

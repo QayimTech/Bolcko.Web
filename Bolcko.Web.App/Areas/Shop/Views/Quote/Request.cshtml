@@ -298,27 +298,23 @@
                 <div class="q-grid-2">
                     <div>
                         <label class="q-label">@(isAr ? "اسم المشروع" : "Project Name")</label>
-                        <input asp-for="ProjectName" class="q-input" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني الرياض" : "e.g. Riyadh Complex")" />
+                        <input asp-for="ProjectName" class="q-input" type="text" placeholder="@(isAr ? "مثلاً: مجمع سكني في عمان - دابوق" : "e.g. Residential Villa in Amman")" />
                     </div>
                     <div>
-                        <label class="q-label">@(isAr ? "موقع المشروع (المدينة)" : "City") <span class="q-req">*</span></label>
+                        <label class="q-label">@(isAr ? "موقع المشروع (المدينة / المحافظة)" : "City / Governorate") <span class="q-req">*</span></label>
                         <select asp-for="City" class="q-input">
-                            <option value="الرياض">@(isAr ? "الرياض" : "Riyadh")</option>
-                            <option value="جدة">@(isAr ? "جدة" : "Jeddah")</option>
-                            <option value="مكة المكرمة">@(isAr ? "مكة المكرمة" : "Makkah")</option>
-                            <option value="المدينة المنورة">@(isAr ? "المدينة المنورة" : "Madinah")</option>
-                            <option value="الدمام">@(isAr ? "الدمام" : "Dammam")</option>
-                            <option value="الخبر">@(isAr ? "الخبر" : "Khobar")</option>
-                            <option value="الأحساء">@(isAr ? "الأحساء" : "Al Ahsa")</option>
-                            <option value="القصيم">@(isAr ? "القصيم" : "Qassim")</option>
-                            <option value="حائل">@(isAr ? "حائل" : "Hail")</option>
-                            <option value="نجران">@(isAr ? "نجران" : "Najran")</option>
-                            <option value="جازان">@(isAr ? "جازان" : "Jazan")</option>
-                            <option value="عسير">@(isAr ? "عسير" : "Asir")</option>
-                            <option value="الباحة">@(isAr ? "الباحة" : "Al Baha")</option>
-                            <option value="تبوك">@(isAr ? "تبوك" : "Tabuk")</option>
-                            <option value="الجوف">@(isAr ? "الجوف" : "Al Jouf")</option>
-                            <option value="الحد الشمالية">@(isAr ? "الحد الشمالية" : "Northern Borders")</option>
+                            <option value="عمان">@(isAr ? "عمان" : "Amman")</option>
+                            <option value="الزرقاء">@(isAr ? "الزرقاء" : "Zarqa")</option>
+                            <option value="إربد">@(isAr ? "إربد" : "Irbid")</option>
+                            <option value="العقبة">@(isAr ? "العقبة" : "Aqaba")</option>
+                            <option value="البلقاء">@(isAr ? "البلقاء - السلط" : "Al-Balqa / Salt")</option>
+                            <option value="مادبا">@(isAr ? "مادبا" : "Madaba")</option>
+                            <option value="المفرق">@(isAr ? "المفرق" : "Mafraq")</option>
+                            <option value="جرش">@(isAr ? "جرش" : "Jerash")</option>
+                            <option value="عجلون">@(isAr ? "عجلون" : "Ajloun")</option>
+                            <option value="الكرك">@(isAr ? "الكرك" : "Karak")</option>
+                            <option value="الطفيلة">@(isAr ? "الطفيلة" : "Tafilah")</option>
+                            <option value="معان">@(isAr ? "معان" : "Ma'an")</option>
                         </select>
                         <span asp-validation-for="City" style="color: #ef4444; font-size: 11px; display: block; margin-top: 4px;"></span>
                     </div>
@@ -597,7 +593,7 @@
                 '<div style="margin-bottom:12px;padding-inline-end:32px;">' +
                     '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(232,160,32,0.1);color:#d18f1c;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:6px;border:1px solid rgba(232,160,32,0.2);">' + (IS_AR?'مادة مخصصة':'Custom') + '</span>' +
                     '<label class="q-label">' + (IS_AR?'اسم المادة ومواصفاتها':'Material Name & Specs') + ' <span class="q-req">*</span></label>' +
-                    '<input type="text" name="Products[' + idx + '].ProductName" class="q-input q-name" placeholder="' + (IS_AR?'مثال: حديد تسليح سابك 14 ملم...':'e.g. 14mm Rebar...') + '" value="' + esc(name) + '" required />' +
+                    '<input type="text" name="Products[' + idx + '].ProductName" class="q-input q-name" placeholder="' + (IS_AR?'مثال: حديد تسليح أردني 14 ملم...':'e.g. 14mm Rebar Grade 60...') + '" value="' + esc(name) + '" required />' +
                     '<span class="q-err-msg" style="display:none;color:#ef4444;font-size:11px;margin-top:2px;">' + (IS_AR?'يرجى كتابة اسم المادة':'Material name required') + '</span>' +
                 '</div>' +
                 '<div class="q-grid-2">' +
