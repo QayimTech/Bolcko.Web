@@ -29,7 +29,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
-                return RedirectToAction("Index", "Category", new { area = "Shop" });
+                return RedirectToAction("Profile", "Account", new { area = "Shop" });
             }
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -85,7 +85,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Category", new { area = "Shop" });
+                return RedirectToAction("Profile", "Account", new { area = "Shop" });
             }
             return View();
         }
