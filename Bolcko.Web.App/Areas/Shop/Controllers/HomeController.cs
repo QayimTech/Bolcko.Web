@@ -193,7 +193,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Contact(string name, string email, string message, [FromServices] Blocko.Services.Interfaces.User.IEmailSender emailSender, [FromServices] Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+        public async Task<IActionResult> Contact(
+            string name,
+            string email,
+            string message,
+            [FromServices] Blocko.Services.Interfaces.User.IEmailSender emailSender,
+            [FromServices] Blocko.Services.Interfaces.Notifications.INotificationService notificationService,
+            [FromServices] Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
         {
             var culture = CultureInfo.CurrentCulture.Name;
             var isAr = culture.StartsWith("ar");
@@ -224,25 +230,99 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             try
             {
                 var targetRecipient = contactEmailSetting?.Value ?? "info@bolcko.com";
-                var subject = $"[BLOCKO Contact] New message from {name}";
-                var body = $@"
-                    <div style='font-family: Arial, sans-serif; direction: {(isAr ? "rtl" : "ltr")}; padding: 20px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;'>
-                        <h2 style='color: #101827; border-bottom: 2px solid #d99a18; padding-bottom: 10px;'>New Contact Form Submission</h2>
-                        <p><strong>Name:</strong> {System.Net.WebUtility.HtmlEncode(name)}</p>
-                        <p><strong>Email:</strong> {System.Net.WebUtility.HtmlEncode(email)}</p>
-                        <p><strong>Date:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
-                        <div style='margin-top: 15px; padding: 15px; background: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;'>
-                            <h4 style='margin-top: 0; color: #374151;'>Message:</h4>
-                            <p style='white-space: pre-wrap; color: #1f2937;'>{System.Net.WebUtility.HtmlEncode(message)}</p>
+                var safeName = System.Net.WebUtility.HtmlEncode(name.Trim());
+                var safeEmail = System.Net.WebUtility.HtmlEncode(email.Trim());
+                var safeMessage = System.Net.WebUtility.HtmlEncode(message.Trim());
+
+                // 1. Send Admin Email Notification
+                var adminSubject = $"[BLOCKO Contact Form] New message from {safeName}";
+                var adminBody = $@"
+                    <div style='font-family: Arial, sans-serif; direction: {(isAr ? "rtl" : "ltr")}; padding: 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px; margin: 0 auto;'>
+                        <div style='border-bottom: 2px solid #d99a18; padding-bottom: 12px; margin-bottom: 20px;'>
+                            <h2 style='color: #0f172a; margin: 0;'>New Contact Inquiry</h2>
+                            <p style='color: #64748b; font-size: 13px; margin: 4px 0 0;'>Received via BLOCKO Website</p>
+                        </div>
+                        <p style='margin: 8px 0;'><strong>Name:</strong> {safeName}</p>
+                        <p style='margin: 8px 0;'><strong>Email:</strong> <a href='mailto:{safeEmail}' style='color: #2563eb;'>{safeEmail}</a></p>
+                        <p style='margin: 8px 0;'><strong>Received At (UTC):</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}</p>
+                        <div style='margin-top: 20px; padding: 16px; background: #ffffff; border-radius: 6px; border: 1px solid #cbd5e1;'>
+                            <h4 style='margin: 0 0 10px; color: #334155;'>Message:</h4>
+                            <p style='white-space: pre-wrap; color: #1e293b; line-height: 1.6; margin: 0;'>{safeMessage}</p>
                         </div>
                     </div>";
 
-                await emailSender.SendEmailAsync(targetRecipient, subject, body);
+                await emailSender.SendEmailAsync(targetRecipient, adminSubject, adminBody);
+
+                // 2. Send Customer Auto-Reply Confirmation Email
+                var customerSubject = isAr
+                    ? "تم استلام رسالتك بنجاح | منصة بلوكو BLOCKO"
+                    : "We have received your message | BLOCKO Jordan";
+
+                var customerBody = isAr
+                    ? $@"
+                    <div style='font-family: Cairo, Tahoma, Arial, sans-serif; direction: rtl; text-align: right; padding: 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px; margin: 0 auto;'>
+                        <div style='border-bottom: 2px solid #d99a18; padding-bottom: 12px; margin-bottom: 20px;'>
+                            <h2 style='color: #0f172a; margin: 0;'>مرحباً {safeName}،</h2>
+                            <p style='color: #64748b; font-size: 14px; margin: 6px 0 0;'>شكراً لتواصلك مع منصة بلوكو لتوريد مواد البناء.</p>
+                        </div>
+                        <p style='color: #334155; line-height: 1.8; font-size: 15px;'>
+                            تم استلام استفسارك بنجاح. يقوم فريق خدمة العملاء والدعم الفني بمراجعة طلبك وسيقوم بالتواصل معك في أقرب وقت ممكن.
+                        </p>
+                        <div style='margin: 20px 0; padding: 16px; background: #ffffff; border-radius: 6px; border-right: 4px solid #d99a18; border: 1px solid #cbd5e1;'>
+                            <h4 style='margin: 0 0 8px; color: #0f172a;'>ملخص رسالتك:</h4>
+                            <p style='color: #475569; font-size: 14px; white-space: pre-wrap; margin: 0;'>{safeMessage}</p>
+                        </div>
+                        <p style='color: #64748b; font-size: 13px; margin-top: 24px;'>
+                            إذا كانت لديك استفسارات عاجلة، يمكنك دائماً الاتصال بنا مباشرة على الهاتف: {ViewBag.ContactPhone}.
+                        </p>
+                        <p style='color: #0f172a; font-weight: bold; margin-top: 16px;'>مع تحيات فريق BLOCKO الأردن</p>
+                    </div>"
+                    : $@"
+                    <div style='font-family: Arial, sans-serif; direction: ltr; text-align: left; padding: 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; max-width: 600px; margin: 0 auto;'>
+                        <div style='border-bottom: 2px solid #d99a18; padding-bottom: 12px; margin-bottom: 20px;'>
+                            <h2 style='color: #0f172a; margin: 0;'>Hello {safeName},</h2>
+                            <p style='color: #64748b; font-size: 14px; margin: 6px 0 0;'>Thank you for reaching out to BLOCKO Construction Supplies.</p>
+                        </div>
+                        <p style='color: #334155; line-height: 1.8; font-size: 15px;'>
+                            We have received your message successfully. Our customer support and technical team will review your inquiry and get back to you shortly.
+                        </p>
+                        <div style='margin: 20px 0; padding: 16px; background: #ffffff; border-radius: 6px; border-left: 4px solid #d99a18; border: 1px solid #cbd5e1;'>
+                            <h4 style='margin: 0 0 8px; color: #0f172a;'>Summary of your message:</h4>
+                            <p style='color: #475569; font-size: 14px; white-space: pre-wrap; margin: 0;'>{safeMessage}</p>
+                        </div>
+                        <p style='color: #64748b; font-size: 13px; margin-top: 24px;'>
+                            For urgent inquiries, feel free to call us directly at: {ViewBag.ContactPhone}.
+                        </p>
+                        <p style='color: #0f172a; font-weight: bold; margin-top: 16px;'>Best regards,<br>BLOCKO Jordan Team</p>
+                    </div>";
+
+                try
+                {
+                    await emailSender.SendEmailAsync(email.Trim(), customerSubject, customerBody);
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogWarning(emailEx, "Failed to send customer auto-reply to {Email}", email);
+                }
+
+                // 3. Send Realtime In-App Notification to Admin Dashboard
+                try
+                {
+                    var notifTitle = isAr ? $"رسالة تواصل جديدة من {name.Trim()}" : $"New Contact Message from {name.Trim()}";
+                    var previewMsg = message.Trim().Length > 100 ? message.Trim().Substring(0, 97) + "..." : message.Trim();
+                    var notifBody = $"[{email.Trim()}]: {previewMsg}";
+                    await notificationService.SendNotificationToRoleAsync("Admin", notifTitle, notifBody, $"/Shop/Home/Contact");
+                }
+                catch (Exception notifEx)
+                {
+                    _logger.LogWarning(notifEx, "Failed to dispatch dashboard notification for contact message from {Email}", email);
+                }
+
                 ViewBag.SuccessMessage = localizer["MessageSentSuccess"].Value;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send contact email from {Email}", email);
+                _logger.LogError(ex, "Failed to process contact submission from {Email}", email);
                 ViewBag.Error = localizer["MessageSendError"].Value;
                 ViewBag.Name = name;
                 ViewBag.Email = email;

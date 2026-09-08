@@ -38,14 +38,14 @@
                 <span class="material-symbols-outlined text-primary text-3xl">phone</span>
                 <div>
                     <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Phone"]</h3>
-                    <p class="text-secondary" dir="ltr">@ViewBag.ContactPhone</p>
+                    <a href="tel:@ViewBag.ContactPhone" class="text-secondary hover:text-primary transition-colors font-medium" dir="ltr">@ViewBag.ContactPhone</a>
                 </div>
             </div>
             <div class="flex items-start gap-4">
                 <span class="material-symbols-outlined text-primary text-3xl">email</span>
                 <div>
                     <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Email"]</h3>
-                    <p class="text-secondary">@ViewBag.ContactEmail</p>
+                    <a href="mailto:@(ViewBag.ContactEmail)?subject=Inquiry%20via%20BLOCKO" class="text-secondary hover:text-primary transition-colors font-medium">@ViewBag.ContactEmail</a>
                 </div>
             </div>
         </div>
