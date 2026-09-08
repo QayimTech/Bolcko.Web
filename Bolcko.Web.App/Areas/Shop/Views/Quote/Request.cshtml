@@ -521,7 +521,45 @@
             serverItems.forEach(function (p) {
                 addItemRow({ name: p.ProductName, qty: p.Quantity, unit: p.Unit, isCatalog: !!p.ProductId, productId: p.ProductId });
             });
+            toggleEmpty();
             return;
+        }
+
+        // Restore draft from sessionStorage if exists
+        var draft = null;
+        try { draft = JSON.parse(sessionStorage.getItem('QuoteFormDraft')); } catch(e) {}
+        if (draft) {
+            var pn = document.querySelector('[name="ProjectName"]');
+            if (pn && !pn.value && draft.projectName) pn.value = draft.projectName;
+            
+            var cty = document.querySelector('[name="City"]');
+            if (cty && draft.city) cty.value = draft.city;
+
+            var nt = document.querySelector('[name="Notes"]');
+            if (nt && !nt.value && draft.notes) nt.value = draft.notes;
+
+            var cn = document.querySelector('[name="CompanyName"]');
+            if (cn && !cn.value && draft.companyName) cn.value = draft.companyName;
+
+            var fn = document.querySelector('[name="FullName"]');
+            if (fn && !fn.value && draft.fullName) fn.value = draft.fullName;
+
+            var em = document.querySelector('[name="Email"]');
+            if (em && !em.value && draft.email) em.value = draft.email;
+
+            var ph = document.querySelector('[name="Phone"]');
+            if (ph && !ph.value && draft.phone) ph.value = draft.phone;
+
+            var pt = document.querySelector('[name="ProjectType"]');
+            if (pt && draft.projectType) pt.value = draft.projectType;
+
+            if (draft.products && draft.products.length) {
+                draft.products.forEach(function (p) {
+                    addItemRow({ name: p.name, qty: p.qty, unit: p.unit, isCatalog: p.isCatalog, productId: p.productId, imageUrl: p.imageUrl || '', sku: p.sku || '' });
+                });
+                toggleEmpty();
+                return;
+            }
         }
 
         var cart = [];
@@ -748,6 +786,8 @@
             return;
         }
 
+        saveFormDraft();
+
         setLoading(true);
 
         var data = new FormData(form);
@@ -760,7 +800,14 @@
         .then(function (resp) {
             if (resp.success) {
                 sessionStorage.removeItem(TENDER_KEY);
+                sessionStorage.removeItem('QuoteFormDraft');
                 window.location.href = resp.redirectUrl;
+            } else if (resp.requireLogin || (resp.redirectUrl && resp.redirectUrl.indexOf('Login') !== -1)) {
+                saveFormDraft();
+                showToast(IS_AR ? 'يرجى تسجيل الدخول أو إنشاء حساب لإتمام الطلب، تم حفظ المواد المدخلة بنجاح.' : 'Please login or create an account to submit your quote. Your items have been saved.');
+                setTimeout(function () {
+                    window.location.href = resp.redirectUrl;
+                }, 800);
             } else {
                 setLoading(false);
                 showServerErrors(resp.errors || [resp.message]);
@@ -770,6 +817,41 @@
             setLoading(false);
             showServerErrors([IS_AR ? 'حدث خطأ في الاتصال. يرجى المحاولة مجدداً.' : 'Connection error. Please try again.']);
         });
+    }
+
+    function saveFormDraft() {
+        try {
+            var items = [];
+            var itemElements = document.querySelectorAll('.q-item');
+            itemElements.forEach(function (el) {
+                var nameInput = el.querySelector('input[name$=".ProductName"]');
+                var idInput = el.querySelector('input[name$=".ProductId"]');
+                var qtyInput = el.querySelector('input[name$=".Quantity"]');
+                var unitSelect = el.querySelector('select[name$=".Unit"]');
+                if (nameInput && nameInput.value) {
+                    items.push({
+                        name: nameInput.value,
+                        productId: idInput && idInput.value ? parseInt(idInput.value) : null,
+                        isCatalog: idInput && idInput.value ? true : false,
+                        qty: qtyInput ? parseInt(qtyInput.value) || 1 : 1,
+                        unit: unitSelect ? unitSelect.value : (IS_AR ? 'كيس' : 'Bag')
+                    });
+                }
+            });
+
+            var draft = {
+                projectType: document.querySelector('[name="ProjectType"]')?.value || '',
+                companyName: document.querySelector('[name="CompanyName"]')?.value || '',
+                fullName: document.querySelector('[name="FullName"]')?.value || '',
+                email: document.querySelector('[name="Email"]')?.value || '',
+                phone: document.querySelector('[name="Phone"]')?.value || '',
+                projectName: document.querySelector('[name="ProjectName"]')?.value || '',
+                city: document.querySelector('[name="City"]')?.value || '',
+                notes: document.querySelector('[name="Notes"]')?.value || '',
+                products: items
+            };
+            sessionStorage.setItem('QuoteFormDraft', JSON.stringify(draft));
+        } catch(e) {}
     }
 
     function setLoading(on) {

@@ -33,27 +33,25 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [ActionName("Request")]
         public async Task<IActionResult> RequestGet([FromQuery] QuoteRequestDto? dto)
         {
-            if (User.Identity?.IsAuthenticated != true)
-            {
-                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) });
-            }
-
             // Clear model state to prevent validation messages on initial load
             ModelState.Clear();
 
             dto ??= new QuoteRequestDto();
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user != null)
+            if (User.Identity?.IsAuthenticated == true)
             {
-                if (string.IsNullOrWhiteSpace(dto.FullName))
-                    dto.FullName = $"{user.FirstName} {user.LastName}".Trim();
-                if (string.IsNullOrWhiteSpace(dto.Email))
-                    dto.Email = user.Email ?? "";
-                if (string.IsNullOrWhiteSpace(dto.Phone))
-                    dto.Phone = user.PhoneNumber ?? "";
-                if (string.IsNullOrWhiteSpace(dto.CompanyName) && !string.IsNullOrWhiteSpace(user.CompanyName))
-                    dto.CompanyName = user.CompanyName;
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.FullName))
+                        dto.FullName = $"{user.FirstName} {user.LastName}".Trim();
+                    if (string.IsNullOrWhiteSpace(dto.Email))
+                        dto.Email = user.Email ?? "";
+                    if (string.IsNullOrWhiteSpace(dto.Phone))
+                        dto.Phone = user.PhoneNumber ?? "";
+                    if (string.IsNullOrWhiteSpace(dto.CompanyName) && !string.IsNullOrWhiteSpace(user.CompanyName))
+                        dto.CompanyName = user.CompanyName;
+                }
             }
 
             var categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
@@ -85,11 +83,17 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (User.Identity?.IsAuthenticated != true)
             {
+                var loginUrl = Url.Action("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) }) ?? "/Shop/Account/Login?returnUrl=/Shop/Quote/Request";
                 if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new { success = false, message = "يرجى تسجيل الدخول أولاً للمتابعة.", redirectUrl = Url.Action("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) }) });
+                    return Json(new { 
+                        success = false, 
+                        requireLogin = true, 
+                        message = "يرجى تسجيل الدخول أو إنشاء حساب لإتمام إرسال طلب عرض السعر ومتابعته.", 
+                        redirectUrl = loginUrl 
+                    });
                 }
-                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action("Request", "Quote", new { area = "Shop" }) });
+                return Redirect(loginUrl);
             }
 
             var user = await _userManager.GetUserAsync(User);
