@@ -10,6 +10,21 @@
         <p class="font-body-lg text-secondary">@SharedLocalizer["ContactDesc"]</p>
     </header>
 
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="mb-8 p-4 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded flex items-center gap-3 shadow-sm">
+            <span class="material-symbols-outlined text-emerald-600 text-2xl">check_circle</span>
+            <span class="font-medium text-sm md:text-base">@ViewBag.SuccessMessage</span>
+        </div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="mb-8 p-4 bg-red-50 border border-red-300 text-red-800 rounded flex items-center gap-3 shadow-sm">
+            <span class="material-symbols-outlined text-red-600 text-2xl">error</span>
+            <span class="font-medium text-sm md:text-base">@ViewBag.Error</span>
+        </div>
+    }
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div class="space-y-8">
             <div class="flex items-start gap-4">
@@ -23,7 +38,7 @@
                 <span class="material-symbols-outlined text-primary text-3xl">phone</span>
                 <div>
                     <h3 class="font-bold text-lg mb-2">@SharedLocalizer["Phone"]</h3>
-                    <p class="text-secondary">@ViewBag.ContactPhone</p>
+                    <p class="text-secondary" dir="ltr">@ViewBag.ContactPhone</p>
                 </div>
             </div>
             <div class="flex items-start gap-4">
@@ -36,21 +51,23 @@
         </div>
 
         <div class="bg-white border border-outline-variant p-8 shadow-hard">
-            <form class="space-y-6">
+            <form asp-area="Shop" asp-controller="Home" asp-action="Contact" method="post" class="space-y-6">
+                @Html.AntiForgeryToken()
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Name"]</label>
-                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="text" placeholder="@SharedLocalizer["YourNamePlaceholder"]" />
+                    <input name="name" value="@ViewBag.Name" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="text" placeholder="@SharedLocalizer["YourNamePlaceholder"]" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Email"]</label>
-                    <input class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="email" placeholder="example@domain.com" />
+                    <input name="email" value="@ViewBag.Email" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start" type="email" placeholder="example@domain.com" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">@SharedLocalizer["Message"]</label>
-                    <textarea class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-32" placeholder="@SharedLocalizer["WriteMessagePlaceholder"]"></textarea>
+                    <textarea name="message" required class="w-full bg-surface-container-low border border-outline p-3 focus:ring-0 focus:border-primary text-start h-32" placeholder="@SharedLocalizer["WriteMessagePlaceholder"]">@ViewBag.Message</textarea>
                 </div>
-                <button type="button" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all">
-                    @SharedLocalizer["SendMessage"]
+                <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-hard hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-xl">send</span>
+                    <span>@SharedLocalizer["SendMessage"]</span>
                 </button>
             </form>
         </div>

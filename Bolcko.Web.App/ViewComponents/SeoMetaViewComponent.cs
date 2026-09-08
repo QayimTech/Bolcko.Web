@@ -62,6 +62,55 @@ namespace Bolcko.Web.App.ViewComponents
                 seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
             }
 
+            // In English mode, ensure SEO title and meta aren't returned in Arabic
+            if (!isArabic && seo != null)
+            {
+                bool hasArabic = (seo.PageTitle?.Any(c => c >= 0x0600 && c <= 0x06FF) ?? false);
+                if (hasArabic)
+                {
+                    var lowerPath = path.ToLowerInvariant();
+                    if (lowerPath.Contains("/contact") || string.Equals(seo.PageName, "Contact", StringComparison.OrdinalIgnoreCase))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "Contact Us | BLOCKO Construction Supplies Jordan";
+                        seo.MetaDescription = "Get in touch with BLOCKO for wholesale building materials, RFQs, and project supply in Jordan.";
+                        seo.MetaKeywords = "contact blocko, building materials amman jordan, wholesale construction supply";
+                    }
+                    else if (lowerPath.Contains("/about") || string.Equals(seo.PageName, "About", StringComparison.OrdinalIgnoreCase))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "About Us | BLOCKO Building Materials Jordan";
+                        seo.MetaDescription = "Learn more about BLOCKO, Jordan's leading digital platform for building materials and project supply.";
+                        seo.MetaKeywords = "about blocko, construction supplies jordan, building material supplier amman";
+                    }
+                    else if (lowerPath.Contains("/calculator") || string.Equals(seo.PageName, "calculator", StringComparison.OrdinalIgnoreCase))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "Construction Quantity Calculator | BLOCKO";
+                        seo.MetaDescription = "Calculate concrete, blocks, steel rebar, and mortar quantities accurately for your construction project in Jordan.";
+                        seo.MetaKeywords = "building calculator jordan, concrete calculator, rebar quantity calculator";
+                    }
+                    else if (lowerPath.Contains("/terms"))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "Terms of Service | BLOCKO";
+                        seo.MetaDescription = "Terms and conditions of BLOCKO construction materials supply platform.";
+                    }
+                    else if (lowerPath.Contains("/privacy"))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "Privacy Policy | BLOCKO";
+                        seo.MetaDescription = "Privacy policy and data protection terms of BLOCKO.";
+                    }
+                    else if (lowerPath.Contains("/support"))
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "Support & Help Center | BLOCKO";
+                        seo.MetaDescription = "Technical and consultative support for contractors and engineers in Jordan.";
+                    }
+                    else
+                    {
+                        seo.PageTitle = !string.IsNullOrEmpty(defaultTitle) ? defaultTitle : "BLOCKO - Construction Supplies & Building Materials Jordan";
+                        seo.MetaDescription = "Jordan's leading digital platform for building materials, construction supplies, and instant delivery.";
+                        seo.MetaKeywords = "building materials jordan, construction supplies amman, wholesale steel cement concrete";
+                    }
+                }
+            }
+
             ViewBag.DefaultTitle = defaultTitle ?? (isArabic ? "بلوكو لتوريد مواد البناء | BLOCKO" : "BLOCKO - Building Materials");
             return View(seo);
         }

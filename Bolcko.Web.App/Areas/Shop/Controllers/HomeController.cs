@@ -171,14 +171,83 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         public async Task<IActionResult> Contact()
         {
+            var culture = CultureInfo.CurrentCulture.Name;
+            var isAr = culture.StartsWith("ar");
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
             var email = await uow.AppSettings.GetByKeyAsync("ContactEmail");
             var phone = await uow.AppSettings.GetByKeyAsync("ContactPhone");
-            var address = await uow.AppSettings.GetByKeyAsync("ContactAddress");
+            var addressSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "ContactAddress" : "ContactAddressEn");
+            if (addressSetting == null || string.IsNullOrWhiteSpace(addressSetting.Value))
+            {
+                addressSetting = await uow.AppSettings.GetByKeyAsync("ContactAddress");
+            }
 
             ViewBag.ContactEmail = email?.Value ?? "info@bolcko.com";
             ViewBag.ContactPhone = phone?.Value ?? "+962 6 555 5555";
-            ViewBag.ContactAddress = address?.Value ?? "عمان، الأردن";
+            ViewBag.ContactAddress = isAr
+                ? (addressSetting?.Value ?? "عمان، الأردن")
+                : (!string.IsNullOrWhiteSpace(addressSetting?.Value) && !addressSetting.Value.Any(c => c >= 0x0600 && c <= 0x06FF) ? addressSetting.Value : "Amman, Jordan");
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Contact(string name, string email, string message, [FromServices] Blocko.Services.Interfaces.User.IEmailSender emailSender, [FromServices] Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+        {
+            var culture = CultureInfo.CurrentCulture.Name;
+            var isAr = culture.StartsWith("ar");
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var contactEmailSetting = await uow.AppSettings.GetByKeyAsync("ContactEmail");
+            var phoneSetting = await uow.AppSettings.GetByKeyAsync("ContactPhone");
+            var addressSetting = await uow.AppSettings.GetByKeyAsync(isAr ? "ContactAddress" : "ContactAddressEn");
+            if (addressSetting == null || string.IsNullOrWhiteSpace(addressSetting.Value))
+            {
+                addressSetting = await uow.AppSettings.GetByKeyAsync("ContactAddress");
+            }
+
+            ViewBag.ContactEmail = contactEmailSetting?.Value ?? "info@bolcko.com";
+            ViewBag.ContactPhone = phoneSetting?.Value ?? "+962 6 555 5555";
+            ViewBag.ContactAddress = isAr
+                ? (addressSetting?.Value ?? "عمان، الأردن")
+                : (!string.IsNullOrWhiteSpace(addressSetting?.Value) && !addressSetting.Value.Any(c => c >= 0x0600 && c <= 0x06FF) ? addressSetting.Value : "Amman, Jordan");
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(message) || !email.Contains("@"))
+            {
+                ViewBag.Error = localizer["RequiredFieldsError"].Value;
+                ViewBag.Name = name;
+                ViewBag.Email = email;
+                ViewBag.Message = message;
+                return View();
+            }
+
+            try
+            {
+                var targetRecipient = contactEmailSetting?.Value ?? "info@bolcko.com";
+                var subject = $"[BLOCKO Contact] New message from {name}";
+                var body = $@"
+                    <div style='font-family: Arial, sans-serif; direction: {(isAr ? "rtl" : "ltr")}; padding: 20px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;'>
+                        <h2 style='color: #101827; border-bottom: 2px solid #d99a18; padding-bottom: 10px;'>New Contact Form Submission</h2>
+                        <p><strong>Name:</strong> {System.Net.WebUtility.HtmlEncode(name)}</p>
+                        <p><strong>Email:</strong> {System.Net.WebUtility.HtmlEncode(email)}</p>
+                        <p><strong>Date:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
+                        <div style='margin-top: 15px; padding: 15px; background: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;'>
+                            <h4 style='margin-top: 0; color: #374151;'>Message:</h4>
+                            <p style='white-space: pre-wrap; color: #1f2937;'>{System.Net.WebUtility.HtmlEncode(message)}</p>
+                        </div>
+                    </div>";
+
+                await emailSender.SendEmailAsync(targetRecipient, subject, body);
+                ViewBag.SuccessMessage = localizer["MessageSentSuccess"].Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send contact email from {Email}", email);
+                ViewBag.Error = localizer["MessageSendError"].Value;
+                ViewBag.Name = name;
+                ViewBag.Email = email;
+                ViewBag.Message = message;
+            }
 
             return View();
         }
