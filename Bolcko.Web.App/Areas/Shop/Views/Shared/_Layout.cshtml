@@ -21,7 +21,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-    @await Component.InvokeAsync("SeoMeta", new { defaultTitle = "بلوكو لتوريد مواد البناء" })
+    @{
+        var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+        var defaultSiteTitle = isArabic ? "بلوكو لتوريد مواد البناء" : "BLOCKO - Construction Supplies";
+        var dynamicTitle = ViewData["Title"] != null ? $"{ViewData["Title"]} | BLOCKO" : defaultSiteTitle;
+    }
+    @await Component.InvokeAsync("SeoMeta", new { defaultTitle = dynamicTitle })
     
     <!-- Premium Orange Favicons Cache Busted v5 -->
     <link rel="apple-touch-icon" sizes="180x180" href="~/favicons/apple-touch-icon.png?v=5" />
