@@ -1,34 +1,120 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = SharedLocalizer["PrivacyPolicy"];
     var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = SharedLocalizer["PrivacyPolicy"];
+    var lastUpdatedText = isAr ? "آخر تحديث: 27 أغسطس 2026" : "Last Updated: August 27, 2026";
+
+    // Clean content if full document was pasted in settings
+    string rawContent = (ViewBag.Content as string) ?? "";
+    string bodyContent = rawContent;
+    if (!string.IsNullOrWhiteSpace(rawContent))
+    {
+        if (rawContent.Contains("<section class=\"content\">"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<section class=""content"">(.*?)</section>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<article class=\"legal-content\"") || rawContent.Contains("<article class=\"document\""))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<article[^>]*>(.*?)</article>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<body"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<body[^>]*>(.*?)</body>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+    }
 }
 
-<div class="max-w-4xl mx-auto px-6 py-20 text-start">
-    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
-    <div class="prose prose-slate max-w-none prose-h2:text-on-surface prose-h2:font-bold prose-h2:mt-8 prose-p:text-on-surface-variant leading-relaxed">
-        @if (ViewBag.Content != null && !string.IsNullOrWhiteSpace((string)ViewBag.Content))
-        {
-            @Html.Raw(ViewBag.Content)
-        }
-        else
-        {
-            @if (isAr)
+<main class="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-start">
+    <article class="bg-white border border-outline-variant rounded-2xl shadow-xl overflow-hidden">
+        <!-- Hero Header -->
+        <header class="bg-gradient-to-br from-[#101827] to-[#1b2638] text-white p-8 md:p-12 border-b-4 border-[#E8A020]">
+            <div class="text-xs font-extrabold tracking-widest text-[#E8A020] uppercase mb-2">BLOCKO · CONSTRUCTION SUPPLIES</div>
+            <h1 class="text-2xl md:text-4xl font-black mb-3 text-white">@ViewData["Title"]</h1>
+            <p class="text-slate-300 text-xs md:text-sm">@lastUpdatedText</p>
+        </header>
+
+        <!-- Document Content -->
+        <section class="p-8 md:p-14 prose prose-slate max-w-none text-slate-700 leading-loose text-start
+                        prose-headings:text-[#101827] prose-headings:font-bold
+                        prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-100 prose-h2:border-s-4 prose-h2:border-s-[#E8A020] prose-h2:ps-4
+                        prose-p:mb-5 prose-p:leading-relaxed
+                        prose-ul:my-4 prose-ul:ps-6 prose-li:my-1.5 prose-li:marker:text-[#E8A020]
+                        prose-strong:text-[#101827] prose-strong:font-bold
+                        prose-a:text-[#d99a18] hover:prose-a:underline font-semibold">
+            @if (!string.IsNullOrWhiteSpace(bodyContent) && bodyContent.Trim() != "نحن في BLOCKO نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية..." && bodyContent.Trim() != "We at BLOCKO value your privacy and commit to protecting your personal data...")
             {
-                <p>نحن في BLOCKO نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية...</p>
-                <h2>جمع المعلومات</h2>
-                <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو تقديم طلب تسعير.</p>
-                <h2>استخدام المعلومات</h2>
-                <p>تستخدم معلوماتك لتوفير خدماتنا، ومعالجة الطلبات، والتواصل معك بشأن مستجدات البناء والمقاولات.</p>
+                @Html.Raw(bodyContent)
             }
             else
             {
-                <p>At BLOCKO, we value your privacy and are committed to protecting your personal data...</p>
-                <h2>Information Collection</h2>
-                <p>We collect information you provide directly to us when creating an account or requesting a quote.</p>
-                <h2>Use of Information</h2>
-                <p>Your information is used to provide our services, process orders, and communicate with you regarding construction and supply updates.</p>
+                @if (isAr)
+                {
+                    <p>تحترم <strong>BLOCKO</strong> خصوصيتك وتلتزم بحماية معلوماتك الشخصية والتعامل معها بمسؤولية وشفافية. توضّح سياسة الخصوصية هذه كيفية جمع معلوماتك واستخدامها وحمايتها عند زيارة موقعنا الإلكتروني <strong>www.block-o.com</strong> أو إنشاء حساب أو تصفح المنتجات أو تقديم طلب أو طلب عرض سعر أو التواصل معنا.</p>
+                    <p>تشير عبارات <strong>«BLOCKO»</strong> أو <strong>«نحن»</strong> أو <strong>«لنا»</strong> في هذه السياسة إلى منصة BLOCKO الإلكترونية لتوريد مواد البناء في الأردن.</p>
+                    
+                    <h2>1. المعلومات التي نجمعها</h2>
+                    <p>قد نجمع المعلومات التي تقدمها لنا عند إنشاء حساب أو استخدام خدمات الموقع أو تقديم طلب أو طلب عرض سعر أو التواصل مع فريقنا. وقد تشمل هذه المعلومات اسمك، ورقم هاتفك، وعنوان بريدك الإلكتروني، واسم الشركة، وعنوان التوصيل أو الفوترة، وموقع المشروع، وتفاصيل المنتجات أو الكميات المطلوبة، وأي معلومات أخرى تختار إرسالها إلينا.</p>
+                    <p>قد نجمع أيضًا بعض المعلومات التقنية بصورة تلقائية عند استخدام الموقع، مثل عنوان بروتوكول الإنترنت، ونوع الجهاز، ونوع المتصفح، ونظام التشغيل، والصفحات التي تزورها، ووقت الزيارة، ومعلومات الأداء والأخطاء.</p>
+
+                    <h2>2. كيفية استخدام معلوماتك</h2>
+                    <p>نستخدم معلوماتك الشخصية بالقدر اللازم لتقديم خدمات BLOCKO وتشغيل المنصة، بما في ذلك إنشاء حسابك وإدارته، ومعالجة طلباتك، وإعداد عروض الأسعار، والتواصل معك بشأن المنتجات والطلبات والتوصيل، وتنسيق تسليم الطلبات إلى موقع المشروع، والرد على استفساراتك، وتقديم الدعم الفني، وتحسين خدماتنا وتجربة استخدام الموقع.</p>
+
+                    <h2>3. إنشاء الحساب وحمايته</h2>
+                    <p>يمكنك إنشاء حساب على منصة BLOCKO للاستفادة من الخدمات المتاحة. يجب أن تكون المعلومات التي تقدمها صحيحة ومحدّثة، وأن تحافظ على سرية بيانات الدخول الخاصة بك. أنت مسؤول عن الأنشطة التي تتم من خلال حسابك.</p>
+
+                    <h2>4. الطلبات وعروض الأسعار</h2>
+                    <p>نستخدم المعلومات المرتبطة بطلبك أو بطلب عرض السعر لفهم احتياجك، وتوفير المنتجات أو الكميات المطلوبة، والتواصل معك بشأن الأسعار والتوافر ومواعيد التسليم وأي تفاصيل أخرى ضرورية لتنفيذ طلبك.</p>
+
+                    <h2>5. الدفع الإلكتروني</h2>
+                    <p>عند توفر الدفع الإلكتروني على الموقع، تتم معالجة معلومات الدفع من خلال مزودي خدمات دفع متخصصين ومعتمدين وفق أعلى معايير الأمان المالي والتشفير.</p>
+
+                    <h2>6. التوصيل ومشاركة المعلومات</h2>
+                    <p>قد نشارك المعلومات الضرورية لتنفيذ طلبك، مثل اسم المستلم ورقم الهاتف وعنوان التوصيل أو موقع المشروع، مع الموردين أو شركات التوصيل المشاركة في تجهيز الطلب وتسليمه. ولا نبيع معلوماتك الشخصية أو نؤجرها لأي طرف ثالث.</p>
+
+                    <h2>7. ملفات تعريف الارتباط (Cookies)</h2>
+                    <p>قد يستخدم موقع BLOCKO ملفات تعريف الارتباط لتشغيل وظائف الموقع الأساسية، وحفظ تفضيلاتك، وتسهيل تسجيل الدخول، وتحسين الأداء.</p>
+
+                    <h2>8. التواصل معنا</h2>
+                    <p>إذا كان لديك سؤال أو طلب يتعلق بالخصوصية أو بمعلوماتك الشخصية، يمكنك التواصل معنا عبر:</p>
+                    <p><strong>الموقع الإلكتروني:</strong> <a href="https://www.block-o.com">www.block-o.com</a><br />
+                    <strong>البريد الإلكتروني:</strong> <a href="mailto:privacy@block-o.com">privacy@block-o.com</a></p>
+                }
+                else
+                {
+                    <p><strong>BLOCKO</strong> respects your privacy and is committed to protecting your personal data and handling it responsibly. This Privacy Policy explains how we collect, use, and protect your information when you visit our website <strong>www.block-o.com</strong>, create an account, browse products, place an order, request a quote, or contact us.</p>
+                    <p>References to <strong>"BLOCKO"</strong>, <strong>"we"</strong>, or <strong>"our"</strong> refer to the BLOCKO digital construction supplies platform in Jordan.</p>
+
+                    <h2>1. Information We Collect</h2>
+                    <p>We may collect information you provide directly when registering an account, submitting quote requests, placing orders, or contacting our team. This includes your name, phone number, email address, company name, delivery address, project location, and requested materials.</p>
+                    <p>We also automatically collect standard technical information such as IP address, browser type, device details, and usage metrics to optimize platform security and reliability.</p>
+
+                    <h2>2. How We Use Your Information</h2>
+                    <p>Your information is used to provide our core services, process orders, prepare competitive quotations, coordinate site delivery, answer technical questions, and enhance overall user experience.</p>
+
+                    <h2>3. Account Security</h2>
+                    <p>You are responsible for maintaining the confidentiality of your credentials. Please notify us immediately if you suspect any unauthorized access to your account.</p>
+
+                    <h2>4. Site Delivery & Logistical Sharing</h2>
+                    <p>We only share essential shipping details (recipient name, phone, project location) with authorized carriers and suppliers strictly to fulfill deliveries. We do not sell or rent your personal data.</p>
+
+                    <h2>5. Contact Us</h2>
+                    <p>If you have any questions regarding this Privacy Policy or your personal data, reach out to us at:</p>
+                    <p><strong>Website:</strong> <a href="https://www.block-o.com">www.block-o.com</a><br />
+                    <strong>Email:</strong> <a href="mailto:privacy@block-o.com">privacy@block-o.com</a></p>
+                }
             }
-        }
-    </div>
-</div>
+        </section>
+
+        <!-- Document Footer -->
+        <footer class="bg-slate-50 border-t border-slate-100 p-6 text-slate-400 text-xs text-center">
+            © @DateTime.Now.Year BLOCKO. @SharedLocalizer["AllRightsReserved"]
+        </footer>
+    </article>
+</main>
+
 

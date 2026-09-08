@@ -1,34 +1,130 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = SharedLocalizer["TermsOfService"];
     var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = SharedLocalizer["TermsOfService"];
+    var lastUpdatedText = isAr ? "آخر تحديث: 27 أغسطس 2026" : "Last Updated: August 27, 2026";
+
+    // Clean content if full document was pasted in settings
+    string rawContent = (ViewBag.Content as string) ?? "";
+    string bodyContent = rawContent;
+    if (!string.IsNullOrWhiteSpace(rawContent))
+    {
+        if (rawContent.Contains("<section class=\"content\">"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<section class=""content"">(.*?)</section>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<article class=\"legal-content\"") || rawContent.Contains("<article class=\"document\""))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<article[^>]*>(.*?)</article>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<body"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<body[^>]*>(.*?)</body>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+    }
 }
 
-<div class="max-w-4xl mx-auto px-6 py-20 text-start">
-    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
-    <div class="prose prose-slate max-w-none prose-h2:text-on-surface prose-h2:font-bold prose-h2:mt-8 prose-p:text-on-surface-variant leading-relaxed">
-        @if (ViewBag.Content != null && !string.IsNullOrWhiteSpace((string)ViewBag.Content))
-        {
-            @Html.Raw(ViewBag.Content)
-        }
-        else
-        {
-            @if (isAr)
+<main class="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-start">
+    <article class="bg-white border border-outline-variant rounded-2xl shadow-xl overflow-hidden">
+        <!-- Hero Header -->
+        <header class="bg-gradient-to-br from-[#101827] to-[#1b2638] text-white p-8 md:p-12 border-b-4 border-[#E8A020]">
+            <div class="text-xs font-extrabold tracking-widest text-[#E8A020] uppercase mb-2">BLOCKO · CONSTRUCTION SUPPLIES</div>
+            <h1 class="text-2xl md:text-4xl font-black mb-3 text-white">@ViewData["Title"]</h1>
+            <p class="text-slate-300 text-xs md:text-sm">@lastUpdatedText</p>
+        </header>
+
+        <!-- Document Content -->
+        <section class="p-8 md:p-14 prose prose-slate max-w-none text-slate-700 leading-loose text-start
+                        prose-headings:text-[#101827] prose-headings:font-bold
+                        prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-100 prose-h2:border-s-4 prose-h2:border-s-[#E8A020] prose-h2:ps-4
+                        prose-p:mb-5 prose-p:leading-relaxed
+                        prose-ul:my-4 prose-ul:ps-6 prose-li:my-1.5 prose-li:marker:text-[#E8A020]
+                        prose-strong:text-[#101827] prose-strong:font-bold
+                        prose-a:text-[#d99a18] hover:prose-a:underline font-semibold">
+            @if (!string.IsNullOrWhiteSpace(bodyContent) && bodyContent.Trim() != "باستخدامك لمنصة BLOCKO، فإنك توافق على الشروط والأحكام التالية..." && bodyContent.Trim() != "By using BLOCKO platform, you agree to the following terms and conditions...")
             {
-                <p>باستخدامك لمنصة BLOCKO، فإنك توافق على الشروط والأحكام التالية...</p>
-                <h2>الأسعار والدفع</h2>
-                <p>جميع الأسعار قابلة للتغيير بناءً على أسعار السوق للمواد الثقيلة. يجب تأكيد طلبيات الجملة من قبل فريق المبيعات.</p>
-                <h2>التوصيل</h2>
-                <p>يعتمد وقت التوصيل على نوع المواد والكميات. سيتم التنسيق معك قبل شحن الطلبات الثقيلة والمعدات.</p>
+                @Html.Raw(bodyContent)
             }
             else
             {
-                <p>By using the BLOCKO platform, you agree to the following terms and conditions...</p>
-                <h2>Pricing and Payment</h2>
-                <p>All prices are subject to change based on market rates for heavy materials. Wholesale orders must be confirmed by the sales team.</p>
-                <h2>Delivery</h2>
-                <p>Delivery time depends on material types and quantities. Coordination will take place prior to shipping heavy orders and equipment.</p>
+                @if (isAr)
+                {
+                    <p>مرحبًا بك في منصة <strong>BLOCKO</strong> الإلكترونية لتوريد مواد البناء في الأردن. تنظم شروط الخدمة هذه استخدامك لموقع <strong>www.block-o.com</strong> والخدمات والمنتجات والميزات المتاحة من خلاله.</p>
+                    <p>باستخدام الموقع أو إنشاء حساب أو تصفح المنتجات أو تقديم طلب أو طلب عرض سعر، فإنك تقر بأنك قرأت هذه الشروط وفهمتها ووافقت على الالتزام بها.</p>
+
+                    <h2>1. التعريفات</h2>
+                    <p>تشير عبارة <strong>«BLOCKO»</strong> أو <strong>«نحن»</strong> أو <strong>«لنا»</strong> إلى منصة BLOCKO الإلكترونية لتوريد مواد البناء في الأردن. ويشير مصطلح <strong>«المستخدم»</strong> أو <strong>«أنت»</strong> إلى كل شخص يزور الموقع أو ينشئ حسابًا أو يستخدم أيًا من خدماته.</p>
+
+                    <h2>2. الأهلية وإنشاء الحساب</h2>
+                    <p>يجب أن تكون مؤهلًا قانونيًا لاستخدام خدمات التوريد والشراء وإبرام المعاملات. عند إنشاء حساب، تلتزم بتقديم معلومات صحيحة وكاملة ومحدّثة، والمحافظة على سرية بيانات الدخول الخاصة بك.</p>
+
+                    <h2>3. المنتجات والمعلومات المعروضة</h2>
+                    <p>تسعى BLOCKO إلى عرض معلومات واضحة عن المنتجات، بما في ذلك الأسماء والصور والمواصفات والأسعار والتوافر. تخضع المنتجات للتوافر الفعلي، ولا يصبح الطلب نهائيًا إلا بعد تأكيده من BLOCKO أو المورد المعني.</p>
+
+                    <h2>4. الأسعار ومؤشرات السوق</h2>
+                    <p>تُعرض الأسعار بعملة الدينار الأردني. مؤشرات أسعار مواد البناء وحاسبة الكميات والتكاليف المتاحة على الموقع هي أدوات إرشادية تساعد في التخطيط الأولي، ويجب تأكيد السعر والتوافر وتكاليف التوصيل قبل اعتماد الميزانية النهائية.</p>
+
+                    <h2>5. الطلبات وعروض الأسعار</h2>
+                    <p>يمكنك تقديم طلب شراء أو طلب عرض سعر من خلال المنصة. إرسال طلب عرض السعر يخضع للتوافر والمواصفات والكمية ومكان التسليم والمدة المحددة فيه، ويصبح نافذًا عند تأكيده من الطرفين.</p>
+
+                    <h2>6. الدفع</h2>
+                    <p>تُعرض طرق الدفع المتاحة أثناء عملية الطلب أو يتم توضيحها عند إرسال عرض السعر. عند استخدام الدفع الإلكتروني، تتم معالجة العملية بأمان عبر مزود دفع مرخص.</p>
+
+                    <h2>7. التوصيل والاستلام</h2>
+                    <p>تعمل BLOCKO على تنسيق توصيل المنتجات إلى العنوان أو موقع المشروع المحدد. تعتمد مواعيد التوصيل على توافر المواد وموقع التسليم والظروف التشغيلية.</p>
+
+                    <h2>8. الفحص والإرجاع</h2>
+                    <p>يجب فحص المنتجات عند استلامها، وإبلاغ BLOCKO بأسرع وقت ممكن عن أي تلف ظاهر أو نقص أو اختلاف في المنتج عن الطلب وفق السياسات المتبعة.</p>
+
+                    <h2>9. القانون والاختصاص</h2>
+                    <p>تخضع هذه الشروط للقوانين والأنظمة المعمول بها في المملكة الأردنية الهاشمية.</p>
+
+                    <h2>10. التواصل معنا</h2>
+                    <p>إذا كان لديك سؤال حول شروط الخدمة أو الطلبات أو الحساب، يمكنك التواصل معنا عبر:</p>
+                    <p><strong>الموقع الإلكتروني:</strong> <a href="https://www.block-o.com">www.block-o.com</a><br />
+                    <strong>البريد الإلكتروني:</strong> <a href="mailto:privacy@block-o.com">privacy@block-o.com</a></p>
+                }
+                else
+                {
+                    <p>Welcome to the <strong>BLOCKO</strong> digital construction supplies platform in Jordan. These Terms of Service govern your use of <strong>www.block-o.com</strong> and all related services, products, and features.</p>
+                    <p>By using the platform, registering an account, browsing materials, placing an order, or requesting a quotation, you agree to comply with these terms.</p>
+
+                    <h2>1. Definitions</h2>
+                    <p><strong>"BLOCKO"</strong>, <strong>"we"</strong>, or <strong>"us"</strong> refers to the BLOCKO digital building materials platform in Jordan. <strong>"User"</strong> or <strong>"you"</strong> refers to any individual or business utilizing the platform.</p>
+
+                    <h2>2. Account Registration</h2>
+                    <p>Users must provide accurate, complete, and updated information upon registration and maintain strict confidentiality of their account credentials.</p>
+
+                    <h2>3. Products & Market Pricing</h2>
+                    <p>All prices are listed in Jordanian Dinars (JOD). Price indicators and quantity calculators are advisory tools for preliminary project estimates. Final pricing is confirmed upon official quotation or order review.</p>
+
+                    <h2>4. Quotations & Bulk Orders</h2>
+                    <p>Quote requests are subject to stock availability, volume requirements, and logistical delivery scheduling. Quotations become binding once agreed upon by both parties.</p>
+
+                    <h2>5. Delivery to Job Sites</h2>
+                    <p>We coordinate direct delivery to construction sites across Jordan. Accurate addresses and site access coordination are required from the client to ensure seamless offloading.</p>
+
+                    <h2>6. Governing Law</h2>
+                    <p>These terms and conditions are governed by and construed in accordance with the laws of the Hashemite Kingdom of Jordan.</p>
+
+                    <h2>7. Contact Us</h2>
+                    <p>For any inquiries regarding our Terms of Service, contact us at:</p>
+                    <p><strong>Website:</strong> <a href="https://www.block-o.com">www.block-o.com</a><br />
+                    <strong>Email:</strong> <a href="mailto:privacy@block-o.com">privacy@block-o.com</a></p>
+                }
             }
-        }
-    </div>
-</div>
+        </section>
+
+        <!-- Document Footer -->
+        <footer class="bg-slate-50 border-t border-slate-100 p-6 text-slate-400 text-xs text-center">
+            © @DateTime.Now.Year BLOCKO. @SharedLocalizer["AllRightsReserved"]
+        </footer>
+    </article>
+</main>
+
 

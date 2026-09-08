@@ -1,29 +1,128 @@
+@using Microsoft.Extensions.Localization
+@using Bolcko.Web.App
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = SharedLocalizer["TechnicalSupportTitle"];
     var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = SharedLocalizer["TechnicalSupportTitle"];
+    var lastUpdatedText = isAr ? "خدمة استشارية وهندسية متكاملة" : "Comprehensive Technical & Advisory Service";
+
+    // Clean content if full document was pasted in settings
+    string rawContent = (ViewBag.Content as string) ?? "";
+    string bodyContent = rawContent;
+    if (!string.IsNullOrWhiteSpace(rawContent))
+    {
+        if (rawContent.Contains("<section class=\"content\">"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<section class=""content"">(.*?)</section>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<article class=\"support-content\"") || rawContent.Contains("<article class=\"document\""))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<article[^>]*>(.*?)</article>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+        else if (rawContent.Contains("<body"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(rawContent, @"<body[^>]*>(.*?)</body>", System.Text.RegularExpressions.RegexOptions.Singleline);
+            if (match.Success) bodyContent = match.Groups[1].Value;
+        }
+    }
 }
 
-<div class="max-w-4xl mx-auto px-6 py-20 text-start">
-    <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
-    <div class="prose prose-slate max-w-none prose-p:text-on-surface-variant leading-relaxed py-6 text-start">
-        @if (ViewBag.Content != null && !string.IsNullOrWhiteSpace((string)ViewBag.Content))
-        {
-            <div class="text-start">
-                @Html.Raw(ViewBag.Content)
-            </div>
-        }
-        else
-        {
-            <div class="text-center py-8">
-                <span class="material-symbols-outlined text-6xl text-primary mb-4 block">support_agent</span>
-                <h2 class="text-2xl font-bold text-on-surface mb-4">@SharedLocalizer["HereToHelp"]</h2>
-                <p class="max-w-xl mx-auto">@SharedLocalizer["SupportHelpDesc"]</p>
-                <div class="mt-8 flex justify-center gap-4">
-                    <a href="mailto:support@blocko.com" class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-md hover:opacity-90 transition-opacity">@SharedLocalizer["ContactViaEmail"]</a>
-                    <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-outline-variant px-6 py-3 rounded-xl font-bold hover:bg-surface-container transition-colors">@SharedLocalizer["ContactForm"]</a>
-                </div>
-            </div>
-        }
-    </div>
-</div>
+<main class="py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-start">
+    <article class="bg-white border border-outline-variant rounded-2xl shadow-xl overflow-hidden">
+        <!-- Hero Header -->
+        <header class="bg-gradient-to-br from-[#101827] to-[#1b2638] text-white p-8 md:p-12 border-b-4 border-[#E8A020]">
+            <div class="text-xs font-extrabold tracking-widest text-[#E8A020] uppercase mb-2">BLOCKO · CONSTRUCTION SUPPLIES</div>
+            <h1 class="text-2xl md:text-4xl font-black mb-3 text-white">@ViewData["Title"]</h1>
+            <p class="text-slate-300 text-xs md:text-sm">@lastUpdatedText</p>
+        </header>
+
+        <!-- Document Content -->
+        <section class="p-8 md:p-14 prose prose-slate max-w-none text-slate-700 leading-loose text-start
+                        prose-headings:text-[#101827] prose-headings:font-bold
+                        prose-h2:text-xl md:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-100 prose-h2:border-s-4 prose-h2:border-s-[#E8A020] prose-h2:ps-4
+                        prose-h3:text-lg md:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-[#101827]
+                        prose-p:mb-5 prose-p:leading-relaxed
+                        prose-ul:my-4 prose-ul:ps-6 prose-li:my-1.5 prose-li:marker:text-[#E8A020]
+                        prose-strong:text-[#101827] prose-strong:font-bold
+                        prose-a:text-[#d99a18] hover:prose-a:underline font-semibold">
+            @if (!string.IsNullOrWhiteSpace(bodyContent) && bodyContent.Trim() != "فريق الدعم الفني لدينا متاح للإجابة على جميع استفساراتك المتعلقة بالموقع..." && bodyContent.Trim() != "Our technical support team is available to answer all your inquiries regarding the site...")
+            {
+                @Html.Raw(bodyContent)
+            }
+            else
+            {
+                @if (isAr)
+                {
+                    <h2 class="text-xl md:text-2xl font-bold text-[#101827]">خبرة ومساعدة تساعد مشروعك على التقدّم</h2>
+                    <p>في <strong>BLOCKO</strong>، لا نكتفي بتوفير مواد البناء. نساعدك على فهم احتياجات مشروعك، اختيار المنتجات المناسبة، تقدير الكميات، وتنظيم طلبات التوريد بطريقة أوضح وأكثر كفاءة.</p>
+                    <p>سواء كنت تبدأ مشروعًا جديدًا، أو تعمل على مرحلة قائمة، أو تدير أكثر من موقع، فإن فريقنا جاهز لتقديم دعم عملي يناسب طبيعة عملك ويساعدك على اتخاذ قرارات أفضل في كل مرحلة.</p>
+                    
+                    <h2>كيف يمكننا مساعدتك؟</h2>
+                    <ul>
+                        <li>اختيار المواد والمنتجات المناسبة لمتطلبات مشروعك.</li>
+                        <li>تقدير الكميات الأولية ومراجعة احتياجات التوريد.</li>
+                        <li>إعداد طلبات عروض الأسعار للكميات والمشاريع المختلفة.</li>
+                        <li>مقارنة الخيارات والمواصفات للوصول إلى الحل الأنسب.</li>
+                        <li>تنسيق التوريد والتوصيل المباشر إلى موقع المشروع.</li>
+                        <li>دعم المقاولين والشركات في طلبات الكميات الكبيرة والمشاريع متعددة المواقع.</li>
+                    </ul>
+
+                    <div class="mt-8 p-6 bg-[#fff9eb] border-s-4 border-[#E8A020] rounded-r-lg">
+                        <p class="font-bold text-[#5b4a27] mb-2">هل لديك سؤال أو تحتاج إلى مساعدة؟</p>
+                        <p class="text-sm text-[#786134] mb-4">تواصل مع فريق مهندسي ومستشاري BLOCKO وسنكون سعداء بمساعدتك ومراجعة جدول الكميات لمشروعك.</p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="mailto:support@block-o.com" class="bg-[#101827] text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">mail</span>
+                                <span>تواصل عبر البريد: support@block-o.com</span>
+                            </a>
+                            <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-slate-300 bg-white text-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">chat</span>
+                                <span>نموذج الاتصال السريع</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h2 class="text-xl md:text-2xl font-bold text-[#101827]">Practical Guidance to Help Your Project Move Forward</h2>
+                    <p>At <strong>BLOCKO</strong>, we do more than provide construction materials. We help you understand your project requirements, select the right products, estimate quantities, and organize supply orders with higher clarity and efficiency.</p>
+                    <p>Whether you are starting a new build, active on a construction phase, or managing multiple job sites, our team is ready to deliver practical support tailored to your workflow.</p>
+
+                    <h2>How Can We Help You?</h2>
+                    <ul>
+                        <li>Selecting materials and specifications suited to your project engineering requirements.</li>
+                        <li>Estimating initial quantities and reviewing supply timelines.</li>
+                        <li>Preparing and managing quotations for bulk wholesale materials.</li>
+                        <li>Comparing brand options and laboratory-tested certified alternatives.</li>
+                        <li>Coordinating scheduled deliveries directly to job sites across Jordan.</li>
+                        <li>Dedicated account management for contractors and large engineering projects.</li>
+                    </ul>
+
+                    <div class="mt-8 p-6 bg-[#fff9eb] border-s-4 border-[#E8A020] rounded-r-lg">
+                        <p class="font-bold text-[#5b4a27] mb-2">Have a question or need engineering assistance?</p>
+                        <p class="text-sm text-[#786134] mb-4">Contact our technical advisory team to review your material schedule and project requirements.</p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="mailto:support@block-o.com" class="bg-[#101827] text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">mail</span>
+                                <span>Email Support: support@block-o.com</span>
+                            </a>
+                            <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-slate-300 bg-white text-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">chat</span>
+                                <span>Contact Form</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </section>
+
+        <!-- Document Footer -->
+        <footer class="bg-slate-50 border-t border-slate-100 p-6 text-slate-400 text-xs text-center">
+            © @DateTime.Now.Year BLOCKO. @SharedLocalizer["AllRightsReserved"]
+        </footer>
+    </article>
+</main>
+
 
