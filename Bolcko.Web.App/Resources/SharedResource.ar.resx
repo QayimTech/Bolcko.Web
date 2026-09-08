@@ -602,10 +602,10 @@
     <value>المنتجات الأكثر مبيعاً</value>
   </data>
   <data name="LiveUpdated" xml:space="preserve">
-    <value>مباشر ومحدث</value>
+    <value>مباشر ومُحدّث</value>
   </data>
   <data name="LocalMarketPrices" xml:space="preserve">
-    <value>أسعار مواد البناء بالسوق المحلي</value>
+    <value>أسعار المواد في السوق المحلي</value>
   </data>
   <data name="MarketPricesDesc" xml:space="preserve">
     <value>مؤشرات يومية تقريبية لأسعار المواد الإنشائية الأساسية في السوق المحلي الأردني لدعم تسعير مشاريعكم بدقة.</value>
@@ -988,7 +988,7 @@
   <data name="DeliveryDistributionCenter" xml:space="preserve"><value>مركز التوزيع</value></data>
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>تأكيد الحذف</value></data>
   <data name="ConfirmDeleteMessage" xml:space="preserve"><value>هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</value></data>
-  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>للتأكيد، اكتب &quot;حذف&quot; أو &quot;delete&quot; في الصندوق أدناه:</value></data>
+  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>للتأكيد، اكتب "حذف" أو "delete" في الصندوق أدناه:</value></data>
   <data name="ConfirmDeleteButton" xml:space="preserve"><value>تأكيد الحذف</value></data>
   <data name="CheckoutSubtitle" xml:space="preserve">
     <value>يرجى مراجعة وتأكيد بيانات التوصيل والدفع لإرسال طلبك مباشرة للمستودع</value>
@@ -1086,4 +1086,4 @@
   <data name="OptionalHint" xml:space="preserve">
     <value>(اختياري)</value>
   </data>
-</root>
+<data name="LiveAndUpdated" xml:space="preserve"><value>مباشر ومُحدّث</value></data><data name="LocalMarketMaterialPrices" xml:space="preserve"><value>أسعار المواد في السوق المحلي</value></data><data name="MarketPricesBannerTitle" xml:space="preserve"><value>مؤشرات أسعار مواد البناء الحية في الأردن</value></data><data name="MarketPricesBannerSub" xml:space="preserve"><value>مربوطة ببورصة الصلب العالمية ومصانع الإسمنت والخرسانة المحلية</value></data><data name="SmartConstructionCalculator" xml:space="preserve"><value>حاسبة تكلفة وكميات البناء الذكية</value></data><data name="UpdatingMarketPrices" xml:space="preserve"><value>جاري تحديث الأسعار اللحظية</value></data><data name="MarketPricesSyncDesc" xml:space="preserve"><value>يقوم النظام بمزامنة أسعار السوق والبورصة تلقائياً.</value></data><data name="OpenConstructionCalculator" xml:space="preserve"><value>فتح حاسبة البناء</value></data></root>

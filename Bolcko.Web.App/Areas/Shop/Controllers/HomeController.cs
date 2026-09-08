@@ -119,14 +119,26 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                             // If Arabic, keep MaterialName as stored in DB. Otherwise, if English, use English mappings if available or direct fallback.
                             if (!isAr)
                             {
-                                if (p.MaterialName.Contains("حديد")) p.MaterialName = "Steel / Rebar";
-                                else if (p.MaterialName.Contains("أسمنت")) p.MaterialName = "Cement";
-                                else if (p.MaterialName.Contains("حصمة")) p.MaterialName = "Gravel";
-                                else if (p.MaterialName.Contains("رمل")) p.MaterialName = "Sand";
-                                else if (p.MaterialName.Contains("طوب")) p.MaterialName = "Blocks / Bricks";
-                                else if (p.MaterialName.Contains("خرسانة")) p.MaterialName = "Ready-Mix Concrete";
-                                
-                                p.UnitOfMeasure = p.UnitOfMeasure == "طن" ? "Ton" : (p.UnitOfMeasure == "متر مكعب" ? "m³" : "Unit");
+                                var name = p.MaterialName ?? "";
+                                var cat = p.MaterialCategory ?? "";
+
+                                if (cat.Equals("Steel", StringComparison.OrdinalIgnoreCase) || name.Contains("حديد"))
+                                    p.MaterialName = "Steel / Rebar";
+                                else if (cat.Equals("Cement", StringComparison.OrdinalIgnoreCase) || name.Contains("سمنت") || name.Contains("اسمنت") || name.Contains("إسمنت") || name.Contains("أسمنت"))
+                                    p.MaterialName = "Portland Cement";
+                                else if (cat.Equals("Concrete", StringComparison.OrdinalIgnoreCase) || name.Contains("خرسانة") || name.Contains("باطون"))
+                                    p.MaterialName = "Ready-Mix Concrete";
+                                else if (name.Contains("طوب") || name.Contains("بلك") || name.Contains("بلوك"))
+                                    p.MaterialName = "Blocks / Bricks";
+                                else if (name.Contains("حصمة") || name.Contains("حصى") || name.Contains("زلط"))
+                                    p.MaterialName = "Gravel / Aggregate";
+                                else if (name.Contains("رمل"))
+                                    p.MaterialName = "Construction Sand";
+
+                                p.UnitOfMeasure = (p.UnitOfMeasure == "طن" || p.UnitOfMeasure?.ToLower() == "ton") ? "Ton" :
+                                                  (p.UnitOfMeasure == "متر مكعب" || p.UnitOfMeasure == "م3" || p.UnitOfMeasure == "م³") ? "m³" :
+                                                  (p.UnitOfMeasure == "طوبة" || p.UnitOfMeasure == "حبة" || p.UnitOfMeasure == "قطعة" || p.UnitOfMeasure == "وحدة") ? "Unit" :
+                                                  p.UnitOfMeasure;
                                 p.Currency = "JOD";
                             }
                         }

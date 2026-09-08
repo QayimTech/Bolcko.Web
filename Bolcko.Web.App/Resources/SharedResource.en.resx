@@ -599,7 +599,7 @@
     <value>Live &amp; Updated</value>
   </data>
   <data name="LocalMarketPrices" xml:space="preserve">
-    <value>Local Market Construction Material Prices</value>
+    <value>Local Market Material Prices</value>
   </data>
   <data name="MarketPricesDesc" xml:space="preserve">
     <value>Approximate daily indicators for basic construction material prices in the local Jordanian market to support accurate project pricing.</value>
@@ -984,7 +984,7 @@
   <data name="DeliveryDistributionCenter" xml:space="preserve"><value>Distribution Center</value></data>
   <data name="ConfirmDeleteTitle" xml:space="preserve"><value>Confirm Deletion</value></data>
   <data name="ConfirmDeleteMessage" xml:space="preserve"><value>Are you sure? This action cannot be undone.</value></data>
-  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>To confirm, type &quot;delete&quot; in the box below:</value></data>
+  <data name="ConfirmDeleteInputLabel" xml:space="preserve"><value>To confirm, type "delete" in the box below:</value></data>
   <data name="ConfirmDeleteButton" xml:space="preserve"><value>Confirm Delete</value></data>
   <data name="CheckoutSubtitle" xml:space="preserve">
     <value>Please review and confirm delivery and payment details to send your order directly to the warehouse</value>
@@ -1082,4 +1082,4 @@
   <data name="OptionalHint" xml:space="preserve">
     <value>(Optional)</value>
   </data>
-</root>
+<data name="LiveAndUpdated" xml:space="preserve"><value>Live &amp; Updated</value></data><data name="LocalMarketMaterialPrices" xml:space="preserve"><value>Local Market Material Prices</value></data><data name="MarketPricesBannerTitle" xml:space="preserve"><value>Live Construction Material Price Indicators in Jordan</value></data><data name="MarketPricesBannerSub" xml:space="preserve"><value>Linked to global steel markets and local cement and concrete factories</value></data><data name="SmartConstructionCalculator" xml:space="preserve"><value>Smart Construction Cost &amp; Quantity Calculator</value></data><data name="UpdatingMarketPrices" xml:space="preserve"><value>Updating Live Market Prices</value></data><data name="MarketPricesSyncDesc" xml:space="preserve"><value>The system automatically synchronizes market and commodity prices.</value></data><data name="OpenConstructionCalculator" xml:space="preserve"><value>Open Construction Calculator</value></data></root>
