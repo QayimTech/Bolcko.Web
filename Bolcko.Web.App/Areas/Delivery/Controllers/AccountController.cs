@@ -19,8 +19,18 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null && (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") || await _userManager.IsInRoleAsync(user, "DeliveryDriver")))
+                {
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        return Redirect(returnUrl);
+                    return RedirectToAction("Index", "Home", new { area = "Delivery" });
+                }
+            }
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
