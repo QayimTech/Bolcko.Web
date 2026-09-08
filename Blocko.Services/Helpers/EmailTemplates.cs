@@ -154,6 +154,10 @@ namespace Blocko.Services.Helpers
             <p style=""color: #9ca3af; margin: 5px 0 0 0; font-size: 12px;"">&copy; {DateTime.UtcNow.Year} BLOCKO. جميع الحقوق محفوظة.</p>
         </div>
 
+    </div>
+</div>";
+        }
+
         public static string GetContactAdminTemplate(string name, string email, string message, DateTime dateUtc, string phone = "")
         {
             return $@"
