@@ -1,11 +1,12 @@
 @{
-    ViewData["Title"] = "الدعم الفني";
+    ViewData["Title"] = SharedLocalizer["TechnicalSupportTitle"];
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
 
-<div class="max-w-4xl mx-auto px-6 py-20">
+<div class="max-w-4xl mx-auto px-6 py-20 text-start">
     <h1 class="font-headline-lg text-primary mb-8 border-b border-outline-variant pb-4">@ViewData["Title"]</h1>
-    <div class="prose prose-slate max-w-none prose-p:text-on-surface-variant leading-relaxed text-center py-12">
-        @if (ViewBag.Content != null)
+    <div class="prose prose-slate max-w-none prose-p:text-on-surface-variant leading-relaxed py-6 text-start">
+        @if (ViewBag.Content != null && !string.IsNullOrWhiteSpace((string)ViewBag.Content))
         {
             <div class="text-start">
                 @Html.Raw(ViewBag.Content)
@@ -13,13 +14,16 @@
         }
         else
         {
-            <span class="material-symbols-outlined text-6xl text-primary mb-4 block">support_agent</span>
-            <h2 class="text-2xl font-bold text-on-surface mb-4">نحن هنا لمساعدتك</h2>
-            <p>فريق الدعم الفني لدينا متاح للإجابة على جميع استفساراتك المتعلقة بالموقع أو طلبات الجملة والمشاريع الكبيرة.</p>
-            <div class="mt-8 flex justify-center gap-4">
-                <a href="mailto:support@blocko.com" class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-md hover:opacity-90 transition-opacity">تواصل عبر البريد</a>
-                <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-outline-variant px-6 py-3 rounded-xl font-bold hover:bg-surface-container transition-colors">نموذج الاتصال</a>
+            <div class="text-center py-8">
+                <span class="material-symbols-outlined text-6xl text-primary mb-4 block">support_agent</span>
+                <h2 class="text-2xl font-bold text-on-surface mb-4">@SharedLocalizer["HereToHelp"]</h2>
+                <p class="max-w-xl mx-auto">@SharedLocalizer["SupportHelpDesc"]</p>
+                <div class="mt-8 flex justify-center gap-4">
+                    <a href="mailto:support@blocko.com" class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold shadow-md hover:opacity-90 transition-opacity">@SharedLocalizer["ContactViaEmail"]</a>
+                    <a href="@Url.Action("Contact", "Home", new { area = "Shop" })" class="border border-outline-variant px-6 py-3 rounded-xl font-bold hover:bg-surface-container transition-colors">@SharedLocalizer["ContactForm"]</a>
+                </div>
             </div>
         }
     </div>
 </div>
+

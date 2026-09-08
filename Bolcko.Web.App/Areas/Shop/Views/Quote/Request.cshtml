@@ -1,7 +1,7 @@
 @model Bolcko.Domain.Entities.Tender.DTOs.QuoteRequestDto
 @{
-    ViewData["Title"] = "طلب عرض سعر";
-    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = SharedLocalizer["RequestQuoteTitle"];
 }
 
 <style>
