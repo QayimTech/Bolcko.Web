@@ -1,4 +1,4 @@
-﻿using Bolcko.Domain.Entities.Tender;
+using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.Product;
 using Bolcko.Domain.Entities.Delivery;
@@ -43,6 +43,11 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.Content.FAQItem> FAQs { get; }
         IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; }
         IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; }
+
+        // Dynamic Calculator & Multi-Tenant Marketplace
+        IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType> CalculatorStoneTypes { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; }
 
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();

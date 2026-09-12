@@ -1,4 +1,4 @@
-﻿using Bolcko.Domain.Entities.Catalog;
+using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Catalog.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,5 +15,7 @@ namespace Blocko.Services.Interfaces.Category
         Task UpdateMarketPriceAsync(MarketPrice marketPrice);
         Task SyncLiveGlobalMarketPricesAsync();
         Task<ConstructionEstimateResultDto> CalculateEstimateAsync(ConstructionEstimateRequestDto request);
+        Task<CalculatorConfigurationDto> GetCalculatorConfigurationAsync();
+        Task SaveCalculatorConfigurationAsync(CalculatorConfigurationDto config);
     }
 }

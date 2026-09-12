@@ -1,0 +1,428 @@
+@model Bolcko.Domain.Entities.Catalog.DTOs.CalculatorConfigurationDto
+@{
+    ViewData["Title"] = "إعدادات حاسبة البناء والإضافات";
+}
+
+<div class="space-y-6 text-right" dir="rtl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <span class="p-2.5 bg-amber-500/10 text-amber-600 rounded-xl">
+                    <span class="material-symbols-outlined text-2xl">calculate</span>
+                </span>
+                <h1 class="text-xl font-bold text-slate-900">إدارة معاملات حاسبة البناء والتشطيبات</h1>
+            </div>
+            <p class="text-xs text-slate-500">
+                التحكم بالمعاملات الهندسية، أجور المصنعية، أسعار بنود الحجر، وتفعيل/تعطيل إضافات التشطيبات (دهان، عوازل، كهروميكانيك) المباشرة للعملاء.
+            </p>
+        </div>
+        <a href="/calculator" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+            <span class="material-symbols-outlined text-sm">open_in_new</span>
+            <span>معاينة الحاسبة الحية</span>
+        </a>
+    </div>
+
+    <!-- Main Settings Form -->
+    <form asp-action="Update" method="post" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- 1. Skeleton & Workmanship Rates -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-600">engineering</span>
+                    <h3 class="font-bold text-slate-900 text-sm">معاملات ومصنعية الهيكل العظم (Skeleton Rates)</h3>
+                </div>
+                <span class="text-[11px] text-slate-400 font-mono">بالدينار الأردني / م² مسطح</span>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">أجرة مصنعية البناء السكني (د.أ/م²)</label>
+                    <input asp-for="BaseResidentialLaborRate" type="number" step="0.5" min="10" max="200" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-bold focus:border-indigo-500 focus:bg-white outline-none" required />
+                    <span class="text-[10px] text-slate-400 mt-1 block">الأجرة الأساسية لمقاول العظم للمشاريع السكنية والفلل</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">أجرة مصنعية البناء التجاري (د.أ/م²)</label>
+                    <input asp-for="BaseCommercialLaborRate" type="number" step="0.5" min="10" max="200" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-bold focus:border-indigo-500 focus:bg-white outline-none" required />
+                    <span class="text-[10px] text-slate-400 mt-1 block">للمجمعات التجارية والمخازن ذات الارتفاعات العالية</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">إضافة مصنعية أعمدة 8 و 10 قضبان (د.أ/م²)</label>
+                    <input asp-for="EightBarLaborAddition" type="number" step="0.25" min="0" max="20" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-bold focus:border-indigo-500 focus:bg-white outline-none" required />
+                    <span class="text-[10px] text-slate-400 mt-1 block">بدل زيادة حدادة وتركيب كانات مكثفة للأعمدة الثقيلة</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Dynamic Stone Types Management -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600">foundation</span>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">أنواع حجر البناء والواجهات الديناميكية (Dynamic Stone Types)</h3>
+                        <p class="text-[11px] text-slate-500">تحكم كامل بإضافة أنواع حجر جديدة لأي دولة، وتحديد سعر المتر، ومعاملات الـ 3D التفاعلية</p>
+                    </div>
+                </div>
+                <button type="button" onclick="openAddStoneModal()" 
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    <span>إضافة نوع حجر جديد</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Stone Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-slate-100/75 text-slate-600 font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="p-3.5">#</th>
+                            <th class="p-3.5">الاسم بالعربية</th>
+                            <th class="p-3.5">الاسم بالإنجليزية</th>
+                            <th class="p-3.5">سعر المتر المربع</th>
+                            <th class="p-3.5">لون الـ 3D</th>
+                            <th class="p-3.5 text-center">الحالة</th>
+                            <th class="p-3.5 text-center">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stoneTypesTbody" class="divide-y divide-slate-100 font-medium">
+                        @if (Model.DynamicStoneTypes != null && Model.DynamicStoneTypes.Any())
+                        {
+                            for (int i = 0; i < Model.DynamicStoneTypes.Count; i++)
+                            {
+                                var st = Model.DynamicStoneTypes[i];
+                                <tr class="hover:bg-slate-50/80 transition-colors" id="stone-row-@i">
+                                    <td class="p-3.5 text-slate-400 font-mono">
+                                        @(i + 1)
+                                        <input type="hidden" name="DynamicStoneTypes[@i].Id" value="@st.Id" />
+                                        <input type="hidden" name="DynamicStoneTypes[@i].IsDefault" value="@(st.IsDefault ? "true" : "false")" />
+                                        <input type="hidden" name="DynamicStoneTypes[@i].Roughness" value="@st.Roughness" />
+                                        <input type="hidden" name="DynamicStoneTypes[@i].Metalness" value="@st.Metalness" />
+                                    </td>
+                                    <td class="p-3.5">
+                                        <input type="text" name="DynamicStoneTypes[@i].NameAr" value="@st.NameAr" 
+                                               class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-amber-500 outline-none" required />
+                                    </td>
+                                    <td class="p-3.5">
+                                        <input type="text" name="DynamicStoneTypes[@i].NameEn" value="@st.NameEn" 
+                                               class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 focus:bg-white focus:border-amber-500 outline-none" dir="ltr" />
+                                    </td>
+                                    <td class="p-3.5">
+                                        <div class="flex items-center gap-1.5" dir="ltr">
+                                            <input type="number" step="0.25" min="1" max="500" name="DynamicStoneTypes[@i].PricePerM2" value="@st.PricePerM2" 
+                                                   class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-mono font-bold text-amber-700 text-end focus:bg-white focus:border-amber-500 outline-none" required />
+                                            <span class="text-[11px] text-slate-400 font-bold">د.أ/م²</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3.5">
+                                        <div class="flex items-center gap-2">
+                                            <input type="color" name="DynamicStoneTypes[@i].ColorHex" value="@st.ColorHex" 
+                                                   class="w-7 h-7 rounded-lg border border-slate-300 cursor-pointer p-0.5" />
+                                            <span class="text-[11px] font-mono text-slate-500">@st.ColorHex</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3.5 text-center">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="DynamicStoneTypes[@i].IsActive" value="true" @(st.IsActive ? "checked" : "") class="sr-only peer">
+                                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                                        </label>
+                                    </td>
+                                    <td class="p-3.5 text-center">
+                                        <button type="button" onclick="removeStoneRow(@i)" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
+                                            <span class="material-symbols-outlined text-base">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Standard Facade Decor Rates (Cornice, Windows, Columns) -->
+            <div class="p-5 bg-slate-50/50 border-t border-slate-200">
+                <h4 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-slate-600">tune</span>
+                    <span>معاملات ومصنعيات الإضافات المعمارية الثابتة</span>
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">مصنعية تركيب الحجر والباطون الخلفي (د.أ/م²)</label>
+                        <input asp-for="StoneInstallationAndBackingRate" type="number" step="0.5" min="0" max="50" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500" required />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">إضافة نقشة طبزة جبلية (د.أ/م²)</label>
+                        <input asp-for="TabzehFinishExtraPrice" type="number" step="0.25" min="0" max="20" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500" required />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">إضافة نقشة مسمسم بالشوكة (د.أ/م²)</label>
+                        <input asp-for="MusamsamFinishExtraPrice" type="number" step="0.25" min="0" max="20" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Dynamic Finishing & Insulation Addons -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-600">format_paint</span>
+                    <h3 class="font-bold text-slate-900 text-sm">إضافات التشطيبات والعوازل (Finishing & Insulation Addons)</h3>
+                </div>
+                <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded font-bold border border-emerald-200">تحكم لحظي للمتجر</span>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Insulation -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-xs text-slate-900 flex items-center gap-2 cursor-pointer">
+                            <input asp-for="EnableInsulationAddon" type="checkbox" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                            <span>تفعيل بند العوازل المائية والحرارية (Waterproofing & Insulation)</span>
+                        </label>
+                        <span class="text-xs">🛡️</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-600 mb-1">سعر العزل التقديري (د.أ/م² مسطح):</label>
+                        <input asp-for="InsulationRatePerM2" type="number" step="0.25" min="0" max="50" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500" />
+                        <span class="text-[10px] text-slate-400 mt-1 block">رولات زفتية معتمدة للأسطح والقواعد مع فوم عزل حراري</span>
+                    </div>
+                </div>
+
+                <!-- Painting -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-xs text-slate-900 flex items-center gap-2 cursor-pointer">
+                            <input asp-for="EnablePaintingAddon" type="checkbox" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                            <span>تفعيل بند الدهانات والتشطيب الداخلي (Paints & Finishes)</span>
+                        </label>
+                        <span class="text-xs">🎨</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-600 mb-1">سعر الدهان التقديري (د.أ/م² مسطح):</label>
+                        <input asp-for="InteriorPaintRatePerM2" type="number" step="0.25" min="0" max="50" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500" />
+                        <span class="text-[10px] text-slate-400 mt-1 block">وجهين معجونة + أساس + وجهين دهان إملشن سوبر ديلوكس</span>
+                    </div>
+                </div>
+
+                <!-- Electro-Mechanical -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-xs text-slate-900 flex items-center gap-2 cursor-pointer">
+                            <input asp-for="EnableElectroMechanicalAddon" type="checkbox" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                            <span>تفعيل بند التأسيسات الكهروميكانيكية (MEP Rough-ins)</span>
+                        </label>
+                        <span class="text-xs">⚡</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-600 mb-1">سعر التأسيس التقديري (د.أ/م² مسطح):</label>
+                        <input asp-for="ElectroMechanicalRatePerM2" type="number" step="0.25" min="0" max="50" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500" />
+                        <span class="text-[10px] text-slate-400 mt-1 block">تمديدات السباكة ومواسير الكهرباء داخل الجدران والعقدات</span>
+                    </div>
+                </div>
+
+                <!-- Plastering -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-xs text-slate-900 flex items-center gap-2 cursor-pointer">
+                            <input asp-for="EnablePlasteringAddon" type="checkbox" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                            <span>تفعيل بند القصارة الإسمنتية (Plastering)</span>
+                        </label>
+                        <span class="text-xs">🧱</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-600 mb-1">سعر القصارة التقديري (د.أ/م² مسطح):</label>
+                        <input asp-for="PlasteringRatePerM2" type="number" step="0.25" min="0" max="50" 
+                               class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500" />
+                        <span class="text-[10px] text-slate-400 mt-1 block">قصارة داخلية خشنة وناعمة وفق المناسيب والأوتار</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Marketing & Inbound Conversion Info -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">campaign</span>
+                    <h3 class="font-bold text-slate-900 text-sm">بيانات التواصل والتحويل التسويقي (Conversion & Contacts)</h3>
+                </div>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم واتساب المبيعات والمشاريع (بالصيغة الدولية بدون +)</label>
+                    <input asp-for="SalesWhatsAppNumber" type="text" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono font-bold focus:border-blue-500 focus:bg-white outline-none" required />
+                    <span class="text-[10px] text-slate-400 mt-1 block">يتم فتح محادثة الواتساب مباشرة مع هذا الرقم عند مشاركة التقدير</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم هاتف الدعم والاستشارات الإنشائية</label>
+                    <input asp-for="SupportPhoneNumber" type="text" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono font-bold focus:border-blue-500 focus:bg-white outline-none" required />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">شارة الاعتماد التسويقية (بالعربية)</label>
+                    <input asp-for="MarketingBadgeTextAr" type="text" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-bold focus:border-blue-500 focus:bg-white outline-none" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="submit" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">save</span>
+                <span>حفظ التعديلات والمعاملات الحسابية ⚡</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Modal: Add New Dynamic Stone Type -->
+    <div id="addStoneModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden text-right">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600">add_circle</span>
+                    <span>إضافة صنف حجر جديد للمنصة</span>
+                </h3>
+                <button type="button" onclick="closeAddStoneModal()" class="text-slate-400 hover:text-slate-700">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الحجر (بالعربية)</label>
+                    <input type="text" id="modalStoneNameAr" placeholder="مثال: حجر الرياض أصفر نخب أول" 
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:bg-white" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الحجر (بالإنجليزية)</label>
+                    <input type="text" id="modalStoneNameEn" placeholder="e.g., Riyadh Yellow Stone" dir="ltr"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:bg-white" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">سعر المتر المربع</label>
+                        <input type="number" step="0.25" min="1" id="modalStonePrice" value="20.00" 
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-amber-700 outline-none focus:border-amber-500 focus:bg-white" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">لون الـ 3D التفاعلي</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="modalStoneColor" value="#e5d9c5" 
+                                   class="w-10 h-9 rounded-xl border border-slate-200 cursor-pointer p-0.5" />
+                            <span id="modalStoneColorText" class="text-xs font-mono text-slate-600">#e5d9c5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeAddStoneModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-all">إلغاء</button>
+                <button type="button" onclick="confirmAddStone()" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm">إضافة الحجر للجدول</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let stoneRowCount = @(Model.DynamicStoneTypes?.Count ?? 0);
+
+    function openAddStoneModal() {
+        document.getElementById('modalStoneNameAr').value = '';
+        document.getElementById('modalStoneNameEn').value = '';
+        document.getElementById('modalStonePrice').value = '20.00';
+        document.getElementById('modalStoneColor').value = '#e5d9c5';
+        document.getElementById('modalStoneColorText').innerText = '#e5d9c5';
+        document.getElementById('addStoneModal').classList.remove('hidden');
+    }
+
+    function closeAddStoneModal() {
+        document.getElementById('addStoneModal').classList.add('hidden');
+    }
+
+    document.getElementById('modalStoneColor')?.addEventListener('input', function(e) {
+        document.getElementById('modalStoneColorText').innerText = e.target.value;
+    });
+
+    function confirmAddStone() {
+        const nameAr = document.getElementById('modalStoneNameAr').value.trim();
+        const nameEn = document.getElementById('modalStoneNameEn').value.trim();
+        const price = parseFloat(document.getElementById('modalStonePrice').value) || 20.0;
+        const color = document.getElementById('modalStoneColor').value || '#e5d9c5';
+
+        if (!nameAr) {
+            alert('يرجى كتابة اسم نوع الحجر بالعربية');
+            return;
+        }
+
+        const idx = stoneRowCount++;
+        const id = 'custom_stone_' + Date.now();
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition-colors bg-amber-50/30';
+        tr.id = 'stone-row-' + idx;
+        tr.innerHTML = `
+            <td class="p-3.5 text-slate-400 font-mono">
+                ${idx + 1}
+                <input type="hidden" name="DynamicStoneTypes[${idx}].Id" value="${id}" />
+                <input type="hidden" name="DynamicStoneTypes[${idx}].IsDefault" value="false" />
+                <input type="hidden" name="DynamicStoneTypes[${idx}].Roughness" value="0.85" />
+                <input type="hidden" name="DynamicStoneTypes[${idx}].Metalness" value="0.05" />
+            </td>
+            <td class="p-3.5">
+                <input type="text" name="DynamicStoneTypes[${idx}].NameAr" value="${nameAr}" 
+                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-amber-500 outline-none" required />
+            </td>
+            <td class="p-3.5">
+                <input type="text" name="DynamicStoneTypes[${idx}].NameEn" value="${nameEn || nameAr}" 
+                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 focus:bg-white focus:border-amber-500 outline-none" dir="ltr" />
+            </td>
+            <td class="p-3.5">
+                <div class="flex items-center gap-1.5" dir="ltr">
+                    <input type="number" step="0.25" min="1" max="500" name="DynamicStoneTypes[${idx}].PricePerM2" value="${price.toFixed(2)}" 
+                           class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-mono font-bold text-amber-700 text-end focus:bg-white focus:border-amber-500 outline-none" required />
+                    <span class="text-[11px] text-slate-400 font-bold">د.أ/م²</span>
+                </div>
+            </td>
+            <td class="p-3.5">
+                <div class="flex items-center gap-2">
+                    <input type="color" name="DynamicStoneTypes[${idx}].ColorHex" value="${color}" 
+                           class="w-7 h-7 rounded-lg border border-slate-300 cursor-pointer p-0.5" />
+                    <span class="text-[11px] font-mono text-slate-500">${color}</span>
+                </div>
+            </td>
+            <td class="p-3.5 text-center">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="DynamicStoneTypes[${idx}].IsActive" value="true" checked class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+            </td>
+            <td class="p-3.5 text-center">
+                <button type="button" onclick="removeStoneRow(${idx})" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                </button>
+            </td>
+        `;
+
+        document.getElementById('stoneTypesTbody').appendChild(tr);
+        closeAddStoneModal();
+    }
+
+    function removeStoneRow(idx) {
+        const row = document.getElementById('stone-row-' + idx);
+        if (row && confirm('هل أنت متأكد من حذف هذا النوع من الحجر؟')) {
+            row.remove();
+        }
+    }
+</script>
+}

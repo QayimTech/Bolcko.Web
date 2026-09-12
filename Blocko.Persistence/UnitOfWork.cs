@@ -1,4 +1,4 @@
-﻿using Bolcko.Domain.Interfaces;
+using Bolcko.Domain.Interfaces;
 using Bolcko.Domain.Entities.Tender;
 using Bolcko.Domain.Entities.Delivery;
 using Bolcko.Domain.Entities.Order;
@@ -60,6 +60,11 @@ namespace Blocko.Persistence
             FAQs = new GenericRepository<Bolcko.Domain.Entities.Content.FAQItem>(_context);
             SecurityAuditLogs = new GenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog>(_context);
             IpBlacklists = new GenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist>(_context);
+
+            // Dynamic Calculator & Multi-Tenant Marketplace
+            CalculatorStoneTypes = new GenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType>(_context);
+            CalculatorDecorItems = new GenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem>(_context);
+            VendorProfiles = new GenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -97,6 +102,11 @@ namespace Blocko.Persistence
         public IGenericRepository<Bolcko.Domain.Entities.Content.FAQItem> FAQs { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; private set; }
+
+        // Dynamic Calculator & Multi-Tenant Marketplace
+        public IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType> CalculatorStoneTypes { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

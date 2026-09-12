@@ -1,0 +1,210 @@
+@model Bolcko.Domain.Entities.Catalog.DTOs.VendorRegistrationDto
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "انضم كشريك ومورد معتمد | منصة بلوكو لمواد البناء" 
+        : "Join as an Approved Vendor | BLOCKO Construction Network";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8 text-start" dir="@(isArabic ? "rtl" : "ltr")">
+    <div class="max-w-4xl mx-auto space-y-10">
+
+        <!-- 1. Hero Marketing Value Proposition (The Vendor Magnet) -->
+        <div class="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+            <div class="absolute -end-16 -bottom-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 max-w-2xl space-y-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                    <span class="material-symbols-outlined text-sm">verified_user</span>
+                    <span>@(isArabic ? "بوابة كبار الموردين والمحاجر ومصانع الباطون" : "B2B Verified Suppliers & Producers Portal")</span>
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-snug">
+                    @(isArabic ? "استقبل طلبات توريد حقيقية ومشاريع جاهزة للتنفيذ" : "Receive Real, Verified Supply RFQs & Active Construction Projects")
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    @(isArabic 
+                        ? "انضم إلى شبكة بلوكو الإنشائية في الأردن والمنطقة. نربطك مباشرة بآلاف أصحاب المشاريع والمهندسين الذين حسبوا كمياتهم عبر حاسبتنا الذكية بجدول كميات (BOQ) دقيق وجاهز للتعاقد فوراً." 
+                        : "Join BLOCKO's construction tech network in Jordan & the region. Get directly connected to thousands of project owners and contractors with pre-calculated BOQs.")
+                </p>
+
+                <!-- Value Props Highlights -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-800">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">✓</span>
+                        <span class="text-xs font-bold text-slate-200">@(isArabic ? "عملاء جادون بمسطحات حقيقية" : "Verified Real BOQs")</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">✓</span>
+                        <span class="text-xs font-bold text-slate-200">@(isArabic ? "تسعير حر ومباشر لمنتجاتك" : "Set Your Direct Pricing")</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">✓</span>
+                        <span class="text-xs font-bold text-slate-200">@(isArabic ? "تسويق رقمي وظهور مجاني" : "Zero CAC Direct Leads")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Vendor Onboarding Form Card -->
+        <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-6 mb-8">
+                <h2 class="text-xl font-bold text-slate-900">@(isArabic ? "نموذج تسجيل واعتماد الموردين الجدد" : "Supplier Registration & Verification Application")</h2>
+                <p class="text-xs text-slate-500 mt-1">@(isArabic ? "يرجى تعبئة بيانات منشأتك بدقة لنتمكن من توثيق حسابك وربطك بطلبات التوريد في منطقتك الجغرافية." : "Please provide accurate company details to fast-track your verified supplier badge.")</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="p-4 mb-6 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 space-y-1">
+                    <strong class="font-bold block">@(isArabic ? "يرجى تصحيح الأخطاء التالية:" : "Please fix the following errors:")</strong>
+                    <div asp-validation-summary="All" class="text-[11px] list-disc ps-5"></div>
+                </div>
+            }
+
+            <form asp-area="Shop" asp-controller="Vendor" asp-action="Register" method="post" class="space-y-8">
+                @Html.AntiForgeryToken()
+
+                <!-- Section A: Company Information -->
+                <div>
+                    <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">domain</span>
+                        <span>@(isArabic ? "1. بيانات المنشأة والسجل التجاري" : "1. Company & Legal Registration")</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "اسم الشركة أو المصنع (بالعربية) *" : "Company/Factory Name (Arabic) *")</label>
+                            <input asp-for="CompanyNameAr" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="@(isArabic ? "مثال: شركة الرويشد لمقالع وتوريد الحجر" : "e.g. Al-Ruwaished Stone Quarries Co.")" required />
+                            <span asp-validation-for="CompanyNameAr" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "اسم الشركة (بالإنجليزية - اختياري)" : "Company Name (English)")</label>
+                            <input asp-for="CompanyNameEn" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" dir="ltr" placeholder="Company Legal Name" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "رقم السجل التجاري الوطني *" : "Commercial Registration (CR) No. *")</label>
+                            <input asp-for="CommercialRegistrationNo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="@(isArabic ? "الرقم الوطني للمنشأة أو رقم السجل" : "National CR Number")" required />
+                            <span asp-validation-for="CommercialRegistrationNo" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "الرقم الضريبي (إن وجد)" : "Tax Identification Number (TIN)")</label>
+                            <input asp-for="TaxNumber" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="Tax / VAT Number" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section B: Supply Categories Specialty (Multi-select pills) -->
+                <div>
+                    <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">category</span>
+                        <span>@(isArabic ? "2. المواد الإنشائية التي توردها المنشأة *" : "2. Supplied Materials & Capabilities *")</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 mb-4">@(isArabic ? "حدد جميع المواد التي تستطيع شركتك توريدها للمشاريع:" : "Select all categories you supply:")</p>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                        <label class="flex items-center gap-2 p-3.5 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/60 transition-all">
+                            <input type="checkbox" name="SuppliedCategories" value="Stone" checked class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500" />
+                            <span class="text-xs font-bold text-slate-900">@(isArabic ? "حجر وواجهات" : "Stone & Facades")</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3.5 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/60 transition-all">
+                            <input type="checkbox" name="SuppliedCategories" value="Steel" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500" />
+                            <span class="text-xs font-bold text-slate-900">@(isArabic ? "حديد تسليح" : "Steel Rebar")</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3.5 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/60 transition-all">
+                            <input type="checkbox" name="SuppliedCategories" value="ReadyMix" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500" />
+                            <span class="text-xs font-bold text-slate-900">@(isArabic ? "خرسانة جاهزة" : "Ready-Mix")</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3.5 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/60 transition-all">
+                            <input type="checkbox" name="SuppliedCategories" value="Insulation" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500" />
+                            <span class="text-xs font-bold text-slate-900">@(isArabic ? "عوازل مائية وحرارية" : "Insulation")</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3.5 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer bg-slate-50 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/60 transition-all">
+                            <input type="checkbox" name="SuppliedCategories" value="Finishing" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500" />
+                            <span class="text-xs font-bold text-slate-900">@(isArabic ? "دهانات وتشطيبات" : "Paint & Finishing")</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section C: Contact & Geographic Location -->
+                <div>
+                    <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">location_on</span>
+                        <span>@(isArabic ? "3. التغطية الجغرافية وبيانات الاتصال" : "3. Geographic Coverage & Contact")</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "الدولة والفرع *" : "Country / Region *")</label>
+                            <select asp-for="CountryCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all">
+                                <option value="JO">🇯🇴 @(isArabic ? "المملكة الأردنية الهاشمية" : "Jordan")</option>
+                                <option value="SA">🇸🇦 @(isArabic ? "المملكة العربية السعودية" : "Saudi Arabia")</option>
+                                <option value="AE">🇦🇪 @(isArabic ? "الإمارات العربية المتحدة" : "United Arab Emirates")</option>
+                                <option value="EG">🇪🇬 @(isArabic ? "جمهورية مصر العربية" : "Egypt")</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "المدينة أو المحافظة الرئيسية *" : "Primary City / Province *")</label>
+                            <input asp-for="City" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="@(isArabic ? "مثال: عمان، الزرقاء، الرياض، جدة..." : "City Name")" required />
+                            <span asp-validation-for="City" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "اسم الشخص المسؤول / المفوض *" : "Contact Person Name *")</label>
+                            <input asp-for="ContactPersonName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="@(isArabic ? "الاسم الرباعي أو الثلاثي للمفوض" : "Full Name")" required />
+                            <span asp-validation-for="ContactPersonName" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "رقم الهاتف المباشر *" : "Mobile Phone Number *")</label>
+                            <input asp-for="Phone" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="079XXXXXXX" required />
+                            <span asp-validation-for="Phone" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "رقم الواتساب الرسمي لطلبات التوريد *" : "Official WhatsApp for RFQs *")</label>
+                            <input asp-for="WhatsApp" type="tel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="96279XXXXXXX" required />
+                            <span asp-validation-for="WhatsApp" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "العنوان وموقع المستودع / المقر" : "Physical Address / Yard Location")</label>
+                            <input asp-for="AddressText" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="@(isArabic ? "المنطقة الصناعية، الشارع، المعلم القريب..." : "Industrial area, street...")" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section D: Account Security -->
+                <div>
+                    <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">lock</span>
+                        <span>@(isArabic ? "4. بيانات الدخول وأمان حساب المورد" : "4. Account Access & Security")</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "البريد الإلكتروني للشركة *" : "Official Company Email *")</label>
+                            <input asp-for="Email" type="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" dir="ltr" placeholder="vendor@example.com" required />
+                            <span asp-validation-for="Email" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "كلمة المرور *" : "Password *")</label>
+                            <input asp-for="Password" type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="••••••••" required />
+                            <span asp-validation-for="Password" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">@(isArabic ? "تأكيد كلمة المرور *" : "Confirm Password *")</label>
+                            <input asp-for="ConfirmPassword" type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all" placeholder="••••••••" required />
+                            <span asp-validation-for="ConfirmPassword" class="text-[10px] text-rose-600 mt-1 block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms & Submit Button -->
+                <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p class="text-[11px] text-slate-400">
+                        @(isArabic 
+                            ? "بالنقر على زر التسجيل، أنت توافق على شروط عضوية الموردين المعتمدين ومعايير جودة المواد في منصة بلوكو." 
+                            : "By submitting this application, you agree to BLOCKO Vendor Terms of Supply.")
+                    </p>
+                    <button type="submit" class="w-full sm:w-auto px-10 py-4 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs rounded-2xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">how_to_reg</span>
+                        <span>@(isArabic ? "إرسال طلب الاعتماد والانضمام 🚀" : "Submit Vendor Application 🚀")</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

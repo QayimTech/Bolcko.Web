@@ -53,16 +53,15 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Analytics.SecurityAuditLog> SecurityAuditLogs { get; set; }
         public DbSet<Bolcko.Domain.Entities.Analytics.IpBlacklist> IpBlacklists { get; set; }
         public DbSet<Bolcko.Domain.Entities.Content.FAQItem> FAQItems { get; set; }
+        
+        // Dynamic Calculator & Multi-Tenant Vendor Marketplace
+        public DbSet<CalculatorStoneType> CalculatorStoneTypes { get; set; }
+        public DbSet<CalculatorDecorItem> CalculatorDecorItems { get; set; }
+        public DbSet<VendorProfile> VendorProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Identity configuration
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-            });
 
             // Address configuration
             modelBuilder.Entity<Bolcko.Domain.Entities.User.Address>(entity =>

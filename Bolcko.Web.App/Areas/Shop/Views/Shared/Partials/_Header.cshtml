@@ -75,6 +75,11 @@
                     <span class="material-symbols-outlined text-[15px]">local_shipping</span>
                     <span class="truncate">@SharedLocalizer["TrackOrder"]</span>
                 </a>
+
+                <a asp-action="Join" asp-controller="Vendor" asp-area="Shop" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-[11px] font-bold transition-all whitespace-nowrap border border-amber-500/20">
+                    <span class="material-symbols-outlined text-[15px]">storefront</span>
+                    <span class="truncate">@(isArabic ? "انضم كمورد" : "Become a Supplier")</span>
+                </a>
             </nav>
         </div>
 

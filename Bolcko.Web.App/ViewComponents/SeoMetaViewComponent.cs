@@ -51,6 +51,71 @@ namespace Bolcko.Web.App.ViewComponents
 
             if (seo == null)
             {
+                // Dynamic Calculator Landing Queries for Search Engine Dominance
+                if (path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase))
+                {
+                    var catQuery = HttpContext.Request.Query["category"].ToString().ToLowerInvariant();
+                    var pageKey = catQuery switch
+                    {
+                        "stone" => "calculator-stone",
+                        "steel" => "calculator-steel",
+                        "concrete" => "calculator-concrete",
+                        "finishes" or "paint" => "calculator-finishes",
+                        _ => "calculator"
+                    };
+
+                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageKey);
+
+                    // Dynamic fallback if not yet in DB
+                    if (seo == null && !string.IsNullOrEmpty(catQuery))
+                    {
+                        if (catQuery == "stone")
+                        {
+                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+                            {
+                                PageName = "calculator-stone",
+                                PageTitle = isArabic ? "حاسبة تكلفة وأسعار حجر البناء والواجهات الأردنية 2026 | بلوكو" : "Jordanian Building Stone & Facade Calculator 2026 | BLOCKO",
+                                MetaDescription = isArabic ? "احسب مساحات وتكاليف حجر الرويشد ومعان والصناعي والكرانيش والبراويز لمشروعك في الأردن بدقة هندسية وخصم فتحات وهالك معتمد." : "Calculate Jordan stone cladding, Ma'an, Ruwaished, and cornices net area and costs with accurate waste factors.",
+                                MetaKeywords = "حاسبة حجر البناء الاردن, اسعار حجر الرويشد, حجر معان نخب اول, تكلفة واجهات حجر عمارة, كرانيش حجر صناعي, بلوكو",
+                                PageUrl = "/calculator?category=stone"
+                            };
+                        }
+                        else if (catQuery == "steel")
+                        {
+                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+                            {
+                                PageName = "calculator-steel",
+                                PageTitle = isArabic ? "حاسبة كميات وأوزان حديد التسليح للمباني في الأردن 2026 | بلوكو" : "Steel Rebar Quantity & Weight Calculator Jordan | BLOCKO",
+                                MetaDescription = isArabic ? "احسب أطنان حديد التسليح (Grade 60) بدقة حسب عدد الطوابق ونظام العقدة وتسليح الأعمدة ومخططات البناء الأردنية." : "Calculate rebar tons and costs for your building skeleton based on Jordanian code and live factory prices.",
+                                MetaKeywords = "حاسبة حديد البناء الاردن, كمية الحديد لطابقين, اسعار حديد التسليح اليوم عمان, حاسبة حديد القواعد والاعمدة, بلوكو",
+                                PageUrl = "/calculator?category=steel"
+                            };
+                        }
+                        else if (catQuery == "concrete")
+                        {
+                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+                            {
+                                PageName = "calculator-concrete",
+                                PageTitle = isArabic ? "حاسبة كميات الباطون والخرسانة الجاهزة في الأردن 2026 | بلوكو" : "Ready-Mix Concrete Volume Calculator Jordan | BLOCKO",
+                                MetaDescription = isArabic ? "احسب أمتار الخرسانة الجاهزة B250 و B300 مع المضخة للعقدات والقواعد والشناجات بأسعار الخلاطات اللحظية واصلة الموقع." : "Calculate ready-mix concrete cubic meters and pumping costs for residential and commercial slabs in Jordan.",
+                                MetaKeywords = "حاسبة كميات الباطون, اسعار الخرسانة الجاهزة الاردن, متر باطون صبة العقدة, خلاطات الخرسانة عمان, بلوكو",
+                                PageUrl = "/calculator?category=concrete"
+                            };
+                        }
+                        else if (catQuery == "finishes" || catQuery == "paint")
+                        {
+                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+                            {
+                                PageName = "calculator-finishes",
+                                PageTitle = isArabic ? "حاسبة تكاليف التشطيب والدهان والعوازل في الأردن 2026 | بلوكو" : "Finishing, Insulation & Paint Cost Calculator Jordan | BLOCKO",
+                                MetaDescription = isArabic ? "تقدير فوري لتكاليف الدهانات، العوازل المائية والحرارية، التأسيسات الكهروميكانيكية والقصارة لمشروعك السكني في الأردن." : "Estimate insulation, interior paints, plumbing, and electrical rough-in costs per square meter in Jordan.",
+                                MetaKeywords = "تكلفة تشطيب شقة الاردن, اسعار دهانات جوتن وسكيب عمان, رولات عزل اسطح, تكلفة المتر تشطيب ديلوكس, بلوكو",
+                                PageUrl = "/calculator?category=finishes"
+                            };
+                        }
+                    }
+                }
+
                 // Fallback attempt with page name mapping
                 var pageName = "Home";
                 if (path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase)) pageName = "calculator";
@@ -59,7 +124,10 @@ namespace Bolcko.Web.App.ViewComponents
                 else if (path.Contains("/Contact", StringComparison.OrdinalIgnoreCase)) pageName = "Contact";
                 else if (path.Contains("/About", StringComparison.OrdinalIgnoreCase)) pageName = "About";
                 
-                seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
+                if (seo == null)
+                {
+                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
+                }
             }
 
             // In English mode, ensure SEO title and meta aren't returned in Arabic

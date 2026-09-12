@@ -95,6 +95,42 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 },
                 new SEOMetadataDto
                 {
+                    PageName = "calculator-stone",
+                    PageTitle = "حاسبة تكلفة وأسعار حجر البناء والواجهات الأردنية 2026 | بلوكو",
+                    MetaDescription = "احسب مساحات وتكاليف حجر الرويشد ومعان والصناعي والكرانيش والبراويز لمشروعك في الأردن بدقة هندسية وخصم فتحات وهالك معتمد.",
+                    MetaKeywords = "حاسبة حجر البناء الاردن, اسعار حجر الرويشد, حجر معان نخب اول, تكلفة واجهات حجر عمارة, كرانيش حجر صناعي, بلوكو",
+                    PageUrl = "/calculator?category=stone",
+                    PageOrder = 3
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-steel",
+                    PageTitle = "حاسبة كميات وأوزان حديد التسليح للمباني في الأردن 2026 | بلوكو",
+                    MetaDescription = "احسب أطنان حديد التسليح (Grade 60) بدقة حسب عدد الطوابق ونظام العقدة وتسليح الأعمدة ومخططات البناء الأردنية.",
+                    MetaKeywords = "حاسبة حديد البناء الاردن, كمية الحديد لطابقين, اسعار حديد التسليح اليوم عمان, حاسبة حديد القواعد والاعمدة, بلوكو",
+                    PageUrl = "/calculator?category=steel",
+                    PageOrder = 4
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-concrete",
+                    PageTitle = "حاسبة كميات الباطون والخرسانة الجاهزة في الأردن 2026 | بلوكو",
+                    MetaDescription = "احسب أمتار الخرسانة الجاهزة B250 و B300 مع المضخة للعقدات والقواعد والشناجات بأسعار الخلاطات اللحظية واصلة الموقع.",
+                    MetaKeywords = "حاسبة كميات الباطون, اسعار الخرسانة الجاهزة الاردن, متر باطون صبة العقدة, خلاطات الخرسانة عمان, بلوكو",
+                    PageUrl = "/calculator?category=concrete",
+                    PageOrder = 5
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-finishes",
+                    PageTitle = "حاسبة تكاليف التشطيب والدهان والعوازل في الأردن 2026 | بلوكو",
+                    MetaDescription = "تقدير فوري لتكاليف الدهانات، العوازل المائية والحرارية، التأسيسات الكهروميكانيكية والقصارة لمشروعك السكني في الأردن.",
+                    MetaKeywords = "تكلفة تشطيب شقة الاردن, اسعار دهانات جوتن وسكيب عمان, رولات عزل اسطح, تكلفة المتر تشطيب ديلوكس, بلوكو",
+                    PageUrl = "/calculator?category=finishes",
+                    PageOrder = 6
+                },
+                new SEOMetadataDto
+                {
                     PageName = "Products",
                     PageTitle = "تصفح كافة المنتجات ومواد البناء | BLOCKO Products",
                     MetaDescription = "تسوق أفضل العلامات التجارية لحديد التسليح، التمديدات الصحية، العدد والأدوات، ومعدات المسابح بأسعار تنافسية وجودة مضمونة.",

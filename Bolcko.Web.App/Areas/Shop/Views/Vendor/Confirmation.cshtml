@@ -1,0 +1,46 @@
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "تم استلام طلب التسجيل | منصة بلوكو" : "Application Received | BLOCKO";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-slate-50 min-h-[80vh] flex items-center justify-center py-16 px-4 text-center" dir="@(isArabic ? "rtl" : "ltr")">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-10 shadow-sm border border-slate-200 space-y-6">
+        <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+            <span class="material-symbols-outlined text-4xl">check_circle</span>
+        </div>
+
+        <div class="space-y-2">
+            <h1 class="text-2xl font-black text-slate-900">
+                @(isArabic ? "تم استلام طلب اعتماد المورد بنجاح!" : "Vendor Application Submitted Successfully!")
+            </h1>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                @(isArabic 
+                    ? "أهلاً بك شريكاً لنا في شبكة بلوكو الإنشائية. يقوم فريق العمل بمطابقة بيانات السجل التجاري واعتماد حسابك للبدء في تلقي طلبات عروض الأسعار والتوريد (RFQs) المباشرة."
+                    : "Welcome to BLOCKO! Our supplier onboarding department is reviewing your commercial registration details. You will be activated shortly to receive real customer RFQs.")
+            </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 text-start space-y-2">
+            <div class="flex items-center gap-2 font-bold">
+                <span class="material-symbols-outlined text-base text-amber-700">info</span>
+                <span>@(isArabic ? "الخطوات التالية لتفعيل الحساب:" : "Next Steps for Activation:")</span>
+            </div>
+            <ul class="text-[11px] text-amber-800 space-y-1 list-disc list-inside">
+                <li>@(isArabic ? "سيقوم منسق الموردين بالتواصل معك عبر الواتساب أو الهاتف لتأكيد نطاق التغطية." : "Our vendor coordinator will verify your supply yards via WhatsApp or phone.")</li>
+                <li>@(isArabic ? "يمكنك تحديث وتثبيت أسعارك اليومية للمواد لتظهر تلقائياً في حاسبة منطقتك." : "You will be able to manage your daily material price book.")</li>
+            </ul>
+        </div>
+
+        <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="@Url.Action("Dashboard", "Vendor", new { area = "Shop" })" 
+               class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all shadow-sm">
+                @(isArabic ? "الدخول للوحة تحكم المورد" : "Open Vendor Dashboard")
+            </a>
+            <a href="/calculator" 
+               class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all">
+                @(isArabic ? "العودة للحاسبة الإنشائية" : "Back to Calculator")
+            </a>
+        </div>
+    </div>
+</div>
