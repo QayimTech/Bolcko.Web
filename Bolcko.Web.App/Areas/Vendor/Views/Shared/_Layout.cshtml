@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var langCode = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+    var isAuth = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "";
+}
+<html lang="@langCode" dir="@(isRtl ? "rtl" : "ltr")" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>@(ViewData["Title"] ?? "بوابة الموردين والشركاء") | BLOCKO B2B</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png?v=5" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png?v=5" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png?v=5" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico?v=5" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0f172a" />
+    
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/material-symbols-outlined.woff2">
+    <link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
+    <partial name="Partials/_Styles" />
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-['Noto_Kufi_Arabic',sans-serif]">
+
+    <!-- B2B Vendor Portal Top Navigation -->
+    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Brand Logo & Portal Badge -->
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+                    <svg viewBox="0 0 56 56" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 flex-shrink-0">
+                        <defs>
+                            <mask id="v-brand-b-mask">
+                                <rect width="56" height="56" fill="white" />
+                                <path d="M 24.5,12 H 30 A 5,5 0 0 1 35,17 V 19 A 5,5 0 0 1 30,24 H 24.5 Z" fill="black" />
+                                <path d="M 24.5,32 H 31 A 6,6 0 0 1 37,38 V 43 A 6,6 0 0 1 31,49 H 24.5 Z" fill="black" />
+                            </mask>
+                        </defs>
+                        <rect width="56" height="56" rx="12" fill="#E8A020" mask="url(#v-brand-b-mask)" />
+                    </svg>
+                    <span class="font-black text-xl tracking-tight uppercase text-white font-mono">BLOCKO</span>
+                </a>
+                <span class="h-5 w-px bg-slate-700 mx-1 hidden sm:block"></span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                    <span class="material-symbols-outlined text-sm">handshake</span>
+                    <span>@(isRtl ? "بوابة الموردين" : "Vendor Portal")</span>
+                </span>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-5 text-xs font-semibold">
+                <a href="/" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">storefront</span>
+                    <span>@(isRtl ? "متجر بلوكو" : "Back to Store")</span>
+                </a>
+
+                @if (isAuth)
+                {
+                    <a asp-area="Vendor" asp-controller="Dashboard" asp-action="Index"
+                       class="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 font-bold">
+                        <span class="material-symbols-outlined text-base">dashboard</span>
+                        <span>@(isRtl ? "لوحة التحكم" : "Dashboard")</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Vendor" asp-controller="Account" asp-action="Join"
+                       class="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 font-bold">
+                        <span class="material-symbols-outlined text-base">how_to_reg</span>
+                        <span>@(isRtl ? "انضم كمورد" : "Join as Vendor")</span>
+                    </a>
+                    <a asp-area="Vendor" asp-controller="Account" asp-action="Login"
+                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        <span>@(isRtl ? "دخول الموردين" : "Vendor Login")</span>
+                    </a>
+                }
+            </nav>
+
+            <!-- User Status / Auth Actions -->
+            <div class="flex items-center gap-3">
+                @if (isAuth)
+                {
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-slate-300 font-mono">@userName</span>
+                    </div>
+
+                    <form asp-area="Vendor" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-1 border border-slate-700 transition-all cursor-pointer" title="@(isRtl ? "تسجيل الخروج" : "Logout")">
+                            <span class="material-symbols-outlined text-base">logout</span>
+                            <span class="hidden sm:inline">@(isRtl ? "خروج" : "Logout")</span>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-area="Vendor" asp-controller="Account" asp-action="Join"
+                       class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-sm flex items-center gap-1">
+                        <span class="material-symbols-outlined text-base">rocket_launch</span>
+                        <span>@(isRtl ? "ابدأ التوريد الآن" : "Start Supplying")</span>
+                    </a>
+                }
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1">
+        @RenderBody()
+    </main>
+
+    <!-- Portal Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-6 text-xs text-center">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© 2026 BLOCKO B2B Vendor Network. @(isRtl ? "جميع الحقوق محفوظة لموردي شبكة بلوكو الإنشائية." : "All rights reserved.")</p>
+            <div class="flex items-center gap-4 text-[11px]">
+                <a href="/Shop/Legal/Terms" class="hover:text-slate-200">@(isRtl ? "الشروط والأحكام" : "Terms")</a>
+                <span>•</span>
+                <a href="/Shop/Legal/Privacy" class="hover:text-slate-200">@(isRtl ? "سياسة الخصوصية" : "Privacy")</a>
+                <span>•</span>
+                <a href="/Shop/Home/Contact" class="hover:text-slate-200">@(isRtl ? "الدعم الفني للموردين" : "Vendor Support")</a>
+            </div>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

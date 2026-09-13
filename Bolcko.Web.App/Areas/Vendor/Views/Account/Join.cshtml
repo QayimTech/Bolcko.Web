@@ -4,7 +4,6 @@
     ViewData["Title"] = isArabic 
         ? "انضم كشريك ومورد معتمد | منصة بلوكو لمواد البناء" 
         : "Join as an Approved Vendor | BLOCKO Construction Network";
-    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 }
 
 <div class="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8 text-start" dir="@(isArabic ? "rtl" : "ltr")">
@@ -47,9 +46,17 @@
 
         <!-- 2. Vendor Onboarding Form Card -->
         <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-slate-200">
-            <div class="border-b border-slate-100 pb-6 mb-8">
-                <h2 class="text-xl font-bold text-slate-900">@(isArabic ? "نموذج تسجيل واعتماد الموردين الجدد" : "Supplier Registration & Verification Application")</h2>
-                <p class="text-xs text-slate-500 mt-1">@(isArabic ? "يرجى تعبئة بيانات منشأتك بدقة لنتمكن من توثيق حسابك وربطك بطلبات التوريد في منطقتك الجغرافية." : "Please provide accurate company details to fast-track your verified supplier badge.")</p>
+            <div class="border-b border-slate-100 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">@(isArabic ? "نموذج تسجيل واعتماد الموردين الجدد" : "Supplier Registration & Verification Application")</h2>
+                    <p class="text-xs text-slate-500 mt-1">@(isArabic ? "يرجى تعبئة بيانات منشأتك بدقة لنتمكن من توثيق حسابك وربطك بطلبات التوريد في منطقتك الجغرافية." : "Please provide accurate company details to fast-track your verified supplier badge.")</p>
+                </div>
+                <div class="text-xs text-slate-600">
+                    <span>@(isArabic ? "لديك حساب بالفعل؟" : "Already have an account?")</span>
+                    <a asp-area="Vendor" asp-controller="Account" asp-action="Login" class="text-amber-600 font-bold hover:underline ms-1">
+                        @(isArabic ? "تسجيل الدخول" : "Sign In")
+                    </a>
+                </div>
             </div>
 
             @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
@@ -60,7 +67,7 @@
                 </div>
             }
 
-            <form asp-area="Shop" asp-controller="Vendor" asp-action="Register" method="post" class="space-y-8">
+            <form asp-area="Vendor" asp-controller="Account" asp-action="Register" method="post" class="space-y-8">
                 @Html.AntiForgeryToken()
 
                 <!-- Section A: Company Information -->
@@ -198,9 +205,9 @@
                             ? "بالنقر على زر التسجيل، أنت توافق على شروط عضوية الموردين المعتمدين ومعايير جودة المواد في منصة بلوكو." 
                             : "By submitting this application, you agree to BLOCKO Vendor Terms of Supply.")
                     </p>
-                    <button type="submit" class="w-full sm:w-auto px-10 py-4 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs rounded-2xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">how_to_reg</span>
-                        <span>@(isArabic ? "إرسال طلب الاعتماد والانضمام 🚀" : "Submit Vendor Application 🚀")</span>
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0">
+                        <span class="material-symbols-outlined text-base text-amber-400">verified_user</span>
+                        <span>@(isArabic ? "إرسال طلب الاعتماد الرسمي" : "Submit Official Application")</span>
                     </button>
                 </div>
             </form>

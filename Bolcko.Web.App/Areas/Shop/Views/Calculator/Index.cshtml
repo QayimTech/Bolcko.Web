@@ -246,11 +246,6 @@
                         <span class="material-symbols-outlined text-base text-amber-600">domain</span>
                         <span>@(isEn ? "Stone & Facades" : "الحجر والواجهات")</span>
                     </button>
-                    <button type="button" onclick="switchCalcTab('visualizer')" id="tab-btn-visualizer"
-                            class="calc-tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60">
-                        <span class="material-symbols-outlined text-base text-emerald-600">view_in_ar</span>
-                        <span>@(isEn ? "3D Model" : "نموذج 3D")</span>
-                    </button>
                     <button type="button" onclick="switchCalcTab('finishes')" id="tab-btn-finishes"
                             class="calc-tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60">
                         <span class="material-symbols-outlined text-base text-teal-600">format_paint</span>
@@ -488,19 +483,47 @@
 
                         <!-- Stone Surface Finish -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Stone Dressing / Surface Finish" : "نقشة الحجر (التنعيم والتشطيب)")</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50">
+                            <label class="block text-xs font-bold text-slate-800 mb-2.5">@(isEn ? "Stone Dressing / Surface Finish" : "نقشة ودقة الحجر الهندسية (5 دقات معتمدة)")</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                                <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
                                     <input type="radio" name="stoneFinish" value="Mufajjar" checked class="sr-only" onchange="onInputChange()" />
-                                    <span>@(isEn ? "Mufajjar (مفجر)" : "مفجر (قياسي)")</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">scatter_plot</span>
+                                        <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Mufajjar" : "مفجر صخري")</span>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[9px]">@(isEn ? "Standard" : "قياسي")</span>
                                 </label>
-                                <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50">
+                                <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
                                     <input type="radio" name="stoneFinish" value="Tabzeh" class="sr-only" onchange="onInputChange()" />
-                                    <span>@(isEn ? "Tabzeh (طبزة)" : "طبزة بارزة (+1.5)")</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">landscape</span>
+                                        <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Tabzeh" : "طبزة بصفيحة")</span>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+1.50 @(isEn ? "JOD" : "د.أ")</span>
                                 </label>
-                                <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50">
+                                <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
                                     <input type="radio" name="stoneFinish" value="Musamsam" class="sr-only" onchange="onInputChange()" />
-                                    <span>@(isEn ? "Musamsam (مسمسم)" : "مسمسم ناعم (+2)")</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">reorder</span>
+                                        <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Musamsam" : "مسمسم ناعم")</span>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+2.00 @(isEn ? "JOD" : "د.أ")</span>
+                                </label>
+                                <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                                    <input type="radio" name="stoneFinish" value="Monaqqar" class="sr-only" onchange="onInputChange()" />
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">grain</span>
+                                        <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Monaqqar" : "منقر هندسي")</span>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+2.20 @(isEn ? "JOD" : "د.أ")</span>
+                                </label>
+                                <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                                    <input type="radio" name="stoneFinish" value="Honed" class="sr-only" onchange="onInputChange()" />
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-amber-700 text-sm">view_carousel</span>
+                                        <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Honed" : "مجلّي ناعم")</span>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+3.00 @(isEn ? "JOD" : "د.أ")</span>
                                 </label>
                             </div>
                         </div>
@@ -516,8 +539,8 @@
                             </h4>
 
                             <!-- Floor Cornice Belts -->
-                            <label class="flex items-start gap-2.5 cursor-pointer">
-                                <input type="checkbox" id="includeCorniceBelt" checked class="mt-0.5 rounded text-amber-600 focus:ring-amber-500" onchange="onInputChange()" />
+                            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                                <input type="checkbox" id="includeCorniceBelt" checked class="mt-0.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer" onchange="onInputChange()" />
                                 <div>
                                     <p class="text-xs font-bold text-slate-900">@(isEn ? "Decorative Floor Belts & Cornices" : "أحزمة وكرانيش بارزة بين الطوابق")</p>
                                     <p class="text-[11px] text-slate-500">@(isEn ? "Runs along perimeter separating floor levels" : "تمتد على محيط الواجهات لفصل الطوابق معمارياً")</p>
@@ -525,43 +548,55 @@
                             </label>
 
                             <!-- Window Architraves / Frames -->
-                            <div class="flex items-center justify-between pt-2 border-t border-slate-200/70">
+                            <div class="flex items-center justify-between pt-2.5 border-t border-slate-200/70 gap-2">
                                 <div>
                                     <label class="text-xs font-bold text-slate-900 block">@(isEn ? "Window Architrave Frames" : "براويز وأقواس النوافذ")</label>
-                                    <span class="text-[11px] text-slate-500">@(isEn ? "Decorative stone surrounding window openings" : "إطارات حجرية مزخرفة حول الشبابيك")</span>
+                                    <span class="text-[11px] text-slate-500 block">@(isEn ? "Decorative stone surrounding window openings" : "إطارات حجرية مزخرفة حول الشبابيك")</span>
                                 </div>
-                                <div class="flex items-center gap-1.5" dir="ltr">
-                                    <button type="button" onclick="adjustWindowFrames(-1)" class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs">-</button>
-                                    <span class="text-xs font-bold text-slate-900 font-mono w-8 text-center" id="windowFramesCountDisplay">8</span>
-                                    <button type="button" onclick="adjustWindowFrames(1)" class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs">+</button>
+                                <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 shadow-xs shrink-0" dir="ltr">
+                                    <button type="button" onclick="adjustWindowFrames(-1)" aria-label="Decrease"
+                                            class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm select-none">remove</span>
+                                    </button>
+                                    <span class="text-xs font-bold text-slate-900 font-mono min-w-[2rem] text-center select-none" id="windowFramesCountDisplay">8</span>
+                                    <button type="button" onclick="adjustWindowFrames(1)" aria-label="Increase"
+                                            class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm select-none">add</span>
+                                    </button>
                                 </div>
                                 <input type="hidden" id="windowFramesCount" value="8" />
                             </div>
 
                             <!-- Entrance Columns -->
-                            <div class="flex items-center justify-between pt-2 border-t border-slate-200/70">
+                            <div class="flex items-center justify-between pt-2.5 border-t border-slate-200/70 gap-2">
                                 <div>
                                     <label class="text-xs font-bold text-slate-900 block">@(isEn ? "Entrance Portico Columns" : "أعمدة وتيجان حجرية للمدخل")</label>
-                                    <span class="text-[11px] text-slate-500">@(isEn ? "Classical decorative stone columns with capitals" : "أعمدة دائرية مع تيجان وقواعد معمارية")</span>
+                                    <span class="text-[11px] text-slate-500 block">@(isEn ? "Classical decorative stone columns with capitals" : "أعمدة دائرية مع تيجان وقواعد معمارية")</span>
                                 </div>
-                                <div class="flex items-center gap-1.5" dir="ltr">
-                                    <button type="button" onclick="adjustEntranceColumns(-1)" class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs">-</button>
-                                    <span class="text-xs font-bold text-slate-900 font-mono w-8 text-center" id="entranceColumnsCountDisplay">2</span>
-                                    <button type="button" onclick="adjustEntranceColumns(1)" class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs">+</button>
+                                <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 shadow-xs shrink-0" dir="ltr">
+                                    <button type="button" onclick="adjustEntranceColumns(-1)" aria-label="Decrease"
+                                            class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm select-none">remove</span>
+                                    </button>
+                                    <span class="text-xs font-bold text-slate-900 font-mono min-w-[2rem] text-center select-none" id="entranceColumnsCountDisplay">2</span>
+                                    <button type="button" onclick="adjustEntranceColumns(1)" aria-label="Increase"
+                                            class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm select-none">add</span>
+                                    </button>
                                 </div>
                                 <input type="hidden" id="entranceColumnsCount" value="2" />
                             </div>
 
                             <!-- Hybrid Smart Trim Toggle -->
                             <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/70">
-                                <label class="flex items-start gap-2.5 cursor-pointer">
-                                    <input type="checkbox" id="hybridArtificialTrim" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500" onchange="onInputChange()" />
+                                <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                                    <input type="checkbox" id="hybridArtificialTrim" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" onchange="onInputChange()" />
                                     <div>
-                                        <p class="text-xs font-bold text-emerald-950 flex items-center gap-1">
+                                        <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5 flex-wrap">
                                             <span>@(isEn ? "Smart Hybrid: Cast Stone Decor" : "الحل الذكي: ديكورات حجر صناعي مصبوب")</span>
-                                            <span class="px-1.5 py-0.2 bg-emerald-200 text-emerald-900 text-[10px] font-bold rounded">@(isEn ? "Save 45%" : "وفر 45%")</span>
+                                            <span class="px-2 py-0.5 bg-emerald-200 text-emerald-900 text-[10px] font-extrabold rounded-full whitespace-nowrap">@(isEn ? "Save 45%" : "وفر 45%")</span>
                                         </p>
-                                        <p class="text-[11px] text-emerald-800/80 mt-0.5">@(isEn ? "Use natural stone for main walls, but cast artificial stone for complex decorative cornices & architraves to drastically cut carving costs." : "استخدام حجر طبيعي للجدران، مع استبدال البراويز والكرانيش المعقدة بحجر صناعي مصبوب عالي الدقة لتوفير هائل في تكلفة النحت.")</p>
+                                        <p class="text-[11px] text-emerald-800/80 mt-0.5 leading-relaxed">@(isEn ? "Use natural stone for main walls, but cast artificial stone for complex decorative cornices & architraves to drastically cut carving costs." : "استخدام حجر طبيعي للجدران، مع استبدال البراويز والكرانيش المعقدة بحجر صناعي مصبوب عالي الدقة لتوفير هائل في تكلفة النحت.")</p>
                                     </div>
                                 </label>
                             </div>
@@ -575,7 +610,7 @@
                                         <span class="material-symbols-outlined text-8xl">inventory_2</span>
                                     </div>
                                     <div class="relative z-10">
-                                        <div class="flex items-center justify-between gap-2 mb-2">
+                                        <div class="flex items-start sm:items-center justify-between gap-2 mb-2">
                                             <div class="flex items-center gap-2">
                                                 <span class="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
                                                     <span class="material-symbols-outlined text-base">inventory_2</span>
@@ -585,7 +620,7 @@
                                                     <p class="text-[10px] text-amber-700 font-medium">@(isEn ? "Inspect stone density & veins directly on site" : "افحص نقاوة الحجر وعروقه بنفسك في موقع البناء قبل التعاقد")</p>
                                                 </div>
                                             </div>
-                                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold border border-amber-300">
+                                            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-extrabold border border-amber-300 whitespace-nowrap shrink-0">
                                                 @(isEn ? "5 JOD • 100% Refundable" : "5 د.أ • مستردة بالكامل")
                                             </span>
                                         </div>
@@ -594,7 +629,7 @@
                                         </p>
                                         <div class="flex items-center gap-2">
                                             <button type="button" onclick="openSampleBoxModal()" 
-                                                    class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                                                    class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
                                                 <span class="material-symbols-outlined text-sm">local_shipping</span>
                                                 <span>@(isEn ? "Request Sample Box to Site" : "اطلب صندوق عينة للموقع الآن")</span>
                                             </button>
@@ -647,75 +682,7 @@
                         </div>
                     </div>
 
-                    <!-- ════════════ TAB 3: 3D ARCHITECTURAL HOUSE VIEWER ════════════ -->
-                    <div id="tabContentVisualizer" class="space-y-4 hidden">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                                    <span class="material-symbols-outlined text-emerald-600 text-base">view_in_ar</span>
-                                    <span>@(isEn ? "Interactive 3D Architectural Configurator" : "مجسم معماري ثلاثي الأبعاد تفاعلي (3D)")</span>
-                                </h4>
-                                <p class="text-[11px] text-slate-500">@(isEn ? "Realistic Jordanian stone courses, textures, and details" : "يحاكي مداميك الحجر الأردني والكحلة والديكورات بدقة")</p>
-                            </div>
-                            <button type="button" onclick="toggleXRayMode()" id="xrayBtn"
-                                    class="px-2.5 py-1.5 rounded-xl border border-slate-300 text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-all">
-                                <span class="material-symbols-outlined text-sm text-indigo-600">visibility</span>
-                                <span id="xrayBtnText">@(isEn ? "X-Ray Skeleton" : "رؤية الهيكل العظم")</span>
-                            </button>
-                        </div>
-
-                        <!-- Architectural Typology Selector -->
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-bold text-slate-800">@(isEn ? "Architectural Design Typology" : "النمط والتصميم المعماري للمبنى")</label>
-                                <span class="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-md border border-emerald-200" id="currentStyleLabel">@(isEn ? "Classic Villa" : "فيلا كلاسيكية")</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button type="button" onclick="setArchitecturalStyle('apartment')" id="arch-btn-apartment"
-                                        class="arch-style-btn p-2 rounded-xl border text-[11px] font-semibold bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all flex flex-col items-center gap-1 text-center">
-                                    <span class="text-lg">🏢</span>
-                                    <span class="font-bold">@(isEn ? "Apartments" : "عمارة سكنية")</span>
-                                    <span class="text-[10px] text-slate-400 font-normal">@(isEn ? "Multi-floor & Balconies" : "طوابق وبرندات")</span>
-                                </button>
-                                <button type="button" onclick="setArchitecturalStyle('classic')" id="arch-btn-classic"
-                                        class="arch-style-btn p-2 rounded-xl border text-[11px] font-bold bg-slate-900 text-white border-slate-900 shadow-sm transition-all flex flex-col items-center gap-1 text-center">
-                                    <span class="text-lg">🏡</span>
-                                    <span class="font-bold">@(isEn ? "Classic Villa" : "فيلا كلاسيك")</span>
-                                    <span class="text-[10px] text-slate-300 font-normal">@(isEn ? "Arches & Portico" : "أقواس وأعمدة")</span>
-                                </button>
-                                <button type="button" onclick="setArchitecturalStyle('modern')" id="arch-btn-modern"
-                                        class="arch-style-btn p-2 rounded-xl border text-[11px] font-semibold bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all flex flex-col items-center gap-1 text-center">
-                                    <span class="text-lg">🏛️</span>
-                                    <span class="font-bold">@(isEn ? "Modern Villa" : "فيلا مودرن")</span>
-                                    <span class="text-[10px] text-slate-400 font-normal">@(isEn ? "Cantilevers & Glass" : "بروزات وزجاج")</span>
-                                </button>
-                            </div>
-                            <input type="hidden" id="architecturalStyle" value="classic" />
-                        </div>
-
-                        <!-- Active Building Info Bar (Above Canvas - No obstruction) -->
-                        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900 text-white text-xs border border-slate-700 shadow-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-                                <span id="canvasOverlayInfo" class="font-bold text-[12px] text-slate-100">Classic Villa • 2 Floors • Ruwaished Stone</span>
-                            </div>
-                            <button type="button" onclick="reset3DCamera()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold border border-slate-600 transition-colors flex items-center gap-1" title="@(isEn ? "Reset View" : "إعادة ضبط الكاميرا")">
-                                <span class="material-symbols-outlined text-sm">restart_alt</span>
-                                <span>@(isEn ? "Reset View" : "واجهة أمامية")</span>
-                            </button>
-                        </div>
-
-                        <!-- 3D Canvas Viewport Container (Clean - Completely unobstructed) -->
-                        <div class="relative w-full h-[460px] rounded-2xl bg-slate-950 border border-slate-700/80 overflow-hidden shadow-inner block">
-                            <canvas id="threeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
-                        </div>
-
-                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed space-y-1">
-                            <p>💡 <strong>@(isEn ? "Interactive Controls:" : "التحكم التفاعلي:")</strong> @(isEn ? "Drag to rotate 360°. Scroll to zoom in/out. Right-click drag to pan." : "اسحب بالفأرة أو اللمس للتدوير 360°، واستخدم عجلة الماوس للتكبير والتصغير.")</p>
-                            <p>✨ @(isEn ? "Notice the real stone courses (25cm), mortar joints, window arches, cornices, and portico columns reacting live." : "شاهد مداميك الحجر الأردني الواقعية (25 سم)، الكحلة، أقواس الشبابيك، الكرانيش، وأعمدة المدخل تتفاعل فورياً مع خياراتك.")</p>
-                    </div>
-
-                    <!-- ════════════ TAB 4: FINISHING & INSULATION ADDONS ════════════ -->
+                    <!-- ════════════ TAB 3: FINISHING & INSULATION ADDONS ════════════ -->
                     <div id="tabContentFinishes" class="space-y-5 hidden">
                         <div class="p-4 rounded-xl bg-teal-50/80 border border-teal-200/80 text-xs text-teal-900 flex items-start gap-2.5">
                             <span class="material-symbols-outlined text-teal-600 text-lg flex-shrink-0">tune</span>
@@ -933,6 +900,213 @@
                             <span>@(isEn ? "Order Sample Box (5 JOD)" : "طلب عينة حجر للموقع (5 د.أ)")</span>
                         </button>
                     </div>
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <!-- STICKY / PROMINENT 3D ARCHITECTURAL DIGITAL TWIN VIEWPORT CARD  -->
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden text-white space-y-3 p-4 sm:p-5">
+                
+                <!-- 1. Header: Typology Switcher + Title + X-Ray Button -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                            <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-emerald-400 text-lg">view_in_ar</span>
+                                <span>@(isEn ? "Interactive 3D Digital Twin" : "المجسم المعماري التفاعلي (3D)")</span>
+                            </h3>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">LIVE BIM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">
+                            @(isEn ? "Realistic Jordanian 25cm stone courses, furnished interior & civil engineering skeleton" : "محاكاة واقعية لمداميك الحجر الأردني (25سم)، الصالون الداخلي، والتسليح الإنشائي")
+                        </p>
+                    </div>
+
+                    <!-- Right Controls: X-Ray Skeleton Mode Toggle -->
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="toggleXRayMode()" id="xrayBtn"
+                                class="px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-750 hover:border-slate-600 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-sm text-indigo-400">visibility</span>
+                            <span id="xrayBtnText">@(isEn ? "X-Ray Skeleton" : "رؤية الهيكل العظم")</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Typology Switcher (Pill segmented selector) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1 px-1">
+                        <span class="material-symbols-outlined text-sm text-amber-400">architecture</span>
+                        <span>@(isEn ? "Design Typology:" : "النمط المعماري:")</span>
+                        <span class="text-[11px] text-emerald-400 font-bold" id="currentStyleLabel">@(isEn ? "Classic Villa" : "فيلا كلاسيكية")</span>
+                    </span>
+
+                    <div class="grid grid-cols-3 gap-1.5 sm:w-auto">
+                        <button type="button" onclick="setArchitecturalStyle('apartment')" id="arch-btn-apartment"
+                                class="arch-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm text-slate-400">domain</span>
+                            <span>@(isEn ? "Apartments" : "عمارة سكنية")</span>
+                        </button>
+                        <button type="button" onclick="setArchitecturalStyle('classic')" id="arch-btn-classic"
+                                class="arch-style-btn px-3 py-1.5 rounded-lg border text-xs font-bold bg-amber-500 text-slate-950 border-amber-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm text-slate-950">account_balance</span>
+                            <span>@(isEn ? "Classic Villa" : "فيلا كلاسيك")</span>
+                        </button>
+                        <button type="button" onclick="setArchitecturalStyle('modern')" id="arch-btn-modern"
+                                class="arch-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm text-indigo-400">villa</span>
+                            <span>@(isEn ? "Modern Villa" : "فيلا مودرن")</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="architecturalStyle" value="classic" />
+                </div>
+
+                <!-- 2.B Modern Villa Sub-Typology Concepts (3 High-End Models) -->
+                <div id="modernConceptsContainer" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-indigo-950/70 via-slate-950/80 to-slate-900/70 p-2.5 rounded-xl border border-indigo-500/30 shadow-inner">
+                    <span class="text-xs font-bold text-indigo-300 flex items-center gap-1.5 px-1">
+                        <span class="material-symbols-outlined text-sm text-indigo-400">auto_awesome</span>
+                        <span>@(isEn ? "Modern Villa Concept:" : "نموذج وطراز الفيلا المودرن:")</span>
+                        <span class="text-[11px] text-amber-400 font-extrabold" id="currentModernConceptLabel">@(isEn ? "Cantilever Portal" : "كابولي معلق فاخر")</span>
+                    </span>
+
+                    <div class="grid grid-cols-3 gap-1.5 sm:w-auto">
+                        <button type="button" onclick="setModernConcept('cantilever')" id="concept-btn-cantilever"
+                                class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-bold bg-indigo-600 text-white border-indigo-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-xs">crop_square</span>
+                            <span>@(isEn ? "Cantilever" : "كابولي معلق")</span>
+                        </button>
+                        <button type="button" onclick="setModernConcept('cubic')" id="concept-btn-cubic"
+                                class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-xs text-amber-400">view_compact</span>
+                            <span>@(isEn ? "Cubic Dabouq" : "تكعيبي دابوق")</span>
+                        </button>
+                        <button type="button" onclick="setModernConcept('horizon')" id="concept-btn-horizon"
+                                class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-xs text-teal-400">view_timeline</span>
+                            <span>@(isEn ? "Horizon Pergola" : "بانورامي أفقي")</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="modernConcept" value="cantilever" />
+                </div>
+
+                <!-- 3. Camera Director Presets & Active BIM Badge -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                        <span class="material-symbols-outlined text-sm text-emerald-400 flex-shrink-0">info</span>
+                        <span id="canvasOverlayInfo" class="font-mono text-[11px] text-slate-300 truncate">Classic Villa • 2 Floors • Ruwaished Stone</span>
+                    </div>
+
+                    <div class="flex items-center gap-1 flex-wrap" dir="ltr">
+                        <button type="button" id="cam-btn-front" onclick="setCameraPreset('front')"
+                                class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                                title="@(isEn ? "Front Architectural Elevation" : "واجهة أمامية معمارية")">
+                            <span class="material-symbols-outlined text-sm">photo_camera_front</span>
+                            <span>@(isEn ? "Elevation" : "واجهة")</span>
+                        </button>
+                        <button type="button" id="cam-btn-iso" onclick="setCameraPreset('iso')"
+                                class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                                title="@(isEn ? "Bird's Eye Perspective 45°" : "منظور عين الطائر 45°")">
+                            <span class="material-symbols-outlined text-sm">view_in_ar</span>
+                            <span>@(isEn ? "Isometric" : "منظور 45°")</span>
+                        </button>
+                        <button type="button" id="cam-btn-interior" onclick="setCameraPreset('interior')"
+                                class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                                title="@(isEn ? "Step Inside Ground Floor Living Room" : "تجول في الصالون الداخلي الفاخر")">
+                            <span class="material-symbols-outlined text-sm text-amber-400">living</span>
+                            <span>@(isEn ? "Interior" : "داخلي فاخر")</span>
+                        </button>
+                        <button type="button" id="droneOrbitBtn" onclick="toggleDroneOrbit()"
+                                class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                                title="@(isEn ? "Cinematic Drone 360° Tour" : "جولة درون سينمائية 360°")">
+                            <span class="material-symbols-outlined text-sm text-indigo-400">videocam</span>
+                            <span>@(isEn ? "Drone 360°" : "جولة درون")</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. The 3D Canvas Viewport (Fixed 470px height, crystal clear) -->
+                <div class="relative w-full h-[470px] rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl block">
+                    <canvas id="threeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
+                </div>
+
+                <!-- 5. DIRECT QUICK FINISH & STONE CONTROLLER -->
+                <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+                    
+                    <!-- Quick Finish Selector Chips -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                            <span class="material-symbols-outlined text-sm">palette</span>
+                            <span>@(isEn ? "Instant Stone Finish (نقشة الحجر):" : "نقشة الحجر الفورية على المجسم:")</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" id="quick-finish-Mufajjar" onclick="quickSetFinish('Mufajjar')"
+                                    class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500 text-slate-950 border border-amber-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs">scatter_plot</span>
+                                <span>@(isEn ? "Mufajjar" : "مفجر صخري")</span>
+                            </button>
+                            <button type="button" id="quick-finish-Tabzeh" onclick="quickSetFinish('Tabzeh')"
+                                    class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs text-amber-400">landscape</span>
+                                <span>@(isEn ? "Tabzeh" : "طبزة بصفيحة")</span>
+                                <span class="text-[9px] text-amber-300 font-mono">+1.5</span>
+                            </button>
+                            <button type="button" id="quick-finish-Musamsam" onclick="quickSetFinish('Musamsam')"
+                                    class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs text-teal-400">reorder</span>
+                                <span>@(isEn ? "Musamsam" : "مسمسم ناعم")</span>
+                                <span class="text-[9px] text-amber-300 font-mono">+2.0</span>
+                            </button>
+                            <button type="button" id="quick-finish-Monaqqar" onclick="quickSetFinish('Monaqqar')"
+                                    class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs text-indigo-400">grain</span>
+                                <span>@(isEn ? "Monaqqar" : "منقر هندسي")</span>
+                                <span class="text-[9px] text-amber-300 font-mono">+2.2</span>
+                            </button>
+                            <button type="button" id="quick-finish-Honed" onclick="quickSetFinish('Honed')"
+                                    class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-xs text-amber-300">view_carousel</span>
+                                <span>@(isEn ? "Honed" : "مجلّي ناعم")</span>
+                                <span class="text-[9px] text-amber-300 font-mono">+3.0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stone Quarry Selector Chips -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                            <span class="material-symbols-outlined text-sm text-indigo-400">diamond</span>
+                            <span>@(isEn ? "Quarry Type (نوع الحجر):" : "نوع الحجر والمحجر:")</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" id="quick-stone-Natural_Ruwaished" onclick="quickSetStone('Natural_Ruwaished')"
+                                    class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white border border-indigo-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer">
+                                <span>@(isEn ? "Ruwaished First Class" : "رويشد نخب أول")</span>
+                                <span class="text-[9px] text-indigo-200 font-mono">14 د.أ</span>
+                            </button>
+                            <button type="button" id="quick-stone-Natural_Maan" onclick="quickSetStone('Natural_Maan')"
+                                    class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span>@(isEn ? "Ma'an White Satah" : "معان أبيض سطح")</span>
+                                <span class="text-[9px] text-slate-400 font-mono">18.5 د.أ</span>
+                            </button>
+                            <button type="button" id="quick-stone-Artificial_HighDensity" onclick="quickSetStone('Artificial_HighDensity')"
+                                    class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                                <span>@(isEn ? "Engineered Cast Stone" : "حجر صناعي هندسي")</span>
+                                <span class="text-[9px] text-slate-400 font-mono">11.5 د.أ</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 6. Bottom Micro-Instructions & BIM Specs -->
+                <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-amber-400">touch_app</span>
+                        <span>@(isEn ? "Rotate 360° • Zoom with wheel • Click presets to tour" : "تدوير 360° بالفأرة أو اللمس • تكبير بالعجلة • جولات سينمائية")</span>
+                    </span>
+                    <span class="font-mono text-[10px] text-slate-500">BIM v2.4 • Procedural Textures</span>
                 </div>
 
             </div>
@@ -1652,13 +1826,13 @@
 
     const calcAddonConfig = {
         enableInsulation: @(calcConfig.EnableInsulationAddon ? "true" : "false"),
-        insulationRate: @calcConfig.InsulationRatePerM2,
+        insulationRate: @(calcConfig.InsulationRatePerM2.ToString(System.Globalization.CultureInfo.InvariantCulture)),
         enablePainting: @(calcConfig.EnablePaintingAddon ? "true" : "false"),
-        paintRate: @calcConfig.InteriorPaintRatePerM2,
+        paintRate: @(calcConfig.InteriorPaintRatePerM2.ToString(System.Globalization.CultureInfo.InvariantCulture)),
         enablePlastering: @(calcConfig.EnablePlasteringAddon ? "true" : "false"),
-        plasterRate: @calcConfig.PlasteringRatePerM2,
+        plasterRate: @(calcConfig.PlasteringRatePerM2.ToString(System.Globalization.CultureInfo.InvariantCulture)),
         enableMEP: @(calcConfig.EnableElectroMechanicalAddon ? "true" : "false"),
-        mepRate: @calcConfig.ElectroMechanicalRatePerM2,
+        mepRate: @(calcConfig.ElectroMechanicalRatePerM2.ToString(System.Globalization.CultureInfo.InvariantCulture)),
         whatsAppNumber: '@(string.IsNullOrWhiteSpace(calcConfig.SalesWhatsAppNumber) ? "962790000000" : calcConfig.SalesWhatsAppNumber)'
     };
 
@@ -1788,24 +1962,65 @@
             activeBtn.className = 'calc-tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-white text-slate-900 shadow-sm border border-slate-200/80';
         }
 
-        // Tab contents
+        // Tab contents (3 streamlined form tabs)
         document.getElementById('tabContentSkeleton')?.classList.add('hidden');
         document.getElementById('tabContentStone')?.classList.add('hidden');
-        document.getElementById('tabContentVisualizer')?.classList.add('hidden');
         document.getElementById('tabContentFinishes')?.classList.add('hidden');
 
         if (tabName === 'skeleton') {
             document.getElementById('tabContentSkeleton')?.classList.remove('hidden');
         } else if (tabName === 'stone') {
             document.getElementById('tabContentStone')?.classList.remove('hidden');
-        } else if (tabName === 'visualizer') {
-            document.getElementById('tabContentVisualizer')?.classList.remove('hidden');
-            setTimeout(() => {
-                initOrResize3D();
-            }, 50);
         } else if (tabName === 'finishes') {
             document.getElementById('tabContentFinishes')?.classList.remove('hidden');
         }
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // QUICK-SWITCH HUD CONTROLLERS (Direct Stone & Finish Switching)
+    // ────────────────────────────────────────────────────────────────
+    function quickSetFinish(finish) {
+        const radio = document.querySelector(`input[name="stoneFinish"][value="${finish}"]`);
+        if (radio) {
+            radio.checked = true;
+            onInputChange();
+        }
+        updateFinishQuickButtons(finish);
+    }
+
+    function quickSetStone(stone) {
+        const radio = document.querySelector(`input[name="stoneType"][value="${stone}"]`);
+        if (radio) {
+            radio.checked = true;
+            onInputChange();
+        }
+        updateTypeQuickButtons(stone);
+    }
+
+    function updateFinishQuickButtons(finish) {
+        ['Mufajjar', 'Tabzeh', 'Musamsam', 'Monaqqar', 'Honed'].forEach(f => {
+            const btn = document.getElementById('quick-finish-' + f);
+            if (btn) {
+                if (f.toLowerCase() === (finish || '').toLowerCase()) {
+                    btn.className = 'quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500 text-slate-950 border border-amber-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer';
+                } else {
+                    btn.className = 'quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer';
+                }
+            }
+        });
+    }
+
+    function updateTypeQuickButtons(stoneType) {
+        ['Natural_Ruwaished', 'Natural_Maan', 'Artificial_HighDensity'].forEach(st => {
+            const btn = document.getElementById('quick-stone-' + st);
+            if (btn) {
+                if (st === stoneType) {
+                    btn.className = 'quick-stone-chip px-3 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white border border-indigo-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer';
+                } else {
+                    btn.className = 'quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer';
+                }
+            }
+        });
     }
 
     // ────────────────────────────────────────────────────────────────
@@ -1908,11 +2123,11 @@
     // 4. CLIENT-SIDE INSTANT REAL-TIME MATH ENGINE
     // ────────────────────────────────────────────────────────────────
     const liveMarketPrices = {
-        steel: @(prices.FirstOrDefault(p => p.MaterialCategory == "Steel")?.Price ?? 515.00m),
-        cement: @(prices.FirstOrDefault(p => p.MaterialCategory == "Cement")?.Price ?? 88.00m),
-        concrete: @(prices.FirstOrDefault(p => p.MaterialCategory == "Concrete" && p.MaterialName.Contains("250"))?.Price ?? prices.FirstOrDefault(p => p.MaterialCategory == "Concrete")?.Price ?? 43.50m),
-        blocks: @(prices.FirstOrDefault(p => p.MaterialCategory == "Blocks" && p.MaterialName.Contains("20"))?.Price ?? 360.00m),
-        sand: @(prices.FirstOrDefault(p => p.MaterialCategory == "Aggregates" && p.MaterialName.Contains("رمل"))?.Price ?? 14.50m)
+        steel: @((prices.FirstOrDefault(p => p.MaterialCategory == "Steel")?.Price ?? 515.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        cement: @((prices.FirstOrDefault(p => p.MaterialCategory == "Cement")?.Price ?? 88.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        concrete: @((prices.FirstOrDefault(p => p.MaterialCategory == "Concrete" && p.MaterialName.Contains("250"))?.Price ?? prices.FirstOrDefault(p => p.MaterialCategory == "Concrete")?.Price ?? 43.50m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        blocks: @((prices.FirstOrDefault(p => p.MaterialCategory == "Blocks" && p.MaterialName.Contains("20"))?.Price ?? 360.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        sand: @((prices.FirstOrDefault(p => p.MaterialCategory == "Aggregates" && p.MaterialName.Contains("رمل"))?.Price ?? 14.50m).ToString(System.Globalization.CultureInfo.InvariantCulture))
     };
 
     function calculateInstantLocalMath() {
@@ -2000,6 +2215,8 @@
 
             if (stoneFinish === "Tabzeh") stoneRate += 1.5;
             else if (stoneFinish === "Musamsam") stoneRate += 2.0;
+            else if (stoneFinish === "Monaqqar") stoneRate += 2.2;
+            else if (stoneFinish === "Honed") stoneRate += 3.0;
 
             stoneMaterialCost = Math.round(stoneNetArea * stoneRate);
 
@@ -2164,6 +2381,11 @@
 
         document.getElementById('areaDisplay').innerText = area + areaUnit;
         document.getElementById('floorsDisplay').innerText = floorsText;
+
+        const stoneFinish = document.querySelector('input[name="stoneFinish"]:checked')?.value || "Mufajjar";
+        const stoneType = document.querySelector('input[name="stoneType"]:checked')?.value || "Natural_Ruwaished";
+        updateFinishQuickButtons(stoneFinish);
+        updateTypeQuickButtons(stoneType);
 
         // Instant mathematical response (0ms lag)
         calculateInstantLocalMath();
@@ -2551,7 +2773,15 @@
     let isXRayMode = false;
     let isThreeInitialized = false;
     let currentArchStyle = 'classic';
+    let currentModernConcept = 'cantilever';
     const stoneTextureCache = {};
+
+    // Camera Director & Drone Tour Engine Variables
+    let cameraTargetPos = null;
+    let controlsTargetPos = null;
+    let isCameraAnimating = false;
+    let isDroneOrbiting = false;
+    let droneAngle = 0;
 
     function setArchitecturalStyle(style) {
         currentArchStyle = style;
@@ -2562,21 +2792,31 @@
             const btn = document.getElementById('arch-btn-' + s);
             if (btn) {
                 if (s === style) {
-                    btn.className = 'arch-style-btn p-2 rounded-xl border text-[11px] font-bold bg-slate-900 text-white border-slate-900 shadow-sm transition-all flex flex-col items-center gap-1 text-center';
-                    const subtitle = btn.querySelector('.text-slate-400, .text-slate-300');
-                    if (subtitle) subtitle.className = 'text-[10px] text-slate-300 font-normal';
+                    btn.className = 'arch-style-btn px-3 py-1.5 rounded-lg border text-xs font-bold bg-amber-500 text-slate-950 border-amber-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer';
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) icon.className = 'material-symbols-outlined text-sm text-slate-950';
                 } else {
-                    btn.className = 'arch-style-btn p-2 rounded-xl border text-[11px] font-semibold bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all flex flex-col items-center gap-1 text-center';
-                    const subtitle = btn.querySelector('.text-slate-400, .text-slate-300');
-                    if (subtitle) subtitle.className = 'text-[10px] text-slate-400 font-normal';
+                    btn.className = 'arch-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer';
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) icon.className = 'material-symbols-outlined text-sm ' + (s === 'modern' ? 'text-indigo-400' : 'text-slate-400');
                 }
             }
         });
 
+        // Show/hide modern villa concept switcher bar
+        const modernBar = document.getElementById('modernConceptsContainer');
+        if (modernBar) {
+            if (style === 'modern') {
+                modernBar.classList.remove('hidden');
+            } else {
+                modernBar.classList.add('hidden');
+            }
+        }
+
         const labelMap = {
             'apartment': isEnMode ? "Apartments" : "عمارة سكنية",
-            'classic': isEnMode ? "Classic Villa" : "فيلا كلاسيك بالأقواس",
-            'modern': isEnMode ? "Modern Villa" : "فيلا مودرن معاصرة"
+            'classic': isEnMode ? "Classic Villa" : "فيلا كلاسيكية",
+            'modern': isEnMode ? "Modern Villa" : "فيلا مودرن"
         };
         const styleLabel = document.getElementById('currentStyleLabel');
         if (styleLabel) styleLabel.innerText = labelMap[style] || style;
@@ -2584,33 +2824,58 @@
         update3DScene();
     }
 
-    // ────────────────────────────────────────────────────────────────
-    // HIGH-DEFINITION PROCEDURAL JORDANIAN STONE TEXTURE
-    // Sharp 25cm Courses, Deep Mortar Joints (كحلة بارزة), & Textures
-    // ────────────────────────────────────────────────────────────────
+    function setModernConcept(concept) {
+        currentModernConcept = concept;
+        const conceptInput = document.getElementById('modernConcept');
+        if (conceptInput) conceptInput.value = concept;
+
+        ['cantilever', 'cubic', 'horizon'].forEach(c => {
+            const btn = document.getElementById('concept-btn-' + c);
+            if (btn) {
+                if (c === concept) {
+                    btn.className = 'concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-bold bg-indigo-600 text-white border-indigo-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer';
+                } else {
+                    btn.className = 'concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer';
+                }
+            }
+        });
+
+        const conceptLabels = {
+            'cantilever': isEnMode ? "Cantilever Portal" : "كابولي معلق فاخر",
+            'cubic': isEnMode ? "Cubic Dabouq" : "تكعيبي دابوق",
+            'horizon': isEnMode ? "Horizon Pergola" : "بانورامي أفقي"
+        };
+        const cLabel = document.getElementById('currentModernConceptLabel');
+        if (cLabel) cLabel.innerText = conceptLabels[concept] || concept;
+
+        update3DScene();
+    }
+
     // ────────────────────────────────────────────────────────────────
     // HIGH-DEFINITION PROCEDURAL JORDANIAN STONE TEXTURE ENGINE
     // Dual Maps: High-res Diffuse + Micro-relief Bump Map (ملمس ونحت بالملي)
+    // Supports 5 authentic finishes: Mufajjar, Tabzeh, Musamsam, Monaqqar, Honed
     // ────────────────────────────────────────────────────────────────
     function getProceduralStoneMaps(stoneType, stoneFinish) {
         const key = `${stoneType}_${stoneFinish}`;
         if (stoneTextureCache[key]) return stoneTextureCache[key];
 
+        const TEX_RES = 2048;
         const diffCanvas = document.createElement('canvas');
-        diffCanvas.width = 1024;
-        diffCanvas.height = 1024;
+        diffCanvas.width = TEX_RES;
+        diffCanvas.height = TEX_RES;
         const diffCtx = diffCanvas.getContext('2d');
 
         const bumpCanvas = document.createElement('canvas');
-        bumpCanvas.width = 1024;
-        bumpCanvas.height = 1024;
+        bumpCanvas.width = TEX_RES;
+        bumpCanvas.height = TEX_RES;
         const bumpCtx = bumpCanvas.getContext('2d');
 
-        // Color palettes (Read dynamic color from DOM or fallback)
-        let baseR = 224, baseG = 208, baseB = 180; // Default warm desert beige
-        let jointColor = '#3f3629'; // Deep recessed mortar joint (كحلة عميقة)
-        let highlightColor = 'rgba(255,255,255,0.4)';
-        let shadowColor = 'rgba(30,22,12,0.5)';
+        // Authentic Jordanian stone base palettes
+        let baseR = 226, baseG = 210, baseB = 182; // Warm Jordanian desert limestone (حجر صحراوي دافئ)
+        let jointColor = '#16110b'; // Rich dark mortar joint (كحلة داكنة غائرة بالغة الوضوح)
+        let highlightColor = 'rgba(255,255,255,0.68)'; // Crisp specular stone chamfer highlight
+        let shadowColor = 'rgba(18,12,8,0.62)'; // Deep ambient stone undercut shadow
 
         const radioEl = document.querySelector(`input[name="stoneType"][value="${stoneType}"]`);
         const hexColor = radioEl ? radioEl.dataset.color : null;
@@ -2620,155 +2885,317 @@
             baseG = parseInt(hexColor.slice(3, 5), 16);
             baseB = parseInt(hexColor.slice(5, 7), 16);
         } else if (stoneType === 'Natural_Maan') {
-            baseR = 248; baseG = 246; baseB = 240; // Ma'an pure crystalline white
-            jointColor = '#5c5446';
-            highlightColor = 'rgba(255,255,255,0.6)';
-            shadowColor = 'rgba(40,36,30,0.4)';
+            baseR = 248; baseG = 246; baseB = 242; // Ma'an pure crystalline white
+            jointColor = '#2d2720';
+            highlightColor = 'rgba(255,255,255,0.75)';
+            shadowColor = 'rgba(35,30,24,0.52)';
         } else if (stoneType === 'Artificial_HighDensity') {
-            baseR = 212; baseG = 208; baseB = 200; // Engineered architectural cast
-            jointColor = '#38342c';
-            highlightColor = 'rgba(255,255,255,0.45)';
-            shadowColor = 'rgba(20,20,20,0.45)';
+            baseR = 212; baseG = 208; baseB = 202; // Architectural cast stone
+            jointColor = '#1e1c18';
+            highlightColor = 'rgba(255,255,255,0.60)';
+            shadowColor = 'rgba(20,18,16,0.55)';
         }
 
-        // Fill Diffuse Base
+        // Base fill
         diffCtx.fillStyle = `rgb(${baseR}, ${baseG}, ${baseB})`;
-        diffCtx.fillRect(0, 0, 1024, 1024);
+        diffCtx.fillRect(0, 0, TEX_RES, TEX_RES);
 
-        // Fill Bump Base (128 is neutral mid-gray)
-        bumpCtx.fillStyle = '#808080';
-        bumpCtx.fillRect(0, 0, 1024, 1024);
+        bumpCtx.fillStyle = '#808080'; // Neutral 128 mid-gray datum
+        bumpCtx.fillRect(0, 0, TEX_RES, TEX_RES);
 
-        // 16 Jordanian Courses (25cm height per course)
+        // 16 Jordanian standard Madameek courses (25cm per course on 4.0m wall height)
         const numCourses = 16;
-        const courseHeight = 1024 / numCourses; // 64px
+        const courseHeight = TEX_RES / numCourses; // 128px per 25cm course
 
         for (let r = 0; r < numCourses; r++) {
             const y = r * courseHeight;
-            const courseOffset = (r % 2) * 115;
+            // Running bond stagger (ربط معمارية البناء الأردني)
+            const courseOffset = (r % 2) * 280;
             let x = -courseOffset;
 
-            while (x < 1024 + 300) {
+            while (x < TEX_RES + 600) {
                 const seed = Math.abs(Math.floor((r * 47.3 + x * 19.7) % 100));
-                const blockWidth = 110 + (seed % 140);
+                // Authentic Jordanian block lengths: 50cm to 90cm (260px - 460px)
+                const blockWidth = 260 + (seed % 200);
 
-                // Natural quarry color variation (+/- 14)
-                const tint = (seed % 28) - 14;
+                // Natural quarry color variation per block
+                const tint = (seed % 24) - 12;
                 const rCol = Math.min(255, Math.max(0, baseR + tint));
                 const gCol = Math.min(255, Math.max(0, baseG + tint));
                 const bCol = Math.min(255, Math.max(0, baseB + tint));
 
-                // Diffuse Block Face
+                // Block base face in diffuse
                 diffCtx.fillStyle = `rgb(${rCol}, ${gCol}, ${bCol})`;
-                diffCtx.fillRect(x + 2, y + 2, blockWidth - 4, courseHeight - 4);
+                diffCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
 
-                // Bump Block Face base elevation (slightly raised above mortar)
-                bumpCtx.fillStyle = '#a0a0a0';
-                bumpCtx.fillRect(x + 2, y + 2, blockWidth - 4, courseHeight - 4);
+                // Block base elevation in bump map
+                bumpCtx.fillStyle = '#969696';
+                bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
 
-                // Finish micro-sculpting (طبزة / مسمسم / مفجر)
+                // ─────────────────────────────────────────────────────────────
+                // STONE FINISH MICRO-SCULPTING (طبزة / مسمسم / منقر / مجلي / مفجر)
+                // ─────────────────────────────────────────────────────────────
                 if (stoneFinish === 'Tabzeh') {
-                    // Pronounced 3D pillow face (طبزة جبلية بارزة مقوسة)
-                    const grad = diffCtx.createRadialGradient(
-                        x + blockWidth / 2, y + courseHeight / 2, 8,
-                        x + blockWidth / 2, y + courseHeight / 2, courseHeight * 0.9
-                    );
-                    grad.addColorStop(0, highlightColor);
-                    grad.addColorStop(0.7, 'transparent');
-                    grad.addColorStop(1, shadowColor);
-                    diffCtx.fillStyle = grad;
-                    diffCtx.fillRect(x + 2, y + 2, blockWidth - 4, courseHeight - 4);
+                    // AUTHENTIC JORDANIAN TABZEH: Flat chiseled draught margin (صفيحة/مشطاف) + dramatic rock-face boss (كوشة بارزة)
+                    const margin = 16; // ~3cm architectural draught margin
+                    const innerX = x + margin;
+                    const innerY = y + margin;
+                    const innerW = blockWidth - margin * 2;
+                    const innerH = courseHeight - margin * 2;
 
-                    // Bump pillow gradient (white in center, darker at edges)
-                    const bGrad = bumpCtx.createRadialGradient(
-                        x + blockWidth / 2, y + courseHeight / 2, 4,
-                        x + blockWidth / 2, y + courseHeight / 2, courseHeight * 0.85
-                    );
-                    bGrad.addColorStop(0, '#ffffff');
-                    bGrad.addColorStop(0.6, '#bfbfbf');
-                    bGrad.addColorStop(1, '#666666');
-                    bumpCtx.fillStyle = bGrad;
-                    bumpCtx.fillRect(x + 2, y + 2, blockWidth - 4, courseHeight - 4);
+                    // Draught margin outline groove (خط الصفيحة المعماري المحفور بدقة)
+                    diffCtx.strokeStyle = 'rgba(0,0,0,0.45)';
+                    diffCtx.lineWidth = 2.0;
+                    diffCtx.strokeRect(innerX, innerY, innerW, innerH);
+
+                    bumpCtx.strokeStyle = '#252525';
+                    bumpCtx.lineWidth = 2.5;
+                    bumpCtx.strokeRect(innerX, innerY, innerW, innerH);
+
+                    // Fine margin comb strokes (تسمسيم خفيف ناعم على الصفيحة)
+                    diffCtx.strokeStyle = 'rgba(0,0,0,0.12)';
+                    diffCtx.lineWidth = 1.0;
+                    for (let mi = 4; mi < margin - 2; mi += 4) {
+                        diffCtx.strokeRect(x + mi, y + mi, blockWidth - mi * 2, courseHeight - mi * 2);
+                    }
+
+                    // Multi-faceted rock-face boss interior (تضاريس صخرية جبلية ثلاثية الأبعاد)
+                    const numFacetsX = 4;
+                    const numFacetsY = 2;
+                    const facetW = innerW / numFacetsX;
+                    const facetH = innerH / numFacetsY;
+
+                    for (let fy = 0; fy < numFacetsY; fy++) {
+                        for (let fx = 0; fx < numFacetsX; fx++) {
+                            const fcx = innerX + fx * facetW;
+                            const fcy = innerY + fy * facetH;
+                            const fSeed = (seed * 13 + fx * 17 + fy * 29) % 50;
+
+                            const distFromCenterX = Math.abs((fx + 0.5) - numFacetsX / 2) / (numFacetsX / 2);
+                            const distFromCenterY = Math.abs((fy + 0.5) - numFacetsY / 2) / (numFacetsY / 2);
+                            const dist = Math.sqrt(distFromCenterX * distFromCenterX + distFromCenterY * distFromCenterY);
+                            const peakHeight = Math.max(0, 1.0 - dist * 0.65);
+
+                            // High-contrast bump elevation climbing up to 255
+                            const bumpVal = Math.min(255, Math.floor(165 + peakHeight * 85 + (fSeed % 25)));
+                            const bHex = bumpVal.toString(16).padStart(2, '0');
+                            bumpCtx.fillStyle = `#${bHex}${bHex}${bHex}`;
+                            bumpCtx.fillRect(fcx + 1, fcy + 1, facetW - 1, facetH - 1);
+
+                            // Shading in diffuse: top facet illuminated, bottom facet shadowed
+                            if ((fx + fy) % 2 === 0) {
+                                diffCtx.fillStyle = `rgba(255,255,255,${0.18 + (fSeed % 10) * 0.02})`;
+                            } else {
+                                diffCtx.fillStyle = `rgba(0,0,0,${0.16 + (fSeed % 10) * 0.02})`;
+                            }
+                            diffCtx.fillRect(fcx + 1, fcy + 1, facetW - 1, facetH - 1);
+
+                            // Deep chiseled fracture crease (شرخ صخري غائر)
+                            diffCtx.strokeStyle = 'rgba(0,0,0,0.35)';
+                            diffCtx.lineWidth = 1.6;
+                            diffCtx.beginPath();
+                            diffCtx.moveTo(fcx, fcy);
+                            diffCtx.lineTo(fcx + facetW, fcy + facetH * 0.7);
+                            diffCtx.stroke();
+
+                            bumpCtx.strokeStyle = '#181818';
+                            bumpCtx.lineWidth = 2.0;
+                            bumpCtx.beginPath();
+                            bumpCtx.moveTo(fcx, fcy);
+                            bumpCtx.lineTo(fcx + facetW, fcy + facetH * 0.7);
+                            bumpCtx.stroke();
+                        }
+                    }
+
+                    // Porous limestone micro-pits
+                    diffCtx.fillStyle = 'rgba(0,0,0,0.28)';
+                    for (let p = 0; p < 36; p++) {
+                        const px = innerX + ((p * 41 + seed) % innerW);
+                        const py = innerY + ((p * 67 + seed) % innerH);
+                        diffCtx.fillRect(px, py, 2.5, 2.5);
+                        bumpCtx.fillStyle = '#101010';
+                        bumpCtx.fillRect(px, py, 2, 2);
+                    }
+
                 } else if (stoneFinish === 'Musamsam') {
-                    // Crisp parallel chisel lines (مسمسم بالشوكة ونقش حاد)
+                    // AUTHENTIC JORDANIAN MUSAMSAM: High-contrast razor-sharp vertical comb chisel teeth (شاحوطة الحجر)
                     diffCtx.strokeStyle = shadowColor;
-                    diffCtx.lineWidth = 1.2;
-                    bumpCtx.lineWidth = 1.5;
-                    for (let line = 6; line < blockWidth - 6; line += 5.5) {
+                    diffCtx.lineWidth = 1.8;
+                    bumpCtx.lineWidth = 2.2;
+
+                    for (let line = 8; line < blockWidth - 8; line += 7.0) {
+                        const lx = x + line;
+                        // Deep chisel trough (حفرة الشاحوطة الغائرة)
                         diffCtx.beginPath();
-                        diffCtx.moveTo(x + line, y + 3);
-                        diffCtx.lineTo(x + line, y + courseHeight - 3);
+                        diffCtx.moveTo(lx, y + 4);
+                        diffCtx.lineTo(lx, y + courseHeight - 4);
                         diffCtx.stroke();
 
-                        // Bump groove (dark incised channel)
-                        bumpCtx.strokeStyle = '#404040';
+                        bumpCtx.strokeStyle = '#0e0e0e';
                         bumpCtx.beginPath();
-                        bumpCtx.moveTo(x + line, y + 3);
-                        bumpCtx.lineTo(x + line, y + courseHeight - 3);
+                        bumpCtx.moveTo(lx, y + 4);
+                        bumpCtx.lineTo(lx, y + courseHeight - 4);
                         bumpCtx.stroke();
 
-                        // Bump ridge highlight (bright tooth edge next to groove)
-                        bumpCtx.strokeStyle = '#d4d4d4';
+                        // Raised tooth ridge crest (حد الشاحوطة البارز العاكس للضوء)
+                        diffCtx.strokeStyle = highlightColor;
+                        diffCtx.beginPath();
+                        diffCtx.moveTo(lx + 2.0, y + 4);
+                        diffCtx.lineTo(lx + 2.0, y + courseHeight - 4);
+                        diffCtx.stroke();
+
+                        bumpCtx.strokeStyle = '#ffffff';
                         bumpCtx.beginPath();
-                        bumpCtx.moveTo(x + line + 1.5, y + 3);
-                        bumpCtx.lineTo(x + line + 1.5, y + courseHeight - 3);
+                        bumpCtx.moveTo(lx + 2.0, y + 4);
+                        bumpCtx.lineTo(lx + 2.0, y + courseHeight - 4);
                         bumpCtx.stroke();
+
+                        // Reset shadow color for next loop
+                        diffCtx.strokeStyle = shadowColor;
                     }
-                } else {
-                    // Mufajjar split-face pitting & bush-hammered texture (مفجر طبيعي)
-                    diffCtx.fillStyle = shadowColor;
-                    for (let p = 0; p < 35; p++) {
-                        const px = x + 4 + ((p * 37 + seed) % (blockWidth - 8));
-                        const py = y + 3 + ((p * 59 + seed) % (courseHeight - 6));
-                        diffCtx.fillRect(px, py, 2.5, 2.5);
 
-                        // Micro bump divots
-                        bumpCtx.fillStyle = (p % 2 === 0) ? '#383838' : '#e6e6e6';
-                        bumpCtx.fillRect(px, py, 2.5, 2.5);
+                } else if (stoneFinish === 'Monaqqar') {
+                    // AUTHENTIC JORDANIAN MONAQQAR: Dense bush-hammered pyramidal stipples (تنقير بوشاردا هندسي كثيف)
+                    for (let p = 0; p < 220; p++) {
+                        const px = x + 5 + ((p * 47 + seed * 9) % (blockWidth - 10));
+                        const py = y + 5 + ((p * 73 + seed * 13) % (courseHeight - 10));
+
+                        // Deep pick indentation
+                        diffCtx.fillStyle = shadowColor;
+                        diffCtx.fillRect(px, py, 2.4, 2.4);
+
+                        bumpCtx.fillStyle = '#0c0c0c';
+                        bumpCtx.fillRect(px, py, 2.2, 2.2);
+
+                        // Illuminated chipped rim
+                        diffCtx.fillStyle = highlightColor;
+                        diffCtx.fillRect(px + 1.4, py + 1.4, 1.4, 1.4);
+
+                        bumpCtx.fillStyle = '#ffffff';
+                        bumpCtx.fillRect(px + 1.4, py + 1.4, 1.6, 1.6);
+                    }
+
+                } else if (stoneFinish === 'Honed') {
+                    // AUTHENTIC JORDANIAN HONED: Silky smooth sawn modern face with natural limestone sediment veins
+                    diffCtx.strokeStyle = 'rgba(150, 130, 100, 0.32)';
+                    diffCtx.lineWidth = 1.8;
+                    diffCtx.beginPath();
+                    const veinStart = y + ((seed * 19) % courseHeight);
+                    diffCtx.moveTo(x + 5, veinStart);
+                    diffCtx.bezierCurveTo(x + blockWidth * 0.35, veinStart + 10, x + blockWidth * 0.7, veinStart - 8, x + blockWidth - 5, veinStart + 5);
+                    diffCtx.stroke();
+
+                    diffCtx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                    for (let s = 0; s < 24; s++) {
+                        const sx = x + 6 + ((s * 41 + seed) % (blockWidth - 12));
+                        const sy = y + 6 + ((s * 67 + seed) % (courseHeight - 12));
+                        diffCtx.fillRect(sx, sy, 1.5, 1.5);
+                    }
+
+                    bumpCtx.fillStyle = '#9e9e9e';
+                    bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
+
+                } else {
+                    // AUTHENTIC JORDANIAN MUFAJJAR (DEFAULT): Heavy quarry fractured face with high-contrast cleavages (كسر محجر طبيعي)
+                    const numFacets = 3;
+                    const fW = (blockWidth - 8) / numFacets;
+                    for (let fi = 0; fi < numFacets; fi++) {
+                        const fx = x + 4 + fi * fW;
+                        const fSeed = (seed * 17 + fi * 31) % 40;
+                        const fH = (fSeed % 2 === 0) ? '#d0d0d0' : '#707070';
+                        bumpCtx.fillStyle = fH;
+                        bumpCtx.fillRect(fx, y + 4, fW, courseHeight - 8);
+
+                        // Deep angular cleavage line
+                        bumpCtx.strokeStyle = '#181818';
+                        bumpCtx.lineWidth = 2.4;
+                        bumpCtx.beginPath();
+                        bumpCtx.moveTo(fx, y + 4);
+                        bumpCtx.lineTo(fx + fW * 0.45, y + courseHeight - 4);
+                        bumpCtx.stroke();
+
+                        diffCtx.strokeStyle = 'rgba(0,0,0,0.38)';
+                        diffCtx.lineWidth = 2.0;
+                        diffCtx.beginPath();
+                        diffCtx.moveTo(fx, y + 4);
+                        diffCtx.lineTo(fx + fW * 0.45, y + courseHeight - 4);
+                        diffCtx.stroke();
+                    }
+
+                    // Quarry spall texture & crystalline pits
+                    for (let p = 0; p < 110; p++) {
+                        const px = x + 5 + ((p * 53 + seed * 7) % (blockWidth - 10));
+                        const py = y + 5 + ((p * 89 + seed * 11) % (courseHeight - 10));
+
+                        diffCtx.fillStyle = shadowColor;
+                        diffCtx.fillRect(px, py, 3.2, 3.2);
+
+                        bumpCtx.fillStyle = '#101010';
+                        bumpCtx.fillRect(px, py, 2.6, 2.6);
+
+                        diffCtx.fillStyle = highlightColor;
+                        diffCtx.fillRect(px + 1.8, py + 1.8, 1.8, 1.8);
+
+                        bumpCtx.fillStyle = '#ffffff';
+                        bumpCtx.fillRect(px + 1.8, py + 1.8, 1.8, 1.8);
                     }
                 }
 
-                // 3D Bevel Edge Highlights
+                // ─────────────────────────────────────────────────────────────
+                // 3D BEVEL EDGE CHAMFERS (شطفة معمارية ثلاثية الأبعاد لكل حجر)
+                // ─────────────────────────────────────────────────────────────
+                // Top and Left chamfer catch overhead sunlight (High relief + bright specular)
                 diffCtx.fillStyle = highlightColor;
-                diffCtx.fillRect(x + 2, y + 2, blockWidth - 4, 2);
-                diffCtx.fillRect(x + 2, y + 2, 2, courseHeight - 4);
+                diffCtx.fillRect(x + 4, y + 4, blockWidth - 8, 3.5); // Top bevel
+                diffCtx.fillRect(x + 4, y + 4, 3.5, courseHeight - 8); // Left bevel
 
+                bumpCtx.fillStyle = '#f6f6f6';
+                bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, 3.5);
+                bumpCtx.fillRect(x + 4, y + 4, 3.5, courseHeight - 8);
+
+                // Bottom and Right chamfer fall into shadow (Deep relief undercut + dark shadow)
                 diffCtx.fillStyle = shadowColor;
-                diffCtx.fillRect(x + 2, y + courseHeight - 4, blockWidth - 4, 2);
-                diffCtx.fillRect(x + blockWidth - 4, y + 2, 2, courseHeight - 4);
+                diffCtx.fillRect(x + 4, y + courseHeight - 7.5, blockWidth - 8, 3.5); // Bottom bevel
+                diffCtx.fillRect(x + blockWidth - 7.5, y + 4, 3.5, courseHeight - 8); // Right bevel
 
-                // Vertical dark mortar joint (حل عمودي غائر)
+                bumpCtx.fillStyle = '#181818';
+                bumpCtx.fillRect(x + 4, y + courseHeight - 7.5, blockWidth - 8, 3.5);
+                bumpCtx.fillRect(x + blockWidth - 7.5, y + 4, 3.5, courseHeight - 8);
+
+                // Deep vertical head mortar joint (حل عمودي غائر بالملي بين الحجرين)
                 diffCtx.fillStyle = jointColor;
-                diffCtx.fillRect(x + blockWidth - 2.5, y, 5, courseHeight);
+                diffCtx.fillRect(x + blockWidth - 4.5, y, 7.5, courseHeight);
 
-                bumpCtx.fillStyle = '#101010'; // Deep recessed joint in bump map
-                bumpCtx.fillRect(x + blockWidth - 2.5, y, 5, courseHeight);
+                bumpCtx.fillStyle = '#000000'; // Deepest possible mortar recess
+                bumpCtx.fillRect(x + blockWidth - 4.5, y, 7.5, courseHeight);
 
                 x += blockWidth;
             }
 
-            // Horizontal dark bed joint (كحلة أفقية عميقة بين المداميك)
+            // Deep horizontal bed mortar joint (كحلة أفقية عميقة ومستقيمة بين المداميك)
             diffCtx.fillStyle = jointColor;
-            diffCtx.fillRect(0, y + courseHeight - 3, 1024, 5);
+            diffCtx.fillRect(0, y + courseHeight - 4.5, TEX_RES, 7.5);
 
-            bumpCtx.fillStyle = '#0a0a0a';
-            bumpCtx.fillRect(0, y + courseHeight - 3, 1024, 5);
+            bumpCtx.fillStyle = '#000000'; // Deepest possible mortar bed recess
+            bumpCtx.fillRect(0, y + courseHeight - 4.5, TEX_RES, 7.5);
         }
 
         const diffTexture = new THREE.CanvasTexture(diffCanvas);
         diffTexture.wrapS = THREE.RepeatWrapping;
         diffTexture.wrapT = THREE.RepeatWrapping;
-        diffTexture.repeat.set(3, 3);
+        diffTexture.generateMipmaps = true;
+        diffTexture.minFilter = THREE.LinearMipmapLinearFilter;
         if (threeRenderer) {
-            diffTexture.anisotropy = threeRenderer.capabilities.getMaxAnisotropy();
+            diffTexture.anisotropy = Math.min(16, threeRenderer.capabilities.getMaxAnisotropy());
         }
 
         const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
         bumpTexture.wrapS = THREE.RepeatWrapping;
         bumpTexture.wrapT = THREE.RepeatWrapping;
-        bumpTexture.repeat.set(3, 3);
+        bumpTexture.generateMipmaps = true;
+        bumpTexture.minFilter = THREE.LinearMipmapLinearFilter;
         if (threeRenderer) {
-            bumpTexture.anisotropy = threeRenderer.capabilities.getMaxAnisotropy();
+            bumpTexture.anisotropy = Math.min(16, threeRenderer.capabilities.getMaxAnisotropy());
         }
 
         const result = { diffuse: diffTexture, bump: bumpTexture };
@@ -2786,61 +3213,72 @@
 
         if (!isThreeInitialized && typeof THREE !== 'undefined') {
             threeScene = new THREE.Scene();
-            threeScene.background = new THREE.Color(0x1e293b); // Elegant dark architectural studio
-            threeScene.fog = new THREE.FogExp2(0x1e293b, 0.015);
+            threeScene.background = new THREE.Color(0x0f172a); // Deep slate architectural studio
+            threeScene.fog = new THREE.FogExp2(0x0f172a, 0.018);
 
-            threeCamera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-            threeCamera.position.set(0.5, 3.8, 13.5); // Direct front hero view!
+            threeCamera = new THREE.PerspectiveCamera(36, width / height, 0.2, 120);
+            threeCamera.position.set(0.2, 3.6, 13.2); // Direct front hero view
 
-            threeRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            threeRenderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                antialias: true, 
+                alpha: true,
+                logarithmicDepthBuffer: true, // Prevents Z-fighting and geometry flickering
+                powerPreference: 'high-performance'
+            });
             threeRenderer.setSize(width, height);
             threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             threeRenderer.shadowMap.enabled = true;
             threeRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
             threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-            threeRenderer.toneMappingExposure = 1.08;
+            threeRenderer.toneMappingExposure = 1.12;
 
             if (typeof THREE.OrbitControls !== 'undefined') {
                 threeControls = new THREE.OrbitControls(threeCamera, threeRenderer.domElement);
                 threeControls.enableDamping = true;
                 threeControls.dampingFactor = 0.05;
                 threeControls.maxPolarAngle = Math.PI / 2 - 0.02;
-                threeControls.minDistance = 1.5; // Micro-zoom capability down to the millimeter!
-                threeControls.maxDistance = 35;
-                threeControls.target.set(0, 2.5, 0);
+                threeControls.minDistance = 2.0;
+                threeControls.maxDistance = 80; // Allows comfortable zoom out for 4+ story buildings
+                threeControls.target.set(0, 2.4, 0);
             }
 
-            // Studio Architectural Lighting
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.75);
+            // Studio Architectural Lighting (Natural Sunlight & Ambient Fill)
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.85);
             threeScene.add(hemiLight);
 
-            // Sun Key Light with sharp shadows
-            const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.45);
-            sunLight.position.set(14, 22, 16);
+            // Sun Key Light with clean soft shadows & raking angle that catches stone relief
+            const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.65);
+            sunLight.position.set(16, 22, 12);
             sunLight.castShadow = true;
             sunLight.shadow.mapSize.width = 2048;
             sunLight.shadow.mapSize.height = 2048;
-            sunLight.shadow.bias = -0.0003;
+            sunLight.shadow.bias = -0.0002;
             threeScene.add(sunLight);
 
-            // Soft Fill Light
-            const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.4);
-            fillLight.position.set(-14, 12, -10);
+            // Raking Architectural Accent Light (Grazes facades to pop stone chisel tooling & joints)
+            const rakingLight = new THREE.DirectionalLight(0xffedd5, 0.70);
+            rakingLight.position.set(-14, 12, 16);
+            threeScene.add(rakingLight);
+
+            // Soft Fill Light (Sky reflection)
+            const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.45);
+            fillLight.position.set(-12, 10, -8);
             threeScene.add(fillLight);
 
-            // Architectural Plinth Podium (Luxury Presentation Base)
+            // Architectural Plinth Podium (Presentation Base)
             const plinthGeo = new THREE.CylinderGeometry(15, 16, 0.4, 48);
-            const plinthMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.85 });
+            const plinthMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.9 });
             const plinthMesh = new THREE.Mesh(plinthGeo, plinthMat);
-            plinthMesh.position.y = -0.2;
+            plinthMesh.position.y = -0.22;
             plinthMesh.receiveShadow = true;
             threeScene.add(plinthMesh);
 
-            // Paved Entrance Plaza
-            const plazaGeo = new THREE.BoxGeometry(16, 0.1, 14);
-            const plazaMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.65 });
+            // Paved Entrance Plaza (Offset below 0 to prevent plinth coplanar fight)
+            const plazaGeo = new THREE.BoxGeometry(15, 0.08, 13);
+            const plazaMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
             const plazaMesh = new THREE.Mesh(plazaGeo, plazaMat);
-            plazaMesh.position.set(0, 0.02, 1.0);
+            plazaMesh.position.set(0, -0.04, 1.2);
             plazaMesh.receiveShadow = true;
             threeScene.add(plazaMesh);
 
@@ -2852,12 +3290,54 @@
             threeCamera.updateProjectionMatrix();
         }
 
+        // Attach user interaction listener to cancel automated drone flight
+        const cv = document.getElementById('threeCanvas');
+        if (cv && !cv.dataset.hasPointerListener) {
+            cv.dataset.hasPointerListener = 'true';
+            cv.addEventListener('pointerdown', () => {
+                if (isDroneOrbiting) {
+                    toggleDroneOrbit(false);
+                }
+                isCameraAnimating = false;
+            });
+        }
+
         update3DScene();
     }
 
     function animate3D() {
         if (!isThreeInitialized) return;
         requestAnimationFrame(animate3D);
+
+        // Architectural Camera Lerp Interpolation
+        if (isCameraAnimating && cameraTargetPos && controlsTargetPos && threeCamera && threeControls) {
+            threeCamera.position.lerp(cameraTargetPos, 0.07);
+            threeControls.target.lerp(controlsTargetPos, 0.07);
+            if (threeCamera.position.distanceTo(cameraTargetPos) < 0.04 && 
+                threeControls.target.distanceTo(controlsTargetPos) < 0.04) {
+                threeCamera.position.copy(cameraTargetPos);
+                threeControls.target.copy(controlsTargetPos);
+                isCameraAnimating = false;
+            }
+        }
+
+        // Cinematic 360 Drone Orbit Tour (Dynamic height & radius adapting to any floor count!)
+        if (isDroneOrbiting && threeCamera && threeControls) {
+            droneAngle += 0.0055;
+            const floors = parseInt(document.getElementById('floorsInput')?.value || 2);
+            const totalHeight = floors * 2.8 + 1.2;
+            const targetY = totalHeight * 0.48;
+            const vFovRad = (threeCamera.fov || 36) * Math.PI / 180;
+            const optDist = Math.max(14.0, (totalHeight * 1.45 / 2) / Math.tan(vFovRad / 2));
+
+            const orbitRadius = optDist * 0.95;
+            const orbitH = targetY + 1.8 + Math.sin(droneAngle * 0.4) * (optDist * 0.12);
+            threeCamera.position.x = Math.sin(droneAngle) * orbitRadius;
+            threeCamera.position.z = Math.cos(droneAngle) * orbitRadius;
+            threeCamera.position.y = orbitH;
+            threeControls.target.set(0, targetY, 0);
+        }
+
         if (threeControls) threeControls.update();
         if (threeRenderer && threeScene && threeCamera) {
             threeRenderer.render(threeScene, threeCamera);
@@ -2865,7 +3345,7 @@
     }
 
     // ────────────────────────────────────────────────────────────────
-    // DETAILED ARCHITECTURAL SCENE BUILDER (WITH MILLIMETER DETAIL)
+    // DETAILED ARCHITECTURAL & STRUCTURAL SCENE BUILDER
     // ────────────────────────────────────────────────────────────────
     function update3DScene() {
         if (!isThreeInitialized || !threeScene) return;
@@ -2884,12 +3364,21 @@
         const overlay = document.getElementById('canvasOverlayInfo');
         if (overlay) {
             const stoneName = stoneType === "Natural_Ruwaished" ? (isEnMode ? "Ruwaished Stone" : "حجر رويشد") :
-                             (stoneType === "Natural_Maan" ? (isEnMode ? "Ma'an White Stone" : "حجر معان أبيض") :
-                             (isEnMode ? "Engineered Stone" : "حجر صناعي"));
+                              (stoneType === "Natural_Maan" ? (isEnMode ? "Ma'an White Stone" : "حجر معان أبيض") :
+                              (isEnMode ? "Engineered Stone" : "حجر صناعي"));
+            const finishName = stoneFinish === "Tabzeh" ? (isEnMode ? "Tabzeh Finish" : "نقشة طبزة") :
+                              (stoneFinish === "Musamsam" ? (isEnMode ? "Musamsam Finish" : "نقشة مسمسم") :
+                              (stoneFinish === "Monaqqar" ? (isEnMode ? "Monaqqar Finish" : "نقشة منقر") :
+                              (stoneFinish === "Honed" ? (isEnMode ? "Honed Smooth" : "حجر مطفي ناعم") :
+                              (isEnMode ? "Mufajjar Finish" : "نقشة مفجر"))));
             const styleName = currentArchStyle === 'apartment' ? (isEnMode ? "Apartments" : "عمارة سكنية") :
-                              (currentArchStyle === 'modern' ? (isEnMode ? "Modern Villa" : "فيلا مودرن") :
-                              (isEnMode ? "Classic Villa" : "فيلا كلاسيك"));
-            overlay.innerText = `${styleName} • ${floors} ${isEnMode ? 'Floors' : 'طوابق'} • ${stoneEnabled ? stoneName : (isEnMode ? 'Skeleton' : 'عظم')} • ${columnBars}`;
+                              (currentArchStyle === 'modern' ? (
+                                  currentModernConcept === 'cubic' ? (isEnMode ? "Modern Villa (Cubic Dabouq)" : "فيلا مودرن (مكعبات دابوق)") :
+                                  currentModernConcept === 'horizon' ? (isEnMode ? "Modern Villa (Horizon Ribbon)" : "فيلا مودرن (أفقية وشريطية)") :
+                                  (isEnMode ? "Modern Villa (Cantilever Portal)" : "فيلا مودرن (بوابة كابولي)")
+                              ) :
+                              (isEnMode ? "Classic Villa" : "فيلا كلاسيكية"));
+            overlay.innerText = `${styleName} • ${floors} ${isEnMode ? 'Floors' : 'طوابق'} • ${stoneEnabled ? `${stoneName} (${finishName})` : (isEnMode ? 'Skeleton' : 'عظم')} • ${columnBars}`;
         }
 
         if (houseGroup) threeScene.remove(houseGroup);
@@ -2898,64 +3387,135 @@
         houseGroup = new THREE.Group();
         skeletonGroup = new THREE.Group();
 
-        const baseWidth = Math.min(10.5, Math.max(7.0, Math.sqrt(area) * 0.46));
+        const baseWidth = Math.min(10.2, Math.max(7.2, Math.sqrt(area) * 0.45));
         const baseDepth = baseWidth * 0.82;
         const floorHeight = 2.8;
 
-        // Realistic Materials with Contrast
-        // Realistic Materials with Contrast & PBR Micro Relief
+        // Authentic Jordanian Stone Specifications & Materials
         const stoneMaps = getProceduralStoneMaps(stoneType, stoneFinish);
-        const stoneTrimColor = stoneType === "Natural_Maan" ? 0xffffff : (stoneType === "Natural_Ruwaished" ? 0xd6c29e : 0xb5afa3);
-        const stonePlinthColor = stoneType === "Natural_Maan" ? 0xd4cebe : 0x8a7b66;
+        // Repeat maps so 1 repeat unit = 4.0m, yielding authentic 25cm courses!
+        stoneMaps.diffuse.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
+        stoneMaps.bump.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
+
+        const stoneTrimColor = stoneType === "Natural_Maan" ? 0xffffff : (stoneType === "Natural_Ruwaished" ? 0xd8c59f : 0xb5afa3);
+        const stonePlinthColor = stoneType === "Natural_Maan" ? 0xd0cbbd : 0x8a7b66;
 
         const wallMaterial = new THREE.MeshStandardMaterial({
             map: stoneMaps.diffuse,
             bumpMap: stoneMaps.bump,
-            bumpScale: stoneFinish === 'Tabzeh' ? 0.08 : (stoneFinish === 'Musamsam' ? 0.045 : 0.035),
-            roughness: stoneFinish === 'Tabzeh' ? 0.65 : (stoneFinish === 'Musamsam' ? 0.7 : 0.75),
+            bumpScale: stoneFinish === 'Tabzeh' ? 0.042 : (stoneFinish === 'Musamsam' ? 0.032 : (stoneFinish === 'Monaqqar' ? 0.028 : (stoneFinish === 'Honed' ? 0.007 : 0.048))),
+            roughness: stoneFinish === 'Tabzeh' ? 0.76 : (stoneFinish === 'Musamsam' ? 0.80 : (stoneFinish === 'Monaqqar' ? 0.78 : (stoneFinish === 'Honed' ? 0.40 : 0.82))),
             metalness: 0.02,
-            transparent: true,
-            opacity: isXRayMode ? 0.18 : 1.0
+            transparent: isXRayMode,
+            opacity: isXRayMode ? 0.06 : 1.0
         });
+
+        // Helper to get correctly mapped stone material for custom elements (parapets, stairwells)
+        // Strictly guarantees authentic 25cm course height everywhere without stretching or squishing!
+        function getStoneWallMaterial(w, h) {
+            const mat = wallMaterial.clone();
+            mat.map = stoneMaps.diffuse.clone();
+            mat.bumpMap = stoneMaps.bump.clone();
+            mat.map.repeat.set(w / 4.0, h / 4.0);
+            mat.bumpMap.repeat.set(w / 4.0, h / 4.0);
+            mat.map.needsUpdate = true;
+            mat.bumpMap.needsUpdate = true;
+            return mat;
+        }
 
         const stonePlinthMaterial = new THREE.MeshStandardMaterial({
             color: stonePlinthColor,
             roughness: 0.8,
-            transparent: true,
-            opacity: isXRayMode ? 0.25 : 1.0
+            transparent: isXRayMode,
+            opacity: isXRayMode ? 0.08 : 1.0
         });
 
         const stoneTrimMaterial = new THREE.MeshStandardMaterial({
             color: stoneTrimColor,
             roughness: 0.55,
-            transparent: true,
-            opacity: isXRayMode ? 0.25 : 1.0
+            transparent: isXRayMode,
+            opacity: isXRayMode ? 0.08 : 1.0
         });
 
         const floorSlabMaterial = new THREE.MeshStandardMaterial({
-            color: 0xd8d4cb,
-            roughness: 0.7,
-            transparent: true,
-            opacity: isXRayMode ? 0.35 : 1.0
+            color: 0xded9cf,
+            roughness: 0.65,
+            transparent: isXRayMode,
+            opacity: isXRayMode ? 0.12 : 1.0
         });
 
-        const glassMaterial = new THREE.MeshStandardMaterial({
-            color: 0x071526,
-            roughness: 0.04,
-            metalness: 0.9,
+        // Hyper-realistic Physical PBR Architectural Glass with optical transmission, IOR 1.52 & clearcoat
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 0.90,
+            opacity: 1.0,
             transparent: true,
-            opacity: 0.85
+            roughness: 0.02,
+            ior: 1.52,
+            metalness: 0.04,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.03,
+            depthWrite: false
+        });
+
+        // Modern Balustrade Glass (Crystal Clear Laminated Safety Glass with subtle optical reflection)
+        const modernBalustradeGlass = new THREE.MeshPhysicalMaterial({
+            color: 0xdcf0fa,
+            transmission: 0.88,
+            opacity: 1.0,
+            transparent: true,
+            roughness: 0.02,
+            ior: 1.52,
+            metalness: 0.06,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.02,
+            depthWrite: false
+        });
+
+        // Luxury Modern Entrance Door Materials (Warm Natural Walnut / Oak & Brushed Brass)
+        const modernWoodDoorMat = new THREE.MeshStandardMaterial({
+            color: 0x9a5b28, // Warm rich architectural walnut / oak
+            roughness: 0.35,
+            metalness: 0.05
+        });
+
+        const modernDoorGrooveMat = new THREE.MeshStandardMaterial({
+            color: 0x3d1a08, // Dark shadow walnut reveal grooves
+            roughness: 0.6
+        });
+
+        const brassHandleMat = new THREE.MeshStandardMaterial({
+            color: 0xf59e0b, // Warm polished brushed brass / gold
+            metalness: 0.92,
+            roughness: 0.18
+        });
+
+        const doorGlassMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 0.85,
+            opacity: 1.0,
+            transparent: true,
+            roughness: 0.1,
+            ior: 1.52,
+            depthWrite: false
         });
 
         const darkMetalMaterial = new THREE.MeshStandardMaterial({
             color: 0x0f172a, // Charcoal black aluminum
             roughness: 0.25,
-            metalness: 0.7
+            metalness: 0.75,
+            transparent: isXRayMode,
+            opacity: isXRayMode ? 0.1 : 1.0
         });
 
         const woodDoorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x3d1c06, // Dark mahogany wood
-            roughness: 0.45
+            color: 0x27170e, // Dark mahogany / teak
+            roughness: 0.4
+        });
+
+        const teakLouverMaterial = new THREE.MeshStandardMaterial({
+            color: 0x854d0e, // Teak wood louvers for modern villa
+            roughness: 0.5
         });
 
         const handleMaterial = new THREE.MeshStandardMaterial({
@@ -2964,10 +3524,15 @@
             roughness: 0.1
         });
 
+        // Interior Materials
+        const interiorFloorMat = new THREE.MeshStandardMaterial({ color: 0xecdcc9, roughness: 0.35 }); // Warm crema marble / parquet
+        const interiorWallMat = new THREE.MeshStandardMaterial({ color: 0xfbf9f5, roughness: 0.8 }); // Off-white interior wall
+        const ceilingGlowMat = new THREE.MeshBasicMaterial({ color: 0xfffaed }); // Recessed downlight panel
+
         // ─────────────────────────────────────────────────────────────
         // 1. BASE PLINTH COURSE (مدماك السلسال الحجري السفلي)
         // ─────────────────────────────────────────────────────────────
-        const plinthHeight = 0.45;
+        const plinthHeight = 0.42;
         const plinthGeo = new THREE.BoxGeometry(baseWidth + 0.16, plinthHeight, baseDepth + 0.16);
         const plinthMesh = new THREE.Mesh(plinthGeo, stonePlinthMaterial);
         plinthMesh.position.set(0, plinthHeight / 2, 0);
@@ -2984,39 +3549,372 @@
         for (let i = 0; i < floors; i++) {
             const floorY = i * floorHeight;
 
-            // Main Floor Walls
+            // Geometry massing offsets
             let fW = baseWidth;
             let fD = baseDepth;
             let fX = 0;
             let fZ = 0;
 
-            if (isModern && i === 1) {
-                // Cantilevered upper volume
-                fW = baseWidth * 0.96;
-                fD = baseDepth * 1.08;
-                fX = 0.35;
-                fZ = 0.35;
+            if (isModern) {
+                if (currentModernConcept === 'cubic') {
+                    // Staggered cubic Dabouq villa
+                    fW = baseWidth * 0.96;
+                    fD = baseDepth * 1.04;
+                    if (i === 1) {
+                        fX = -0.25;
+                        fZ = 0.35;
+                    } else if (i >= 2) {
+                        fX = 0.25;
+                        fZ = -0.15;
+                    }
+                } else if (currentModernConcept === 'horizon') {
+                    // Continuous horizontal wide proportions
+                    fW = baseWidth * 1.06;
+                    fD = baseDepth * 0.94;
+                    if (i === 1) {
+                        fZ = 0.18;
+                    }
+                } else {
+                    // 'cantilever'
+                    if (i === 1) {
+                        fW = baseWidth * 0.96;
+                        fD = baseDepth * 1.08;
+                        fX = 0;
+                        fZ = 0.35;
+                    }
+                }
             }
 
-            const floorGeo = new THREE.BoxGeometry(fW, floorHeight, fD);
-            const floorMesh = new THREE.Mesh(floorGeo, wallMaterial);
-            floorMesh.position.set(fX, floorY + floorHeight / 2, fZ);
-            floorMesh.castShadow = !isXRayMode;
-            floorMesh.receiveShadow = true;
-            houseGroup.add(floorMesh);
+            const wallThick = 0.26;
+            const frontZ = fZ + fD / 2;
 
-            // Architectural Corner Quoins (أحجار زوايا كلاسيكية بارزة بتناوب)
+            // ── MAIN OUTER WALLS ──
+            if (isModern && i === 0 && !isXRayMode) {
+                // GROUND FLOOR MODERN FACADE
+                if (currentModernConcept === 'cubic') {
+                    // Staggered Cubic Ground Floor:
+                    // Left recessed salon block + Right forward entrance block
+                    const halfW = fW * 0.50;
+                    const cCurtainH = floorHeight * 0.85;
+
+                    // Back Wall
+                    const bWall = new THREE.Mesh(new THREE.BoxGeometry(fW, floorHeight, wallThick), wallMaterial);
+                    bWall.position.set(fX, floorY + floorHeight / 2, fZ - fD / 2 + wallThick / 2);
+                    bWall.castShadow = true; bWall.receiveShadow = true;
+                    houseGroup.add(bWall);
+
+                    // Left & Right Outer Walls
+                    const lWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    lWall.position.set(fX - fW / 2 + wallThick / 2, floorY + floorHeight / 2, fZ);
+                    lWall.castShadow = true; houseGroup.add(lWall);
+
+                    const rWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    rWall.position.set(fX + fW / 2 - wallThick / 2, floorY + floorHeight / 2, fZ);
+                    rWall.castShadow = true; houseGroup.add(rWall);
+
+                    // Right Solid Cubic Block (Entrance side)
+                    const rFrontWall = new THREE.Mesh(new THREE.BoxGeometry(halfW, floorHeight, wallThick), wallMaterial);
+                    rFrontWall.position.set(fX + halfW / 2, floorY + floorHeight / 2, frontZ - wallThick / 2);
+                    rFrontWall.castShadow = true; rFrontWall.receiveShadow = true;
+                    houseGroup.add(rFrontWall);
+
+                    // Left Block Header above glass
+                    const lHeaderH = floorHeight - cCurtainH;
+                    const lHeader = new THREE.Mesh(new THREE.BoxGeometry(halfW, lHeaderH, wallThick), wallMaterial);
+                    lHeader.position.set(fX - halfW / 2, floorY + cCurtainH + lHeaderH / 2, frontZ - wallThick / 2);
+                    lHeader.castShadow = true; houseGroup.add(lHeader);
+
+                    // Left Block Floor-to-Ceiling Glazing
+                    const lGlass = new THREE.Mesh(new THREE.BoxGeometry(halfW - 0.08, cCurtainH, 0.05), glassMaterial);
+                    lGlass.position.set(fX - halfW / 2, floorY + cCurtainH / 2 + 0.04, frontZ + 0.01);
+                    houseGroup.add(lGlass);
+
+                    // Vertical Mullions
+                    [-halfW / 4, 0, halfW / 4].forEach(mx => {
+                        const mul = new THREE.Mesh(new THREE.BoxGeometry(0.04, cCurtainH, 0.07), darkMetalMaterial);
+                        mul.position.set(fX - halfW / 2 + mx, floorY + cCurtainH / 2 + 0.04, frontZ + 0.02);
+                        houseGroup.add(mul);
+                    });
+
+                    // Grand Modern Entrance Door on Right Block (Rich Walnut & Brass with Downlight)
+                    const doorW = 1.45;
+                    const doorH = 2.45;
+                    const doorX = fX + halfW * 0.42;
+                    const doorY = floorY + doorH / 2 + 0.05;
+                    buildModernLuxuryDoor(houseGroup, doorX, doorY, frontZ, doorW, doorH, 'left', darkMetalMaterial, stoneTrimMaterial);
+
+                    // Slit Window on the Right Block
+                    buildDetailedWindow(houseGroup, fX + halfW * 0.85, floorY + floorHeight * 0.52, frontZ, 0.55, 2.0, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+
+                    // Double-Height Atrium Chandelier in Center (hanging elegance)
+                    const chGeo = new THREE.CylinderGeometry(0.01, 0.01, 1.8, 8);
+                    const chRod = new THREE.Mesh(chGeo, handleMaterial);
+                    chRod.position.set(fX + 0.1, floorY + floorHeight - 0.5, frontZ - 0.8);
+                    houseGroup.add(chRod);
+
+                    [-0.3, 0.3].forEach(off => {
+                        const orbGeo = new THREE.SphereGeometry(0.12, 16, 16);
+                        const orb = new THREE.Mesh(orbGeo, new THREE.MeshBasicMaterial({ color: 0xfffaed }));
+                        orb.position.set(fX + 0.1 + off, floorY + floorHeight - 1.2 + Math.abs(off) * 0.3, frontZ - 0.8);
+                        houseGroup.add(orb);
+                    });
+
+                } else if (currentModernConcept === 'horizon') {
+                    // Horizon Ribbon Ground Floor: Continuous panoramic glass facade
+                    const curtainW = fW * 0.82;
+                    const curtainH = floorHeight * 0.84;
+                    const pierW = (fW - curtainW) / 2;
+
+                    // Back & Side Walls
+                    const bWall = new THREE.Mesh(new THREE.BoxGeometry(fW, floorHeight, wallThick), wallMaterial);
+                    bWall.position.set(fX, floorY + floorHeight / 2, fZ - fD / 2 + wallThick / 2);
+                    bWall.castShadow = true; bWall.receiveShadow = true;
+                    houseGroup.add(bWall);
+
+                    const lWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    lWall.position.set(fX - fW / 2 + wallThick / 2, floorY + floorHeight / 2, fZ);
+                    lWall.castShadow = true; houseGroup.add(lWall);
+
+                    const rWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    rWall.position.set(fX + fW / 2 - wallThick / 2, floorY + floorHeight / 2, fZ);
+                    rWall.castShadow = true; houseGroup.add(rWall);
+
+                    // Left & Right Stone Return Piers
+                    const lPier = new THREE.Mesh(new THREE.BoxGeometry(pierW, floorHeight, wallThick), wallMaterial);
+                    lPier.position.set(fX - fW / 2 + pierW / 2, floorY + floorHeight / 2, frontZ - wallThick / 2);
+                    lPier.castShadow = true; houseGroup.add(lPier);
+
+                    const rPier = new THREE.Mesh(new THREE.BoxGeometry(pierW, floorHeight, wallThick), wallMaterial);
+                    rPier.position.set(fX + fW / 2 - pierW / 2, floorY + floorHeight / 2, frontZ - wallThick / 2);
+                    rPier.castShadow = true; houseGroup.add(rPier);
+
+                    // Header above continuous ribbon glass
+                    const headerH = floorHeight - curtainH;
+                    const cHeader = new THREE.Mesh(new THREE.BoxGeometry(curtainW, headerH, wallThick), wallMaterial);
+                    cHeader.position.set(fX, floorY + curtainH + headerH / 2, frontZ - wallThick / 2);
+                    cHeader.castShadow = true; houseGroup.add(cHeader);
+
+                    // Wall-to-Wall Glass Curtain Wall
+                    const curtainGlass = new THREE.Mesh(new THREE.BoxGeometry(curtainW, curtainH, 0.05), glassMaterial);
+                    curtainGlass.position.set(fX, floorY + curtainH / 2 + 0.04, frontZ + 0.01);
+                    houseGroup.add(curtainGlass);
+
+                    // Slim Vertical Mullions spaced along ribbon
+                    [-curtainW * 0.35, -curtainW * 0.12, curtainW * 0.12, curtainW * 0.35].forEach(mx => {
+                        const mul = new THREE.Mesh(new THREE.BoxGeometry(0.04, curtainH, 0.07), darkMetalMaterial);
+                        mul.position.set(fX + mx, floorY + curtainH / 2 + 0.04, frontZ + 0.02);
+                        houseGroup.add(mul);
+                    });
+
+                    // Sliding Entrance Door Handle
+                    const hHandle = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.03, 0.05), handleMaterial);
+                    hHandle.position.set(fX + 0.3, floorY + 1.1, frontZ + 0.06);
+                    houseGroup.add(hHandle);
+
+                    // Full-Width Sleek Horizontal Entrance Canopy
+                    const canW = curtainW + 0.6;
+                    const canD = 1.35;
+                    const canMesh = new THREE.Mesh(new THREE.BoxGeometry(canW, 0.12, canD), darkMetalMaterial);
+                    canMesh.position.set(fX, floorY + curtainH + 0.06, frontZ + canD / 2);
+                    canMesh.castShadow = true;
+                    houseGroup.add(canMesh);
+
+                } else {
+                    // Cantilever Portal Ground Floor
+                    const curtainH = floorHeight * 0.84;
+                    const curtainW = fW * 0.44;
+
+                    const bWall = new THREE.Mesh(new THREE.BoxGeometry(fW, floorHeight, wallThick), wallMaterial);
+                    bWall.position.set(fX, floorY + floorHeight / 2, fZ - fD / 2 + wallThick / 2);
+                    bWall.castShadow = true; bWall.receiveShadow = true;
+                    houseGroup.add(bWall);
+
+                    const lWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    lWall.position.set(fX - fW / 2 + wallThick / 2, floorY + floorHeight / 2, fZ);
+                    lWall.castShadow = true; houseGroup.add(lWall);
+
+                    const rWall = new THREE.Mesh(new THREE.BoxGeometry(wallThick, floorHeight, fD), wallMaterial);
+                    rWall.position.set(fX + fW / 2 - wallThick / 2, floorY + floorHeight / 2, fZ);
+                    rWall.castShadow = true; houseGroup.add(rWall);
+
+                    // Front Right Solid Wall (Pivot entrance + teak louvers)
+                    const frontRightW = fW * 0.54;
+                    const frWall = new THREE.Mesh(new THREE.BoxGeometry(frontRightW, floorHeight, wallThick), wallMaterial);
+                    frWall.position.set(fX + fW / 2 - frontRightW / 2, floorY + floorHeight / 2, frontZ - wallThick / 2);
+                    frWall.castShadow = true; frWall.receiveShadow = true;
+                    houseGroup.add(frWall);
+
+                    // Header above living glass
+                    const headerH = floorHeight - curtainH;
+                    const frontLeftW = fW - frontRightW;
+                    const flHeader = new THREE.Mesh(new THREE.BoxGeometry(frontLeftW, headerH, wallThick), wallMaterial);
+                    flHeader.position.set(fX - fW / 2 + frontLeftW / 2, floorY + curtainH + headerH / 2, frontZ - wallThick / 2);
+                    flHeader.castShadow = true; houseGroup.add(flHeader);
+
+                    // Living Glass Curtain Wall
+                    const curtainGlass = new THREE.Mesh(new THREE.BoxGeometry(curtainW, curtainH, 0.05), glassMaterial);
+                    curtainGlass.position.set(fX - fW * 0.22, floorY + curtainH / 2 + 0.06, frontZ + 0.01);
+                    houseGroup.add(curtainGlass);
+
+                    // Mullions
+                    [-curtainW / 4, 0, curtainW / 4].forEach(mx => {
+                        const mul = new THREE.Mesh(new THREE.BoxGeometry(0.04, curtainH, 0.07), darkMetalMaterial);
+                        mul.position.set(fX - fW * 0.22 + mx, floorY + curtainH / 2 + 0.06, frontZ + 0.02);
+                        houseGroup.add(mul);
+                    });
+
+                    // Grand Pivot Door (Rich Walnut & Brass with Slatted Flutes & Downlight)
+                    const doorW = 1.55;
+                    const doorH = 2.45;
+                    const doorX = fX + fW * 0.16;
+                    const doorY = floorY + doorH / 2 + 0.05;
+                    buildModernLuxuryDoor(houseGroup, doorX, doorY, frontZ, doorW, doorH, 'left', darkMetalMaterial, stoneTrimMaterial);
+
+                    // Acoustic Teak Battens
+                    const louverAreaW = 1.2;
+                    const numBattens = 7;
+                    for (let b = 0; b < numBattens; b++) {
+                        const bx = doorX + doorW / 2 + 0.1 + (b * (louverAreaW / numBattens));
+                        const battenMesh = new THREE.Mesh(new THREE.BoxGeometry(0.06, doorH, 0.08), teakLouverMaterial);
+                        battenMesh.position.set(bx, doorY, frontZ + 0.04);
+                        battenMesh.castShadow = true;
+                        houseGroup.add(battenMesh);
+                    }
+
+                    // Floating Entrance Canopy
+                    const canW = doorW + louverAreaW + 0.6;
+                    const canD = 1.4;
+                    const canMesh = new THREE.Mesh(new THREE.BoxGeometry(canW, 0.12, canD), darkMetalMaterial);
+                    canMesh.position.set(doorX + (louverAreaW / 2) - 0.1, doorY + doorH / 2 + 0.1, frontZ + canD / 2);
+                    canMesh.castShadow = true;
+                    houseGroup.add(canMesh);
+                }
+            } else {
+                // Standard solid floor walls for Classic / Apartment / Upper floors
+                const floorGeo = new THREE.BoxGeometry(fW, floorHeight, fD);
+                const floorMesh = new THREE.Mesh(floorGeo, wallMaterial);
+                floorMesh.position.set(fX, floorY + floorHeight / 2, fZ);
+                floorMesh.castShadow = !isXRayMode;
+                floorMesh.receiveShadow = true;
+                houseGroup.add(floorMesh);
+            }
+
+            // ── INTERIOR ROOMS & WARM LIGHTING (داخل البيت مضاء ومفروش بفخامة) ──
+            if (!isXRayMode) {
+                // Interior Floor Slab (Warm marble/parquet)
+                const intFloorGeo = new THREE.BoxGeometry(fW - 0.25, 0.04, fD - 0.25);
+                const intFloorMesh = new THREE.Mesh(intFloorGeo, interiorFloorMat);
+                intFloorMesh.position.set(fX, floorY + 0.03, fZ);
+                houseGroup.add(intFloorMesh);
+
+                // Interior Central Partition Wall
+                const intPartGeo = new THREE.BoxGeometry(0.12, floorHeight - 0.2, fD * 0.65);
+                const intPartMesh = new THREE.Mesh(intPartGeo, interiorWallMat);
+                intPartMesh.position.set(fX + fW * 0.08, floorY + floorHeight / 2, fZ);
+                houseGroup.add(intPartMesh);
+
+                // Warm Interior Architectural Light
+                const intLight = new THREE.PointLight(0xffecd2, 1.15, 11);
+                intLight.position.set(fX, floorY + floorHeight * 0.72, fZ);
+                houseGroup.add(intLight);
+
+                // Recessed Ceiling Downlight Glow Panel
+                const downlightGeo = new THREE.BoxGeometry(fW * 0.5, 0.02, fD * 0.5);
+                const downlightMesh = new THREE.Mesh(downlightGeo, ceilingGlowMat);
+                downlightMesh.position.set(fX, floorY + floorHeight - 0.04, fZ);
+                houseGroup.add(downlightMesh);
+
+                // GROUND FLOOR LUXURY FURNISHED SALON
+                if (i === 0) {
+                    const roomFrontZ = fZ + fD / 2;
+                    const sofaMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
+                    const cushionMat = new THREE.MeshStandardMaterial({ color: 0xd6cbb8, roughness: 0.75 });
+                    const marbleTableMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.1 });
+                    const brassGoldMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.88, roughness: 0.22 });
+                    const fireplaceMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+                    const flameMat = new THREE.MeshBasicMaterial({ color: 0xff7700 });
+                    const plantPotMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.5 });
+                    const leafMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.6 });
+
+                    // Italian Sectional L-Sofa
+                    const sofaSeat = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.36, 0.9), sofaMat);
+                    sofaSeat.position.set(fX - fW * 0.14, floorY + 0.22, fZ - 0.3);
+                    sofaSeat.castShadow = true; houseGroup.add(sofaSeat);
+
+                    const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.44, 0.22), sofaMat);
+                    sofaBack.position.set(fX - fW * 0.14, floorY + 0.48, fZ - 0.3 - 0.35);
+                    sofaBack.castShadow = true; houseGroup.add(sofaBack);
+
+                    const chaise = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.36, 1.25), sofaMat);
+                    chaise.position.set(fX - fW * 0.14 - 1.15 + 0.45, floorY + 0.22, fZ - 0.3 + 0.85);
+                    chaise.castShadow = true; houseGroup.add(chaise);
+
+                    [-0.55, 0.35].forEach(px => {
+                        const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.28, 0.12), cushionMat);
+                        pillow.rotation.y = 0.08;
+                        pillow.position.set(fX - fW * 0.14 + px, floorY + 0.46, fZ - 0.3 - 0.2);
+                        houseGroup.add(pillow);
+                    });
+
+                    // Calacatta Marble & Brass Table
+                    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.05, 0.7), marbleTableMat);
+                    tableTop.position.set(fX - fW * 0.14, floorY + 0.32, fZ + 0.55);
+                    tableTop.castShadow = true; houseGroup.add(tableTop);
+
+                    [-0.55, 0.55].forEach(tx => {
+                        [-0.26, 0.26].forEach(tz => {
+                            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.29, 8), brassGoldMat);
+                            leg.position.set(fX - fW * 0.14 + tx, floorY + 0.16, fZ + 0.55 + tz);
+                            houseGroup.add(leg);
+                        });
+                    });
+
+                    // Fireplace
+                    const fpBase = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.70, 0.32), fireplaceMat);
+                    fpBase.position.set(fX - fW * 0.14, floorY + 0.38, roomFrontZ - 0.45);
+                    fpBase.castShadow = true; houseGroup.add(fpBase);
+
+                    const firebox = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.24, 0.20), flameMat);
+                    firebox.position.set(fX - fW * 0.14, floorY + 0.35, roomFrontZ - 0.42);
+                    houseGroup.add(firebox);
+
+                    const fpLight = new THREE.PointLight(0xff6a00, 1.7, 5.0);
+                    fpLight.position.set(fX - fW * 0.14, floorY + 0.44, roomFrontZ - 0.25);
+                    houseGroup.add(fpLight);
+
+                    // Chandelier Ring
+                    const ringChandelier = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.022, 10, 28), brassGoldMat);
+                    ringChandelier.rotation.x = Math.PI / 2;
+                    ringChandelier.position.set(fX - fW * 0.14, floorY + floorHeight - 0.40, fZ + 0.15);
+                    houseGroup.add(ringChandelier);
+
+                    const glowRing = new THREE.Mesh(new THREE.TorusGeometry(0.50, 0.010, 8, 28), new THREE.MeshBasicMaterial({ color: 0xfffae6 }));
+                    glowRing.rotation.x = Math.PI / 2;
+                    glowRing.position.set(fX - fW * 0.14, floorY + floorHeight - 0.41, fZ + 0.15);
+                    houseGroup.add(glowRing);
+
+                    // Planter
+                    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.48, 14), plantPotMat);
+                    pot.position.set(fX + fW * 0.30, floorY + 0.24, roomFrontZ - 0.65);
+                    pot.castShadow = true; houseGroup.add(pot);
+
+                    const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(0.35, 1), leafMat);
+                    foliage.position.set(fX + fW * 0.30, floorY + 0.78, roomFrontZ - 0.65);
+                    foliage.castShadow = true; houseGroup.add(foliage);
+                }
+            }
+
+            // Classical Quoins
             if (isClassic || isApartment) {
                 const quoinCourseH = 0.25;
                 const numQuoins = Math.floor(floorHeight / quoinCourseH);
                 for (let q = 0; q < numQuoins; q++) {
                     const qY = floorY + (q * quoinCourseH) + quoinCourseH / 2;
                     const isLong = (q % 2 === 0);
-                    const qLength = isLong ? 0.65 : 0.42;
-                    const qDepth = isLong ? 0.42 : 0.65;
+                    const qLength = isLong ? 0.62 : 0.40;
+                    const qDepth = isLong ? 0.40 : 0.62;
                     const qGeo = new THREE.BoxGeometry(qLength, quoinCourseH - 0.02, qDepth);
 
-                    // 4 Corner Placements
                     [
                         [fX - fW / 2 + qLength / 2 - 0.02, fZ - fD / 2 + qDepth / 2 - 0.02],
                         [fX + fW / 2 - qLength / 2 + 0.02, fZ - fD / 2 + qDepth / 2 - 0.02],
@@ -3040,232 +3938,505 @@
             houseGroup.add(slabMesh);
 
             // Multi-Tiered Stone Cornice Belt
-            if (includeCornice && i < floors - 1) {
-                const beltGeo = new THREE.BoxGeometry(fW + 0.54, 0.26, fD + 0.54);
+            if (includeCornice && i < floors - 1 && !isModern) {
+                const beltGeo = new THREE.BoxGeometry(fW + 0.52, 0.24, fD + 0.52);
                 const beltMesh = new THREE.Mesh(beltGeo, stoneTrimMaterial);
-                beltMesh.position.set(fX, floorY + floorHeight + 0.13, fZ);
+                beltMesh.position.set(fX, floorY + floorHeight + 0.12, fZ);
                 beltMesh.castShadow = true;
                 houseGroup.add(beltMesh);
             }
 
             // ─────────────────────────────────────────────────────────
-            // FRONT FACADE: GRAND ENTRANCE (Floor 0) OR BALCONY (Floor > 0)
+            // FACADE OPENINGS & BALCONIES
             // ─────────────────────────────────────────────────────────
-            const frontZ = fZ + fD / 2;
-
             if (i === 0) {
-                // GROUND FLOOR GRAND ENTRANCE DOOR (المدخل الرئيسي)
-                const doorW = 1.8;
-                const doorH = 2.4;
-                const doorY = floorY + doorH / 2 + 0.05;
+                // GROUND FLOOR CLASSIC / APARTMENT ENTRANCE
+                if (!isModern) {
+                    const doorW = 1.8;
+                    const doorH = 2.4;
+                    const doorY = floorY + doorH / 2 + 0.05;
+                    const frameCasing = 0.16;
 
-                // Recessed Door Frame
-                const doorFrameGeo = new THREE.BoxGeometry(doorW + 0.3, doorH + 0.25, 0.12);
-                const doorFrame = new THREE.Mesh(doorFrameGeo, stoneTrimMaterial);
-                doorFrame.position.set(fX, doorY, frontZ + 0.02);
-                houseGroup.add(doorFrame);
+                    // Architrave
+                    const dJambL = new THREE.Mesh(new THREE.BoxGeometry(frameCasing, doorH + frameCasing, 0.10), stoneTrimMaterial);
+                    dJambL.position.set(fX - doorW / 2 - frameCasing / 2, doorY + frameCasing / 2, frontZ + 0.05);
+                    dJambL.castShadow = true; houseGroup.add(dJambL);
 
-                // Wood Door Leaf
-                const doorGeo = new THREE.BoxGeometry(doorW, doorH, 0.06);
-                const doorMesh = new THREE.Mesh(doorGeo, woodDoorMaterial);
-                doorMesh.position.set(fX, doorY, frontZ + 0.03);
-                houseGroup.add(doorMesh);
+                    const dJambR = new THREE.Mesh(new THREE.BoxGeometry(frameCasing, doorH + frameCasing, 0.10), stoneTrimMaterial);
+                    dJambR.position.set(fX + doorW / 2 + frameCasing / 2, doorY + frameCasing / 2, frontZ + 0.05);
+                    dJambR.castShadow = true; houseGroup.add(dJambR);
 
-                // Door Glass Panels
-                [-0.4, 0.4].forEach(gx => {
-                    const dGlassGeo = new THREE.BoxGeometry(0.35, 1.4, 0.08);
-                    const dGlass = new THREE.Mesh(dGlassGeo, glassMaterial);
-                    dGlass.position.set(fX + gx, doorY + 0.2, frontZ + 0.03);
-                    houseGroup.add(dGlass);
+                    const dHead = new THREE.Mesh(new THREE.BoxGeometry(doorW + frameCasing * 2 + 0.1, frameCasing, 0.12), stoneTrimMaterial);
+                    dHead.position.set(fX, doorY + doorH / 2 + frameCasing / 2, frontZ + 0.06);
+                    dHead.castShadow = true; houseGroup.add(dHead);
 
-                    // Stainless Steel Vertical Door Pulls (مقابض ستانلس فخمة)
-                    const handleGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.8, 12);
-                    const handleMesh = new THREE.Mesh(handleGeo, handleMaterial);
-                    handleMesh.position.set(fX + gx * 0.4, doorY, frontZ + 0.1);
-                    houseGroup.add(handleMesh);
-                });
+                    const dKey = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.24, 0.16), stoneTrimMaterial);
+                    dKey.position.set(fX, doorY + doorH / 2 + frameCasing / 2 + 0.04, frontZ + 0.08);
+                    dKey.castShadow = true; houseGroup.add(dKey);
 
-                // Transom Arched Window over Door (قوس زجاجي أعلى المدخل)
-                if (isClassic) {
-                    const transGeo = new THREE.CylinderGeometry(doorW * 0.5, doorW * 0.5, 0.08, 16, 1, false, 0, Math.PI);
-                    const transMesh = new THREE.Mesh(transGeo, stoneTrimMaterial);
-                    transMesh.rotation.z = Math.PI / 2;
-                    transMesh.rotation.x = Math.PI / 2;
-                    transMesh.position.set(fX, doorY + doorH / 2 + 0.02, frontZ + 0.03);
-                    houseGroup.add(transMesh);
+                    // Wood Door
+                    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.06), woodDoorMaterial);
+                    doorMesh.position.set(fX, doorY, frontZ + 0.03);
+                    doorMesh.castShadow = true; houseGroup.add(doorMesh);
+
+                    // Glass Sidelights & Handles
+                    [-0.45, 0.45].forEach(gx => {
+                        const dGlass = new THREE.Mesh(new THREE.BoxGeometry(0.32, doorH * 0.72, 0.06), glassMaterial);
+                        dGlass.position.set(fX + gx, doorY + 0.1, frontZ + 0.04);
+                        houseGroup.add(dGlass);
+
+                        const handleMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 1.1, 12), handleMaterial);
+                        handleMesh.position.set(fX + gx * 0.4, doorY, frontZ + 0.09);
+                        houseGroup.add(handleMesh);
+                    });
+
+                    // Stone Steps
+                    for (let st = 0; st < 3; st++) {
+                        const stepW = doorW + 1.6 - st * 0.28;
+                        const stepD = 1.0 + (3 - st) * 0.32;
+                        const stepH = 0.14;
+                        const stepMesh = new THREE.Mesh(new THREE.BoxGeometry(stepW, stepH, stepD), stoneTrimMaterial);
+                        stepMesh.position.set(fX, (st + 1) * (stepH / 2), frontZ + stepD / 2);
+                        stepMesh.receiveShadow = true; houseGroup.add(stepMesh);
+                    }
+
+                    // Flanking Windows
+                    [-baseWidth * 0.32, baseWidth * 0.32].forEach(wx => {
+                        buildDetailedWindow(houseGroup, fX + wx, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    });
                 }
-
-                // Ground Entrance Steps (درجات المدخل الحجرية)
-                for (let st = 0; st < 3; st++) {
-                    const stepW = doorW + 1.6 - st * 0.3;
-                    const stepD = 1.0 + (3 - st) * 0.35;
-                    const stepH = 0.14;
-                    const stepGeo = new THREE.BoxGeometry(stepW, stepH, stepD);
-                    const stepMesh = new THREE.Mesh(stepGeo, stoneTrimMaterial);
-                    stepMesh.position.set(fX, (st + 1) * (stepH / 2), frontZ + stepD / 2);
-                    stepMesh.receiveShadow = true;
-                    houseGroup.add(stepMesh);
-                }
-
-                // Flanking Windows on Ground Floor
-                [-baseWidth * 0.32, baseWidth * 0.32].forEach(wx => {
-                    buildDetailedWindow(houseGroup, fX + wx, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, windowCount);
-                });
-
             } else {
-                // UPPER FLOORS: BALCONY + FRENCH DOORS (شرفة وبرندة ودرابزين)
-                const balcW = baseWidth * 0.48;
-                const balcD = 1.35;
-                const balcY = floorY + 0.12;
+                // UPPER FLOORS (i > 0)
+                if (isModern) {
+                    if (currentModernConcept === 'cantilever') {
+                        // 1. Wrap-Around Panoramic Corner Window on Front-Left Corner
+                        const cornerWinW = 2.0;
+                        const cornerWinH = 1.7;
+                        const cornerWinY = floorY + floorHeight * 0.55;
+                        const cornerX = fX - fW / 2 + cornerWinW / 2;
 
-                // Balcony Cantilevered Stone Slab
-                const bSlabGeo = new THREE.BoxGeometry(balcW, 0.22, balcD);
-                const bSlabMesh = new THREE.Mesh(bSlabGeo, stoneTrimMaterial);
-                bSlabMesh.position.set(fX, balcY, frontZ + balcD / 2);
-                bSlabMesh.castShadow = true;
-                houseGroup.add(bSlabMesh);
+                        // Front Face Glass of Corner Window
+                        const cWinFront = new THREE.Mesh(new THREE.BoxGeometry(cornerWinW, cornerWinH, 0.04), glassMaterial);
+                        cWinFront.position.set(cornerX, cornerWinY, frontZ + 0.02);
+                        houseGroup.add(cWinFront);
 
-                // French Balcony Double Doors (باب الشرفة الزجاجي)
-                const fDoorGeo = new THREE.BoxGeometry(balcW * 0.75, 2.1, 0.06);
-                const fDoor = new THREE.Mesh(fDoorGeo, glassMaterial);
-                fDoor.position.set(fX, floorY + 1.15, frontZ + 0.02);
-                houseGroup.add(fDoor);
+                        // Side Face Glass of Corner Window (Left return)
+                        const cornerSideD = 1.4;
+                        const cWinSide = new THREE.Mesh(new THREE.BoxGeometry(0.04, cornerWinH, cornerSideD), glassMaterial);
+                        cWinSide.position.set(fX - fW / 2 + 0.02, cornerWinY, frontZ - cornerSideD / 2);
+                        houseGroup.add(cWinSide);
 
-                // French Door Frame
-                const fFrameGeo = new THREE.BoxGeometry(balcW * 0.75 + 0.2, 2.2, 0.08);
-                const fFrame = new THREE.Mesh(fFrameGeo, stoneTrimMaterial);
-                fFrame.position.set(fX, floorY + 1.15, frontZ - 0.02);
-                houseGroup.add(fFrame);
+                        // Razor-sharp Charcoal Corner Mullion Post
+                        const cCornerPost = new THREE.Mesh(new THREE.BoxGeometry(0.06, cornerWinH + 0.04, 0.06), darkMetalMaterial);
+                        cCornerPost.position.set(fX - fW / 2 + 0.02, cornerWinY, frontZ + 0.02);
+                        houseGroup.add(cCornerPost);
 
-                // REAL 3D ARCHITECTURAL BALUSTRADE / RAILING (درابزين مفرغ واضح بالملي)
-                const railH = 0.9;
-                const topRailGeo = new THREE.BoxGeometry(balcW, 0.06, 0.06);
-                const topRail = new THREE.Mesh(topRailGeo, darkMetalMaterial);
-                topRail.position.set(fX, balcY + railH, frontZ + balcD - 0.03);
-                topRail.castShadow = true;
-                houseGroup.add(topRail);
+                        // Sleek Upper Balcony on the Right Side
+                        const balcW = fW * 0.46;
+                        const balcD = 1.35;
+                        const balcX = fX + fW * 0.20;
+                        const balcY = floorY + 0.12; // Strictly above lower slab (Zero Z-fighting!)
 
-                // Side handrails
-                [-balcW / 2 + 0.03, balcW / 2 - 0.03].forEach(sideX => {
-                    const sideRailGeo = new THREE.BoxGeometry(0.06, 0.06, balcD);
-                    const sideRail = new THREE.Mesh(sideRailGeo, darkMetalMaterial);
-                    sideRail.position.set(fX + sideX, balcY + railH, frontZ + balcD / 2);
-                    houseGroup.add(sideRail);
-                });
+                        // Balcony Cantilever Slab
+                        const bSlabMesh = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.18, balcD), stoneTrimMaterial);
+                        bSlabMesh.position.set(balcX, balcY, frontZ + 0.02 + balcD / 2);
+                        bSlabMesh.castShadow = true; houseGroup.add(bSlabMesh);
 
-                // Vertical Spindles / Balusters (قضبان الدرابزين الرأسية المفرغة)
-                const numSpindles = Math.floor(balcW / 0.16);
-                for (let s = 0; s <= numSpindles; s++) {
-                    const spX = -balcW / 2 + (s * (balcW / numSpindles));
-                    const spGeo = new THREE.CylinderGeometry(0.012, 0.012, railH - 0.06, 8);
-                    const spMesh = new THREE.Mesh(spGeo, darkMetalMaterial);
-                    spMesh.position.set(fX + spX, balcY + railH / 2, frontZ + balcD - 0.03);
-                    spMesh.castShadow = true;
-                    houseGroup.add(spMesh);
+                        // French Sliding Patio Door
+                        const fDoorW = balcW * 0.72;
+                        const fDoorH = 2.15;
+                        const fDoorY = floorY + fDoorH / 2 + 0.08;
+
+                        const fBacking = new THREE.Mesh(new THREE.PlaneGeometry(fDoorW, fDoorH), new THREE.MeshBasicMaterial({ color: 0x1a1612 }));
+                        fBacking.position.set(balcX, fDoorY, frontZ + 0.015);
+                        houseGroup.add(fBacking);
+
+                        const fDoor = new THREE.Mesh(new THREE.PlaneGeometry(fDoorW - 0.06, fDoorH - 0.06), glassMaterial);
+                        fDoor.position.set(balcX, fDoorY, frontZ + 0.035);
+                        houseGroup.add(fDoor);
+
+                        // Aluminum Frame & Center Stile
+                        const fFrameGeo = new THREE.BoxGeometry(fDoorW, fDoorH, 0.04);
+                        [-fDoorW / 2 + 0.03, 0, fDoorW / 2 - 0.03].forEach(fx => {
+                            const fStile = new THREE.Mesh(new THREE.BoxGeometry(0.05, fDoorH, 0.05), darkMetalMaterial);
+                            fStile.position.set(balcX + fx, fDoorY, frontZ + 0.038);
+                            houseGroup.add(fStile);
+                        });
+
+                        // Frameless Tempered Glass Balustrade (Zero intersection with slab)
+                        const railH = 0.94;
+                        const glassH = railH - 0.08;
+
+                        // Bottom Aluminum Shoe Channel
+                        const bShoe = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.05, 0.05), darkMetalMaterial);
+                        bShoe.position.set(balcX, balcY + 0.09 + 0.025, frontZ + balcD - 0.03);
+                        houseGroup.add(bShoe);
+
+                        // Glass Panel
+                        const gBalc = new THREE.Mesh(new THREE.BoxGeometry(balcW - 0.06, glassH, 0.02), modernBalustradeGlass);
+                        gBalc.position.set(balcX, balcY + 0.09 + 0.05 + glassH / 2, frontZ + balcD - 0.03);
+                        houseGroup.add(gBalc);
+
+                        // Top Handrail Cap
+                        const tCap = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.035, 0.04), darkMetalMaterial);
+                        tCap.position.set(balcX, balcY + 0.09 + railH, frontZ + balcD - 0.03);
+                        houseGroup.add(tCap);
+
+                    } else if (currentModernConcept === 'cubic') {
+                        // Staggered Cubic Upper Floor:
+                        // Left block: Forward cantilever mass with vertical slit windows
+                        // Right block: Recessed stone terrace with solid stone parapet
+                        const halfW = fW * 0.50;
+
+                        // Left Cantilevered Block Slit Windows
+                        [-halfW * 0.28, halfW * 0.28].forEach(sx => {
+                            buildDetailedWindow(houseGroup, fX - halfW / 2 + sx, floorY + floorHeight * 0.52, frontZ, 0.50, 1.9, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                        });
+
+                        // Right Recessed Terrace
+                        const balcW = halfW - 0.2;
+                        const balcD = 1.35;
+                        const balcX = fX + halfW / 2;
+                        const balcY = floorY + 0.12;
+
+                        // Recessed Terrace Floor
+                        const tFloor = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.16, balcD), stoneTrimMaterial);
+                        tFloor.position.set(balcX, balcY, frontZ + balcD / 2);
+                        tFloor.castShadow = true; houseGroup.add(tFloor);
+
+                        // Solid Stone Balustrade (Distinctive modern Dabouq stone parapet)
+                        const stoneBalcH = 0.88;
+                        const sBalc = new THREE.Mesh(new THREE.BoxGeometry(balcW, stoneBalcH, 0.16), getStoneWallMaterial(balcW, stoneBalcH));
+                        sBalc.position.set(balcX, balcY + stoneBalcH / 2 + 0.08, frontZ + balcD - 0.08);
+                        sBalc.castShadow = true; houseGroup.add(sBalc);
+
+                        // Charcoal Coping on Stone Balustrade
+                        const sCoping = new THREE.Mesh(new THREE.BoxGeometry(balcW + 0.04, 0.05, 0.20), darkMetalMaterial);
+                        sCoping.position.set(balcX, balcY + stoneBalcH + 0.09, frontZ + balcD - 0.08);
+                        houseGroup.add(sCoping);
+
+                        // Terrace Access Glass Door
+                        buildDetailedWindow(houseGroup, balcX, floorY + floorHeight * 0.52, frontZ, 1.2, 2.1, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+
+                    } else if (currentModernConcept === 'horizon') {
+                        // Horizon Ribbon Upper Floor: Full-width continuous ribbon window & deep balcony
+                        const ribbonW = fW * 0.86;
+                        const ribbonH = 1.35;
+                        const ribbonY = floorY + floorHeight * 0.54;
+
+                        // Continuous Panoramic Ribbon Window
+                        const rGlass = new THREE.Mesh(new THREE.BoxGeometry(ribbonW, ribbonH, 0.05), glassMaterial);
+                        rGlass.position.set(fX, ribbonY, frontZ + 0.02);
+                        houseGroup.add(rGlass);
+
+                        // Upper & Lower Horizontal Architectural Concrete Eyebrows / Sunshade Ledges
+                        [-ribbonH / 2 - 0.06, ribbonH / 2 + 0.06].forEach(ly => {
+                            const ledge = new THREE.Mesh(new THREE.BoxGeometry(ribbonW + 0.4, 0.12, 0.24), stoneTrimMaterial);
+                            ledge.position.set(fX, ribbonY + ly, frontZ + 0.12);
+                            ledge.castShadow = true; houseGroup.add(ledge);
+                        });
+
+                        // Slim Vertical Mullions along ribbon
+                        [-ribbonW * 0.35, -ribbonW * 0.12, ribbonW * 0.12, ribbonW * 0.35].forEach(mx => {
+                            const mul = new THREE.Mesh(new THREE.BoxGeometry(0.04, ribbonH, 0.07), darkMetalMaterial);
+                            mul.position.set(fX + mx, ribbonY, frontZ + 0.03);
+                            houseGroup.add(mul);
+                        });
+
+                        // Full-Width Cantilevered Balcony Slab
+                        const balcW = ribbonW + 0.2;
+                        const balcD = 1.4;
+                        const balcY = floorY + 0.12;
+
+                        const bSlabMesh = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.18, balcD), stoneTrimMaterial);
+                        bSlabMesh.position.set(fX, balcY, frontZ + balcD / 2);
+                        bSlabMesh.castShadow = true; houseGroup.add(bSlabMesh);
+
+                        // Full-Width Crystal Glass Balustrade
+                        const railH = 0.94;
+                        const gBalc = new THREE.Mesh(new THREE.BoxGeometry(balcW - 0.06, railH - 0.08, 0.02), modernBalustradeGlass);
+                        gBalc.position.set(fX, balcY + 0.09 + (railH - 0.08) / 2 + 0.04, frontZ + balcD - 0.03);
+                        houseGroup.add(gBalc);
+
+                        const tCap = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.035, 0.04), darkMetalMaterial);
+                        tCap.position.set(fX, balcY + 0.09 + railH, frontZ + balcD - 0.03);
+                        houseGroup.add(tCap);
+                    }
+
+                } else {
+                    // CLASSIC / APARTMENT UPPER BALCONY
+                    const balcW = baseWidth * 0.48;
+                    const balcD = 1.3;
+                    const balcY = floorY + 0.12;
+
+                    const bSlabMesh = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.20, balcD), stoneTrimMaterial);
+                    bSlabMesh.position.set(fX, balcY, frontZ + balcD / 2);
+                    bSlabMesh.castShadow = true; houseGroup.add(bSlabMesh);
+
+                    const fDoorW = balcW * 0.70;
+                    const fDoorH = 2.15;
+                    const fDoorY = floorY + fDoorH / 2 + 0.05;
+
+                    const fBacking = new THREE.Mesh(new THREE.PlaneGeometry(fDoorW, fDoorH), new THREE.MeshBasicMaterial({ color: 0x1a1612 }));
+                    fBacking.position.set(fX, fDoorY, frontZ + 0.015);
+                    houseGroup.add(fBacking);
+
+                    const fDoor = new THREE.Mesh(new THREE.PlaneGeometry(fDoorW - 0.06, fDoorH - 0.06), glassMaterial);
+                    fDoor.position.set(fX, fDoorY, frontZ + 0.035);
+                    houseGroup.add(fDoor);
+
+                    [-fDoorW / 2 + 0.03, 0, fDoorW / 2 - 0.03].forEach(fx => {
+                        const fStile = new THREE.Mesh(new THREE.BoxGeometry(0.05, fDoorH, 0.05), darkMetalMaterial);
+                        fStile.position.set(fX + fx, fDoorY, frontZ + 0.038);
+                        houseGroup.add(fStile);
+                    });
+
+                    // Wrought Iron Spindles & Handrail
+                    const railH = 0.92;
+                    const topRail = new THREE.Mesh(new THREE.BoxGeometry(balcW, 0.06, 0.06), darkMetalMaterial);
+                    topRail.position.set(fX, balcY + railH, frontZ + balcD - 0.03);
+                    topRail.castShadow = true; houseGroup.add(topRail);
+
+                    [-balcW / 2 + 0.03, balcW / 2 - 0.03].forEach(sideX => {
+                        const sideRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, balcD), darkMetalMaterial);
+                        sideRail.position.set(fX + sideX, balcY + railH, frontZ + balcD / 2);
+                        houseGroup.add(sideRail);
+                    });
+
+                    const numSpindles = Math.floor(balcW / 0.16);
+                    for (let s = 0; s <= numSpindles; s++) {
+                        const spX = -balcW / 2 + (s * (balcW / numSpindles));
+                        const spMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, railH - 0.06, 8), darkMetalMaterial);
+                        spMesh.position.set(fX + spX, balcY + railH / 2, frontZ + balcD - 0.03);
+                        spMesh.castShadow = true; houseGroup.add(spMesh);
+                    }
+
+                    // Flanking Windows
+                    [-baseWidth * 0.32, baseWidth * 0.32].forEach(wx => {
+                        buildDetailedWindow(houseGroup, fX + wx, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    });
                 }
-
-                // Flanking Windows on Upper Floors
-                [-baseWidth * 0.32, baseWidth * 0.32].forEach(wx => {
-                    buildDetailedWindow(houseGroup, fX + wx, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, windowCount);
-                });
             }
 
             // ─────────────────────────────────────────────────────────
-            // SIDE FACADES: REAL WINDOWS (شبابيك على الواجهات الجانبية)
+            // SIDE FACADES: RECESSED WINDOWS
             // ─────────────────────────────────────────────────────────
             [-fD * 0.22, fD * 0.22].forEach(sideZ => {
-                // Right Wall Window
-                buildDetailedWindow(houseGroup, fX + fW / 2, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-right', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, windowCount);
-                // Left Wall Window
-                buildDetailedWindow(houseGroup, fX - fW / 2, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-left', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, windowCount);
+                buildDetailedWindow(houseGroup, fX + fW / 2, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-right', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
+                buildDetailedWindow(houseGroup, fX - fW / 2, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-left', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
             });
         }
 
         // ─────────────────────────────────────────────────────────────
-        // 3. ROOF PARAPET & COPING STONES (تصوينة السطح المكسوة)
+        // 3. ROOF PARAPET & ARCHITECTURAL FEATURES
         // ─────────────────────────────────────────────────────────────
         const topY = floors * floorHeight;
-        const parapetH = 0.75;
-        const parapetGeo = new THREE.BoxGeometry(baseWidth + 0.12, parapetH, baseDepth + 0.12);
-        const parapetMesh = new THREE.Mesh(parapetGeo, wallMaterial);
-        parapetMesh.position.set(0, topY + parapetH / 2, 0);
-        parapetMesh.castShadow = true;
-        houseGroup.add(parapetMesh);
 
-        // Coping Stone Cap (كشطة حجر علوية مائلة)
-        const copingGeo = new THREE.BoxGeometry(baseWidth + 0.36, 0.12, baseDepth + 0.36);
-        const copingMesh = new THREE.Mesh(copingGeo, stoneTrimMaterial);
-        copingMesh.position.set(0, topY + parapetH + 0.06, 0);
-        copingMesh.castShadow = true;
-        houseGroup.add(copingMesh);
+        if (isModern) {
+            if (currentModernConcept === 'cubic') {
+                // Staggered Asymmetrical Cubic Parapets (Dabouq aesthetic)
+                const halfW = baseWidth * 0.50;
+                const leftParapetH = 0.75;  // High tower parapet
+                const rightParapetH = 0.40; // Low terrace parapet
 
-        // Rooftop Penthouse / Stairwell (بيت الدرج)
-        const stairW = 3.2;
-        const stairH = 2.4;
-        const stairD = 3.4;
-        const stairGeo = new THREE.BoxGeometry(stairW, stairH, stairD);
-        const stairMesh = new THREE.Mesh(stairGeo, wallMaterial);
-        stairMesh.position.set(-baseWidth * 0.18, topY + stairH / 2, -baseDepth * 0.1);
-        stairMesh.castShadow = true;
-        houseGroup.add(stairMesh);
+                // Left Tower Parapet
+                const lPara = new THREE.Mesh(new THREE.BoxGeometry(halfW + 0.06, leftParapetH, baseDepth + 0.08), getStoneWallMaterial(halfW, leftParapetH));
+                lPara.position.set(-halfW / 2, topY + leftParapetH / 2, 0);
+                lPara.castShadow = true; houseGroup.add(lPara);
 
-        // Penthouse Door & Coping
-        const stCopingGeo = new THREE.BoxGeometry(stairW + 0.25, 0.1, stairD + 0.25);
-        const stCoping = new THREE.Mesh(stCopingGeo, stoneTrimMaterial);
-        stCoping.position.set(-baseWidth * 0.18, topY + stairH + 0.05, -baseDepth * 0.1);
-        houseGroup.add(stCoping);
+                // Right Low Parapet
+                const rPara = new THREE.Mesh(new THREE.BoxGeometry(halfW + 0.06, rightParapetH, baseDepth + 0.08), getStoneWallMaterial(halfW, rightParapetH));
+                rPara.position.set(halfW / 2, topY + rightParapetH / 2, 0);
+                rPara.castShadow = true; houseGroup.add(rPara);
+
+                // Dark Coping Plates
+                const lCop = new THREE.Mesh(new THREE.BoxGeometry(halfW + 0.12, 0.06, baseDepth + 0.14), darkMetalMaterial);
+                lCop.position.set(-halfW / 2, topY + leftParapetH + 0.03, 0);
+                houseGroup.add(lCop);
+
+                const rCop = new THREE.Mesh(new THREE.BoxGeometry(halfW + 0.12, 0.06, baseDepth + 0.14), darkMetalMaterial);
+                rCop.position.set(halfW / 2, topY + rightParapetH + 0.03, 0);
+                houseGroup.add(rCop);
+
+                // Stepped Cubic Stair Penthouse
+                if (floors > 1) {
+                    const stairW = 2.6; const stairH = 2.0; const stairD = 2.8;
+                    const stMesh = new THREE.Mesh(new THREE.BoxGeometry(stairW, stairH, stairD), getStoneWallMaterial(stairW, stairH));
+                    stMesh.position.set(-baseWidth * 0.22, topY + stairH / 2, -baseDepth * 0.16);
+                    stMesh.castShadow = true; houseGroup.add(stMesh);
+
+                    const stRoof = new THREE.Mesh(new THREE.BoxGeometry(stairW + 0.3, 0.10, stairD + 0.3), darkMetalMaterial);
+                    stRoof.position.set(-baseWidth * 0.22, topY + stairH + 0.05, -baseDepth * 0.16);
+                    houseGroup.add(stRoof);
+                }
+
+            } else if (currentModernConcept === 'horizon') {
+                // Horizon Ribbon Roof: Deep cantilever overhang slab + Full-width Pergola
+                const overhang = 0.60;
+                const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + overhang * 2, 0.22, baseDepth + overhang * 2), darkMetalMaterial);
+                roofSlab.position.set(0, topY + 0.11, 0);
+                roofSlab.castShadow = true; houseGroup.add(roofSlab);
+
+                // Full-Width Architectural Pergola across rooftop living deck
+                const pergW = baseWidth * 0.65;
+                const pergD = baseDepth * 0.55;
+                const pergH = 2.1;
+                const pergZ = -baseDepth * 0.05;
+
+                // Steel Posts
+                [-pergW / 2, pergW / 2].forEach(px => {
+                    [-pergD / 2, pergD / 2].forEach(pz => {
+                        const post = new THREE.Mesh(new THREE.BoxGeometry(0.09, pergH, 0.09), darkMetalMaterial);
+                        post.position.set(px, topY + 0.22 + pergH / 2, pergZ + pz);
+                        post.castShadow = true; houseGroup.add(post);
+                    });
+                });
+
+                // Longitudinal Support Beams
+                [-pergW / 2, pergW / 2].forEach(px => {
+                    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.14, pergD + 0.4), darkMetalMaterial);
+                    beam.position.set(px, topY + 0.22 + pergH, pergZ);
+                    houseGroup.add(beam);
+                });
+
+                // Angled Teak Sun-Shade Louvers
+                const numSlats = 10;
+                for (let sl = 0; sl < numSlats; sl++) {
+                    const slatZ = pergZ - pergD / 2 + (sl * (pergD / (numSlats - 1)));
+                    const slat = new THREE.Mesh(new THREE.BoxGeometry(pergW + 0.3, 0.05, 0.10), teakLouverMaterial);
+                    slat.rotation.x = 0.35; // 20 degree tilt for realistic sun shading!
+                    slat.position.set(0, topY + 0.22 + pergH + 0.06, slatZ);
+                    slat.castShadow = true; houseGroup.add(slat);
+                }
+
+            } else {
+                // Cantilever Portal Roof: Floating Fascia Slab + Concealed LED Strip
+                const overhang = 0.45;
+                const roofSlabMesh = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + overhang * 2, 0.22, baseDepth + overhang * 2), darkMetalMaterial);
+                roofSlabMesh.position.set(0, topY + 0.11, 0);
+                roofSlabMesh.castShadow = true; houseGroup.add(roofSlabMesh);
+
+                // Underside perimeter LED light strip
+                const ledStrip = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + overhang * 1.8, 0.03, baseDepth + overhang * 1.8), new THREE.MeshBasicMaterial({ color: 0xfff3db }));
+                ledStrip.position.set(0, topY - 0.02, 0);
+                houseGroup.add(ledStrip);
+
+                // Low-profile modern parapet
+                const parapetH = 0.42;
+                const parapetMesh = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + 0.08, parapetH, baseDepth + 0.08), getStoneWallMaterial(baseWidth, parapetH));
+                parapetMesh.position.set(0, topY + 0.22 + parapetH / 2, 0);
+                parapetMesh.castShadow = true; houseGroup.add(parapetMesh);
+
+                if (floors > 1) {
+                    const stairW = 2.8; const stairH = 2.1; const stairD = 2.8;
+                    const stairMesh = new THREE.Mesh(new THREE.BoxGeometry(stairW, stairH, stairD), getStoneWallMaterial(stairW, stairH));
+                    stairMesh.position.set(-baseWidth * 0.2, topY + 0.22 + stairH / 2, -baseDepth * 0.15);
+                    stairMesh.castShadow = true; houseGroup.add(stairMesh);
+
+                    const stRoof = new THREE.Mesh(new THREE.BoxGeometry(stairW + 0.4, 0.12, stairD + 0.4), darkMetalMaterial);
+                    stRoof.position.set(-baseWidth * 0.2, topY + 0.22 + stairH + 0.06, -baseDepth * 0.15);
+                    houseGroup.add(stRoof);
+                } else {
+                    // Rooftop pergola for 1-floor modern villa
+                    const pergW = baseWidth * 0.38; const pergD = baseDepth * 0.35; const pergH = 1.8;
+                    const pergX = -baseWidth * 0.18; const pergZ = -baseDepth * 0.12;
+
+                    [-pergW / 2, pergW / 2].forEach(px => {
+                        [-pergD / 2, pergD / 2].forEach(pz => {
+                            const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, pergH, 0.08), darkMetalMaterial);
+                            post.position.set(pergX + px, topY + 0.22 + pergH / 2, pergZ + pz);
+                            houseGroup.add(post);
+                        });
+                    });
+
+                    for (let sl = 0; sl < 6; sl++) {
+                        const slatZ = pergZ - pergD / 2 + (sl * (pergD / 5));
+                        const slat = new THREE.Mesh(new THREE.BoxGeometry(pergW + 0.2, 0.06, 0.08), teakLouverMaterial);
+                        slat.position.set(pergX, topY + 0.22 + pergH, slatZ);
+                        slat.castShadow = true; houseGroup.add(slat);
+                    }
+                }
+            }
+
+        } else {
+            // CLASSIC / APARTMENT ROOF
+            const parapetH = 0.75;
+            const parapetMesh = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + 0.12, parapetH, baseDepth + 0.12), getStoneWallMaterial(baseWidth, parapetH));
+            parapetMesh.position.set(0, topY + parapetH / 2, 0);
+            parapetMesh.castShadow = true; houseGroup.add(parapetMesh);
+
+            const copingMesh = new THREE.Mesh(new THREE.BoxGeometry(baseWidth + 0.36, 0.12, baseDepth + 0.36), stoneTrimMaterial);
+            copingMesh.position.set(0, topY + parapetH + 0.06, 0);
+            copingMesh.castShadow = true; houseGroup.add(copingMesh);
+
+            if (floors > 1 || isApartment) {
+                const stairW = 3.2; const stairH = 2.3; const stairD = 3.4;
+                const stairMesh = new THREE.Mesh(new THREE.BoxGeometry(stairW, stairH, stairD), getStoneWallMaterial(stairW, stairH));
+                stairMesh.position.set(-baseWidth * 0.18, topY + stairH / 2, -baseDepth * 0.1);
+                stairMesh.castShadow = true; houseGroup.add(stairMesh);
+
+                const stCoping = new THREE.Mesh(new THREE.BoxGeometry(stairW + 0.25, 0.1, stairD + 0.25), stoneTrimMaterial);
+                stCoping.position.set(-baseWidth * 0.18, topY + stairH + 0.05, -baseDepth * 0.1);
+                houseGroup.add(stCoping);
+            }
+        }
 
         // ─────────────────────────────────────────────────────────────
         // 4. CLASSICAL ENTRANCE COLUMNS & PORTICO (أعمدة وتيجان حجرية)
         // ─────────────────────────────────────────────────────────────
         if (entranceCols > 0 && isClassic) {
             const colH = floorHeight * 0.95;
-            const colZ = baseDepth / 2 + 1.25;
+            const colZ = baseDepth / 2 + 1.15;
 
             [-1.35, 1.35].forEach(cx => {
-                // Base (قاعدة العامود الحجرية)
-                const bGeo = new THREE.BoxGeometry(0.55, 0.22, 0.55);
-                const bMesh = new THREE.Mesh(bGeo, stoneTrimMaterial);
-                bMesh.position.set(cx, 0.22, colZ);
+                const bMesh = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.20, 0.52), stoneTrimMaterial);
+                bMesh.position.set(cx, 0.20, colZ);
                 houseGroup.add(bMesh);
 
-                // Shaft (عامود دائري رشيق)
-                const sGeo = new THREE.CylinderGeometry(0.16, 0.19, colH - 0.45, 24);
-                const sMesh = new THREE.Mesh(sGeo, stoneTrimMaterial);
-                sMesh.position.set(cx, 0.22 + (colH - 0.45) / 2 + 0.1, colZ);
-                sMesh.castShadow = true;
-                houseGroup.add(sMesh);
+                const sMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.19, colH - 0.40, 24), stoneTrimMaterial);
+                sMesh.position.set(cx, 0.20 + (colH - 0.40) / 2 + 0.1, colZ);
+                sMesh.castShadow = true; houseGroup.add(sMesh);
 
-                // Capital (تاج العامود الروماني المنحوت)
-                const cGeo = new THREE.BoxGeometry(0.52, 0.2, 0.52);
-                const cMesh = new THREE.Mesh(cGeo, stoneTrimMaterial);
-                cMesh.position.set(cx, 0.22 + colH - 0.2, colZ);
-                cMesh.castShadow = true;
-                houseGroup.add(cMesh);
+                const cMesh = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.18, 0.48), stoneTrimMaterial);
+                cMesh.position.set(cx, 0.20 + colH - 0.18, colZ);
+                cMesh.castShadow = true; houseGroup.add(cMesh);
             });
 
-            // Portico Canopy Slab (مظلة المدخل الحجرية)
-            const canGeo = new THREE.BoxGeometry(3.8, 0.28, 1.8);
-            const canMesh = new THREE.Mesh(canGeo, stoneTrimMaterial);
-            canMesh.position.set(0, 0.22 + colH, colZ);
-            canMesh.castShadow = true;
-            houseGroup.add(canMesh);
-
-            // Classical Triangular Pediment (جملون حجر مدخل فخم)
-            const pedGeo = new THREE.CylinderGeometry(1.9, 1.9, 0.24, 3);
-            const pedMesh = new THREE.Mesh(pedGeo, stoneTrimMaterial);
-            pedMesh.rotation.z = Math.PI;
-            pedMesh.position.set(0, 0.22 + colH + 0.46, colZ);
-            pedMesh.castShadow = true;
-            houseGroup.add(pedMesh);
+            const canMesh = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.22, 1.5), stoneTrimMaterial);
+            canMesh.position.set(0, floorHeight - 0.11, colZ);
+            canMesh.castShadow = true; houseGroup.add(canMesh);
         }
 
+        // 5. CIVIL ENGINEERING STRUCTURAL SKELETON (الهيكل العظم الإنشائي)
         // ─────────────────────────────────────────────────────────────
-        // 5. SKELETON REBAR & COLUMNS (X-Ray Engineering)
-        // ─────────────────────────────────────────────────────────────
+        buildStructuralSkeleton(skeletonGroup, floors, floorHeight, baseWidth, baseDepth, columnBars);
+
+        skeletonGroup.visible = isXRayMode;
+
+        threeScene.add(houseGroup);
+        threeScene.add(skeletonGroup);
+
+        // Dynamic camera auto-framing on floor height change
+        if (typeof window.previousFloorsCount !== 'undefined' && window.previousFloorsCount !== floors) {
+            window.previousFloorsCount = floors;
+            if (typeof currentCameraPreset !== 'undefined' && currentCameraPreset !== 'interior' && !isDroneOrbiting) {
+                setCameraPreset(currentCameraPreset, false);
+            }
+        } else if (typeof window.previousFloorsCount === 'undefined') {
+            window.previousFloorsCount = floors;
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // CIVIL ENGINEERING STRUCTURAL SKELETON (عظم إنشائي مدني حقيقي)
+    // ────────────────────────────────────────────────────────────────
+    function buildStructuralSkeleton(group, floors, floorHeight, baseWidth, baseDepth, columnBars) {
         const colTotalH = floors * floorHeight;
-        const rebarCageMat = new THREE.MeshStandardMaterial({ color: 0x4338ca, roughness: 0.4, wireframe: true });
-        const rebarBarMat = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+        const rebarBarMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, metalness: 0.85, roughness: 0.25 }); // High-tensile steel
+        const stirrupMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.3 }); // Amber stirrup wire
+        const concreteTransMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8, transparent: true, opacity: 0.26 }); // Cast concrete
+        const tieBeamMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }); // Ground concrete beam
+        const joistMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }); // Ribbed slab joist
 
         const colPositions = [
             [-baseWidth * 0.42, -baseDepth * 0.42],
@@ -3276,100 +4447,373 @@
             [0, baseDepth * 0.42]
         ];
 
+        // 1. ISOLATED FOOTINGS WITH LOWER REBAR MESH (قواعد مسلحة مع فرش وغطاء)
         colPositions.forEach(pos => {
-            const cGeo = new THREE.BoxGeometry(0.4, colTotalH, 0.4);
-            const cMesh = new THREE.Mesh(cGeo, rebarCageMat);
-            cMesh.position.set(pos[0], colTotalH / 2, pos[1]);
-            skeletonGroup.add(cMesh);
+            const footW = 1.35;
+            const footH = 0.42;
+            const footGeo = new THREE.BoxGeometry(footW, footH, footW);
+            const footMesh = new THREE.Mesh(footGeo, concreteTransMat);
+            footMesh.position.set(pos[0], footH / 2, pos[1]);
+            group.add(footMesh);
 
-            const barCount = columnBars === "8Bars" ? 8 : (columnBars === "10Bars" ? 10 : 6);
-            for (let b = 0; b < barCount; b++) {
-                const barGeo = new THREE.CylinderGeometry(0.016, 0.016, colTotalH, 8);
-                const barMesh = new THREE.Mesh(barGeo, rebarBarMat);
-                const angle = (b / barCount) * Math.PI * 2;
-                const r = 0.14;
-                barMesh.position.set(pos[0] + Math.cos(angle) * r, colTotalH / 2, pos[1] + Math.sin(angle) * r);
-                skeletonGroup.add(barMesh);
+            // Footing Lower Rebar Mesh (فرش وغطاء من قضبان الحديد)
+            for (let m = -0.5; m <= 0.5; m += 0.25) {
+                // X direction bars
+                const barX = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.1, 6), rebarBarMat);
+                barX.rotation.z = Math.PI / 2;
+                barX.position.set(pos[0], 0.08, pos[1] + m);
+                group.add(barX);
+
+                // Z direction bars
+                const barZ = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.1, 6), rebarBarMat);
+                barZ.rotation.x = Math.PI / 2;
+                barZ.position.set(pos[0] + m, 0.11, pos[1]);
+                group.add(barZ);
             }
 
-            const footingGeo = new THREE.BoxGeometry(1.1, 0.38, 1.1);
-            const footingMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
-            const footingMesh = new THREE.Mesh(footingGeo, footingMat);
-            footingMesh.position.set(pos[0], 0.19, pos[1]);
-            skeletonGroup.add(footingMesh);
+            // Column Neck (رقبة العامود)
+            const neckGeo = new THREE.BoxGeometry(0.36, 0.45, 0.36);
+            const neckMesh = new THREE.Mesh(neckGeo, concreteTransMat);
+            neckMesh.position.set(pos[0], footH + 0.22, pos[1]);
+            group.add(neckMesh);
         });
 
-        skeletonGroup.visible = isXRayMode;
+        // 2. GROUND TIE BEAMS / SHANNAJAT (الميد والشناجات الأرضية)
+        const tieH = 0.38;
+        const tieW = 0.30;
+        const tieY = 0.42 + tieH / 2;
 
-        threeScene.add(houseGroup);
-        threeScene.add(skeletonGroup);
+        // X-direction tie beams (front, center, back)
+        [-baseDepth * 0.42, 0, baseDepth * 0.42].forEach(tz => {
+            const beamGeo = new THREE.BoxGeometry(baseWidth * 0.84, tieH, tieW);
+            const beamMesh = new THREE.Mesh(beamGeo, tieBeamMat);
+            beamMesh.position.set(0, tieY, tz);
+            group.add(beamMesh);
+        });
+
+        // Z-direction tie beams (left, center, right)
+        [-baseWidth * 0.42, 0, baseWidth * 0.42].forEach(tx => {
+            const beamGeo = new THREE.BoxGeometry(tieW, tieH, baseDepth * 0.84);
+            const beamMesh = new THREE.Mesh(beamGeo, tieBeamMat);
+            beamMesh.position.set(tx, tieY, 0);
+            group.add(beamMesh);
+        });
+
+        // 3. REINFORCED COLUMNS WITH LONGITUDINAL BARS & STIRRUPS (أعمدة، كانات، وأشاير)
+        colPositions.forEach(pos => {
+            // Concrete column core (semi-transparent)
+            const cGeo = new THREE.BoxGeometry(0.38, colTotalH, 0.38);
+            const cMesh = new THREE.Mesh(cGeo, concreteTransMat);
+            cMesh.position.set(pos[0], colTotalH / 2, pos[1]);
+            group.add(cMesh);
+
+            // Longitudinal Rebar (6, 8, or 10 bars)
+            const barCount = columnBars === "8Bars" ? 8 : (columnBars === "10Bars" ? 10 : 6);
+            for (let b = 0; b < barCount; b++) {
+                const angle = (b / barCount) * Math.PI * 2;
+                const r = 0.13;
+                const bx = pos[0] + Math.cos(angle) * r;
+                const bz = pos[1] + Math.sin(angle) * r;
+
+                // Main bar extending through floors
+                const barGeo = new THREE.CylinderGeometry(0.014, 0.014, colTotalH + 0.45, 8);
+                const barMesh = new THREE.Mesh(barGeo, rebarBarMat);
+                barMesh.position.set(bx, (colTotalH + 0.45) / 2, bz);
+                group.add(barMesh);
+
+                // Upper Dowel / Starter Bar Hook (أشاير السطح المعقوفة)
+                const hookGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.22, 8);
+                const hookMesh = new THREE.Mesh(hookGeo, rebarBarMat);
+                hookMesh.rotation.z = Math.PI / 3;
+                hookMesh.position.set(bx + 0.08, colTotalH + 0.45, bz);
+                group.add(hookMesh);
+            }
+
+            // Column Stirrups (كانات مربعة متكررة ومكثفة زلزالياً)
+            const numStirrups = Math.floor(colTotalH / 0.18);
+            for (let s = 1; s <= numStirrups; s++) {
+                const sy = s * 0.18;
+                // Stirrup square outline
+                const stirrupGeo = new THREE.BoxGeometry(0.32, 0.012, 0.32);
+                const stirrupMesh = new THREE.Mesh(stirrupGeo, stirrupMat);
+                stirrupMesh.position.set(pos[0], sy, pos[1]);
+                group.add(stirrupMesh);
+            }
+        });
+
+        // 4. DROP BEAMS & RIBBED SLAB JOISTS (جسور ساقطة وسقف هوردي وأعصاب)
+        for (let f = 1; f <= floors; f++) {
+            const slabY = f * floorHeight;
+
+            // Perimeter Drop Beams (الجسور الساقطة الحاملة)
+            const beamD = 0.42;
+            const beamW = 0.32;
+            [-baseDepth * 0.42, baseDepth * 0.42].forEach(bz => {
+                const bGeo = new THREE.BoxGeometry(baseWidth * 0.88, beamD, beamW);
+                const bMesh = new THREE.Mesh(bGeo, tieBeamMat);
+                bMesh.position.set(0, slabY - beamD / 2, bz);
+                group.add(bMesh);
+            });
+
+            [-baseWidth * 0.42, baseWidth * 0.42].forEach(bx => {
+                const bGeo = new THREE.BoxGeometry(beamW, beamD, baseDepth * 0.88);
+                const bMesh = new THREE.Mesh(bGeo, tieBeamMat);
+                bMesh.position.set(bx, slabY - beamD / 2, 0);
+                group.add(bMesh);
+            });
+
+            // Ribbed Joists Grid (أعصاب العقدة الهوردي متكررة كل 50 سم)
+            const bayW = baseWidth * 0.82;
+            const numJoists = Math.floor(bayW / 0.52);
+            for (let j = 0; j <= numJoists; j++) {
+                const jx = -bayW / 2 + (j * 0.52);
+                const jGeo = new THREE.BoxGeometry(0.14, 0.24, baseDepth * 0.82);
+                const jMesh = new THREE.Mesh(jGeo, joistMat);
+                jMesh.position.set(jx, slabY - 0.12, 0);
+                group.add(jMesh);
+            }
+        }
     }
 
-    // Helper: Detailed Recessed Window with Stone Surround, Sill & Arch
-    function buildDetailedWindow(group, posX, posY, posZ, width, height, orientation, trimMat, glassMat, metalMat, isClassic, windowCount) {
-        const isSide = orientation.startsWith('side');
-        const isRight = orientation === 'side-right';
+    // ────────────────────────────────────────────────────────────────
+    // DETAILED WINDOW HELPER (CLEAN ARCHITECTURE - ZERO HORNS/PROTRUSIONS)
+    // ────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // DETAILED ARCHITECTURAL WINDOW HELPER
+    // True hollow casing, projecting molded sill, slim aluminum sash & mullions,
+    // crystal clear reflective glass, and recessed illuminated interior depth!
+    // ────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // LUXURY MODERN ARCHITECTURAL ENTRANCE DOOR BUILDER
+    // Warm natural walnut/oak wood, 3D vertical slatted flutes, frosted vision strip,
+    // brushed brass long bar handle, smart digital lock, and dedicated warm spotlight!
+    // ────────────────────────────────────────────────────────────────
+    function buildModernLuxuryDoor(group, doorX, doorY, frontZ, doorW, doorH, handleSide, darkMetalMat, stoneTrimMat) {
+        const dGroup = new THREE.Group();
+        dGroup.position.set(doorX, doorY, frontZ);
 
-        // 1. Recessed Glass
-        const winGlassGeo = isSide ? new THREE.BoxGeometry(0.05, height, width) : new THREE.BoxGeometry(width, height, 0.05);
-        const winGlass = new THREE.Mesh(winGlassGeo, glassMat);
-        const gX = isSide ? posX + (isRight ? 0.02 : -0.02) : posX;
-        const gZ = isSide ? posZ : posZ + 0.02;
-        winGlass.position.set(gX, posY, gZ);
-        group.add(winGlass);
+        // 1. Charcoal Architectural Outer Frame Casing (حلق الباب الألمنيوم الغامق المحيط)
+        const frameW = 0.06;
+        const frameD = 0.10;
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(doorW + frameW * 2, frameW, frameD), darkMetalMat);
+        fTop.position.set(0, doorH / 2 + frameW / 2, 0.03);
+        dGroup.add(fTop);
 
-        // 2. Stone Architrave Frame (برواز الحجر المحيط)
-        const fW = width + 0.24;
-        const fH = height + 0.22;
-        const fGeo = isSide ? new THREE.BoxGeometry(0.08, fH, fW) : new THREE.BoxGeometry(fW, fH, 0.08);
-        const frameMesh = new THREE.Mesh(fGeo, trimMat);
-        const fMeshX = isSide ? posX + (isRight ? 0.04 : -0.04) : posX;
-        const fMeshZ = isSide ? posZ : posZ + 0.04;
-        frameMesh.position.set(fMeshX, posY, fMeshZ);
-        group.add(frameMesh);
+        [-doorW / 2 - frameW / 2, doorW / 2 + frameW / 2].forEach(jx => {
+            const fJamb = new THREE.Mesh(new THREE.BoxGeometry(frameW, doorH, frameD), darkMetalMat);
+            fJamb.position.set(jx, 0, 0.03);
+            dGroup.add(fJamb);
+        });
 
-        // 3. Projecting Stone Sill (جلسة شباك حجرية بارزة)
-        const sW = width + 0.36;
-        const sGeo = isSide ? new THREE.BoxGeometry(0.22, 0.12, sW) : new THREE.BoxGeometry(sW, 0.12, 0.22);
-        const sillMesh = new THREE.Mesh(sGeo, trimMat);
-        const sillX = isSide ? posX + (isRight ? 0.09 : -0.09) : posX;
-        const sillZ = isSide ? posZ : posZ + 0.09;
-        sillMesh.position.set(sillX, posY - height / 2 - 0.06, sillZ);
-        sillMesh.castShadow = true;
-        group.add(sillMesh);
+        // 2. Door Leaf Base in Rich Warm Honey Walnut / Natural Oak
+        const leafThick = 0.07;
+        const modernWoodDoorMat = new THREE.MeshStandardMaterial({ color: 0x9a5b28, roughness: 0.35, metalness: 0.05 });
+        const modernDoorGrooveMat = new THREE.MeshStandardMaterial({ color: 0x3d1a08, roughness: 0.6 });
+        const brassHandleMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.92, roughness: 0.18 });
 
-        // 4. Aluminum Mullion Cross (قواطع ألمنيوم سوداء)
-        const mGeo = isSide ? new THREE.BoxGeometry(0.06, height, 0.035) : new THREE.BoxGeometry(0.035, height, 0.06);
-        const mullion = new THREE.Mesh(mGeo, metalMat);
-        mullion.position.set(gX, posY, gZ);
-        group.add(mullion);
+        const leafMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, leafThick), modernWoodDoorMat);
+        leafMesh.position.set(0, 0, 0.035);
+        leafMesh.castShadow = true;
+        dGroup.add(leafMesh);
 
-        // 5. Classic Stone Arch (قوس حجري مع قفل القوس)
-        if (isClassic || windowCount >= 8) {
-            const archR = width * 0.52;
-            const archGeo = new THREE.CylinderGeometry(archR, archR, 0.12, 16, 1, false, 0, Math.PI);
-            const archMesh = new THREE.Mesh(archGeo, trimMat);
-            if (isSide) {
-                archMesh.rotation.y = Math.PI / 2;
-                archMesh.rotation.z = isRight ? Math.PI / 2 : -Math.PI / 2;
-                archMesh.position.set(fMeshX, posY + height / 2 + 0.06, posZ);
-            } else {
-                archMesh.rotation.z = Math.PI / 2;
-                archMesh.rotation.x = Math.PI / 2;
-                archMesh.position.set(posX, posY + height / 2 + 0.06, fMeshZ);
-            }
-            archMesh.castShadow = true;
-            group.add(archMesh);
+        // 3. Architectural 3D Vertical Slatted Fluting / Grooves (تفريزات خشبية طولية بارزة وغائرة)
+        const numFlutes = 7;
+        const fluteAreaW = doorW * 0.68;
+        const fluteW = fluteAreaW / numFlutes;
+        const fluteStartX = -doorW / 2 + fluteW / 2 + 0.06;
+        for (let fl = 0; fl < numFlutes; fl++) {
+            const fx = fluteStartX + fl * fluteW;
+            const flute = new THREE.Mesh(new THREE.BoxGeometry(fluteW * 0.76, doorH - 0.08, 0.015), modernWoodDoorMat);
+            flute.position.set(fx, 0, 0.035 + leafThick / 2 + 0.008);
+            flute.castShadow = true;
+            dGroup.add(flute);
 
-            // Keystone (قفل القوس)
-            const keyGeo = isSide ? new THREE.BoxGeometry(0.18, 0.22, 0.15) : new THREE.BoxGeometry(0.15, 0.22, 0.18);
-            const keyMesh = new THREE.Mesh(keyGeo, trimMat);
-            const keyX = isSide ? fMeshX + (isRight ? 0.03 : -0.03) : posX;
-            const keyZ = isSide ? posZ : fMeshZ + 0.03;
-            keyMesh.position.set(keyX, posY + height / 2 + width * 0.32, keyZ);
-            keyMesh.castShadow = true;
-            group.add(keyMesh);
+            const groove = new THREE.Mesh(new THREE.BoxGeometry(fluteW * 0.24, doorH - 0.08, 0.01), modernDoorGrooveMat);
+            groove.position.set(fx + fluteW / 2, 0, 0.035 + leafThick / 2 + 0.005);
+            dGroup.add(groove);
         }
+
+        // 4. Vertical Architectural Frosted Glass Vision Strip (شريحة زجاجية طولية مع إضاءة دافئة)
+        const stripW = 0.16;
+        const stripX = (handleSide === 'left') ? doorW / 2 - stripW / 2 - 0.08 : -doorW / 2 + stripW / 2 + 0.08;
+        const vStrip = new THREE.Mesh(new THREE.BoxGeometry(stripW, doorH * 0.88, 0.03), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.85, opacity: 1.0, transparent: true, roughness: 0.1, ior: 1.52, depthWrite: false }));
+        vStrip.position.set(stripX, 0, 0.035 + leafThick / 2 + 0.01);
+        dGroup.add(vStrip);
+
+        const glowStrip = new THREE.Mesh(new THREE.PlaneGeometry(stripW - 0.02, doorH * 0.86), new THREE.MeshBasicMaterial({ color: 0xffedd5 }));
+        glowStrip.position.set(stripX, 0, 0.035 + leafThick / 2 + 0.002);
+        dGroup.add(glowStrip);
+
+        // 5. Long Architectural Brushed Brass / Gold Pull Bar Handle (مقبض نحاسي ذهبي فاخر طول 1.6م)
+        const handleX = (handleSide === 'left') ? -doorW * 0.36 : doorW * 0.36;
+        const handleH = 1.6;
+        const hBar = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, handleH, 16), brassHandleMat);
+        hBar.position.set(handleX, 0, 0.035 + leafThick / 2 + 0.06);
+        hBar.castShadow = true;
+        dGroup.add(hBar);
+
+        [-handleH * 0.38, handleH * 0.38].forEach(by => {
+            const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.05, 12), darkMetalMat);
+            bracket.rotation.x = Math.PI / 2;
+            bracket.position.set(handleX, by, 0.035 + leafThick / 2 + 0.03);
+            dGroup.add(bracket);
+        });
+
+        // 6. Modern Digital Keyless Lock Escutcheon Plate (قفل ذكي إلكتروني مع مؤشر ليد)
+        const escW = 0.06;
+        const escH = 0.28;
+        const escMesh = new THREE.Mesh(new THREE.BoxGeometry(escW, escH, 0.02), darkMetalMat);
+        escMesh.position.set(handleX + (handleSide === 'left' ? 0.07 : -0.07), -0.05, 0.035 + leafThick / 2 + 0.015);
+        dGroup.add(escMesh);
+
+        const dotGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.005, 8);
+        const dotMesh = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+        dotMesh.rotation.x = Math.PI / 2;
+        dotMesh.position.set(handleX + (handleSide === 'left' ? 0.07 : -0.07), 0.05, 0.035 + leafThick / 2 + 0.026);
+        dGroup.add(dotMesh);
+
+        // 7. Stone / Marble Entrance Threshold Step (عتبة رخامية سفلية)
+        const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.15, 0.08, 0.25), stoneTrimMat);
+        thresh.position.set(0, -doorH / 2 - 0.04, 0.08);
+        thresh.receiveShadow = true;
+        dGroup.add(thresh);
+
+        // 8. Warm Architectural Entrance Downlight Spot (إضاءة مخصصة للمدخل تظهر تفاصيل الخشب والمقبض بوضوح فائق)
+        const spotLight = new THREE.PointLight(0xfff1d6, 2.0, 4.8);
+        spotLight.position.set(0, doorH / 2 + 0.22, 0.45);
+        dGroup.add(spotLight);
+
+        // Downlight recessed lens fixture
+        const lensMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.02, 12), new THREE.MeshBasicMaterial({ color: 0xfffaed }));
+        lensMesh.position.set(0, doorH / 2 + 0.15, 0.45);
+        dGroup.add(lensMesh);
+
+        group.add(dGroup);
+    }
+
+    function buildDetailedWindow(group, posX, posY, posZ, width, height, orientation, trimMat, glassMat, metalMat, isClassic, isModern) {
+        const winGroup = new THREE.Group();
+        winGroup.position.set(posX, posY, posZ);
+
+        if (orientation === 'side-right') {
+            winGroup.rotation.y = -Math.PI / 2;
+        } else if (orientation === 'side-left') {
+            winGroup.rotation.y = Math.PI / 2;
+        } else if (orientation === 'back') {
+            winGroup.rotation.y = Math.PI;
+        }
+
+        // 1. Recessed Interior Opening Reveal & Warm Ambient Illumination
+        // Placed at Z = 0.005 (just in front of wall) so it creates genuine room depth
+        const revealCavityMat = new THREE.MeshBasicMaterial({ color: 0x1a1612 });
+        const cavityMesh = new THREE.Mesh(new THREE.PlaneGeometry(width - 0.04, height - 0.04), revealCavityMat);
+        cavityMesh.position.set(0, 0, 0.005);
+        winGroup.add(cavityMesh);
+
+        // Soft warm interior glow panel inside the window reveal
+        const glowCanvas = document.createElement('canvas');
+        glowCanvas.width = 128; glowCanvas.height = 128;
+        const gctx = glowCanvas.getContext('2d');
+        const gRad = gctx.createRadialGradient(64, 75, 6, 64, 75, 60);
+        gRad.addColorStop(0, 'rgba(255, 230, 185, 0.85)');
+        gRad.addColorStop(0.5, 'rgba(220, 180, 120, 0.45)');
+        gRad.addColorStop(1, 'rgba(26, 22, 18, 0.0)');
+        gctx.fillStyle = gRad;
+        gctx.fillRect(0, 0, 128, 128);
+        const glowTex = new THREE.CanvasTexture(glowCanvas);
+        const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0.85, depthWrite: false });
+        const glowPlane = new THREE.Mesh(new THREE.PlaneGeometry(width - 0.06, height - 0.06), glowMat);
+        glowPlane.position.set(0, 0, 0.012);
+        winGroup.add(glowPlane);
+
+        // 2. Crystal Clear Architectural Glass Pane (Reflective, semi-transparent, depthWrite: false)
+        const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(width - 0.06, height - 0.06), glassMat);
+        winGlass.position.set(0, 0, 0.024);
+        winGroup.add(winGlass);
+
+        // 3. Charcoal Architectural Aluminum Sash & Mullions (إطار الألمنيوم المعماري الفاخر والقواطع)
+        const sashThick = 0.038;
+        const sashDepth = 0.025;
+        const sashZ = 0.026;
+
+        // Outer Sash Perimeter (Top, Bottom, Left, Right)
+        const sLeft = new THREE.Mesh(new THREE.BoxGeometry(sashThick, height, sashDepth), metalMat);
+        sLeft.position.set(-width / 2 + sashThick / 2, 0, sashZ);
+        winGroup.add(sLeft);
+
+        const sRight = new THREE.Mesh(new THREE.BoxGeometry(sashThick, height, sashDepth), metalMat);
+        sRight.position.set(width / 2 - sashThick / 2, 0, sashZ);
+        winGroup.add(sRight);
+
+        const sTop = new THREE.Mesh(new THREE.BoxGeometry(width - sashThick * 2, sashThick, sashDepth), metalMat);
+        sTop.position.set(0, height / 2 - sashThick / 2, sashZ);
+        winGroup.add(sTop);
+
+        const sBottom = new THREE.Mesh(new THREE.BoxGeometry(width - sashThick * 2, sashThick, sashDepth), metalMat);
+        sBottom.position.set(0, -height / 2 + sashThick / 2, sashZ);
+        winGroup.add(sBottom);
+
+        // Vertical Center Mullion Bar
+        const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.032, height - sashThick * 2, sashDepth), metalMat);
+        mullion.position.set(0, 0, sashZ);
+        winGroup.add(mullion);
+
+        // Horizontal Transom Bar (at upper 60% height)
+        const transom = new THREE.Mesh(new THREE.BoxGeometry(width - sashThick * 2, 0.028, sashDepth), metalMat);
+        transom.position.set(0, height * 0.12, sashZ);
+        winGroup.add(transom);
+
+        // 4. Hollow Architectural Stone Architrave Frame (برواز الحجر المفرغ المحيط بالشباك - مفتوح كلياً في الوسط)
+        const frameCasingW = isModern ? 0.08 : 0.13;
+        const frameProj = isModern ? 0.04 : 0.07;
+        const frameZ = frameProj / 2 + 0.005;
+
+        // Left Jamb
+        const jambL = new THREE.Mesh(new THREE.BoxGeometry(frameCasingW, height + frameCasingW, frameProj), isModern ? metalMat : trimMat);
+        jambL.position.set(-width / 2 - frameCasingW / 2, frameCasingW / 2, frameZ);
+        jambL.castShadow = true;
+        winGroup.add(jambL);
+
+        // Right Jamb
+        const jambR = new THREE.Mesh(new THREE.BoxGeometry(frameCasingW, height + frameCasingW, frameProj), isModern ? metalMat : trimMat);
+        jambR.position.set(width / 2 + frameCasingW / 2, frameCasingW / 2, frameZ);
+        jambR.castShadow = true;
+        winGroup.add(jambR);
+
+        // Top Head / Architrave Lintel
+        const headW = width + frameCasingW * 2;
+        const headMesh = new THREE.Mesh(new THREE.BoxGeometry(headW, frameCasingW, frameProj), isModern ? metalMat : trimMat);
+        headMesh.position.set(0, height / 2 + frameCasingW / 2, frameZ);
+        headMesh.castShadow = true;
+        winGroup.add(headMesh);
+
+        // 5. Projecting Molded Stone Sill (جلسة شباك حجرية بارزة مع شطفة كلاسيكية)
+        const sillW = width + frameCasingW * 2 + 0.12;
+        const sillH = 0.10;
+        const sillD = 0.18;
+        const sillMesh = new THREE.Mesh(new THREE.BoxGeometry(sillW, sillH, sillD), trimMat);
+        sillMesh.position.set(0, -height / 2 - sillH / 2, sillD / 2);
+        sillMesh.castShadow = true;
+        winGroup.add(sillMesh);
+
+        // 6. Classic Stone Lintel with Keystone (طبانة حجر وقفل كلاسيكي مسطح)
+        if (isClassic) {
+            const lintelW = width + frameCasingW * 2 + 0.16;
+            const lintelH = 0.15;
+            const lintelD = 0.12;
+            const lintelMesh = new THREE.Mesh(new THREE.BoxGeometry(lintelW, lintelH, lintelD), trimMat);
+            lintelMesh.position.set(0, height / 2 + frameCasingW + lintelH / 2, lintelD / 2);
+            lintelMesh.castShadow = true;
+            winGroup.add(lintelMesh);
+
+            // Carved Keystone (قفل الحجر البارز)
+            const keyMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.15), trimMat);
+            keyMesh.position.set(0, height / 2 + frameCasingW + lintelH / 2 + 0.02, 0.08);
+            keyMesh.castShadow = true;
+            winGroup.add(keyMesh);
+        }
+
+        group.add(winGroup);
     }
 
     function toggleXRayMode() {
@@ -3377,20 +4821,114 @@
         const btn = document.getElementById('xrayBtn');
         const text = document.getElementById('xrayBtnText');
         if (isXRayMode) {
-            btn.className = 'px-2.5 py-1.5 rounded-xl border border-indigo-500 text-[11px] font-bold text-white bg-indigo-600 shadow-sm flex items-center gap-1.5 transition-all';
+            btn.className = 'px-3 py-1.5 rounded-xl border border-indigo-500 text-xs font-bold text-white bg-indigo-600 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer';
             text.innerText = isEnMode ? "Solid Facade" : "عرض الحجر المصمت";
         } else {
-            btn.className = 'px-2.5 py-1.5 rounded-xl border border-slate-300 text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-all';
+            btn.className = 'px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-750 hover:border-slate-600 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer';
             text.innerText = isEnMode ? "X-Ray Skeleton" : "رؤية الهيكل العظم";
         }
         update3DScene();
     }
 
+    let currentCameraPreset = 'front';
+
+    function getOptimalCameraParams(preset) {
+        const floors = parseInt(document.getElementById('floorsInput')?.value || 2);
+        const floorHeight = 2.8;
+        const totalHeight = floors * floorHeight + 1.2;
+        const targetY = Math.max(2.0, totalHeight * 0.48);
+
+        // Calculate distance required to frame the entire height with generous architectural margin
+        const vFovRad = ((threeCamera && threeCamera.fov) ? threeCamera.fov : 36) * Math.PI / 180;
+        const requiredSpan = totalHeight * 1.45; // generous margin so ground plaza, entrance, and roof parapet fit completely!
+        const optDist = Math.max(13.5, (requiredSpan / 2) / Math.tan(vFovRad / 2));
+
+        if (preset === 'front') {
+            return {
+                eye: new THREE.Vector3(0.2, targetY * 1.05 + 0.6, optDist),
+                target: new THREE.Vector3(0, targetY, 0)
+            };
+        } else if (preset === 'iso') {
+            return {
+                eye: new THREE.Vector3(optDist * 0.72, targetY + optDist * 0.38, optDist * 0.76),
+                target: new THREE.Vector3(0, targetY, 0)
+            };
+        } else if (preset === 'interior') {
+            // Camera smoothly glides directly into furnished ground floor living room!
+            return {
+                eye: new THREE.Vector3(-1.0, 1.45, 1.6),
+                target: new THREE.Vector3(-0.2, 1.25, -0.6)
+            };
+        }
+        return {
+            eye: new THREE.Vector3(0.2, targetY * 1.05 + 0.6, optDist),
+            target: new THREE.Vector3(0, targetY, 0)
+        };
+    }
+
     function reset3DCamera() {
         if (!threeCamera || !threeControls) return;
-        threeCamera.position.set(0.5, 3.8, 13.5); // Direct front hero view!
-        threeControls.target.set(0, 2.5, 0);
-        threeControls.update();
+        setCameraPreset('front');
+    }
+
+    function animateCameraTo(targetEye, targetLook) {
+        if (!threeCamera || !threeControls) return;
+        cameraTargetPos = targetEye.clone();
+        controlsTargetPos = targetLook.clone();
+        isCameraAnimating = true;
+        if (isDroneOrbiting) {
+            toggleDroneOrbit(false);
+        }
+    }
+
+    function setCameraPreset(preset, isInstant = false) {
+        currentCameraPreset = preset;
+        // Visual indicator on camera preset buttons
+        ['cam-btn-front', 'cam-btn-iso', 'cam-btn-interior'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            if (id === `cam-btn-${preset}`) {
+                btn.className = 'px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer';
+            } else {
+                btn.className = 'px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer';
+            }
+        });
+
+        updateDroneBtnUI(false);
+
+        const params = getOptimalCameraParams(preset);
+        if (isInstant && threeCamera && threeControls) {
+            threeCamera.position.copy(params.eye);
+            threeControls.target.copy(params.target);
+            threeControls.update();
+        } else {
+            animateCameraTo(params.eye, params.target);
+        }
+    }
+
+    function toggleDroneOrbit(forceState) {
+        isDroneOrbiting = (forceState !== undefined) ? forceState : !isDroneOrbiting;
+        if (isDroneOrbiting) {
+            isCameraAnimating = false;
+            if (threeCamera) {
+                droneAngle = Math.atan2(threeCamera.position.x, threeCamera.position.z);
+            }
+            ['cam-btn-front', 'cam-btn-iso', 'cam-btn-interior'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.className = 'px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer';
+            });
+        }
+        updateDroneBtnUI(isDroneOrbiting);
+    }
+
+    function updateDroneBtnUI(active) {
+        const dBtn = document.getElementById('droneOrbitBtn');
+        if (!dBtn) return;
+        if (active) {
+            dBtn.className = 'px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer animate-pulse';
+        } else {
+            dBtn.className = 'px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer';
+        }
     }
 
     // Window resize listener
@@ -3398,9 +4936,22 @@
         if (isThreeInitialized) initOrResize3D();
     });
 
-    // Run initial instant math on page load
+    // Run initial instant math & initialize 3D model immediately
     document.addEventListener('DOMContentLoaded', () => {
         calculateInstantLocalMath();
+        const initialFinish = document.querySelector('input[name="stoneFinish"]:checked')?.value || "Mufajjar";
+        const initialStone = document.querySelector('input[name="stoneType"]:checked')?.value || "Natural_Ruwaished";
+        updateFinishQuickButtons(initialFinish);
+        updateTypeQuickButtons(initialStone);
+        setTimeout(() => {
+            initOrResize3D();
+            update3DScene();
+        }, 80);
+    });
+
+    window.addEventListener('load', () => {
+        initOrResize3D();
+        update3DScene();
     });
 
     // ════════════════ SAMPLE BOX & SHOWROOM PASS HANDLERS ════════════════

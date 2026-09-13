@@ -34,6 +34,37 @@ namespace Bolcko.Web.App.Extensions
                 pattern: "",
                 defaults: new { area = "Shop", controller = "Home", action = "Index" });
 
+            // Vendor Area Dedicated Routes
+            endpoints.MapControllerRoute(
+                name: "vendor_join",
+                pattern: "Vendor/Join",
+                defaults: new { area = "Vendor", controller = "Account", action = "Join" });
+
+            endpoints.MapControllerRoute(
+                name: "vendor_register",
+                pattern: "Vendor/Register",
+                defaults: new { area = "Vendor", controller = "Account", action = "Register" });
+
+            endpoints.MapControllerRoute(
+                name: "vendor_confirmation",
+                pattern: "Vendor/Confirmation",
+                defaults: new { area = "Vendor", controller = "Account", action = "Confirmation" });
+
+            endpoints.MapControllerRoute(
+                name: "vendor_login",
+                pattern: "Vendor/Login",
+                defaults: new { area = "Vendor", controller = "Account", action = "Login" });
+
+            endpoints.MapControllerRoute(
+                name: "vendor_dashboard",
+                pattern: "Vendor/Dashboard",
+                defaults: new { area = "Vendor", controller = "Dashboard", action = "Index" });
+
+            endpoints.MapControllerRoute(
+                name: "vendor_root",
+                pattern: "Vendor",
+                defaults: new { area = "Vendor", controller = "Account", action = "Join" });
+
             // Areas Support
             endpoints.MapControllerRoute(
                 name: "areas",
