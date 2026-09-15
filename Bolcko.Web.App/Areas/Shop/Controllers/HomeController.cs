@@ -350,16 +350,27 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View(orderDto);
         }
 
+        [Route("dataroom")]
+        [Route("data-room")]
+        [Route("investors/dataroom")]
+        public IActionResult DataRoom()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [Route("Error/404")]
+        [Route("Error/{statusCode:int}")]
+        [Route("Shop/Home/PageNotFound")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult PageNotFound()
+        public IActionResult PageNotFound(int? statusCode = null)
         {
-            Response.StatusCode = 404;
+            Response.StatusCode = statusCode ?? 404;
             return View();
         }
     }

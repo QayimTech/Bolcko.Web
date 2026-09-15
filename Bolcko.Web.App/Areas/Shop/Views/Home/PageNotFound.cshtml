@@ -1,20 +1,59 @@
 @{
-    ViewData["Title"] = SharedLocalizer["PageNotFoundTitle"];
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "الصفحة غير موجودة - 404 | بلوكو" : "Page Not Found - 404 | BLOCKO";
 }
 
-<main class="min-h-[60vh] flex items-center justify-center py-12 px-6 text-right">
-    <div class="max-w-md w-full text-center space-y-6 bg-white p-10 border border-slate-200 shadow-hard">
-        <span class="material-symbols-outlined text-primary text-6xl">search_off</span>
-        <div class="font-headline-xl text-slate-900">404</div>
-        <h1 class="text-2xl font-bold text-slate-900">@SharedLocalizer["PageNotFoundHeading"]</h1>
-        <p class="text-slate-600">@SharedLocalizer["PageNotFoundDesc"]</p>
-        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="@Url.Action("Index", "Home", new { area = "Shop" })" class="inline-block bg-primary text-white font-bold px-8 py-3 rounded-md hover:bg-primary/90 transition-all">
-                @SharedLocalizer["BackToHomepage"]
+<main class="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-['Tajawal']" style="font-family: 'Tajawal', sans-serif;">
+    <div class="max-w-2xl w-full text-center space-y-8 bg-[#151B26] text-white p-8 sm:p-12 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
+        
+        <!-- Decorative Construction Grid Background Pattern -->
+        <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#E8A020_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+        <!-- Construction Badge & Icon -->
+        <div class="relative flex flex-col items-center justify-center gap-3">
+            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-[#1d2636] border-2 border-[#E8A020]/40 flex items-center justify-center text-[#E8A020] shadow-[0_0_40px_rgba(232,160,32,0.15)] transform hover:rotate-3 transition-transform">
+                <span class="material-symbols-outlined text-5xl sm:text-6xl animate-pulse">engineering</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E8A020]/15 border border-[#E8A020]/30 text-[#E8A020] text-xs font-black uppercase tracking-widest mt-2">
+                <span class="material-symbols-outlined text-sm">construction</span>
+                <span>@(isArabic ? "رمز الخطأ: 404 - صفحة مفقودة" : "Error 404: Page Missing")</span>
+            </div>
+        </div>
+
+        <!-- Headings -->
+        <div class="relative space-y-3">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                @(isArabic ? "عذراً، لم نتمكن من العثور على هذه الصفحة!" : "Oops! The page you are looking for does not exist.")
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                @(isArabic ? "قد يكون الرابط الذي اتبعته قديماً أو تم نقله، أو أن المنتج المطلوب غير متاح حالياً. بإمكانك البحث عن المواد أو استخدام حاسبتنا الذكية." : "The link might be outdated or removed. You can search our construction materials catalog or use our smart quantity calculator.")
+            </p>
+        </div>
+
+        <!-- Quick Material Search Bar -->
+        <div class="relative max-w-md mx-auto">
+            <form action="/Shop/Product/Search" method="get" class="flex items-center gap-2 bg-[#1d2636] border border-slate-700 focus-within:border-[#E8A020] rounded-2xl p-1.5 transition-colors shadow-inner">
+                <span class="material-symbols-outlined text-slate-400 ms-3 text-xl">search</span>
+                <input type="text" name="query" 
+                       placeholder="@(isArabic ? "ابحث عن حديد، أسمنت، حجر، طوب..." : "Search steel, cement, stone, blocks...")"
+                       class="w-full bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none px-2 py-2" />
+                <button type="submit" class="bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-4 py-2 rounded-xl text-xs transition-all shrink-0">
+                    @(isArabic ? "بحث" : "Search")
+                </button>
+            </form>
+        </div>
+
+        <!-- Quick Action Navigation Buttons -->
+        <div class="relative pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 border-t border-slate-800/80">
+            <a href="/" class="w-full sm:w-auto sm:min-w-[220px] inline-flex items-center justify-center gap-3 bg-[#E8A020] hover:bg-[#ffb94c] text-[#151B26] font-bold px-8 py-4 rounded-2xl shadow-[0_8px_25px_rgba(232,160,32,0.25)] hover:shadow-[0_12px_30px_rgba(232,160,32,0.35)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 text-sm sm:text-base">
+                <span class="material-symbols-outlined text-xl">home</span>
+                <span>@(isArabic ? "العودة للرئيسية" : "Back to Home")</span>
             </a>
-            <a href="@Url.Action("Support", "Legal", new { area = "Shop" })" class="inline-block text-on-surface-variant font-bold hover:text-primary transition-colors">
-                @SharedLocalizer["NeedHelpContactSupport"]
+            <a href="/calculator" class="w-full sm:w-auto sm:min-w-[220px] inline-flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 text-white font-bold px-8 py-4 rounded-2xl border border-white/10 hover:border-[#E8A020]/40 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-lg text-sm sm:text-base group">
+                <span class="material-symbols-outlined text-xl text-[#E8A020] group-hover:scale-110 transition-transform">calculate</span>
+                <span>@(isArabic ? "حاسبة البناء الذكية" : "Smart Calculator")</span>
             </a>
         </div>
+
     </div>
 </main>

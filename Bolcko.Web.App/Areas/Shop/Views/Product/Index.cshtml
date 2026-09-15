@@ -68,6 +68,8 @@
         <nav class="flex items-center gap-2 mb-8 md:mb-12 text-[11px] font-bold text-slate-400 uppercase tracking-widest flex-wrap">
             <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
             <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+            <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop" })">@SharedLocalizer["AllCategories"]</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
             @if (!string.IsNullOrEmpty(Model.CategoryName))
             {
                 <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop", id = Model.CategoryId })">@Model.CategoryName</a>
@@ -247,12 +249,42 @@
                                 </div>
                                 
                                 <!-- Modern Add to Cart Button -->
-                                <button type="submit" class="flex-1 h-14 bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95">
-                                    <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                                    <span class="text-sm tracking-wider">@SharedLocalizer["AddToCart"]</span>
-                                </button>
+                                @if (Model.StockQuantity > 0)
+                                {
+                                    <button type="submit" class="flex-1 h-14 bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95">
+                                        <span class="material-symbols-outlined text-xl">shopping_cart</span>
+                                        <span class="text-sm tracking-wider">@SharedLocalizer["AddToCart"]</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" disabled class="flex-1 h-14 bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed font-bold rounded-2xl flex items-center justify-center gap-3 shadow-none">
+                                        <span class="material-symbols-outlined text-xl">block</span>
+                                        <span class="text-sm tracking-wider">@SharedLocalizer["TemporarilyOutOfStock"]</span>
+                                    </button>
+                                }
                             </div>
                         </div>
+
+                        <!-- Direct WhatsApp Order & Inquiry CTA (QT1-11 & QT1-55) -->
+                        @{
+                            var waPhone = "962790000000";
+                            var reqHost = Context.Request.Host.Value;
+                            var reqScheme = Context.Request.Scheme;
+                            var productUrl = $"{reqScheme}://{reqHost}/Shop/Product/Index/{Model.Id}";
+                            var waMsg = isArabic 
+                                ? $"مرحباً منصة بلوكو، أود الاستفسار والطلب بخصوص المنتج:\n- الاسم: {Model.Name}\n- الكود SKU: {Model.Sku}\n- السعر: {Model.RetailPrice:N2} د.أ\n- الرابط: {productUrl}"
+                                : $"Hello Blocko Team, I would like to order/inquire about:\n- Product: {Model.Name}\n- SKU: {Model.Sku}\n- Price: {Model.RetailPrice:N2} JOD\n- Link: {productUrl}";
+                            var waEncodedMsg = System.Net.WebUtility.UrlEncode(waMsg);
+                            var waUrl = $"https://wa.me/{waPhone}?text={waEncodedMsg}";
+                        }
+                        <a href="@waUrl" target="_blank" rel="noopener noreferrer" 
+                           class="w-full h-14 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95 text-sm cursor-pointer">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.058.376-.058c.101-.116.433-.506.549-.68.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.458 3.418 1.258 4.864l-1.297 4.736 4.872-1.278c1.399.756 2.996 1.178 4.667 1.178 5.514 0 10-4.486 10-10s-4.486-10-10-10z"/>
+                            </svg>
+                            <span>@(isArabic ? "طلب واستفسار عبر واتساب" : "Order via WhatsApp")</span>
+                        </a>
                     </form>
                     
                     <!-- Trust Checkout Badge -->

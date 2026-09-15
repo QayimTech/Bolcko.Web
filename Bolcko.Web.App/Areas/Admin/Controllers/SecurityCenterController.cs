@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Route("Admin/Security/Center")]
+    [Route("Admin/SecurityCenter")]
+    [Route("Admin/[controller]/[action]")]
     [Authorize(Roles = "Admin")]
     public class SecurityCenterController : Controller
     {
@@ -19,11 +22,23 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _analyticsService = analyticsService;
         }
 
+        [HttpGet]
+        [Route("")]
+        [Route("Index")]
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         {
-            ViewBag.PendingThreats = await _securityAuditService.GetPendingThreatLogsAsync(100);
-            ViewBag.Blacklist = await _securityAuditService.GetActiveBlacklistAsync();
-            ViewBag.TrafficKpis = await _analyticsService.GetTrafficKpisAsync(startDate, endDate);
+            try
+            {
+                ViewBag.PendingThreats = await _securityAuditService.GetPendingThreatLogsAsync(100);
+                ViewBag.Blacklist = await _securityAuditService.GetActiveBlacklistAsync();
+                ViewBag.TrafficKpis = await _analyticsService.GetTrafficKpisAsync(startDate, endDate);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.PendingThreats = new System.Collections.Generic.List<Bolcko.Domain.Entities.Analytics.SecurityAuditLog>();
+                ViewBag.Blacklist = new System.Collections.Generic.List<Bolcko.Domain.Entities.Analytics.IpBlacklist>();
+                ViewBag.Error = ex.Message;
+            }
 
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");

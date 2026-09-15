@@ -1,4 +1,5 @@
 @model dynamic
+@using Bolcko.Web.App.Extensions
 @{
     bool isRoot = ViewBag.IsRoot ?? false;
     var category = ViewBag.Category as Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto;
@@ -6,14 +7,19 @@
 }
 
 <main class="max-w-7xl mx-auto px-6 py-12 text-start">
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center gap-2 mb-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+    <!-- Breadcrumbs (QT1-33) -->
+    <nav class="flex items-center gap-2 mb-10 text-[11px] font-bold text-slate-400 uppercase tracking-widest flex-wrap">
         <a class="hover:text-[#E8A020] transition-colors" href="/">@SharedLocalizer["Home"]</a>
         <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
-        @if (!isRoot && category != null && category.ParentCategoryId != null)
+        @if (!isRoot)
         {
-            <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", new { id = category.ParentCategoryId })">@category.ParentCategoryName</a>
+            <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", "Category", new { area = "Shop" })">@SharedLocalizer["AllCategories"]</a>
             <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+            @if (category != null && category.ParentCategoryId != null)
+            {
+                <a class="hover:text-[#E8A020] transition-colors" href="@Url.Action("Index", new { id = category.ParentCategoryId })">@category.ParentCategoryName</a>
+                <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+            }
         }
         <span class="text-slate-800 font-bold">@ViewData["Title"]</span>
     </nav>
@@ -34,7 +40,7 @@
                            class="group relative bg-white border border-slate-200 rounded-3xl p-8 text-center cursor-pointer shadow-sm hover:shadow-xl hover:border-[#E8A020]/30 transition-all duration-300 hover:-translate-y-2 flex flex-col items-center justify-center gap-4">
                             
                             <div class="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-white transition-colors duration-300">
-                                <span class="material-symbols-outlined text-[40px]">@(string.IsNullOrEmpty(cat.ImageUrl) ? "category" : cat.ImageUrl)</span>
+                                <span class="material-symbols-outlined text-[40px]">@cat.ImageUrl.ToCategoryIcon(cat.Name)</span>
                             </div>
                             
                             <div>

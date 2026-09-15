@@ -39,14 +39,13 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             {
                 await _shoppingCartService.AddToCartAsync(sessionId, productId, quantity, userId, productVariantId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = ex.Message;
-                var referer = Request.Headers["Referer"].ToString();
-                if (!string.IsNullOrEmpty(referer))
-                {
-                    return Redirect(referer);
-                }
+                var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+                TempData["WarningMessage"] = isAr
+                    ? "المنتجات المؤشر عليها بـ *** غير متوفرة بالكمية المطلوبة أو نفذت من المخزون!"
+                    : "Products marked with *** are not available in the desired quantity or not in stock!";
+                return RedirectToAction(nameof(Index));
             }
             return RedirectToAction(nameof(Index));
         }
@@ -139,12 +138,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Checkout()
         {
             var userId = GetUserId();
-            if (!userId.HasValue)
+            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), userId);
+            if (cart == null || !cart.Items.Any())
             {
-                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action(nameof(Checkout)) });
+                return RedirectToAction(nameof(Index));
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), userId);
             ViewBag.Cart = cart;
 
             var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
@@ -186,9 +185,39 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             if (!userId.HasValue)
             {
-                // Store checkout data in TempData and redirect to login
-                TempData["CheckoutData"] = System.Text.Json.JsonSerializer.Serialize(checkoutDto);
-                return RedirectToAction("Login", "Account", new { area = "Shop", returnUrl = Url.Action(nameof(PlaceOrder)) });
+                // Support Guest Checkout: create or locate customer record for guest
+                try
+                {
+                    var userManager = (Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>)
+                        HttpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>))!;
+                    var guestPhone = !string.IsNullOrWhiteSpace(checkoutDto.Phone) ? checkoutDto.Phone.Trim().Replace(" ", "").Replace("+", "") : "0790000000";
+                    var guestEmail = !string.IsNullOrWhiteSpace(checkoutDto.Email) ? checkoutDto.Email.Trim().ToLowerInvariant() : $"guest_{guestPhone}@block-o.com";
+                    
+                    var user = await userManager.FindByEmailAsync(guestEmail);
+                    if (user == null)
+                    {
+                        user = new Bolcko.Domain.Entities.User.User
+                        {
+                            UserName = guestEmail,
+                            Email = guestEmail,
+                            PhoneNumber = checkoutDto.Phone,
+                            FirstName = checkoutDto.FullName?.Split(' ').FirstOrDefault() ?? "Guest",
+                            LastName = checkoutDto.FullName?.Split(' ').Skip(1).FirstOrDefault() ?? "Customer",
+                            UserType = Bolcko.Domain.Enums.UserType.Customer
+                        };
+                        var createResult = await userManager.CreateAsync(user, "GuestPass@" + Guid.NewGuid().ToString("N")[..8]);
+                        if (createResult.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(user, "Customer");
+                        }
+                    }
+                    userId = user?.Id;
+                }
+                catch
+                {
+                    // Fallback if user creation fails
+                    userId = 1;
+                }
             }
 
             var cart = await _shoppingCartService.GetCartAsync(sessionId, userId);
@@ -197,7 +226,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var order = await _orderService.PlaceOrderAsync(userId.Value, cart, checkoutDto);
+            var order = await _orderService.PlaceOrderAsync(userId ?? 1, cart, checkoutDto);
             await _shoppingCartService.ClearCartAsync(sessionId, userId);
 
             // Auto-Dispatch to Active Delivery Provider API (GLC / LogesTechs) if enabled and not oversized
@@ -261,7 +290,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Confirmation(int orderId)
         {
             var order = await _orderService.GetOrderByIdAsync(orderId);
-            if(order == null) return NotFound();
+            if(order == null)
+            {
+                var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+                TempData["ErrorMessage"] = isAr ? "الطلب المطلوب غير متوفر أو تم حذفه." : "The requested order is unavailable or has been removed.";
+                return RedirectToAction("Orders", "Account", new { area = "Shop" });
+            }
             return View(order);
         }
 

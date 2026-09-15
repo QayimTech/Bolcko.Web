@@ -1,11 +1,14 @@
 @using Bolcko.Domain.Entities.User
 @using Bolcko.Domain.Entities.Order.DTOs
+@using Bolcko.Web.App.Extensions
 @model OrderDto
 @{
     ViewData["Title"] = SharedLocalizer["OrderDetails"];
     var user = ViewBag.User as User;
+    var isAr = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ||
+               System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start" dir="@(isAr ? "rtl" : "ltr")">
     <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
@@ -143,7 +146,7 @@
                 <div class="flex justify-between items-center border-b border-outline-variant pb-4">
                     <div>
                         <h3 class="font-bold text-on-surface">@SharedLocalizer["OrderInfo"]</h3>
-                        <p class="text-sm text-secondary">@SharedLocalizer["OrderDateLabel"]: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
+                        <p class="text-sm text-secondary">@SharedLocalizer["OrderDateLabel"]: @Model.OrderDate.ToJordanTime().ToString("yyyy/MM/dd hh:mm tt")</p>
                     </div>
                     <div>
                         @{
@@ -177,20 +180,34 @@
                         <table class="w-full text-start">
                             <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
                                 <tr>
-                                    <th class="p-3">@SharedLocalizer["ProductNameHeader"]</th>
-                                    <th class="p-3">@SharedLocalizer["ProductQuantityHeader"]</th>
-                                    <th class="p-3">@SharedLocalizer["UnitPriceHeader"]</th>
-                                    <th class="p-3">@SharedLocalizer["TotalPriceHeader"]</th>
+                                    <th class="p-3.5 text-start align-middle">@SharedLocalizer["ProductNameHeader"]</th>
+                                    <th class="p-3.5 text-center align-middle">@SharedLocalizer["ProductQuantityHeader"]</th>
+                                    <th class="p-3.5 text-end align-middle">@SharedLocalizer["UnitPriceHeader"]</th>
+                                    <th class="p-3.5 text-end align-middle">@SharedLocalizer["TotalPriceHeader"]</th>
                                 </tr>
                             </thead>
-                            <tbody class="text-sm">
+                            <tbody class="text-sm divide-y divide-outline-variant">
                                 @foreach (var item in Model.Items)
                                 {
-                                    <tr class="border-b border-outline-variant">
-                                        <td class="p-3">@item.ProductId</td>
-                                        <td class="p-3">@item.Quantity</td>
-                                        <td class="p-3">@item.UnitPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
-                                        <td class="p-3">@item.TotalPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
+                                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                        <td class="p-3.5 align-middle">
+                                            <div class="flex items-center gap-3">
+                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                {
+                                                    <img src="@item.ImageUrl" alt="@item.ProductName" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0" onerror="this.style.display='none'" />
+                                                }
+                                                <div class="min-w-0">
+                                                    <div class="font-bold text-slate-900">@(string.IsNullOrWhiteSpace(item.ProductName) ? $"Product #{item.ProductId}" : item.ProductName)</div>
+                                                    @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                                    {
+                                                        <div class="text-xs text-slate-500 font-medium mt-0.5">@item.VariantInfo</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-3.5 text-center align-middle font-bold text-slate-700">@item.Quantity</td>
+                                        <td class="p-3.5 text-end align-middle font-bold text-slate-700">@item.UnitPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
+                                        <td class="p-3.5 text-end align-middle font-black text-primary">@item.TotalPrice.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
                                     </tr>
                                 }
                             </tbody>

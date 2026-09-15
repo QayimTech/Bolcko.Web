@@ -1,12 +1,15 @@
 @using Bolcko.Domain.Entities.User
 @using Bolcko.Domain.Entities.Order.DTOs
 @using Bolcko.Domain.Enums
+@using Bolcko.Web.App.Extensions
 @model IEnumerable<OrderDto>
 @{
     ViewData["Title"] = SharedLocalizer["MyOrders"];
     var user = ViewBag.User as User;
+    var isAr = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ||
+               System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start" dir="@(isAr ? "rtl" : "ltr")">
     <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">
@@ -85,7 +88,7 @@
                                 {
                                     <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                                         <td class="p-4 font-bold">#BLK-@order.Id.ToString("D5")</td>
-                                        <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                        <td class="p-4">@order.OrderDate.ToJordanTime().ToString("yyyy/MM/dd hh:mm tt")</td>
                                         <td class="p-4 text-primary font-bold">@order.TotalAmount.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
                                         <td class="p-4">
                                             @{

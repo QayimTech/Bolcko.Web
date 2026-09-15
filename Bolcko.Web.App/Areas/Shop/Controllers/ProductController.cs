@@ -46,7 +46,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var translatedProducts = await products.TranslateAsync(_translationService, culture, _unitOfWork);
 
             ViewBag.Query = query;
-            return View(products);
+            return View(translatedProducts);
         }
     }
 }

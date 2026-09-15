@@ -21,6 +21,9 @@ ConfigureFileSystemWatcher();
 
 try
 {
+    // Enable Npgsql legacy timestamp behavior to prevent PostgreSQL DateTime Utc/Unspecified type mismatch crashes
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
     Log.Information("Starting Bolcko.Web application...");
 
     var builder = WebApplication.CreateBuilder(args);

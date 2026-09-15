@@ -4,9 +4,10 @@
 @{
     ViewData["Title"] = SharedLocalizer["MyProjects"];
     var user = ViewBag.User as User;
-    var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isAr = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ||
+               System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-start">
+<main class="max-w-7xl mx-auto px-6 py-12 text-start" dir="@(isAr ? "rtl" : "ltr")">
     <div class="flex flex-col lg:flex-row gap-gutter">
         <!-- Sidebar Navigation -->
         <aside class="w-full lg:w-64 flex-shrink-0">

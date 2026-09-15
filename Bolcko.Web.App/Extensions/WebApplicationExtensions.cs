@@ -28,6 +28,8 @@ public static class WebApplicationExtensions
             app.UseExceptionHandler("/Shop/Home/Error");
             app.UseHsts();
         }
+
+        app.UseStatusCodePagesWithReExecute("/Error/{0}");
     }
 
     #endregion

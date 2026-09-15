@@ -1,0 +1,311 @@
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "غرفة البيانات الرسمية للاستحواذ الرقمي | بلوكو - BLOCK-O" 
+        : "Acquisition Virtual Data Room | BLOCK-O";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var phoneRaw = "0782023800";
+    var phoneInternational = "962782023800";
+    var whatsappUrl = $"https://wa.me/{phoneInternational}?text=" + Uri.EscapeDataString(isArabic 
+        ? "مرحباً، أود التواصل بخصوص الاستحواذ على منصة بلوكو (block-o.com) وطلب ملفات غرفة البيانات والسورس كود." 
+        : "Hello, I am interested in acquiring BLOCK-O platform (block-o.com) and requesting the complete Data Room and Source Code dossier.");
+}
+
+<style>
+    .vdr-wrapper {
+        background-color: #0A0E17 !important;
+        color: #f1f5f9 !important;
+    }
+    .vdr-card {
+        background-color: #131924 !important;
+        border: 1px solid #1e293b !important;
+    }
+    .vdr-card-inner {
+        background-color: #182130 !important;
+        border: 1px solid #334155 !important;
+    }
+    .vdr-btn-whatsapp {
+        background-color: #25D366 !important;
+        color: #0A0E17 !important;
+    }
+    .vdr-btn-whatsapp:hover {
+        background-color: #20bd5a !important;
+    }
+    .vdr-gold-text {
+        color: #E8A020 !important;
+    }
+    .vdr-gold-bg {
+        background-color: #E8A020 !important;
+        color: #0A0E17 !important;
+    }
+    .vdr-gold-border {
+        border-color: rgba(232, 160, 32, 0.4) !important;
+    }
+</style>
+
+<main class="vdr-wrapper min-h-screen py-8 sm:py-14 px-4 sm:px-6 lg:px-8 font-['Tajawal'] antialiased" style="background-color: #0A0E17 !important; color: #f1f5f9 !important; font-family: 'Tajawal', sans-serif;">
+    <div class="max-w-5xl mx-auto space-y-8 sm:space-y-12">
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- 1. TOP CONFIDENTIALITY BAR & WHATSAPP QUICK ACCESS       -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="vdr-card flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl shadow-xl" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+            <div class="flex items-center gap-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-300">
+                    <span class="material-symbols-outlined text-base text-emerald-400">lock</span>
+                    <span>@(isArabic ? "ملف استحواذ خاص وسري (Confidential M&A VDR)" : "Confidential Acquisition VDR")</span>
+                </div>
+            </div>
+
+            <!-- Direct Quick WhatsApp Button -->
+            <a href="@whatsappUrl" target="_blank" 
+               class="vdr-btn-whatsapp w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 shadow-md shadow-[#25D366]/20 active:scale-95"
+               style="background-color: #25D366 !important; color: #0A0E17 !important;">
+                <span class="material-symbols-outlined text-lg">chat</span>
+                <span>@(isArabic ? "تواصل واتساب مباشر: 0782023800" : "Direct WhatsApp: 0782023800")</span>
+            </a>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- 2. EXECUTIVE HERO SHOWCASE CARD                          -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="vdr-card relative rounded-3xl p-6 sm:p-12 shadow-2xl overflow-hidden" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+            <!-- Decorative Glow Elements -->
+            <div class="absolute -top-24 -end-24 w-80 h-80 bg-[#E8A020]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-6 text-center sm:text-start">
+                
+                <!-- Brand Badge & Domain -->
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                    <div class="vdr-gold-bg w-14 h-14 rounded-2xl flex items-center justify-center font-black shadow-lg shadow-[#E8A020]/25 shrink-0" style="background-color: #E8A020 !important; color: #0A0E17 !important;">
+                        <span class="material-symbols-outlined text-3xl">domain</span>
+                    </div>
+                    <div class="text-start">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl sm:text-4xl font-black text-white tracking-tight">BLOCK-O</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono border" style="background-color: rgba(232, 160, 32, 0.15) !important; color: #E8A020 !important; border-color: rgba(232, 160, 32, 0.3) !important;">v2.4 LTS</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-400 font-mono">https://www.block-o.com</p>
+                    </div>
+                </div>
+
+                <!-- Headline & Value Pitch -->
+                <div class="space-y-3 pt-2">
+                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                        @(isArabic ? "غرفة بيانات صفقة الاستحواذ الكامل" : "Turnkey Platform Acquisition Data Room")
+                        <br class="hidden sm:inline" />
+                        <span class="vdr-gold-text" style="color: #E8A020 !important;">@(isArabic ? "السورس كود 100% + البراند + التكنولوجيا" : "100% Source Code + Brand + Proprietary Tech")</span>
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
+                        @(isArabic 
+                            ? "ملف الأصول الرقمية لمنصة بلوكو لتوريد مواد البناء (ConTech). جاهزة للتشغيل الفوري والتوسع الإقليمي، تشمل الكود المصدري كاملاً، محرك الحسابات الإنشائية ثلاثي الأبعاد، البنية التحتية المعتمدة لمحركات البحث، وقنوات التوريد والتوصيل المؤتمتة." 
+                            : "Comprehensive digital asset portfolio for BLOCK-O (block-o.com). Turnkey B2B/B2C ConTech marketplace, featuring 100% proprietary source code, Three.js 3D quantity estimator, and verified Google infrastructure.")
+                    </p>
+                </div>
+
+                <!-- Fast Metric Counters -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+                    <div class="vdr-card-inner p-4 rounded-2xl text-center sm:text-start" style="background-color: #182130 !important; border: 1px solid #334155 !important;">
+                        <p class="text-xs text-slate-400 font-medium">@(isArabic ? "ملكية السورس كود" : "Source Code IP")</p>
+                        <p class="text-xl sm:text-2xl font-black mt-1" style="color: #E8A020 !important;">100% Full</p>
+                    </div>
+                    <div class="vdr-card-inner p-4 rounded-2xl text-center sm:text-start" style="background-color: #182130 !important; border: 1px solid #334155 !important;">
+                        <p class="text-xs text-slate-400 font-medium">Framework</p>
+                        <p class="text-xl sm:text-2xl font-black text-white mt-1">.NET 8</p>
+                    </div>
+                    <div class="vdr-card-inner p-4 rounded-2xl text-center sm:text-start" style="background-color: #182130 !important; border: 1px solid #334155 !important;">
+                        <p class="text-xs text-slate-400 font-medium">3D Engine</p>
+                        <p class="text-xl sm:text-2xl font-black text-white mt-1">Three.js</p>
+                    </div>
+                    <div class="vdr-card-inner p-4 rounded-2xl text-center sm:text-start" style="background-color: #182130 !important; border: 1px solid #334155 !important;">
+                        <p class="text-xs text-slate-400 font-medium">@(isArabic ? "جاهزية التشغيل" : "Time-to-Market")</p>
+                        <p class="text-xl sm:text-2xl font-black text-emerald-400 mt-1">@(isArabic ? "فوري 0 يوم" : "Instant Day 1")</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- 3. GOOGLE ECOSYSTEM (SEARCH CONSOLE & MERCHANT CENTER)   -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="space-y-5">
+            <div class="flex items-center gap-2.5 text-white font-bold text-lg sm:text-xl">
+                <span class="material-symbols-outlined text-2xl" style="color: #E8A020 !important;">travel_explore</span>
+                <h2>@(isArabic ? "البنية التحتية لمحركات البحث والتسويق الرقمي (Google Verified)" : "Verified Google Marketing & Search Infrastructure")</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                <!-- Google Search Console -->
+                <div class="vdr-card rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl transition-all duration-300" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+                    <div class="flex items-center justify-between pb-4" style="border-bottom: 1px solid #1e293b !important;">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-blue-400" style="background-color: rgba(59, 130, 246, 0.1) !important; border: 1px solid rgba(59, 130, 246, 0.2) !important;">
+                                <span class="material-symbols-outlined text-2xl">troubleshoot</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white text-base sm:text-lg">Google Search Console</h3>
+                                <p class="text-xs text-blue-400 font-medium">@(isArabic ? "فهرسة وتوثيق ملكية معتمدة 100%" : "Verified Domain Ownership & Indexing")</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-blue-400 text-xs font-bold" style="background-color: rgba(59, 130, 246, 0.15) !important; border: 1px solid rgba(59, 130, 246, 0.3) !important;">Verified</span>
+                    </div>
+
+                    <ul class="space-y-3 text-xs sm:text-sm text-slate-300">
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "توثيق ملكية النطاق على مستوى DNS لاسم النطاق العالمي block-o.com" : "Full DNS-level verified domain property on block-o.com")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "خرائط أرشفة تلقائية (XML Sitemaps) متزامنة يومياً لجميع المواد والتصنيفات" : "Dynamic XML sitemaps updated daily for products, categories & calculator")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "كودات Schema.org الغنية لظهور مميز في نتائج بحث Google (Rich Results)" : "Full Schema.org implementation (WebApplication, Products, Breadcrumbs)")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "سلامة تامة من أي أخطاء زحف (0 Crawl Errors) وجاهزية Mobile-First" : "Zero critical crawl errors with complete mobile-first optimization")</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Google Merchant Center -->
+                <div class="vdr-card rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl transition-all duration-300" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+                    <div class="flex items-center justify-between pb-4" style="border-bottom: 1px solid #1e293b !important;">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400" style="background-color: rgba(16, 185, 129, 0.1) !important; border: 1px solid rgba(16, 185, 129, 0.2) !important;">
+                                <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white text-base sm:text-lg">Google Merchant Center</h3>
+                                <p class="text-xs text-emerald-400 font-medium">@(isArabic ? "جاهزية إعلانات التسوق (Google Shopping Ready)" : "Active Product Catalog Integration")</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-emerald-400 text-xs font-bold" style="background-color: rgba(16, 185, 129, 0.15) !important; border: 1px solid rgba(16, 185, 129, 0.3) !important;">Active</span>
+                    </div>
+
+                    <ul class="space-y-3 text-xs sm:text-sm text-slate-300">
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "تغذية منتجات آلية (Automated Product Feed) مع الأسعار والمخزون الحي" : "Automated Product Catalog Feed with real-time pricing & stock attributes")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "جاهزية فورية لحملات Google Performance Max لمواد البناء" : "Instant launch readiness for Google Shopping & PMax advertising")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "مطابقة سياسات التوصيل والإرجاع والضريبة مع شروط جوجل الصارمة" : "Full policy compliance for shipping, returns, and sales taxes")</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-400 text-base shrink-0 mt-0.5">check_circle</span>
+                            <span>@(isArabic ? "ربط فئات الحديد والباطون والحجر مع معايير Google Taxonomy" : "Pre-mapped construction taxonomy delivering high purchase conversion")</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- 4. CORE ACQUISITION ASSETS (3 PILLARS)                   -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="space-y-5">
+            <div class="flex items-center gap-2.5 text-white font-bold text-lg sm:text-xl">
+                <span class="material-symbols-outlined text-2xl" style="color: #E8A020 !important;">inventory</span>
+                <h2>@(isArabic ? "حزمة الأصول المتضمنة في صفقة البيع" : "Core Acquisition Asset Package")</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- 1. Source Code -->
+                <div class="vdr-card rounded-3xl p-6 space-y-4" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background-color: rgba(232, 160, 32, 0.1) !important; color: #E8A020 !important;">
+                        <span class="material-symbols-outlined text-2xl">code</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-white">@(isArabic ? "السورس كود كاملاً 100%" : "100% Clean Source Code")</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        @(isArabic 
+                            ? "تسليم مستودع الكود المصدري كاملاً دون أي حقوق طرف ثالث أو تراخيص متكررة، مبني على .NET 8 و PostgreSQL بهيكلية Clean Architecture." 
+                            : "Full source code repository transfer with zero external licensing royalties. Built on ASP.NET Core 8 with PostgreSQL & Clean Architecture.")
+                    </p>
+                </div>
+
+                <!-- 2. 3D & Civil Engine -->
+                <div class="vdr-card rounded-3xl p-6 space-y-4" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-amber-400" style="background-color: rgba(245, 158, 11, 0.1) !important;">
+                        <span class="material-symbols-outlined text-2xl">view_in_ar</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-white">@(isArabic ? "المحرك الإنشائي وموديل 3D" : "Proprietary 3D Civil Engine")</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        @(isArabic 
+                            ? "خوارزمية هندسية احتكارية لحساب كميات الباطون، حديد التسليح، نسب الهالك، والحجر، مرتبطة بمحرك Three.js للمحاكاة التفاعلية." 
+                            : "Custom civil algorithms calculating structural quantities and wastage factors, integrated with a real-time Three.js WebGL building model.")
+                    </p>
+                </div>
+
+                <!-- 3. Brand & Domain -->
+                <div class="vdr-card rounded-3xl p-6 space-y-4" style="background-color: #131924 !important; border: 1px solid #1e293b !important;">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-indigo-400" style="background-color: rgba(99, 102, 241, 0.1) !important;">
+                        <span class="material-symbols-outlined text-2xl">verified</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-white">@(isArabic ? "البراند والدومين الرسمي" : "Brand Identity & Domain")</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        @(isArabic 
+                            ? "التنازل الكامل عن النطاق العالمي block-o.com، دليل الهوية البصرية، ملفات التصميم، والشعارات بكامل الصيغ الأصلية." 
+                            : "Complete ownership transfer of block-o.com domain, design systems, vector brand assets, and marketing guidelines.")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- 5. WHATSAPP & DIRECT M&A CONTACT ACTION CENTER            -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="vdr-card rounded-3xl p-8 sm:p-12 shadow-2xl space-y-6 text-center" style="background-color: #131924 !important; border: 2px solid rgba(37, 211, 102, 0.4) !important;">
+            
+            <div class="max-w-2xl mx-auto space-y-3">
+                <div class="inline-flex p-4 rounded-3xl mb-2" style="background-color: rgba(37, 211, 102, 0.1) !important; color: #25D366 !important;">
+                    <span class="material-symbols-outlined text-4xl sm:text-5xl">contact_support</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-black text-white">
+                    @(isArabic ? "للتفاوض المالي وطلب تفاصيل الاستحواذ" : "Direct Acquisition Negotiation & Inquiries")
+                </h2>
+                <p class="text-slate-300 text-xs sm:text-base leading-relaxed">
+                    @(isArabic 
+                        ? "يتم تسليم ملفات السورس كود، التقييم المالي، وعقد التنازل بعد التواصل المباشر وتوقيع اتفاقية السرية (NDA). بإمكانك التواصل الفوري مع المفاوض المسؤول عبر واتساب أو الهاتف مباشرة:" 
+                        : "Full technical code walkthrough, valuation model, and NDA terms are available via direct communication with the principal founder:")
+                </p>
+            </div>
+
+            <!-- Prominent Phone & WhatsApp Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xl mx-auto pt-2">
+                <!-- Primary WhatsApp Button -->
+                <a href="@whatsappUrl" target="_blank" 
+                   class="vdr-btn-whatsapp w-full sm:flex-1 inline-flex items-center justify-center gap-3 font-black px-7 py-4 rounded-2xl text-sm sm:text-base transition-all duration-200 shadow-xl shadow-[#25D366]/25 active:scale-95"
+                   style="background-color: #25D366 !important; color: #0A0E17 !important;">
+                    <span class="material-symbols-outlined text-2xl">chat</span>
+                    <span>@(isArabic ? "مراسلة واتساب: 0782023800" : "Chat on WhatsApp: 0782023800")</span>
+                </a>
+
+                <!-- Phone Call Button -->
+                <a href="tel:@phoneRaw" 
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-bold px-7 py-4 rounded-2xl text-sm sm:text-base transition-all active:scale-95"
+                   style="background-color: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important;">
+                    <span class="material-symbols-outlined text-xl text-emerald-400">call</span>
+                    <span class="font-mono">@phoneRaw</span>
+                </a>
+            </div>
+
+            <p class="text-xs text-slate-400 pt-2 font-mono">
+                @(isArabic ? "متاح للاتصال والمراسلة المباشرة طيلة أيام الأسبوع" : "Available for direct M&A calls 7 days a week")
+            </p>
+
+        </div>
+
+    </div>
+</main>

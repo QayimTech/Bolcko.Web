@@ -8,6 +8,22 @@
     @* CSRF token for AJAX *@
     <form id="ajaxTokenForm">@Html.AntiForgeryToken()</form>
 
+    @if (!string.IsNullOrEmpty(TempData["WarningMessage"]?.ToString()))
+    {
+        <div class="mb-8 p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 font-bold text-xs sm:text-sm flex items-center gap-3 shadow-xs animate-fade-in">
+            <span class="material-symbols-outlined text-amber-600 text-2xl shrink-0">warning</span>
+            <span>@TempData["WarningMessage"]</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+    {
+        <div class="mb-8 p-4 sm:p-5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 font-bold text-xs sm:text-sm flex items-center gap-3 shadow-xs animate-fade-in">
+            <span class="material-symbols-outlined text-rose-600 text-2xl shrink-0">error</span>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
     <header class="mb-12 border-e-4 border-primary-container pe-6">
         <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["ShoppingCartTitle"]</h1>
         <p id="cart-item-count-text" class="font-body-lg text-secondary">

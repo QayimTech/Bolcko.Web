@@ -447,10 +447,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Track(int orderId)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login");
+            if (user == null) return RedirectToAction("Login", new { returnUrl = Url.Action("Track", "Account", new { area = "Shop", orderId }) });
 
             var order = await _serviceManager.OrderService.GetOrderByIdAsync(orderId);
-            if (order == null || order.UserId != user.Id) return NotFound();
+            if (order == null || order.UserId != user.Id)
+            {
+                var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+                TempData["ErrorMessage"] = isAr ? "الطلب المطلوب غير متوفر أو تم حذفه." : "The requested order is unavailable or has been removed.";
+                return RedirectToAction("Orders");
+            }
 
             var job = await _serviceManager.DeliveryService.GetJobByOrderIdAsync(orderId);
 

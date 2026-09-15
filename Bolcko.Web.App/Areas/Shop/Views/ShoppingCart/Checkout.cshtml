@@ -1,5 +1,8 @@
 @model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
 @using Bolcko.Web.App.Extensions
+@{
+    var isEnglish = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+}
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-start font-sans">
     
     <!-- Step Progress Header -->
@@ -111,10 +114,28 @@
                         <div class="space-y-1.5">
                             <label class="block text-xs font-black text-slate-700">@SharedLocalizer["City"] <span class="text-rose-500">*</span></label>
                             <select asp-for="City" id="checkout-city-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
-                                @if (ViewBag.ShippingRates != null)
-                                {
+                                @{
+                                    var shippingRates = ViewBag.ShippingRates as IEnumerable<Bolcko.Domain.Entities.Setting.ShippingRate>;
                                     bool isEnglish = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en");
-                                    foreach (var rate in (IEnumerable<Bolcko.Domain.Entities.Setting.ShippingRate>)ViewBag.ShippingRates)
+                                    var defaultJordanianCities = new[]
+                                    {
+                                        new { Ar = "عمان", En = "Amman", Rate = 3.00m },
+                                        new { Ar = "الزرقاء", En = "Zarqa", Rate = 4.00m },
+                                        new { Ar = "إربد", En = "Irbid", Rate = 5.00m },
+                                        new { Ar = "العقبة", En = "Aqaba", Rate = 8.00m },
+                                        new { Ar = "البلقاء", En = "Balqa", Rate = 4.00m },
+                                        new { Ar = "مادبا", En = "Madaba", Rate = 4.50m },
+                                        new { Ar = "المفرق", En = "Mafraq", Rate = 5.00m },
+                                        new { Ar = "جرش", En = "Jerash", Rate = 5.00m },
+                                        new { Ar = "عجلون", En = "Ajloun", Rate = 5.50m },
+                                        new { Ar = "الكرك", En = "Karak", Rate = 6.00m },
+                                        new { Ar = "الطفيلة", En = "Tafilah", Rate = 7.00m },
+                                        new { Ar = "معان", En = "Ma'an", Rate = 7.50m }
+                                    };
+                                }
+                                @if (shippingRates != null && shippingRates.Any())
+                                {
+                                    foreach (var rate in shippingRates)
                                     {
                                         string displayName = isEnglish && !string.IsNullOrWhiteSpace(rate.CityNameEn) ? rate.CityNameEn : rate.CityName;
                                         <option value="@rate.CityName" data-rate="@rate.Rate.ToString("F2")">@displayName (@rate.Rate.ToString("N2") @SharedLocalizer["JordanDinarShort"] @SharedLocalizer["CityDelivery"])</option>
@@ -122,9 +143,11 @@
                                 }
                                 else
                                 {
-                                    <option value="عمان" data-rate="3.00">عمان (3.00 @SharedLocalizer["JordanDinarShort"])</option>
-                                    <option value="الزرقاء" data-rate="4.00">الزرقاء (4.00 @SharedLocalizer["JordanDinarShort"])</option>
-                                    <option value="إربد" data-rate="5.00">إربد (5.00 @SharedLocalizer["JordanDinarShort"])</option>
+                                    foreach (var c in defaultJordanianCities)
+                                    {
+                                        string displayName = isEnglish ? c.En : c.Ar;
+                                        <option value="@c.Ar" data-rate="@c.Rate.ToString("F2")">@displayName (@c.Rate.ToString("N2") @SharedLocalizer["JordanDinarShort"] @SharedLocalizer["CityDelivery"])</option>
+                                    }
                                 }
                             </select>
                         </div>
@@ -229,14 +252,46 @@
                         </div>
                     </div>
 
-                    <div class="relative border-2 border-[#E8A020] rounded-2xl p-5 bg-amber-50/40 flex items-center gap-4 cursor-pointer">
-                        <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020]" id="cod" />
-                        <label for="cod" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
-                            @SharedLocalizer["CODTitle"]
-                            <span class="block text-xs font-bold text-slate-500 mt-0.5">@SharedLocalizer["CODDesc"]</span>
-                        </label>
-                        <div class="w-12 h-12 rounded-2xl bg-white border border-amber-200 text-[#E8A020] flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">local_atm</span>
+                    <!-- Payment Options Radio Group -->
+                    <div class="space-y-3">
+                        <!-- 1. Cash on Delivery (COD) -->
+                        <div class="relative border-2 border-[#E8A020] rounded-2xl p-5 bg-amber-50/40 flex items-center gap-4 cursor-pointer payment-option-card">
+                            <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020]" id="cod" />
+                            <label for="cod" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                                @SharedLocalizer["CODTitle"]
+                                <span class="block text-xs font-bold text-slate-500 mt-0.5">@SharedLocalizer["CODDesc"]</span>
+                            </label>
+                            <div class="w-12 h-12 rounded-2xl bg-white border border-amber-200 text-[#E8A020] flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">local_atm</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. CliQ Instant Payment with Escrow Protection (حساب الضمان المعتمد) -->
+                        <div class="relative border border-slate-200 hover:border-emerald-500 rounded-2xl p-5 bg-white hover:bg-emerald-50/20 flex items-center gap-4 cursor-pointer transition-all payment-option-card">
+                            <input asp-for="PaymentMethod" type="radio" value="CLIQ_ESCROW" class="w-5 h-5 text-emerald-600 focus:ring-emerald-500" id="cliqEscrow" />
+                            <label for="cliqEscrow" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                                @(isEnglish ? "CliQ Instant Payment (Escrow Protected)" : "دفع فوري عبر كليك CliQ (محمي بحساب الضمان)")
+                                <span class="block text-xs font-medium text-emerald-700 mt-0.5">
+                                    @(isEnglish ? "Funds held securely in escrow until materials arrive and pass site inspection" : "يُحجز المبلغ في حساب الضمان الآمن ولا يُحرر للمورد إلا بعد استلام المواد بالموقع وفحصها")
+                                </span>
+                            </label>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">security</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. eFAWATEERcom (إي فواتيركم) -->
+                        <div class="relative border border-slate-200 hover:border-blue-500 rounded-2xl p-5 bg-white hover:bg-blue-50/20 flex items-center gap-4 cursor-pointer transition-all payment-option-card">
+                            <input asp-for="PaymentMethod" type="radio" value="EFAWATEERCOM" class="w-5 h-5 text-blue-600 focus:ring-blue-500" id="efawateercom" />
+                            <label for="efawateercom" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                                @(isEnglish ? "eFAWATEERcom Bill Payment" : "إي فواتيركم (eFAWATEERcom)")
+                                <span class="block text-xs font-normal text-slate-500 mt-0.5">
+                                    @(isEnglish ? "Pay directly via your Jordanian bank app using biller code" : "تسديد مباشر عبر تطبيق البنك الأردني الخاص بك باستخدام رقم الفاتورة")
+                                </span>
+                            </label>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -264,11 +319,17 @@
                             <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
                                 @if (itemImgSrc != null)
                                 {
-                                    <img class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" src="@itemImgSrc" alt="@item.ProductName" />
+                                    <img class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" 
+                                         src="@itemImgSrc" 
+                                         alt="@item.ProductName"
+                                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+                                    <div class="hidden w-14 h-14 rounded-xl bg-slate-200 text-slate-400 flex items-center justify-center shrink-0 border border-slate-200">
+                                        <span class="material-symbols-outlined text-xl">inventory_2</span>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div class="w-14 h-14 rounded-xl bg-slate-200 text-slate-400 flex items-center justify-center shrink-0">
+                                    <div class="w-14 h-14 rounded-xl bg-slate-200 text-slate-400 flex items-center justify-center shrink-0 border border-slate-200">
                                         <span class="material-symbols-outlined text-xl">inventory_2</span>
                                     </div>
                                 }

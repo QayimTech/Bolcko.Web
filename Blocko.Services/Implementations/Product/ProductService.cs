@@ -229,13 +229,41 @@ namespace Blocko.Services.Implementations.Product
             var searchTerm = (query ?? string.Empty).Trim();
             var hasSearch = !string.IsNullOrEmpty(searchTerm);
             var pattern = $"%{searchTerm}%";
+            var qLower = searchTerm.ToLowerInvariant();
+
+            var isCement = qLower.Contains("cement") || searchTerm.Contains("اسمنت") || searchTerm.Contains("إسمنت");
+            var isSteel = qLower.Contains("steel") || qLower.Contains("rebar") || searchTerm.Contains("حديد");
+            var isBlock = qLower.Contains("block") || searchTerm.Contains("طوب") || searchTerm.Contains("بلوك") || searchTerm.Contains("طابوق");
+            var isStone = qLower.Contains("stone") || searchTerm.Contains("حجر");
 
             var pagedProducts = await _unitOfWork.Products.GetPagedAsync(
                 pageIndex: pageIndex,
                 pageSize: pageSize,
                 predicate: p =>
-                    (!categoryId.HasValue || p.CategoryId == categoryId.Value || p.Category!.ParentCategoryId == categoryId.Value) &&
-                    (!hasSearch || EF.Functions.Like(p.Name, pattern) || (p.Sku != null && EF.Functions.Like(p.Sku, pattern))),
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value || (p.Category != null && p.Category.ParentCategoryId == categoryId.Value)) &&
+                    (!hasSearch || 
+                     (p.Name != null && EF.Functions.ILike(p.Name, pattern)) || 
+                     (p.NameEn != null && EF.Functions.ILike(p.NameEn, pattern)) ||
+                     (p.Description != null && EF.Functions.ILike(p.Description, pattern)) ||
+                     (p.DescriptionEn != null && EF.Functions.ILike(p.DescriptionEn, pattern)) ||
+                     (p.Sku != null && EF.Functions.ILike(p.Sku, pattern)) ||
+                     (isCement && (
+                         (p.Name != null && (EF.Functions.ILike(p.Name, "%اسمنت%") || EF.Functions.ILike(p.Name, "%إسمنت%") || EF.Functions.ILike(p.Name, "%cement%"))) ||
+                         (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%cement%"))
+                     )) ||
+                     (isSteel && (
+                         (p.Name != null && (EF.Functions.ILike(p.Name, "%حديد%") || EF.Functions.ILike(p.Name, "%steel%"))) ||
+                         (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%steel%"))
+                     )) ||
+                     (isBlock && (
+                         (p.Name != null && (EF.Functions.ILike(p.Name, "%طوب%") || EF.Functions.ILike(p.Name, "%بلوك%") || EF.Functions.ILike(p.Name, "%block%"))) ||
+                         (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%block%"))
+                     )) ||
+                     (isStone && (
+                         (p.Name != null && (EF.Functions.ILike(p.Name, "%حجر%") || EF.Functions.ILike(p.Name, "%stone%"))) ||
+                         (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%stone%"))
+                     ))
+                    ),
                 orderBy: q => q.OrderByDescending(p => p.Id),
                 includes: p => p.Category!
             );

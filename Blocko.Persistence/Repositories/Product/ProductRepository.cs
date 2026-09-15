@@ -29,13 +29,46 @@ namespace Blocko.Persistence.Repositories.Product
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return await _context.Products.ToListAsync();
+                return await _context.Products.Include(p => p.Images).Include(p => p.Category).ToListAsync();
             }
 
-            return await _context.Products.Where(p => 
-                (p.Name != null && p.Name.Contains(query)) || 
-                (p.Description != null && p.Description.Contains(query))
-            ).ToListAsync();
+            var trimmed = query.Trim();
+            var pattern = $"%{trimmed}%";
+            var qLower = trimmed.ToLowerInvariant();
+
+            // Detect synonym terms
+            var isCement = qLower.Contains("cement") || trimmed.Contains("اسمنت") || trimmed.Contains("إسمنت");
+            var isSteel = qLower.Contains("steel") || qLower.Contains("rebar") || trimmed.Contains("حديد");
+            var isBlock = qLower.Contains("block") || trimmed.Contains("طوب") || trimmed.Contains("بلوك") || trimmed.Contains("طابوق");
+            var isStone = qLower.Contains("stone") || trimmed.Contains("حجر");
+
+            return await _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Category)
+                .Where(p => 
+                    (p.Name != null && EF.Functions.ILike(p.Name, pattern)) || 
+                    (p.NameEn != null && EF.Functions.ILike(p.NameEn, pattern)) ||
+                    (p.Description != null && EF.Functions.ILike(p.Description, pattern)) ||
+                    (p.DescriptionEn != null && EF.Functions.ILike(p.DescriptionEn, pattern)) ||
+                    (p.Sku != null && EF.Functions.ILike(p.Sku, pattern)) ||
+                    (p.Brand != null && EF.Functions.ILike(p.Brand, pattern)) ||
+                    (isCement && (
+                        (p.Name != null && (EF.Functions.ILike(p.Name, "%اسمنت%") || EF.Functions.ILike(p.Name, "%إسمنت%") || EF.Functions.ILike(p.Name, "%cement%"))) ||
+                        (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%cement%"))
+                    )) ||
+                    (isSteel && (
+                        (p.Name != null && (EF.Functions.ILike(p.Name, "%حديد%") || EF.Functions.ILike(p.Name, "%steel%"))) ||
+                        (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%steel%"))
+                    )) ||
+                    (isBlock && (
+                        (p.Name != null && (EF.Functions.ILike(p.Name, "%طوب%") || EF.Functions.ILike(p.Name, "%بلوك%") || EF.Functions.ILike(p.Name, "%block%"))) ||
+                        (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%block%"))
+                    )) ||
+                    (isStone && (
+                        (p.Name != null && (EF.Functions.ILike(p.Name, "%حجر%") || EF.Functions.ILike(p.Name, "%stone%"))) ||
+                        (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%stone%"))
+                    ))
+                ).ToListAsync();
         }
     }
 }

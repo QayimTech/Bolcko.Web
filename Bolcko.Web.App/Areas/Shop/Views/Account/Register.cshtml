@@ -124,12 +124,27 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-primary border-outline focus:ring-primary rounded-none" />
-                <label for="terms" class="text-xs text-on-surface">@SharedLocalizer["IConfirmAcceptTerms"]</label>
+                <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-[#E8A020] border-slate-300 focus:ring-[#E8A020] rounded" />
+                <label for="terms" class="text-xs text-slate-700">
+                    @if (System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar"))
+                    {
+                        <span>أوافق على </span>
+                        <a href="/Shop/Legal/Terms" target="_blank" class="text-[#E8A020] hover:underline font-bold">الشروط والأحكام</a>
+                        <span> و </span>
+                        <a href="/Shop/Legal/Privacy" target="_blank" class="text-[#E8A020] hover:underline font-bold">سياسة الخصوصية</a>
+                    }
+                    else
+                    {
+                        <span>I agree to the </span>
+                        <a href="/Shop/Legal/Terms" target="_blank" class="text-[#E8A020] hover:underline font-bold">Terms and Conditions</a>
+                        <span> and </span>
+                        <a href="/Shop/Legal/Privacy" target="_blank" class="text-[#E8A020] hover:underline font-bold">Privacy Policy</a>
+                    }
+                </label>
             </div>
 
             <div>
-                <button type="submit" class="w-full bg-primary text-white font-bold py-4 uppercase shadow-lg hover:bg-primary/90 transition-all rounded-md">
+                <button type="submit" class="w-full bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold py-4 uppercase shadow-md transition-all duration-300 rounded-xl active:scale-95">
                     @SharedLocalizer["RegisterBtnText"]
                 </button>
             </div>

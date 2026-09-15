@@ -97,6 +97,15 @@ namespace Bolcko.Web.App.Controllers
                 Priority = "0.5"
             });
 
+            // غرفة البيانات والاستحواذ الرسمي
+            urls.Add(new SitemapUrl
+            {
+                Loc = $"{baseUrl}/dataroom",
+                LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                ChangeFreq = "weekly",
+                Priority = "0.8"
+            });
+
             // صفحة فئات المنتجات الرئيسية
             urls.Add(new SitemapUrl
             {
