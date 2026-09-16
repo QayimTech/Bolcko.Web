@@ -1,0 +1,25 @@
+# robots.txt for Block-O (block-o.com)
+User-agent: *
+Allow: /
+Allow: /Shop/Product/
+Allow: /Shop/Category/
+Allow: /calculator
+Allow: /Shop/Home/
+Allow: /feed/google-merchant.xml
+Allow: /sitemap.xml
+
+# Protect Crawl Budget (Disallow Admin, Auth, Internal endpoints)
+Disallow: /Admin/
+Disallow: /Vendor/
+Disallow: /Delivery/
+Disallow: /Account/
+Disallow: /Shop/Account/
+Disallow: /Shop/ShoppingCart/
+Disallow: /api/
+Disallow: /hangfire
+
+# Crawl-delay for optimal indexing
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://www.block-o.com/sitemap.xml

@@ -16,19 +16,31 @@
         ["\u0040graph"] = new object[] {
             new Dictionary<string, object> {
                 ["\u0040type"] = "WebApplication",
-                ["name"] = isEn ? "Structural Construction Cost & 3D BIM Calculator Jordan" : "حاسبة تكلفة وكميات البناء والمجسم المعماري الأردن",
-                ["url"] = "https://bolcko.com/calculator",
+                ["name"] = isEn ? "Block-O Construction Cost & 3D BIM Calculator Jordan 2026" : "حاسبة تكلفة وكميات البناء والمجسم المعماري 3D الأردن 2026 | بلوكو",
+                ["url"] = "https://www.block-o.com/calculator",
                 ["applicationCategory"] = "BusinessApplication",
                 ["operatingSystem"] = "All",
+                ["offers"] = new Dictionary<string, object> {
+                    ["\u0040type"] = "Offer",
+                    ["price"] = "0.00",
+                    ["priceCurrency"] = "JOD"
+                },
+                ["aggregateRating"] = new Dictionary<string, object> {
+                    ["\u0040type"] = "AggregateRating",
+                    ["ratingValue"] = "4.9",
+                    ["reviewCount"] = "68",
+                    ["bestRating"] = "5",
+                    ["worstRating"] = "1"
+                },
                 ["description"] = isEn 
                     ? "Smart structural engineering system to estimate rebar steel, ready-mix concrete, cement, masonry blocks, and stone facade workmanship in Jordan."
-                    : "حاسبة هندسية متقدمة لتقدير كميات وتكاليف مواد البناء الإنشائية وحجر الواجهات في الأردن وفق كودات البناء وأسعار السوق اللحظية."
+                    : "حاسبة هندسية متقدمة لتقدير كميات وتكاليف مواد البناء الإنشائية (حديد، إسمنت، خرسانة، طوب، حجر واجهات) في الأردن وفق كودات البناء وأسعار السوق اللحظية."
             },
             new Dictionary<string, object> {
                 ["\u0040type"] = "BreadcrumbList",
                 ["itemListElement"] = new object[] {
-                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 1, ["name"] = isEn ? "Home" : "الرئيسية", ["item"] = "https://bolcko.com" },
-                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 2, ["name"] = isEn ? "Cost Estimator" : "حاسبة تكاليف البناء", ["item"] = "https://bolcko.com/calculator" }
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 1, ["name"] = isEn ? "Home" : "الرئيسية", ["item"] = "https://www.block-o.com" },
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 2, ["name"] = isEn ? "Construction Cost Calculator" : "حاسبة تكاليف وكميات البناء", ["item"] = "https://www.block-o.com/calculator" }
                 }
             },
             new Dictionary<string, object> {

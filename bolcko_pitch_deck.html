@@ -1,733 +1,1202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolcko | Investor Pitch Deck (Propeller Inc)</title>
-    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #0b0f17;
-            color: #f1f5f9;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Block-O | Pre-Seed Pitch Deck — Propeller VC</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Material Symbols Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'bolcko-dark': '#0b0f17',
+            'bolcko-card': '#111726',
+            'bolcko-card-hover': '#161f33',
+            'bolcko-border': '#1e293b',
+            'bolcko-border-glow': '#334155',
+            'bolcko-amber': '#E8A020',
+            'bolcko-amber-light': '#FFA826',
+            'bolcko-amber-dark': '#B87405',
+            'bolcko-amber-glow': 'rgba(232, 160, 32, 0.15)',
+            'bolcko-amber-glow-strong': 'rgba(232, 160, 32, 0.3)',
+            'bolcko-cyan': '#06B6D4',
+            'bolcko-cyan-glow': 'rgba(6, 182, 212, 0.15)',
+            'bolcko-emerald': '#10B981',
+            'bolcko-rose': '#F43F5E',
+            'bolcko-purple': '#8B5CF6',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
         }
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .brand-gradient {
-            background: linear-gradient(135deg, #E8A020 0%, #FFA826 50%, #B87405 100%);
-        }
-        .brand-text {
-            background: linear-gradient(135deg, #FFA826 0%, #E8A020 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .card-glass {
-            background: rgba(18, 24, 38, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .card-glass-glow {
-            background: rgba(26, 34, 52, 0.85);
-            border: 1px solid rgba(232, 160, 32, 0.3);
-            box-shadow: 0 0 25px rgba(232, 160, 32, 0.12);
-        }
-        .active-dot {
-            width: 28px;
-            background: #E8A020;
-            border-radius: 8px;
-        }
-    </style>
+      }
+    }
+  </script>
+  
+  <style>
+    .glass-panel {
+      background: rgba(17, 23, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(232, 160, 32, 0.12);
+    }
+    .glass-panel-glow {
+      background: rgba(17, 23, 38, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(232, 160, 32, 0.25);
+      box-shadow: 0 0 25px rgba(232, 160, 32, 0.08);
+    }
+    .glow-accent {
+      box-shadow: 0 0 35px rgba(232, 160, 32, 0.18);
+    }
+    .slide {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.35s ease-in-out;
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+    .grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+    .radial-gradient-overlay {
+      background: radial-gradient(circle at 50% 20%, rgba(232, 160, 32, 0.08) 0%, transparent 70%);
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: rgba(232, 160, 32, 0.3);
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-[#E8A020] selection:text-black">
 
-    <!-- Top Navigation Bar -->
-    <header class="w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E8A020] to-[#b37409] flex items-center justify-center font-black text-slate-950 shadow-lg shadow-[#e8a020]/20 text-lg">
-                B
-            </div>
-            <div>
-                <span class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-                    BLOCK-O <span class="text-[#E8A020]">.OS</span>
-                </span>
-                <span class="text-[10px] mono text-slate-400 block tracking-wider uppercase">Pre-Seed Investment Deck &bull; Propeller VC</span>
-            </div>
+<body class="bg-bolcko-dark text-slate-100 font-sans min-h-screen overflow-hidden flex flex-col justify-between select-none relative">
+  
+  <!-- Background Ambience -->
+  <div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+  <div class="fixed inset-0 radial-gradient-overlay pointer-events-none z-0"></div>
+  <div class="fixed -top-40 -left-40 w-96 h-96 bg-bolcko-amber/10 rounded-full blur-3xl pointer-events-none z-0"></div>
+  <div class="fixed -bottom-40 -right-40 w-96 h-96 bg-bolcko-cyan/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+  <!-- TOP HEADER / NAV -->
+  <header class="relative z-20 px-8 py-4 border-b border-bolcko-border flex items-center justify-between glass-panel bg-opacity-90">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-bolcko-amber to-bolcko-amber-dark flex items-center justify-center shadow-lg shadow-bolcko-amber/20 font-bold text-bolcko-dark text-lg font-mono">B</div>
+        <span class="font-extrabold tracking-wider text-xl bg-gradient-to-r from-slate-100 via-slate-200 to-bolcko-amber bg-clip-text text-transparent">BLOCK-O</span>
+      </div>
+      <span class="text-xs font-mono text-slate-500 border-l border-slate-700 pl-4 uppercase tracking-widest hidden sm:inline-block">Pre-Seed Pitch Deck &bull; Propeller VC</span>
+    </div>
+
+    <!-- Slide Navigation Badges -->
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1 bg-bolcko-card px-3 py-1.5 rounded-full border border-bolcko-border text-xs font-mono">
+        <button id="sectionMainBtn" onclick="goToSlide(0)" class="px-2 py-0.5 rounded text-bolcko-amber font-semibold bg-bolcko-amber/10 transition">Pitch (1-12)</button>
+        <span class="text-slate-600">|</span>
+        <button id="sectionAppBtn" onclick="goToSlide(12)" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition">Appendix (13-21)</button>
+      </div>
+      
+      <div class="flex items-center space-x-2 bg-bolcko-card px-3 py-1 rounded-full border border-bolcko-border text-xs font-mono">
+        <span class="text-slate-400">SLIDE</span>
+        <span id="currentSlideNum" class="text-bolcko-amber font-bold text-sm">01</span>
+        <span class="text-slate-600">/</span>
+        <span id="totalSlidesNum" class="text-slate-400">21</span>
+      </div>
+      
+      <div class="flex items-center space-x-1">
+        <button id="prevBtn" class="p-1.5 rounded-lg bg-bolcko-card border border-bolcko-border hover:border-bolcko-amber/50 hover:bg-bolcko-card-hover transition text-slate-300">
+          <span class="material-symbols-outlined text-lg leading-none">arrow_back</span>
+        </button>
+        <button id="nextBtn" class="p-1.5 rounded-lg bg-bolcko-card border border-bolcko-border hover:border-bolcko-amber/50 hover:bg-bolcko-card-hover transition text-slate-300">
+          <span class="material-symbols-outlined text-lg leading-none">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDES CONTAINER -->
+  <main class="relative z-10 flex-1 flex items-center justify-center p-6 md:p-8 overflow-y-auto">
+    <div class="w-full max-w-7xl h-full flex flex-col justify-center">
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 1: COVER (INVESTOR TITLE)                          -->
+      <!-- ======================================================== -->
+      <section class="slide active flex-col justify-center items-center text-center space-y-8" data-index="0">
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-bolcko-amber/10 border border-bolcko-amber/30 text-bolcko-amber text-xs font-mono uppercase tracking-widest">
+          <span class="w-2 h-2 rounded-full bg-bolcko-amber animate-pulse"></span>
+          <span>Investor Pre-Seed Deck &bull; Amman, Jordan</span>
         </div>
-
-        <!-- Slide Progress & Category -->
-        <div class="flex items-center gap-4">
-            <div class="hidden md:flex items-center gap-2">
-                <span id="slideTag" class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/10 text-[#E8A020] border border-amber-500/20">
-                    Executive Summary
-                </span>
-                <span class="text-xs mono text-slate-400 font-semibold" id="slideCounter">01 / 10</span>
-            </div>
-
-            <!-- Fullscreen / Actions -->
-            <div class="flex items-center gap-1.5">
-                <button onclick="prevSlide()" class="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center justify-center" title="Previous Slide (Arrow Left)">
-                    <span class="material-symbols-outlined text-sm">arrow_back</span>
-                </button>
-                <button onclick="nextSlide()" class="p-2 rounded-xl bg-[#E8A020] text-slate-950 font-bold hover:bg-[#d49018] transition-all flex items-center justify-center shadow-lg shadow-[#E8A020]/20" title="Next Slide (Arrow Right / Space)">
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Slide Content Container -->
-    <main class="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-12 relative overflow-hidden">
         
-        <!-- Background Glow Orbs -->
-        <div class="absolute top-10 left-1/4 w-96 h-96 bg-[#E8A020]/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute bottom-10 right-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="w-full max-w-5xl transition-all duration-300">
-
-            <!-- SLIDE 1: Vision / Cover -->
-            <div id="slide-1" class="slide-pane flex flex-col items-center text-center space-y-6">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wide">
-                    <span class="w-2 h-2 rounded-full bg-[#E8A020] animate-pulse"></span>
-                    THE FUTURE OF CONTECH IN MENA
-                </div>
-
-                <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-                    The Full-Stack Operating System for <br />
-                    <span class="brand-text">Construction & Materials</span>
-                </h1>
-
-                <p class="text-slate-400 text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
-                    Bolcko transforms the fragmented \$140B+ construction supply chain by combining a <span class="text-slate-200 font-semibold">parametric civil engineering BOQ engine & 3D Digital Twin</span> with a <span class="text-slate-200 font-semibold">multi-tenant B2B marketplace</span> and automated real-time dispatch logistics.
-                </p>
-
-                <!-- Value Highlights Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full pt-4">
-                    <div class="card-glass rounded-2xl p-4 text-left border-l-4 border-l-[#E8A020]">
-                        <div class="text-[11px] mono text-slate-400 uppercase font-semibold">Core Moat</div>
-                        <div class="text-base font-bold text-white mt-1">Parametric BOQ</div>
-                        <div class="text-xs text-slate-400 mt-0.5">Jordan Code JS 29 (6-10 bars)</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-left border-l-4 border-l-indigo-500">
-                        <div class="text-[11px] mono text-slate-400 uppercase font-semibold">Architecture</div>
-                        <div class="text-base font-bold text-white mt-1">Multi-Tenant Core</div>
-                        <div class="text-xs text-slate-400 mt-0.5">Contractors & Vendors ERP</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-left border-l-4 border-l-emerald-500">
-                        <div class="text-[11px] mono text-slate-400 uppercase font-semibold">Automation</div>
-                        <div class="text-base font-bold text-white mt-1">Live Carrier APIs</div>
-                        <div class="text-xs text-slate-400 mt-0.5">Full LogesTechs dispatch</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-left border-l-4 border-l-amber-400">
-                        <div class="text-[11px] mono text-slate-400 uppercase font-semibold">Future AI Path</div>
-                        <div class="text-base font-bold text-white mt-1">AI CAD Machine</div>
-                        <div class="text-xs text-slate-400 mt-0.5">Post-seed dynamic generator</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 2: Problem -->
-            <div id="slide-2" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">The Market Dysfunction</span>
-                        <h2 class="text-3xl font-extrabold text-white">Construction Supply is Stuck in 1995</h2>
-                    </div>
-                    <span class="text-4xl text-rose-500 font-black mono">-40%</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="card-glass rounded-2xl p-5 space-y-3 border-t-2 border-rose-500/80">
-                        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">architecture</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">Manual Estimation Hell</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Contractors spend 15–25 hours per project measuring AutoCAD/PDF blueprints and manually entering numbers into Excel sheets. Human error causes 18% material over-ordering or costly project delays.
-                        </p>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 space-y-3 border-t-2 border-amber-500/80">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-[#E8A020] flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">phone_in_talk</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">Opaque Pricing & Phone Calls</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            No centralized live pricing. Procurement teams make dozens of phone calls to scattered vendors, suffering price gouging, lack of transparent credit terms, and fake stock inventory updates.
-                        </p>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 space-y-3 border-t-2 border-purple-500/80">
-                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">local_shipping</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">Broken Logistics & Silos</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Vendors have zero software synchronization with local freight and delivery companies. Proof of delivery, COD tracking, and warehouse dispatch are entirely disconnected from invoicing.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-800/30 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-rose-400 text-2xl shrink-0">error</span>
-                    <p class="text-xs text-rose-200">
-                        <strong>Result:</strong> Over $8.4 Billion lost annually in MENA construction in waste, project idle-time, and inflated middleman markups.
-                    </p>
-                </div>
-            </div>
-
-            <!-- SLIDE 3: Solution & Core Moat -->
-            <div id="slide-3" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">The Innovation</span>
-                        <h2 class="text-3xl font-extrabold text-white">Bolcko: The Unified ConTech Flywheel</h2>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live in Production</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="card-glass-glow rounded-2xl p-5 space-y-3 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-[#E8A020] text-black font-extrabold text-[9px] px-2 py-0.5 rounded-bl-lg uppercase mono">Proprietary</div>
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-[#E8A020] flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">calculate</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">1. Parametric Structural BOQ Engine</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Engineers & clients input area (e.g., 250m²), floor levels, slab systems (Ribbed/Flat/Solid), and custom seismic column rebar detailing (6 to 10 bars per Jordanian code JS 29). Instant BOQ with live material prices.
-                        </p>
-                        <div class="text-[11px] text-amber-300 font-mono bg-black/40 p-2 rounded-lg">
-                            &rarr; Live 3D/X-Ray Digital Twin &bull; Official PDF &bull; WhatsApp export.
-                        </div>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">public</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">2. Multi-Region & Multi-Tenant Core</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Architected for frictionless cross-border scaling: Each country or economic region operates with dedicated tenant isolation, localized building codes, sovereign tax/currency engines, and dedicated supplier/freight pools.
-                        </p>
-                        <div class="text-[11px] text-indigo-300 font-mono bg-black/40 p-2 rounded-lg">
-                            &rarr; One unified core engine &bull; Independent regional economics.
-                        </div>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-                            <span class="material-symbols-outlined">alt_route</span>
-                        </div>
-                        <h3 class="text-base font-bold text-white">3. Automated Logistics APIs</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Automated webhook & API bridge connecting warehouse origin (Ras Al-Ain hub) with carriers (LogesTechs / GLC) across all 12 Jordanian governorates, generating automated waybills, dispatch, and COD reconciliations.
-                        </p>
-                        <div class="text-[11px] text-emerald-300 font-mono bg-black/40 p-2 rounded-lg">
-                            &rarr; Zero-touch order fulfillment from estimate click to site delivery.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 4: The Estimation Engine & AI Roadmap (Propeller Loved Slide) -->
-            <div id="slide-4" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">Product Depth &amp; AI Evolution</span>
-                        <h2 class="text-3xl font-extrabold text-white">Rigorous Civil Engineering Meets Automated Supply</h2>
-                    </div>
-                    <span class="text-xs mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-3 py-1 rounded-xl">Jordanian Code JS 29 Compliant</span>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-bold text-white">Engineering Rigor in the Production Engine:</h3>
-                        
-                        <div class="flex items-start gap-3">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-[#E8A020] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">01</div>
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-200">Structural Flexibility (6, 8, or 10 Bars)</h4>
-                                <p class="text-xs text-slate-400 mt-1">Allows engineers to specify column detailing beyond the standard 6 bars up to 10 bars for earthquake-resistant designs, recalculating steel tonnage dynamically.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-3">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-[#E8A020] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">02</div>
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-200">Stone Dressing &amp; Finishing Packages</h4>
-                                <p class="text-xs text-slate-400 mt-1">Calculates 5 distinct stone dressings (Mufajjar, Tabzeh, Musamsam), decorative cornices, window architraves, plus thermal insulation, waterproofing, and MEP rough-ins.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-3">
-                            <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">03</div>
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-200">One-Click PDF, WhatsApp &amp; RFQ Dispatch</h4>
-                                <p class="text-xs text-slate-400 mt-1">Instant conversion to official branded PDF estimates, direct WhatsApp sharing with site foremen, or immediate conversion into supplier purchase orders.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- UI Demonstration Box -->
-                    <div class="card-glass rounded-2xl p-5 border border-slate-800 space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                            <span class="text-xs mono text-slate-300 font-bold flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                                Live Digital Twin &amp; X-Ray Skeleton Preview
-                            </span>
-                            <span class="text-[10px] mono text-slate-500">Live BIM Parametric Models</span>
-                        </div>
-
-                        <div class="bg-slate-950 rounded-xl border border-slate-800/80 p-4 space-y-3">
-                            <div class="flex items-center justify-between text-xs font-mono">
-                                <span class="text-amber-400 font-bold">&bull; 250 m&sup2; Villa &bull; 2 Floors</span>
-                                <span class="text-indigo-400">10 Column Bars (Heavy Seismic)</span>
-                            </div>
-
-                            <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
-                                <div class="flex justify-between">
-                                    <span>Steel Rebar (Grade 60):</span>
-                                    <strong class="font-mono text-white">20.8 Tons</strong>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Ready-Mix Concrete (B300):</span>
-                                    <strong class="font-mono text-white">190 m&sup3;</strong>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Stone Facades (Ruwaished):</span>
-                                    <strong class="font-mono text-amber-300">420 m&sup2;</strong>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between gap-2 pt-1 text-[10px]">
-                                <span class="text-emerald-400 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">picture_as_pdf</span> PDF Export
-                                </span>
-                                <span class="text-emerald-400 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">chat</span> WhatsApp Share
-                                </span>
-                                <span class="text-amber-400 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">local_shipping</span> Instant Supply
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Post-funding AI Roadmap Banner -->
-                        <div class="p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-transparent border border-amber-500/20 text-[11px] text-slate-300 space-y-1">
-                            <div class="font-bold text-[#E8A020] flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">auto_awesome</span>
-                                <span>Post-Funding AI Roadmap:</span>
-                            </div>
-                            <p class="text-slate-400 text-[10px] leading-relaxed">
-                                Upgrading from parametric models to a fully dynamic **AI-Powered Floorplan & CAD Generator** to ingest raw architectural plans automatically.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 5: Market Opportunity & TAM -->
-            <div id="slide-5" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">The Prize</span>
-                        <h2 class="text-3xl font-extrabold text-white">Targeting a $140B+ Regional Construction Surge</h2>
-                    </div>
-                    <span class="text-xs mono text-emerald-400 bg-emerald-950/40 border border-emerald-800 px-3 py-1 rounded-xl">Saudi Mega-Projects Boom</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="card-glass rounded-2xl p-6 text-center space-y-2">
-                        <div class="text-xs mono text-slate-400 uppercase font-semibold">Total Addressable Market (MENA)</div>
-                        <div class="text-4xl font-black text-white">$142 Billion</div>
-                        <p class="text-xs text-slate-400">Annual building materials and procurement across MENA region.</p>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-6 text-center space-y-2 border-2 border-amber-500/40">
-                        <div class="text-xs mono text-[#E8A020] uppercase font-semibold">Serviceable Market (KSA &amp; Levant)</div>
-                        <div class="text-4xl font-black brand-text">$28 Billion</div>
-                        <p class="text-xs text-slate-400">Jordan sandbox + primary expansion target in Riyadh / Western Province.</p>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-6 text-center space-y-2">
-                        <div class="text-xs mono text-slate-400 uppercase font-semibold">Initial Target (Year 2)</div>
-                        <div class="text-4xl font-black text-white">$14 Million</div>
-                        <p class="text-xs text-slate-400">Capturing 0.05% via Tier 2/3 contractors, interior fit-out & supply merchants.</p>
-                    </div>
-                </div>
-
-                <div class="card-glass rounded-2xl p-5 border border-slate-800 space-y-3">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[#E8A020] text-lg">flight_takeoff</span>
-                        Strategic Bridge: From Amman Sandbox to Saudi Scale
-                    </h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        Jordan serves as the high-efficiency testing ground where our full logistics stack, CAD algorithms, and unit economics are refined at ultra-low burn. The immediate post-funding milestone is launching our multi-tenant SaaS for Saudi construction vendors facing the giga-project procurement crunch.
-                    </p>
-                </div>
-            </div>
-
-            <!-- SLIDE 6: Business Model & Monetization -->
-            <div id="slide-6" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">Unit Economics</span>
-                        <h2 class="text-3xl font-extrabold text-white">Tri-Fold Diversified Revenue Streams</h2>
-                    </div>
-                    <span class="text-xs mono text-slate-400 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">High Margins + Scale</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="card-glass rounded-2xl p-5 space-y-3">
-                        <div class="text-xs mono text-[#E8A020] font-bold">STREAM 01</div>
-                        <h3 class="text-base font-bold text-white">B2B Marketplace Take-Rate</h3>
-                        <div class="text-2xl font-black text-amber-400 mono">6% &ndash; 14%</div>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Commission earned on every fulfilled transaction across cement, steel, masonry, chemicals, and finishes.
-                        </p>
-                    </div>
-
-                    <div class="card-glass-glow rounded-2xl p-5 space-y-3">
-                        <div class="text-xs mono text-indigo-400 font-bold">STREAM 02 &bull; HIGH RETENTION</div>
-                        <h3 class="text-base font-bold text-white">Multi-Tenant SaaS Subscriptions</h3>
-                        <div class="text-2xl font-black text-indigo-300 mono">$99 &ndash; $499<span class="text-xs text-slate-400 font-normal">/mo</span></div>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Tiered monthly subscriptions for construction firms & suppliers for custom portals, advanced BOQ exports, and inventory management.
-                        </p>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 space-y-3">
-                        <div class="text-xs mono text-emerald-400 font-bold">STREAM 03</div>
-                        <h3 class="text-base font-bold text-white">Automated Delivery & Handling</h3>
-                        <div class="text-2xl font-black text-emerald-400 mono">15% Margin</div>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            Margin captured on automated freight routing, regional governorate shipping rates, and palletized bulk delivery.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="card-glass rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-amber-500">
-                    <div>
-                        <div class="text-xs font-bold text-white">Target Average Order Value (AOV): $850 &ndash; $3,200</div>
-                        <div class="text-[11px] text-slate-400">Construction orders dwarf standard retail e-commerce basket sizes by 20x.</div>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <span class="text-xs mono text-emerald-400 font-bold">Estimated LTV / CAC Ratio: &gt; 5.2x</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 7: Traction & Tech Validation -->
-            <div id="slide-7" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">Execution Proof</span>
-                        <h2 class="text-3xl font-extrabold text-white">Built, Tested, and Operational</h2>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-mono bg-amber-500/10 text-[#E8A020] border border-amber-500/20">Production Grade</span>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="card-glass rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-black text-white mono">100%</div>
-                        <div class="text-[11px] text-slate-400 font-semibold uppercase mt-1">Custom Built Stack</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">.NET 9 + Postgres + Tailwind</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-black text-[#E8A020] mono">12</div>
-                        <div class="text-[11px] text-slate-400 font-semibold uppercase mt-1">Governorates Covered</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">Automated carrier routing</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-black text-emerald-400 mono">Zero</div>
-                        <div class="text-[11px] text-slate-400 font-semibold uppercase mt-1">Manual JSON Entry</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">Fully automated webhooks</div>
-                    </div>
-                    <div class="card-glass rounded-2xl p-4 text-center">
-                        <div class="text-2xl font-black text-indigo-400 mono">Ready</div>
-                        <div class="text-[11px] text-slate-400 font-semibold uppercase mt-1">Multi-Vendor Portal</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">Supplier onboard engine</div>
-                    </div>
-                </div>
-
-                <div class="card-glass rounded-2xl p-5 border border-slate-800 space-y-3">
-                    <h3 class="text-sm font-bold text-white">Key Product Milestones Completed:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
-                            <span>Live Carrier API integrations (LogesTechs / GLC) active.</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
-                            <span>Proprietary In-Browser CAD Takeoff algorithm running.</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
-                            <span>Multi-tenant vendor warehouse & dynamic fee calculation.</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
-                            <span>Full SEO indexing strategy for civil engineering terms.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 8: Team -->
-            <div id="slide-8" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">The Operators</span>
-                        <h2 class="text-3xl font-extrabold text-white">A Technical &amp; Agile Execution Machine</h2>
-                    </div>
-                    <span class="text-xs mono text-slate-400 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">Founder-Led Engineering</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <!-- Founder Card -->
-                    <div class="card-glass-glow rounded-2xl p-5 space-y-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#E8A020] to-[#996000] flex items-center justify-center font-black text-slate-950 text-xl shadow-md">
-                                H
-                            </div>
-                            <div>
-                                <h3 class="text-base font-extrabold text-white">Hamza Al-Ahmad</h3>
-                                <span class="text-xs mono text-amber-300 font-semibold">Founder, CEO &amp; Tech Lead</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Software engineer and architect who conceived, designed, and engineered Bolcko from ground up. Deeply passionate about ConTech and automation, bridging enterprise cloud architectures (.NET Core, Cloud Microservices, PostgreSQL) with real-world construction site demands.
-                        </p>
-                    </div>
-
-                    <!-- Core Execution Team -->
-                    <div class="card-glass rounded-2xl p-5 space-y-3">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <span class="material-symbols-outlined text-indigo-400">group</span>
-                            Cross-Functional Internal Team:
-                        </h3>
-                        <ul class="text-xs text-slate-300 space-y-2">
-                            <li class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                <strong>Senior Full-Stack Developer:</strong> Scalable backend microservices & tenant routing.
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
-                                <strong>DevOps &amp; Infrastructure Engineer:</strong> High availability, automated CI/CD & container pipelines.
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                <strong>QA &amp; Reliability Tester:</strong> Rigorous end-to-end checkout & API testing.
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                                <strong>Media, Motion Graphics &amp; Social Growth:</strong> Content engine producing viral construction videos & field tutorials.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center text-xs text-slate-400">
-                    <em>Lean, capital-efficient, and capable of shipping enterprise features weekly without agency bloat.</em>
-                </div>
-            </div>
-
-            <!-- SLIDE 9: The Ask & Investment Terms -->
-            <div id="slide-9" class="slide-pane hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                        <span class="text-xs mono text-[#E8A020] uppercase font-bold tracking-wider">The Deal Structure</span>
-                        <h2 class="text-3xl font-extrabold text-white">Pre-Seed Round: $350,000 via SAFE</h2>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Clean Term Sheet</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="card-glass-glow rounded-2xl p-5 text-center space-y-1">
-                        <div class="text-xs mono text-slate-400 uppercase font-semibold">Target Raise</div>
-                        <div class="text-3xl font-black text-white mono">$350,000</div>
-                        <div class="text-xs text-amber-400 font-mono">18 Months Runway</div>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 text-center space-y-1">
-                        <div class="text-xs mono text-slate-400 uppercase font-semibold">Structure</div>
-                        <div class="text-3xl font-black text-white mono">Post-Money SAFE</div>
-                        <div class="text-xs text-slate-400">Standard YC SAFE Instrument</div>
-                    </div>
-
-                    <div class="card-glass rounded-2xl p-5 text-center space-y-1">
-                        <div class="text-xs mono text-slate-400 uppercase font-semibold">Valuation Cap</div>
-                        <div class="text-3xl font-black brand-text mono">$3,500,000</div>
-                        <div class="text-xs text-emerald-400 font-mono">8% &ndash; 10% Investor Ownership</div>
-                    </div>
-                </div>
-
-                <div class="card-glass rounded-2xl p-5 border border-slate-800 space-y-3">
-                    <h3 class="text-sm font-bold text-white">Use of Funds Allocation:</h3>
-                    
-                    <div class="space-y-2">
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-                                <span>1. Saudi Expansion &amp; Enterprise B2B Sales (40%)</span>
-                                <span class="mono text-[#E8A020]">$140,000</span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div class="bg-[#E8A020] h-full w-[40%]"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-                                <span>2. Engineering &amp; In-Browser CAD Enhancements (35%)</span>
-                                <span class="mono text-indigo-400">$122,500</span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div class="bg-indigo-500 h-full w-[35%]"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-                                <span>3. Working Capital &amp; Regional Hub Logistics (25%)</span>
-                                <span class="mono text-emerald-400">$87,500</span>
-                            </div>
-                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div class="bg-emerald-500 h-full w-[25%]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLIDE 10: Call to Action / Next Step -->
-            <div id="slide-10" class="slide-pane hidden flex flex-col items-center text-center space-y-6">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#E8A020] to-[#b37409] flex items-center justify-center font-black text-slate-950 text-2xl shadow-xl shadow-[#e8a020]/20">
-                    B
-                </div>
-
-                <h2 class="text-4xl sm:text-5xl font-black text-white">
-                    Let&rsquo;s Build the Future of <br />
-                    <span class="brand-text">MENA Construction</span> Together
-                </h2>
-
-                <p class="text-slate-400 text-sm sm:text-base max-w-xl">
-                    We invite the <strong>Propeller team</strong> to a 20-minute live demonstration of our In-Browser CAD engine, multi-tenant supplier backend, and automated logistics pipeline.
-                </p>
-
-                <div class="card-glass-glow rounded-2xl p-6 max-w-md w-full text-left space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
-                        <span class="text-xs text-slate-400 font-bold uppercase">Founder Direct Contact:</span>
-                        <span class="text-xs mono text-emerald-400 font-bold">&bull; Available for Meeting</span>
-                    </div>
-                    <div class="text-xs space-y-1 text-slate-200">
-                        <div><strong>Hamza Al-Ahmad</strong> &ndash; Founder &amp; CEO</div>
-                        <div class="mono text-[#E8A020]">hamza.a.alhmad@gmail.com</div>
-                        <div class="mono text-slate-400">+962 7 8202 3800 &bull; Amman, Jordan</div>
-                        <div class="mono text-slate-400">Platform: <a href="https://block-o.com" target="_blank" class="text-amber-400 underline">block-o.com</a></div>
-                    </div>
-                </div>
-
-                <div class="pt-2">
-                    <button onclick="goToSlide(1)" class="px-5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white transition-all">
-                        &larr; Back to Slide 01
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Slide Thumbnails / Indicators -->
-    <footer class="w-full bg-slate-950/80 border-t border-slate-800/80 px-6 py-3 flex items-center justify-between z-50">
-        <div class="flex items-center gap-1.5 overflow-x-auto py-1">
-            <button onclick="goToSlide(1)" class="slide-indicator active-dot h-2 transition-all rounded-full bg-[#E8A020]" title="Slide 1: Vision"></button>
-            <button onclick="goToSlide(2)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 2: Problem"></button>
-            <button onclick="goToSlide(3)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 3: Solution"></button>
-            <button onclick="goToSlide(4)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 4: CAD Engine"></button>
-            <button onclick="goToSlide(5)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 5: Market Size"></button>
-            <button onclick="goToSlide(6)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 6: Business Model"></button>
-            <button onclick="goToSlide(7)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 7: Traction"></button>
-            <button onclick="goToSlide(8)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 8: Team"></button>
-            <button onclick="goToSlide(9)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 9: The Deal"></button>
-            <button onclick="goToSlide(10)" class="slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500" title="Slide 10: Next Steps"></button>
+        <div class="space-y-4 max-w-4xl">
+          <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            The Construction Procurement<br />
+            <span class="bg-gradient-to-r from-bolcko-amber via-yellow-400 to-amber-500 bg-clip-text text-transparent">Operating Layer</span> for the Middle East
+          </h1>
+          <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
+            Connecting engineering takeoff, live supplier comparison, and jobsite logistics into a single integrated procurement workflow.
+          </p>
         </div>
 
-        <div class="text-[11px] mono text-slate-500 hidden sm:block">
-            Use <kbd class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">&larr;</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">&rarr;</kbd> Keys to Navigate
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl pt-4 text-left">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border">
+            <div class="text-xs text-slate-400 font-mono mb-1">STAGE</div>
+            <div class="text-base font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-bolcko-emerald"></span> Live Commercial Validation
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border">
+            <div class="text-xs text-slate-400 font-mono mb-1">ROUND</div>
+            <div class="text-base font-bold text-bolcko-amber">$350K SAFE ($3.5M Cap)</div>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border">
+            <div class="text-xs text-slate-400 font-mono mb-1">INITIAL MARKET</div>
+            <div class="text-base font-bold text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm text-bolcko-amber">location_on</span> Jordan &rarr; KSA
+            </div>
+          </div>
         </div>
-    </footer>
 
-    <script>
-        let currentSlide = 1;
-        const totalSlides = 10;
-        const slideTags = [
-            "Executive Summary",
-            "The Problem & Pain Point",
-            "The Unified Solution",
-            "Product Deep Dive: CAD Engine",
-            "Market Opportunity (TAM)",
-            "Business Model & SaaS",
-            "Traction & Validation",
-            "The Execution Team",
-            "The Investment Deal",
-            "Call to Action & Next Steps"
-        ];
+        <div class="pt-4 flex items-center gap-3 text-xs text-slate-400 font-mono">
+          <span>Prepared for: <strong>Propeller VC Investment Team</strong></span>
+          <span>&bull;</span>
+          <span>Founder: <strong>Hamza &bull; Senior Architect & Full-Stack Engineer</strong></span>
+        </div>
+      </section>
 
-        function updateSlideUI() {
-            // Hide all
-            for (let i = 1; i <= totalSlides; i++) {
-                const el = document.getElementById('slide-' + i);
-                if (el) el.classList.add('hidden');
-            }
+      <!-- ======================================================== -->
+      <!-- SLIDE 2: THE PROBLEM                                     -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="1">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-amber uppercase tracking-wider">The Market Friction</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Construction Procurement Is Still Fragmented and Manual</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-rose/10 text-bolcko-rose border border-bolcko-rose/20">The Pain Point</span>
+        </div>
 
-            // Show active
-            const activeEl = document.getElementById('slide-' + currentSlide);
-            if (activeEl) activeEl.classList.remove('hidden');
+        <p class="text-slate-300 max-w-3xl text-sm leading-relaxed">
+          Contractors, developers, and homeowners across Jordan and the Levant manage multi-thousand dollar material purchases through WhatsApp, phone calls, and paper invoices.
+        </p>
 
-            // Update Counter & Tag
-            document.getElementById('slideCounter').innerText = (currentSlide < 10 ? '0' : '') + currentSlide + ' / ' + totalSlides;
-            document.getElementById('slideTag').innerText = slideTags[currentSlide - 1];
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-xl border-l-4 border-l-bolcko-rose space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-rose/10 flex items-center justify-center text-bolcko-rose">
+              <span class="material-symbols-outlined">calculate</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">1. Complex Engineering Estimations</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Material quantification (stone, hollow block, ready-mix concrete, JS 29 rebar) requires manual calculations prone to 15-20% material waste or shortages.
+            </p>
+          </div>
 
-            // Update dots
-            const dots = document.querySelectorAll('.slide-indicator');
-            dots.forEach((dot, idx) => {
-                if (idx + 1 === currentSlide) {
-                    dot.className = 'slide-indicator active-dot h-2 transition-all rounded-full bg-[#E8A020]';
-                } else {
-                    dot.className = 'slide-indicator w-2 h-2 transition-all rounded-full bg-slate-700 hover:bg-slate-500';
-                }
-            });
+          <div class="glass-panel p-6 rounded-xl border-l-4 border-l-bolcko-amber space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-amber/10 flex items-center justify-center text-bolcko-amber">
+              <span class="material-symbols-outlined">visibility_off</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">2. Opaque, Fragmented Pricing</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              No unified price discovery. Buyers contact 5+ regional yards over 2-4 days to compare basic materials with zero transparency on delivery charges.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-l-4 border-l-bolcko-cyan space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-cyan/10 flex items-center justify-center text-bolcko-cyan">
+              <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">3. Unreliable Jobsite Logistics</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Independent fleet drivers lack dispatch tracking. Deliveries face unpredictable delays across governorates, stalling active construction labor.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-bolcko-card border border-bolcko-border flex items-center justify-between text-xs text-slate-300">
+          <div class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-bolcko-amber text-base">info</span>
+            <span><strong>Root Cause:</strong> Lack of an integrated domain-specific software layer that bridges technical engineering takeoff with supplier commerce.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 3: THE SOLUTION                                    -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="2">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-amber uppercase tracking-wider">The Block-O Platform</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">One Unified Workflow: From Estimate to Jobsite Delivery</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-emerald/10 text-bolcko-emerald border border-bolcko-emerald/20">The Solution</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel-glow p-6 rounded-xl space-y-4 border border-bolcko-amber/30">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-amber font-bold">STEP 01</span>
+              <span class="material-symbols-outlined text-bolcko-amber">architecture</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Engineering-Accurate BOQ Calculators</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Proprietary civil & architectural calculators (JS 29 structural standards, stone facades, rib slabs, hollow core blocks, rebar tonnage) generate instant accurate bill-of-quantities.
+            </p>
+            <div class="pt-2 border-t border-bolcko-border/50 text-[11px] font-mono text-slate-400">
+              Zero guesswork &bull; 3D visual validation
+            </div>
+          </div>
+
+          <div class="glass-panel-glow p-6 rounded-xl space-y-4 border border-bolcko-cyan/30">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-cyan font-bold">STEP 02</span>
+              <span class="material-symbols-outlined text-bolcko-cyan">compare_arrows</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Live Multi-Supplier Catalog & Pricing</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              1,000+ catalog items with real-time merchant pricing. Instant BOQ-to-Cart conversion allowing contractors to compare total basket costs across verified local suppliers.
+            </p>
+            <div class="pt-2 border-t border-bolcko-border/50 text-[11px] font-mono text-slate-400">
+              1-click checkout &bull; Transparent pricing
+            </div>
+          </div>
+
+          <div class="glass-panel-glow p-6 rounded-xl space-y-4 border border-bolcko-emerald/30">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-emerald font-bold">STEP 03</span>
+              <span class="material-symbols-outlined text-bolcko-emerald">local_shipping</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Integrated Logistics & Tracking</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Automated carrier dispatch and zone-based delivery matrix across 12 Jordan governorates. End-to-end tracking from supplier yard release to physical jobsite unloading.
+            </p>
+            <div class="pt-2 border-t border-bolcko-border/50 text-[11px] font-mono text-slate-400">
+              Carrier API integration &bull; Real-time status
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-xl border border-bolcko-amber/20 flex items-center justify-between">
+          <div class="text-xs text-slate-300 flex items-center gap-2">
+            <span class="material-symbols-outlined text-bolcko-amber text-base">check_circle</span>
+            <span><strong>The Block-O Moat:</strong> By embedding engineering logic into the calculation phase, Block-O captures buyer intent <em>before</em> procurement starts.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 4: THE LIVE PRODUCT                                -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="3">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-cyan uppercase tracking-wider">Operational Status</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">A Live Product, Not a Prototype</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-cyan/10 text-bolcko-cyan border border-bolcko-cyan/20">Production Ready</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-amber font-mono text-xs font-bold">MODULE 1</div>
+            <h3 class="text-white font-bold text-sm">Engineering Calculators</h3>
+            <p class="text-xs text-slate-400">Stone facades, 4-piece hollow blocks, rebar tonnage, concrete slabs, and mortar ratios.</p>
+            <div class="text-[11px] text-bolcko-emerald font-mono flex items-center gap-1 pt-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-bolcko-emerald"></span> Live in Production
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-cyan font-mono text-xs font-bold">MODULE 2</div>
+            <h3 class="text-white font-bold text-sm">3D WebGL Visualization</h3>
+            <p class="text-xs text-slate-400">Interactive 3D building visualizers with procedural architectural shaders and rebar cages.</p>
+            <div class="text-[11px] text-bolcko-emerald font-mono flex items-center gap-1 pt-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-bolcko-emerald"></span> Integrated Three.js
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-purple font-mono text-xs font-bold">MODULE 3</div>
+            <h3 class="text-white font-bold text-sm">Supplier & Catalog Engine</h3>
+            <p class="text-xs text-slate-400">Multi-vendor marketplace catalog with dynamic variants, stock sync, and localized JOD pricing.</p>
+            <div class="text-[11px] text-bolcko-emerald font-mono flex items-center gap-1 pt-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-bolcko-emerald"></span> 1,000+ Items Live
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-emerald font-mono text-xs font-bold">MODULE 4</div>
+            <h3 class="text-white font-bold text-sm">Fulfillment & Carrier APIs</h3>
+            <p class="text-xs text-slate-400">Carrier integration (LogesTechs / GLC), automated dispatch, and multi-governorate logistics matrix.</p>
+            <div class="text-[11px] text-bolcko-emerald font-mono flex items-center gap-1 pt-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-bolcko-emerald"></span> Dispatch Ready
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Snapshot / Mock UI Preview Box -->
+        <div class="glass-panel-glow p-5 rounded-xl border border-bolcko-border grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="space-y-1">
+            <div class="text-xs font-mono text-slate-400">TECH STACK ARCHITECTURE</div>
+            <div class="text-sm font-bold text-white">.NET 9 + PostgreSQL + Three.js + Tailwind</div>
+            <p class="text-xs text-slate-400">Sub-100ms response times, enterprise multi-tenant database design.</p>
+          </div>
+          <div class="space-y-1">
+            <div class="text-xs font-mono text-slate-400">SEO & DISCOVERY ENGINE</div>
+            <div class="text-sm font-bold text-white">1,270+ Indexed Pages & Sitemap</div>
+            <p class="text-xs text-slate-400">Programmatic SEO generating organic inbound contractor traffic.</p>
+          </div>
+          <div class="space-y-1">
+            <div class="text-xs font-mono text-slate-400">MERCHANT SYNC</div>
+            <div class="text-sm font-bold text-white">Google Merchant Center Active</div>
+            <p class="text-xs text-slate-400">Automated XML/JSON feeds pushing materials directly to Google Shopping.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 5: EARLY COMMERCIAL VALIDATION                     -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="4">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-emerald uppercase tracking-wider">Traction & Signals</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Early Commercial Validation (Verified Production Data)</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-emerald/10 text-bolcko-emerald border border-bolcko-emerald/20">Real Signals</span>
+        </div>
+
+        <p class="text-slate-300 text-xs">
+          Real production metrics demonstrating organic inbound acquisition, high intent engagement, and initial commercial transaction without paid marketing spend.
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-amber/30 space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">FIRST COMPLETED INVOICE</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-bolcko-amber">730 JOD</div>
+            <div class="text-[11px] text-slate-300">Live order fulfilled & paid</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">ORGANIC GOOGLE CLICKS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white">166</div>
+            <div class="text-[11px] text-slate-400">3.78K Search Impressions</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">SEARCH CTR / POSITION</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-bolcko-cyan">4.4%</div>
+            <div class="text-[11px] text-slate-400">Avg Google Rank: 8.5</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">MERCHANT CENTER CLICKS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-bolcko-emerald">97</div>
+            <div class="text-[11px] text-slate-400">Direct product search intent</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">CATALOG PRODUCTS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white">1,043</div>
+            <div class="text-[11px] text-slate-400">~1,030 approved products</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">PROGRAMMATIC SITEMAP</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-white">~1,270</div>
+            <div class="text-[11px] text-slate-400">Indexed landing pages</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">CALCULATOR IMPRESSIONS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-bolcko-emerald">+268%</div>
+            <div class="text-[11px] text-slate-400">Month-over-month growth</div>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-1">
+            <div class="text-[11px] font-mono text-slate-400">CAC ON ACQUISITION</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-bolcko-amber">$0.00</div>
+            <div class="text-[11px] text-slate-400">100% Organic & SEO driven</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-bolcko-card border border-bolcko-border text-xs text-slate-300 flex items-center justify-between">
+          <span><strong>Validation Takeaway:</strong> High organic CTR (4.4%) proves strong search demand from contractors and builders looking for material pricing and quantities online.</span>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 6: WHY BLOCK-O WINS / COMPETITIVE ADVANTAGE        -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="5">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-amber uppercase tracking-wider">Defensibility & Moat</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Why Block-O Wins: More Than a Marketplace</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-amber/10 text-bolcko-amber border border-bolcko-amber/20">The Advantage</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-xl border-t-2 border-t-bolcko-amber space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-amber/10 flex items-center justify-center text-bolcko-amber">
+              <span class="material-symbols-outlined">hub</span>
+            </div>
+            <h3 class="text-base font-bold text-white">1. Upstream Intent Capture</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Standard B2B marketplaces only capture buyers when they already know what to buy. Block-O captures contractors at the <em>calculation & planning phase</em> before purchase decisions are locked.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-t-2 border-t-bolcko-cyan space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-cyan/10 flex items-center justify-center text-bolcko-cyan">
+              <span class="material-symbols-outlined">precision_manufacturing</span>
+            </div>
+            <h3 class="text-base font-bold text-white">2. Localized Construction Engine</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Global e-commerce tools fail in regional construction. Block-O supports Jordanian building codes (JS 29), Ma'an stone grades, local hollow block dimensions, and bulk truckload units.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-t-2 border-t-bolcko-emerald space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-emerald/10 flex items-center justify-center text-bolcko-emerald">
+              <span class="material-symbols-outlined">trending_down</span>
+            </div>
+            <h3 class="text-base font-bold text-white">3. Zero-CAC Organic Flywheel</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Every calculator, stone texture, and regional material specification generates programmatic SEO pages, driving sustained high-intent organic contractor acquisition at near-zero CAC.
+            </p>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-xl border border-bolcko-border flex items-center justify-between text-xs">
+          <div class="flex items-center space-x-3 text-slate-300">
+            <span class="font-mono text-bolcko-amber font-bold">FLYWHEEL:</span>
+            <span>Accurate Calculation &rarr; Automated BOQ &rarr; Multi-Supplier Comparison &rarr; Guaranteed Delivery &rarr; Repeat Contractor Retention</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 7: MARKET ENTRY STRATEGY                           -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="6">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-cyan uppercase tracking-wider">Go-To-Market & Expansion</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Market Strategy: Jordan First, Regional Expansion Next</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-cyan/10 text-bolcko-cyan border border-bolcko-cyan/20">GTM Strategy</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass-panel p-6 rounded-xl border-l-4 border-l-bolcko-amber space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-white">Phase 1: Jordan Repeatability (Months 1–12)</h3>
+              <span class="text-xs font-mono text-bolcko-amber font-bold">TAM: $1.8B Construction</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Jordan serves as the ideal high-friction, dense proving ground to validate unit economics, contractor repeat order frequency, and carrier logistics.
+            </p>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-start gap-2"><span class="text-bolcko-amber">&bull;</span> Target mid-size contractors, villa builders, and self-builders in Amman & Zarqa</li>
+              <li class="flex items-start gap-2"><span class="text-bolcko-amber">&bull;</span> Onboard 30 key category distributors (Steel, Cement, Stone, Block)</li>
+              <li class="flex items-start gap-2"><span class="text-bolcko-amber">&bull;</span> Lock in predictable 24-48h fulfillment across all 12 governorates</li>
+            </ul>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-l-4 border-l-bolcko-emerald space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-white">Phase 2: Saudi Arabia Expansion (Months 13–18)</h3>
+              <span class="text-xs font-mono text-bolcko-emerald font-bold">TAM: $40B+ Construction</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Expand into Riyadh with a proven playbook, pre-built multi-tenant architecture, ZATCA e-invoicing readiness, and localized Saudi building codes.
+            </p>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-start gap-2"><span class="text-bolcko-emerald">&bull;</span> Deploy capital-light partner-supplier model in Eastern Province / Riyadh</li>
+              <li class="flex items-start gap-2"><span class="text-bolcko-emerald">&bull;</span> Connect with regional Propeller ecosystem & logistics partners</li>
+              <li class="flex items-start gap-2"><span class="text-bolcko-emerald">&bull;</span> Leverage multi-region database architecture already built into the core</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-bolcko-card border border-bolcko-border text-xs text-slate-300 flex items-center justify-between font-mono">
+          <span><strong>Jordan SAM:</strong> $240M annual addressable retail/commercial construction material spend.</span>
+          <span class="text-bolcko-amber">Target: Capture 1.5% SAM ($3.6M GMV) within 24 months.</span>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 8: BUSINESS MODEL & MONETIZATION                   -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="7">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-emerald uppercase tracking-wider">Unit Economics</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Business Model: Transaction Revenue First, SaaS Next</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-emerald/10 text-bolcko-emerald border border-bolcko-emerald/20">Monetization</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-xl border border-bolcko-border space-y-3">
+            <div class="text-xs font-mono text-bolcko-amber font-bold">STREAM 01 (PRIMARY)</div>
+            <h3 class="text-lg font-bold text-white">Take-Rate & Merchant Margin</h3>
+            <div class="text-2xl font-extrabold text-bolcko-amber font-mono">3% – 8%</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Commission on completed transactions processed through the marketplace. Tiered by commodity category (high-volume steel vs. specialized stone/tiles).
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border border-bolcko-border space-y-3">
+            <div class="text-xs font-mono text-bolcko-cyan font-bold">STREAM 02 (LOGISTICS)</div>
+            <h3 class="text-lg font-bold text-white">Delivery Margin</h3>
+            <div class="text-2xl font-extrabold text-bolcko-cyan font-mono">10% – 15%</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Margin on aggregated carrier logistics, leveraging bulk volume discounts with fleet operators across Jordanian governorates.
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border border-bolcko-border space-y-3">
+            <div class="text-xs font-mono text-bolcko-purple font-bold">STREAM 03 (FUTURE SAAS)</div>
+            <h3 class="text-lg font-bold text-white">Contractor Pro Tools</h3>
+            <div class="text-2xl font-extrabold text-bolcko-purple font-mono">$49 – $199<span class="text-xs text-slate-400">/mo</span></div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Advanced BOQ export, custom client quotes, multi-project budget tracking, and real-time supplier inventory integrations.
+            </p>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-xl border border-bolcko-border text-xs text-slate-300 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-bolcko-emerald text-base">monetization_on</span>
+            <span><strong>High Average Order Value (AOV):</strong> Construction procurement orders range between 500 – 10,000+ JOD, generating healthy gross margin per transaction.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 9: WHY BLOCK-O FITS PROPELLER                      -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="8">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-amber uppercase tracking-wider">Investor Fit</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Why Block-O Fits Propeller</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-amber/10 text-bolcko-amber border border-bolcko-amber/20">Propeller Alignment</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel-glow p-6 rounded-xl border border-bolcko-amber/30 space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-amber/10 flex items-center justify-center text-bolcko-amber">
+              <span class="material-symbols-outlined">apartment</span>
+            </div>
+            <h3 class="text-base font-bold text-white">1. PropTech & B2B Supply Chain Focus</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Propeller has a track record in backing regional industrial, B2B software, and marketplace platforms. Block-O addresses one of MENA's largest yet least digitized sectors.
+            </p>
+          </div>
+
+          <div class="glass-panel-glow p-6 rounded-xl border border-bolcko-cyan/30 space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-cyan/10 flex items-center justify-center text-bolcko-cyan">
+              <span class="material-symbols-outlined">rocket_launch</span>
+            </div>
+            <h3 class="text-base font-bold text-white">2. Jordan to Saudi Expansion Bridge</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Block-O fits Propeller's core investment thesis: proving strong product-market fit and capital efficiency in Jordan, then scaling rapidly into Saudi Arabia.
+            </p>
+          </div>
+
+          <div class="glass-panel-glow p-6 rounded-xl border border-bolcko-emerald/30 space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-bolcko-emerald/10 flex items-center justify-center text-bolcko-emerald">
+              <span class="material-symbols-outlined">engineering</span>
+            </div>
+            <h3 class="text-base font-bold text-white">3. Founder-Market Fit</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Dual expertise: 15+ years of civil/architectural engineering domain knowledge combined with senior full-stack .NET & Three.js software development execution.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-bolcko-card border border-bolcko-border text-xs text-slate-300 flex items-center justify-between">
+          <span><strong>Strategic Synergy:</strong> Propeller's regional network in KSA unlocks supplier relationships and institutional construction clients for Phase 2 scaling.</span>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 10: USE OF FUNDS & ALLOCATION                      -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="9">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-amber uppercase tracking-wider">Financial Planning</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Use of Funds: Funding People, Partners & Repeatable Growth</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-amber/10 text-bolcko-amber border border-bolcko-amber/20">$350,000 Target</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div class="glass-panel p-5 rounded-xl border-t-4 border-t-bolcko-amber space-y-2">
+            <div class="text-2xl font-extrabold text-white font-mono">40%</div>
+            <div class="text-xs font-bold text-bolcko-amber uppercase">Team & Salaries</div>
+            <div class="text-xs font-mono text-slate-400">$140,000</div>
+            <p class="text-[11px] text-slate-300">Operations manager, 2 field sales engineers, part-time QA/frontend engineer.</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border-t-4 border-t-bolcko-cyan space-y-2">
+            <div class="text-2xl font-extrabold text-white font-mono">20%</div>
+            <div class="text-xs font-bold text-bolcko-cyan uppercase">Contractor Acquisition</div>
+            <div class="text-xs font-mono text-slate-400">$70,000</div>
+            <p class="text-[11px] text-slate-300">Targeted trade activations, contractor referral incentives, site visits, and B2B onboarding.</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border-t-4 border-t-bolcko-emerald space-y-2">
+            <div class="text-2xl font-extrabold text-white font-mono">20%</div>
+            <div class="text-xs font-bold text-bolcko-emerald uppercase">Working Capital & Logistics</div>
+            <div class="text-xs font-mono text-slate-400">$70,000</div>
+            <p class="text-[11px] text-slate-300">Carrier guarantees, credit settlement buffer with key distributors, order fulfillment floats.</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border-t-4 border-t-bolcko-purple space-y-2">
+            <div class="text-2xl font-extrabold text-white font-mono">12%</div>
+            <div class="text-xs font-bold text-bolcko-purple uppercase">Product & Tech</div>
+            <div class="text-xs font-mono text-slate-400">$42,000</div>
+            <p class="text-[11px] text-slate-300">Mobile contractor dashboard, automated supplier inventory integration, cloud infra.</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border-t-4 border-t-slate-400 space-y-2">
+            <div class="text-2xl font-extrabold text-white font-mono">8%</div>
+            <div class="text-xs font-bold text-slate-300 uppercase">Legal & Reserve</div>
+            <div class="text-xs font-mono text-slate-400">$28,000</div>
+            <p class="text-[11px] text-slate-300">Corporate structuring (Jordan / KSA entity), regulatory compliance, and contingency.</p>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-bolcko-card border border-bolcko-border flex items-center justify-between text-xs text-slate-300 font-mono">
+          <span><strong>Runway Target:</strong> 18 Months of fully funded operations to achieve cashflow self-sustainability or Series A readiness.</span>
+          <span class="text-bolcko-emerald">Burn Rate: ~$19.4K / month average</span>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 11: 18-MONTH EXECUTION ROADMAP                     -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center space-y-6" data-index="10">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-bolcko-cyan uppercase tracking-wider">Milestones & Goals</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">18-Month Execution Roadmap</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-bolcko-cyan/10 text-bolcko-cyan border border-bolcko-cyan/20">3 Key Phases</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-xl border-t-4 border-t-bolcko-amber space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-amber font-bold">PHASE 1 (M1 – M6)</span>
+              <span class="material-symbols-outlined text-bolcko-amber">verified</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Jordan Repeatability</h3>
+            <ul class="text-xs text-slate-300 space-y-2">
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-amber">&bull;</span> Close 15 supplier merchant agreements in Amman & Zarqa</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-amber">&bull;</span> Reach 50 active monthly recurring contractor accounts</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-amber">&bull;</span> Process 50,000 JOD / month GMV with &gt;30% repeat rate</li>
+            </ul>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-t-4 border-t-bolcko-cyan space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-cyan font-bold">PHASE 2 (M7 – M12)</span>
+              <span class="material-symbols-outlined text-bolcko-cyan">hub</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Jordan Network Density</h3>
+            <ul class="text-xs text-slate-300 space-y-2">
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-cyan">&bull;</span> Expand supplier coverage across all 12 Jordan governorates</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-cyan">&bull;</span> Launch Block-O Contractor Mobile App (iOS / Android)</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-cyan">&bull;</span> Reach 150,000 JOD / month GMV ($2.5M run-rate GMV)</li>
+            </ul>
+          </div>
+
+          <div class="glass-panel p-6 rounded-xl border-t-4 border-t-bolcko-emerald space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-bolcko-emerald font-bold">PHASE 3 (M13 – M18)</span>
+              <span class="material-symbols-outlined text-bolcko-emerald">travel_explore</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Saudi Pilot Launch</h3>
+            <ul class="text-xs text-slate-300 space-y-2">
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-emerald">&bull;</span> Onboard 10 key distributors in Riyadh & Eastern Province</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-emerald">&bull;</span> Localize building codes (SBC) and ZATCA Phase 2 e-invoicing</li>
+              <li class="flex items-start gap-1.5"><span class="text-bolcko-emerald">&bull;</span> Prepare for Series A round backed by Saudi traction metrics</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl border border-bolcko-border flex items-center justify-between text-xs font-mono text-slate-300">
+          <span><strong>Target North Star Metric:</strong> Contractor 90-day repeat order rate &gt; 45% with positive unit contribution margin.</span>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SLIDE 12: THE ASK & CONTACT                              -->
+      <!-- ======================================================== -->
+      <section class="slide flex-col justify-center items-center text-center space-y-8" data-index="11">
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-bolcko-amber/10 border border-bolcko-amber/30 text-bolcko-amber text-xs font-mono uppercase tracking-widest">
+          <span class="w-2 h-2 rounded-full bg-bolcko-amber animate-pulse"></span>
+          <span>Investment Opportunity</span>
+        </div>
+
+        <div class="space-y-3 max-w-3xl">
+          <h2 class="text-4xl md:text-5xl font-extrabold text-white">
+            We Are Raising <span class="bg-gradient-to-r from-bolcko-amber via-yellow-400 to-amber-500 bg-clip-text text-transparent">$350,000</span>
+          </h2>
+          <p class="text-lg text-slate-300 font-light">
+            To scale a live, fully-engineered construction procurement engine from early validation to regional category leadership.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl text-left">
+          <div class="glass-panel-glow p-5 rounded-xl border border-bolcko-amber/30">
+            <div class="text-xs font-mono text-slate-400 mb-1">INSTRUMENT</div>
+            <div class="text-lg font-bold text-white">Post-Money SAFE</div>
+            <div class="text-xs text-slate-400 mt-1">Standard YC SAFE structure</div>
+          </div>
+
+          <div class="glass-panel-glow p-5 rounded-xl border border-bolcko-amber/30">
+            <div class="text-xs font-mono text-slate-400 mb-1">VALUATION CAP</div>
+            <div class="text-lg font-bold text-bolcko-amber">$3,500,000</div>
+            <div class="text-xs text-slate-400 mt-1">Attractive entry valuation</div>
+          </div>
+
+          <div class="glass-panel-glow p-5 rounded-xl border border-bolcko-amber/30">
+            <div class="text-xs font-mono text-slate-400 mb-1">TARGET CLOSE</div>
+            <div class="text-lg font-bold text-white">Q3 / Q4 2026</div>
+            <div class="text-xs text-slate-400 mt-1">Immediate execution</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-2xl border border-bolcko-amber/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-2xl w-full">
+          <div class="text-left space-y-1">
+            <div class="text-base font-bold text-white">Let's Build the Future of Construction Procurement</div>
+            <div class="text-xs text-slate-400">Available for a 20-minute live product demo & walkthrough</div>
+          </div>
+          <div class="text-right font-mono text-xs text-slate-300 space-y-1">
+            <div class="text-bolcko-amber font-bold text-sm">hamza@block-o.com</div>
+            <div>Amman, Jordan &bull; +962 7 9000 0000</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- APPENDIX SLIDES (13 TO 21)                               -->
+      <!-- ======================================================== -->
+
+      <!-- SLIDE 13 (APP 1): FULL-STACK ARCHITECTURE -->
+      <section class="slide flex-col justify-center space-y-5" data-index="12">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 01 &bull; Technical Architecture</div>
+            <h2 class="text-2xl font-bold text-white">Modern, Scalable .NET 9 & Distributed Cloud Stack</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-amber font-mono font-bold">CORE BACKEND</div>
+            <p class="font-bold text-white">ASP.NET Core 9.0 Web API</p>
+            <p class="text-slate-400">Clean Architecture, CQRS with MediatR, Repository pattern, and strict domain validation.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-cyan font-mono font-bold">DATA LAYER</div>
+            <p class="font-bold text-white">PostgreSQL + EF Core 9</p>
+            <p class="text-slate-400">Multi-tenant schema, row-level security, optimized spatial indexes for supplier distance queries.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-purple font-mono font-bold">CACHE & REALTIME</div>
+            <p class="font-bold text-white">Redis + SignalR</p>
+            <p class="text-slate-400">Distributed product & rate caching, live dispatch tracking websockets for jobsite delivery.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-bolcko-emerald font-mono font-bold">CLIENT & RENDERING</div>
+            <p class="font-bold text-white">Tailwind + Three.js WebGL</p>
+            <p class="text-slate-400">Lightweight high-performance UI, client-side 3D procedural building geometry generation.</p>
+          </div>
+        </div>
+        <div class="glass-panel p-4 rounded-xl text-xs text-slate-300 font-mono">
+          System latency: &lt;45ms API p95 &bull; Built to scale horizontally to 500,000+ daily requests without architectural overhaul.
+        </div>
+      </section>
+
+      <!-- SLIDE 14 (APP 2): LOGISTICS & CARRIER API -->
+      <section class="slide flex-col justify-center space-y-5" data-index="13">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 02 &bull; Fulfillment & Delivery</div>
+            <h2 class="text-2xl font-bold text-white">Logistics Engine & Multi-Governorate Delivery Matrix</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-amber">Carrier API Integration</div>
+            <p class="text-slate-300">Seamless webhook & API synchronization with LogesTechs / GLC fleet logistics providers for real-time dispatch and driver assignment.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-cyan">12-Governorate Rate Engine</div>
+            <p class="text-slate-300">Automated calculation of flatbed and dump truck haulage rates based on tonnage, distance from quarry/yard, and site accessibility.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-emerald">Proof of Delivery (POD)</div>
+            <p class="text-slate-300">Digital bill of lading, geotagged photo capture upon site unloading, and contractor mobile sign-off releasing escrow funds.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 15 (APP 3): CIVIL ENGINEERING STANDARDS JS 29 -->
+      <section class="slide flex-col justify-center space-y-5" data-index="14">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 03 &bull; Engineering Standards</div>
+            <h2 class="text-2xl font-bold text-white">Jordanian Code (JS 29) & Engineering Calculations</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-amber">JS 29 Rebar Standards</div>
+            <p class="text-slate-300">Calculates precise linear and tonnage metrics for high-tensile rebar (Grade 60, &Phi;8, &Phi;10, &Phi;12, &Phi;16, &Phi;20, &Phi;25mm) with local overlap & bend factors.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-cyan">Stone Facade Engineering</div>
+            <p class="text-slate-300">Computes square meters, coursing (Madmak 25cm / 50cm), corner stones (Zwaya), sill stones (Majarah), and backing concrete volumes.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-emerald">Rib Slab & Block Quantities</div>
+            <p class="text-slate-300">Calculates exact hollow block counts (Aseg 14, 20, 24cm), rib reinforcement, and top concrete slab (C25/C30 ready-mix) requirements.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 16 (APP 4): 3D BIM & SHADER ENGINE -->
+      <section class="slide flex-col justify-center space-y-5" data-index="15">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 04 &bull; WebGL & 3D Visualization</div>
+            <h2 class="text-2xl font-bold text-white">3D WebGL BIM & Procedural Architectural Shaders</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-amber">Parametric 4-Piece Window Framing</div>
+            <p class="text-slate-300">Real-time dynamic architectural geometry rendering window lintels, sills, and jambs with hollow frame reveals matching real-life Jordanian masonry construction.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-cyan">Procedural Stone Textures & Bump Maps</div>
+            <p class="text-slate-300">Realistic representation of Tabzeh (rough chiseled), Matabbah (bush-hammered), and Mufajjara stone dressing textures generated on GPU via WebGL shaders.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 17 (APP 5): FUTURE AI CAD / BLUEPRINT TAKEOFF -->
+      <section class="slide flex-col justify-center space-y-5" data-index="16">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 05 &bull; AI Roadmap</div>
+            <h2 class="text-2xl font-bold text-white">Future AI CAD & Blueprint Takeoff Vision</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-purple">1. PDF & CAD Blueprints Ingestion</div>
+            <p class="text-slate-300">Contractors upload architectural and structural AutoCAD/PDF drawing sets directly to the platform.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-purple">2. Computer Vision Element Detection</div>
+            <p class="text-slate-300">AI segmentation models detect walls, column schedules, footings, and slab openings automatically.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-purple">3. Automated Instant BOQ</div>
+            <p class="text-slate-300">Converts blueprints to an itemized, instantly orderable shopping basket across verified merchants.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 18 (APP 6): DETAILED COMPETITIVE MATRIX -->
+      <section class="slide flex-col justify-center space-y-5" data-index="17">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 06 &bull; Competitive Landscape</div>
+            <h2 class="text-2xl font-bold text-white">Competitive Positioning Matrix</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="glass-panel rounded-xl overflow-hidden border border-bolcko-border text-xs">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-bolcko-card border-b border-bolcko-border text-slate-400 font-mono">
+                <th class="p-3">Capability</th>
+                <th class="p-3 text-bolcko-amber font-bold">Block-O</th>
+                <th class="p-3">Traditional Yards</th>
+                <th class="p-3">Generic E-Commerce</th>
+                <th class="p-3">Regional B2B Marketplaces</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-bolcko-border/50 text-slate-300">
+              <tr>
+                <td class="p-3 font-semibold text-white">Engineering BOQ Calculator</td>
+                <td class="p-3 text-bolcko-emerald font-bold">&check; Native (JS 29)</td>
+                <td class="p-3 text-slate-500">&cross; Manual</td>
+                <td class="p-3 text-slate-500">&cross; None</td>
+                <td class="p-3 text-slate-500">&cross; None</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-white">Live Multi-Vendor Compare</td>
+                <td class="p-3 text-bolcko-emerald font-bold">&check; Real-time</td>
+                <td class="p-3 text-slate-500">&cross; Single vendor</td>
+                <td class="p-3 text-slate-300">&check; Partial</td>
+                <td class="p-3 text-slate-300">&check; Yes</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-white">Local Unit Support (Truck/m&sup2;)</td>
+                <td class="p-3 text-bolcko-emerald font-bold">&check; Specialized</td>
+                <td class="p-3 text-slate-300">&check; Yes</td>
+                <td class="p-3 text-slate-500">&cross; Pieces only</td>
+                <td class="p-3 text-slate-500">&cross; Limited</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-white">Programmatic SEO Acquisition</td>
+                <td class="p-3 text-bolcko-emerald font-bold">&check; 1,270+ Pages</td>
+                <td class="p-3 text-slate-500">&cross; None</td>
+                <td class="p-3 text-slate-300">&check; Standard</td>
+                <td class="p-3 text-slate-500">&cross; Low Intent</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SLIDE 19 (APP 7): TAM / SAM / SOM METHODOLOGY -->
+      <section class="slide flex-col justify-center space-y-5" data-index="18">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 07 &bull; Market Sizing</div>
+            <h2 class="text-2xl font-bold text-white">TAM &bull; SAM &bull; SOM Market Methodology</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-slate-400 font-mono">TAM (TOTAL ADDRESSABLE)</div>
+            <div class="text-2xl font-bold text-white font-mono">$1.8B <span class="text-xs text-slate-400">Jordan</span> / $42B <span class="text-xs text-slate-400">Levant & KSA</span></div>
+            <p class="text-slate-300">Total annual construction material expenditure across residential, commercial, and infrastructure builds.</p>
+          </div>
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-amber/30 space-y-2">
+            <div class="text-bolcko-amber font-mono">SAM (SERVICEABLE ADDRESSABLE)</div>
+            <div class="text-2xl font-bold text-bolcko-amber font-mono">$240M <span class="text-xs text-slate-400">Jordan</span></div>
+            <p class="text-slate-300">Contractor-purchased core construction materials (steel, masonry, concrete, stone, finishing) in accessible governorates.</p>
+          </div>
+          <div class="glass-panel p-5 rounded-xl border border-bolcko-emerald/30 space-y-2">
+            <div class="text-bolcko-emerald font-mono">SOM (SERVICEABLE OBTAINABLE)</div>
+            <div class="text-2xl font-bold text-bolcko-emerald font-mono">$3.6M <span class="text-xs text-slate-400">GMV (1.5% SAM)</span></div>
+            <p class="text-slate-300">24-month target capturing 150 active contractors and 35 key distributor fulfillment hubs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 20 (APP 8): MULTI-REGION DB SCHEMA -->
+      <section class="slide flex-col justify-center space-y-5" data-index="19">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 08 &bull; Database & Multi-Tenant Design</div>
+            <h2 class="text-2xl font-bold text-white">Multi-Region & Multi-Tenant Database Architecture</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-cyan">Tenant & Country Isolation</div>
+            <p class="text-slate-300">PostgreSQL row-level security and schema isolation supporting separate Jordan (JOD) and KSA (SAR) tax and currency domains.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-emerald">E-Invoicing Compliance</div>
+            <p class="text-slate-300">Pre-architected for Jordan ISTD tax integration and Saudi ZATCA Phase 2 cryptographic e-invoice stamping.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="font-bold text-bolcko-amber">Dynamic Pricing Matrix</div>
+            <p class="text-slate-300">Sub-second query resolution for tiered contractor discounting, bulk volume rates, and carrier haulage tariffs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 21 (APP 9): SAFE TERMS & CAP TABLE -->
+      <section class="slide flex-col justify-center space-y-5" data-index="20">
+        <div class="flex items-center justify-between border-b border-bolcko-border pb-3">
+          <div>
+            <div class="text-xs font-mono text-slate-400 uppercase tracking-wider">Appendix 09 &bull; Investment Mechanics</div>
+            <h2 class="text-2xl font-bold text-white">SAFE Investment Terms & Governance</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">Appendix</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-slate-400 font-mono">ROUND SIZE</div>
+            <div class="text-xl font-bold text-white font-mono">$350,000</div>
+            <p class="text-slate-400">Pre-Seed round to fund 18-month execution runway.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-slate-400 font-mono">VALUATION CAP</div>
+            <div class="text-xl font-bold text-bolcko-amber font-mono">$3,500,000</div>
+            <p class="text-slate-400">Post-money SAFE valuation ceiling.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-slate-400 font-mono">DISCOUNT RATE</div>
+            <div class="text-xl font-bold text-bolcko-cyan font-mono">20%</div>
+            <p class="text-slate-400">Standard investor discount upon qualified Series A conversion.</p>
+          </div>
+          <div class="glass-panel p-4 rounded-xl border border-bolcko-border space-y-2">
+            <div class="text-slate-400 font-mono">CAP TABLE STATUS</div>
+            <div class="text-xl font-bold text-bolcko-emerald font-mono">100% Clean</div>
+            <p class="text-slate-400">Founder-owned, no prior convertible notes, no debt.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER / PROGRESS BAR -->
+  <footer class="relative z-20 px-8 py-3 border-t border-bolcko-border flex items-center justify-between glass-panel text-xs text-slate-400 font-mono">
+    <div class="flex items-center space-x-4">
+      <span class="text-slate-500">Navigation: <kbd class="px-1.5 py-0.5 bg-bolcko-card border border-bolcko-border rounded text-[10px] text-slate-300">&larr;</kbd> <kbd class="px-1.5 py-0.5 bg-bolcko-card border border-bolcko-border rounded text-[10px] text-slate-300">&rarr;</kbd> or click</span>
+      <span class="text-slate-600 hidden md:inline">|</span>
+      <span id="slideCategoryLabel" class="text-bolcko-amber hidden md:inline">Main Pitch</span>
+    </div>
+
+    <!-- Progress Indicator Dots / Bar -->
+    <div class="flex items-center space-x-1" id="dotsContainer"></div>
+
+    <div class="flex items-center space-x-2">
+      <span class="text-slate-500">&copy; 2026 Block-O. Confidential.</span>
+    </div>
+  </footer>
+
+  <!-- SLIDE DECK LOGIC -->
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    
+    const currentSlideNumEl = document.getElementById('currentSlideNum');
+    const totalSlidesNumEl = document.getElementById('totalSlidesNum');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const categoryLabel = document.getElementById('slideCategoryLabel');
+    const sectionMainBtn = document.getElementById('sectionMainBtn');
+    const sectionAppBtn = document.getElementById('sectionAppBtn');
+
+    totalSlidesNumEl.textContent = String(totalSlides).padStart(2, '0');
+
+    // Build progress dots
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = `w-2 h-1.5 rounded-full transition-all duration-200 ${i === 0 ? 'bg-bolcko-amber w-5' : 'bg-slate-700 hover:bg-slate-500'}`;
+      if (i === 12) dot.classList.add('ml-2'); // visually separate appendix
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateDeck() {
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
         }
+      });
 
-        function nextSlide() {
-            if (currentSlide < totalSlides) {
-                currentSlide++;
-                updateSlideUI();
-            }
+      currentSlideNumEl.textContent = String(currentSlide + 1).padStart(2, '0');
+
+      // Update dots
+      Array.from(dotsContainer.children).forEach((dot, idx) => {
+        if (idx === currentSlide) {
+          dot.className = `h-1.5 rounded-full bg-bolcko-amber w-5 transition-all duration-200 ${idx === 12 ? 'ml-2' : ''}`;
+        } else {
+          dot.className = `w-2 h-1.5 rounded-full bg-slate-700 hover:bg-slate-500 transition-all duration-200 ${idx === 12 ? 'ml-2' : ''}`;
         }
+      });
 
-        function prevSlide() {
-            if (currentSlide > 1) {
-                currentSlide--;
-                updateSlideUI();
-            }
-        }
+      // Update Section Tabs
+      if (currentSlide < 12) {
+        categoryLabel.textContent = "Main Pitch (Slide " + (currentSlide + 1) + " of 12)";
+        categoryLabel.className = "text-bolcko-amber hidden md:inline";
+        sectionMainBtn.className = "px-2 py-0.5 rounded text-bolcko-amber font-semibold bg-bolcko-amber/10 transition";
+        sectionAppBtn.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition";
+      } else {
+        categoryLabel.textContent = "Appendix (Slide " + (currentSlide - 11) + " of 9)";
+        categoryLabel.className = "text-bolcko-cyan hidden md:inline";
+        sectionMainBtn.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition";
+        sectionAppBtn.className = "px-2 py-0.5 rounded text-bolcko-cyan font-semibold bg-bolcko-cyan/10 transition";
+      }
+    }
 
-        function goToSlide(n) {
-            currentSlide = n;
-            updateSlideUI();
-        }
+    function goToSlide(idx) {
+      if (idx >= 0 && idx < totalSlides) {
+        currentSlide = idx;
+        updateDeck();
+      }
+    }
 
-        // Keyboard Navigation
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                nextSlide();
-            } else if (e.key === 'ArrowLeft') {
-                prevSlide();
-            }
-        });
-    </script>
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateDeck();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateDeck();
+      }
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    updateDeck();
+  </script>
 </body>
 </html>
