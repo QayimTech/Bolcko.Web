@@ -151,5 +151,66 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        /// <summary>
+        /// لوحة تحكم المقاول (Contractor Dashboard) - مؤشر الموثوقية Trust Score، سقف الائتمان، والأقساط
+        /// </summary>
+        [HttpGet]
+        [Route("ContractorDashboard")]
+        public async Task<IActionResult> ContractorDashboard()
+        {
+            int? userId = null;
+            string? phone = null;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(idStr, out var id)) userId = id;
+            }
+
+            var dashboard = await _serviceManager.FinancingService.GetContractorDashboardAsync(userId, phone);
+            return View(dashboard);
+        }
+
+        /// <summary>
+        /// لوحة تحكم المستثمر (Investor Portfolio Dashboard) - المحفظة، العوائد الصافية، والعقود
+        /// </summary>
+        [HttpGet]
+        [Route("InvestorDashboard")]
+        [Route("Portfolio")]
+        public async Task<IActionResult> InvestorDashboard()
+        {
+            int? userId = null;
+            string? phone = null;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(idStr, out var id)) userId = id;
+            }
+
+            var dashboard = await _serviceManager.FinancingService.GetInvestorDashboardAsync(userId, phone);
+            return View(dashboard);
+        }
+
+        /// <summary>
+        /// سداد وتسوية عطاء المرابحة (Settlement Engine)
+        /// </summary>
+        [HttpPost]
+        [Route("Settle/{id}")]
+        public async Task<IActionResult> Settle(int id)
+        {
+            var success = await _serviceManager.FinancingService.SettleTenderAsync(id);
+            if (!success)
+            {
+                return Json(new { success = false, message = "تعذر إتمام التسوية. يرجى التحقق من حالة العطاء." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "تمت التسوية المالية بنجاح! تم توزيع الأرباح على المستثمر واقتطاع أجر الوكالة ورفع تقييم موثوقية المقاول."
+            });
+        }
     }
 }

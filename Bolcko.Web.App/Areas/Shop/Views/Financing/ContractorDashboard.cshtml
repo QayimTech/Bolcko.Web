@@ -1,0 +1,280 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.ContractorDashboardDto
+@{
+    ViewData["Title"] = "لوحة تحكم المقاول ومؤشر الموثوقية";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+}
+
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Top Header & Breadcrumb -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div>
+                <div class="flex items-center gap-2 text-xs text-sky-400 font-mono uppercase tracking-wider mb-1">
+                    <span class="material-symbols-outlined text-sm">engineering</span>
+                    <span>بوابة المقاولين والشركات الهندسية</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">لوحة تحكم التمويل بالمرابحة وسجل الموثوقية</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">متابعة سقف التمويل المتاح، مؤشر الثقة الائتماني، وتوريد مشاريع البناء بدون شيكات مؤجلة.</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/calculator" class="px-4 py-2.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">calculate</span>
+                    <span>حساب كميات مشروع جديد</span>
+                </a>
+                <a href="/Shop/Financing" class="px-4 py-2.5 rounded-xl bg-sky-600 text-white hover:bg-sky-500 text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+                    <span class="material-symbols-outlined text-sm">storefront</span>
+                    <span>سوق العطاءات المفتوحة</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Metric Cards Grid: Trust Score, Credit Limit, Active Deals, Total Financed -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 1. Trust Score Gamified Card -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">مؤشر موثوقية المقاول</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        @Model.TrustTier
+                    </span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl font-black text-amber-400 font-mono">@Model.TrustScore.ToString("N1")</span>
+                    <span class="text-xs text-slate-400 font-mono">/ 100</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2 mt-3 overflow-hidden">
+                    <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-2 rounded-full" style="width: @(Model.TrustScore)%"></div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2">يرتفع تقييمك مع كل سداد بالموعد وتأكيد تسليم موقعي بالـ GPS.</p>
+            </div>
+
+            <!-- 2. Approved Credit Limit Card -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">سقف التمويل المعتمد</span>
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">credit_score</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-emerald-400 font-mono">@Model.AvailableCreditJod.ToString("N0")</span>
+                    <span class="text-xs text-slate-400">د.أ متاح</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">من إجمالي السقف: <strong class="text-slate-200 font-mono">@Model.CreditLimitJod.ToString("N0") د.أ</strong></p>
+                <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
+                    <div class="bg-emerald-500 h-2 rounded-full" style="width: @(Model.CreditLimitJod > 0 ? (Model.AvailableCreditJod / Model.CreditLimitJod) * 100m : 100)%"></div>
+                </div>
+            </div>
+
+            <!-- 3. Active Supply Orders -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">التوريدات النشطة</span>
+                    <span class="material-symbols-outlined text-sky-400 text-lg">local_shipping</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-black text-sky-400 font-mono">@Model.ActiveTendersCount</span>
+                    <span class="text-xs text-slate-400">عطاء قيد التنفيذ</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">إجمالي المسدد بنجاح: <strong class="text-emerald-400 font-mono">@Model.SettledTendersCount</strong> عطاءات</p>
+            </div>
+
+            <!-- 4. Total Financed Amount -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">إجمالي المواد الموردة</span>
+                    <span class="material-symbols-outlined text-purple-400 text-lg">inventory_2</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-purple-300 font-mono">@Model.TotalFinancedAmountJod.ToString("N0")</span>
+                    <span class="text-xs text-slate-400">د.أ</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">تسوية إجمالية: <strong class="text-slate-200 font-mono">@Model.TotalSettledAmountJod.ToString("N0") د.أ</strong></p>
+            </div>
+
+        </div>
+
+        <!-- Content Grid: Left Column (Payment Schedule) & Right Column (Active Orders) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Upcoming Payment Schedule (1 col) -->
+            <div class="space-y-6">
+                <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-400">schedule</span>
+                            <h2 class="text-sm font-bold text-white">جدول سداد المرابحة القادم</h2>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono">بدون فوائد تأخير</span>
+                    </div>
+
+                    @if (Model.PaymentSchedule != null && Model.PaymentSchedule.Any())
+                    {
+                        <div class="space-y-3">
+                            @foreach (var p in Model.PaymentSchedule)
+                            {
+                                <div class="p-3.5 rounded-xl bg-white/5 border @(p.IsOverdue ? "border-rose-500/40 bg-rose-950/10" : "border-white/5") flex flex-col gap-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-xs font-bold text-sky-300">@p.TrackingCode</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold @(p.DaysRemaining <= 7 ? "bg-rose-500/20 text-rose-300" : "bg-emerald-500/20 text-emerald-300")">
+                                            @(p.DaysRemaining < 0 ? $"متأخر {Math.Abs(p.DaysRemaining)} يوم" : $"متبقي {p.DaysRemaining} يوم")
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-medium truncate">@p.ProjectTitle</p>
+                                    <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                                        <div>
+                                            <span class="text-[10px] text-slate-500 block">المبلغ المستحق</span>
+                                            <span class="text-sm font-bold text-emerald-400 font-mono">@p.AmountDueJod.ToString("N0") د.أ</span>
+                                        </div>
+                                        <button type="button" onclick="settleTenderDirect(@p.TenderId)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-all flex items-center gap-1 shadow-sm">
+                                            <span class="material-symbols-outlined text-xs">payments</span>
+                                            <span>سداد الآن</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="py-8 text-center text-slate-400 text-xs">
+                            <span class="material-symbols-outlined text-3xl text-slate-600 mb-2 block">task_alt</span>
+                            <span>لا توجد دفعات مستحقة حالياً. حسابك بوضع مالي ممتاز!</span>
+                        </div>
+                    }
+                </div>
+
+                <!-- Trust Score Benefits Info Box -->
+                <div class="bg-gradient-to-br from-slate-900 to-sky-950/60 border border-sky-500/20 rounded-2xl p-5 shadow-xl text-xs space-y-3">
+                    <div class="flex items-center gap-2 text-sky-400 font-bold">
+                        <span class="material-symbols-outlined text-base">verified</span>
+                        <span>مزايا رفع مؤشر الموثوقية (Trust Score):</span>
+                    </div>
+                    <ul class="space-y-2 text-slate-300 text-[11px]">
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+                            <span>رفع سقف التمويل الفوري حتى <strong>100,000 د.أ</strong> لمشاريعك.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+                            <span>أولوية التمويل من المستثمرين الممولين خلال أقل من ساعتين.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+                            <span>تخفيض هامش المرابحة السنوي على المواد الأساسية.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Active Murabaha Supply Orders (2 cols) -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sky-400">conveyor_belt</span>
+                            <h2 class="text-sm font-bold text-white">عطاءات التوريد والمشاريع قيد التنفيذ</h2>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono">(@Model.ActiveTenders.Count) عطاءات</span>
+                    </div>
+
+                    @if (Model.ActiveTenders != null && Model.ActiveTenders.Any())
+                    {
+                        <div class="space-y-4">
+                            @foreach (var item in Model.ActiveTenders)
+                            {
+                                <div class="bg-[#1B2234] border border-white/5 hover:border-sky-500/30 rounded-xl p-4 transition-all">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[11px] font-bold">@item.TrackingCode</span>
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">@item.StatusNameAr</span>
+                                            </div>
+                                            <h3 class="text-white text-sm font-bold mt-1.5">@item.ProjectTitle</h3>
+                                            <p class="text-slate-400 text-xs mt-0.5 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs text-slate-500">location_on</span>
+                                                <span>@item.ProjectCity @(!string.IsNullOrEmpty(item.ProjectAddress) ? " - " + item.ProjectAddress : "")</span>
+                                            </p>
+                                        </div>
+
+                                        <div class="text-end">
+                                            <span class="text-[10px] text-slate-500 block uppercase">القيمة الإجمالية</span>
+                                            <span class="text-lg font-bold text-emerald-400 font-mono">@item.TotalPayableAmount.ToString("N0") د.أ</span>
+                                            <span class="text-[10px] text-slate-400 block font-mono">فترة السداد: @item.TenureDays يوم</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Material Items Sub-list -->
+                                    <div class="mt-3 pt-2">
+                                        <span class="text-[11px] font-bold text-slate-400 block mb-2">المواد المشمولة بالعطاء:</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            @foreach (var mat in item.Items)
+                                            {
+                                                <div class="p-2 rounded-lg bg-black/20 border border-white/5 flex items-center justify-between text-xs">
+                                                    <span class="text-slate-300 truncate font-medium">@mat.MaterialName</span>
+                                                    <span class="font-mono text-white font-bold ms-2">@mat.Quantity @mat.Unit</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Bottom Action Links -->
+                                    <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                                            <span class="material-symbols-outlined text-sm text-sky-400">verified_user</span>
+                                            <span>توثيق التسليم عبر إحداثيات الـ GPS الموقعية</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <a href="/Shop/Financing/DriverPOD/@item.Id" class="px-3 py-1.5 rounded-lg bg-amber-600/20 text-amber-300 border border-amber-500/30 hover:bg-amber-600/30 text-[11px] font-bold transition-all flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs">qr_code_scanner</span>
+                                                <span>بوابة السائق (GPS POD)</span>
+                                            </a>
+                                            <a href="/Shop/Financing/Details/@item.Id" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-all flex items-center gap-1">
+                                                <span>التفاصيل</span>
+                                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="py-12 text-center text-slate-400">
+                            <span class="material-symbols-outlined text-4xl text-slate-600 mb-2 block">folder_open</span>
+                            <p class="text-sm font-medium">لا توجد عطاءات نشطة حالياً.</p>
+                            <p class="text-xs text-slate-500 mt-1">يمكنك تحويل أي كشف كميات من حاسبة البناء مباشرة إلى عطاء تمويل بالمرابحة.</p>
+                            <a href="/calculator" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-all">
+                                <span>ابدأ حساب كميات جديد</span>
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+async function settleTenderDirect(tenderId) {
+    if (!confirm("هل أنت متأكد من تأكيد سداد دفعة المرابحة؟ سيتم إفراج الأرباح للمستثمر ورفع نقاط موثوقيتك الائتمانية.")) return;
+
+    try {
+        const resp = await fetch(`/Shop/Financing/Settle/${tenderId}`, { method: 'POST' });
+        const data = await resp.json();
+        alert(data.message || "تمت التسوية بنجاح!");
+        if (data.success) {
+            window.location.reload();
+        }
+    } catch (e) {
+        console.error(e);
+        alert("تعذر إتمام التسوية. يرجى المحاولة لاحقاً.");
+    }
+}
+</script>

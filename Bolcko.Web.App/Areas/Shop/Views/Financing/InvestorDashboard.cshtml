@@ -1,0 +1,211 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.InvestorDashboardDto
+@{
+    ViewData["Title"] = "محفظة المستثمر التمويلية وعوائد المرابحة";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+}
+
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Top Header & Actions -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div>
+                <div class="flex items-center gap-2 text-xs text-emerald-400 font-mono uppercase tracking-wider mb-1">
+                    <span class="material-symbols-outlined text-sm">account_balance</span>
+                    <span>محفظة التمويل بالمرابحة الإسلامية والوكالة الشرعية</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">لوحة تحكم المستثمر الممول (Islamic Trade Syndication)</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">تتبع استثماراتك في شراء وتمليك مواد البناء، العوائد الصافية المحققة، وعقود الوكالة الموثقة.</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/Shop/Financing" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    <span>تمويل عطاء جديد</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Portfolio Statistics Overview -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 1. Total Capital Invested -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">إجمالي رأس المال المستثمر</span>
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">account_balance_wallet</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-white font-mono">@Model.TotalInvestedJod.ToString("N0")</span>
+                    <span class="text-xs text-slate-400">د.أ</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">موزع على <strong class="text-emerald-400 font-mono">@(Model.ActiveDealsCount + Model.CompletedDealsCount)</strong> عطاءات شراء وتوريد</p>
+            </div>
+
+            <!-- 2. Realized Net Profits -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">الأرباح الصافية المحصلة</span>
+                    <span class="material-symbols-outlined text-amber-400 text-lg">trending_up</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-amber-400 font-mono">@Model.RealizedProfitJod.ToString("N0")</span>
+                    <span class="text-xs text-slate-400">د.أ</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">أرباح قادمة قيد التحصيل: <strong class="text-slate-200 font-mono">@Model.ExpectedUpcomingProfitJod.ToString("N0") د.أ</strong></p>
+            </div>
+
+            <!-- 3. Average Annualized Yield -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">متوسط العائد السنوي (APR)</span>
+                    <span class="material-symbols-outlined text-sky-400 text-lg">percent</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-sky-400 font-mono">@Model.AverageAnnualizedYieldPercentage.ToString("N1")%</span>
+                    <span class="text-xs text-slate-400">سنوياً</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">معدل العائد الصافي بعد اقتطاع أجر الوكالة</p>
+            </div>
+
+            <!-- 4. Completed & Settled Deals -->
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-slate-400">العطاءات المنجزة والمسددة</span>
+                    <span class="material-symbols-outlined text-purple-400 text-lg">verified</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-black text-purple-300 font-mono">@Model.CompletedDealsCount</span>
+                    <span class="text-xs text-slate-400">عملية سداد 100%</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">عطاءات نشطة حالياً: <strong class="text-slate-200 font-mono">@Model.ActiveDealsCount</strong></p>
+            </div>
+
+        </div>
+
+        <!-- Active Investments Section -->
+        <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-white/5">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-lg">pending_actions</span>
+                    </span>
+                    <div>
+                        <h2 class="text-base font-bold text-white">العطاءات النشطة قيد التوريد والسداد</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">متابعة مسار شراء المواد وتمليكها والتسليم الموقعي بالـ GPS</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/5 text-slate-300 font-mono">@Model.ActiveInvestments.Count عطاءات</span>
+            </div>
+
+            @if (Model.ActiveInvestments != null && Model.ActiveInvestments.Any())
+            {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach (var inv in Model.ActiveInvestments)
+                    {
+                        <div class="bg-[#1B2234] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-5 transition-all flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">@inv.TrackingCode</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">@inv.StatusNameAr</span>
+                                    </div>
+                                    <span class="text-xs font-bold font-mono text-emerald-300">+@inv.InvestorNetYieldAmount.ToString("N0") د.أ ربح</span>
+                                </div>
+
+                                <h3 class="text-white font-bold text-sm mt-3">@inv.ProjectTitle</h3>
+                                <div class="mt-2 space-y-1 text-xs text-slate-400">
+                                    <p class="flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-xs text-slate-500">person</span>
+                                        <span>المقاول: <strong class="text-slate-200">@inv.ContractorName</strong> (@inv.ContractorCompany)</span>
+                                    </p>
+                                    <p class="flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-xs text-slate-500">verified</span>
+                                        <span>درجة موثوقية المقاول: <strong class="text-amber-400 font-mono">@inv.ContractorTrustScore.ToString("N0")/100</strong></span>
+                                    </p>
+                                    <p class="flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-xs text-slate-500">event</span>
+                                        <span>تاريخ الاستحقاق: <strong class="text-slate-200 font-mono">@(inv.DueDate.HasValue ? inv.DueDate.Value.ToString("yyyy-MM-dd") : "خلال " + inv.TenureDays + " يوم")</strong></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Metrics & Contract Button -->
+                            <div class="mt-5 pt-3 border-t border-white/5 flex items-center justify-between">
+                                <div>
+                                    <span class="text-[10px] text-slate-500 block">رأس المال الممول</span>
+                                    <span class="text-sm font-bold text-white font-mono">@inv.BaseMaterialCost.ToString("N0") د.أ</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="/Shop/Financing/Details/@inv.Id" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">description</span>
+                                        <span>عقد الوكالة</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="py-12 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-4xl text-slate-600 mb-2 block">account_balance</span>
+                    <p class="text-sm font-medium">لا توجد عطاءات نشطة في محفظتك حالياً.</p>
+                    <a href="/Shop/Financing" class="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-all">
+                        <span>استعرض العطاءات المتاحة للتمويل</span>
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Completed & Settled Deals Archive -->
+        @if (Model.CompletedInvestments != null && Model.CompletedInvestments.Any())
+        {
+            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-purple-400">history</span>
+                        <h2 class="text-sm font-bold text-white">سجل العمليات المسددة والأرباح المحولة</h2>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-start text-xs">
+                        <thead>
+                            <tr class="border-b border-white/5 text-slate-400 font-bold">
+                                <th class="py-3 px-2 text-start">رمز العطاء</th>
+                                <th class="py-3 px-2 text-start">المشروع والمقاول</th>
+                                <th class="py-3 px-2 text-end">رأس المال</th>
+                                <th class="py-3 px-2 text-end">الربح الصافي</th>
+                                <th class="py-3 px-2 text-center">مدة التمويل</th>
+                                <th class="py-3 px-2 text-center">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-slate-300">
+                            @foreach (var c in Model.CompletedInvestments)
+                            {
+                                <tr class="hover:bg-white/5">
+                                    <td class="py-3 px-2 font-mono font-bold text-sky-400">@c.TrackingCode</td>
+                                    <td class="py-3 px-2">
+                                        <div class="font-bold text-white truncate max-w-xs">@c.ProjectTitle</div>
+                                        <div class="text-[10px] text-slate-500">@c.ContractorName</div>
+                                    </td>
+                                    <td class="py-3 px-2 text-end font-mono font-bold">@c.BaseMaterialCost.ToString("N0") د.أ</td>
+                                    <td class="py-3 px-2 text-end font-mono font-bold text-emerald-400">+@c.InvestorNetYieldAmount.ToString("N0") د.أ</td>
+                                    <td class="py-3 px-2 text-center font-mono">@c.TenureDays يوم</td>
+                                    <td class="py-3 px-2 text-center">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">تم السداد بنجاح</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

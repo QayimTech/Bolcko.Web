@@ -14,5 +14,8 @@ namespace Blocko.Services.Interfaces.Financing
         Task<JobsitePodDto> SubmitJobsitePodAsync(SubmitJobsitePodRequestDto request);
         Task<bool> SettleTenderAsync(int tenderId);
         double CalculateDistanceMeters(double lat1, double lon1, double lat2, double lon2);
+        Task<ContractorDashboardDto> GetContractorDashboardAsync(int? userId, string? phone = null);
+        Task<InvestorDashboardDto> GetInvestorDashboardAsync(int? userId, string? phone = null);
+        Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync();
     }
 }

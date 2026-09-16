@@ -66,7 +66,7 @@ namespace Bolcko.Web.App.Extensions
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
             // 1. Seed Roles & Sync AppPermissions
-            string[] roles = { "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser" };
+            string[] roles = { "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser", "Vendor", "Contractor", "Investor" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))

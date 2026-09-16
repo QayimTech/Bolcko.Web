@@ -270,6 +270,113 @@ namespace Blocko.Services.Implementations.Financing
             };
         }
 
+        public async Task<ContractorDashboardDto> GetContractorDashboardAsync(int? userId, string? phone = null)
+        {
+            var all = await _uow.FinancingTenders.GetAllAsync();
+            var list = all.Where(t => (userId.HasValue && t.ContractorId == userId.Value) || (!string.IsNullOrEmpty(phone) && t.ContractorPhone == phone)).ToList();
+
+            var active = list.Where(t => t.Status != FinancingTenderStatus.Settled && t.Status != FinancingTenderStatus.Cancelled).ToList();
+            var settled = list.Where(t => t.Status == FinancingTenderStatus.Settled).ToList();
+
+            decimal creditLimit = 50000m;
+            decimal utilized = active.Sum(t => t.TotalPayableAmount);
+            double trustScore = 95.0 + (settled.Count * 2.0);
+            if (trustScore > 100.0) trustScore = 100.0;
+
+            string tier = trustScore >= 95.0 ? "بلاتيني (Platinum)" : (trustScore >= 85.0 ? "ذهبي (Gold)" : "فضي (Silver)");
+
+            var schedule = active.Where(t => t.DueDate.HasValue).Select(t =>
+            {
+                var days = (t.DueDate!.Value.Date - DateTime.UtcNow.Date).Days;
+                return new PaymentScheduleItemDto
+                {
+                    TenderId = t.Id,
+                    TrackingCode = t.TrackingCode,
+                    ProjectTitle = t.ProjectTitle,
+                    AmountDueJod = t.TotalPayableAmount,
+                    DueDate = t.DueDate.Value,
+                    DaysRemaining = days,
+                    Status = t.Status
+                };
+            }).OrderBy(s => s.DueDate).ToList();
+
+            var contractorName = list.FirstOrDefault()?.ContractorName ?? "المقاول المعتمد";
+            var company = list.FirstOrDefault()?.ContractorCompany ?? "مؤسسة المقاولات";
+
+            return new ContractorDashboardDto
+            {
+                ContractorName = contractorName,
+                CompanyName = company,
+                Phone = phone ?? list.FirstOrDefault()?.ContractorPhone ?? "",
+                TrustScore = trustScore,
+                TrustTier = tier,
+                CreditLimitJod = creditLimit,
+                CreditUtilizedJod = utilized,
+                TotalTendersCount = list.Count,
+                ActiveTendersCount = active.Count,
+                SettledTendersCount = settled.Count,
+                TotalFinancedAmountJod = list.Sum(t => t.BaseMaterialCost),
+                TotalSettledAmountJod = settled.Sum(t => t.TotalPayableAmount),
+                ActiveTenders = active.Select(MapToDto).ToList(),
+                PaymentSchedule = schedule
+            };
+        }
+
+        public async Task<InvestorDashboardDto> GetInvestorDashboardAsync(int? userId, string? phone = null)
+        {
+            var all = await _uow.FinancingTenders.GetAllAsync();
+            var list = all.Where(t => (userId.HasValue && t.FunderInvestorId == userId.Value) || (!string.IsNullOrEmpty(phone) && t.FunderPhone == phone)).ToList();
+
+            var active = list.Where(t => t.Status == FinancingTenderStatus.Funded || t.Status == FinancingTenderStatus.GoodsPurchased || t.Status == FinancingTenderStatus.Dispatched || t.Status == FinancingTenderStatus.Delivered).ToList();
+            var settled = list.Where(t => t.Status == FinancingTenderStatus.Settled).ToList();
+
+            decimal totalInvested = list.Sum(t => t.BaseMaterialCost);
+            decimal realizedProfit = settled.Sum(t => t.InvestorNetYieldAmount);
+            decimal upcomingProfit = active.Sum(t => t.InvestorNetYieldAmount);
+
+            decimal avgYield = list.Any(t => t.BaseMaterialCost > 0)
+                ? Math.Round(list.Average(t => (t.InvestorNetYieldAmount / (t.BaseMaterialCost > 0 ? t.BaseMaterialCost : 1m)) * (365.0m / (t.TenureDays > 0 ? t.TenureDays : 45)) * 100m), 2)
+                : 12.5m;
+
+            var investorName = list.FirstOrDefault()?.FunderName ?? "المستثمر الممول";
+
+            return new InvestorDashboardDto
+            {
+                InvestorName = investorName,
+                Phone = phone ?? list.FirstOrDefault()?.FunderPhone ?? "",
+                TotalInvestedJod = totalInvested,
+                RealizedProfitJod = realizedProfit,
+                ExpectedUpcomingProfitJod = upcomingProfit,
+                AverageAnnualizedYieldPercentage = avgYield,
+                ActiveDealsCount = active.Count,
+                CompletedDealsCount = settled.Count,
+                ActiveInvestments = active.Select(MapToDto).ToList(),
+                CompletedInvestments = settled.Select(MapToDto).ToList()
+            };
+        }
+
+        public async Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync()
+        {
+            var all = await _uow.FinancingTenders.GetAllAsync();
+            var list = all.OrderByDescending(t => t.CreatedAt).ToList();
+
+            decimal totalFacilitated = list.Where(t => t.Status != FinancingTenderStatus.OpenForBidding && t.Status != FinancingTenderStatus.Draft).Sum(t => t.BaseMaterialCost);
+            decimal totalFees = list.Where(t => t.Status == FinancingTenderStatus.Settled || t.Status == FinancingTenderStatus.Delivered).Sum(t => t.PlatformAgencyFeeAmount);
+            decimal totalProfits = list.Where(t => t.Status == FinancingTenderStatus.Settled).Sum(t => t.InvestorNetYieldAmount);
+
+            return new AdminFinancingOverviewDto
+            {
+                TotalFacilitatedFinancingJod = totalFacilitated,
+                TotalPlatformFeesCollectedJod = totalFees,
+                TotalInvestorProfitsDistributedJod = totalProfits,
+                OpenTendersCount = list.Count(t => t.Status == FinancingTenderStatus.OpenForBidding),
+                InTransitCount = list.Count(t => t.Status == FinancingTenderStatus.GoodsPurchased || t.Status == FinancingTenderStatus.Dispatched),
+                DeliveredPendingSettlementCount = list.Count(t => t.Status == FinancingTenderStatus.Delivered),
+                SettledCount = list.Count(t => t.Status == FinancingTenderStatus.Settled),
+                AllTenders = list.Select(MapToDto).ToList()
+            };
+        }
+
         private static string GetStatusArabicName(FinancingTenderStatus status) => status switch
         {
             FinancingTenderStatus.Draft => "مسودة",

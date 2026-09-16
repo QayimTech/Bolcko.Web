@@ -7,7 +7,9 @@ namespace Bolcko.Domain.Enums
         Admin = 3,
         DeliveryDriver = 4,
         DeliveryCompanyUser = 5,
-        Vendor = 6
+        Vendor = 6,
+        Contractor = 7,
+        Investor = 8
     }
 
     public enum OrderStatus

@@ -99,4 +99,65 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public string? PhotoBase64 { get; set; }
         public string? PhotoUrl { get; set; }
     }
+
+    public class ContractorDashboardDto
+    {
+        public string ContractorName { get; set; } = string.Empty;
+        public string? CompanyName { get; set; }
+        public string Phone { get; set; } = string.Empty;
+        public double TrustScore { get; set; } = 95.0;
+        public string TrustTier { get; set; } = "بلاتيني (Platinum)"; // بلاتيني, ذهبي, فضي
+        public decimal CreditLimitJod { get; set; } = 50000m;
+        public decimal CreditUtilizedJod { get; set; }
+        public decimal AvailableCreditJod => Math.Max(0, CreditLimitJod - CreditUtilizedJod);
+
+        public int TotalTendersCount { get; set; }
+        public int ActiveTendersCount { get; set; }
+        public int SettledTendersCount { get; set; }
+        public decimal TotalFinancedAmountJod { get; set; }
+        public decimal TotalSettledAmountJod { get; set; }
+
+        public List<FinancingTenderDto> ActiveTenders { get; set; } = new();
+        public List<PaymentScheduleItemDto> PaymentSchedule { get; set; } = new();
+    }
+
+    public class PaymentScheduleItemDto
+    {
+        public int TenderId { get; set; }
+        public string TrackingCode { get; set; } = string.Empty;
+        public string ProjectTitle { get; set; } = string.Empty;
+        public decimal AmountDueJod { get; set; }
+        public DateTime DueDate { get; set; }
+        public int DaysRemaining { get; set; }
+        public bool IsOverdue => DaysRemaining < 0;
+        public FinancingTenderStatus Status { get; set; }
+    }
+
+    public class InvestorDashboardDto
+    {
+        public string InvestorName { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public decimal TotalInvestedJod { get; set; }
+        public decimal RealizedProfitJod { get; set; }
+        public decimal ExpectedUpcomingProfitJod { get; set; }
+        public decimal AverageAnnualizedYieldPercentage { get; set; }
+        public int ActiveDealsCount { get; set; }
+        public int CompletedDealsCount { get; set; }
+
+        public List<FinancingTenderDto> ActiveInvestments { get; set; } = new();
+        public List<FinancingTenderDto> CompletedInvestments { get; set; } = new();
+    }
+
+    public class AdminFinancingOverviewDto
+    {
+        public decimal TotalFacilitatedFinancingJod { get; set; }
+        public decimal TotalPlatformFeesCollectedJod { get; set; }
+        public decimal TotalInvestorProfitsDistributedJod { get; set; }
+        public int OpenTendersCount { get; set; }
+        public int InTransitCount { get; set; }
+        public int DeliveredPendingSettlementCount { get; set; }
+        public int SettledCount { get; set; }
+
+        public List<FinancingTenderDto> AllTenders { get; set; } = new();
+    }
 }

@@ -1,0 +1,126 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@{
+    ViewData["Title"] = $"تدقيق عطاء المرابحة {Model.TrackingCode}";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<section class="p-6 sm:p-8 space-y-8 text-right animate-in fade-in duration-500">
+    
+    <!-- Top Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <a href="@Url.Action("Index")" class="text-xs text-slate-500 hover:text-primary flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    <span>العودة لقائمة العطاءات</span>
+                </a>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                <span>عطاء التمويل: @Model.TrackingCode</span>
+                <span class="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">@Model.StatusNameAr</span>
+            </h1>
+            <p class="text-slate-500 text-xs mt-1">@Model.ProjectTitle - @Model.ProjectCity</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            @if (Model.Status == Bolcko.Domain.Enums.FinancingTenderStatus.Delivered)
+            {
+                <form asp-action="Settle" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" onclick="return confirm('تأكيد التسوية المالية وإفراج الأرباح للمستثمر واقتطاع أجر الوكالة؟')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">task_alt</span>
+                        <span>إتمام التسوية وتوزيع الأرباح</span>
+                    </button>
+                </form>
+            }
+            <a href="/Shop/Financing/DriverPOD/@Model.Id" target="_blank" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">qr_code_scanner</span>
+                <span>بوابة السائق الموقعي</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Financial Breakdown Card -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 block">رأس المال المشترى (صافي التكلفة)</span>
+            <span class="text-2xl font-black text-slate-900 font-mono">@Model.BaseMaterialCost.ToString("N0") د.أ</span>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 block">أجر وكالة المنصة (1.5%)</span>
+            <span class="text-2xl font-black text-amber-600 font-mono">@Model.PlatformAgencyFeeAmount.ToString("N0") د.أ</span>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 block">ربح المستثمر الصافي</span>
+            <span class="text-2xl font-black text-emerald-600 font-mono">@Model.InvestorNetYieldAmount.ToString("N0") د.أ</span>
+            <span class="text-[10px] text-slate-400 font-mono">(@Model.AnnualizedYieldPercentage% APR)</span>
+        </div>
+    </div>
+
+    <!-- Details Sections Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Parties Information -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+            <h2 class="font-bold text-sm text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-base">groups</span>
+                <span>أطراف عقد المرابحة والوكالة</span>
+            </h2>
+
+            <div class="space-y-3 text-xs">
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-[10px] text-slate-400 block uppercase font-bold">المشتري / المقاول الآمر بالشراء</span>
+                    <p class="font-bold text-slate-900 mt-0.5">@Model.ContractorName (@Model.ContractorCompany)</p>
+                    <p class="text-slate-500 font-mono mt-0.5">@Model.ContractorPhone</p>
+                    <p class="text-amber-700 font-bold mt-1">مؤشر الموثوقية: @Model.ContractorTrustScore / 100</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-[10px] text-slate-400 block uppercase font-bold">المستثمر الممول (الموكل)</span>
+                    <p class="font-bold text-slate-900 mt-0.5">@(string.IsNullOrEmpty(Model.FunderName) ? "غير مخصص بعد" : Model.FunderName)</p>
+                    <p class="text-slate-500 font-mono mt-0.5">@(string.IsNullOrEmpty(Model.FunderPhone) ? "-" : Model.FunderPhone)</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-[10px] text-slate-400 block uppercase font-bold">الموقع الجغرافي للورشة (Geofencing)</span>
+                    <p class="text-slate-700 mt-0.5 font-mono">Lat: @Model.TargetLatitude, Lng: @Model.TargetLongitude</p>
+                    <p class="text-slate-500 mt-0.5">@Model.ProjectCity - @Model.ProjectAddress</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material Items List -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+            <h2 class="font-bold text-sm text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-base">inventory_2</span>
+                <span>كشف المواد العينية المشتراة</span>
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400 font-bold">
+                            <th class="py-2">المادة</th>
+                            <th class="py-2 text-center">الكمية</th>
+                            <th class="py-2 text-end">سعر الوحدة</th>
+                            <th class="py-2 text-end">المجموع</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-slate-700">
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="py-2.5 font-semibold">@item.MaterialName</td>
+                                <td class="py-2.5 text-center font-mono">@item.Quantity @item.Unit</td>
+                                <td class="py-2.5 text-end font-mono">@item.UnitPriceJod.ToString("N2") د.أ</td>
+                                <td class="py-2.5 text-end font-mono font-bold">@item.SubtotalJod.ToString("N2") د.أ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</section>
