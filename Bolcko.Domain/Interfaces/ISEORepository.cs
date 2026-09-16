@@ -5,5 +5,6 @@ namespace Bolcko.Domain.Interfaces
     public interface ISEORepository : IGenericRepository<SEOMetadata>
     {
         Task<SEOMetadata?> GetByPageNameAsync(string pageName);
+        Task<SEOMetadata?> GetByUrlAsync(string pageUrl);
     }
 }

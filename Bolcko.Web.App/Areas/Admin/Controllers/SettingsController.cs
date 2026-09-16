@@ -22,7 +22,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var shippingFee = await _uow.AppSettings.GetByKeyAsync("ShippingFee");
             var contactEmail = await _uow.AppSettings.GetByKeyAsync("ContactEmail");
             var contactPhone = await _uow.AppSettings.GetByKeyAsync("ContactPhone");
             var contactAddress = await _uow.AppSettings.GetByKeyAsync("ContactAddress");
@@ -38,7 +37,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var heroTitleEn = await _uow.AppSettings.GetByKeyAsync("HomeHeroTitleEn");
             var heroDescEn = await _uow.AppSettings.GetByKeyAsync("HomeHeroDescEn");
 
-            ViewBag.ShippingFee = shippingFee?.Value ?? "5.00";
             ViewBag.ContactEmail = contactEmail?.Value ?? "info@bolcko.com";
             ViewBag.ContactPhone = contactPhone?.Value ?? "+962 6 555 5555";
             ViewBag.ContactAddress = contactAddress?.Value ?? "عمان، الأردن";
@@ -90,7 +88,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(
-            string shippingFee, 
             string contactEmail, 
             string contactPhone, 
             string contactAddress, 
@@ -116,7 +113,6 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             string marketCurrencyAr,
             string marketCurrencyEn)
         {
-            await SaveSettingAsync("ShippingFee", shippingFee, "رسوم الشحن والتوصيل المقدرة");
             await SaveSettingAsync("ContactEmail", contactEmail, "بريد التواصل الإلكتروني الأساسي");
             await SaveSettingAsync("ContactPhone", contactPhone, "رقم هاتف التواصل الأساسي");
             await SaveSettingAsync("ContactAddress", contactAddress, "عنوان المقر الأساسي للتواصل");

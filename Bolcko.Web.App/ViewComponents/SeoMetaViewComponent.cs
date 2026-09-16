@@ -15,12 +15,44 @@ namespace Bolcko.Web.App.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(string? defaultTitle = null)
         {
             var path = HttpContext.Request.Path.Value ?? "/";
+            var query = HttpContext.Request.QueryString.Value ?? string.Empty;
+            var fullPathWithQuery = $"{path}{query}";
             var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
             
-            // Check direct db match first
-            var seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(path);
-            
-            // Dynamic Auto-Generation for Product Details Page to secure Top-Rank
+            // 1. Dynamic Search in Database by exact PageUrl (e.g. /calculator?category=stone, /calculator?type=villa)
+            var seo = await _serviceManager.SEOService.GetSEOByUrlAsync(fullPathWithQuery);
+
+            // 2. If not found and query string exists, try matching by path URL (e.g. /calculator)
+            if (seo == null && !string.IsNullOrEmpty(query))
+            {
+                seo = await _serviceManager.SEOService.GetSEOByUrlAsync(path);
+            }
+
+            // 3. Calculator Dynamic Cases via SEO Module PageName
+            if (seo == null && path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase))
+            {
+                var catParam = HttpContext.Request.Query["category"].ToString().ToLowerInvariant();
+                var typeParam = HttpContext.Request.Query["type"].ToString().ToLowerInvariant();
+                var tabParam = HttpContext.Request.Query["tab"].ToString().ToLowerInvariant();
+
+                string? pageNameKey = null;
+                if (!string.IsNullOrEmpty(catParam)) pageNameKey = $"calculator-{catParam}";
+                else if (!string.IsNullOrEmpty(typeParam)) pageNameKey = $"calculator-{typeParam}";
+                else if (!string.IsNullOrEmpty(tabParam)) pageNameKey = $"calculator-{tabParam}";
+                else pageNameKey = "calculator";
+
+                if (!string.IsNullOrEmpty(pageNameKey))
+                {
+                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageNameKey);
+                }
+
+                if (seo == null)
+                {
+                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync("calculator");
+                }
+            }
+
+            // 4. Dynamic Generation for Product Details Page
             if (seo == null && path.Contains("/Product/Index/", StringComparison.OrdinalIgnoreCase))
             {
                 var segments = path.Split('/');
@@ -43,91 +75,26 @@ namespace Bolcko.Web.App.ViewComponents
                                 : $"Get standard {product.Name}{brandText} online. Direct wholesale construction supply & delivery to your jobsite in Jordan. Enquire for bulk pricing today.",
                             MetaKeywords = isArabic
                                 ? $"شراء {product.Name}، {product.Brand}، مواد بناء الأردن، توريد مشاريع، أسعار مواد البناء، بلوكو، blocko"
-                                : $"buy {product.Name}, {product.Brand}, building materials jordan, blocko construction supplies"
+                                : $"buy {product.Name}, {product.Brand}, building materials jordan, blocko construction supplies",
+                            PageUrl = $"/Shop/Product/Index/{product.Id}"
                         };
                     }
                 }
             }
 
+            // 5. Fallback attempt with page name mapping from database
             if (seo == null)
             {
-                // Dynamic Calculator Landing Queries for Search Engine Dominance
-                if (path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase))
-                {
-                    var catQuery = HttpContext.Request.Query["category"].ToString().ToLowerInvariant();
-                    var pageKey = catQuery switch
-                    {
-                        "stone" => "calculator-stone",
-                        "steel" => "calculator-steel",
-                        "concrete" => "calculator-concrete",
-                        "finishes" or "paint" => "calculator-finishes",
-                        _ => "calculator"
-                    };
-
-                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageKey);
-
-                    // Dynamic fallback if not yet in DB
-                    if (seo == null && !string.IsNullOrEmpty(catQuery))
-                    {
-                        if (catQuery == "stone")
-                        {
-                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
-                            {
-                                PageName = "calculator-stone",
-                                PageTitle = isArabic ? "حاسبة تكلفة وأسعار حجر البناء والواجهات الأردنية 2026 | بلوكو" : "Jordanian Building Stone & Facade Calculator 2026 | BLOCKO",
-                                MetaDescription = isArabic ? "احسب مساحات وتكاليف حجر الرويشد ومعان والصناعي والكرانيش والبراويز لمشروعك في الأردن بدقة هندسية وخصم فتحات وهالك معتمد." : "Calculate Jordan stone cladding, Ma'an, Ruwaished, and cornices net area and costs with accurate waste factors.",
-                                MetaKeywords = "حاسبة حجر البناء الاردن, اسعار حجر الرويشد, حجر معان نخب اول, تكلفة واجهات حجر عمارة, كرانيش حجر صناعي, بلوكو",
-                                PageUrl = "/calculator?category=stone"
-                            };
-                        }
-                        else if (catQuery == "steel")
-                        {
-                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
-                            {
-                                PageName = "calculator-steel",
-                                PageTitle = isArabic ? "حاسبة كميات وأوزان حديد التسليح للمباني في الأردن 2026 | بلوكو" : "Steel Rebar Quantity & Weight Calculator Jordan | BLOCKO",
-                                MetaDescription = isArabic ? "احسب أطنان حديد التسليح (Grade 60) بدقة حسب عدد الطوابق ونظام العقدة وتسليح الأعمدة ومخططات البناء الأردنية." : "Calculate rebar tons and costs for your building skeleton based on Jordanian code and live factory prices.",
-                                MetaKeywords = "حاسبة حديد البناء الاردن, كمية الحديد لطابقين, اسعار حديد التسليح اليوم عمان, حاسبة حديد القواعد والاعمدة, بلوكو",
-                                PageUrl = "/calculator?category=steel"
-                            };
-                        }
-                        else if (catQuery == "concrete")
-                        {
-                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
-                            {
-                                PageName = "calculator-concrete",
-                                PageTitle = isArabic ? "حاسبة كميات الباطون والخرسانة الجاهزة في الأردن 2026 | بلوكو" : "Ready-Mix Concrete Volume Calculator Jordan | BLOCKO",
-                                MetaDescription = isArabic ? "احسب أمتار الخرسانة الجاهزة B250 و B300 مع المضخة للعقدات والقواعد والشناجات بأسعار الخلاطات اللحظية واصلة الموقع." : "Calculate ready-mix concrete cubic meters and pumping costs for residential and commercial slabs in Jordan.",
-                                MetaKeywords = "حاسبة كميات الباطون, اسعار الخرسانة الجاهزة الاردن, متر باطون صبة العقدة, خلاطات الخرسانة عمان, بلوكو",
-                                PageUrl = "/calculator?category=concrete"
-                            };
-                        }
-                        else if (catQuery == "finishes" || catQuery == "paint")
-                        {
-                            seo = new Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
-                            {
-                                PageName = "calculator-finishes",
-                                PageTitle = isArabic ? "حاسبة تكاليف التشطيب والدهان والعوازل في الأردن 2026 | بلوكو" : "Finishing, Insulation & Paint Cost Calculator Jordan | BLOCKO",
-                                MetaDescription = isArabic ? "تقدير فوري لتكاليف الدهانات، العوازل المائية والحرارية، التأسيسات الكهروميكانيكية والقصارة لمشروعك السكني في الأردن." : "Estimate insulation, interior paints, plumbing, and electrical rough-in costs per square meter in Jordan.",
-                                MetaKeywords = "تكلفة تشطيب شقة الاردن, اسعار دهانات جوتن وسكيب عمان, رولات عزل اسطح, تكلفة المتر تشطيب ديلوكس, بلوكو",
-                                PageUrl = "/calculator?category=finishes"
-                            };
-                        }
-                    }
-                }
-
-                // Fallback attempt with page name mapping
                 var pageName = "Home";
                 if (path.Contains("/Calculator", StringComparison.OrdinalIgnoreCase)) pageName = "calculator";
                 else if (path.Contains("/Product", StringComparison.OrdinalIgnoreCase)) pageName = "Products";
                 else if (path.Contains("/Category", StringComparison.OrdinalIgnoreCase)) pageName = "Categories";
                 else if (path.Contains("/Contact", StringComparison.OrdinalIgnoreCase)) pageName = "Contact";
                 else if (path.Contains("/About", StringComparison.OrdinalIgnoreCase)) pageName = "About";
-                
-                if (seo == null)
-                {
-                    seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
-                }
+                else if (path.Contains("/Quote", StringComparison.OrdinalIgnoreCase)) pageName = "Quote";
+                else if (path.Contains("/dataroom", StringComparison.OrdinalIgnoreCase)) pageName = "dataroom";
+
+                seo = await _serviceManager.SEOService.GetSEOByPageNameAsync(pageName);
             }
 
             // In English mode, ensure SEO title and meta aren't returned in Arabic
@@ -178,6 +145,20 @@ namespace Bolcko.Web.App.ViewComponents
                     }
                 }
             }
+
+            // Construct definitive Canonical URL (Resolves GSC Duplicate without user-selected canonical)
+            var canonicalBase = "https://www.block-o.com";
+            string canonicalPath;
+            if (!string.IsNullOrEmpty(seo?.PageUrl))
+            {
+                canonicalPath = seo.PageUrl.StartsWith("/") ? seo.PageUrl : $"/{seo.PageUrl}";
+            }
+            else
+            {
+                canonicalPath = path == "/" ? "" : path;
+            }
+            var canonicalUrl = $"{canonicalBase}{canonicalPath}";
+            ViewBag.CanonicalUrl = canonicalUrl;
 
             ViewBag.DefaultTitle = defaultTitle ?? (isArabic ? "بلوكو لتوريد مواد البناء | BLOCKO" : "BLOCKO - Building Materials");
             return View(seo);

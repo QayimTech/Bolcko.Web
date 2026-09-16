@@ -68,6 +68,22 @@ namespace Blocko.Services.Implementations.SEO
             };
         }
 
+        public async Task<SEOMetadataDto?> GetSEOByUrlAsync(string pageUrl)
+        {
+            var s = await _unitOfWork.SEO.GetByUrlAsync(pageUrl);
+            if (s == null) return null;
+            return new SEOMetadataDto
+            {
+                Id = s.Id,
+                PageName = s.PageName,
+                PageTitle = s.PageTitle,
+                MetaDescription = s.MetaDescription,
+                MetaKeywords = s.MetaKeywords,
+                PageUrl = s.PageUrl,
+                PageOrder = s.PageOrder
+            };
+        }
+
         public async Task<SEOMetadataDto?> GetSEOByIdAsync(int id)
         {
             var s = await _unitOfWork.SEO.GetByIdAsync(id);

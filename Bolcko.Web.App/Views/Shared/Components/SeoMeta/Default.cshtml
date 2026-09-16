@@ -1,18 +1,36 @@
 @model Bolcko.Domain.Entities.SEO.DTOs.SEOMetadataDto
+@{
+    var title = Model?.PageTitle ?? ViewBag.DefaultTitle ?? "بلوكو لتوريد مواد البناء | BLOCKO";
+    var description = Model?.MetaDescription ?? "منصة توريدات مواد البناء الأولى والمثالية في الأردن. أسعار يومية لحديد التسليح، الإسمنت، والخرسانة مباشرة من المصنع إلى موقعك.";
+    var keywords = Model?.MetaKeywords ?? "مواد بناء، حديد تسليح الأردن، إسمنت، خرسانة جاهزة، توريد مشاريع، بلوكو، BLOCKO";
+    var canonicalUrl = ViewBag.CanonicalUrl as string ?? "https://www.block-o.com";
+}
 
-@if (Model != null)
+<title>@title</title>
+<meta name="description" content="@description" />
+@if (!string.IsNullOrEmpty(keywords))
 {
-    <title>@Model.PageTitle</title>
-    @if (!string.IsNullOrEmpty(Model.MetaDescription))
-    {
-        <meta name="description" content="@Model.MetaDescription" />
-    }
-    @if (!string.IsNullOrEmpty(Model.MetaKeywords))
-    {
-        <meta name="keywords" content="@Model.MetaKeywords" />
-    }
+    <meta name="keywords" content="@keywords" />
 }
-else
-{
-    <title>@ViewBag.DefaultTitle</title>
-}
+
+<!-- Canonical URL (Resolves Google Search Console Duplicate without user-selected canonical) -->
+<link rel="canonical" href="@canonicalUrl" />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="@canonicalUrl" />
+<meta property="og:title" content="@title" />
+<meta property="og:description" content="@description" />
+<meta property="og:image" content="https://www.block-o.com/favicons/android-chrome-512x512.png" />
+<meta property="og:site_name" content="BLOCKO" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content="@canonicalUrl" />
+<meta name="twitter:title" content="@title" />
+<meta name="twitter:description" content="@description" />
+<meta name="twitter:image" content="https://www.block-o.com/favicons/android-chrome-512x512.png" />
+
+<!-- Search Engine Robots Directive -->
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+

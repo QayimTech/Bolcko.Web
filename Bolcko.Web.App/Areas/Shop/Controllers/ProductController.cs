@@ -24,13 +24,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         {
             if (id <= 0)
             {
-                return RedirectToAction("Index", "Category", new { area = "Shop" });
+                return RedirectToActionPermanent("Index", "Category", new { area = "Shop" });
             }
 
             var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
             if (product == null)
             {
-                return NotFound();
+                // Graceful 301 Permanent Redirect to consolidate search engine link equity and eliminate 404 errors
+                return RedirectToActionPermanent("Index", "Category", new { area = "Shop" });
             }
 
             var culture = CultureInfo.CurrentCulture.Name;

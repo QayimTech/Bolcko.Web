@@ -8,7 +8,7 @@ namespace Blocko.Services.Interfaces.Order
     {
         Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, Bolcko.Domain.Entities.Order.DTOs.CheckoutDto checkoutDto);
 
-        /// <summary>Resolves the actual shipping fee for a city (ShippingRates table, falling back to the general "ShippingFee" AppSetting, then 5.00). Returns 0 when the cart has oversized items (quoted separately).</summary>
+        /// <summary>Resolves the actual shipping fee for a city (ShippingRates table, falling back to base governorate rate 2.50). Returns 0 when the cart has oversized items (quoted separately).</summary>
         Task<decimal> GetShippingFeeAsync(string city, bool hasOversizedItems);
         Task<IEnumerable<OrderDto>> GetUserOrdersAsync(int userId);
         Task<IEnumerable<OrderDto>> GetAllOrdersAsync();

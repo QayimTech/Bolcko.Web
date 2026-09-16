@@ -209,6 +209,13 @@ namespace Blocko.Services.Implementations.Delivery
                 var safeItemsSummary = itemsSummary?.Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") ?? "";
                 var safeItemsNotes = itemsNotesFormatted?.Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") ?? "";
 
+                var pickupAddr = !string.IsNullOrWhiteSpace(config.PickupAddressLine) ? config.PickupAddressLine : (supplierConfig?.PickupAddressLine ?? "عمان - رأس العين - مستودع القناص");
+                var pickupCity = config.PickupCityId > 0 ? config.PickupCityId : (supplierConfig?.PickupCityId ?? 1130);
+                var pickupRegion = config.PickupRegionId > 0 ? config.PickupRegionId : (supplierConfig?.PickupRegionId ?? 33);
+                var pickupVillage = config.PickupVillageId > 0 ? config.PickupVillageId : (supplierConfig?.PickupVillageId ?? 6176);
+                var senderStore = !string.IsNullOrWhiteSpace(config.SenderStoreName) ? config.SenderStoreName : "متجر بلوكو لتوريدات البناء";
+                var senderTel = !string.IsNullOrWhiteSpace(config.SenderPhone) ? config.SenderPhone : "0782023800";
+
                 jsonPayloadString = template
                     .Replace("{ApiEmail}", config.ApiEmail)
                     .Replace("{ApiPassword}", pwdVal)
@@ -229,10 +236,26 @@ namespace Blocko.Services.Implementations.Delivery
                     .Replace("\"{RegionId}\"", targetRegionId.ToString())
                     .Replace("{VillageId}", targetVillageId.ToString())
                     .Replace("\"{VillageId}\"", targetVillageId.ToString())
+                    .Replace("{PickupAddress}", pickupAddr)
+                    .Replace("{PickupCityId}", pickupCity.ToString())
+                    .Replace("\"{PickupCityId}\"", pickupCity.ToString())
+                    .Replace("{PickupRegionId}", pickupRegion.ToString())
+                    .Replace("\"{PickupRegionId}\"", pickupRegion.ToString())
+                    .Replace("{PickupVillageId}", pickupVillage.ToString())
+                    .Replace("\"{PickupVillageId}\"", pickupVillage.ToString())
+                    .Replace("{SenderStoreName}", senderStore)
+                    .Replace("{SenderPhone}", senderTel)
                     .Replace("{OutboundWebhookUrl}", (config.OutboundWebhookUrl ?? string.Empty).Replace("http://", "https://"));
             }
             else
             {
+                var pickupAddr = !string.IsNullOrWhiteSpace(config.PickupAddressLine) ? config.PickupAddressLine : (supplierConfig?.PickupAddressLine ?? "عمان - رأس العين - مستودع القناص");
+                var pickupCity = config.PickupCityId > 0 ? config.PickupCityId : (supplierConfig?.PickupCityId ?? 1130);
+                var pickupRegion = config.PickupRegionId > 0 ? config.PickupRegionId : (supplierConfig?.PickupRegionId ?? 33);
+                var pickupVillage = config.PickupVillageId > 0 ? config.PickupVillageId : (supplierConfig?.PickupVillageId ?? 6176);
+                var senderStore = !string.IsNullOrWhiteSpace(config.SenderStoreName) ? config.SenderStoreName : "متجر بلوكو لتوريدات البناء";
+                var senderTel = !string.IsNullOrWhiteSpace(config.SenderPhone) ? config.SenderPhone : "0782023800";
+
                 var payloadObj = new
                 {
                     email = config.ApiEmail,
@@ -242,6 +265,8 @@ namespace Blocko.Services.Implementations.Delivery
                     {
                         cod = (double)order.TotalAmount,
                         invoiceNumber = order.OrderNumber,
+                        senderName = senderStore,
+                        senderPhone = senderTel,
                         receiverName = order.User != null ? $"{order.User.FirstName} {order.User.LastName}".Trim() : (order.ShippingAddress?.AddressLine1 ?? "عميل بلوكو"),
                         receiverPhone = order.User?.PhoneNumber ?? "0590000000",
                         serviceType = "STANDARD",
@@ -264,10 +289,10 @@ namespace Blocko.Services.Implementations.Delivery
                     },
                     originAddress = new
                     {
-                        addressLine1 = supplierConfig?.PickupAddressLine ?? "عمان - رأس العين - مستودع القناص",
-                        cityId = supplierConfig?.PickupCityId ?? 395,
-                        regionId = supplierConfig?.PickupRegionId ?? 33,
-                        villageId = supplierConfig?.PickupVillageId ?? 18076
+                        addressLine1 = pickupAddr,
+                        cityId = pickupCity,
+                        regionId = pickupRegion,
+                        villageId = pickupVillage
                     }
                 };
 

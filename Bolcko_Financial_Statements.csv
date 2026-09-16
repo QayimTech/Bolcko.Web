@@ -1,0 +1,44 @@
+﻿Bolcko (بلوكو) - القوائم والبيانات المالية 2026 (بالدولار الأمريكي USD),,,
+الفترة: فترة الإطلاق التشغيلي 2026 | العملة: دولار أمريكي (USD $) | سعر الصرف: 1 JOD = 1.41 USD,,,
+,,,
+=== قائمة الدخل (Income Statement - USD) ===,,,
+البند,الوصف,المبلغ (USD $),النسبة %
+الإيرادات والمبيعات (Gross Revenue),"Gross Sales from live store & quotes (أول مبيعات محققة - $1,030 / 731 JOD)",1030.00,100.0%
+تكلفة البضاعة المباعة (COGS),Direct Supplier Cost & Wholesale Goods (تكلفة الموردين المباشرة),-721.00,70.0%
+إجمالي الربح (Gross Profit),Revenue minus COGS (مجمل الربح),309.00,30.0%
+المصاريف التشغيلية (OPEX):,,,
+  - تكاليف السيرفرات والبنية السحابية,AWS Cloud & DigitalOcean Startup Free Grants (3 Months Free Tier - 0$ Direct Cost),0.00,0.0%
+  - الخدمات اللوجستية والتوصيل,GLC Express Delivery & Courier Logistics,-49.00,4.8%
+  - التسويق الرقمي واكتساب العملاء,"Digital Ads, Search Marketing & Outreach",-85.00,8.3%
+  - اشتراكات البرمجيات وبوابة الدفع,Payment Gateway Fees & Developer Tools,-28.00,2.7%
+إجمالي المصاريف التشغيلية (Total OPEX),Sum of operating expenses,-162.00,15.7%
+صافي الربح التشغيلي (Net Operating Income),Gross Profit minus OPEX,147.00,14.3%
+,,,
+=== الميزانية العمومية (Balance Sheet - USD) ===,,,
+البند المحاسبي,الوصف,المبلغ (USD $),
+الأصول المتداولة (Current Assets):,,,
+  - النقد وما في حكمه (Cash & Bank),Operating liquid cash balance in bank,4500.00,
+  - المخزون السلعي (Inventory),High-demand sample items & supplier buffer,650.00,
+إجمالي الأصول المتداولة,Total Current Assets,5150.00,
+الأصول غير المتداولة (Non-Current Assets):,,,
+  - المنصة البرمجية والملكية الفكرية,Capitalized Software Assets & Custom IP,6500.00,
+  - الأجهزة والمعدات التشغيلية,"Computers, office & logistics equipment",1200.00,
+إجمالي الأصول غير المتداولة,Total Non-Current Assets,7700.00,
+إجمالي الأصول (TOTAL ASSETS),Current + Non-Current,12850.00,
+الالتزامات المتداولة (Current Liabilities):,,,
+  - الذمم الدائنة والموردين (Accounts Payable),Supplier pending settlement,350.00,
+  - المصاريف المستحقة (Accrued Expenses),Operational accrued commitments,100.00,
+إجمالي الالتزامات المتداولة,Total Liabilities,450.00,
+حقوق الملكية (Equity):,,,
+  - رأس المال المدفوع من المؤسسين,Founders initial equity capital,12253.00,
+  - الأرباح المحتجزة / صافي الفترة,Retained Earnings / Net Income,147.00,
+إجمالي حقوق الملكية (Total Equity),Paid-in Capital + Retained Earnings,12400.00,
+إجمالي الالتزامات وحقوق الملكية,Total Liabilities & Equity,12850.00,
+,,,
+=== قائمة التدفقات النقدية (Cash Flow Statement - USD) ===,,,
+النشاط,الوصف,صافي التدفق (USD $),
+صافي النقد من الأنشطة التشغيلية,Cash from operations (Sales minus supplier & opex),147.00,
+صافي النقد من الأنشطة الاستثمارية,Capital investment in platform & setup,-2100.00,
+صافي النقد من الأنشطة التمويلية,Founders cash equity injection,6453.00,
+صافي التغير في النقدية,Net increase in cash,4500.00,
+رصيد النقدية في نهاية الفترة,Ending Cash Balance,4500.00,

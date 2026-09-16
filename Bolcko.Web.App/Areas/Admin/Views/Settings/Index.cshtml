@@ -20,12 +20,18 @@
         <form asp-action="Save" method="post" enctype="multipart/form-data" class="space-y-6">
             @Html.AntiForgeryToken()
 
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest border-b pb-2">تكاليف الشحن العامة والمحافظات</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">رسوم التوصيل المقدرة العامة (د.أ)</label>
-                    <input name="shippingFee" type="text" dir="ltr" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-start" value="@ViewBag.ShippingFee" required />
+            <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-5 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-indigo-600 text-3xl">local_shipping</span>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">مركز اللوجستيات وتسعير التوصيل والشحن</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">تم نقل إدارة رسوم التوصيل، تسعير المحافظات، وتكاليف الجلب من المستودع إلى مركز اللوجستيات المخصص.</p>
+                    </div>
                 </div>
+                <a asp-controller="DeliverySettings" asp-action="Index" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-sm transition-all flex-shrink-0">
+                    <span>إدارة أسعار التوصيل</span>
+                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </a>
             </div>
 
 
@@ -186,6 +192,7 @@
 
 
     <script>
+        function testNotificationSound() {
             var fileInput = document.getElementById('notificationSoundFileInput');
             
             // If a file was selected, preview it locally using FileReader (no upload needed)

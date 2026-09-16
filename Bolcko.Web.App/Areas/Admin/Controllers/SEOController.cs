@@ -131,12 +131,84 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 },
                 new SEOMetadataDto
                 {
+                    PageName = "calculator-blocks",
+                    PageTitle = "حاسبة كميات وأسعار الطوب الإسمنتي والهوردي والربس في الأردن | بلوكو",
+                    MetaDescription = "احسب عدد حبات الطوب الإسمنتي 10 و 15 و 20 سم وطوب الهوردي والربس للعقدات والجدران الخارجية والقواطع مع نسبة الكسر والهالك.",
+                    MetaKeywords = "حاسبة طوب البناء الاردن, كمية الطوب لعمارة, سعر طوب 20 في الاردن, طوب هوردي عصب, اسعار الطوب الاسمنتي عمان, بلوكو",
+                    PageUrl = "/calculator?category=blocks",
+                    PageOrder = 7
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-cement",
+                    PageTitle = "حاسبة كميات الإسمنت والشيد والرمل ومونة البناء في الأردن | بلوكو",
+                    MetaDescription = "احسب عدد أكياس الإسمنت وأمتار الرمل والشيد اللازمة للمونة والبناء والقصارة وصبيات النظافة بمشروعك الإنشائي وفق كودات البناء.",
+                    MetaKeywords = "حاسبة اكياس الاسمنت, كم كيس اسمنت للبناء, اسعار الاسمنت في الاردن اليوم, رمل صويلح وشيد, مونة القصارة, بلوكو",
+                    PageUrl = "/calculator?category=cement",
+                    PageOrder = 8
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-skeleton",
+                    PageTitle = "حاسبة تكلفة بناء عظم المتر المربع في الأردن 2026 | بلوكو",
+                    MetaDescription = "تقدير دقيق لتكلفة بناء المتر المربع عظم بالمواد والعمالة في الأردن. تشمل الحفر، الخرسانة، الحديد، العزل، والطوب مع جدول كميات تفصيلي.",
+                    MetaKeywords = "تكلفة المتر عظم الاردن 2026, تكلفة بناء طابق عظم, حساب تكاليف البناء عظم, اسعار المقاولات عظم عمان, بلوكو",
+                    PageUrl = "/calculator?category=skeleton",
+                    PageOrder = 9
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-villa",
+                    PageTitle = "حاسبة تكلفة بناء فيلا سكنية كاملة في الأردن (عظم وتشطيب) | بلوكو",
+                    MetaDescription = "احسب التكلفة التقديرية لبناء فيلا سكنية طابق أو طابقين مع روف وتسوية في عمان والمحافظات بأسعار المواد والتشطيبات اللحظية.",
+                    MetaKeywords = "تكلفة بناء فيلا في الاردن, كم يكلف بناء فيلا 300 متر, تكلفة تشطيب فيلا عمان, حاسبة بناء الفلل, بلوكو",
+                    PageUrl = "/calculator?type=villa",
+                    PageOrder = 10
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-building",
+                    PageTitle = "حاسبة تكلفة بناء عمارة سكنية استثمارية في الأردن (طوابق متعددة) | بلوكو",
+                    MetaDescription = "احسب تكلفة بناء عمارات سكنية وتجارية من طابقين حتى 6 طوابق في الأردن. جدول كميات شامل للحديد والخرسانة والحجر والمصاعد والعمالة.",
+                    MetaKeywords = "تكلفة بناء عمارة 4 طوابق الاردن, تكلفة عمارة سكنية استثمارية, دراسة جدوى بناء عمارة عمان, حاسبة كميات العمارات, بلوكو",
+                    PageUrl = "/calculator?type=building",
+                    PageOrder = 11
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-slabs",
+                    PageTitle = "حاسبة أسقف البناء (عقدة عصب، فلات سلاب، بلاطة مصمتة) | بلوكو",
+                    MetaDescription = "مقارنة هندسية وتقدير كميات حديد التسليح والخرسانة وطوب الربس لأنظمة الأسقف المختلفة في كود البناء الأردني.",
+                    MetaKeywords = "حاسبة عقدة عصب, تكلفة فلات سلاب الاردن, مقارنة انواع الاسقف الخرسانية, كمية الحديد في عقدة العصب, بلوكو",
+                    PageUrl = "/calculator?category=slabs",
+                    PageOrder = 12
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-columns",
+                    PageTitle = "حاسبة تسليح الأعمدة الإنشائية وقضبان الحديد وكود الزلازل الأردني | بلوكو",
+                    MetaDescription = "حساب كميات حديد الأعمدة 6 و 8 و 10 قضبان مع الكانات والخرسانة الإنشائية ومراعاة أحمال الرياح والزلازل في الأردن.",
+                    MetaKeywords = "تسليح الاعمدة كمية الحديد, اعمدة 8 قضبان, كود الزلازل الاردني تسليح, حساب كانات الاعمدة, بلوكو",
+                    PageUrl = "/calculator?category=columns",
+                    PageOrder = 13
+                },
+                new SEOMetadataDto
+                {
+                    PageName = "calculator-prices",
+                    PageTitle = "أسعار مواد البناء اليوم في الأردن (حديد، باطون، إسمنت، طوب) 2026 | بلوكو",
+                    MetaDescription = "شريط أسعار مواد البناء الإنشائية اليوم في الأردن. أسعار طن الحديد والخرسانة الجاهزة وأكياس الإسمنت مع التوصيل لموقع المشروع.",
+                    MetaKeywords = "اسعار مواد البناء اليوم الاردن, اسعار الحديد اليوم عمان, سعر طن الاسمنت الاردن, سعر متر الباطون الجاهز, بلوكو",
+                    PageUrl = "/calculator?tab=prices",
+                    PageOrder = 14
+                },
+                new SEOMetadataDto
+                {
                     PageName = "Products",
                     PageTitle = "تصفح كافة المنتجات ومواد البناء | BLOCKO Products",
                     MetaDescription = "تسوق أفضل العلامات التجارية لحديد التسليح، التمديدات الصحية، العدد والأدوات، ومعدات المسابح بأسعار تنافسية وجودة مضمونة.",
                     MetaKeywords = "منتجات بناء، لوازم صحية، مضخات مياه، عدد يدوية، كهربائيات، حديد، بلوكو الأردن",
                     PageUrl = "/Shop/Product",
-                    PageOrder = 3
+                    PageOrder = 15
                 },
                 new SEOMetadataDto
                 {
@@ -145,7 +217,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "استكشف مجموعات توريد مواد البناء والأقسام الرئيسية للعدد، الأدوات، الأدوات الصحية، والمواد اللاصقة.",
                     MetaKeywords = "أقسام مواد البناء، مستلزمات سباكة، مواد لاصقة، لوازم إنشائية",
                     PageUrl = "/Shop/Category",
-                    PageOrder = 4
+                    PageOrder = 16
                 },
                 new SEOMetadataDto
                 {
@@ -154,7 +226,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "تعرف على منصة بلوكو، الرائدة في توريد مواد البناء والمستلزمات الإنشائية في المملكة الأردنية الهاشمية بأعلى معايير الجودة والسرعة.",
                     MetaKeywords = "عن بلوكو, شركة مواد بناء الاردن, توريد مشاريع عمان, من نحن بلوكو",
                     PageUrl = "/Shop/Home/AboutUs",
-                    PageOrder = 5
+                    PageOrder = 17
                 },
                 new SEOMetadataDto
                 {
@@ -163,7 +235,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "اطلب عرض سعر رسمي لمشروعك الإنشائي لتوريد كميات الحديد، الإسمنت، الخرسانة، ومواد التشطيب بأسعار الجملة المعتمدة.",
                     MetaKeywords = "طلب تسعيرة مواد بناء, استدراج عروض اسعار, تسعير مشاريع عظم, عروض اسعار حديد واسمنت",
                     PageUrl = "/Shop/Quote/Request",
-                    PageOrder = 6
+                    PageOrder = 18
                 },
                 new SEOMetadataDto
                 {
@@ -172,7 +244,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     MetaDescription = "تواصل مع مستشاري توريد مواد البناء في الأردن. نحن متواجدون لمساعدتك في تسعير مشاريعك الإنشائية وتوريدها.",
                     MetaKeywords = "اتصال بلوكو، خدمة العملاء، تسعير مواد البناء، توريد خرسانة الأردن",
                     PageUrl = "/Shop/Home/Contact",
-                    PageOrder = 7
+                    PageOrder = 19
                 }
             };
 

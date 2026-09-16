@@ -1,4 +1,4 @@
-﻿using Bolcko.Domain.Entities.SEO;
+using Bolcko.Domain.Entities.SEO;
 using Bolcko.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,15 @@ namespace Blocko.Persistence.Repositories.SEO
         {
           //return await _context.SEOMetadata.FirstOrDefaultAsync(s => s.PageName == pageName);
             return await Task.FromResult(_context.SEOMetadata.FirstOrDefault(s => s.PageName == pageName));
+        }
+
+        public async Task<SEOMetadata?> GetByUrlAsync(string pageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(pageUrl)) return null;
+            var normalized = pageUrl.Trim();
+            return await Task.FromResult(_context.SEOMetadata.FirstOrDefault(s => 
+                s.PageUrl != null && 
+                (s.PageUrl == normalized || s.PageUrl.ToLower() == normalized.ToLower())));
         }
     }
 }

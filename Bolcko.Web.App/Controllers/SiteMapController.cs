@@ -115,14 +115,7 @@ namespace Bolcko.Web.App.Controllers
                 Priority = "0.9"
             });
 
-            // صفحة المنتجات الرئيسية
-            urls.Add(new SitemapUrl
-            {
-                Loc = $"{baseUrl}/Shop/Product",
-                LastMod = DateTime.UtcNow.ToString("yyyy-MM-dd"),
-                ChangeFreq = "weekly",
-                Priority = "0.9"
-            });
+
         }
 
         /// <summary>
