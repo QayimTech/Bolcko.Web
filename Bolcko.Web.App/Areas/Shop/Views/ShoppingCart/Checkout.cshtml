@@ -119,18 +119,18 @@
                                     bool isEnglish = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en");
                                     var defaultJordanianCities = new[]
                                     {
-                                        new { Ar = "عمان", En = "Amman", Rate = 3.00m },
-                                        new { Ar = "الزرقاء", En = "Zarqa", Rate = 4.00m },
-                                        new { Ar = "إربد", En = "Irbid", Rate = 5.00m },
-                                        new { Ar = "العقبة", En = "Aqaba", Rate = 8.00m },
-                                        new { Ar = "البلقاء", En = "Balqa", Rate = 4.00m },
-                                        new { Ar = "مادبا", En = "Madaba", Rate = 4.50m },
-                                        new { Ar = "المفرق", En = "Mafraq", Rate = 5.00m },
-                                        new { Ar = "جرش", En = "Jerash", Rate = 5.00m },
-                                        new { Ar = "عجلون", En = "Ajloun", Rate = 5.50m },
-                                        new { Ar = "الكرك", En = "Karak", Rate = 6.00m },
-                                        new { Ar = "الطفيلة", En = "Tafilah", Rate = 7.00m },
-                                        new { Ar = "معان", En = "Ma'an", Rate = 7.50m }
+                                        new { Ar = "عمان", En = "Amman", Rate = 2.50m },
+                                        new { Ar = "الزرقاء", En = "Zarqa", Rate = 3.00m },
+                                        new { Ar = "البلقاء", En = "Balqa", Rate = 3.00m },
+                                        new { Ar = "مادبا", En = "Madaba", Rate = 3.00m },
+                                        new { Ar = "إربد", En = "Irbid", Rate = 3.50m },
+                                        new { Ar = "جرش", En = "Jerash", Rate = 3.50m },
+                                        new { Ar = "عجلون", En = "Ajloun", Rate = 3.50m },
+                                        new { Ar = "المفرق", En = "Mafraq", Rate = 3.50m },
+                                        new { Ar = "الكرك", En = "Karak", Rate = 4.00m },
+                                        new { Ar = "الطفيلة", En = "Tafilah", Rate = 4.00m },
+                                        new { Ar = "معان", En = "Ma'an", Rate = 4.00m },
+                                        new { Ar = "العقبة", En = "Aqaba", Rate = 4.00m }
                                     };
                                 }
                                 @if (shippingRates != null && shippingRates.Any())
@@ -427,11 +427,10 @@
                 var selectedOption = $('#checkout-city-select').find('option:selected');
                 var rate = parseFloat(selectedOption.data('rate')) || 0.0;
                 var subtotal = parseFloat($('#checkout-subtotal-val').text()) || 0.0;
-                var tax = subtotal * 0.15;
 
                 $('#checkout-shipping-val').text(rate.toFixed(2));
 
-                var total = subtotal + tax + rate;
+                var total = subtotal + rate;
 
                 // Add Express Delivery fee if checked
                 if ($('#isExpressDelivery').is(':checked')) {

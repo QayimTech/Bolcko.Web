@@ -375,7 +375,7 @@ namespace Blocko.Services.Implementations.order
                 return parsed;
             }
 
-            return 5.00m;
+            return 2.50m;
         }
     }
 }

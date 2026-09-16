@@ -27,7 +27,37 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var baseUrl = $"{scheme}://{Request.Host}";
             ViewBag.BaseWebhookUrl = $"{baseUrl}/api/v1/webhooks/delivery";
             
-            ViewBag.ShippingRates = await uow.ShippingRates.GetAllAsync();
+            var baseCostSetting = await uow.AppSettings.GetByKeyAsync("BaseCourierCost");
+            decimal baseCourierCost = decimal.TryParse(baseCostSetting?.Value, out decimal bc) ? bc : 1.75m;
+            ViewBag.BaseCourierCost = baseCourierCost;
+
+            var rates = (await uow.ShippingRates.GetAllAsync()).ToList();
+            if (!rates.Any())
+            {
+                // Auto-seed all 12 Jordanian Governorates if table is empty
+                var defaultRates = new List<Bolcko.Domain.Entities.Setting.ShippingRate>
+                {
+                    new() { CityName = "عمان", CityNameEn = "Amman", Rate = 2.50m },
+                    new() { CityName = "الزرقاء", CityNameEn = "Zarqa", Rate = 3.00m },
+                    new() { CityName = "البلقاء", CityNameEn = "Balqa", Rate = 3.00m },
+                    new() { CityName = "مادبا", CityNameEn = "Madaba", Rate = 3.00m },
+                    new() { CityName = "إربد", CityNameEn = "Irbid", Rate = 3.50m },
+                    new() { CityName = "جرش", CityNameEn = "Jerash", Rate = 3.50m },
+                    new() { CityName = "عجلون", CityNameEn = "Ajloun", Rate = 3.50m },
+                    new() { CityName = "المفرق", CityNameEn = "Mafraq", Rate = 3.50m },
+                    new() { CityName = "الكرك", CityNameEn = "Karak", Rate = 4.00m },
+                    new() { CityName = "الطفيلة", CityNameEn = "Tafilah", Rate = 4.00m },
+                    new() { CityName = "معان", CityNameEn = "Ma'an", Rate = 4.00m },
+                    new() { CityName = "العقبة", CityNameEn = "Aqaba", Rate = 4.00m }
+                };
+                foreach (var r in defaultRates)
+                {
+                    await uow.ShippingRates.AddAsync(r);
+                }
+                await uow.CompleteAsync();
+                rates = defaultRates;
+            }
+            ViewBag.ShippingRates = rates;
 
             var enableExpressSetting = await uow.AppSettings.GetByKeyAsync("EnableExpressDelivery");
             var feeSetting = await uow.AppSettings.GetByKeyAsync("ExpressDeliveryFee");
@@ -65,6 +95,13 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 existing.OutboundWebhookUrl = model.OutboundWebhookUrl;
                 existing.CustomHeadersJson = model.CustomHeadersJson;
                 existing.CustomPayloadMappingJson = model.CustomPayloadMappingJson;
+                existing.PickupAddressLine = !string.IsNullOrWhiteSpace(model.PickupAddressLine) ? model.PickupAddressLine : "عمان - رأس العين - مستودع القناص";
+                existing.PickupCityId = model.PickupCityId > 0 ? model.PickupCityId : 1130;
+                existing.PickupRegionId = model.PickupRegionId > 0 ? model.PickupRegionId : 33;
+                existing.PickupVillageId = model.PickupVillageId > 0 ? model.PickupVillageId : 6176;
+                existing.SenderStoreName = !string.IsNullOrWhiteSpace(model.SenderStoreName) ? model.SenderStoreName : "متجر بلوكو لتوريدات البناء";
+                existing.SenderPhone = !string.IsNullOrWhiteSpace(model.SenderPhone) ? model.SenderPhone : "0782023800";
+                existing.DefaultDeliveryFee = model.DefaultDeliveryFee > 0 ? model.DefaultDeliveryFee : 3.00m;
                 existing.IsActive = model.IsActive;
                 existing.UpdatedAt = DateTime.UtcNow;
                 uow.DeliveryProviderConfigs.Update(existing);
@@ -280,6 +317,56 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             await uow.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم حذف المحافظة بنجاح!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ==========================================
+        // Base Courier Cost & Seeding
+        // ==========================================
+
+        [HttpPost]
+        public async Task<IActionResult> SaveBaseCourierCost(decimal baseCourierCost)
+        {
+            if (baseCourierCost <= 0) baseCourierCost = 1.75m;
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            await SaveSettingAsync(uow, "BaseCourierCost", baseCourierCost.ToString("F2"), "تكلفة شركة الشحن الموحدة لكافة المحافظات");
+            TempData["SuccessMessage"] = $"تم حفظ تكلفة شركة التوصيل الموحدة ({baseCourierCost:N2} د.أ) بنجاح!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SeedDefaultGovernorates()
+        {
+            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
+            var existing = await uow.ShippingRates.GetAllAsync();
+            foreach (var r in existing)
+            {
+                uow.ShippingRates.Remove(r);
+            }
+            await uow.CompleteAsync();
+
+            var defaultRates = new List<Bolcko.Domain.Entities.Setting.ShippingRate>
+            {
+                new() { CityName = "عمان", CityNameEn = "Amman", Rate = 2.50m },
+                new() { CityName = "الزرقاء", CityNameEn = "Zarqa", Rate = 3.00m },
+                new() { CityName = "البلقاء", CityNameEn = "Balqa", Rate = 3.00m },
+                new() { CityName = "مادبا", CityNameEn = "Madaba", Rate = 3.00m },
+                new() { CityName = "إربد", CityNameEn = "Irbid", Rate = 3.50m },
+                new() { CityName = "جرش", CityNameEn = "Jerash", Rate = 3.50m },
+                new() { CityName = "عجلون", CityNameEn = "Ajloun", Rate = 3.50m },
+                new() { CityName = "المفرق", CityNameEn = "Mafraq", Rate = 3.50m },
+                new() { CityName = "الكرك", CityNameEn = "Karak", Rate = 4.00m },
+                new() { CityName = "الطفيلة", CityNameEn = "Tafilah", Rate = 4.00m },
+                new() { CityName = "معان", CityNameEn = "Ma'an", Rate = 4.00m },
+                new() { CityName = "العقبة", CityNameEn = "Aqaba", Rate = 4.00m }
+            };
+            foreach (var r in defaultRates)
+            {
+                await uow.ShippingRates.AddAsync(r);
+            }
+            await uow.CompleteAsync();
+
+            TempData["SuccessMessage"] = "تم إعادة تعيين وزراعة كافة محافظات المملكة الـ 12 بالأسعار المدروسة وهوامش الربح بنجاح! 🇯🇴🚀";
             return RedirectToAction(nameof(Index));
         }
 

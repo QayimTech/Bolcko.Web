@@ -66,6 +66,155 @@ public static class DatabaseExtensions
                 );
                 """);
 
+            // Ensure DeliveryProviderConfigs has origin and sender columns
+            await db.Database.ExecuteSqlRawAsync(
+                """
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "PickupAddressLine" text NOT NULL DEFAULT 'عمان - رأس العين - مستودع القناص';
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "PickupCityId" bigint NOT NULL DEFAULT 1130;
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "PickupRegionId" bigint NOT NULL DEFAULT 33;
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "PickupVillageId" bigint NOT NULL DEFAULT 6176;
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "SenderStoreName" text NOT NULL DEFAULT 'متجر بلوكو لتوريدات البناء';
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "SenderPhone" text NOT NULL DEFAULT '0782023800';
+                ALTER TABLE "DeliveryProviderConfigs" ADD COLUMN IF NOT EXISTS "DefaultDeliveryFee" numeric NOT NULL DEFAULT 3.00;
+                """);
+
+            // Seed / Update GLC default config to Ras Al-Ain (Bolcko Warehouse)
+            await db.Database.ExecuteSqlRawAsync(
+                """
+                UPDATE "DeliveryProviderConfigs" 
+                SET "PickupAddressLine" = 'عمان - رأس العين - مستودع بلوكو (مجمع القناص)',
+                    "PickupCityId" = 1130,
+                    "PickupRegionId" = 33,
+                    "PickupVillageId" = 6176,
+                    "SenderStoreName" = 'متجر بلوكو لتوريدات البناء',
+                    "SenderPhone" = '0782023800',
+                    "DefaultDeliveryFee" = 2.50
+                WHERE "ProviderKey" = 'glc' OR "ProviderKey" = 'LogesTechs';
+
+                -- Ensure Base AppSettings exist for Delivery
+                INSERT INTO "AppSettings" ("Key", "Value", "Description", "LastUpdated")
+                SELECT 'BaseCourierCost', '1.75', 'تكلفة شركة الشحن الموحدة لكافة المحافظات (دينار)', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "AppSettings" WHERE "Key" = 'BaseCourierCost');
+
+                INSERT INTO "AppSettings" ("Key", "Value", "Description", "LastUpdated")
+                SELECT 'ShippingFee', '2.50', 'رسوم التوصيل الافتراضية للزبون (دينار)', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "AppSettings" WHERE "Key" = 'ShippingFee');
+
+                INSERT INTO "AppSettings" ("Key", "Value", "Description", "LastUpdated")
+                SELECT 'EnableExpressDelivery', 'true', 'تفعيل خيار التوصيل الفوري السريع', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "AppSettings" WHERE "Key" = 'EnableExpressDelivery');
+
+                INSERT INTO "AppSettings" ("Key", "Value", "Description", "LastUpdated")
+                SELECT 'ExpressDeliveryFee', '5.00', 'رسوم التوصيل الفوري', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "AppSettings" WHERE "Key" = 'ExpressDeliveryFee');
+
+                -- Seed all 12 Jordanian Governorates in ShippingRates table
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'عمان', 'Amman', 2.50 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'عمان');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'الزرقاء', 'Zarqa', 3.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'الزرقاء');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'البلقاء', 'Balqa', 3.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'البلقاء');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'مادبا', 'Madaba', 3.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'مادبا');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'إربد', 'Irbid', 3.50 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'إربد');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'جرش', 'Jerash', 3.50 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'جرش');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'عجلون', 'Ajloun', 3.50 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'عجلون');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'المفرق', 'Mafraq', 3.50 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'المفرق');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'الكرك', 'Karak', 4.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'الكرك');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'الطفيلة', 'Tafilah', 4.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'الطفيلة');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'معان', 'Ma''an', 4.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'معان');
+
+                INSERT INTO "ShippingRates" ("CityName", "CityNameEn", "Rate")
+                SELECT 'العقبة', 'Aqaba', 4.00 WHERE NOT EXISTS (SELECT 1 FROM "ShippingRates" WHERE "CityName" = 'العقبة');
+                """);
+
+            // Seed verified Jordanian Governorates and Cities into DeliveryProviderLocationMappings for GLC/LogesTechs
+            await db.Database.ExecuteSqlRawAsync(
+                """
+                -- Amman / رأس العين
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'راس العين', 'راس العين', 1130, 'حي نزال', 33, 'Amman', 6176, 'راس العين', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6176);
+
+                -- Amman Main
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'عمان', 'عمان', 395, 'Amman', 33, 'Amman', 17798, 'عمان', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 17798);
+
+                -- Zarqa Main
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'الزرقاء', 'الزرقاء', 11804, 'الزرقاء', 44, 'Zarqa''', 40208, 'الزرقاء', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 40208);
+
+                -- Irbid Main
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'اربد', 'اربد', 1184, 'اربد', 43, 'Irbid', 1089895, 'اربد', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 1089895);
+
+                -- Aqaba Main
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'العقبة', 'العقبة', 388, 'Aqaba', 40, 'Al Aqaba', 1089576, 'العقبة', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 1089576);
+
+                -- Balqa / As-Salt
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'السلط', 'السلط', 1180, 'السلط', 242, 'السلط', 6421, 'السلط', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6421);
+
+                -- Madaba
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'مادبا', 'مادبا', 1181, 'مادبا', 34, 'Madaba', 6432, 'مادبا', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6432);
+
+                -- Jerash
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'جرش', 'جرش', 1177, 'جرش', 41, 'Jarash', 6383, 'جرش', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6383);
+
+                -- Ajloun
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'عجلون', 'عجلون', 1178, 'عجلون', 42, 'Ajloun', 6382, 'عجلون', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6382);
+
+                -- Al Karak
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'الكرك', 'الكرك', 393, 'Karak', 37, 'Al Karak', 2597, 'الكرك', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 2597);
+
+                -- Maan
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'معان', 'معان', 1174, 'معان', 38, 'Maan', 6327, 'معان', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6327);
+
+                -- Al Mafraq
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'المفرق', 'المفرق', 1179, 'المفرق', 36, 'Al Mafraq', 6391, 'المفرق', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 6391);
+
+                -- Tafilah
+                INSERT INTO "DeliveryProviderLocationMappings" ("ProviderKey", "SearchName", "NormalizedSearchName", "ExternalCityId", "ExternalCityName", "ExternalRegionId", "ExternalRegionName", "ExternalVillageId", "ExternalVillageName", "CreatedAt")
+                SELECT 'glc', 'الطفيلة', 'الطفيلة', 817450, 'الطفيلة', 39, 'Al Tfaile', 1089496, 'الطفيلة', now()
+                WHERE NOT EXISTS (SELECT 1 FROM "DeliveryProviderLocationMappings" WHERE "ProviderKey" = 'glc' AND "ExternalVillageId" = 1089496);
+                """);
+
             // Create OrderShipmentMappings table automatically if it doesn't exist in Postgres
             await db.Database.ExecuteSqlRawAsync(
                 """
@@ -277,9 +426,20 @@ public static class DatabaseExtensions
                 WHERE NOT EXISTS (SELECT 1 FROM "FAQItems" LIMIT 1);
                 """);
 
-            // Seed default SEO Metadata for Calculator if not exists
+            // Seed default SEO Metadata for Calculator and Core landing pages if not exists
             await db.Database.ExecuteSqlRawAsync(
                 """
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'Home',
+                    'بلوكو لتوريد مواد البناء | BLOCKO Construction Supplies',
+                    'منصة توريدات مواد البناء الأولى والمثالية في الأردن. أسعار يومية لحديد التسليح، الإسمنت، والخرسانة مباشرة من المصنع إلى موقعك.',
+                    'مواد بناء، حديد تسليح الأردن، إسمنت، خرسانة جاهزة، توريد مشاريع، بلوكو، BLOCKO',
+                    '/',
+                    1,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'Home');
+
                 INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
                 SELECT 
                     'calculator',
@@ -287,9 +447,185 @@ public static class DatabaseExtensions
                     'احسب كميات وتكاليف حديد التسليح، الإسمنت، الخرسانة الجاهزة، والطوب الإسمنتي لمشروعك في الأردن بدقة هندسية وفق كودات البناء وأسعار السوق اللحظية.',
                     'حاسبة تكلفة البناء الأردن, حساب كميات الحديد, اسعار الاسمنت في الاردن, اسعار الحديد اليوم عمان, تكلفة بناء بيت عظم, اسعار الخرسانة الجاهزة, بلوكو',
                     '/calculator',
-                    3,
+                    2,
                     now()
                 WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-stone',
+                    'حاسبة تكلفة وأسعار حجر البناء والواجهات الأردنية 2026 | بلوكو',
+                    'احسب مساحات وتكاليف حجر الرويشد ومعان والصناعي والكرانيش والبراويز لمشروعك في الأردن بدقة هندسية وخصم فتحات وهالك معتمد.',
+                    'حاسبة حجر البناء الاردن, اسعار حجر الرويشد, حجر معان نخب اول, تكلفة واجهات حجر عمارة, كرانيش حجر صناعي, بلوكو',
+                    '/calculator?category=stone',
+                    3,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-stone');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-steel',
+                    'حاسبة كميات وأوزان حديد التسليح للمباني في الأردن 2026 | بلوكو',
+                    'احسب أطنان حديد التسليح (Grade 60) بدقة حسب عدد الطوابق ونظام العقدة وتسليح الأعمدة ومخططات البناء الأردنية.',
+                    'حاسبة حديد البناء الاردن, كمية الحديد لطابقين, اسعار حديد التسليح اليوم عمان, حاسبة حديد القواعد والاعمدة, بلوكو',
+                    '/calculator?category=steel',
+                    4,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-steel');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-concrete',
+                    'حاسبة كميات الباطون والخرسانة الجاهزة في الأردن 2026 | بلوكو',
+                    'احسب أمتار الخرسانة الجاهزة B250 و B300 مع المضخة للعقدات والقواعد والشناجات بأسعار الخلاطات اللحظية واصلة الموقع.',
+                    'حاسبة كميات الباطون, اسعار الخرسانة الجاهزة الاردن, متر باطون صبة العقدة, خلاطات الخرسانة عمان, بلوكو',
+                    '/calculator?category=concrete',
+                    5,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-concrete');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-finishes',
+                    'حاسبة تكاليف التشطيب والدهان والعوازل في الأردن 2026 | بلوكو',
+                    'تقدير فوري لتكاليف الدهانات، العوازل المائية والحرارية، التأسيسات الكهروميكانيكية والقصارة لمشروعك السكني في الأردن.',
+                    'تكلفة تشطيب شقة الاردن, اسعار دهانات جوتن وسكيب عمان, رولات عزل اسطح, تكلفة المتر تشطيب ديلوكس, بلوكو',
+                    '/calculator?category=finishes',
+                    6,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-finishes');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-blocks',
+                    'حاسبة كميات وأسعار الطوب الإسمنتي والهوردي والربس في الأردن | بلوكو',
+                    'احسب عدد حبات الطوب الإسمنتي 10 و 15 و 20 سم وطوب الهوردي والربس للعقدات والجدران الخارجية والقواطع مع نسبة الكسر والهالك.',
+                    'حاسبة طوب البناء الاردن, كمية الطوب لعمارة, سعر طوب 20 في الاردن, طوب هوردي عصب, اسعار الطوب الاسمنتي عمان, بلوكو',
+                    '/calculator?category=blocks',
+                    7,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-blocks');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-cement',
+                    'حاسبة كميات الإسمنت والشيد والرمل ومونة البناء في الأردن | بلوكو',
+                    'احسب عدد أكياس الإسمنت وأمتار الرمل والشيد اللازمة للمونة والبناء والقصارة وصبيات النظافة بمشروعك الإنشائي وفق كودات البناء.',
+                    'حاسبة اكياس الاسمنت, كم كيس اسمنت للبناء, اسعار الاسمنت في الاردن اليوم, رمل صويلح وشيد, مونة القصارة, بلوكو',
+                    '/calculator?category=cement',
+                    8,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-cement');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-skeleton',
+                    'حاسبة تكلفة بناء عظم المتر المربع في الأردن 2026 | بلوكو',
+                    'تقدير دقيق لتكلفة بناء المتر المربع عظم بالمواد والعمالة في الأردن. تشمل الحفر، الخرسانة، الحديد، العزل، والطوب مع جدول كميات تفصيلي.',
+                    'تكلفة المتر عظم الاردن 2026, تكلفة بناء طابق عظم, حساب تكاليف البناء عظم, اسعار المقاولات عظم عمان, بلوكو',
+                    '/calculator?category=skeleton',
+                    9,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-skeleton');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-villa',
+                    'حاسبة تكلفة بناء فيلا سكنية كاملة في الأردن (عظم وتشطيب) | بلوكو',
+                    'احسب التكلفة التقديرية لبناء فيلا سكنية طابق أو طابقين مع روف وتسوية في عمان والمحافظات بأسعار المواد والتشطيبات اللحظية.',
+                    'تكلفة بناء فيلا في الاردن, كم يكلف بناء فيلا 300 متر, تكلفة تشطيب فيلا عمان, حاسبة بناء الفلل, بلوكو',
+                    '/calculator?type=villa',
+                    10,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-villa');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-building',
+                    'حاسبة تكلفة بناء عمارة سكنية استثمارية في الأردن (طوابق متعددة) | بلوكو',
+                    'احسب تكلفة بناء عمارات سكنية وتجارية من طابقين حتى 6 طوابق في الأردن. جدول كميات شامل للحديد والخرسانة والحجر والمصاعد والعمالة.',
+                    'تكلفة بناء عمارة 4 طوابق الاردن, تكلفة عمارة سكنية استثمارية, دراسة جدوى بناء عمارة عمان, حاسبة كميات العمارات, بلوكو',
+                    '/calculator?type=building',
+                    11,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-building');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-slabs',
+                    'حاسبة أسقف البناء (عقدة عصب، فلات سلاب، بلاطة مصمتة) | بلوكو',
+                    'مقارنة هندسية وتقدير كميات حديد التسليح والخرسانة وطوب الربس لأنظمة الأسقف المختلفة في كود البناء الأردني.',
+                    'حاسبة عقدة عصب, تكلفة فلات سلاب الاردن, مقارنة انواع الاسقف الخرسانية, كمية الحديد في عقدة العصب, بلوكو',
+                    '/calculator?category=slabs',
+                    12,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-slabs');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-columns',
+                    'حاسبة تسليح الأعمدة الإنشائية وقضبان الحديد وكود الزلازل الأردني | بلوكو',
+                    'حساب كميات حديد الأعمدة 6 و 8 و 10 قضبان مع الكانات والخرسانة الإنشائية ومراعاة أحمال الرياح والزلازل في الأردن.',
+                    'تسليح الاعمدة كمية الحديد, اعمدة 8 قضبان, كود الزلازل الاردني تسليح, حساب كانات الاعمدة, بلوكو',
+                    '/calculator?category=columns',
+                    13,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-columns');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'calculator-prices',
+                    'أسعار مواد البناء اليوم في الأردن (حديد، باطون، إسمنت، طوب) 2026 | بلوكو',
+                    'شريط أسعار مواد البناء الإنشائية اليوم في الأردن. أسعار طن الحديد والخرسانة الجاهزة وأكياس الإسمنت مع التوصيل لموقع المشروع.',
+                    'اسعار مواد البناء اليوم الاردن, اسعار الحديد اليوم عمان, سعر طن الاسمنت الاردن, سعر متر الباطون الجاهز, بلوكو',
+                    '/calculator?tab=prices',
+                    14,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'calculator-prices');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'Categories',
+                    'مجموعات التوريد والأقسام الرئيسية | BLOCKO Categories',
+                    'استكشف مجموعات توريد مواد البناء والأقسام الرئيسية للعدد، الأدوات، الأدوات الصحية، والمواد اللاصقة.',
+                    'أقسام مواد البناء، مستلزمات سباكة، مواد لاصقة، لوازم إنشائية',
+                    '/Shop/Category',
+                    15,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'Categories');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'About',
+                    'من نحن | بلوكو لتوريد مواد البناء والحلول الإنشائية',
+                    'تعرف على منصة بلوكو، الرائدة في توريد مواد البناء والمستلزمات الإنشائية في المملكة الأردنية الهاشمية بأعلى معايير الجودة والسرعة.',
+                    'عن بلوكو, شركة مواد بناء الاردن, توريد مشاريع عمان, من نحن بلوكو',
+                    '/Shop/Home/AboutUs',
+                    16,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'About');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'Quote',
+                    'طلب تسعيرة وتوريد مشاريع رسمي | استدراج عروض أسعار بلوكو',
+                    'اطلب عرض سعر رسمي لمشروعك الإنشائي لتوريد كميات الحديد، الإسمنت، الخرسانة، ومواد التشطيب بأسعار الجملة المعتمدة.',
+                    'طلب تسعيرة مواد بناء, استدراج عروض اسعار, تسعير مشاريع عظم, عروض اسعار حديد واسمنت',
+                    '/Shop/Quote/Request',
+                    17,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'Quote');
+
+                INSERT INTO "SEOMetadata" ("PageName", "PageTitle", "MetaDescription", "MetaKeywords", "PageUrl", "PageOrder", "LastUpdated")
+                SELECT 
+                    'Contact',
+                    'اتصل بنا لطلب عروض الأسعار وتوريد المشاريع | Contact BLOCKO',
+                    'تواصل مع مستشاري توريد مواد البناء في الأردن. نحن متواجدون لمساعدتك في تسعير مشاريعك الإنشائية وتوريدها.',
+                    'اتصال بلوكو، خدمة العملاء، تسعير مواد البناء، توريد خرسانة الأردن',
+                    '/Shop/Home/Contact',
+                    18,
+                    now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'Contact');
                 """);
 
             Log.Information("Database tables (Delivery, FAQItems, MarketPrices, SEOMetadata) verified/created successfully via raw SQL.");

@@ -15,9 +15,12 @@
             <span class="text-secondary">@SharedLocalizer["Subtotal"]</span>
             <span id="summary-subtotal" class="font-bold text-on-surface">@Model.Subtotal.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
-        <div class="flex justify-between items-center text-sm">
-            <span class="text-secondary">@SharedLocalizer["Tax"]</span>
-            <span id="summary-tax" class="font-bold text-on-surface">@Model.Tax.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
+        <div class="flex justify-between items-center text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            <span class="flex items-center gap-1 font-bold text-emerald-700">
+                <span class="material-symbols-outlined text-sm">verified</span>
+                <span>@SharedLocalizer["VatIncluded"]</span>
+            </span>
+            <span class="font-bold text-slate-500">0.00 @SharedLocalizer["JordanDinarShort"]</span>
         </div>
         <div class="flex justify-between items-center text-sm pb-6 border-b border-outline-variant">
             <span class="text-secondary">@SharedLocalizer["ShippingEstimated"]</span>
