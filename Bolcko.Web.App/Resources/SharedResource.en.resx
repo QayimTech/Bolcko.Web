@@ -853,7 +853,6 @@
   <data name="EnterNotes" xml:space="preserve"><value>Add any delivery or special requests notes</value></data>
   <data name="PaymentMethod" xml:space="preserve"><value>Payment Method</value></data>
   <data name="CodLabel" xml:space="preserve"><value>Cash on Delivery (COD)</value></data>
-  <data name="CodDesc" xml:space="preserve"><value>Pay cash when your order is delivered.</value></data>
   <data name="ConfirmAndSendOrder" xml:space="preserve"><value>Confirm &amp; Place Order</value></data>
   <data name="AcceptTermsText" xml:space="preserve"><value>By placing the order, you agree to the terms and conditions of BLOCKO.</value></data>
   <data name="UnitsCount" xml:space="preserve"><value>{0} units</value></data>

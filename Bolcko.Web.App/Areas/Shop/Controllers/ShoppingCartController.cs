@@ -158,7 +158,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             ViewBag.EnableExpressDelivery = enableExpress;
             ViewBag.ExpressDeliveryFee = expressFee;
 
-            return View(new CheckoutDto());
+            var paymentGatewayService = HttpContext.RequestServices.GetService(typeof(Blocko.Services.Interfaces.Payment.IPaymentGatewayService)) as Blocko.Services.Interfaces.Payment.IPaymentGatewayService;
+            var isAr = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+            var activePaymentMethods = paymentGatewayService != null 
+                ? await paymentGatewayService.GetActivePaymentMethodsAsync(isAr) 
+                : new List<Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto>();
+            ViewBag.ActivePaymentMethods = activePaymentMethods;
+
+            var defaultMethod = activePaymentMethods.FirstOrDefault()?.Code ?? "COD";
+            return View(new CheckoutDto { PaymentMethod = defaultMethod });
         }
 
         [HttpGet]

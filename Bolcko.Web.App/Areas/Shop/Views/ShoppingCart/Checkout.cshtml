@@ -240,7 +240,7 @@
                     </div>
                 </div>
 
-                <!-- 4. Payment Method Options -->
+                <!-- 4. Dynamic Payment Method Options -->
                 <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
                         <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
@@ -252,47 +252,46 @@
                         </div>
                     </div>
 
-                    <!-- Payment Options Radio Group -->
+                    <!-- Payment Options Radio Group (Dynamic from Dashboard) -->
                     <div class="space-y-3">
-                        <!-- 1. Cash on Delivery (COD) -->
-                        <div class="relative border-2 border-[#E8A020] rounded-2xl p-5 bg-amber-50/40 flex items-center gap-4 cursor-pointer payment-option-card">
-                            <input asp-for="PaymentMethod" type="radio" value="COD" checked class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020]" id="cod" />
-                            <label for="cod" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
-                                @SharedLocalizer["CODTitle"]
-                                <span class="block text-xs font-bold text-slate-500 mt-0.5">@SharedLocalizer["CODDesc"]</span>
-                            </label>
-                            <div class="w-12 h-12 rounded-2xl bg-white border border-amber-200 text-[#E8A020] flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-2xl">local_atm</span>
-                            </div>
-                        </div>
+                        @{
+                            var activeMethods = ViewBag.ActivePaymentMethods as List<Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto> 
+                                               ?? new List<Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto>();
+                            if (!activeMethods.Any())
+                            {
+                                activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+                                {
+                                    Code = "COD",
+                                    Title = isEnglish ? "Cash On Delivery (COD)" : "الدفع عند الاستلام (Cash On Delivery - COD)",
+                                    Description = isEnglish ? "Pay in cash to the delivery driver upon inspection at the site" : "ادفع نقدياً لسائق توصيل الشحنة فور الفحص والمعاينة بالموقع",
+                                    Icon = "local_atm",
+                                    ColorClass = "amber",
+                                    IsSelectedDefault = true
+                                });
+                            }
+                        }
 
-                        <!-- 2. CliQ Instant Payment with Escrow Protection (حساب الضمان المعتمد) -->
-                        <div class="relative border border-slate-200 hover:border-emerald-500 rounded-2xl p-5 bg-white hover:bg-emerald-50/20 flex items-center gap-4 cursor-pointer transition-all payment-option-card">
-                            <input asp-for="PaymentMethod" type="radio" value="CLIQ_ESCROW" class="w-5 h-5 text-emerald-600 focus:ring-emerald-500" id="cliqEscrow" />
-                            <label for="cliqEscrow" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
-                                @(isEnglish ? "CliQ Instant Payment (Escrow Protected)" : "دفع فوري عبر كليك CliQ (محمي بحساب الضمان)")
-                                <span class="block text-xs font-medium text-emerald-700 mt-0.5">
-                                    @(isEnglish ? "Funds held securely in escrow until materials arrive and pass site inspection" : "يُحجز المبلغ في حساب الضمان الآمن ولا يُحرر للمورد إلا بعد استلام المواد بالموقع وفحصها")
-                                </span>
-                            </label>
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-2xl">security</span>
-                            </div>
-                        </div>
+                        @for (int i = 0; i < activeMethods.Count; i++)
+                        {
+                            var method = activeMethods[i];
+                            bool isChecked = (Model.PaymentMethod == method.Code) || (string.IsNullOrEmpty(Model.PaymentMethod) && i == 0);
+                            var borderClass = isChecked ? "border-[#E8A020] bg-amber-50/40 ring-2 ring-[#E8A020]/20" : "border-slate-200 bg-white hover:border-slate-300";
+                            var iconColorClass = method.ColorClass == "emerald" ? "text-emerald-600 bg-emerald-50 border-emerald-200" :
+                                                method.ColorClass == "blue" ? "text-blue-600 bg-blue-50 border-blue-200" :
+                                                method.ColorClass == "indigo" ? "text-indigo-600 bg-indigo-50 border-indigo-200" :
+                                                "text-[#E8A020] bg-amber-50 border-amber-200";
 
-                        <!-- 3. eFAWATEERcom (إي فواتيركم) -->
-                        <div class="relative border border-slate-200 hover:border-blue-500 rounded-2xl p-5 bg-white hover:bg-blue-50/20 flex items-center gap-4 cursor-pointer transition-all payment-option-card">
-                            <input asp-for="PaymentMethod" type="radio" value="EFAWATEERCOM" class="w-5 h-5 text-blue-600 focus:ring-blue-500" id="efawateercom" />
-                            <label for="efawateercom" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
-                                @(isEnglish ? "eFAWATEERcom Bill Payment" : "إي فواتيركم (eFAWATEERcom)")
-                                <span class="block text-xs font-normal text-slate-500 mt-0.5">
-                                    @(isEnglish ? "Pay directly via your Jordanian bank app using biller code" : "تسديد مباشر عبر تطبيق البنك الأردني الخاص بك باستخدام رقم الفاتورة")
-                                </span>
-                            </label>
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                            <div class="relative border-2 rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all payment-option-card @borderClass" onclick="$(this).find('input[type=radio]').prop('checked', true).trigger('change');">
+                                <input asp-for="PaymentMethod" type="radio" value="@method.Code" checked="@isChecked" class="w-5 h-5 text-[#E8A020] focus:ring-[#E8A020] cursor-pointer" id="pm_@method.Code" />
+                                <label for="pm_@method.Code" class="font-black text-slate-900 flex-grow cursor-pointer text-sm">
+                                    @method.Title
+                                    <span class="block text-xs font-bold text-slate-500 mt-0.5">@method.Description</span>
+                                </label>
+                                <div class="w-12 h-12 rounded-2xl border @iconColorClass flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">@method.Icon</span>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </form>
@@ -475,6 +474,11 @@
 
             $('#checkout-city-select').on('change', updateShippingFeeFromServer);
             $('#isExpressDelivery').on('change', calculateTotal);
+
+            $('input[name="PaymentMethod"]').on('change', function () {
+                $('.payment-option-card').removeClass('border-[#E8A020] bg-amber-50/40 ring-2 ring-[#E8A020]/20').addClass('border-slate-200 bg-white');
+                $(this).closest('.payment-option-card').removeClass('border-slate-200 bg-white').addClass('border-[#E8A020] bg-amber-50/40 ring-2 ring-[#E8A020]/20');
+            });
         });
     </script>
 }

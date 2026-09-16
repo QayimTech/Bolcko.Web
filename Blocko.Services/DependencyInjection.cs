@@ -99,6 +99,7 @@ namespace Blocko.Services
             services.AddScoped<ITranslationService, TranslationService>();
             services.AddScoped<Blocko.Services.Interfaces.Delivery.IDeliveryService, Blocko.Services.Implementations.Delivery.DeliveryService>();
             services.AddScoped<Blocko.Services.Interfaces.Delivery.IDeliveryDocumentService, Blocko.Services.Implementations.Delivery.DeliveryDocumentService>();
+            services.AddScoped<Blocko.Services.Interfaces.Payment.IPaymentGatewayService, Blocko.Services.Implementations.Payment.PaymentGatewayService>();
 
             // Register FluentValidation validators
             services.AddValidatorsFromAssembly(typeof(Blocko.Services.Validation.ProductImportDtoValidator).Assembly);

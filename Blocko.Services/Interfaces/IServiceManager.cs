@@ -1,4 +1,4 @@
-﻿using Blocko.Services.Interfaces.Category;
+using Blocko.Services.Interfaces.Category;
 using Blocko.Services.Interfaces.Order;
 using Blocko.Services.Interfaces.Product;
 using Blocko.Services.Interfaces.Tender;
@@ -6,6 +6,7 @@ using Blocko.Services.Interfaces.User;
 using Blocko.Services.Interfaces.SEO;
 using Blocko.Services.Interfaces.ShoppingCart;
 using Blocko.Services.Interfaces.Delivery;
+using Blocko.Services.Interfaces.Payment;
 
 namespace Blocko.Services.Interfaces
 {
@@ -23,5 +24,6 @@ namespace Blocko.Services.Interfaces
         IShoppingCartService ShoppingCartService { get; }
         IProjectService ProjectService { get; }
         IDeliveryService DeliveryService { get; }
+        IPaymentGatewayService PaymentGatewayService { get; }
     }
 }

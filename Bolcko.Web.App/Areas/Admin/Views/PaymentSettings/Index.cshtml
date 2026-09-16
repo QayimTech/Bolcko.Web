@@ -1,0 +1,360 @@
+@model Bolcko.Domain.Entities.Payment.PaymentGatewaySettingsDto
+@{
+    ViewData["Title"] = "إعدادات وبوابات الدفع";
+}
+
+<div class="p-6 md:p-10 max-w-7xl mx-auto space-y-8 text-right animate-in fade-in duration-300">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">إعدادات وبوابات الدفع (Payment Gateways Hub)</h1>
+                    <p class="text-xs text-slate-500 font-bold mt-0.5">التحكم في تفعيل وسائل الدفع، الربط مع كليك، إي فواتيركم، وبوابات الدفع الإلكتروني والبطاقات.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="/" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-sm">
+                <span class="material-symbols-outlined text-base">storefront</span>
+                <span>معاينة المتجر</span>
+            </a>
+            <button type="submit" form="paymentSettingsForm" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black transition-all shadow-md active:scale-95">
+                <span class="material-symbols-outlined text-base">save</span>
+                <span>حفظ كافة الإعدادات</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert / Infobox -->
+    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <span class="material-symbols-outlined text-xl">hub</span>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-black text-slate-900 text-sm">بنية دفع ديناميكية جاهزة للربط الفوري (Zero-Code Dynamic Payment Hub)</h3>
+                <p class="text-xs text-slate-600 font-medium leading-relaxed">
+                    تم تجهيز البنية التحتية لجميع بوابات الدفع. حالياً <strong>الدفع عند الاستلام (COD)</strong> هو المفعل. عندما تفتح حسابك البنكي أو تتعاقد مع بوابة دفع (مثل Tap, HyperPay, ZainCash, CliQ)، ما عليك سوى وضع مفاتيح الـ API وتفعيل الخيار لتظهر فوراً لزبائنك دون تعديل أي كود برمجي.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>COD نشط</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: COD -->
+        <div class="bg-white border @(Model.CodEnabled ? "border-amber-400 ring-2 ring-amber-400/20" : "border-slate-200") rounded-3xl p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-2xl text-amber-600">local_atm</span>
+                <span class="text-[11px] font-black px-2.5 py-1 rounded-full @(Model.CodEnabled ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500")">
+                    @(Model.CodEnabled ? "مفعل في المتجر" : "معطل")
+                </span>
+            </div>
+            <div>
+                <h4 class="font-black text-slate-900 text-sm">الدفع عند الاستلام (COD)</h4>
+                <p class="text-xs text-slate-400 font-bold mt-0.5">وسيلة الدفع الأساسية الحالية</p>
+            </div>
+        </div>
+
+        <!-- Card 2: CliQ -->
+        <div class="bg-white border @(Model.CliqEnabled ? "border-emerald-400 ring-2 ring-emerald-400/20" : "border-slate-200") rounded-3xl p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-2xl text-emerald-600">security</span>
+                <span class="text-[11px] font-black px-2.5 py-1 rounded-full @(Model.CliqEnabled ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500")">
+                    @(Model.CliqEnabled ? "مفعل في المتجر" : "معطل - بانتظار الآيبان")
+                </span>
+            </div>
+            <div>
+                <h4 class="font-black text-slate-900 text-sm">كليك (CliQ) وحساب الضمان</h4>
+                <p class="text-xs text-slate-400 font-bold mt-0.5">تحويل بنكي فوري آمن بالأردن</p>
+            </div>
+        </div>
+
+        <!-- Card 3: eFAWATEERcom -->
+        <div class="bg-white border @(Model.EfawateercomEnabled ? "border-blue-400 ring-2 ring-blue-400/20" : "border-slate-200") rounded-3xl p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-2xl text-blue-600">receipt_long</span>
+                <span class="text-[11px] font-black px-2.5 py-1 rounded-full @(Model.EfawateercomEnabled ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500")">
+                    @(Model.EfawateercomEnabled ? "مفعل في المتجر" : "معطل - بانتظار رمز المفوتر")
+                </span>
+            </div>
+            <div>
+                <h4 class="font-black text-slate-900 text-sm">إي فواتيركم (eFAWATEERcom)</h4>
+                <p class="text-xs text-slate-400 font-bold mt-0.5">تسديد عبر التطبيقات البنكية</p>
+            </div>
+        </div>
+
+        <!-- Card 4: Online Card Gateways -->
+        <div class="bg-white border @(Model.CardGatewayEnabled ? "border-indigo-400 ring-2 ring-indigo-400/20" : "border-slate-200") rounded-3xl p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-2xl text-indigo-600">credit_card</span>
+                <span class="text-[11px] font-black px-2.5 py-1 rounded-full @(Model.CardGatewayEnabled ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500")">
+                    @(Model.CardGatewayEnabled ? $"مفعل ({Model.CardGatewayEnvironment})" : "معطل - بانتظار مفاتيح الـ API")
+                </span>
+            </div>
+            <div>
+                <h4 class="font-black text-slate-900 text-sm">بوابات البطاقات والمحافظ</h4>
+                <p class="text-xs text-slate-400 font-bold mt-0.5">Visa / MasterCard / Apple Pay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Settings Form -->
+    <form asp-action="Save" method="post" id="paymentSettingsForm" class="space-y-8">
+        @Html.AntiForgeryToken()
+
+        <!-- 1. Cash On Delivery (COD) Settings -->
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">local_atm</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900">1. الدفع عند الاستلام (Cash On Delivery - COD)</h2>
+                        <p class="text-xs text-slate-400 font-bold">استلام المبلغ نقداً أو عبر جهاز الدفع عند توصيل المواد للموقع.</p>
+                    </div>
+                </div>
+
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input asp-for="CodEnabled" type="checkbox" class="sr-only peer" />
+                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-amber-500"></div>
+                    <span class="ms-3 text-xs font-black text-slate-800">تفعيل الدفع عند الاستلام في المتجر</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">عنوان الخيار للعميل (عربي)</label>
+                    <input asp-for="CodTitleAr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 outline-none transition-all" required />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Option Title (English)</label>
+                    <input asp-for="CodTitleEn" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 outline-none transition-all text-start" required />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">الوصف التوضيحي للعميل (عربي)</label>
+                    <textarea asp-for="CodDescAr" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 outline-none transition-all" required></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Description (English)</label>
+                    <textarea asp-for="CodDescEn" rows="2" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 outline-none transition-all text-start" required></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">رسوم إضافية لخدمة الدفع عند الاستلام (د.أ - اختياري)</label>
+                    <input asp-for="CodExtraFee" type="number" step="0.01" min="0" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 outline-none transition-all text-start" />
+                    <p class="text-[11px] text-slate-400 font-medium">اتركه 0.00 إذا كانت الخدمة بدون رسوم إضافية.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CliQ & Escrow Settings -->
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">security</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900">2. خدمة كليك الفورية وحساب الضمان (CliQ & Escrow Protection)</h2>
+                        <p class="text-xs text-slate-400 font-bold">تحويل فوري وموثوق عبر الحسابات البنكية الأردنية مع حماية استلام البضائع.</p>
+                    </div>
+                </div>
+
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input asp-for="CliqEnabled" type="checkbox" class="sr-only peer" />
+                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <span class="ms-3 text-xs font-black text-slate-800">تفعيل كليك في المتجر</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">الاسم المستعار في كليك (CliQ Alias)</label>
+                    <input asp-for="CliqAlias" placeholder="مثال: BOLCKO أو رقم هاتف المنشأة" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-start" />
+                    <p class="text-[11px] text-slate-400 font-medium">الاسم المستعار المعتمد في تطبيق البنك للتحويل الفوري.</p>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">اسم البنك المعتمد لحساب كليك</label>
+                    <input asp-for="CliqBankName" placeholder="مثال: البنك العربي، بنك الاتحاد، بنك الإسكان..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" />
+                </div>
+                <div class="space-y-1.5 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700">رقم الآيبان البنكي الكامل (IBAN)</label>
+                    <input asp-for="CliqIban" placeholder="JO00AAAA0000000000000000000000" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">عنوان خيار كليك (عربي)</label>
+                    <input asp-for="CliqTitleAr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">CliQ Title (English)</label>
+                    <input asp-for="CliqTitleEn" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-start" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">الوصف التوضيحي لكليك (عربي)</label>
+                    <textarea asp-for="CliqDescAr" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">CliQ Description (English)</label>
+                    <textarea asp-for="CliqDescEn" rows="2" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-start"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. eFAWATEERcom Settings -->
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">receipt_long</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900">3. خدمة إي فواتيركم (eFAWATEERcom Biller Integration)</h2>
+                        <p class="text-xs text-slate-400 font-bold">تسديد مباشر للمشاريع والمشتريات عبر نظام الدفع الوطني الأردني الموحد.</p>
+                    </div>
+                </div>
+
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input asp-for="EfawateercomEnabled" type="checkbox" class="sr-only peer" />
+                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span class="ms-3 text-xs font-black text-slate-800">تفعيل إي فواتيركم في المتجر</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">رمز المفوتر لدى إي فواتيركم (Biller Code)</label>
+                    <input asp-for="EfawateercomBillerCode" placeholder="مثال: 948 أو كود المفوتر الممنوح من البنك المركزي" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-start" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">اسم الخدمة المعتمدة في النظام</label>
+                    <input asp-for="EfawateercomServiceName" placeholder="توريدات بلوكو الإنشائية" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">عنوان خيار إي فواتيركم (عربي)</label>
+                    <input asp-for="EfawateercomTitleAr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">eFAWATEERcom Title (English)</label>
+                    <input asp-for="EfawateercomTitleEn" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-start" />
+                </div>
+                <div class="space-y-1.5 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700">الوصف التوضيحي للعميل</label>
+                    <textarea asp-for="EfawateercomDescAr" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Online Card Gateway Settings -->
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">credit_card</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900">4. بوابات البطاقات والمحافظ الإلكترونية (Online Payment Gateways)</h2>
+                        <p class="text-xs text-slate-400 font-bold">الربط مع بوابات الدفع (Visa, MasterCard, Apple Pay, ZainCash, MPGS, Tap, HyperPay).</p>
+                    </div>
+                </div>
+
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input asp-for="CardGatewayEnabled" type="checkbox" class="sr-only peer" />
+                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+                    <span class="ms-3 text-xs font-black text-slate-800">تفعيل بوابة البطاقات في المتجر</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">مزود بوابة الدفع (Gateway Provider)</label>
+                    <select asp-for="CardGatewayProvider" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                        <option value="Generic">بوابة عامة (Generic Webhook Gateway)</option>
+                        <option value="Tap">Tap Payments (تاب بيمنتس)</option>
+                        <option value="HyperPay">HyperPay (هايبر باي)</option>
+                        <option value="MPGS">Arab Bank MPGS (ماستركارد جيت واي - البنك العربي)</option>
+                        <option value="ZainCash">Zain Cash Jordan (زين كاش الأردن)</option>
+                        <option value="PayTabs">PayTabs (بي تابس)</option>
+                        <option value="Stripe">Stripe Payments (سترايب)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">بيئة التشغيل (Environment Mode)</label>
+                    <select asp-for="CardGatewayEnvironment" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                        <option value="Sandbox">تجريبي (Sandbox / Test Mode) 🧪</option>
+                        <option value="Live">إنتاج مباشر (Live / Production Mode) 🚀</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">العملة الأساسية للمطالبة</label>
+                    <input asp-for="CardGatewayCurrency" value="JOD" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">معرف التاجر / الحساب (Merchant ID / Entity ID)</label>
+                    <input asp-for="CardGatewayMerchantId" placeholder="e.g. merch_12345678" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">المفتاح العام (API Key / Public Key)</label>
+                    <input asp-for="CardGatewayApiKey" placeholder="pk_test_... or api_key" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">المفتاح السري (Secret Key / Private Key)</label>
+                    <input asp-for="CardGatewaySecretKey" type="password" placeholder="sk_test_... or secret" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700">مفتاح تأكيد الويب هوك (Webhook Secret / Signature Key)</label>
+                    <input asp-for="CardGatewayWebhookSecret" placeholder="whsec_... (اختياري للتحقق من إشعار الدفع الفوري)" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">رابط الـ API الأساسي (Base URL - اختياري)</label>
+                    <input asp-for="CardGatewayBaseUrl" placeholder="https://api.tap.company/v2/" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-mono font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+
+                <div class="space-y-1.5 md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700">عنوان وسيلة البطاقات للعميل (عربي)</label>
+                    <input asp-for="CardGatewayTitleAr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Title (English)</label>
+                    <input asp-for="CardGatewayTitleEn" dir="ltr" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-start" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky Bottom Submit Bar -->
+        <div class="sticky bottom-6 z-20 bg-slate-900 text-white rounded-3xl p-4 sm:p-5 shadow-2xl flex items-center justify-between gap-4 border border-slate-800">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-amber-400 text-2xl">verified_user</span>
+                <div>
+                    <h4 class="font-black text-xs text-white">جاهزية بوابات الدفع</h4>
+                    <p class="text-[11px] text-slate-400 font-medium">يتم حفظ الإعدادات وتطبيقها فورياً على سلة الشراء والدفع.</p>
+                </div>
+            </div>
+
+            <button type="submit" class="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all shadow-lg active:scale-95 cursor-pointer">
+                <span class="material-symbols-outlined text-lg">save</span>
+                <span>حفظ التعديلات والتفعيل</span>
+            </button>
+        </div>
+    </form>
+</div>

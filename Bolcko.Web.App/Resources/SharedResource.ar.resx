@@ -858,7 +858,6 @@
   <data name="EnterNotes" xml:space="preserve"><value>أضف أي ملاحظات حول التوصيل أو الطلب</value></data>
   <data name="PaymentMethod" xml:space="preserve"><value>طريقة الدفع</value></data>
   <data name="CodLabel" xml:space="preserve"><value>الدفع عند الاستلام (COD)</value></data>
-  <data name="CodDesc" xml:space="preserve"><value>ادفع نقداً عند توصيل طلبك.</value></data>
   <data name="ConfirmAndSendOrder" xml:space="preserve"><value>تأكيد وإرسال الطلب</value></data>
   <data name="AcceptTermsText" xml:space="preserve"><value>بضغطك على تأكيد الطلب، فإنك توافق على شروط وأحكام BLOCKO.</value></data>
   <data name="UnitsCount" xml:space="preserve"><value>{0} وحدة</value></data>
