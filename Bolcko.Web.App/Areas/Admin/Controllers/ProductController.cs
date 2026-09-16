@@ -224,7 +224,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 await _serviceManager.ProductService.DeleteProductAsync(id);
                 TempData["SuccessMessage"] = "تم حذف المنتج بنجاح.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "لا يمكن حذف هذا المنتج لأنه مرتبط بطلبات سابقة أو سلات تسوق لعملاء، الرجاء أرشفته بدلاً من ذلك.";
             }

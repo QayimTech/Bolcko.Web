@@ -327,7 +327,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         private int? GetUserId()
         {
-            if (!User.Identity.IsAuthenticated) return null;
+            if (User.Identity?.IsAuthenticated != true) return null;
 
             var claimsPrincipal = User as ClaimsPrincipal;
             var nameIdentifierClaim = claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier);

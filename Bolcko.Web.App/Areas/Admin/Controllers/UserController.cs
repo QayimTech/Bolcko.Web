@@ -189,7 +189,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     TempData["SuccessMessage"] = "تم حذف المستخدم وتحديث حالة الشركة المرتبطة به بنجاح.";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "لا يمكن حذف هذا المستخدم لأنه مرتبط ببيانات أخرى (مثل طلبات أو أسعار).";
             }

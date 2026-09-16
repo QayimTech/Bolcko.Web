@@ -23,7 +23,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             _emailSender = emailSender;
         }
 
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -37,7 +37,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string returnUrl = null)
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             var user = await _userManager.FindByEmailAsync(email);

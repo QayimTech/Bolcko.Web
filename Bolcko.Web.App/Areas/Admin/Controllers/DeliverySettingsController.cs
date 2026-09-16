@@ -11,27 +11,28 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class DeliverySettingsController : Controller
     {
         private readonly IDeliveryApiService _deliveryApiService;
+        private readonly Bolcko.Domain.Interfaces.IUnitOfWork _unitOfWork;
 
-        public DeliverySettingsController(IDeliveryApiService deliveryApiService)
+        public DeliverySettingsController(IDeliveryApiService deliveryApiService, Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
         {
             _deliveryApiService = deliveryApiService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var configs = await uow.DeliveryProviderConfigs.GetAllAsync();
+            var configs = await _unitOfWork.DeliveryProviderConfigs.GetAllAsync();
             
             var scheme = Request.Host.Host.Contains("localhost") ? Request.Scheme : "https";
             var baseUrl = $"{scheme}://{Request.Host}";
             ViewBag.BaseWebhookUrl = $"{baseUrl}/api/v1/webhooks/delivery";
             
-            var baseCostSetting = await uow.AppSettings.GetByKeyAsync("BaseCourierCost");
+            var baseCostSetting = await _unitOfWork.AppSettings.GetByKeyAsync("BaseCourierCost");
             decimal baseCourierCost = decimal.TryParse(baseCostSetting?.Value, out decimal bc) ? bc : 1.75m;
             ViewBag.BaseCourierCost = baseCourierCost;
 
-            var rates = (await uow.ShippingRates.GetAllAsync()).ToList();
+            var rates = (await _unitOfWork.ShippingRates.GetAllAsync()).ToList();
             if (!rates.Any())
             {
                 // Auto-seed all 12 Jordanian Governorates if table is empty
@@ -52,15 +53,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 };
                 foreach (var r in defaultRates)
                 {
-                    await uow.ShippingRates.AddAsync(r);
+                    await _unitOfWork.ShippingRates.AddAsync(r);
                 }
-                await uow.CompleteAsync();
+                await _unitOfWork.CompleteAsync();
                 rates = defaultRates;
             }
             ViewBag.ShippingRates = rates;
 
-            var enableExpressSetting = await uow.AppSettings.GetByKeyAsync("EnableExpressDelivery");
-            var feeSetting = await uow.AppSettings.GetByKeyAsync("ExpressDeliveryFee");
+            var enableExpressSetting = await _unitOfWork.AppSettings.GetByKeyAsync("EnableExpressDelivery");
+            var feeSetting = await _unitOfWork.AppSettings.GetByKeyAsync("ExpressDeliveryFee");
             ViewBag.EnableExpressDelivery = enableExpressSetting?.Value?.ToLower() == "true" ? "true" : "false";
             ViewBag.ExpressDeliveryFee = feeSetting?.Value ?? "5.00";
 
@@ -76,17 +77,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 model.ProviderKey = (model.ProviderName ?? "Provider").Replace(" ", "").ToLower();
             }
 
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var existing = await uow.DeliveryProviderConfigs.GetByIdAsync(model.Id);
+            var existing = await _unitOfWork.DeliveryProviderConfigs.GetByIdAsync(model.Id);
 
             if (existing == null)
             {
-                await uow.DeliveryProviderConfigs.AddAsync(model);
+                await _unitOfWork.DeliveryProviderConfigs.AddAsync(model);
                 TempData["SuccessMessage"] = $"تم إضافة وإعداد شركة التوصيل ({model.ProviderName}) بنجاح! 🚀";
             }
             else
             {
-                existing.ProviderName = model.ProviderName;
+                existing.ProviderName = model.ProviderName ?? "Provider";
                 existing.ProviderKey = model.ProviderKey;
                 existing.BaseUrl = model.BaseUrl;
                 existing.CompanyId = model.CompanyId;
@@ -104,23 +104,22 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 existing.DefaultDeliveryFee = model.DefaultDeliveryFee > 0 ? model.DefaultDeliveryFee : 3.00m;
                 existing.IsActive = model.IsActive;
                 existing.UpdatedAt = DateTime.UtcNow;
-                uow.DeliveryProviderConfigs.Update(existing);
+                _unitOfWork.DeliveryProviderConfigs.Update(existing);
                 TempData["SuccessMessage"] = $"تم تحديث إعدادات شركة التوصيل ({model.ProviderName}) بنجاح! 💾";
             }
 
-            await uow.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteProvider(int id)
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var config = await uow.DeliveryProviderConfigs.GetByIdAsync(id);
+            var config = await _unitOfWork.DeliveryProviderConfigs.GetByIdAsync(id);
             if (config != null)
             {
-                uow.DeliveryProviderConfigs.Remove(config);
-                await uow.CompleteAsync();
+                _unitOfWork.DeliveryProviderConfigs.Remove(config);
+                await _unitOfWork.CompleteAsync();
                 TempData["SuccessMessage"] = $"تم حذف شركة التوصيل ({config.ProviderName}) وإزالة إعداداتها بنجاح 🗑️";
                 return Json(new { success = true, message = "تم حذف شركة التوصيل بنجاح" });
             }
@@ -130,13 +129,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var config = await uow.DeliveryProviderConfigs.GetByIdAsync(id);
+            var config = await _unitOfWork.DeliveryProviderConfigs.GetByIdAsync(id);
             if (config != null)
             {
                 config.IsActive = !config.IsActive;
-                uow.DeliveryProviderConfigs.Update(config);
-                await uow.CompleteAsync();
+                _unitOfWork.DeliveryProviderConfigs.Update(config);
+                await _unitOfWork.CompleteAsync();
                 return Json(new { success = true, isActive = config.IsActive, message = "تم تغيير حالة تفعيل الشركة بنجاح" });
             }
             return Json(new { success = false, message = "لم يتم العثور على الشركة" });
@@ -258,8 +256,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var allRates = await uow.ShippingRates.GetAllAsync();
+            var allRates = await _unitOfWork.ShippingRates.GetAllAsync();
             if (allRates.Any(r => r.CityName.Trim().ToLower() == cityName.Trim().ToLower()))
             {
                 TempData["ErrorMessage"] = "هذه المحافظة موجودة مسبقاً.";
@@ -267,8 +264,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
 
             var newRate = new Bolcko.Domain.Entities.Setting.ShippingRate { CityName = cityName.Trim(), CityNameEn = cityNameEn?.Trim(), Rate = rate };
-            await uow.ShippingRates.AddAsync(newRate);
-            await uow.CompleteAsync();
+            await _unitOfWork.ShippingRates.AddAsync(newRate);
+            await _unitOfWork.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم إضافة المحافظة بنجاح!";
             return RedirectToAction(nameof(Index));
@@ -283,8 +280,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var existingRate = await uow.ShippingRates.GetByIdAsync(id);
+            var existingRate = await _unitOfWork.ShippingRates.GetByIdAsync(id);
             if (existingRate == null)
             {
                 TempData["ErrorMessage"] = "لم يتم العثور على المحافظة.";
@@ -295,8 +291,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             existingRate.CityNameEn = cityNameEn?.Trim();
             existingRate.Rate = rate;
 
-            uow.ShippingRates.Update(existingRate);
-            await uow.CompleteAsync();
+            _unitOfWork.ShippingRates.Update(existingRate);
+            await _unitOfWork.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم تحديث سعر التوصيل للمحافظة بنجاح!";
             return RedirectToAction(nameof(Index));
@@ -305,16 +301,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteShippingRate(int id)
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var existingRate = await uow.ShippingRates.GetByIdAsync(id);
+            var existingRate = await _unitOfWork.ShippingRates.GetByIdAsync(id);
             if (existingRate == null)
             {
                 TempData["ErrorMessage"] = "لم يتم العثور على المحافظة.";
                 return RedirectToAction(nameof(Index));
             }
 
-            uow.ShippingRates.Remove(existingRate);
-            await uow.CompleteAsync();
+            _unitOfWork.ShippingRates.Remove(existingRate);
+            await _unitOfWork.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم حذف المحافظة بنجاح!";
             return RedirectToAction(nameof(Index));
@@ -328,8 +323,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         public async Task<IActionResult> SaveBaseCourierCost(decimal baseCourierCost)
         {
             if (baseCourierCost <= 0) baseCourierCost = 1.75m;
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            await SaveSettingAsync(uow, "BaseCourierCost", baseCourierCost.ToString("F2"), "تكلفة شركة الشحن الموحدة لكافة المحافظات");
+            await SaveSettingAsync("BaseCourierCost", baseCourierCost.ToString("F2"), "تكلفة شركة الشحن الموحدة لكافة المحافظات");
             TempData["SuccessMessage"] = $"تم حفظ تكلفة شركة التوصيل الموحدة ({baseCourierCost:N2} د.أ) بنجاح!";
             return RedirectToAction(nameof(Index));
         }
@@ -337,13 +331,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SeedDefaultGovernorates()
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            var existing = await uow.ShippingRates.GetAllAsync();
+            var existing = await _unitOfWork.ShippingRates.GetAllAsync();
             foreach (var r in existing)
             {
-                uow.ShippingRates.Remove(r);
+                _unitOfWork.ShippingRates.Remove(r);
             }
-            await uow.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
 
             var defaultRates = new List<Bolcko.Domain.Entities.Setting.ShippingRate>
             {
@@ -362,9 +355,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             };
             foreach (var r in defaultRates)
             {
-                await uow.ShippingRates.AddAsync(r);
+                await _unitOfWork.ShippingRates.AddAsync(r);
             }
-            await uow.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
 
             TempData["SuccessMessage"] = "تم إعادة تعيين وزراعة كافة محافظات المملكة الـ 12 بالأسعار المدروسة وهوامش الربح بنجاح! 🇯🇴🚀";
             return RedirectToAction(nameof(Index));
@@ -377,17 +370,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveExpressDeliverySettings(bool enableExpressDelivery, decimal expressDeliveryFee)
         {
-            var uow = (Bolcko.Domain.Interfaces.IUnitOfWork)HttpContext.RequestServices.GetService(typeof(Bolcko.Domain.Interfaces.IUnitOfWork))!;
-            await SaveSettingAsync(uow, "EnableExpressDelivery", enableExpressDelivery ? "true" : "false", "تفعيل خيار التوصيل الفوري السريع");
-            await SaveSettingAsync(uow, "ExpressDeliveryFee", expressDeliveryFee.ToString("F2"), "رسوم التوصيل الفوري");
+            await SaveSettingAsync("EnableExpressDelivery", enableExpressDelivery ? "true" : "false", "تفعيل خيار التوصيل الفوري السريع");
+            await SaveSettingAsync("ExpressDeliveryFee", expressDeliveryFee.ToString("F2"), "رسوم التوصيل الفوري");
             
             TempData["SuccessMessage"] = "تم حفظ إعدادات التوصيل الفوري بنجاح!";
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task SaveSettingAsync(Bolcko.Domain.Interfaces.IUnitOfWork uow, string key, string value, string description)
+        private async Task SaveSettingAsync(string key, string value, string description)
         {
-            var setting = await uow.AppSettings.GetByKeyAsync(key);
+            var setting = await _unitOfWork.AppSettings.GetByKeyAsync(key);
             if (setting == null)
             {
                 setting = new Bolcko.Domain.Entities.Setting.AppSetting
@@ -397,15 +389,15 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     Description = description,
                     LastUpdated = DateTime.UtcNow
                 };
-                await uow.AppSettings.AddAsync(setting);
+                await _unitOfWork.AppSettings.AddAsync(setting);
             }
             else
             {
                 setting.Value = value;
                 setting.LastUpdated = DateTime.UtcNow;
-                uow.AppSettings.Update(setting);
+                _unitOfWork.AppSettings.Update(setting);
             }
-            await uow.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

@@ -140,10 +140,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                                 else if (name.Contains("رمل"))
                                     p.MaterialName = "Construction Sand";
 
-                                p.UnitOfMeasure = (p.UnitOfMeasure == "طن" || p.UnitOfMeasure?.ToLower() == "ton") ? "Ton" :
+                                p.UnitOfMeasure = (p.UnitOfMeasure == "طن" || (p.UnitOfMeasure != null && p.UnitOfMeasure.Equals("ton", StringComparison.OrdinalIgnoreCase))) ? "Ton" :
                                                   (p.UnitOfMeasure == "متر مكعب" || p.UnitOfMeasure == "م3" || p.UnitOfMeasure == "م³") ? "m³" :
                                                   (p.UnitOfMeasure == "طوبة" || p.UnitOfMeasure == "حبة" || p.UnitOfMeasure == "قطعة" || p.UnitOfMeasure == "وحدة") ? "Unit" :
-                                                  p.UnitOfMeasure;
+                                                  (p.UnitOfMeasure ?? "");
                                 p.Currency = "JOD";
                             }
                         }

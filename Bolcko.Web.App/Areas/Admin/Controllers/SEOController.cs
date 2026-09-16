@@ -25,7 +25,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return View(seoList);
         }
 
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View(new SEOMetadataDto());
         }

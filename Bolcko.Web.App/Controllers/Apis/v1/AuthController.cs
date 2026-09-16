@@ -89,7 +89,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             return OkResponse(new LoginResponseDto
             {
                 Token = token,
-                Email = user.Email,
+                Email = user.Email ?? request.Email,
                 FullName = $"{user.FirstName} {user.LastName}".Trim()
             });
         }
@@ -98,19 +98,19 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
         {
             if (!ModelState.IsValid)
-                return ErrorResponse("Invalid data", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList());
+                return ErrorResponse("Validation failed", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList());
 
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
-                return OkResponse("If the email exists, a reset link will be sent."); // Do not reveal user existence
+            {
+                return OkResponse("If the email exists, a reset link will be sent."); 
+            }
 
-            // Generate 6-digit OTP code for mobile reset flow
-            var random = new System.Random();
-            var otpCode = random.Next(100000, 999999).ToString();
-
+            var otpCode = new System.Random().Next(100000, 999999).ToString();
+            
             var existingClaims = await _userManager.GetClaimsAsync(user);
-            var otpClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTP");
-            if (otpClaim != null) await _userManager.RemoveClaimAsync(user, otpClaim);
+            var existingOtpClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTP");
+            if (existingOtpClaim != null) await _userManager.RemoveClaimAsync(user, existingOtpClaim);
             await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("PasswordResetOTP", otpCode));
 
             var otpTimeClaim = existingClaims.FirstOrDefault(c => c.Type == "PasswordResetOTPExpiry");
@@ -126,7 +126,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
 
         [HttpPost("SignOut")]
         [Authorize]
-        public IActionResult SignOut()
+        public new IActionResult SignOut()
         {
             // For JWT, sign out is handled on the client side by deleting the token.
             // But we can keep this endpoint for potential token blacklisting.

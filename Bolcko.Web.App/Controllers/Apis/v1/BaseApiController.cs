@@ -20,7 +20,7 @@ namespace Bolcko.Web.App.Controllers.Apis.v1
             return Ok(ApiResponse.Ok(message));
         }
 
-        protected IActionResult ErrorResponse(string message, System.Collections.Generic.List<string> errors = null, int statusCode = 400)
+        protected IActionResult ErrorResponse(string message, System.Collections.Generic.List<string>? errors = null, int statusCode = 400)
         {
             return StatusCode(statusCode, ApiResponse.Error(message, errors));
         }

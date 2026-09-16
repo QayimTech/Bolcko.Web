@@ -114,7 +114,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 AddressText = model.AddressText ?? string.Empty,
                 Phone = model.Phone,
                 WhatsApp = model.WhatsApp,
-                ContactPersonName = model.ContactPersonName,
+                ContactPersonName = model.ContactPersonName ?? $"{firstName} {lastName}",
                 SuppliedCategories = string.Join(",", model.SuppliedCategories ?? new List<string>()),
                 Status = "PendingVerification", // Needs admin verification
                 RegisteredAt = DateTime.UtcNow
@@ -139,7 +139,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
         // GET: /Vendor/Login
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -153,7 +153,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         // POST: /Vendor/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string returnUrl = null)
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 

@@ -78,8 +78,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         [HttpPost]
+        [ActionName("Request")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Request(QuoteRequestDto dto)
+        public async Task<IActionResult> SubmitQuoteRequest(QuoteRequestDto dto)
         {
             if (User.Identity?.IsAuthenticated != true)
             {
@@ -143,7 +144,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var tender = await _tenderService.GetTenderByIdAsync(id);
             if (tender == null) return NotFound();
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
                 var user = await _userManager.GetUserAsync(User);
                 ViewBag.User = user;

@@ -80,14 +80,15 @@ namespace Bolcko.Web.App.Extensions
             })
             .AddJwtBearer(options =>
             {
+                var jwtKey = config["Jwt:Key"] ?? "default_jwt_secret_key_bolcko_2026_secure_key_123456789";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                     ValidateIssuer = true,
-                    ValidIssuer = config["Jwt:Issuer"],
+                    ValidIssuer = config["Jwt:Issuer"] ?? "Bolcko",
                     ValidateAudience = true,
-                    ValidAudience = config["Jwt:Audience"],
+                    ValidAudience = config["Jwt:Audience"] ?? "BolckoUsers",
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };

@@ -27,7 +27,7 @@ namespace Bolcko.Web.App.ViewComponents
             }
 
             int? userId = null;
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
                 var claimsPrincipal = User as ClaimsPrincipal;
                 var nameIdentifierClaim = claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier);
