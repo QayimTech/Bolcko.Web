@@ -65,6 +65,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         return Redirect(returnUrl);
                     }
 
+                    if (await _userManager.IsInRoleAsync(user, "Investor"))
+                    {
+                        return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
+                    }
+
+                    if (await _userManager.IsInRoleAsync(user, "Contractor"))
+                    {
+                        return RedirectToAction("ContractorDashboard", "Financing", new { area = "Shop" });
+                    }
+
                     return RedirectToAction("Index", "Category", new { area = "Shop" });
                 }
             }
