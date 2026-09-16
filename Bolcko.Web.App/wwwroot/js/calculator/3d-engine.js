@@ -558,26 +558,51 @@ class ThreeEngine3D {
             opacity: this.isXRayMode ? 0.12 : 1.0
         });
 
-        // Hyper-realistic Physical Architectural Glass
+        // Hyper-realistic Physical Architectural Glass (High Clarity & Fresnel Reflection)
         const glassMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transmission: 0.90,
-            opacity: 1.0,
+            color: 0xdbeafe,
+            transmission: 0.92,
+            opacity: 0.96,
             transparent: true,
-            roughness: 0.02,
+            roughness: 0.015,
             ior: 1.52,
-            metalness: 0.04,
+            metalness: 0.06,
             clearcoat: 1.0,
-            clearcoatRoughness: 0.03,
+            clearcoatRoughness: 0.02,
             depthWrite: false
         });
 
+        // Architectural Thermal-Break Aluminum Profile (Anthracite / Charcoal Metallic)
         const darkMetalMaterial = new THREE.MeshStandardMaterial({
-            color: 0x0f172a,
-            roughness: 0.25,
-            metalness: 0.75,
+            color: 0x1e293b,
+            roughness: 0.28,
+            metalness: 0.85,
             transparent: this.isXRayMode,
             opacity: this.isXRayMode ? 0.1 : 1.0
+        });
+
+        // Motorized Rolling Shutter Material (شفرات وصندوق أباجور ألمنيوم معزول)
+        const shutterSlatsMaterial = new THREE.MeshStandardMaterial({
+            color: 0x334155,
+            roughness: 0.42,
+            metalness: 0.65,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.1 : 1.0
+        });
+
+        // Sheer Pleated Interior Curtains (ستائر شيفون داخلية مطوية)
+        const curtainMaterial = new THREE.MeshStandardMaterial({
+            color: 0xf8fafc,
+            roughness: 0.9,
+            metalness: 0.0,
+            transparent: true,
+            opacity: 0.88
+        });
+
+        // Deep Window Reveal Backing Cavity
+        const revealBackMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0f172a,
+            roughness: 0.95
         });
 
         const teakLouverMaterial = new THREE.MeshStandardMaterial({
@@ -654,47 +679,47 @@ class ThreeEngine3D {
 
             if (floor === 0) {
                 // Luxury Modern/Classic Entrance Door
-                const doorW = isModern ? 1.4 : 1.25;
-                const doorH = 2.4;
+                const doorW = isModern ? 1.4 : 1.3;
+                const doorH = 2.45;
                 const doorX = isModern ? -halfW * 0.45 : 0;
                 const doorY = floorY + slabH + doorH / 2;
                 this.buildLuxuryEntranceDoor(doorX, doorY, frontZ, doorW, doorH, darkMetalMaterial, stoneTrimMaterial);
 
                 // Flanking Symmetrical or Asymmetrical Windows
                 if (isModern) {
-                    this.buildDetailedWindow(fX + halfW * 0.45, floorY + floorHeight * 0.52, frontZ, 2.4, 2.0, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                    this.buildArchitecturalWindow(fX + halfW * 0.45, floorY + floorHeight * 0.52, frontZ, 2.4, 2.05, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, false, true, true);
                 } else {
                     const winOffset = Math.min(2.8, halfW * 0.6);
-                    this.buildDetailedWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
-                    this.buildDetailedWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    this.buildArchitecturalWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.35, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, false, true);
+                    this.buildArchitecturalWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.35, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, false, true);
                 }
             } else {
                 // Upper Floor Windows & Balconies
                 if (isModern) {
                     if (modernConcept === 'cantilever') {
-                        this.buildDetailedWindow(fX, floorY + floorHeight * 0.52, frontZ, fW * 0.65, 2.1, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                        this.buildArchitecturalWindow(fX, floorY + floorHeight * 0.52, frontZ, fW * 0.65, 2.15, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, false, true, false);
                     } else if (modernConcept === 'horizon') {
-                        this.buildDetailedWindow(fX - 0.8, floorY + floorHeight * 0.52, frontZ, 3.2, 1.9, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                        this.buildArchitecturalWindow(fX - 0.8, floorY + floorHeight * 0.52, frontZ, 3.2, 1.95, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, false, true, false);
                         // Teak Louvers
                         const louverGeo = new THREE.BoxGeometry(1.6, 2.0, 0.15);
                         const louverMesh = new THREE.Mesh(louverGeo, teakLouverMaterial);
                         louverMesh.position.set(fX + halfW * 0.55, floorY + floorHeight * 0.52, frontZ + 0.05);
                         this.houseGroup.add(louverMesh);
                     } else {
-                        this.buildDetailedWindow(fX, floorY + floorHeight * 0.55, frontZ, 1.4, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, false);
+                        this.buildArchitecturalWindow(fX, floorY + floorHeight * 0.55, frontZ, 1.45, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, false, false, true);
                     }
                 } else {
                     const winOffset = Math.min(2.8, halfW * 0.6);
-                    this.buildDetailedWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
-                    this.buildDetailedWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
-                    this.buildDetailedWindow(0, floorY + floorHeight * 0.55, frontZ, 1.2, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    this.buildArchitecturalWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.35, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, false, true);
+                    this.buildArchitecturalWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.35, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, false, true);
+                    this.buildArchitecturalWindow(0, floorY + floorHeight * 0.55, frontZ, 1.25, 1.45, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, false, true);
                 }
             }
 
             // Side Facade Windows
             const sideZ = Math.min(1.8, fD * 0.25);
-            this.buildDetailedWindow(fX + fW / 2 + 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-right', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
-            this.buildDetailedWindow(fX - fW / 2 - 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-left', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
+            this.buildArchitecturalWindow(fX + fW / 2 + 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.2, 1.4, 'side-right', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, isModern, true);
+            this.buildArchitecturalWindow(fX - fW / 2 - 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.2, 1.4, 'side-left', stoneTrimMaterial, glassMaterial, darkMetalMaterial, shutterSlatsMaterial, curtainMaterial, revealBackMaterial, isClassic, isModern, true);
         }
 
         // Classical Portico with Fluted Columns & Pediment
@@ -739,76 +764,186 @@ class ThreeEngine3D {
         const doorGroup = new THREE.Group();
         doorGroup.position.set(doorX, doorY, frontZ);
 
-        // Door Frame
-        const frameGeo = new THREE.BoxGeometry(doorW, doorH, 0.14);
-        const frameMesh = new THREE.Mesh(frameGeo, darkMetalMat);
-        doorGroup.add(frameMesh);
+        // Recessed Entry Box
+        const recessGeo = new THREE.BoxGeometry(doorW + 0.2, doorH + 0.15, 0.12);
+        const recessMesh = new THREE.Mesh(recessGeo, stoneTrimMat);
+        doorGroup.add(recessMesh);
 
         // Wood Door Leaf
-        const leafGeo = new THREE.BoxGeometry(doorW * 0.82, doorH * 0.94, 0.12);
-        const woodMat = new THREE.MeshStandardMaterial({ color: 0x9a5b28, roughness: 0.35 });
+        const leafGeo = new THREE.BoxGeometry(doorW * 0.80, doorH * 0.94, 0.08);
+        const woodMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.35 });
         const leafMesh = new THREE.Mesh(leafGeo, woodMat);
-        leafMesh.position.z = 0.02;
+        leafMesh.position.set(0, 0, 0.04);
         doorGroup.add(leafMesh);
 
         // Brass Vertical Pull Handle
-        const handleGeo = new THREE.CylinderGeometry(0.016, 0.016, 1.1, 16);
+        const handleGeo = new THREE.CylinderGeometry(0.016, 0.016, 1.2, 16);
         const brassMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
         const handleMesh = new THREE.Mesh(handleGeo, brassMat);
-        handleMesh.position.set(-doorW * 0.28, 0, 0.1);
+        handleMesh.position.set(-doorW * 0.28, 0, 0.10);
         doorGroup.add(handleMesh);
+
+        // Outer Stone Door Frame
+        const casingW = 0.14;
+        const lintelGeo = new THREE.BoxGeometry(doorW + casingW * 2, casingW, 0.14);
+        const lintelMesh = new THREE.Mesh(lintelGeo, stoneTrimMat);
+        lintelMesh.position.set(0, doorH / 2 + casingW / 2, 0.06);
+        lintelMesh.castShadow = true;
+        doorGroup.add(lintelMesh);
 
         this.houseGroup.add(doorGroup);
     }
 
-    buildDetailedWindow(posX, posY, posZ, width, height, orientation, trimMat, glassMat, metalMat, isClassic, isModern) {
+    buildArchitecturalWindow(posX, posY, posZ, width, height, orientation, trimMat, glassMat, metalMat, shutterMat, curtainMat, revealMat, isClassic, isModern, hasShutter = true) {
         const winGroup = new THREE.Group();
         winGroup.position.set(posX, posY, posZ);
 
         if (orientation === 'side-right') winGroup.rotation.y = Math.PI / 2;
         else if (orientation === 'side-left') winGroup.rotation.y = -Math.PI / 2;
 
-        // 1. Stone Architrave Casing Frame (برواز الحجر)
-        const casingW = 0.12;
-        const frameGeo = new THREE.BoxGeometry(width + casingW * 2, height + casingW * 2, 0.14);
-        const frameMesh = new THREE.Mesh(frameGeo, trimMat);
-        winGroup.add(frameMesh);
+        const casingW = 0.12; // 12cm stone architrave width
+        const casingThick = 0.10; // 10cm stone thickness
+        const revealDepth = 0.16; // 16cm recessed wall reveal depth
 
-        // 2. Glass Pane
-        const glassGeo = new THREE.BoxGeometry(width, height, 0.04);
+        // ──────────────── 1. RECESSED WALL REVEAL CAVITY (غاطس الشباك في الجدار) ────────────────
+        const revealBoxGeo = new THREE.BoxGeometry(width, height, 0.02);
+        const revealBackMesh = new THREE.Mesh(revealBoxGeo, revealMat);
+        revealBackMesh.position.z = -revealDepth;
+        winGroup.add(revealBackMesh);
+
+        // Subtle warm interior glow backing
+        const warmBackGeo = new THREE.PlaneGeometry(width * 0.95, height * 0.95);
+        const warmBackMesh = new THREE.Mesh(warmBackGeo, new THREE.MeshBasicMaterial({ color: 0xffedd5 }));
+        warmBackMesh.position.z = -revealDepth + 0.01;
+        winGroup.add(warmBackMesh);
+
+        // Elegant Pleated Interior Curtains (ستائر شيفون داخلية مطوية)
+        const curtainGeo = new THREE.BoxGeometry(width * 0.92, height * 0.90, 0.02);
+        const curtainMesh = new THREE.Mesh(curtainGeo, curtainMat);
+        curtainMesh.position.set(0, 0, -revealDepth + 0.03);
+        winGroup.add(curtainMesh);
+
+        // ──────────────── 2. FOUR-PIECE HOLLOW STONE ARCHITRAVE (برواز الحجر المفرغ) ────────────────
+        // A. Left Stone Jamb (سلاح حجر أيسر)
+        const jambGeo = new THREE.BoxGeometry(casingW, height + casingW * 2, casingThick);
+        const leftJamb = new THREE.Mesh(jambGeo, trimMat);
+        leftJamb.position.set(-width / 2 - casingW / 2, 0, casingThick / 2);
+        leftJamb.castShadow = true;
+        winGroup.add(leftJamb);
+
+        // B. Right Stone Jamb (سلاح حجر أيمن)
+        const rightJamb = new THREE.Mesh(jambGeo, trimMat);
+        rightJamb.position.set(width / 2 + casingW / 2, 0, casingThick / 2);
+        rightJamb.castShadow = true;
+        winGroup.add(rightJamb);
+
+        // C. Top Stone Lintel (كشفة حجرية علوية)
+        const lintelGeo = new THREE.BoxGeometry(width + casingW * 2, casingW, casingThick + 0.02);
+        const topLintel = new THREE.Mesh(lintelGeo, trimMat);
+        topLintel.position.set(0, height / 2 + casingW / 2, (casingThick + 0.02) / 2);
+        topLintel.castShadow = true;
+        winGroup.add(topLintel);
+
+        // D. Bottom Stone Sill (برطاش حجري مائل مع تصريف وبروز 8 سم)
+        const sillGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.20, 0.10, 0.24);
+        const stoneSill = new THREE.Mesh(sillGeo, trimMat);
+        stoneSill.position.set(0, -height / 2 - casingW / 2 - 0.03, 0.10);
+        stoneSill.rotation.x = 0.04; // Gentle drip slope
+        stoneSill.castShadow = true;
+        winGroup.add(stoneSill);
+
+        // E. Classic Keystone Arch Crown (حجر تاج/قفل مائل كلاسيكي)
+        if (isClassic) {
+            const crownGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.14, 0.12, 0.14);
+            const crownMesh = new THREE.Mesh(crownGeo, trimMat);
+            crownMesh.position.set(0, height / 2 + casingW + 0.06, 0.06);
+            crownMesh.castShadow = true;
+            winGroup.add(crownMesh);
+
+            const keystoneGeo = new THREE.BoxGeometry(0.20, 0.22, 0.18);
+            const keystoneMesh = new THREE.Mesh(keystoneGeo, trimMat);
+            keystoneMesh.position.set(0, height / 2 + casingW + 0.08, 0.08);
+            keystoneMesh.castShadow = true;
+            winGroup.add(keystoneMesh);
+        }
+
+        // ──────────────── 3. MOTORIZED ROLLING SHUTTER BOX (صندوق أباجور ألمنيوم معزول علوي) ────────────────
+        const shutterHeight = hasShutter ? Math.min(0.38, height * 0.22) : 0;
+        const glassHeight = height - shutterHeight;
+        const glassCenterY = -shutterHeight / 2;
+
+        if (hasShutter && shutterHeight > 0) {
+            // Shutter Box Housing
+            const sBoxGeo = new THREE.BoxGeometry(width - 0.02, shutterHeight, 0.12);
+            const sBoxMesh = new THREE.Mesh(sBoxGeo, shutterMat);
+            sBoxMesh.position.set(0, height / 2 - shutterHeight / 2, -0.02);
+            winGroup.add(sBoxMesh);
+
+            // Horizontal Aluminum Slat Grooves
+            const numSlats = 5;
+            const slatH = shutterHeight / numSlats;
+            for (let s = 1; s < numSlats; s++) {
+                const slatLineGeo = new THREE.BoxGeometry(width - 0.04, 0.012, 0.125);
+                const slatLine = new THREE.Mesh(slatLineGeo, metalMat);
+                slatLine.position.set(0, height / 2 - s * slatH, -0.018);
+                winGroup.add(slatLine);
+            }
+        }
+
+        // ──────────────── 4. ALUMINUM THERMAL-BREAK SUBFRAME & SASHES ────────────────
+        const frameThick = 0.035;
+        const frameDepth = 0.08;
+
+        // Outer Hollow Aluminum Perimeter Subframe
+        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(frameThick, glassHeight, frameDepth), metalMat);
+        frameLeft.position.set(-width / 2 + frameThick / 2, glassCenterY, -0.04);
+        winGroup.add(frameLeft);
+
+        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(frameThick, glassHeight, frameDepth), metalMat);
+        frameRight.position.set(width / 2 - frameThick / 2, glassCenterY, -0.04);
+        winGroup.add(frameRight);
+
+        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(width, frameThick, frameDepth), metalMat);
+        frameTop.position.set(0, glassCenterY + glassHeight / 2 - frameThick / 2, -0.04);
+        winGroup.add(frameTop);
+
+        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(width, frameThick, frameDepth), metalMat);
+        frameBottom.position.set(0, glassCenterY - glassHeight / 2 + frameThick / 2, -0.04);
+        winGroup.add(frameBottom);
+
+        // Center Vertical Mullion (قاطع ألمنيوم رأسي)
+        const centerMullion = new THREE.Mesh(new THREE.BoxGeometry(0.045, glassHeight, frameDepth), metalMat);
+        centerMullion.position.set(0, glassCenterY, -0.04);
+        winGroup.add(centerMullion);
+
+        // Metallic Sash Handles (مقابض ألمنيوم للدرفات)
+        const handleGeo = new THREE.BoxGeometry(0.015, 0.14, 0.03);
+        const handleMesh1 = new THREE.Mesh(handleGeo, metalMat);
+        handleMesh1.position.set(-0.04, glassCenterY, -0.01);
+        winGroup.add(handleMesh1);
+
+        const handleMesh2 = new THREE.Mesh(handleGeo, metalMat);
+        handleMesh2.position.set(0.04, glassCenterY, -0.01);
+        winGroup.add(handleMesh2);
+
+        // ──────────────── 5. CRYSTAL-CLEAR DOUBLE GLAZING PANES ────────────────
+        const glassGeo = new THREE.BoxGeometry(width - frameThick * 2, glassHeight - frameThick * 2, 0.018);
         const glassMesh = new THREE.Mesh(glassGeo, glassMat);
-        glassMesh.position.z = 0.02;
+        glassMesh.position.set(0, glassCenterY, -0.04);
         winGroup.add(glassMesh);
 
-        // 3. Aluminum Mullions
-        const mullionH = new THREE.Mesh(new THREE.BoxGeometry(width, 0.04, 0.06), metalMat);
-        mullionH.position.z = 0.03;
-        winGroup.add(mullionH);
+        // Modern Vertical Stone Blades
+        if (isModern) {
+            const bladeGeo = new THREE.BoxGeometry(0.08, height + 0.3, 0.28);
+            const leftBlade = new THREE.Mesh(bladeGeo, trimMat);
+            leftBlade.position.set(-width / 2 - casingW - 0.06, 0, 0.12);
+            leftBlade.castShadow = true;
+            winGroup.add(leftBlade);
 
-        const mullionV = new THREE.Mesh(new THREE.BoxGeometry(0.04, height, 0.06), metalMat);
-        mullionV.position.z = 0.03;
-        winGroup.add(mullionV);
-
-        // 4. Stone Sill (برطاش حجر سفلي)
-        const sillGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.18, 0.10, 0.22);
-        const sillMesh = new THREE.Mesh(sillGeo, trimMat);
-        sillMesh.position.set(0, -height / 2 - casingW - 0.05, 0.05);
-        sillMesh.castShadow = true;
-        winGroup.add(sillMesh);
-
-        // 5. Classic Keystone Lintel
-        if (isClassic) {
-            const lintelGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.16, 0.15, 0.18);
-            const lintelMesh = new THREE.Mesh(lintelGeo, trimMat);
-            lintelMesh.position.set(0, height / 2 + casingW + 0.075, 0.04);
-            lintelMesh.castShadow = true;
-            winGroup.add(lintelMesh);
-
-            const keyGeo = new THREE.BoxGeometry(0.18, 0.22, 0.22);
-            const keyMesh = new THREE.Mesh(keyGeo, trimMat);
-            keyMesh.position.set(0, height / 2 + casingW + 0.1, 0.06);
-            keyMesh.castShadow = true;
-            winGroup.add(keyMesh);
+            const rightBlade = new THREE.Mesh(bladeGeo, trimMat);
+            rightBlade.position.set(width / 2 + casingW + 0.06, 0, 0.12);
+            rightBlade.castShadow = true;
+            winGroup.add(rightBlade);
         }
 
         this.houseGroup.add(winGroup);
