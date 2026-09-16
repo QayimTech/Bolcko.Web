@@ -1,0 +1,243 @@
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3D ARCHITECTURAL DIGITAL TWIN 2.0 VIEWPORT CARD (BIM)           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden text-white space-y-3 p-4 sm:p-5">
+    
+    <!-- 1. Header: Title + Realtime Status + X-Ray Mode Toggle -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">view_in_ar</span>
+                    <span>@(isEn ? "Interactive 3D Architectural Digital Twin" : "المجسم المعماري التفاعلي (3D BIM)")</span>
+                </h3>
+                <span class="text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">PBR v2.0</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">
+                @(isEn ? "Realistic Jordanian 25cm stone courses, parametric geometry & civil engineering skeleton" : "محاكاة واقعية لمداميك الحجر الأردني ونقشاته والديكورات والأشكال الهندسية المتعددة")
+            </p>
+        </div>
+
+        <!-- Right Controls: X-Ray Skeleton Toggle & Lighting Presets -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="BlockoCalculator.toggleXRayMode()" id="xrayBtn"
+                    class="px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-750 hover:border-slate-600 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-sm text-indigo-400">visibility</span>
+                <span id="xrayBtnText">@(isEn ? "X-Ray Skeleton" : "رؤية الهيكل العظم")</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Typology Switcher (Architectural Geometries & Shapes) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+        <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5 px-1">
+            <span class="material-symbols-outlined text-sm text-amber-400">architecture</span>
+            <span>@(isEn ? "Building Geometry:" : "الشكل الهندسي والمعماري:")</span>
+            <span class="text-[11px] text-emerald-400 font-bold" id="currentStyleLabel">@(isEn ? "Classic Villa" : "فيلا كلاسيكية")</span>
+        </span>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:w-auto">
+            <button type="button" onclick="BlockoCalculator.setArchitecturalStyle('classic')" id="arch-btn-classic"
+                    class="arch-style-btn px-2.5 py-1.5 rounded-lg border text-xs font-bold bg-amber-500 text-slate-950 border-amber-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-sm text-slate-950">account_balance</span>
+                <span>@(isEn ? "Classic Villa" : "فيلا كلاسيك")</span>
+            </button>
+            <button type="button" onclick="BlockoCalculator.setArchitecturalStyle('modern')" id="arch-btn-modern"
+                    class="arch-style-btn px-2.5 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-sm text-indigo-400">villa</span>
+                <span>@(isEn ? "Modern Villa" : "فيلا مودرن")</span>
+            </button>
+            <button type="button" onclick="BlockoCalculator.setArchitecturalStyle('l_shape')" id="arch-btn-l_shape"
+                    class="arch-style-btn px-2.5 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-sm text-teal-400">holiday_village</span>
+                <span>@(isEn ? "L-Shape Patio" : "حرف L وفناء")</span>
+            </button>
+            <button type="button" onclick="BlockoCalculator.setArchitecturalStyle('apartment')" id="arch-btn-apartment"
+                    class="arch-style-btn px-2.5 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-sm text-slate-400">domain</span>
+                <span>@(isEn ? "Multi-Story" : "عمارة متعددة")</span>
+            </button>
+        </div>
+        <input type="hidden" id="architecturalStyle" value="classic" />
+    </div>
+
+    <!-- 2.B Modern Villa Sub-Typology Concepts -->
+    <div id="modernConceptsContainer" class="hidden flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-indigo-950/70 via-slate-950/80 to-slate-900/70 p-2.5 rounded-xl border border-indigo-500/30 shadow-inner">
+        <span class="text-xs font-bold text-indigo-300 flex items-center gap-1.5 px-1">
+            <span class="material-symbols-outlined text-sm text-indigo-400">auto_awesome</span>
+            <span>@(isEn ? "Modern Concept:" : "طراز المودرن المعاصر:")</span>
+            <span class="text-[11px] text-amber-400 font-extrabold" id="currentModernConceptLabel">@(isEn ? "Cantilever Portal" : "كابولي معلق فاخر")</span>
+        </span>
+
+        <div class="grid grid-cols-3 gap-1.5 sm:w-auto">
+            <button type="button" onclick="BlockoCalculator.setModernConcept('cantilever')" id="concept-btn-cantilever"
+                    class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-bold bg-indigo-600 text-white border-indigo-400 shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-xs">crop_square</span>
+                <span>@(isEn ? "Cantilever" : "كابولي معلق")</span>
+            </button>
+            <button type="button" onclick="BlockoCalculator.setModernConcept('cubic')" id="concept-btn-cubic"
+                    class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-xs text-amber-400">view_compact</span>
+                <span>@(isEn ? "Cubic Dabouq" : "تكعيبي دابوق")</span>
+            </button>
+            <button type="button" onclick="BlockoCalculator.setModernConcept('horizon')" id="concept-btn-horizon"
+                    class="concept-style-btn px-3 py-1.5 rounded-lg border text-xs font-semibold bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500 hover:bg-slate-800 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-xs text-teal-400">view_timeline</span>
+                <span>@(isEn ? "Horizon Pergola" : "بانورامي أفقي")</span>
+            </button>
+        </div>
+        <input type="hidden" id="modernConcept" value="cantilever" />
+    </div>
+
+    <!-- 3. Camera Director Presets & Lighting Modes -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-950/80 border border-slate-800">
+        <!-- Environmental Lighting Modes -->
+        <div class="flex items-center gap-1">
+            <span class="text-[11px] font-bold text-slate-400 pe-1">@(isEn ? "Lighting:" : "الإضاءة:")</span>
+            <button type="button" id="light-btn-day" onclick="BlockoCalculator.setLightingMode('day')"
+                    class="light-mode-btn px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Daylight Sun" : "إضاءة نهارية مشمسة")">
+                <span class="material-symbols-outlined text-xs">wb_sunny</span>
+                <span>@(isEn ? "Day" : "نهاري")</span>
+            </button>
+            <button type="button" id="light-btn-golden" onclick="BlockoCalculator.setLightingMode('golden')"
+                    class="light-mode-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Golden Hour Sunset" : "ساعة الغروب الذهبية")">
+                <span class="material-symbols-outlined text-xs text-amber-400">wb_twilight</span>
+                <span>@(isEn ? "Sunset" : "غروب")</span>
+            </button>
+            <button type="button" id="light-btn-night" onclick="BlockoCalculator.setLightingMode('night')"
+                    class="light-mode-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Architectural Night LED" : "إضاءة ليلية معمارية LED")">
+                <span class="material-symbols-outlined text-xs text-indigo-400">nightlight</span>
+                <span>@(isEn ? "Night" : "ليلي")</span>
+            </button>
+        </div>
+
+        <!-- Camera Angles -->
+        <div class="flex items-center gap-1 flex-wrap" dir="ltr">
+            <button type="button" id="cam-btn-front" onclick="BlockoCalculator.setCameraPreset('front')"
+                    class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Front Architectural Elevation" : "واجهة أمامية معمارية")">
+                <span class="material-symbols-outlined text-sm">photo_camera_front</span>
+                <span>@(isEn ? "Elevation" : "واجهة")</span>
+            </button>
+            <button type="button" id="cam-btn-iso" onclick="BlockoCalculator.setCameraPreset('iso')"
+                    class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Bird's Eye Perspective 45°" : "منظور عين الطائر 45°")">
+                <span class="material-symbols-outlined text-sm">view_in_ar</span>
+                <span>@(isEn ? "Isometric" : "منظور 45°")</span>
+            </button>
+            <button type="button" id="cam-btn-interior" onclick="BlockoCalculator.setCameraPreset('interior')"
+                    class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Step Inside Ground Floor Living Room" : "تجول في الصالون الداخلي الفاخر")">
+                <span class="material-symbols-outlined text-sm text-amber-400">living</span>
+                <span>@(isEn ? "Interior" : "داخلي")</span>
+            </button>
+            <button type="button" id="droneOrbitBtn" onclick="BlockoCalculator.toggleDroneOrbit()"
+                    class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="@(isEn ? "Cinematic Drone 360° Tour" : "جولة درون سينمائية 360°")">
+                <span class="material-symbols-outlined text-sm text-indigo-400">videocam</span>
+                <span>@(isEn ? "Drone 360°" : "درون 360°")</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. The 3D Canvas Viewport (Fixed 480px height, crystal clear) -->
+    <div class="relative w-full h-[480px] rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl block">
+        <canvas id="threeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
+        
+        <!-- Live HUD Overlay Tag -->
+        <div class="absolute top-3 start-3 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700/80 text-[11px] text-slate-200 flex items-center gap-2 pointer-events-none shadow-md">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="canvasOverlayInfo" class="font-mono truncate max-w-[280px]">Classic Villa • 2 Floors • Ruwaished Stone</span>
+        </div>
+    </div>
+
+    <!-- 5. DIRECT QUICK FINISH & STONE CONTROLLERS -->
+    <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+        <!-- Quick Finish Selector Chips -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                <span class="material-symbols-outlined text-sm">palette</span>
+                <span>@(isEn ? "Instant Stone Finish:" : "نقشة الحجر الفورية على المجسم:")</span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" id="quick-finish-Mufajjar" onclick="BlockoCalculator.quickSetFinish('Mufajjar')"
+                        class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500 text-slate-950 border border-amber-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs">scatter_plot</span>
+                    <span>@(isEn ? "Mufajjar" : "مفجر صخري")</span>
+                </button>
+                <button type="button" id="quick-finish-Tabzeh" onclick="BlockoCalculator.quickSetFinish('Tabzeh')"
+                        class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs text-amber-400">landscape</span>
+                    <span>@(isEn ? "Tabzeh" : "طبزة بصفيحة")</span>
+                    <span class="text-[9px] text-amber-300 font-mono">+1.5</span>
+                </button>
+                <button type="button" id="quick-finish-Musamsam" onclick="BlockoCalculator.quickSetFinish('Musamsam')"
+                        class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs text-teal-400">reorder</span>
+                    <span>@(isEn ? "Musamsam" : "مسمسم ناعم")</span>
+                    <span class="text-[9px] text-amber-300 font-mono">+2.0</span>
+                </button>
+                <button type="button" id="quick-finish-Monaqqar" onclick="BlockoCalculator.quickSetFinish('Monaqqar')"
+                        class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs text-indigo-400">grain</span>
+                    <span>@(isEn ? "Monaqqar" : "منقر هندسي")</span>
+                    <span class="text-[9px] text-amber-300 font-mono">+2.2</span>
+                </button>
+                <button type="button" id="quick-finish-Honed" onclick="BlockoCalculator.quickSetFinish('Honed')"
+                        class="quick-finish-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs text-amber-300">view_carousel</span>
+                    <span>@(isEn ? "Honed" : "مجلّي ناعم")</span>
+                    <span class="text-[9px] text-amber-300 font-mono">+3.0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stone Quarry Selector Chips -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                <span class="material-symbols-outlined text-sm text-indigo-400">diamond</span>
+                <span>@(isEn ? "Quarry Type:" : "نوع الحجر والمحجر:")</span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" id="quick-stone-Natural_Ruwaished" onclick="BlockoCalculator.quickSetStone('Natural_Ruwaished')"
+                        class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white border border-indigo-400 shadow-sm flex items-center gap-1 transition-all cursor-pointer">
+                    <span>@(isEn ? "Ruwaished Class A" : "رويشد نخب أول")</span>
+                    <span class="text-[9px] text-indigo-200 font-mono">18.5 د.أ</span>
+                </button>
+                <button type="button" id="quick-stone-Natural_Maan" onclick="BlockoCalculator.quickSetStone('Natural_Maan')"
+                        class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span>@(isEn ? "Ma'an White Satah" : "معان أبيض سطح")</span>
+                    <span class="text-[9px] text-slate-400 font-mono">22.5 د.أ</span>
+                </button>
+                <button type="button" id="quick-stone-Natural_Travertine" onclick="BlockoCalculator.quickSetStone('Natural_Travertine')"
+                        class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span>@(isEn ? "Travertine" : "ترَفنتين ملكي")</span>
+                    <span class="text-[9px] text-slate-400 font-mono">24.0 د.أ</span>
+                </button>
+                <button type="button" id="quick-stone-Artificial_HighDensity" onclick="BlockoCalculator.quickSetStone('Artificial_HighDensity')"
+                        class="quick-stone-chip px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-slate-600 flex items-center gap-1 transition-all cursor-pointer">
+                    <span>@(isEn ? "Engineered Cast Stone" : "حجر صناعي هندسي")</span>
+                    <span class="text-[9px] text-slate-400 font-mono">11.5 د.أ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Bottom Micro-Instructions & BIM Specs -->
+    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
+        <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs text-amber-400">touch_app</span>
+            <span>@(isEn ? "Rotate 360° • Zoom with wheel • Click presets to tour" : "تدوير 360° بالفأرة أو اللمس • تكبير بالعجلة • جولات سينمائية")</span>
+        </span>
+        <span class="font-mono text-[10px] text-slate-500">BIM v3.0 • Procedural PBR Textures</span>
+    </div>
+
+</div>

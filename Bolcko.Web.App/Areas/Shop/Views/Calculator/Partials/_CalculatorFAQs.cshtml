@@ -1,0 +1,100 @@
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+    var faqs = ViewBag.FAQs as IEnumerable<Bolcko.Domain.Entities.Content.FAQItem> ?? Enumerable.Empty<Bolcko.Domain.Entities.Content.FAQItem>();
+
+    var faqEntities = faqs.Select(f => new Dictionary<string, object> {
+        ["\u0040type"] = "Question",
+        ["name"] = isEn && !string.IsNullOrEmpty(f.QuestionEn) ? f.QuestionEn : f.QuestionAr,
+        ["acceptedAnswer"] = new Dictionary<string, object> {
+            ["\u0040type"] = "Answer",
+            ["text"] = isEn && !string.IsNullOrEmpty(f.AnswerEn) ? f.AnswerEn : f.AnswerAr
+        }
+    }).ToList();
+
+    var schemaData = new Dictionary<string, object> {
+        ["\u0040context"] = "https://schema.org",
+        ["\u0040graph"] = new object[] {
+            new Dictionary<string, object> {
+                ["\u0040type"] = "WebApplication",
+                ["name"] = isEn ? "Structural Construction Cost & 3D BIM Calculator Jordan" : "حاسبة تكلفة وكميات البناء والمجسم المعماري الأردن",
+                ["url"] = "https://bolcko.com/calculator",
+                ["applicationCategory"] = "BusinessApplication",
+                ["operatingSystem"] = "All",
+                ["description"] = isEn 
+                    ? "Smart structural engineering system to estimate rebar steel, ready-mix concrete, cement, masonry blocks, and stone facade workmanship in Jordan."
+                    : "حاسبة هندسية متقدمة لتقدير كميات وتكاليف مواد البناء الإنشائية وحجر الواجهات في الأردن وفق كودات البناء وأسعار السوق اللحظية."
+            },
+            new Dictionary<string, object> {
+                ["\u0040type"] = "BreadcrumbList",
+                ["itemListElement"] = new object[] {
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 1, ["name"] = isEn ? "Home" : "الرئيسية", ["item"] = "https://bolcko.com" },
+                    new Dictionary<string, object> { ["\u0040type"] = "ListItem", ["position"] = 2, ["name"] = isEn ? "Cost Estimator" : "حاسبة تكاليف البناء", ["item"] = "https://bolcko.com/calculator" }
+                }
+            },
+            new Dictionary<string, object> {
+                ["\u0040type"] = "FAQPage",
+                ["mainEntity"] = faqEntities
+            }
+        }
+    };
+
+    var jsonOptions = new System.Text.Json.JsonSerializerOptions {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+    var schemaJson = System.Text.Json.JsonSerializer.Serialize(schemaData, jsonOptions);
+}
+
+<!-- Structured Data for Google Rich Snippets (Schema.org) -->
+<script type="application/ld+json">
+@Html.Raw(schemaJson)
+</script>
+
+<!-- ══════════════════════ FAQ ACCORDION SECTION ══════════════════════ -->
+<div id="faqSection" class="mt-10 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 no-print">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">
+                @(isEn ? "Frequently Asked Questions on Construction Costs in Jordan" : "الأسئلة الشائعة حول تكاليف وكميات البناء في الأردن")
+            </h2>
+            <p class="text-slate-500 text-xs mt-1">
+                @(isEn ? "Engineering guidance and answers based on Jordanian Building Standards." : "إرشادات هندسية وتوضيحات حول حساب الكميات والأسعار وفق المعايير الأردنية.")
+            </p>
+        </div>
+        <span class="text-xs font-semibold text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 self-start sm:self-auto">
+            @(faqs.Count()) @(isEn ? "Approved FAQs" : "أسئلة منشورة")
+        </span>
+    </div>
+
+    <div class="space-y-2.5" id="faqAccordionContainer">
+        @if (!faqs.Any())
+        {
+            <p class="text-center text-slate-400 text-xs py-6">@(isEn ? "No published FAQs at the moment." : "لا توجد أسئلة شائعة منشورة حالياً.")</p>
+        }
+        else
+        {
+            var faqIndex = 1;
+            @foreach (var faq in faqs)
+            {
+                var question = isEn && !string.IsNullOrEmpty(faq.QuestionEn) ? faq.QuestionEn : faq.QuestionAr;
+                var answer = isEn && !string.IsNullOrEmpty(faq.AnswerEn) ? faq.AnswerEn : faq.AnswerAr;
+                <div class="faq-item rounded-xl border border-slate-200 bg-slate-50/40 overflow-hidden transition-all" id="faq-card-@faq.Id">
+                    <button type="button" 
+                            onclick="BlockoCalculator.toggleFaq(@faq.Id)"
+                            class="w-full p-4 text-start font-bold text-slate-900 text-xs sm:text-sm flex justify-between items-center gap-3 hover:bg-slate-100/60 transition-colors cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span class="text-slate-400 text-xs font-semibold font-mono">@faqIndex.</span>
+                            <span>@question</span>
+                        </span>
+                        <span id="faq-icon-@faq.Id" class="material-symbols-outlined text-slate-400 text-base transition-transform duration-200 flex-shrink-0">
+                            expand_more
+                        </span>
+                    </button>
+                    <div id="faq-content-@faq.Id" class="hidden px-4 pb-4 pt-1 text-slate-600 text-xs leading-relaxed border-t border-slate-100">
+                        @answer
+                    </div>
+                </div>
+                faqIndex++;
+            }
+        }
+    </div>
+</div>

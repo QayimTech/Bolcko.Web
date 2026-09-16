@@ -1,0 +1,176 @@
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- ════════════ TAB 1: SKELETON & STRUCTURAL SPECIFICATIONS ════════════ -->
+<div id="tabContentSkeleton" class="space-y-5">
+    
+    <!-- 1. Built-up Area Input + Steppers -->
+    <div>
+        <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-slate-600 text-sm">straighten</span>
+                <span>@(isEn ? "Single Floor Footprint Area" : "مساحة الطابق الواحد (المسطح)")</span>
+            </label>
+            <div class="flex items-center gap-1.5" dir="ltr">
+                <button type="button" onclick="BlockoCalculator.adjustArea(-10)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-base transition-colors select-none cursor-pointer">-</button>
+                <span class="text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 min-w-[75px] text-center font-mono select-none" id="areaDisplay">
+                    @(isEn ? "250 m²" : "250 م²")
+                </span>
+                <button type="button" onclick="BlockoCalculator.adjustArea(10)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-base transition-colors select-none cursor-pointer">+</button>
+            </div>
+        </div>
+        <input type="range" id="areaInput" min="50" max="1500" step="10" value="250"
+               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900 transition-all"
+               oninput="BlockoCalculator.onInputChange()" />
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-medium font-mono">
+            <span>@(isEn ? "50 m²" : "50 م²")</span>
+            <span>@(isEn ? "500 m²" : "500 م²")</span>
+            <span>@(isEn ? "1500 m²" : "1500 م²")</span>
+        </div>
+    </div>
+
+    <!-- 2. Floors Input + Segmented Buttons -->
+    <div>
+        <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-slate-600 text-sm">layers</span>
+                <span>@(isEn ? "Total Number of Floors" : "عدد الطوابق الإجمالي")</span>
+            </label>
+            <span class="text-xs font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200" id="floorsDisplay">
+                @(isEn ? "2 Floors" : "2 طوابق")
+            </span>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="floorsButtonGroup">
+            <button type="button" onclick="BlockoCalculator.setFloors(1)" id="floor-btn-1" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">@(isEn ? "1 Flr" : "1 طابق")</button>
+            <button type="button" onclick="BlockoCalculator.setFloors(2)" id="floor-btn-2" class="floor-btn py-2 rounded-lg border text-xs font-bold transition-all bg-slate-900 text-white border-slate-900 cursor-pointer">@(isEn ? "2 Flrs" : "2 طابقين")</button>
+            <button type="button" onclick="BlockoCalculator.setFloors(3)" id="floor-btn-3" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">@(isEn ? "3 Flrs" : "3 طوابق")</button>
+            <button type="button" onclick="BlockoCalculator.setFloors(4)" id="floor-btn-4" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">@(isEn ? "4 Flrs" : "4 طوابق")</button>
+            <button type="button" onclick="BlockoCalculator.setFloors(5)" id="floor-btn-5" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">@(isEn ? "5 Flrs" : "5 طوابق")</button>
+            <button type="button" onclick="BlockoCalculator.setFloors(6)" id="floor-btn-6" class="floor-btn py-2 rounded-lg border text-xs font-semibold transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">@(isEn ? "6 Flrs" : "6 طوابق")</button>
+        </div>
+        <input type="hidden" id="floorsInput" value="2" />
+    </div>
+
+    <!-- 3. Flexible Rebar & Column Reinforcement -->
+    <div class="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100/80 space-y-3">
+        <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-indigo-600 text-base">view_column</span>
+                <span>@(isEn ? "Column Rebar Configuration" : "تسليح قضبان الأعمدة الإنشائية")</span>
+            </label>
+            <span class="text-[10px] font-semibold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded">@(isEn ? "Structural Flexibility" : "مرونة هندسية")</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-200/70 bg-white hover:border-indigo-500 cursor-pointer transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white group text-center">
+                <input type="radio" name="columnBarsCount" value="6Bars" checked class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "6 Bars" : "6 قضبان")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-indigo-100 mt-0.5">@(isEn ? "Standard" : "القياسي")</span>
+            </label>
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-200/70 bg-white hover:border-indigo-500 cursor-pointer transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white group text-center">
+                <input type="radio" name="columnBarsCount" value="8Bars" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "8 Bars" : "8 قضبان")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-indigo-100 mt-0.5">@(isEn ? "Reinforced" : "تسليح مدعم")</span>
+            </label>
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-200/70 bg-white hover:border-indigo-500 cursor-pointer transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white group text-center">
+                <input type="radio" name="columnBarsCount" value="10Bars" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "10 Bars" : "10 قضبان")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-indigo-100 mt-0.5">@(isEn ? "Heavy Seismic" : "أحمال زلزالية")</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 4. Slab Structural System -->
+    <div>
+        <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Structural Slab System" : "نظام العقدات والأسقف")</label>
+        <div class="grid grid-cols-3 gap-2">
+            <label class="flex flex-col items-center p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-900 has-[:checked]:text-white group text-center">
+                <input type="radio" name="slabSystem" value="Ribbed" checked class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "Ribbed Slab" : "عقدة عصب")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-slate-300 mt-0.5">@(isEn ? "Hollow blocks" : "طوب هوردي")</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-900 has-[:checked]:text-white group text-center">
+                <input type="radio" name="slabSystem" value="Solid" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "Solid Slab" : "بلاطة مصمتة")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-slate-300 mt-0.5">@(isEn ? "Drop beams" : "جسور ساقطة")</span>
+            </label>
+            <label class="flex flex-col items-center p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-slate-900 has-[:checked]:bg-slate-900 has-[:checked]:text-white group text-center">
+                <input type="radio" name="slabSystem" value="FlatSlab" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span class="text-xs font-bold group-has-[:checked]:text-white text-slate-800">@(isEn ? "Flat Slab" : "فلات سلاب")</span>
+                <span class="text-[10px] text-slate-500 group-has-[:checked]:text-slate-300 mt-0.5">@(isEn ? "No beams" : "بدون جسور")</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 5. Rebar Density Grade -->
+    <div>
+        <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-bold text-slate-800">@(isEn ? "Rebar Consumption Rate" : "معدل استهلاك الحديد (كغم/م²)")</label>
+            <span class="text-[11px] font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100" id="rebarRatioDisplay">~41.0 kg/m²</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100">
+                <input type="radio" name="rebarDensityGrade" value="Economic" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span>@(isEn ? "Economic (38kg)" : "اقتصادي (38)")</span>
+            </label>
+            <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100">
+                <input type="radio" name="rebarDensityGrade" value="Standard" checked class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span>@(isEn ? "Standard (42kg)" : "قياسي (42)")</span>
+            </label>
+            <label class="p-2 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer text-center text-xs font-semibold has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100">
+                <input type="radio" name="rebarDensityGrade" value="Heavy" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <span>@(isEn ? "Heavy (50kg)" : "ثقيل (50)")</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 6. Building Type & Foundation -->
+    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+        <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1.5">@(isEn ? "Building Usage" : "نوع الاستخدام")</label>
+            <select id="buildingTypeSelect" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none" onchange="BlockoCalculator.onInputChange()">
+                <option value="Residential" selected>@(isEn ? "Residential / Villa" : "سكني / فيلا")</option>
+                <option value="Commercial">@(isEn ? "Commercial / Offices" : "تجاري / مكاتب")</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1.5">@(isEn ? "Foundation System" : "نوع الأساسات")</label>
+            <select id="foundationTypeSelect" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 outline-none" onchange="BlockoCalculator.onInputChange()">
+                <option value="IsolatedFootings" selected>@(isEn ? "Isolated Footings" : "قواعد منفصلة")</option>
+                <option value="Raft">@(isEn ? "Raft / Mat (لبشة)" : "لبشة / حصيرة (Raft)")</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 7. City Selection -->
+    <div>
+        <label class="block text-xs font-bold text-slate-800 mb-1.5">@(isEn ? "Project Location (Freight & Supply)" : "موقع المشروع (لحساب نولون التوصيل)")</label>
+        <select id="citySelect" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-xs font-semibold text-slate-800 outline-none transition-all" onchange="BlockoCalculator.onInputChange()">
+            <option value="Amman">@(isEn ? "Amman Governorate (Capital)" : "محافظة العاصمة عمان")</option>
+            <option value="Zarqa">@(isEn ? "Zarqa & Ruseifa" : "محافظة الزرقاء والرصيفة")</option>
+            <option value="Irbid">@(isEn ? "Irbid & North" : "محافظة إربد والشمال")</option>
+            <option value="Aqaba">@(isEn ? "Aqaba Special Economic Zone" : "محافظة العقبة والمنطقة الخاصة")</option>
+            <option value="Balqa">@(isEn ? "Balqa (Salt / Fuheis / Mahis)" : "محافظة البلقاء (السلط / الفحيص / ماحص)")</option>
+            <option value="Madaba">@(isEn ? "Madaba Governorate" : "محافظة مأدبا")</option>
+            <option value="Mafraq">@(isEn ? "Mafraq & Badia" : "محافظة المفرق والبادية")</option>
+            <option value="Jerash">@(isEn ? "Jerash Governorate" : "محافظة جرش")</option>
+            <option value="Ajloun">@(isEn ? "Ajloun Governorate" : "محافظة عجلون")</option>
+            <option value="Karak">@(isEn ? "Karak & South" : "محافظة الكرك والجنوب")</option>
+        </select>
+    </div>
+
+</div>
+
+<!-- Engineering Standards Reference Card -->
+<div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 text-xs text-slate-700 space-y-2.5 mt-6">
+    <div class="flex items-center gap-2 font-bold text-slate-900 border-b border-slate-200 pb-2">
+        <span class="material-symbols-outlined text-slate-700 text-base">verified</span>
+        <span>@(isEn ? "Approved Jordanian Engineering Standards:" : "المعايير الهندسية الأردنية المعتمدة:")</span>
+    </div>
+    <div class="space-y-1.5 text-[11px] text-slate-600 leading-relaxed">
+        <p>• <strong>@(isEn ? "Steel Rebar:" : "حديد التسليح:")</strong> @(isEn ? "High-strength Grade 60 (JS 29) with flexible column detailing (6, 8, or 10 bars)." : "حديد Grade 60 عالي المقاومة بتفاصيل الأعمدة المرنة (6، 8، أو 10 قضبان).")</p>
+        <p>• <strong>@(isEn ? "Stone Cladding:" : "حجر البناء:")</strong> @(isEn ? "Jordanian natural stone (Ruwaished / Ma'an / Hayyan / Sahrawi / Ajloun / Travertine) or engineered stone, with 7% cutting waste." : "حجر طبيعي نخب أول أو صناعي معتمد، مع حساب نسبة هالك القص 7% وباطون الحشوة.")</p>
+        <p>• <strong>@(isEn ? "Concrete & Cement:" : "الخرسانة والإسمنت:")</strong> @(isEn ? "B250/B300 ready-mix concrete with pump & Portland CEM I 42.5N." : "خرسانة جاهزة B250/B300 مع مضخة، وإسمنت بورتلاندي 42.5N معتمد.")</p>
+        <p>• <strong>@(isEn ? "Pricing:" : "الأسعار:")</strong> @(isEn ? "Delivered to site in designated governorate, including 16% sales tax." : "واصلة الموقع في المحافظة المحددة وشاملة ضريبة المبيعات 16%.")</p>
+    </div>
+</div>

@@ -1,0 +1,451 @@
+@model Bolcko.Domain.Entities.Catalog.DTOs.ConstructionEstimateResultDto
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+    var calcConfig = ViewBag.CalculatorConfig as Bolcko.Domain.Entities.Catalog.DTOs.CalculatorConfigurationDto
+                     ?? new Bolcko.Domain.Entities.Catalog.DTOs.CalculatorConfigurationDto();
+}
+
+<!-- ════════════ TAB 2: STONE FACADES & ARCHITECTURAL DECOR ════════════ -->
+<div id="tabContentStone" class="space-y-5 hidden">
+    <!-- Module Toggle -->
+    <div class="flex items-center justify-between p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+        <div>
+            <h4 class="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-700 text-base">architecture</span>
+                <span>@(isEn ? "Include Stone Facades & Decor" : "تفعيل حساب حجر البناء والديكورات")</span>
+            </h4>
+            <p class="text-[11px] text-amber-800/80 mt-0.5">@(isEn ? "Calculate stone meters, wastage, trim, and labor" : "حصر مسطح الحجر، الهالك، الكرانيش، والمصنعية")</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="enableStoneModule" checked class="sr-only peer" onchange="BlockoCalculator.onInputChange()" />
+            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+        </label>
+    </div>
+
+    <!-- Facades Count (1 to 4) -->
+    <div>
+        <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Number of Stone Clad Facades" : "عدد الواجهات الحجرية المكسوة")</label>
+        <div class="grid grid-cols-4 gap-2">
+            <button type="button" onclick="BlockoCalculator.setStoneFacades(1)" id="facade-btn-1" class="facade-btn py-2 rounded-lg border text-xs font-semibold bg-white text-slate-700 border-slate-200 hover:bg-slate-50 transition-all cursor-pointer">@(isEn ? "1 Facade" : "واجهة 1")</button>
+            <button type="button" onclick="BlockoCalculator.setStoneFacades(2)" id="facade-btn-2" class="facade-btn py-2 rounded-lg border text-xs font-semibold bg-white text-slate-700 border-slate-200 hover:bg-slate-50 transition-all cursor-pointer">@(isEn ? "2 Facades" : "واجهتان")</button>
+            <button type="button" onclick="BlockoCalculator.setStoneFacades(3)" id="facade-btn-3" class="facade-btn py-2 rounded-lg border text-xs font-semibold bg-white text-slate-700 border-slate-200 hover:bg-slate-50 transition-all cursor-pointer">@(isEn ? "3 Facades" : "3 واجهات")</button>
+            <button type="button" onclick="BlockoCalculator.setStoneFacades(4)" id="facade-btn-4" class="facade-btn py-2 rounded-lg border text-xs font-bold bg-slate-900 text-white border-slate-900 transition-all cursor-pointer">@(isEn ? "4 Facades" : "4 واجهات")</button>
+        </div>
+        <input type="hidden" id="stoneFacadesCount" value="4" />
+    </div>
+
+    <!-- Stone Type Selection (Comprehensive Jordanian Types) -->
+    <div>
+        <label class="block text-xs font-bold text-slate-800 mb-2">@(isEn ? "Stone Classification & Quarry" : "نوع ومصدر حجر البناء (المحاجر المعتمدة)")</label>
+        <div class="space-y-2">
+            @if (calcConfig.DynamicStoneTypes != null && calcConfig.DynamicStoneTypes.Any(s => s.IsActive))
+            {
+                var activeStones = calcConfig.DynamicStoneTypes.Where(s => s.IsActive).ToList();
+                for (int i = 0; i < activeStones.Count; i++)
+                {
+                    var stone = activeStones[i];
+                    var isChecked = i == 0;
+                    <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                        <div class="flex items-center gap-2.5">
+                            <input type="radio" name="stoneType" value="@stone.Id" data-price="@stone.PricePerM2" data-color="@stone.ColorHex" @(isChecked ? "checked" : "") class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                            <div class="flex items-center gap-2">
+                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block flex-shrink-0" style="background-color: @stone.ColorHex;"></span>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">@(isEn && !string.IsNullOrEmpty(stone.NameEn) ? stone.NameEn : stone.NameAr)</p>
+                                    <p class="text-[11px] text-slate-500 font-mono">@stone.PricePerM2 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-slate-700">@stone.PricePerM2 @(isEn ? "JOD" : "د.أ")</span>
+                    </label>
+                }
+            }
+            else
+            {
+                <!-- Ruwaished First Class -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Natural_Ruwaished" data-price="18.50" data-color="#e2d2b6" checked class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#e2d2b6] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Natural Stone - Ruwaished Class A" : "حجر طبيعي - رويشد نخب أول")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">18.50 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">18.5 د.أ</span>
+                </label>
+
+                <!-- Ma'an White Satah -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Natural_Maan" data-price="22.50" data-color="#f8f6f2" class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#f8f6f2] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Natural Stone - Ma'an Pure White" : "حجر طبيعي - معان أبيض سطح نخب أول")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">22.50 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">22.5 د.أ</span>
+                </label>
+
+                <!-- Hayyan Stone -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Natural_Hayyan" data-price="16.00" data-color="#dfcfbe" class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#dfcfbe] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Natural Stone - Hayyan Mafraq" : "حجر طبيعي - حيان المفرق صلب")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">16.00 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">16.0 د.أ</span>
+                </label>
+
+                <!-- Ajloun Limestone -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Natural_Ajloun" data-price="19.00" data-color="#e8ddc8" class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#e8ddc8] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Natural Stone - Ajloun Yellow/Cream" : "حجر طبيعي - عجلون أصفر كريمي")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">19.00 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">19.0 د.أ</span>
+                </label>
+
+                <!-- Jordanian Travertine -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Natural_Travertine" data-price="24.00" data-color="#d8c5a8" class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#d8c5a8] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Natural Travertine - Jordan Veined" : "حجر ترَفنتين طبيعي عروق ملكية")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">24.00 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">24.0 د.أ</span>
+                </label>
+
+                <!-- Engineered Cast Stone -->
+                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-slate-400 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/40">
+                    <div class="flex items-center gap-2.5">
+                        <input type="radio" name="stoneType" value="Artificial_HighDensity" data-price="11.50" data-color="#d4d0ca" class="w-4 h-4 text-amber-600 focus:ring-amber-600 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block bg-[#d4d0ca] flex-shrink-0"></span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">@(isEn ? "Engineered Cast Stone (High Density)" : "حجر صناعي هندسي عالي الكثافة")</p>
+                                <p class="text-[11px] text-slate-500 font-mono">11.50 @(isEn ? "JOD/m²" : "د.أ/م²")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-700">11.5 د.أ</span>
+                </label>
+            }
+        </div>
+    </div>
+
+    <!-- Stone Surface Dressing / Finishes (5 Finishes) -->
+    <div>
+        <label class="block text-xs font-bold text-slate-800 mb-2.5">@(isEn ? "Stone Dressing / Surface Texture" : "نقشة ودقة الحجر الهندسية (5 نقشات معتمدة)")</label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                <input type="radio" name="stoneFinish" value="Mufajjar" checked class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-amber-700 text-sm">scatter_plot</span>
+                    <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Mufajjar" : "مفجر صخري")</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[9px]">@(isEn ? "Standard" : "قياسي")</span>
+            </label>
+            <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                <input type="radio" name="stoneFinish" value="Tabzeh" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-amber-700 text-sm">landscape</span>
+                    <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Tabzeh" : "طبزة بصفيحة")</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+1.50 @(isEn ? "JOD" : "د.أ")</span>
+            </label>
+            <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                <input type="radio" name="stoneFinish" value="Musamsam" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-amber-700 text-sm">reorder</span>
+                    <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Musamsam" : "مسمسم ناعم")</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+2.00 @(isEn ? "JOD" : "د.أ")</span>
+            </label>
+            <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                <input type="radio" name="stoneFinish" value="Monaqqar" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-amber-700 text-sm">grain</span>
+                    <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Monaqqar" : "منقر هندسي")</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+2.20 @(isEn ? "JOD" : "د.أ")</span>
+            </label>
+            <label class="relative p-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer text-center text-xs font-semibold transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-gradient-to-b has-[:checked]:from-amber-50/90 has-[:checked]:to-amber-100/40 has-[:checked]:shadow-xs has-[:checked]:ring-2 has-[:checked]:ring-amber-500/20 flex flex-col items-center justify-between gap-1 min-h-[72px]">
+                <input type="radio" name="stoneFinish" value="Honed" class="sr-only" onchange="BlockoCalculator.onInputChange()" />
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-amber-700 text-sm">view_carousel</span>
+                    <span class="font-bold text-slate-900 text-[11px]">@(isEn ? "Honed" : "مجلّي ناعم")</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-bold text-[9px]">+3.00 @(isEn ? "JOD" : "د.أ")</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Architectural Trim & Ornaments (الديكورات المعمارية) -->
+    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3.5">
+        <h4 class="text-xs font-bold text-slate-900 border-b border-slate-200 pb-2 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-600 text-base">palette</span>
+                <span>@(isEn ? "Architectural Trim & Details" : "الديكورات الحجرية والكرانيش")</span>
+            </span>
+            <span class="text-[10px] text-slate-500 font-normal">@(isEn ? "Add-on ornaments" : "إضافات جمالية")</span>
+        </h4>
+
+        <!-- Floor Cornice Belts -->
+        <label class="flex items-start gap-2.5 cursor-pointer select-none">
+            <input type="checkbox" id="includeCorniceBelt" checked class="mt-0.5 rounded text-amber-600 focus:ring-amber-500 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+            <div>
+                <p class="text-xs font-bold text-slate-900">@(isEn ? "Decorative Floor Belts & Cornices" : "أحزمة وكرانيش بارزة بين الطوابق")</p>
+                <p class="text-[11px] text-slate-500">@(isEn ? "Runs along perimeter separating floor levels" : "تمتد على محيط الواجهات لفصل الطوابق معمارياً")</p>
+            </div>
+        </label>
+
+        <!-- Window Architraves / Frames -->
+        <div class="flex items-center justify-between pt-2.5 border-t border-slate-200/70 gap-2">
+            <div>
+                <label class="text-xs font-bold text-slate-900 block">@(isEn ? "Window Architrave Frames & Keystones" : "براويز وأقواس النوافذ الحجرية")</label>
+                <span class="text-[11px] text-slate-500 block">@(isEn ? "Decorative stone surrounding window openings" : "إطارات وأقواس حجرية مزخرفة حول الشبابيك")</span>
+            </div>
+            <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 shadow-xs shrink-0" dir="ltr">
+                <button type="button" onclick="BlockoCalculator.adjustWindowFrames(-1)" aria-label="Decrease"
+                        class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm select-none">remove</span>
+                </button>
+                <span class="text-xs font-bold text-slate-900 font-mono min-w-[2rem] text-center select-none" id="windowFramesCountDisplay">8</span>
+                <button type="button" onclick="BlockoCalculator.adjustWindowFrames(1)" aria-label="Increase"
+                        class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm select-none">add</span>
+                </button>
+            </div>
+            <input type="hidden" id="windowFramesCount" value="8" />
+        </div>
+
+        <!-- Entrance Columns -->
+        <div class="flex items-center justify-between pt-2.5 border-t border-slate-200/70 gap-2">
+            <div>
+                <label class="text-xs font-bold text-slate-900 block">@(isEn ? "Entrance Portico Columns & Capitals" : "أعمدة وتيجان حجرية للمدخل")</label>
+                <span class="text-[11px] text-slate-500 block">@(isEn ? "Classical decorative stone columns with capitals" : "أعمدة دائرية مع تيجان وقواعد معمارية")</span>
+            </div>
+            <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 shadow-xs shrink-0" dir="ltr">
+                <button type="button" onclick="BlockoCalculator.adjustEntranceColumns(-1)" aria-label="Decrease"
+                        class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm select-none">remove</span>
+                </button>
+                <span class="text-xs font-bold text-slate-900 font-mono min-w-[2rem] text-center select-none" id="entranceColumnsCountDisplay">2</span>
+                <button type="button" onclick="BlockoCalculator.adjustEntranceColumns(1)" aria-label="Increase"
+                        class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 active:scale-95 text-slate-700 font-bold flex items-center justify-center transition-all shadow-xs shrink-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm select-none">add</span>
+                </button>
+            </div>
+            <input type="hidden" id="entranceColumnsCount" value="2" />
+        </div>
+
+        <!-- Hybrid Smart Trim Toggle -->
+        <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/70">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                <input type="checkbox" id="hybridArtificialTrim" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer" onchange="BlockoCalculator.onInputChange()" />
+                <div>
+                    <p class="text-xs font-bold text-emerald-950 flex items-center gap-1.5 flex-wrap">
+                        <span>@(isEn ? "Smart Hybrid: Cast Stone Decor" : "الحل الذكي: ديكورات حجر صناعي مصبوب")</span>
+                        <span class="px-2 py-0.5 bg-emerald-200 text-emerald-900 text-[10px] font-extrabold rounded-full whitespace-nowrap">@(isEn ? "Save 45%" : "وفر 45%")</span>
+                    </p>
+                    <p class="text-[11px] text-emerald-800/80 mt-0.5 leading-relaxed">@(isEn ? "Use natural stone for main walls, but cast artificial stone for complex decorative cornices & architraves to drastically cut carving costs." : "استخدام حجر طبيعي للجدران، مع استبدال البراويز والكرانيش المعقدة بحجر صناعي مصبوب عالي الدقة لتوفير هائل في تكلفة النحت.")</p>
+                </div>
+            </label>
+        </div>
+
+        <!-- Anti-Leakage & Inspection Escrow Suite -->
+        <div class="pt-3 border-t border-slate-200/80 space-y-3">
+            <!-- Certified Sample Box Card -->
+            <div class="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-slate-50 border-2 border-amber-500/30 shadow-sm relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-start sm:items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <span class="material-symbols-outlined text-base">inventory_2</span>
+                            </span>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-900">@(isEn ? "Certified Stone Sample Box" : "صندوق عينات حجر معتمد لموقعك (15×15 سم)")</h5>
+                                <p class="text-[10px] text-amber-700 font-medium">@(isEn ? "Inspect stone density & veins directly on site" : "افحص نقاوة الحجر وعروقه بنفسك في موقع البناء قبل التعاقد")</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-extrabold border border-amber-300 whitespace-nowrap shrink-0">
+                            @(isEn ? "5 JOD • 100% Refundable" : "5 د.أ • مستردة بالكامل")
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+                        @(isEn ? "Order a certified physical stone sample with an official inspection barcode delivered directly to your site. The 5 JOD fee is 100% credited back toward your final order through BLOCKO." : "احصل على عينة حجر فعلية مختومة بباركود جودة معتمد تصل إلى باب موقعك. رسم الـ 5 دنانير يُخصم بالكامل من فاتورة توريدك النهائية عبر منصة بلكو.")
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="BlockoCalculator.openSampleBoxModal()" 
+                                class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">local_shipping</span>
+                            <span>@(isEn ? "Request Sample Box to Site" : "اطلب صندوق عينة للموقع الآن")</span>
+                        </button>
+                        <span class="text-[10px] text-slate-500 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs text-emerald-600">verified</span>
+                            <span>@(isEn ? "Delivered in 24-48 hrs" : "تصلك خلال 24-48 ساعة")</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Encrypted Showroom Pass -->
+            <div class="p-3.5 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-sm relative">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-indigo-500 text-white flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-sm">qr_code_2</span>
+                        </span>
+                        <h5 class="text-xs font-bold text-white">@(isEn ? "Encrypted Showroom Pass" : "تذكرة معاينة معرض مشفرة (Showroom QR Pass)")</h5>
+                    </div>
+                    <span class="text-[10px] font-mono text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800">
+                        @(isEn ? "Free & Guaranteed" : "مجانية ومحمية")
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed mb-3">
+                    @(isEn ? "Prefer visiting the quarry or supplier showroom? Book a verified digital QR pass to lock in BLOCKO bulk pricing, guarantee milestone escrow protection, and prevent unverified cash deposits." : "ترغب بزيارة ساحة أو معرض الحجر بنفسك؟ احجز تذكرة معاينة رقمية بـ QR Code تضمن لك أسعار بلكو التفضيلية وحماية أموالك بحساب الضمان (Escrow) دون أي تعامل كاش غير مكفول.")
+                </p>
+                <button type="button" onclick="BlockoCalculator.openShowroomPassModal()" 
+                        class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">confirmation_number</span>
+                    <span>@(isEn ? "Generate Free Showroom Pass" : "إصدار تذكرة معاينة مجانية")</span>
+                </button>
+            </div>
+
+            <!-- Escrow Quality Guarantee Badge -->
+            <div class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-[11px] text-emerald-950 space-y-1.5">
+                <div class="flex items-center gap-1.5 font-bold text-emerald-900">
+                    <span class="material-symbols-outlined text-emerald-600 text-base">security</span>
+                    <span>@(isEn ? "BLOCKO Escrow & Quality Assurance Guarantee:" : "حماية المشتري وحساب الضمان البنكي (BLOCKO Escrow):")</span>
+                </div>
+                <ul class="space-y-1 text-emerald-900/90 pr-4 list-disc">
+                    <li>@(isEn ? "Funds are securely held in escrow; zero payment released to the quarry until on-site delivery and physical inspection." : "أموالك بأمان 100%: لا يتم تسليم أي دفعة للمورد إلا بعد وصول الحجر لموقعك ومطابقته للعينة المعتمدة.")</li>
+                    <li>@(isEn ? "Complimentary milestone inspection by BLOCKO structural engineers for residential villas." : "فحص هندسي مجاني للدفعة الأولى بواسطة مهندسي بلكو المعتمدين.")</li>
+                    <li>@(isEn ? "Official digital contract & full replacement warranty against chipping, cracking, or color deviation." : "عقد توريد رسمي وفاتورة ضريبية مع كفالة استبدال فورية لأي حجر مخالف للمواصفات.")</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ════════════ TAB 3: FINISHING & INSULATION ADDONS ════════════ -->
+<div id="tabContentFinishes" class="space-y-5 hidden">
+    <div class="p-4 rounded-xl bg-teal-50/80 border border-teal-200/80 text-xs text-teal-900 flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-teal-600 text-lg flex-shrink-0">tune</span>
+        <div>
+            <strong class="block font-bold">@(isEn ? "Optional Finishing & MEP Packages" : "إضافات وحزم التشطيبات والعوازل (اختياري)")</strong>
+            <p class="text-[11px] text-teal-700/90 mt-0.5">@(isEn ? "Tailor your project by adding real-world contractor rates per m² for insulation, internal plastering, deluxe painting, and electro-mechanical MEP." : "قم بتخصيص مشروعك بإضافة أسعار المقاولة للمتر المربع تشمل العزل المائي والحراري، القصارة، الدهان، والتأسيسات الكهروميكانيكية.")</p>
+        </div>
+    </div>
+
+    <!-- 1. Waterproofing & Thermal Insulation -->
+    @if (calcConfig.EnableInsulationAddon)
+    {
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-teal-300 transition-all">
+            <label class="flex items-start justify-between cursor-pointer gap-3">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="addonInsulation" onchange="BlockoCalculator.onInputChange()"
+                               class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-900">@(isEn ? "Waterproofing & Thermal Insulation" : "عزل مائي وحراري (أسطح وقواعد)")</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 pe-2">
+                        @(isEn ? $"Bituminous membrane waterproofing for foundations and roof insulation with extruded polystyrene ({calcConfig.InsulationRatePerM2} JOD/m²)" : $"عزل رولات زفتية للقواعد والأسطح + فوم عازل حراري بسعر {calcConfig.InsulationRatePerM2} د.أ/م²")
+                    </p>
+                </div>
+                <span class="text-xs font-bold font-mono text-teal-700 bg-teal-50 px-2 py-1 rounded-md border border-teal-200 flex-shrink-0">
+                    @calcConfig.InsulationRatePerM2 @(isEn ? "JOD/m²" : "د.أ/م²")
+                </span>
+            </label>
+        </div>
+    }
+
+    <!-- 2. Internal Plastering (Qasara) -->
+    @if (calcConfig.EnablePlasteringAddon)
+    {
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-teal-300 transition-all">
+            <label class="flex items-start justify-between cursor-pointer gap-3">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="addonPlastering" onchange="BlockoCalculator.onInputChange()"
+                               class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-900">@(isEn ? "Internal Plastering & Rendering" : "أعمال القصارة الداخلية (بؤج وأوتار)")</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 pe-2">
+                        @(isEn ? $"Internal wall & ceiling 3-coat plastering according to building specs ({calcConfig.PlasteringRatePerM2} JOD/m²)" : $"قصارة داخلية 3 أوجه عالية الاستواء وفق كودات البناء بسعر {calcConfig.PlasteringRatePerM2} د.أ/م²")
+                    </p>
+                </div>
+                <span class="text-xs font-bold font-mono text-teal-700 bg-teal-50 px-2 py-1 rounded-md border border-teal-200 flex-shrink-0">
+                    @calcConfig.PlasteringRatePerM2 @(isEn ? "JOD/m²" : "د.أ/م²")
+                </span>
+            </label>
+        </div>
+    }
+
+    <!-- 3. Deluxe Interior Painting -->
+    @if (calcConfig.EnablePaintingAddon)
+    {
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-teal-300 transition-all">
+            <label class="flex items-start justify-between cursor-pointer gap-3">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="addonPainting" onchange="BlockoCalculator.onInputChange()"
+                               class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-900">@(isEn ? "Deluxe Interior Paint" : "دهانات داخلية ديلوكس (معجونة + وجهين)")</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 pe-2">
+                        @(isEn ? $"Two coats putty + primer + latex super washable finish ({calcConfig.InteriorPaintRatePerM2} JOD/m²)" : $"معجونة وجهين + سيلر مائي + دهان سوبر ديلوكس قابل للغسيل بسعر {calcConfig.InteriorPaintRatePerM2} د.أ/م²")
+                    </p>
+                </div>
+                <span class="text-xs font-bold font-mono text-teal-700 bg-teal-50 px-2 py-1 rounded-md border border-teal-200 flex-shrink-0">
+                    @calcConfig.InteriorPaintRatePerM2 @(isEn ? "JOD/m²" : "د.أ/م²")
+                </span>
+            </label>
+        </div>
+    }
+
+    <!-- 4. Electro-Mechanical (MEP) -->
+    @if (calcConfig.EnableElectroMechanicalAddon)
+    {
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-teal-300 transition-all">
+            <label class="flex items-start justify-between cursor-pointer gap-3">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="addonMEP" onchange="BlockoCalculator.onInputChange()"
+                               class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer">
+                        <span class="text-xs font-bold text-slate-900">@(isEn ? "Electro-Mechanical Infrastructure (MEP)" : "تأسيسات كهروميكانيكية (كهرباء وسباكة)")</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 pe-2">
+                        @(isEn ? $"Electrical piping, conduits, sanitary drain pipes, and water supply rough-ins ({calcConfig.ElectroMechanicalRatePerM2} JOD/m²)" : $"تمديدات صحية وتغذية مياه + بايبات وخراطيم ولوحات كهربائية بسعر {calcConfig.ElectroMechanicalRatePerM2} د.أ/م²")
+                    </p>
+                </div>
+                <span class="text-xs font-bold font-mono text-teal-700 bg-teal-50 px-2 py-1 rounded-md border border-teal-200 flex-shrink-0">
+                    @calcConfig.ElectroMechanicalRatePerM2 @(isEn ? "JOD/m²" : "د.أ/م²")
+                </span>
+            </label>
+        </div>
+    }
+</div>

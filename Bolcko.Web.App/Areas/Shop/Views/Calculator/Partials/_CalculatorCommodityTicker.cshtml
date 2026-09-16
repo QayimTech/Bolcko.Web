@@ -1,0 +1,79 @@
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+    var prices = ViewBag.Prices as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.MarketPriceDto> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.DTOs.MarketPriceDto>();
+}
+
+<!-- ══════════════════════ COMMODITY PRICE TICKER ══════════════════════ -->
+<div id="liveTickerSection" class="mt-10 bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-sm no-print">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-6">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">
+                    @(isEn ? "Approved Jordanian Building Materials Price Index" : "مؤشر أسعار المواد الإنشائية المعتمدة في السوق الأردني")
+                </h3>
+            </div>
+            <p class="text-xs text-slate-500">
+                @(isEn ? "Official delivered site prices including 16% sales tax & transportation freight" : "الأسعار المعتمدة من المصانع الأردنية واصلة أرض المشروع وشاملة ضريبة المبيعات 16% ونولون التوصيل")
+            </p>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+                <span class="material-symbols-outlined text-sm text-emerald-600">sync</span>
+                <span>@(isEn ? "Live Market Rates" : "محدث لحظياً وفق البورصة والمصانع")</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        @foreach (var price in prices.Take(8))
+        {
+            var isUp = price.Trend == "up";
+            var isDown = price.Trend == "down";
+            var materialName = isEn && !string.IsNullOrEmpty(price.MaterialNameEn) ? price.MaterialNameEn : price.MaterialName;
+            
+            var unitFormatted = isEn 
+                ? (price.MaterialCategory switch {
+                    "Steel" => "Ton",
+                    "Cement" => "Ton",
+                    "Concrete" => "m³",
+                    "Blocks" => "Pcs",
+                    _ => price.UnitOfMeasure
+                })
+                : price.UnitOfMeasure;
+            var currencyFormatted = isEn ? "JOD" : "د.أ";
+            var priceDisplay = $"{price.Price:N2} {currencyFormatted}/{unitFormatted}";
+
+            var specDisplay = isEn 
+                ? (price.MaterialCategory switch {
+                    "Steel" => "Jordanian Code JS 29 Grade 60 (8-25mm)",
+                    "Cement" => "Ordinary Portland 42.5N Bulk & 50kg Bags",
+                    "Concrete" => "Pump cast for footings, columns & slabs",
+                    "Blocks" => "High-strength automated blocks (10/15/20cm)",
+                    _ => price.Specification
+                })
+                : price.Specification;
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 hover:border-slate-300 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <h4 class="text-xs font-bold text-slate-900 leading-snug">
+                            @materialName
+                        </h4>
+                        <span class="text-xs font-bold font-mono flex-shrink-0 px-2 py-0.5 rounded @(isUp ? "bg-emerald-100 text-emerald-800" : (isDown ? "bg-rose-100 text-rose-800" : "bg-slate-200 text-slate-700"))">
+                            @price.FormattedChange
+                        </span>
+                    </div>
+                    <p class="text-lg font-extrabold text-slate-900 font-mono tracking-tight">
+                        @priceDisplay
+                    </p>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-slate-200/70">
+                    <p class="text-[11px] text-slate-600 font-medium leading-normal">
+                        @specDisplay
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

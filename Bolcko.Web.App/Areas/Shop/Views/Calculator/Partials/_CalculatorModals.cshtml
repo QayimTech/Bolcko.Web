@@ -1,0 +1,271 @@
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- ════════════════ MODAL 1: CERTIFIED SAMPLE BOX (صندوق العينات المعتمد) ════════════════ -->
+<div id="sampleBoxModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        
+        <!-- Header -->
+        <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-lg">inventory_2</span>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-white">@(isEn ? "Request Certified Stone Sample Box" : "طلب صندوق عينات حجر معتمد لموقعك")</h3>
+                    <p class="text-[11px] text-slate-300 font-normal">@(isEn ? "15×15 cm sample delivered to your construction site" : "عينة 15×15 سم مع ملصق جودة رسمي تصل لموقع البناء")</p>
+                </div>
+            </div>
+            <button type="button" onclick="BlockoCalculator.closeSampleBoxModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+
+        <!-- Body Form -->
+        <div id="sampleBoxFormContent" class="p-6 space-y-4">
+            
+            <!-- Stone Type & Finish Info Pill -->
+            <div class="p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-amber-900 uppercase">@(isEn ? "Selected Stone Spec" : "مواصفة الحجر المختارة")</span>
+                    <p class="text-xs font-bold text-slate-900" id="modalSampleStoneTitle">حجر طبيعي - رويشد</p>
+                </div>
+                <div class="text-end">
+                    <span class="text-[10px] text-slate-500 block">@(isEn ? "Sample Fee" : "رسم العينة")</span>
+                    <span class="text-xs font-bold font-mono text-amber-700">5.00 @(isEn ? "JOD" : "د.أ")</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Full Name" : "الاسم الكريم") <span class="text-rose-500">*</span></label>
+                    <input type="text" id="sampleFullName" placeholder="@(isEn ? "e.g. Eng. Ahmad Al-Majali" : "مثال: م. أحمد المجالي")" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Phone / WhatsApp" : "رقم الهاتف / الواتساب") <span class="text-rose-500">*</span></label>
+                        <input type="tel" id="samplePhone" placeholder="079XXXXXXX" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-start" />
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "City" : "المدينة") <span class="text-rose-500">*</span></label>
+                        <select id="sampleCity" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                            <option value="عمان">عمان (Amman)</option>
+                            <option value="الزرقاء">الزرقاء (Zarqa)</option>
+                            <option value="إربد">إربد (Irbid)</option>
+                            <option value="السلط">السلط (Salt)</option>
+                            <option value="مادبا">مادبا (Madaba)</option>
+                            <option value="العقبة">العقبة (Aqaba)</option>
+                            <option value="أخرى">مدينة أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Delivery Site Address" : "عنوان موقع البناء / التوصيل") <span class="text-rose-500">*</span></label>
+                    <textarea id="sampleAddress" rows="2" placeholder="@(isEn ? "Neighborhood, Street, Plot/Building near..." : "المنطقة، الشارع، رقم القطعة أو علامة مميزة لموقع البناء")" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Refundable Escrow Guarantee Note -->
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-950 flex items-start gap-2">
+                <span class="material-symbols-outlined text-emerald-600 text-base mt-0.5 flex-shrink-0">savings</span>
+                <p>
+                    <strong class="font-bold">@(isEn ? "100% Refundable:" : "مستردة بالكامل:")</strong>
+                    @(isEn ? "The 5 JOD sample delivery fee is fully credited toward your stone supply invoice upon contract signing via BLOCKO." : "مبلغ الـ 5 دنانير يُخصم بالكامل 100% من قيمة فاتورة توريد الحجر النهائية عند التعاقد عبر منصة بلكو.")
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="BlockoCalculator.closeSampleBoxModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">@(isEn ? "Cancel" : "إلغاء")</button>
+                <button type="button" id="submitSampleBtn" onclick="BlockoCalculator.submitSampleBoxOrder()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">local_shipping</span>
+                    <span>@(isEn ? "Confirm Sample Request (5 JOD)" : "تأكيد طلب العينة (5 د.أ)")</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Success Result -->
+        <div id="sampleBoxSuccessContent" class="p-6 text-center space-y-4 hidden">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <div>
+                <h4 class="text-sm font-bold text-slate-900">@(isEn ? "Sample Box Order Confirmed!" : "تم تسجيل طلب صندوق العينة بنجاح!")</h4>
+                <p class="text-xs text-slate-500 mt-1">@(isEn ? "Our quality team will contact you to confirm on-site dispatch." : "سيتواصل معك مهندس الجودة لتأكيد موعد تسليم العينة لموقعك خلال 24-48 ساعة.")</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-100 border border-slate-200 inline-block font-mono text-xs text-slate-800 font-bold" id="sampleTrackingCodeDisplay">
+                SMP-260916-8821
+            </div>
+            <div class="pt-2">
+                <button type="button" onclick="BlockoCalculator.closeSampleBoxModal()" class="px-6 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer">@(isEn ? "Done" : "تم")</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ════════════════ MODAL 2: ENCRYPTED SHOWROOM PASS (تذكرة معاينة المعرض المشفرة) ════════════════ -->
+<div id="showroomPassModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        
+        <!-- Header -->
+        <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-lg">qr_code_2</span>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-white">@(isEn ? "Encrypted Showroom Pass" : "تذكرة معاينة معرض مشفرة (QR Pass)")</h3>
+                    <p class="text-[11px] text-slate-300 font-normal">@(isEn ? "Official quarry & showroom visit with escrow price lock" : "تصريح رسمي لزيارة معارض الحجر المعتمدة مع تثبيت أسعار بلكو التفضيلية")</p>
+                </div>
+            </div>
+            <button type="button" onclick="BlockoCalculator.closeShowroomPassModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+
+        <!-- Form Content -->
+        <div id="showroomPassFormContent" class="p-6 space-y-4">
+            
+            <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-950 text-xs leading-relaxed">
+                <p class="font-bold mb-1 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-indigo-600 text-base">verified</span>
+                    <span>@(isEn ? "Why use a BLOCKO Pass?" : "لماذا يُنصح باستخدام تذكرة المعاينة؟")</span>
+                </p>
+                <p class="text-[11px] text-indigo-900">
+                    @(isEn ? "1. Locks in wholesale supplier discounts exclusive to BLOCKO clients.\n2. Secures your deal under the BLOCKO Escrow system (no risky off-platform cash deposits)." : "1. تثبيت أسعار عقود التوريد المخفضة الخاصة بعملاء بلكو.\n2. حماية أموالك بالكامل عبر حساب الضمان البنكي (BLOCKO Escrow) وكفالة الاستبدال دون أي دفع نقدي غير مكفول.")
+                </p>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Full Name" : "الاسم الكريم") <span class="text-rose-500">*</span></label>
+                    <input type="text" id="passFullName" placeholder="@(isEn ? "e.g. Abu Tariq" : "مثال: أبو طارق")" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Phone / WhatsApp" : "رقم الهاتف") <span class="text-rose-500">*</span></label>
+                        <input type="tel" id="passPhone" placeholder="079XXXXXXX" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none text-start" />
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Preferred Visit Date" : "تاريخ الزيارة المقترح")</label>
+                        <input type="date" id="passVisitDate" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "City" : "المدينة / المحافظة")</label>
+                        <select id="passCity" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <option value="عمان">عمان (سحاب / وادي السير)</option>
+                            <option value="الزرقاء">الزرقاء (طريق المفرق)</option>
+                            <option value="إربد">إربد والمفرق</option>
+                            <option value="معان">معان والجنوب</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">@(isEn ? "Approx Area (m²)" : "المساحة المتوقعة (م²)")</label>
+                        <input type="number" id="passAreaM2" placeholder="350" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none font-mono" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="BlockoCalculator.closeShowroomPassModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">@(isEn ? "Cancel" : "إلغاء")</button>
+                <button type="button" id="submitPassBtn" onclick="BlockoCalculator.submitShowroomPass()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">confirmation_number</span>
+                    <span>@(isEn ? "Generate Escrow Pass" : "إصدار التذكرة المشفرة")</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Printable Voucher Result -->
+        <div id="showroomPassResultContent" class="p-6 space-y-4 hidden">
+            
+            <!-- Digital Pass Card -->
+            <div id="printablePassCard" class="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white border border-indigo-800 shadow-xl relative overflow-hidden">
+                <div class="flex items-center justify-between border-b border-indigo-800/80 pb-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-400 font-extrabold text-sm tracking-wider">BLOCKO ESCROW PASS</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">VERIFIED VENDOR PASS</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 items-center">
+                    <div class="col-span-2 space-y-1.5 text-xs">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">رقم التذكرة المشفر</span>
+                            <span class="font-mono text-sm font-bold text-amber-300" id="passResultNumberDisplay">PASS-260916-9182</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">اسم العميل</span>
+                            <span class="font-bold text-white" id="passResultNameDisplay">--</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">مواصفة الحجر المعتمدة</span>
+                            <span class="font-bold text-slate-200 text-[11px]" id="passResultStoneDisplay">--</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">تاريخ المعاينة</span>
+                            <span class="font-mono text-xs text-indigo-300" id="passResultDateDisplay">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Centered SVG QR Code -->
+                    <div class="col-span-1 bg-white p-2 rounded-xl text-center flex flex-col items-center justify-center shadow">
+                        <svg class="w-20 h-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100" height="100" fill="white"/>
+                            <rect x="10" y="10" width="25" height="25" fill="#0f172a"/>
+                            <rect x="15" y="15" width="15" height="15" fill="white"/>
+                            <rect x="18" y="18" width="9" height="9" fill="#0f172a"/>
+                            <rect x="65" y="10" width="25" height="25" fill="#0f172a"/>
+                            <rect x="70" y="15" width="15" height="15" fill="white"/>
+                            <rect x="73" y="18" width="9" height="9" fill="#0f172a"/>
+                            <rect x="10" y="65" width="25" height="25" fill="#0f172a"/>
+                            <rect x="15" y="70" width="15" height="15" fill="white"/>
+                            <rect x="18" y="73" width="9" height="9" fill="#0f172a"/>
+                            <rect x="42" y="15" width="8" height="8" fill="#0f172a"/>
+                            <rect x="42" y="30" width="8" height="8" fill="#0f172a"/>
+                            <rect x="42" y="45" width="16" height="8" fill="#0f172a"/>
+                            <rect x="65" y="45" width="8" height="16" fill="#0f172a"/>
+                            <rect x="80" y="45" width="10" height="10" fill="#0f172a"/>
+                            <rect x="42" y="65" width="10" height="10" fill="#0f172a"/>
+                            <rect x="60" y="65" width="15" height="8" fill="#0f172a"/>
+                            <rect x="80" y="70" width="10" height="20" fill="#0f172a"/>
+                            <rect x="42" y="80" width="25" height="10" fill="#0f172a"/>
+                        </svg>
+                        <span class="text-[8px] font-bold text-slate-800 mt-1 uppercase font-mono">SCAN AT YARD</span>
+                    </div>
+                </div>
+
+                <!-- Anti Leakage Terms Warning -->
+                <div class="mt-3 pt-2.5 border-t border-indigo-800/70 text-[10px] text-amber-200/90 leading-tight">
+                    <p class="font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs text-amber-400">gavel</span>
+                        <span>شروط حساب الضمان وحماية المشتري:</span>
+                    </p>
+                    <p class="mt-0.5 text-slate-300">
+                        يُحظر دفع أي مبالغ نقدية أو عربون مباشر في المعرض. يتم توثيق الاتفاق والدفع عبر حساب الضمان في بلكو لضمان الأسعار المخفضة وحق الاستبدال والفحص الهندسي.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-2">
+                <button type="button" onclick="BlockoCalculator.printShowroomPass()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">print</span>
+                    <span>@(isEn ? "Print Voucher" : "طباعة التذكرة")</span>
+                </button>
+                <button type="button" onclick="BlockoCalculator.closeShowroomPassModal()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer">@(isEn ? "Close" : "إغلاق")</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
