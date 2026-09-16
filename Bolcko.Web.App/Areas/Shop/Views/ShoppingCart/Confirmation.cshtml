@@ -6,7 +6,7 @@
     <div class="bg-white border border-slate-100 rounded-[2rem] p-8 md:p-14 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
         
         <!-- Subtle Background Glow -->
-        <div class="absolute top-0 start-/2 -translate-x-1/2 w-64 h-64 bg-emerald-400/10 blur-[60px] rounded-full pointer-events-none"></div>
+        <div class="absolute top-0 start-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-400/10 blur-[60px] rounded-full pointer-events-none"></div>
 
         <div class="relative z-10">
             <div class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/30 transform transition-transform hover:scale-105 duration-300">
@@ -34,7 +34,7 @@
                     </div>
                     
                     <div class="space-y-4">
-                        @foreach (var item in Model.Items)
+                        @foreach (var item in Model!.Items)
                         {
                             <div class="flex items-center justify-between text-sm group">
                                 <div class="flex items-center gap-3">

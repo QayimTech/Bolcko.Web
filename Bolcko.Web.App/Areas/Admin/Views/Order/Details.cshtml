@@ -111,13 +111,16 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SelectShippingCompany"]</label>
                         <select name="companyId" id="companySelect" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
-                            @foreach (var company in ViewBag.DeliveryCompanies as IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany>)
+                            @if (ViewBag.DeliveryCompanies is IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany> companies)
                             {
-                                if (Model.HasOversizedItems && !company.SupportsOversized)
+                                foreach (var company in companies)
                                 {
-                                    continue; // Skip companies that don't support oversized items if the order is oversized
+                                    if (Model.HasOversizedItems && !company.SupportsOversized)
+                                    {
+                                        continue; // Skip companies that don't support oversized items if the order is oversized
+                                    }
+                                    <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (@L["Price"]: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
                                 }
-                                <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (@L["Price"]: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
                             }
                         </select>
                         @if (Model.HasOversizedItems)

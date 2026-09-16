@@ -41,9 +41,9 @@
     <div class="bg-white border border-slate-200 shadow-hard overflow-hidden rounded-2xl">
         @{
             var categoryOptions = new List<SelectListItem>();
-            if (ViewBag.Categories != null)
+            if (ViewBag.Categories is IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> cats)
             {
-                foreach (var cat in ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)
+                foreach (var cat in cats)
                 {
                     categoryOptions.Add(new SelectListItem { Value = cat.Id.ToString(), Text = cat.Name, Selected = Model.CategoryId == cat.Id });
                 }
@@ -107,9 +107,9 @@
                                                class="block px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-50 @(!Model.CategoryId.HasValue ? "text-[#E8A020] font-bold bg-amber-50" : "text-slate-700")">
                                                 الكل (جميع التصنيفات)
                                             </a>
-                                            @if (ViewBag.Categories != null)
+                                            @if (ViewBag.Categories is IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto> filterCats)
                                             {
-                                                foreach (var cat in ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.DTOs.CategoryDto>)
+                                                foreach (var cat in filterCats)
                                                 {
                                                     bool isSelected = Model.CategoryId == cat.Id;
                                                     <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = cat.Id, sortOrder = Model.SortOrder })" 

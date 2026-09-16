@@ -137,7 +137,7 @@
             <div class="hidden lg:block w-px h-4 bg-white/10 mx-0.5"></div>
 
             <!-- User Account & Notifications -->
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity?.IsAuthenticated == true)
             {
                 <!-- Notifications Center -->
                 <div class="relative group hidden sm:block" id="notification-center-dropdown">
@@ -494,7 +494,7 @@
             <span class="material-symbols-outlined text-[16px] text-slate-600 group-hover:text-slate-300 transition-colors rtl:-scale-x-100">chevron_right</span>
         </a>
 
-        @if (User.Identity.IsAuthenticated)
+        @if (User.Identity?.IsAuthenticated == true)
         {
             <div class="my-3 h-px bg-white/5"></div>
             @if (User.IsInRole("Admin"))

@@ -98,7 +98,7 @@
                     </div>
                     @if (ViewData.ModelState["Password"]?.Errors.Any() == true)
                     {
-                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["Password"].Errors.First().ErrorMessage</span>
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["Password"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
                     }
                 </div>
                 <div>
@@ -111,7 +111,7 @@
                     </div>
                     @if (ViewData.ModelState["ConfirmPassword"]?.Errors.Any() == true)
                     {
-                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["ConfirmPassword"].Errors.First().ErrorMessage</span>
+                        <span class="text-xs text-red-600 mt-1 block">@ViewData.ModelState["ConfirmPassword"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
                     }
                 </div>
                 <div class="md:col-span-2">
