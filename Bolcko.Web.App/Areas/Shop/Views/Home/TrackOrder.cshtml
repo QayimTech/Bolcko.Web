@@ -12,7 +12,7 @@
     </header>
 
     <div class="bg-white border border-outline-variant p-8 shadow-hard rounded-sm max-w-xl mx-auto mb-10">
-        <form asp-action="TrackOrder" method="post" class="space-y-4">
+        <form asp-area="Shop" asp-controller="Home" asp-action="TrackOrder" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
             <div>
                 <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2 text-start">@(isAr ? "رقم الطلب الخاص بك" : "Your Order Number")</label>

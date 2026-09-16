@@ -122,7 +122,9 @@
             // Global SignalR setup (Exactly like Admin)
             if (typeof signalR === 'undefined') return;
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificationHub")
+                .withUrl("/notificationHub", {
+                    transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents | signalR.HttpTransportType.LongPolling
+                })
                 .withAutomaticReconnect()
                 .build();
 
@@ -190,7 +192,7 @@
             // Start connection
             connection.start()
                 .then(() => console.log("SignalR Connected successfully (Shop)!"))
-                .catch(err => console.error("SignalR Connection Error (Shop): ", err));
+                .catch(err => console.debug("SignalR Connection Notice (Shop): ", err));
         });
     </script>
     

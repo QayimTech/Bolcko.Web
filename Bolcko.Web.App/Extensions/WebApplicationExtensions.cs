@@ -117,11 +117,14 @@ public static class WebApplicationExtensions
     #region Additional Services
 
     /// <summary>
-    /// Configures Swagger/OpenAPI documentation
+    /// Configures Swagger/OpenAPI documentation (restricted to Development environment)
     /// </summary>
     public static void UseSwaggerDocumentation(this WebApplication app)
     {
-        app.UseBlockoSwagger();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseBlockoSwagger();
+        }
     }
 
     /// <summary>

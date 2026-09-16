@@ -9,8 +9,8 @@
     var pendingThreats = ViewBag.PendingThreats as IEnumerable<SecurityAuditLog> ?? new List<SecurityAuditLog>();
     var blacklist = ViewBag.Blacklist as IEnumerable<IpBlacklist> ?? new List<IpBlacklist>();
 
-    var hourlyLabelsJson = JsonSerializer.Serialize(kpis.HourlyVisits.Select(h => h.HourLabel));
-    var hourlyCountsJson = JsonSerializer.Serialize(kpis.HourlyVisits.Select(h => h.Count));
+    var hourlyLabelsJson = JsonSerializer.Serialize(kpis.HourlyVisits?.Select(h => h.HourLabel) ?? Enumerable.Empty<string>());
+    var hourlyCountsJson = JsonSerializer.Serialize(kpis.HourlyVisits?.Select(h => h.Count) ?? Enumerable.Empty<int>());
 
     var currentStartDate = ViewBag.StartDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
     var currentEndDate = ViewBag.EndDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
