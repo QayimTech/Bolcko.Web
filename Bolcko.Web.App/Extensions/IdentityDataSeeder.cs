@@ -150,7 +150,53 @@ namespace Bolcko.Web.App.Extensions
                 }
             }
 
-            // 4. Seed Market Prices
+            // 4. Seed Investor Account
+            var investorEmail = "investor@blocko.com";
+            var investorUser = await userManager.FindByEmailAsync(investorEmail);
+            if (investorUser == null)
+            {
+                var newInv = new User
+                {
+                    UserName = investorEmail,
+                    Email = investorEmail,
+                    FirstName = "م. طارق",
+                    LastName = "المجالي",
+                    CompanyName = "صندوق النماء للاستثمار التمويلي",
+                    UserType = UserType.Investor,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+                var invResult = await userManager.CreateAsync(newInv, "Investor@2026!");
+                if (invResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newInv, "Investor");
+                }
+            }
+
+            // 5. Seed Contractor Account
+            var contractorEmail = "contractor@blocko.com";
+            var contractorUser = await userManager.FindByEmailAsync(contractorEmail);
+            if (contractorUser == null)
+            {
+                var newCon = new User
+                {
+                    UserName = contractorEmail,
+                    Email = contractorEmail,
+                    FirstName = "م. عمر",
+                    LastName = "الخالدي",
+                    CompanyName = "شركة الأفق للمقاولات العامة",
+                    UserType = UserType.Contractor,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+                var conResult = await userManager.CreateAsync(newCon, "Contractor@2026!");
+                if (conResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newCon, "Contractor");
+                }
+            }
+
+            // 6. Seed Market Prices
             var dbContext = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
             if (!dbContext.MarketPrices.Any())
             {
