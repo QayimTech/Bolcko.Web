@@ -148,7 +148,9 @@ namespace Blocko.Services.Implementations.Delivery
 
                         var dbMapping = await _unitOfWork.DeliveryProviderLocationMappings.GetAllAsQueryable()
                             .FirstOrDefaultAsync(m => m.ProviderKey.ToLower() == providerKey &&
-                                (m.SearchName.Contains(cleanKey) || m.NormalizedSearchName.Contains(cleanKey) || cleanKey.Contains(m.SearchName)));
+                                ((m.SearchName != null && m.SearchName.Contains(cleanKey)) ||
+                                 (m.NormalizedSearchName != null && m.NormalizedSearchName.Contains(cleanKey)) ||
+                                 (m.SearchName != null && cleanKey.Contains(m.SearchName))));
 
                         if (dbMapping != null)
                         {

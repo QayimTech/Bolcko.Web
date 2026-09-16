@@ -704,7 +704,7 @@ namespace Blocko.Services.Imports
                 }
 
                 var (status, reason) = await SaveProductAsync(dto);
-                result.Rows.Add(new ImportRowResult { RowNumber = rowNum, Name = dto.Name, Status = status, Reason = reason });
+                result.Rows.Add(new ImportRowResult { RowNumber = rowNum, Name = dto.Name ?? string.Empty, Status = status, Reason = reason });
 
                 if (status == ImportRowStatus.Imported) result.Imported++;
                 else if (status == ImportRowStatus.Updated)  result.Updated++;
@@ -978,7 +978,7 @@ namespace Blocko.Services.Imports
 
             isNew = product == null;
             if (isNew)
-                product = new Product { Sku = dto.Sku, CreatedAt = DateTime.UtcNow };
+                product = new Product { Sku = dto.Sku ?? Guid.NewGuid().ToString("N")[..8].ToUpper(), CreatedAt = DateTime.UtcNow };
 
             product!.Name               = dto.Name;
             product.NameEn             = dto.NameEn;

@@ -322,10 +322,10 @@ namespace Blocko.Services.Implementations.Delivery
             return await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
                 .Include(j => j.Order)
                 .ThenInclude(o => o.ShippingAddress)
-                .Include(j => j.Driver)
+                .Include(j => j.Driver!)
                 .ThenInclude(d => d.User)
                 .Include(j => j.Bids)
-                .ThenInclude(b => b.Driver)
+                .ThenInclude(b => b.Driver!)
                 .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(j => j.Id == jobId);
         }
@@ -334,7 +334,7 @@ namespace Blocko.Services.Implementations.Delivery
         {
             return await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
                 .Include(j => j.Order)
-                .Include(j => j.Driver)
+                .Include(j => j.Driver!)
                 .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(j => j.OrderId == orderId);
         }
@@ -352,7 +352,7 @@ namespace Blocko.Services.Implementations.Delivery
         {
             return await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
                 .Include(j => j.Order)
-                .Include(j => j.Driver)
+                .Include(j => j.Driver!)
                 .ThenInclude(d => d.User)
                 .ToListAsync();
         }
@@ -401,7 +401,7 @@ namespace Blocko.Services.Implementations.Delivery
             {
                 await SendDeliveryDocumentsToCompanyAsync(jobId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Swallowed
             }
@@ -498,9 +498,9 @@ namespace Blocko.Services.Implementations.Delivery
                 .ThenInclude(o => o.ShippingAddress)
                 .Include(j => j.Order)
                 .ThenInclude(o => o.User)
-                .Include(j => j.Driver)
+                .Include(j => j.Driver!)
                 .ThenInclude(d => d.DeliveryCompany)
-                .Include(j => j.Driver)
+                .Include(j => j.Driver!)
                 .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(j => j.Id == jobId);
 

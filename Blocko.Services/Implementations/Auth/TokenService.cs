@@ -22,7 +22,8 @@ namespace Blocko.Services.Implementations.Auth
         {
             _config = config;
             _userManager = userManager;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var secret = _config["Jwt:Key"] ?? "default_jwt_secret_key_bolcko_2026_secure_key_123456789";
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         }
 
         public async Task<string> GenerateTokenAsync(Bolcko.Domain.Entities.User.User user)

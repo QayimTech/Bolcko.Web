@@ -307,7 +307,6 @@ namespace Blocko.Services.Implementations.order
             // Send notification to the user
             try
             {
-                var oldStatusAr = "غير معروف"; // If we had old status, but simple translation is fine
                 var arStatus = status == Bolcko.Domain.Enums.OrderStatus.Pending ? "قيد الانتظار" :
                                status == Bolcko.Domain.Enums.OrderStatus.Processing ? "قيد المعالجة" :
                                status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "تم الشحن" :
