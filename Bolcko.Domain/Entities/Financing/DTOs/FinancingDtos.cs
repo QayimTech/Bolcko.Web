@@ -56,7 +56,12 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public FinancingTenderStatus Status { get; set; }
         public string StatusNameAr { get; set; } = string.Empty;
 
+        public double TargetLatitude { get; set; }
+        public double TargetLongitude { get; set; }
+
         public string? FunderName { get; set; }
+        public string? FunderPhone { get; set; }
+        public string? WakalaContractPdfUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? FundedAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
