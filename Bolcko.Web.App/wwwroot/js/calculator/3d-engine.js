@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
- * BLOCKO BIM 3D ENGINE 2.0 - PROCEDURAL ARCHITECTURAL & PBR STONE VISUALIZER
- * High-Fidelity Three.js Architectural Visualizer for Jordanian Construction
+ * BLOCKO BIM 3D ENGINE 2.0 - PROFESSIONAL ARCHITECTURAL & CIVIL ENGINEERING BIM
+ * Realistic Revit / AutoCAD / 3ds Max Style High-Fidelity BIM Viewport
  * ══════════════════════════════════════════════════════════════════════════════
  */
 
@@ -39,7 +39,7 @@ class ProceduralTextureFactory {
         let shadowColor = 'rgba(18,12,8,0.65)';
 
         if (stoneType === 'Natural_Maan') {
-            baseR = 248; baseG = 246; baseB = 242; // Ma'an crystalline white
+            baseR = 248; baseG = 246; baseB = 242; // Ma'an pure white
             jointColor = '#2d2720';
             highlightColor = 'rgba(255,255,255,0.85)';
             shadowColor = 'rgba(35,30,24,0.50)';
@@ -53,7 +53,7 @@ class ProceduralTextureFactory {
             baseR = 216; baseG = 197; baseB = 168; // Jordanian Travertine
             jointColor = '#1e1810';
         } else if (stoneType === 'Artificial_HighDensity') {
-            baseR = 212; baseG = 208; baseB = 202; // Cast stone
+            baseR = 212; baseG = 208; baseB = 202; // Cast engineered stone
             jointColor = '#1e1c18';
         }
 
@@ -151,7 +151,7 @@ class ProceduralTextureFactory {
                         }
                     }
                 } else if (stoneFinish === 'Musamsam') {
-                    // MUSAMSAM: Chisel comb grooving
+                    // MUSAMSAM: Razor-sharp chisel tooth comb grooving
                     diffCtx.strokeStyle = shadowColor;
                     diffCtx.lineWidth = 1.8;
                     bumpCtx.lineWidth = 2.2;
@@ -184,7 +184,7 @@ class ProceduralTextureFactory {
                         diffCtx.strokeStyle = shadowColor;
                     }
                 } else if (stoneFinish === 'Monaqqar') {
-                    // MONAQQAR: Bush-hammered stipples
+                    // MONAQQAR: Bush-hammered pyramidal stipples
                     for (let p = 0; p < 220; p++) {
                         const px = x + 5 + ((p * 47 + seed * 9) % (blockWidth - 10));
                         const py = y + 5 + ((p * 73 + seed * 13) % (courseHeight - 10));
@@ -202,7 +202,7 @@ class ProceduralTextureFactory {
                         bumpCtx.fillRect(px + 1.4, py + 1.4, 1.6, 1.6);
                     }
                 } else if (stoneFinish === 'Honed') {
-                    // HONED: Smooth with subtle sedimentary grain
+                    // HONED: Smooth sawn face with sediment veins
                     diffCtx.strokeStyle = 'rgba(150, 130, 100, 0.32)';
                     diffCtx.lineWidth = 1.8;
                     diffCtx.beginPath();
@@ -428,8 +428,8 @@ class ThreeEngine3D {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x0f172a);
 
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        this.camera.position.set(28, 22, 34);
+        this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
+        this.camera.position.set(0.2, 5.0, 16.0);
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
@@ -449,10 +449,10 @@ class ThreeEngine3D {
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
-        this.controls.maxPolarAngle = Math.PI / 2 - 0.03; // Don't clip below ground
-        this.controls.minDistance = 8;
-        this.controls.maxDistance = 120;
-        this.controls.target.set(0, 5, 0);
+        this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
+        this.controls.minDistance = 6;
+        this.controls.maxDistance = 100;
+        this.controls.target.set(0, 3.5, 0);
 
         this.lightingManager = new LightingEnvironmentManager(this.scene);
 
@@ -477,7 +477,7 @@ class ThreeEngine3D {
         ground.receiveShadow = true;
         this.scene.add(ground);
 
-        // Grid lines
+        // Grid lines (AutoCAD / Revit datum)
         const grid = new THREE.GridHelper(100, 40, 0x334155, 0x1e293b);
         grid.position.y = 0.01;
         this.scene.add(grid);
@@ -513,339 +513,484 @@ class ThreeEngine3D {
         const columnCount = params.columnCount || 2;
         const archStyle = params.archStyle || this.currentArchStyle;
         const modernConcept = params.modernConcept || this.currentModernConcept;
+        const columnBars = params.columnBars || '6Bars';
 
-        const side = Math.sqrt(area);
-        const width = Math.max(10, side * 0.9);
-        const depth = Math.max(10, side * 1.1);
-        const floorHeight = 3.6;
+        const baseWidth = Math.min(10.2, Math.max(7.2, Math.sqrt(area) * 0.45));
+        const baseDepth = baseWidth * 0.82;
+        const floorHeight = 2.8;
 
-        // Get PBR Textures
+        // PBR Textures with authentic 25cm course mapping
         const { diffTexture, bumpTexture } = this.textureFactory.getStonePbrTextures(stoneType, stoneFinish);
-        const repeatX = Math.max(1, Math.round(width / 4));
-        const repeatY = Math.max(1, Math.round((floorHeight * floors) / 3));
+        diffTexture.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
+        bumpTexture.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
 
-        diffTexture.repeat.set(repeatX, repeatY);
-        bumpTexture.repeat.set(repeatX, repeatY);
+        const stoneTrimColor = stoneType === "Natural_Maan" ? 0xffffff : (stoneType === "Natural_Ruwaished" ? 0xd8c59f : 0xb5afa3);
+        const stonePlinthColor = stoneType === "Natural_Maan" ? 0xd0cbbd : 0x8a7b66;
 
-        const stoneMat = new THREE.MeshStandardMaterial({
+        const wallMaterial = new THREE.MeshStandardMaterial({
             map: diffTexture,
             bumpMap: bumpTexture,
-            bumpScale: stoneFinish === 'Tabzeh' ? 0.35 : (stoneFinish === 'Mufajjar' ? 0.25 : 0.15),
-            roughness: 0.85,
-            metalness: 0.05
+            bumpScale: stoneFinish === 'Tabzeh' ? 0.042 : (stoneFinish === 'Musamsam' ? 0.032 : (stoneFinish === 'Monaqqar' ? 0.028 : (stoneFinish === 'Honed' ? 0.007 : 0.048))),
+            roughness: stoneFinish === 'Tabzeh' ? 0.76 : (stoneFinish === 'Musamsam' ? 0.80 : (stoneFinish === 'Monaqqar' ? 0.78 : (stoneFinish === 'Honed' ? 0.40 : 0.82))),
+            metalness: 0.02,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.06 : 1.0
         });
 
-        const concreteMat = new THREE.MeshStandardMaterial({
-            color: 0x64748b,
-            roughness: 0.7,
-            metalness: 0.1
+        const stonePlinthMaterial = new THREE.MeshStandardMaterial({
+            color: stonePlinthColor,
+            roughness: 0.8,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.08 : 1.0
         });
 
-        const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0x93c5fd,
+        const stoneTrimMaterial = new THREE.MeshStandardMaterial({
+            color: stoneTrimColor,
+            roughness: 0.55,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.08 : 1.0
+        });
+
+        const floorSlabMaterial = new THREE.MeshStandardMaterial({
+            color: 0xded9cf,
+            roughness: 0.65,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.12 : 1.0
+        });
+
+        // Hyper-realistic Physical Architectural Glass
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 0.90,
+            opacity: 1.0,
             transparent: true,
-            opacity: 0.45,
-            roughness: 0.1,
-            metalness: 0.9,
-            transmission: 0.7,
-            ior: 1.52
+            roughness: 0.02,
+            ior: 1.52,
+            metalness: 0.04,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.03,
+            depthWrite: false
         });
 
-        const darkMetalMat = new THREE.MeshStandardMaterial({
-            color: 0x1e293b,
-            roughness: 0.3,
-            metalness: 0.8
+        const darkMetalMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0f172a,
+            roughness: 0.25,
+            metalness: 0.75,
+            transparent: this.isXRayMode,
+            opacity: this.isXRayMode ? 0.1 : 1.0
         });
 
-        // ════════════ ARCHITECTURAL TYPOLOGY BUILDER ════════════
-        if (archStyle === 'classic') {
-            this.buildClassicVilla(width, depth, floors, floorHeight, stoneMat, glassMat, darkMetalMat, includeCornice, windowCount, columnCount);
-        } else if (archStyle === 'modern') {
-            this.buildModernVilla(width, depth, floors, floorHeight, stoneMat, glassMat, darkMetalMat, modernConcept);
-        } else if (archStyle === 'l_shape') {
-            this.buildLShapeVilla(width, depth, floors, floorHeight, stoneMat, glassMat, darkMetalMat, includeCornice);
-        } else {
-            this.buildMultiStoryBuilding(width, depth, floors, floorHeight, stoneMat, glassMat, darkMetalMat, includeCornice);
+        const teakLouverMaterial = new THREE.MeshStandardMaterial({
+            color: 0x854d0e,
+            roughness: 0.5
+        });
+
+        // ──────────────── 1. BASE PLINTH COURSE (مدماك السلسال الحجري) ────────────────
+        const plinthHeight = 0.42;
+        const plinthGeo = new THREE.BoxGeometry(baseWidth + 0.16, plinthHeight, baseDepth + 0.16);
+        const plinthMesh = new THREE.Mesh(plinthGeo, stonePlinthMaterial);
+        plinthMesh.position.set(0, plinthHeight / 2, 0);
+        plinthMesh.receiveShadow = true;
+        this.houseGroup.add(plinthMesh);
+
+        // ──────────────── 2. DETAILED ARCHITECTURAL BUILDING ────────────────
+        const isClassic = archStyle === 'classic';
+        const isApartment = archStyle === 'apartment';
+        const isModern = archStyle === 'modern';
+
+        for (let floor = 0; floor < floors; floor++) {
+            const floorY = plinthHeight + floor * floorHeight;
+            let fW = baseWidth;
+            let fD = baseDepth;
+            let fX = 0;
+            let fZ = 0;
+
+            if (isModern && floor === 1) {
+                if (modernConcept === 'cantilever') {
+                    fX = 0.75;
+                    fZ = 0.35;
+                } else if (modernConcept === 'cubic') {
+                    fW = baseWidth * 0.88;
+                    fX = -0.45;
+                } else if (modernConcept === 'horizon') {
+                    fW = baseWidth * 1.08;
+                    fZ = -0.3;
+                }
+            } else if (archStyle === 'l_shape' && floor > 0) {
+                fW = baseWidth * 0.75;
+            }
+
+            // Floor Concrete Slab
+            const slabH = 0.28;
+            const slabGeo = new THREE.BoxGeometry(fW + 0.12, slabH, fD + 0.12);
+            const slabMesh = new THREE.Mesh(slabGeo, floorSlabMaterial);
+            slabMesh.position.set(fX, floorY + slabH / 2, fZ);
+            slabMesh.castShadow = true;
+            slabMesh.receiveShadow = true;
+            this.houseGroup.add(slabMesh);
+
+            // Wall Volume
+            const wallH = floorHeight - slabH;
+            const wallGeo = new THREE.BoxGeometry(fW, wallH, fD);
+            const wallMesh = new THREE.Mesh(wallGeo, wallMaterial);
+            wallMesh.position.set(fX, floorY + slabH + wallH / 2, fZ);
+            wallMesh.castShadow = true;
+            wallMesh.receiveShadow = true;
+            this.houseGroup.add(wallMesh);
+
+            // Floor Cornice Stringcourse Belt
+            if (includeCornice && floor > 0) {
+                const corniceH = 0.22;
+                const corniceGeo = new THREE.BoxGeometry(fW + 0.36, corniceH, fD + 0.36);
+                const corniceMesh = new THREE.Mesh(corniceGeo, stoneTrimMaterial);
+                corniceMesh.position.set(fX, floorY + slabH / 2, fZ);
+                corniceMesh.castShadow = true;
+                this.houseGroup.add(corniceMesh);
+            }
+
+            // Windows and Architectural Openings
+            const frontZ = fZ + fD / 2 + 0.04;
+            const halfW = fW / 2;
+
+            if (floor === 0) {
+                // Luxury Modern/Classic Entrance Door
+                const doorW = isModern ? 1.4 : 1.25;
+                const doorH = 2.4;
+                const doorX = isModern ? -halfW * 0.45 : 0;
+                const doorY = floorY + slabH + doorH / 2;
+                this.buildLuxuryEntranceDoor(doorX, doorY, frontZ, doorW, doorH, darkMetalMaterial, stoneTrimMaterial);
+
+                // Flanking Symmetrical or Asymmetrical Windows
+                if (isModern) {
+                    this.buildDetailedWindow(fX + halfW * 0.45, floorY + floorHeight * 0.52, frontZ, 2.4, 2.0, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                } else {
+                    const winOffset = Math.min(2.8, halfW * 0.6);
+                    this.buildDetailedWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    this.buildDetailedWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                }
+            } else {
+                // Upper Floor Windows & Balconies
+                if (isModern) {
+                    if (modernConcept === 'cantilever') {
+                        this.buildDetailedWindow(fX, floorY + floorHeight * 0.52, frontZ, fW * 0.65, 2.1, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                    } else if (modernConcept === 'horizon') {
+                        this.buildDetailedWindow(fX - 0.8, floorY + floorHeight * 0.52, frontZ, 3.2, 1.9, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, true);
+                        // Teak Louvers
+                        const louverGeo = new THREE.BoxGeometry(1.6, 2.0, 0.15);
+                        const louverMesh = new THREE.Mesh(louverGeo, teakLouverMaterial);
+                        louverMesh.position.set(fX + halfW * 0.55, floorY + floorHeight * 0.52, frontZ + 0.05);
+                        this.houseGroup.add(louverMesh);
+                    } else {
+                        this.buildDetailedWindow(fX, floorY + floorHeight * 0.55, frontZ, 1.4, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, false, false);
+                    }
+                } else {
+                    const winOffset = Math.min(2.8, halfW * 0.6);
+                    this.buildDetailedWindow(-winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    this.buildDetailedWindow(winOffset, floorY + floorHeight * 0.55, frontZ, 1.3, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                    this.buildDetailedWindow(0, floorY + floorHeight * 0.55, frontZ, 1.2, 1.4, 'front', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, false);
+                }
+            }
+
+            // Side Facade Windows
+            const sideZ = Math.min(1.8, fD * 0.25);
+            this.buildDetailedWindow(fX + fW / 2 + 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-right', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
+            this.buildDetailedWindow(fX - fW / 2 - 0.04, floorY + floorHeight * 0.55, fZ + sideZ, 1.15, 1.35, 'side-left', stoneTrimMaterial, glassMaterial, darkMetalMaterial, isClassic, isModern);
         }
 
-        // Build Skeleton X-Ray
-        this.buildStructuralSkeleton(width, depth, floors, floorHeight);
+        // Classical Portico with Fluted Columns & Pediment
+        if (isClassic && columnCount > 0) {
+            this.buildClassicalPortico(baseWidth, baseDepth, floorHeight, columnCount, stoneTrimMaterial);
+        }
+
+        // Roof Parapet (سترة السطح)
+        const topY = plinthHeight + floors * floorHeight;
+        const parapetH = 0.95;
+        const parapetGeo = new THREE.BoxGeometry(baseWidth + 0.12, parapetH, baseDepth + 0.12);
+        const parapetMesh = new THREE.Mesh(parapetGeo, wallMaterial);
+        parapetMesh.position.set(0, topY + parapetH / 2, 0);
+        parapetMesh.castShadow = true;
+        this.houseGroup.add(parapetMesh);
+
+        // Parapet Stone Coping (طبانة السترة)
+        const copingH = 0.14;
+        const copingGeo = new THREE.BoxGeometry(baseWidth + 0.28, copingH, baseDepth + 0.28);
+        const copingMesh = new THREE.Mesh(copingGeo, stoneTrimMaterial);
+        copingMesh.position.set(0, topY + parapetH + copingH / 2, 0);
+        copingMesh.castShadow = true;
+        this.houseGroup.add(copingMesh);
+
+        // ──────────────── 3. TRUE CIVIL ENGINEERING STRUCTURAL BIM SKELETON ────────────────
+        this.buildStructuralSkeleton(floors, floorHeight, baseWidth, baseDepth, columnBars);
+
+        // Furnished Interior Living Room
+        this.buildFurnishedInterior(baseWidth, baseDepth, plinthHeight);
 
         this.scene.add(this.houseGroup);
         this.scene.add(this.skeletonGroup);
 
         this.applyXRayVisibility();
 
-        // Update target controls center
-        const totalHeight = floorHeight * floors;
-        this.controls.target.set(0, totalHeight / 2, 0);
-
-        // Update HUD text
-        const overlay = document.getElementById('canvasOverlayInfo');
-        if (overlay) {
-            const stoneLabels = {
-                'Natural_Ruwaished': 'Ruwaished Class A',
-                'Natural_Maan': "Ma'an White",
-                'Natural_Hayyan': 'Hayyan Mafraq',
-                'Natural_Ajloun': 'Ajloun Limestone',
-                'Natural_Travertine': 'Travertine Royal',
-                'Artificial_HighDensity': 'Cast Stone'
-            };
-            const styleLabels = {
-                'classic': 'Classic Villa',
-                'modern': `Modern Villa (${modernConcept})`,
-                'l_shape': 'L-Shape Courtyard',
-                'apartment': 'Multi-Story'
-            };
-            overlay.innerText = `${styleLabels[archStyle] || archStyle} • ${floors} Flrs • ${stoneLabels[stoneType] || stoneType}`;
-        }
+        // Update Camera & Controls target
+        const totalH = plinthHeight + floors * floorHeight + 1.2;
+        this.controls.target.set(0, Math.max(2.0, totalH * 0.48), 0);
     }
 
-    buildClassicVilla(w, d, floors, fh, stoneMat, glassMat, metalMat, includeCornice, winCount, colCount) {
-        for (let f = 0; f < floors; f++) {
-            const y = f * fh + fh / 2;
+    buildLuxuryEntranceDoor(doorX, doorY, frontZ, doorW, doorH, darkMetalMat, stoneTrimMat) {
+        const doorGroup = new THREE.Group();
+        doorGroup.position.set(doorX, doorY, frontZ);
 
-            // Main Stone Volume
-            const floorGeo = new THREE.BoxGeometry(w, fh, d);
-            const floorMesh = new THREE.Mesh(floorGeo, stoneMat);
-            floorMesh.position.y = y;
-            floorMesh.castShadow = true;
-            floorMesh.receiveShadow = true;
-            this.houseGroup.add(floorMesh);
+        // Door Frame
+        const frameGeo = new THREE.BoxGeometry(doorW, doorH, 0.14);
+        const frameMesh = new THREE.Mesh(frameGeo, darkMetalMat);
+        doorGroup.add(frameMesh);
 
-            // Windows with Classical Architraves
-            this.addClassicalWindows(w, d, y, fh, glassMat, metalMat);
+        // Wood Door Leaf
+        const leafGeo = new THREE.BoxGeometry(doorW * 0.82, doorH * 0.94, 0.12);
+        const woodMat = new THREE.MeshStandardMaterial({ color: 0x9a5b28, roughness: 0.35 });
+        const leafMesh = new THREE.Mesh(leafGeo, woodMat);
+        leafMesh.position.z = 0.02;
+        doorGroup.add(leafMesh);
 
-            // Floor Cornice Stringcourse Belt
-            if (includeCornice) {
-                const corniceGeo = new THREE.BoxGeometry(w + 0.6, 0.35, d + 0.6);
-                const corniceMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.6 });
-                const cornice = new THREE.Mesh(corniceGeo, corniceMat);
-                cornice.position.y = (f + 1) * fh;
-                cornice.castShadow = true;
-                this.houseGroup.add(cornice);
-            }
-        }
+        // Brass Vertical Pull Handle
+        const handleGeo = new THREE.CylinderGeometry(0.016, 0.016, 1.1, 16);
+        const brassMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
+        const handleMesh = new THREE.Mesh(handleGeo, brassMat);
+        handleMesh.position.set(-doorW * 0.28, 0, 0.1);
+        doorGroup.add(handleMesh);
 
-        // Classical Entrance Portico with Columns & Pediment
-        if (colCount > 0) {
-            this.addClassicalPortico(w, d, fh, colCount, stoneMat);
-        }
-
-        // Roof Classical Balustrade Parapet
-        const parapetH = 0.9;
-        const parapetGeo = new THREE.BoxGeometry(w + 0.2, parapetH, d + 0.2);
-        const parapetMesh = new THREE.Mesh(parapetGeo, stoneMat);
-        parapetMesh.position.y = floors * fh + parapetH / 2;
-        parapetMesh.castShadow = true;
-        this.houseGroup.add(parapetMesh);
+        this.houseGroup.add(doorGroup);
     }
 
-    addClassicalWindows(w, d, y, fh, glassMat, metalMat) {
-        const winPositions = [
-            { x: -w * 0.28, z: d / 2 + 0.05 },
-            { x: w * 0.28, z: d / 2 + 0.05 },
-            { x: -w * 0.28, z: -d / 2 - 0.05 },
-            { x: w * 0.28, z: -d / 2 - 0.05 }
-        ];
+    buildDetailedWindow(posX, posY, posZ, width, height, orientation, trimMat, glassMat, metalMat, isClassic, isModern) {
+        const winGroup = new THREE.Group();
+        winGroup.position.set(posX, posY, posZ);
 
-        winPositions.forEach(pos => {
-            // Glass Pane
-            const winGeo = new THREE.BoxGeometry(2.0, 1.8, 0.15);
-            const winMesh = new THREE.Mesh(winGeo, glassMat);
-            winMesh.position.set(pos.x, y, pos.z);
-            this.houseGroup.add(winMesh);
+        if (orientation === 'side-right') winGroup.rotation.y = Math.PI / 2;
+        else if (orientation === 'side-left') winGroup.rotation.y = -Math.PI / 2;
 
-            // Keystone Architrave Frame
-            const frameGeo = new THREE.BoxGeometry(2.4, 2.2, 0.25);
-            const frameMesh = new THREE.Mesh(frameGeo, metalMat);
-            frameMesh.position.set(pos.x, y, pos.z);
-            this.houseGroup.add(frameMesh);
-        });
+        // 1. Stone Architrave Casing Frame (برواز الحجر)
+        const casingW = 0.12;
+        const frameGeo = new THREE.BoxGeometry(width + casingW * 2, height + casingW * 2, 0.14);
+        const frameMesh = new THREE.Mesh(frameGeo, trimMat);
+        winGroup.add(frameMesh);
+
+        // 2. Glass Pane
+        const glassGeo = new THREE.BoxGeometry(width, height, 0.04);
+        const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+        glassMesh.position.z = 0.02;
+        winGroup.add(glassMesh);
+
+        // 3. Aluminum Mullions
+        const mullionH = new THREE.Mesh(new THREE.BoxGeometry(width, 0.04, 0.06), metalMat);
+        mullionH.position.z = 0.03;
+        winGroup.add(mullionH);
+
+        const mullionV = new THREE.Mesh(new THREE.BoxGeometry(0.04, height, 0.06), metalMat);
+        mullionV.position.z = 0.03;
+        winGroup.add(mullionV);
+
+        // 4. Stone Sill (برطاش حجر سفلي)
+        const sillGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.18, 0.10, 0.22);
+        const sillMesh = new THREE.Mesh(sillGeo, trimMat);
+        sillMesh.position.set(0, -height / 2 - casingW - 0.05, 0.05);
+        sillMesh.castShadow = true;
+        winGroup.add(sillMesh);
+
+        // 5. Classic Keystone Lintel
+        if (isClassic) {
+            const lintelGeo = new THREE.BoxGeometry(width + casingW * 2 + 0.16, 0.15, 0.18);
+            const lintelMesh = new THREE.Mesh(lintelGeo, trimMat);
+            lintelMesh.position.set(0, height / 2 + casingW + 0.075, 0.04);
+            lintelMesh.castShadow = true;
+            winGroup.add(lintelMesh);
+
+            const keyGeo = new THREE.BoxGeometry(0.18, 0.22, 0.22);
+            const keyMesh = new THREE.Mesh(keyGeo, trimMat);
+            keyMesh.position.set(0, height / 2 + casingW + 0.1, 0.06);
+            keyMesh.castShadow = true;
+            winGroup.add(keyMesh);
+        }
+
+        this.houseGroup.add(winGroup);
     }
 
-    addClassicalPortico(w, d, fh, colCount, stoneMat) {
-        const porticoDepth = 2.5;
-        const porticoWidth = Math.min(6, w * 0.5);
+    buildClassicalPortico(w, d, fh, colCount, trimMat) {
+        const porticoW = Math.min(5.2, w * 0.55);
+        const porticoD = 2.0;
+        const porticoZ = d / 2 + porticoD / 2;
 
-        // Columns
-        const colRadius = 0.25;
-        const colH = fh;
-        const colGeo = new THREE.CylinderGeometry(colRadius * 0.85, colRadius, colH, 24);
+        const colRadius = 0.22;
+        const colH = fh - 0.4;
+        const colGeo = new THREE.CylinderGeometry(colRadius * 0.88, colRadius, colH, 24);
 
-        const colSpacing = porticoWidth / (colCount + 1);
+        const spacing = porticoW / (colCount + 1);
         for (let i = 1; i <= colCount; i++) {
-            const cx = -porticoWidth / 2 + i * colSpacing;
-            const col = new THREE.Mesh(colGeo, stoneMat);
-            col.position.set(cx, colH / 2, d / 2 + porticoDepth);
+            const cx = -porticoW / 2 + i * spacing;
+
+            const col = new THREE.Mesh(colGeo, trimMat);
+            col.position.set(cx, 0.42 + colH / 2, d / 2 + porticoD);
             col.castShadow = true;
             this.houseGroup.add(col);
 
-            // Capital
-            const capGeo = new THREE.BoxGeometry(colRadius * 2.8, 0.25, colRadius * 2.8);
-            const cap = new THREE.Mesh(capGeo, stoneMat);
-            cap.position.set(cx, colH, d / 2 + porticoDepth);
+            // Capital (تاج العمود)
+            const cap = new THREE.Mesh(new THREE.BoxGeometry(colRadius * 2.8, 0.22, colRadius * 2.8), trimMat);
+            cap.position.set(cx, 0.42 + colH + 0.11, d / 2 + porticoD);
             this.houseGroup.add(cap);
         }
 
-        // Portico Pediment Roof (Triangular Gable)
-        const pedGeo = new THREE.BoxGeometry(porticoWidth + 0.8, 0.4, porticoDepth + 0.8);
-        const pedMesh = new THREE.Mesh(pedGeo, stoneMat);
-        pedMesh.position.set(0, colH + 0.2, d / 2 + porticoDepth / 2);
+        // Portico Entablature & Pediment (المثلث المعماري الكلاسيكي)
+        const pedGeo = new THREE.BoxGeometry(porticoW + 0.6, 0.35, porticoD + 0.6);
+        const pedMesh = new THREE.Mesh(pedGeo, trimMat);
+        pedMesh.position.set(0, 0.42 + colH + 0.35, porticoZ);
         pedMesh.castShadow = true;
         this.houseGroup.add(pedMesh);
     }
 
-    buildModernVilla(w, d, floors, fh, stoneMat, glassMat, metalMat, concept) {
-        // High-end Contemporary Architecture: Cantilever, Cubic Dabouq, Horizon Pergola
-        for (let f = 0; f < floors; f++) {
-            const y = f * fh + fh / 2;
-            const isTopFloor = f === floors - 1 && floors > 1;
+    buildStructuralSkeleton(floors, floorHeight, baseWidth, baseDepth, columnBars) {
+        const colTotalH = floors * floorHeight;
+        const rebarBarMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, metalness: 0.85, roughness: 0.25 }); // High-tensile steel
+        const stirrupMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.3 }); // Amber stirrup wire
+        const concreteTransMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8, transparent: true, opacity: 0.26 });
+        const tieBeamMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
 
-            // Cantilever Offset Shift
-            let shiftX = 0;
-            let shiftZ = 0;
-            if (isTopFloor) {
-                if (concept === 'cantilever') shiftX = 2.2;
-                else if (concept === 'cubic') shiftZ = 1.8;
+        const colPositions = [
+            [-baseWidth * 0.42, -baseDepth * 0.42],
+            [baseWidth * 0.42, -baseDepth * 0.42],
+            [-baseWidth * 0.42, baseDepth * 0.42],
+            [baseWidth * 0.42, baseDepth * 0.42],
+            [0, -baseDepth * 0.42],
+            [0, baseDepth * 0.42]
+        ];
+
+        // 1. ISOLATED FOOTINGS WITH LOWER REBAR MESH (قواعد مسلحة مع فرش وغطاء)
+        colPositions.forEach(pos => {
+            const footW = 1.35;
+            const footH = 0.42;
+            const footGeo = new THREE.BoxGeometry(footW, footH, footW);
+            const footMesh = new THREE.Mesh(footGeo, concreteTransMat);
+            footMesh.position.set(pos[0], footH / 2, pos[1]);
+            this.skeletonGroup.add(footMesh);
+
+            // Rebar Mesh (فرش وغطاء)
+            for (let m = -0.5; m <= 0.5; m += 0.25) {
+                const barX = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.1, 6), rebarBarMat);
+                barX.rotation.z = Math.PI / 2;
+                barX.position.set(pos[0], 0.08, pos[1] + m);
+                this.skeletonGroup.add(barX);
+
+                const barZ = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.1, 6), rebarBarMat);
+                barZ.rotation.x = Math.PI / 2;
+                barZ.position.set(pos[0] + m, 0.11, pos[1]);
+                this.skeletonGroup.add(barZ);
             }
 
-            // Stone Clad Box
-            const floorGeo = new THREE.BoxGeometry(w, fh, d);
-            const floorMesh = new THREE.Mesh(floorGeo, stoneMat);
-            floorMesh.position.set(shiftX, y, shiftZ);
-            floorMesh.castShadow = true;
-            floorMesh.receiveShadow = true;
-            this.houseGroup.add(floorMesh);
-
-            // Full Height Panoramic Ribbon Windows
-            const ribbonGeo = new THREE.BoxGeometry(w * 0.65, fh * 0.75, 0.2);
-            const ribbonGlass = new THREE.Mesh(ribbonGeo, glassMat);
-            ribbonGlass.position.set(shiftX, y, shiftZ + d / 2 + 0.05);
-            this.houseGroup.add(ribbonGlass);
-
-            // Modern Dark Bronze Mullions
-            const mullionGeo = new THREE.BoxGeometry(w * 0.67, fh * 0.77, 0.25);
-            const mullion = new THREE.Mesh(mullionGeo, metalMat);
-            mullion.position.set(shiftX, y, shiftZ + d / 2 + 0.02);
-            this.houseGroup.add(mullion);
-
-            // Wooden/Dark Louver Pergola (Horizon Concept)
-            if (concept === 'horizon' && isTopFloor) {
-                const pergolaGeo = new THREE.BoxGeometry(w * 0.8, 0.15, d * 0.5);
-                const pergola = new THREE.Mesh(pergolaGeo, metalMat);
-                pergola.position.set(shiftX, (f + 1) * fh + 0.1, shiftZ + d * 0.25);
-                this.houseGroup.add(pergola);
-            }
-        }
-    }
-
-    buildLShapeVilla(w, d, floors, fh, stoneMat, glassMat, metalMat, includeCornice) {
-        // L-Shaped Layout with central courtyard patio
-        const wingW = w * 0.55;
-        const wingD = d * 0.55;
-
-        for (let f = 0; f < floors; f++) {
-            const y = f * fh + fh / 2;
-
-            // Wing A (Main Facade)
-            const wingAGeo = new THREE.BoxGeometry(w, fh, wingD);
-            const wingA = new THREE.Mesh(wingAGeo, stoneMat);
-            wingA.position.set(0, y, -d / 2 + wingD / 2);
-            wingA.castShadow = true;
-            this.houseGroup.add(wingA);
-
-            // Wing B (Perpendicular Side)
-            const wingBGeo = new THREE.BoxGeometry(wingW, fh, d - wingD);
-            const wingB = new THREE.Mesh(wingBGeo, stoneMat);
-            wingB.position.set(-w / 2 + wingW / 2, y, d / 2 - (d - wingD) / 2);
-            wingB.castShadow = true;
-            this.houseGroup.add(wingB);
-
-            // Windows looking into courtyard
-            const glassGeo = new THREE.BoxGeometry(w * 0.4, fh * 0.65, 0.15);
-            const glass = new THREE.Mesh(glassGeo, glassMat);
-            glass.position.set(w * 0.15, y, -d / 2 + wingD + 0.05);
-            this.houseGroup.add(glass);
-        }
-
-        // Courtyard Terrace Deck (Patio)
-        const deckGeo = new THREE.BoxGeometry(w - wingW, 0.15, d - wingD);
-        const deckMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
-        const deck = new THREE.Mesh(deckGeo, deckMat);
-        deck.position.set(w / 2 - (w - wingW) / 2, 0.05, d / 2 - (d - wingD) / 2);
-        this.houseGroup.add(deck);
-    }
-
-    buildMultiStoryBuilding(w, d, floors, fh, stoneMat, glassMat, metalMat, includeCornice) {
-        for (let f = 0; f < floors; f++) {
-            const y = f * fh + fh / 2;
-
-            // Stone Clad Floor Core
-            const floorGeo = new THREE.BoxGeometry(w, fh, d);
-            const floorMesh = new THREE.Mesh(floorGeo, stoneMat);
-            floorMesh.position.y = y;
-            floorMesh.castShadow = true;
-            this.houseGroup.add(floorMesh);
-
-            // Balconies with Glass Railings
-            const balconyGeo = new THREE.BoxGeometry(w * 0.5, 0.3, 1.6);
-            const balconyFloor = new THREE.Mesh(balconyGeo, stoneMat);
-            balconyFloor.position.set(0, f * fh + 0.15, d / 2 + 0.8);
-            this.houseGroup.add(balconyFloor);
-
-            const glassRailingGeo = new THREE.BoxGeometry(w * 0.5, 0.9, 0.08);
-            const glassRailing = new THREE.Mesh(glassRailingGeo, glassMat);
-            glassRailing.position.set(0, f * fh + 0.6, d / 2 + 1.55);
-            this.houseGroup.add(glassRailing);
-        }
-    }
-
-    buildStructuralSkeleton(w, d, floors, fh) {
-        const rebarMat = new THREE.MeshStandardMaterial({
-            color: 0x38bdf8,
-            roughness: 0.3,
-            metalness: 0.9,
-            wireframe: false
+            // Column Neck (رقبة العامود)
+            const neckGeo = new THREE.BoxGeometry(0.36, 0.45, 0.36);
+            const neckMesh = new THREE.Mesh(neckGeo, concreteTransMat);
+            neckMesh.position.set(pos[0], footH + 0.22, pos[1]);
+            this.skeletonGroup.add(neckMesh);
         });
 
-        const footingMat = new THREE.MeshStandardMaterial({
-            color: 0x475569,
-            roughness: 0.8
+        // 2. GROUND TIE BEAMS / SHANNAJAT (الميد والشناجات الأرضية)
+        const tieH = 0.38;
+        const tieW = 0.30;
+        const tieY = 0.42 + tieH / 2;
+
+        [-baseDepth * 0.42, 0, baseDepth * 0.42].forEach(tz => {
+            const beamGeo = new THREE.BoxGeometry(baseWidth * 0.84, tieH, tieW);
+            const beamMesh = new THREE.Mesh(beamGeo, tieBeamMat);
+            beamMesh.position.set(0, tieY, tz);
+            this.skeletonGroup.add(beamMesh);
         });
 
-        // Footings & Ground Beams
-        const colsX = 4;
-        const colsZ = 4;
-        const stepX = (w - 2) / (colsX - 1);
-        const stepZ = (d - 2) / (colsZ - 1);
+        [-baseWidth * 0.42, 0, baseWidth * 0.42].forEach(tx => {
+            const beamGeo = new THREE.BoxGeometry(tieW, tieH, baseDepth * 0.84);
+            const beamMesh = new THREE.Mesh(beamGeo, tieBeamMat);
+            beamMesh.position.set(tx, tieY, 0);
+            this.skeletonGroup.add(beamMesh);
+        });
 
-        for (let ix = 0; ix < colsX; ix++) {
-            for (let iz = 0; iz < colsZ; iz++) {
-                const cx = -w / 2 + 1 + ix * stepX;
-                const cz = -d / 2 + 1 + iz * stepZ;
+        // 3. REINFORCED COLUMNS WITH LONGITUDINAL BARS & SEISMIC STIRRUPS
+        colPositions.forEach(pos => {
+            const cGeo = new THREE.BoxGeometry(0.38, colTotalH, 0.38);
+            const cMesh = new THREE.Mesh(cGeo, concreteTransMat);
+            cMesh.position.set(pos[0], colTotalH / 2, pos[1]);
+            this.skeletonGroup.add(cMesh);
 
-                // Footing Pad (Qawaed)
-                const padGeo = new THREE.BoxGeometry(1.6, 0.6, 1.6);
-                const pad = new THREE.Mesh(padGeo, footingMat);
-                pad.position.set(cx, -0.3, cz);
-                this.skeletonGroup.add(pad);
+            const barCount = columnBars === "8Bars" ? 8 : (columnBars === "10Bars" ? 10 : 6);
+            for (let b = 0; b < barCount; b++) {
+                const angle = (b / barCount) * Math.PI * 2;
+                const r = 0.13;
+                const bx = pos[0] + Math.cos(angle) * r;
+                const bz = pos[1] + Math.sin(angle) * r;
 
-                // Rebar Column Cage
-                const colGeo = new THREE.CylinderGeometry(0.2, 0.2, floors * fh, 8);
-                const colMesh = new THREE.Mesh(colGeo, rebarMat);
-                colMesh.position.set(cx, (floors * fh) / 2, cz);
-                this.skeletonGroup.add(colMesh);
+                // Main Bar
+                const barGeo = new THREE.CylinderGeometry(0.014, 0.014, colTotalH + 0.45, 8);
+                const barMesh = new THREE.Mesh(barGeo, rebarBarMat);
+                barMesh.position.set(bx, (colTotalH + 0.45) / 2, bz);
+                this.skeletonGroup.add(barMesh);
+
+                // Starter Dowel Hook (أشاير السطح)
+                const hookGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.22, 8);
+                const hookMesh = new THREE.Mesh(hookGeo, rebarBarMat);
+                hookMesh.rotation.z = Math.PI / 3;
+                hookMesh.position.set(bx + 0.08, colTotalH + 0.45, bz);
+                this.skeletonGroup.add(hookMesh);
             }
-        }
 
-        // Floor Concrete Slabs (Uqdat)
+            // Stirrups (الكانات)
+            const numStirrups = Math.floor(colTotalH / 0.18);
+            for (let s = 0; s < numStirrups; s++) {
+                const sy = s * 0.18 + 0.10;
+                const ringGeo = new THREE.BoxGeometry(0.30, 0.012, 0.30);
+                const ringMesh = new THREE.Mesh(ringGeo, stirrupMat);
+                ringMesh.position.set(pos[0], sy, pos[1]);
+                this.skeletonGroup.add(ringMesh);
+            }
+        });
+
+        // 4. RIBBED SLAB JOISTS & HOLLOW BLOCKS (أعصاب السقف وطوب الهوردي)
         for (let f = 1; f <= floors; f++) {
-            const slabGeo = new THREE.BoxGeometry(w + 0.4, 0.3, d + 0.4);
-            const slabMesh = new THREE.Mesh(slabGeo, footingMat);
-            slabMesh.position.y = f * fh;
-            this.skeletonGroup.add(slabMesh);
+            const slabY = 0.42 + f * floorHeight;
+            const joistCount = 7;
+            const jSpacing = (baseWidth * 0.8) / (joistCount - 1);
+            for (let j = 0; j < joistCount; j++) {
+                const jx = -baseWidth * 0.4 + j * jSpacing;
+                const jGeo = new THREE.BoxGeometry(0.15, 0.26, baseDepth * 0.84);
+                const jMesh = new THREE.Mesh(jGeo, tieBeamMat);
+                jMesh.position.set(jx, slabY - 0.13, 0);
+                this.skeletonGroup.add(jMesh);
+
+                // Rebar in Joist
+                const jBar = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, baseDepth * 0.84, 6), rebarBarMat);
+                jBar.rotation.x = Math.PI / 2;
+                jBar.position.set(jx, slabY - 0.20, 0);
+                this.skeletonGroup.add(jBar);
+            }
         }
+    }
+
+    buildFurnishedInterior(baseWidth, baseDepth, plinthHeight) {
+        const interiorGroup = new THREE.Group();
+        interiorGroup.position.set(0, plinthHeight + 0.02, 0);
+
+        // Living Room Sofa
+        const sofaMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+        const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.45, 0.9), sofaMat);
+        sofaBase.position.set(0, 0.22, -baseDepth * 0.2);
+        interiorGroup.add(sofaBase);
+
+        const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.55, 0.25), sofaMat);
+        sofaBack.position.set(0, 0.65, -baseDepth * 0.2 - 0.32);
+        interiorGroup.add(sofaBack);
+
+        // Marble Coffee Table
+        const tableMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2 });
+        const table = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.35, 0.7), tableMat);
+        table.position.set(0, 0.18, -baseDepth * 0.2 + 0.9);
+        interiorGroup.add(table);
+
+        this.houseGroup.add(interiorGroup);
     }
 
     toggleXRayMode() {
@@ -857,7 +1002,7 @@ class ThreeEngine3D {
         if (btn && text) {
             if (this.isXRayMode) {
                 btn.className = 'px-3 py-1.5 rounded-xl border border-indigo-500 text-xs font-bold text-white bg-indigo-600 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer';
-                text.innerText = 'الوضع الإنشائي (X-Ray ON)';
+                text.innerText = 'عرض الحجر المصمت';
             } else {
                 btn.className = 'px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-750 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer';
                 text.innerText = 'رؤية الهيكل العظم';
@@ -872,8 +1017,7 @@ class ThreeEngine3D {
             this.houseGroup.traverse(child => {
                 if (child.isMesh && child.material) {
                     child.material.transparent = true;
-                    child.material.opacity = 0.2;
-                    child.material.wireframe = true;
+                    child.material.opacity = 0.08;
                 }
             });
             this.skeletonGroup.visible = true;
@@ -882,7 +1026,6 @@ class ThreeEngine3D {
                 if (child.isMesh && child.material) {
                     child.material.transparent = child.material.opacity < 0.9;
                     child.material.opacity = 1.0;
-                    child.material.wireframe = false;
                 }
             });
             this.skeletonGroup.visible = false;
@@ -893,16 +1036,16 @@ class ThreeEngine3D {
         if (!this.camera || !this.controls) return;
         this.isDroneOrbiting = false;
 
-        const targetLook = new THREE.Vector3(0, 4, 0);
-        let targetPos = new THREE.Vector3(0, 6, 36);
+        const targetLook = new THREE.Vector3(0, 3.5, 0);
+        let targetPos = new THREE.Vector3(0.2, 5.0, 16.0);
 
         if (preset === 'front') {
-            targetPos = new THREE.Vector3(0, 5, 38);
+            targetPos = new THREE.Vector3(0.2, 4.5, 15.5);
         } else if (preset === 'iso') {
-            targetPos = new THREE.Vector3(30, 25, 34);
+            targetPos = new THREE.Vector3(14.0, 11.0, 15.0);
         } else if (preset === 'interior') {
-            targetPos = new THREE.Vector3(0, 1.8, 4);
-            targetLook.set(0, 1.8, -4);
+            targetPos = new THREE.Vector3(-1.0, 1.45, 1.6);
+            targetLook.set(-0.2, 1.25, -0.6);
         }
 
         this.cameraTargetPos = targetPos;
@@ -938,16 +1081,16 @@ class ThreeEngine3D {
 
         if (this.isDroneOrbiting) {
             this.droneAngle += 0.008;
-            const radius = 38;
+            const radius = 22;
             this.camera.position.x = Math.cos(this.droneAngle) * radius;
             this.camera.position.z = Math.sin(this.droneAngle) * radius;
-            this.camera.position.y = 18 + Math.sin(this.droneAngle * 0.5) * 4;
+            this.camera.position.y = 8 + Math.sin(this.droneAngle * 0.5) * 2.5;
             this.camera.lookAt(this.controls.target);
         } else if (this.isCameraAnimating && this.cameraTargetPos) {
-            this.camera.position.lerp(this.cameraTargetPos, 0.06);
-            this.controls.target.lerp(this.controlsTargetPos, 0.06);
+            this.camera.position.lerp(this.cameraTargetPos, 0.08);
+            this.controls.target.lerp(this.controlsTargetPos, 0.08);
 
-            if (this.camera.position.distanceTo(this.cameraTargetPos) < 0.1) {
+            if (this.camera.position.distanceTo(this.cameraTargetPos) < 0.05) {
                 this.isCameraAnimating = false;
             }
         }

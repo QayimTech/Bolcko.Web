@@ -1036,6 +1036,7 @@ class BlockoCalculatorController {
         const includeCornice = document.getElementById('includeCorniceBelt')?.checked ?? true;
         const windowCount = parseInt(document.getElementById('windowFramesCount')?.value || 8);
         const columnCount = parseInt(document.getElementById('entranceColumnsCount')?.value || 2);
+        const columnBars = document.querySelector('input[name="columnBarsCount"]:checked')?.value || "6Bars";
         const archStyle = document.getElementById('architecturalStyle')?.value || "classic";
         const modernConcept = document.getElementById('modernConcept')?.value || "cantilever";
 
@@ -1049,6 +1050,7 @@ class BlockoCalculatorController {
             includeCornice,
             windowCount,
             columnCount,
+            columnBars,
             archStyle,
             modernConcept
         });
