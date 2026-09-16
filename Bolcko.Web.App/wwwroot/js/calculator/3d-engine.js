@@ -15,8 +15,8 @@ class ProceduralTextureFactory {
         this.renderer = renderer;
     }
 
-    getStonePbrTextures(stoneType, stoneFinish) {
-        const key = `${stoneType}_${stoneFinish}`;
+    getStonePbrTextures(stoneType, stoneFinish, courseHeightCm = 25, jointStyle = 'recessed', bondPattern = 'free_length', stoneThicknessCm = 5) {
+        const key = `${stoneType}_${stoneFinish}_${courseHeightCm}_${jointStyle}_${bondPattern}_${stoneThicknessCm}`;
         if (this.cache.has(key)) {
             return this.cache.get(key);
         }
@@ -33,27 +33,28 @@ class ProceduralTextureFactory {
         const bumpCtx = bumpCanvas.getContext('2d');
 
         // Authentic Jordanian stone base palettes
-        let baseR = 226, baseG = 210, baseB = 182; // Warm desert limestone (Ruwaished)
+        let baseR = 226, baseG = 210, baseB = 182; // Ruwaished desert limestone
         let jointColor = '#16110b';
-        let highlightColor = 'rgba(255,255,255,0.70)';
-        let shadowColor = 'rgba(18,12,8,0.65)';
+        let highlightColor = 'rgba(255,255,255,0.75)';
+        let shadowColor = 'rgba(18,12,8,0.70)';
 
         if (stoneType === 'Natural_Maan') {
-            baseR = 248; baseG = 246; baseB = 242; // Ma'an pure white
+            baseR = 248; baseG = 246; baseB = 242; // Ma'an pure white calcite
             jointColor = '#2d2720';
-            highlightColor = 'rgba(255,255,255,0.85)';
-            shadowColor = 'rgba(35,30,24,0.50)';
+            highlightColor = 'rgba(255,255,255,0.90)';
+            shadowColor = 'rgba(35,30,24,0.55)';
         } else if (stoneType === 'Natural_Hayyan') {
-            baseR = 215; baseG = 198; baseB = 178; // Hayyan hard beige
+            baseR = 215; baseG = 198; baseB = 178; // Hayyan hard beige-grey
             jointColor = '#1a1612';
+            shadowColor = 'rgba(20,16,12,0.75)';
         } else if (stoneType === 'Natural_Ajloun') {
-            baseR = 232; baseG = 218; baseB = 190; // Ajloun creamy yellow
+            baseR = 234; baseG = 220; baseB = 190; // Ajloun warm creamy yellow
             jointColor = '#221c15';
         } else if (stoneType === 'Natural_Travertine') {
-            baseR = 216; baseG = 197; baseB = 168; // Jordanian Travertine
+            baseR = 218; baseG = 200; baseB = 170; // Jordanian Travertine
             jointColor = '#1e1810';
         } else if (stoneType === 'Artificial_HighDensity') {
-            baseR = 212; baseG = 208; baseB = 202; // Cast engineered stone
+            baseR = 214; baseG = 210; baseB = 204; // Cast engineered stone
             jointColor = '#1e1c18';
         }
 
@@ -64,211 +65,266 @@ class ProceduralTextureFactory {
         bumpCtx.fillStyle = '#808080';
         bumpCtx.fillRect(0, 0, TEX_RES, TEX_RES);
 
-        // 16 Jordanian standard Madameek courses (25cm per course on 4.0m wall)
-        const numCourses = 16;
-        const courseHeight = TEX_RES / numCourses; // 128px per course
+        // Dynamic course calculations based on 4.0m wall height
+        const wallHeightMeters = 4.0;
+        const courseHeightMeters = Math.max(0.15, Math.min(0.50, courseHeightCm / 100.0));
+        const numCourses = Math.max(6, Math.min(28, Math.round(wallHeightMeters / courseHeightMeters)));
+        const coursePixelHeight = TEX_RES / numCourses;
+
+        const jointGapPx = jointStyle === 'dry_joint' ? 2.5 : (jointStyle === 'flush' ? 5.0 : 8.5);
 
         for (let r = 0; r < numCourses; r++) {
-            const y = r * courseHeight;
-            const courseOffset = (r % 2) * 280;
-            let x = -courseOffset;
+            const y = r * coursePixelHeight;
+            let courseOffset = 0;
+
+            if (bondPattern === 'running') {
+                courseOffset = (r % 2) * (TEX_RES / 4);
+            } else if (bondPattern === 'free_length') {
+                courseOffset = ((r * 197.3) % (TEX_RES / 3));
+            } else {
+                courseOffset = 0; // Stacked / Grid
+            }
+
+            let x = -courseOffset - 400;
 
             while (x < TEX_RES + 600) {
-                const seed = Math.abs(Math.floor((r * 47.3 + x * 19.7) % 100));
-                const blockWidth = 260 + (seed % 200);
+                const seed = Math.abs(Math.floor((r * 53.7 + x * 23.9) % 1000));
+                let blockWidth = 0;
 
-                const tint = (seed % 24) - 12;
+                if (bondPattern === 'stacked') {
+                    blockWidth = TEX_RES / (numCourses * 0.7);
+                } else if (bondPattern === 'running') {
+                    blockWidth = (TEX_RES / 4);
+                } else {
+                    // Free length: varied natural lengths 40-80cm equivalent
+                    blockWidth = coursePixelHeight * (1.6 + ((seed % 140) / 100.0));
+                }
+
+                const tint = (seed % 28) - 14;
                 const rCol = Math.min(255, Math.max(0, baseR + tint));
                 const gCol = Math.min(255, Math.max(0, baseG + tint));
                 const bCol = Math.min(255, Math.max(0, baseB + tint));
 
-                // Diffuse base
+                const bx = x + jointGapPx / 2;
+                const by = y + jointGapPx / 2;
+                const bw = blockWidth - jointGapPx;
+                const bh = coursePixelHeight - jointGapPx;
+
+                // Diffuse block base with subtle sandstone grain
                 diffCtx.fillStyle = `rgb(${rCol}, ${gCol}, ${bCol})`;
-                diffCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
+                diffCtx.fillRect(bx, by, bw, bh);
 
-                // Bump base
+                // Bump block base
                 bumpCtx.fillStyle = '#969696';
-                bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
+                bumpCtx.fillRect(bx, by, bw, bh);
 
-                // ──────────────── FINISH SCULPTING ────────────────
+                // ──────────────── AUTHENTIC FINISH SCULPTING ────────────────
                 if (stoneFinish === 'Tabzeh') {
-                    // TABZEH: Draught margin (Safiha) + rock boss (Kousha)
-                    const margin = 16;
-                    const innerX = x + margin;
-                    const innerY = y + margin;
-                    const innerW = blockWidth - margin * 2;
-                    const innerH = courseHeight - margin * 2;
+                    // 1. TABZEH: Drafted Margin (السفيحة) + Central Rock Boss (الكوشة)
+                    const margin = Math.max(8, Math.min(24, Math.round(coursePixelHeight * 0.12)));
+                    const innerX = bx + margin;
+                    const innerY = by + margin;
+                    const innerW = bw - margin * 2;
+                    const innerH = bh - margin * 2;
 
-                    diffCtx.strokeStyle = 'rgba(0,0,0,0.45)';
-                    diffCtx.lineWidth = 2.0;
+                    // Drafted Margin Chisel Border
+                    diffCtx.strokeStyle = 'rgba(0,0,0,0.30)';
+                    diffCtx.lineWidth = 1.5;
                     diffCtx.strokeRect(innerX, innerY, innerW, innerH);
 
-                    bumpCtx.strokeStyle = '#252525';
-                    bumpCtx.lineWidth = 2.5;
+                    bumpCtx.strokeStyle = '#282828';
+                    bumpCtx.lineWidth = 2.0;
                     bumpCtx.strokeRect(innerX, innerY, innerW, innerH);
 
-                    const numFacetsX = 4;
-                    const numFacetsY = 2;
-                    const facetW = innerW / numFacetsX;
-                    const facetH = innerH / numFacetsY;
+                    // Central Rock Boss with Multi-Octave Fractal Rock Relief
+                    const numBossX = Math.max(3, Math.floor(innerW / 40));
+                    const numBossY = Math.max(2, Math.floor(innerH / 30));
+                    const facetW = innerW / numBossX;
+                    const facetH = innerH / numBossY;
 
-                    for (let fy = 0; fy < numFacetsY; fy++) {
-                        for (let fx = 0; fx < numFacetsX; fx++) {
+                    for (let fy = 0; fy < numBossY; fy++) {
+                        for (let fx = 0; fx < numBossX; fx++) {
                             const fcx = innerX + fx * facetW;
                             const fcy = innerY + fy * facetH;
-                            const fSeed = (seed * 13 + fx * 17 + fy * 29) % 50;
+                            const fSeed = (seed * 19 + fx * 31 + fy * 47) % 100;
 
-                            const distFromCenterX = Math.abs((fx + 0.5) - numFacetsX / 2) / (numFacetsX / 2);
-                            const distFromCenterY = Math.abs((fy + 0.5) - numFacetsY / 2) / (numFacetsY / 2);
+                            const distFromCenterX = Math.abs((fx + 0.5) - numBossX / 2) / (numBossX / 2);
+                            const distFromCenterY = Math.abs((fy + 0.5) - numBossY / 2) / (numBossY / 2);
                             const dist = Math.sqrt(distFromCenterX * distFromCenterX + distFromCenterY * distFromCenterY);
-                            const peakHeight = Math.max(0, 1.0 - dist * 0.65);
+                            const rockProtrusion = Math.max(0, 1.0 - Math.pow(dist, 1.4) * 0.75);
 
-                            const bumpVal = Math.min(255, Math.floor(165 + peakHeight * 85 + (fSeed % 25)));
+                            const thicknessFactor = Math.min(1.4, stoneThicknessCm / 5.0);
+                            const bumpVal = Math.min(255, Math.floor(150 + rockProtrusion * 95 * thicknessFactor + (fSeed % 28)));
                             const bHex = bumpVal.toString(16).padStart(2, '0');
                             bumpCtx.fillStyle = `#${bHex}${bHex}${bHex}`;
                             bumpCtx.fillRect(fcx + 1, fcy + 1, facetW - 1, facetH - 1);
 
-                            if ((fx + fy) % 2 === 0) {
-                                diffCtx.fillStyle = `rgba(255,255,255,${0.18 + (fSeed % 10) * 0.02})`;
+                            // Facet Lighting & Micro-Rock Cleavage
+                            if ((fx + fy + fSeed) % 2 === 0) {
+                                diffCtx.fillStyle = `rgba(255,255,255,${0.18 + (fSeed % 12) * 0.015})`;
                             } else {
-                                diffCtx.fillStyle = `rgba(0,0,0,${0.16 + (fSeed % 10) * 0.02})`;
+                                diffCtx.fillStyle = `rgba(15,10,5,${0.20 + (fSeed % 12) * 0.015})`;
                             }
                             diffCtx.fillRect(fcx + 1, fcy + 1, facetW - 1, facetH - 1);
 
-                            diffCtx.strokeStyle = 'rgba(0,0,0,0.35)';
-                            diffCtx.lineWidth = 1.6;
+                            // Crystalline Chisel Ridge Lines
+                            diffCtx.strokeStyle = 'rgba(0,0,0,0.40)';
+                            diffCtx.lineWidth = 1.8;
                             diffCtx.beginPath();
                             diffCtx.moveTo(fcx, fcy);
-                            diffCtx.lineTo(fcx + facetW, fcy + facetH * 0.7);
+                            diffCtx.lineTo(fcx + facetW * 0.85, fcy + facetH * 0.9);
                             diffCtx.stroke();
 
-                            bumpCtx.strokeStyle = '#181818';
-                            bumpCtx.lineWidth = 2.0;
+                            bumpCtx.strokeStyle = '#121212';
+                            bumpCtx.lineWidth = 2.2;
                             bumpCtx.beginPath();
                             bumpCtx.moveTo(fcx, fcy);
-                            bumpCtx.lineTo(fcx + facetW, fcy + facetH * 0.7);
+                            bumpCtx.lineTo(fcx + facetW * 0.85, fcy + facetH * 0.9);
                             bumpCtx.stroke();
                         }
                     }
                 } else if (stoneFinish === 'Musamsam') {
-                    // MUSAMSAM: Razor-sharp chisel tooth comb grooving
+                    // 2. MUSAMSAM: High-Density Toothed Claw Chisel Comb Grooves
+                    const toothSpacing = 5.5; // Fine teeth spacing
                     diffCtx.strokeStyle = shadowColor;
-                    diffCtx.lineWidth = 1.8;
-                    bumpCtx.lineWidth = 2.2;
+                    diffCtx.lineWidth = 1.4;
+                    bumpCtx.lineWidth = 1.8;
 
-                    for (let line = 8; line < blockWidth - 8; line += 7.0) {
-                        const lx = x + line;
+                    for (let line = 4; line < bw - 4; line += toothSpacing) {
+                        const lx = bx + line;
+
+                        // Chisel groove shadow
+                        diffCtx.strokeStyle = shadowColor;
                         diffCtx.beginPath();
-                        diffCtx.moveTo(lx, y + 4);
-                        diffCtx.lineTo(lx, y + courseHeight - 4);
+                        diffCtx.moveTo(lx, by + 3);
+                        diffCtx.lineTo(lx, by + bh - 3);
                         diffCtx.stroke();
 
-                        bumpCtx.strokeStyle = '#0e0e0e';
+                        bumpCtx.strokeStyle = '#141414';
                         bumpCtx.beginPath();
-                        bumpCtx.moveTo(lx, y + 4);
-                        bumpCtx.lineTo(lx, y + courseHeight - 4);
+                        bumpCtx.moveTo(lx, by + 3);
+                        bumpCtx.lineTo(lx, by + bh - 3);
                         bumpCtx.stroke();
 
+                        // Chisel ridge highlight
                         diffCtx.strokeStyle = highlightColor;
                         diffCtx.beginPath();
-                        diffCtx.moveTo(lx + 2.0, y + 4);
-                        diffCtx.lineTo(lx + 2.0, y + courseHeight - 4);
+                        diffCtx.moveTo(lx + 1.8, by + 3);
+                        diffCtx.lineTo(lx + 1.8, by + bh - 3);
                         diffCtx.stroke();
 
                         bumpCtx.strokeStyle = '#ffffff';
                         bumpCtx.beginPath();
-                        bumpCtx.moveTo(lx + 2.0, y + 4);
-                        bumpCtx.lineTo(lx + 2.0, y + courseHeight - 4);
+                        bumpCtx.moveTo(lx + 1.8, by + 3);
+                        bumpCtx.lineTo(lx + 1.8, by + bh - 3);
                         bumpCtx.stroke();
-
-                        diffCtx.strokeStyle = shadowColor;
                     }
                 } else if (stoneFinish === 'Monaqqar') {
-                    // MONAQQAR: Bush-hammered pyramidal stipples
-                    for (let p = 0; p < 220; p++) {
-                        const px = x + 5 + ((p * 47 + seed * 9) % (blockWidth - 10));
-                        const py = y + 5 + ((p * 73 + seed * 13) % (courseHeight - 10));
+                    // 3. MONAQQAR: Dense Bush-Hammered Pyramidal Micro-Pits
+                    const numPits = Math.floor((bw * bh) / 140);
+                    for (let p = 0; p < numPits; p++) {
+                        const px = bx + 4 + ((p * 79 + seed * 17) % (bw - 8));
+                        const py = by + 4 + ((p * 113 + seed * 23) % (bh - 8));
 
+                        // Deep impact crater
                         diffCtx.fillStyle = shadowColor;
-                        diffCtx.fillRect(px, py, 2.4, 2.4);
+                        diffCtx.fillRect(px, py, 2.2, 2.2);
 
-                        bumpCtx.fillStyle = '#0c0c0c';
-                        bumpCtx.fillRect(px, py, 2.2, 2.2);
+                        bumpCtx.fillStyle = '#0a0a0a';
+                        bumpCtx.fillRect(px, py, 2.0, 2.0);
 
+                        // White crushed calcite halo
                         diffCtx.fillStyle = highlightColor;
-                        diffCtx.fillRect(px + 1.4, py + 1.4, 1.4, 1.4);
+                        diffCtx.fillRect(px + 1.2, py + 1.2, 1.4, 1.4);
 
                         bumpCtx.fillStyle = '#ffffff';
-                        bumpCtx.fillRect(px + 1.4, py + 1.4, 1.6, 1.6);
+                        bumpCtx.fillRect(px + 1.2, py + 1.2, 1.6, 1.6);
                     }
                 } else if (stoneFinish === 'Honed') {
-                    // HONED: Smooth sawn face with sediment veins
-                    diffCtx.strokeStyle = 'rgba(150, 130, 100, 0.32)';
-                    diffCtx.lineWidth = 1.8;
-                    diffCtx.beginPath();
-                    const veinStart = y + ((seed * 19) % courseHeight);
-                    diffCtx.moveTo(x + 5, veinStart);
-                    diffCtx.bezierCurveTo(x + blockWidth * 0.35, veinStart + 10, x + blockWidth * 0.7, veinStart - 8, x + blockWidth - 5, veinStart + 5);
-                    diffCtx.stroke();
+                    // 4. HONED: Smooth Sawn Face with Delicate Sedimentary Calcite Veins
+                    const numVeins = 2;
+                    for (let v = 0; v < numVeins; v++) {
+                        diffCtx.strokeStyle = 'rgba(140, 115, 85, 0.28)';
+                        diffCtx.lineWidth = 1.6;
+                        diffCtx.beginPath();
+                        const vStart = by + ((seed * 23 + v * 53) % bh);
+                        diffCtx.moveTo(bx + 4, vStart);
+                        diffCtx.bezierCurveTo(
+                            bx + bw * 0.35, vStart + ((seed % 20) - 10),
+                            bx + bw * 0.70, vStart + (((seed * 7) % 24) - 12),
+                            bx + bw - 4, vStart + ((seed % 14) - 7)
+                        );
+                        diffCtx.stroke();
+                    }
 
-                    bumpCtx.fillStyle = '#9e9e9e';
-                    bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, courseHeight - 8);
+                    bumpCtx.fillStyle = '#a0a0a0';
+                    bumpCtx.fillRect(bx + 4, by + 4, bw - 8, bh - 8);
                 } else {
-                    // MUFAJJAR: Natural rock fracture
-                    const numFacets = 3;
-                    const fW = (blockWidth - 8) / numFacets;
-                    for (let fi = 0; fi < numFacets; fi++) {
-                        const fx = x + 4 + fi * fW;
-                        const fSeed = (seed * 17 + fi * 31) % 40;
-                        bumpCtx.fillStyle = (fSeed % 2 === 0) ? '#d0d0d0' : '#707070';
-                        bumpCtx.fillRect(fx, y + 4, fW, courseHeight - 8);
+                    // 5. MUFAJJAR: Natural Split-Face Rock Fracture
+                    const numFractures = Math.max(3, Math.floor(bw / 50));
+                    const fW = (bw - 6) / numFractures;
+                    for (let fi = 0; fi < numFractures; fi++) {
+                        const fx = bx + 3 + fi * fW;
+                        const fSeed = (seed * 29 + fi * 43) % 60;
 
-                        bumpCtx.strokeStyle = '#181818';
-                        bumpCtx.lineWidth = 2.4;
+                        const bumpColor = (fSeed % 2 === 0) ? '#d8d8d8' : '#686868';
+                        bumpCtx.fillStyle = bumpColor;
+                        bumpCtx.fillRect(fx, by + 3, fW, bh - 6);
+
+                        // Natural Fracture Strata Lines
+                        bumpCtx.strokeStyle = '#101010';
+                        bumpCtx.lineWidth = 2.2;
                         bumpCtx.beginPath();
-                        bumpCtx.moveTo(fx, y + 4);
-                        bumpCtx.lineTo(fx + fW * 0.45, y + courseHeight - 4);
+                        bumpCtx.moveTo(fx, by + 3);
+                        bumpCtx.lineTo(fx + fW * 0.55, by + bh - 3);
                         bumpCtx.stroke();
 
                         diffCtx.strokeStyle = 'rgba(0,0,0,0.38)';
-                        diffCtx.lineWidth = 2.0;
+                        diffCtx.lineWidth = 1.8;
                         diffCtx.beginPath();
-                        diffCtx.moveTo(fx, y + 4);
-                        diffCtx.lineTo(fx + fW * 0.45, y + courseHeight - 4);
+                        diffCtx.moveTo(fx, by + 3);
+                        diffCtx.lineTo(fx + fW * 0.55, by + bh - 3);
                         diffCtx.stroke();
                     }
                 }
 
-                // 3D Bevel Edge Chamfers
+                // 3D Bevel Edge Chamfers (حواف الحجر المشطافة)
                 diffCtx.fillStyle = highlightColor;
-                diffCtx.fillRect(x + 4, y + 4, blockWidth - 8, 3.5);
-                diffCtx.fillRect(x + 4, y + 4, 3.5, courseHeight - 8);
+                diffCtx.fillRect(bx, by, bw, 3.0);
+                diffCtx.fillRect(bx, by, 3.0, bh);
 
-                bumpCtx.fillStyle = '#f6f6f6';
-                bumpCtx.fillRect(x + 4, y + 4, blockWidth - 8, 3.5);
-                bumpCtx.fillRect(x + 4, y + 4, 3.5, courseHeight - 8);
+                bumpCtx.fillStyle = '#f2f2f2';
+                bumpCtx.fillRect(bx, by, bw, 3.0);
+                bumpCtx.fillRect(bx, by, 3.0, bh);
 
                 diffCtx.fillStyle = shadowColor;
-                diffCtx.fillRect(x + 4, y + courseHeight - 7.5, blockWidth - 8, 3.5);
-                diffCtx.fillRect(x + blockWidth - 7.5, y + 4, 3.5, courseHeight - 8);
+                diffCtx.fillRect(bx, by + bh - 3.0, bw, 3.0);
+                diffCtx.fillRect(bx + bw - 3.0, by, 3.0, bh);
 
                 bumpCtx.fillStyle = '#181818';
-                bumpCtx.fillRect(x + 4, y + courseHeight - 7.5, blockWidth - 8, 3.5);
-                bumpCtx.fillRect(x + blockWidth - 7.5, y + 4, 3.5, courseHeight - 8);
+                bumpCtx.fillRect(bx, by + bh - 3.0, bw, 3.0);
+                bumpCtx.fillRect(bx + bw - 3.0, by, 3.0, bh);
 
-                // Mortar joints
-                diffCtx.fillStyle = jointColor;
-                diffCtx.fillRect(x + blockWidth - 4.5, y, 7.5, courseHeight);
-                bumpCtx.fillStyle = '#000000';
-                bumpCtx.fillRect(x + blockWidth - 4.5, y, 7.5, courseHeight);
+                // Mortar joints (الكحلة بين الأحجار)
+                if (jointStyle !== 'dry_joint') {
+                    diffCtx.fillStyle = jointColor;
+                    diffCtx.fillRect(bx + bw, by - 2, jointGapPx, bh + 4);
+
+                    bumpCtx.fillStyle = '#000000';
+                    bumpCtx.fillRect(bx + bw, by - 2, jointGapPx, bh + 4);
+                }
 
                 x += blockWidth;
             }
 
-            diffCtx.fillStyle = jointColor;
-            diffCtx.fillRect(0, y + courseHeight - 4.5, TEX_RES, 7.5);
-            bumpCtx.fillStyle = '#000000';
-            bumpCtx.fillRect(0, y + courseHeight - 4.5, TEX_RES, 7.5);
+            // Horizontal Mortar Bed Joint (كحلة المدماك الأفقية)
+            if (jointStyle !== 'dry_joint') {
+                diffCtx.fillStyle = jointColor;
+                diffCtx.fillRect(0, y + coursePixelHeight - jointGapPx / 2, TEX_RES, jointGapPx);
+
+                bumpCtx.fillStyle = '#000000';
+                bumpCtx.fillRect(0, y + coursePixelHeight - jointGapPx / 2, TEX_RES, jointGapPx);
+            }
         }
 
         const diffTexture = new THREE.CanvasTexture(diffCanvas);
@@ -514,24 +570,31 @@ class ThreeEngine3D {
         const archStyle = params.archStyle || this.currentArchStyle;
         const modernConcept = params.modernConcept || this.currentModernConcept;
         const columnBars = params.columnBars || '6Bars';
+        const courseHeight = params.courseHeight || 25;
+        const stoneThickness = params.stoneThickness || 5;
+        const jointStyle = params.jointStyle || 'recessed';
+        const bondPattern = params.bondPattern || 'free_length';
 
         const baseWidth = Math.min(10.2, Math.max(7.2, Math.sqrt(area) * 0.45));
         const baseDepth = baseWidth * 0.82;
         const floorHeight = 2.8;
 
-        // PBR Textures with authentic 25cm course mapping
-        const { diffTexture, bumpTexture } = this.textureFactory.getStonePbrTextures(stoneType, stoneFinish);
+        // PBR Textures with authentic course height, thickness, and joint mapping
+        const { diffTexture, bumpTexture } = this.textureFactory.getStonePbrTextures(stoneType, stoneFinish, courseHeight, jointStyle, bondPattern, stoneThickness);
         diffTexture.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
         bumpTexture.repeat.set(baseWidth / 4.0, floorHeight / 4.0);
 
         const stoneTrimColor = stoneType === "Natural_Maan" ? 0xffffff : (stoneType === "Natural_Ruwaished" ? 0xd8c59f : 0xb5afa3);
         const stonePlinthColor = stoneType === "Natural_Maan" ? 0xd0cbbd : 0x8a7b66;
 
+        const thicknessFactor = Math.min(1.5, Math.max(0.6, stoneThickness / 5.0));
+        const baseBump = stoneFinish === 'Tabzeh' ? 0.052 : (stoneFinish === 'Musamsam' ? 0.036 : (stoneFinish === 'Monaqqar' ? 0.032 : (stoneFinish === 'Honed' ? 0.008 : 0.046)));
+
         const wallMaterial = new THREE.MeshStandardMaterial({
             map: diffTexture,
             bumpMap: bumpTexture,
-            bumpScale: stoneFinish === 'Tabzeh' ? 0.042 : (stoneFinish === 'Musamsam' ? 0.032 : (stoneFinish === 'Monaqqar' ? 0.028 : (stoneFinish === 'Honed' ? 0.007 : 0.048))),
-            roughness: stoneFinish === 'Tabzeh' ? 0.76 : (stoneFinish === 'Musamsam' ? 0.80 : (stoneFinish === 'Monaqqar' ? 0.78 : (stoneFinish === 'Honed' ? 0.40 : 0.82))),
+            bumpScale: baseBump * thicknessFactor,
+            roughness: stoneFinish === 'Tabzeh' ? 0.78 : (stoneFinish === 'Musamsam' ? 0.82 : (stoneFinish === 'Monaqqar' ? 0.80 : (stoneFinish === 'Honed' ? 0.38 : 0.84))),
             metalness: 0.02,
             transparent: this.isXRayMode,
             opacity: this.isXRayMode ? 0.06 : 1.0

@@ -412,6 +412,23 @@ class BlockoCalculatorController {
         });
     }
 
+    // ──────────────── STONE DIMENSIONS & SPECS EVENT ────────────────
+    onStoneDimensionChange() {
+        const courseHeight = document.querySelector('input[name="courseHeight"]:checked')?.value || "25";
+        const disp = document.getElementById('courseHeightDisplay');
+        if (disp) {
+            const labelMap = {
+                "50": this.isEnMode ? "50 cm (Mega Modern)" : "50 سم (مودرن عريض)",
+                "35": this.isEnMode ? "35 cm (Villa Classic)" : "35 سم (فلل مميز)",
+                "25": this.isEnMode ? "25 cm (Standard Jordan)" : "25 سم (قياسي أردني)",
+                "20": this.isEnMode ? "20 cm (Slim Course)" : "20 سم (مدماك ناعم)",
+                "15": this.isEnMode ? "15 cm (Thin Strip)" : "15 سم (شريطي دقيق)"
+            };
+            disp.innerText = labelMap[courseHeight] || (courseHeight + " cm");
+        }
+        this.onInputChange();
+    }
+
     // ──────────────── INSTANT MATHEMATICAL EVALUATION ────────────────
     onInputChange() {
         const area = document.getElementById('areaInput')?.value || 250;
@@ -532,6 +549,17 @@ class BlockoCalculatorController {
             else if (stoneFinish === "Monaqqar") stoneRate += 2.2;
             else if (stoneFinish === "Honed") stoneRate += 3.0;
 
+            const courseHeight = parseInt(document.querySelector('input[name="courseHeight"]:checked')?.value || 25);
+            const stoneThickness = parseInt(document.querySelector('input[name="stoneThickness"]:checked')?.value || 5);
+            const fixingMethod = document.querySelector('input[name="fixingMethod"]:checked')?.value || "traditional";
+
+            if (courseHeight === 50) stoneRate += 2.0;
+            else if (courseHeight === 15) stoneRate += 1.5;
+
+            if (stoneThickness === 7) stoneRate += 2.0;
+            else if (stoneThickness === 10) stoneRate += 4.0;
+            else if (stoneThickness === 3) stoneRate -= 2.0;
+
             stoneMaterialCost = Math.round(stoneNetArea * stoneRate);
 
             if (includeCornice && floors > 1) {
@@ -546,7 +574,8 @@ class BlockoCalculatorController {
             const colRate = hybridTrim || stoneType === "Artificial_HighDensity" ? 85.0 : 160.0;
             entranceColumnsCost = Math.round(columnCount * colRate);
 
-            stoneLaborCost = Math.round(stoneNetArea * 12.0);
+            const laborPerM2 = fixingMethod === "mechanical" ? 18.0 : 12.0;
+            stoneLaborCost = Math.round(stoneNetArea * laborPerM2);
             totalStoneCost = stoneMaterialCost + corniceCost + windowFramesCost + entranceColumnsCost + stoneLaborCost;
 
             if (stoneType === "Artificial_HighDensity") {
@@ -1039,6 +1068,10 @@ class BlockoCalculatorController {
         const columnBars = document.querySelector('input[name="columnBarsCount"]:checked')?.value || "6Bars";
         const archStyle = document.getElementById('architecturalStyle')?.value || "classic";
         const modernConcept = document.getElementById('modernConcept')?.value || "cantilever";
+        const courseHeight = parseInt(document.querySelector('input[name="courseHeight"]:checked')?.value || 25);
+        const stoneThickness = parseInt(document.querySelector('input[name="stoneThickness"]:checked')?.value || 5);
+        const jointStyle = document.querySelector('input[name="jointStyle"]:checked')?.value || "recessed";
+        const bondPattern = document.querySelector('input[name="bondPattern"]:checked')?.value || "free_length";
 
         window.Blocko3DEngine.updateScene({
             area,
@@ -1051,6 +1084,10 @@ class BlockoCalculatorController {
             windowCount,
             columnCount,
             columnBars,
+            courseHeight,
+            stoneThickness,
+            jointStyle,
+            bondPattern,
             archStyle,
             modernConcept
         });
