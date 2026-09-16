@@ -49,6 +49,10 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; }
         IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; }
 
+                // Islamic Murabaha & Trade Financing
+        IFinancingTenderRepository FinancingTenders { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteDeliveries { get; }
+
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

@@ -1,0 +1,218 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@{
+    ViewData["Title"] = $"تفاصيل عطاء المرابحة {Model.TrackingCode} | Block-O";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12" dir="rtl">
+    
+    <!-- Navigation Breadcrumbs -->
+    <nav class="flex items-center gap-2 mb-6 text-xs font-bold text-slate-400">
+        <a href="/" class="hover:text-amber-600 transition">الرئيسية</a>
+        <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+        <a href="@Url.Action("Index", "Financing", new { area = "Shop" })" class="hover:text-amber-600 transition">بوابة عطاءات المرابحة</a>
+        <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+        <span class="text-slate-800 truncate font-mono">@Model.TrackingCode</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Main Details (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Header Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200">@Model.TrackingCode</span>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        @Model.StatusNameAr
+                    </span>
+                </div>
+
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">@Model.ProjectTitle</h1>
+                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">location_on</span>
+                        <span>@Model.ProjectCity - @(string.IsNullOrEmpty(Model.ProjectAddress) ? "الموقع المعتمد" : Model.ProjectAddress)</span>
+                    </p>
+                </div>
+
+                <!-- Verification Badges -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+                        <div class="text-[10px] text-slate-400 font-bold">رقم رخصة البناء</div>
+                        <div class="font-mono font-bold text-slate-800 mt-0.5">@Model.BuildingPermitNumber</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+                        <div class="text-[10px] text-slate-400 font-bold">المقاول المعتمد</div>
+                        <div class="font-bold text-slate-800 mt-0.5">@Model.ContractorName</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+                        <div class="text-[10px] text-slate-400 font-bold">مؤشر الالتزام والثقة</div>
+                        <div class="font-bold text-emerald-600 mt-0.5">@Model.ContractorTrustScore% ممتاز</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOQ Items Table -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600">receipt_long</span>
+                    <span>كشف الكميات الفعلي المعتمد (BOQ Table)</span>
+                </h3>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-100">
+                    <table class="w-full text-xs text-start">
+                        <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-100">
+                            <tr>
+                                <th class="p-3 text-start">المادة الإنشائية</th>
+                                <th class="p-3 text-start">الفئة</th>
+                                <th class="p-3 text-center">الكمية</th>
+                                <th class="p-3 text-end">سعر الوحدة</th>
+                                <th class="p-3 text-end">الإجمالي (د.أ)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="p-3 font-bold">@item.MaterialName</td>
+                                    <td class="p-3 text-slate-500">@item.MaterialCategory</td>
+                                    <td class="p-3 text-center font-mono font-bold">@item.Quantity @item.Unit</td>
+                                    <td class="p-3 text-end font-mono">@item.UnitPriceJod.ToString("N2")</td>
+                                    <td class="p-3 text-end font-mono font-bold text-slate-900">@item.SubtotalJod.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-bold text-slate-900 border-t border-slate-200">
+                            <tr>
+                                <td colspan="4" class="p-3 text-start">إجمالي تكلفة الشراء من المصنع:</td>
+                                <td class="p-3 text-end font-mono text-base text-amber-600">@Model.BaseMaterialCost.ToString("N2") د.أ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sharia Wakala Contract Preview -->
+            <div class="bg-amber-50/60 rounded-3xl p-6 border border-amber-200/80 space-y-3 text-xs text-amber-900 leading-relaxed">
+                <div class="flex items-center gap-2 font-bold text-amber-800 text-sm">
+                    <span class="material-symbols-outlined">verified</span>
+                    <span>صيغة عقد الوكالة والمرابحة الشرعية المعتمدة</span>
+                </div>
+                <p>
+                    بموجب هذا العقد، يُوكّل المستثمر منصة <strong>Block-O</strong> بشراء المواد الموضحة أعلاه عيناً من المصنع/المورد نيابة عنه وقبضها لحسابه، ثم إعادة بيعها للمقاول بالمرابحة بربح محدد مقدماً قدره <strong>@Model.InvestorNetYieldAmount.ToString("N2") د.أ</strong> لمدة <strong>@Model.TenureDays يوماً</strong>، وتقتطع المنصة أجر وكالتها المتفق عليه (@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ) دون أي غرامات تأخير أو فوائد مركبة.
+                </p>
+            </div>
+        </div>
+
+        <!-- Sticky Funding Action Card (4 cols) -->
+        <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6 text-white">
+                <div class="space-y-1">
+                    <div class="text-xs text-slate-400 font-bold uppercase">المبلغ المطلوب لتمويل الصفقة</div>
+                    <div class="text-3xl font-black text-white font-mono">@Model.BaseMaterialCost.ToString("N0") <span class="text-xs font-sans text-slate-400 font-normal">د.أ</span></div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-slate-800 text-xs">
+                    <div class="flex items-center justify-between text-slate-300">
+                        <span>إجمالي سداد المقاول:</span>
+                        <span class="font-mono font-bold text-white">@Model.TotalPayableAmount.ToString("N2") د.أ</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-300">
+                        <span>أتعاب المنصة (1.5% Wakala):</span>
+                        <span class="font-mono text-slate-400">-@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ</span>
+                    </div>
+                    <div class="flex items-center justify-between text-emerald-400 font-bold pt-2 border-t border-slate-800 text-sm">
+                        <span>صافي ربح المستثمر:</span>
+                        <span class="font-mono text-emerald-400 text-base">+@Model.InvestorNetYieldAmount.ToString("N2") د.أ</span>
+                    </div>
+                    <div class="flex items-center justify-between text-amber-400 text-xs">
+                        <span>العائد السنوي المحسوب:</span>
+                        <span class="font-mono font-bold">@Model.AnnualizedYieldPercentage% سنوياً</span>
+                    </div>
+                </div>
+
+                @if (Model.Status == Bolcko.Domain.Enums.FinancingTenderStatus.OpenForBidding)
+                {
+                    <div class="space-y-4 pt-4 border-t border-slate-800">
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-300 font-bold block">الاسم الكامل للمستثمر / جهة التمويل:</label>
+                            <input type="text" id="funderNameInput" placeholder="أدخل اسمك أو اسم شركتك" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-300 font-bold block">رقم هاتف المستثمر (CliQ / الاتصال):</label>
+                            <input type="tel" id="funderPhoneInput" placeholder="0790000000" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500" />
+                        </div>
+
+                        <div class="flex items-start gap-2 pt-1">
+                            <input type="checkbox" id="agreeWakalaCheck" class="mt-0.5 rounded border-slate-700 text-amber-600 focus:ring-amber-500" checked />
+                            <label for="agreeWakalaCheck" class="text-[11px] text-slate-400 leading-tight">
+                                أوافق على شروط عقد الوكالة الشرعية وشراء المواد لحسابي وتفويض Block-O بتسليمها للموقع.
+                            </label>
+                        </div>
+
+                        <button type="button" onclick="fundTenderAction(@Model.Id)" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-3.5 px-4 rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                            <span class="material-symbols-outlined text-lg">check_circle</span>
+                            <span>تأكيد تمويل وشراء الصفقة</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-slate-800/80 p-4 rounded-xl text-center text-xs text-slate-300 space-y-1">
+                        <div class="font-bold text-amber-400">الصفقة ممولة مسبقاً</div>
+                        <div>تم تمويل هذا العطاء بنجاح ويتم تنفيذه حالياً.</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function fundTenderAction(tenderId) {
+        const name = document.getElementById('funderNameInput')?.value?.trim();
+        const phone = document.getElementById('funderPhoneInput')?.value?.trim();
+        const agree = document.getElementById('agreeWakalaCheck')?.checked;
+
+        if (!name || !phone) {
+            alert('يرجى إدخال اسمك ورقم الهاتف لإتمام تسجيل الوكالة والتمويل.');
+            return;
+        }
+
+        if (!agree) {
+            alert('يرجى الموافقة على شروط عقد الوكالة الشرعية للمتابعة.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/Shop/Financing/Fund', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tenderId: tenderId,
+                    funderName: name,
+                    funderPhone: phone,
+                    paymentMethod: 'CliQ',
+                    acceptWakalaTerms: true
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.');
+                window.location.reload();
+            } else {
+                alert(data.message || 'حدث خطأ أثناء معالجة التمويل.');
+            }
+        } catch (e) {
+            alert('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+        }
+    }
+</script>
+}

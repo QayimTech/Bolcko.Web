@@ -269,3 +269,142 @@
 
     </div>
 </div>
+
+<!-- ════════════════ MODAL 3: ISLAMIC MURABAHA TENDER SYNDICATION (عطاء تمويل المرابحة الإسلامية) ════════════════ -->
+<div id="murabahaFinancingModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200">
+        
+        <!-- Header -->
+        <div class="px-6 py-4 bg-gradient-to-r from-sky-950 via-slate-900 to-sky-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold shadow-md">
+                    <span class="material-symbols-outlined text-lg">account_balance</span>
+                </span>
+                <div>
+                    <h3 class="text-sm font-bold text-white">@(isEn ? "Islamic Murabaha Trade Tender" : "طلب تمويل مواد بالمرابحة الإسلامية")</h3>
+                    <p class="text-[11px] text-sky-200 font-normal">@(isEn ? "100% Sharia-compliant • Asset-backed • 0% Balance sheet liability" : "تمويل إسلامي 100% مبني على شراء أصول عينية وتسليم موثق بالـ GPS")</p>
+                </div>
+            </div>
+            <button type="button" onclick="BlockoCalculator.closeMurabahaModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+
+        <!-- Form Body -->
+        <div id="murabahaFormContent" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar">
+            
+            <!-- Sharia Info Banner -->
+            <div class="p-3.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-950 flex items-start gap-2.5 text-xs">
+                <span class="material-symbols-outlined text-sky-600 text-lg flex-shrink-0">verified</span>
+                <div>
+                    <strong class="font-bold text-sky-900 block mb-0.5">صيغة التمويل الشرعية (المرابحة للآمر بالشراء):</strong>
+                    <span>يقوم المستثمر الممول بشراء مواد البناء نقداً من المصانع/المقالع وتملكها وقبضها حكماً، ثم بيعها لك بالمرابحة مع هامش ربح معلوم وفترة سداد مريحة دون أي فوائد ربوية أو غرامات تأخير.</span>
+                </div>
+            </div>
+
+            <!-- BOQ Financial Summary Card -->
+            <div class="p-4 rounded-xl bg-slate-900 text-white border border-slate-800 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] text-slate-400 block uppercase font-mono">قيمة العطاء المطلوب تمويله</span>
+                    <span class="text-2xl font-bold font-mono text-emerald-400" id="murabahaBoqTotal">--</span>
+                    <span class="text-xs text-slate-300 ms-1">د.أ</span>
+                </div>
+                <div class="text-end">
+                    <span class="text-[10px] text-slate-400 block font-mono">هامش المرابحة السنوي المقدر</span>
+                    <span class="text-sm font-bold font-mono text-amber-400">8.0% ~ 10.0% APR</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">اسم المقاول / الشركة الهندسية <span class="text-rose-500">*</span></label>
+                        <input type="text" id="murabahaContractorName" placeholder="مثال: شركة النماء للمقاولات" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-sky-500 outline-none" />
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">رقم الهاتف / الواتساب المعتمد <span class="text-rose-500">*</span></label>
+                        <input type="tel" id="murabahaPhone" placeholder="079XXXXXXX" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-sky-500 outline-none text-start" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">المدينة / المحافظة <span class="text-rose-500">*</span></label>
+                        <select id="murabahaCity" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-white">
+                            <option value="عمان">عمان (Amman)</option>
+                            <option value="الزرقاء">الزرقاء (Zarqa)</option>
+                            <option value="إربد">إربد (Irbid)</option>
+                            <option value="السلط">السلط (Salt)</option>
+                            <option value="مادبا">مادبا (Madaba)</option>
+                            <option value="العقبة">العقبة (Aqaba)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">فترة السداد المطلوبة (أيام) <span class="text-rose-500">*</span></label>
+                        <select id="murabahaTenure" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-sky-500 outline-none bg-white font-mono">
+                            <option value="30">30 يوم (شهر واحد)</option>
+                            <option value="60" selected>60 يوم (شهران)</option>
+                            <option value="90">90 يوم (3 أشهر)</option>
+                            <option value="120">120 يوم (4 أشهر)</option>
+                            <option value="180">180 يوم (6 أشهر)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">عنوان الورشة / موقع المشروع <span class="text-rose-500">*</span></label>
+                    <textarea id="murabahaAddress" rows="2" placeholder="المنطقة، الشارع، رقم الحوض والقطعة لتأكيد التوريد الموقعي" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-sky-500 outline-none resize-none"></textarea>
+                </div>
+
+                <!-- GPS Coordinates with 1-click geolocation -->
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="font-bold text-slate-700 text-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-sky-600">location_on</span>
+                            <span>إحداثيات الموقع الجغرافي (GPS) للـ Geofencing</span>
+                        </label>
+                        <button type="button" onclick="BlockoCalculator.fetchMurabahaGps()" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-xs">my_location</span>
+                            <span>تحديد موقعي الآن</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="murabahaLatitude" placeholder="خط العرض (Lat: 31.9539)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono" />
+                        <input type="text" id="murabahaLongitude" placeholder="خط الطول (Lng: 35.9106)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono" />
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">تُستخدم الإحداثيات لمطابقة تسليم شاحنات التوريد بنظام Geofencing قبل تحويل المستحقات للموردين.</p>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="BlockoCalculator.closeMurabahaModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer">إلغاء</button>
+                <button type="button" id="submitMurabahaBtn" onclick="BlockoCalculator.submitMurabahaTender()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-md transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">send</span>
+                    <span>طرح العطاء للمستثمرين (تمويل فوري)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Result -->
+        <div id="murabahaSuccessContent" class="p-6 text-center space-y-4 hidden">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <span class="material-symbols-outlined text-3xl">task_alt</span>
+            </div>
+            <div>
+                <h4 class="text-base font-bold text-slate-900">تم طرح عطاء المرابحة بنجاح في البوابة!</h4>
+                <p class="text-xs text-slate-500 mt-1">تم إرسال إشعار للمستثمرين المعتمدين لتغطية تمويل مواد البناء الخاصة بمشروعك.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 inline-block font-mono text-xs text-sky-900 font-bold" id="murabahaTenderCodeDisplay">
+                TNDR-2026-XXXX
+            </div>
+            <div>
+                <a id="murabahaTenderLink" href="/Shop/Financing" class="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-sky-600 text-white font-bold text-xs hover:bg-sky-700 transition-all shadow-md">
+                    <span>عرض العطاء في منصة التمويل</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>

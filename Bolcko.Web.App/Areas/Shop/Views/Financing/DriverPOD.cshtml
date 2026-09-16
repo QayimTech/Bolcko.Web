@@ -1,0 +1,135 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@{
+    ViewData["Title"] = $"إثبات تسليم المواد للموقع | {Model.TrackingCode}";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-xl mx-auto px-4 py-8" dir="rtl">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6 text-start">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase">إثبات التسليم الموقعي (GPS POD)</div>
+                <h1 class="text-lg font-black text-slate-900">@Model.ProjectTitle</h1>
+            </div>
+            <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">@Model.TrackingCode</span>
+        </div>
+
+        <!-- Project Location Info -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">الموقع المسجل للرخصة:</span>
+                <span class="font-bold text-slate-800">@Model.ProjectCity</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">المقاول المستلم:</span>
+                <span class="font-bold text-slate-800">@Model.ContractorName (@Model.ContractorPhone)</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-500">رقم رخصة البناء:</span>
+                <span class="font-mono font-bold text-slate-800">@Model.BuildingPermitNumber</span>
+            </div>
+        </div>
+
+        <!-- Live GPS Status -->
+        <div class="p-4 rounded-2xl border border-slate-200 bg-amber-50/40 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base text-amber-600">my_location</span>
+                    <span>تحديد موقع السائق المباشر (GPS):</span>
+                </span>
+                <span id="gpsStatusBadge" class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded">جاري القراءة...</span>
+            </div>
+            <div id="gpsCoordinatesText" class="text-[11px] font-mono text-slate-500">يرجى السماح بالوصول للموقع في المتصفح</div>
+        </div>
+
+        <!-- Driver Input Fields -->
+        <div class="space-y-4 text-xs">
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">اسم سائق الشاحنة:</label>
+                <input type="text" id="driverName" placeholder="مثال: أحمد محمود" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">رقم لوحة الشاحنة:</label>
+                <input type="text" id="vehiclePlate" placeholder="مثال: 12-34567" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">صورة تفريغ المواد في الورشة (Photo Proof):</label>
+                <input type="file" id="podPhotoInput" accept="image/*" capture="camera" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-amber-600" />
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" id="submitPodBtn" onclick="submitPodVerification(@Model.Id)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+            <span class="material-symbols-outlined">verified</span>
+            <span>تأكيد التسليم الموقعي بالـ GPS</span>
+        </button>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let driverLat = 0;
+    let driverLon = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                driverLat = pos.coords.latitude;
+                driverLon = pos.coords.longitude;
+                document.getElementById('gpsStatusBadge').className = "text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded";
+                document.getElementById('gpsStatusBadge').innerText = "تم التقاط الإحداثيات ✓";
+                document.getElementById('gpsCoordinatesText').innerText = `Lat: ${driverLat.toFixed(5)}, Lon: ${driverLon.toFixed(5)}`;
+            }, (err) => {
+                document.getElementById('gpsStatusBadge').className = "text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded";
+                document.getElementById('gpsStatusBadge').innerText = "تعذر قراءة الموقع";
+                document.getElementById('gpsCoordinatesText').innerText = "يرجى تفعيل الـ GPS في هاتفك والموافقة على الصلاحية.";
+            }, { enableHighAccuracy: true });
+        }
+    });
+
+    async function submitPodVerification(tenderId) {
+        const driver = document.getElementById('driverName')?.value?.trim();
+        const plate = document.getElementById('vehiclePlate')?.value?.trim();
+
+        if (!driver || !plate) {
+            alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
+            return;
+        }
+
+        const btn = document.getElementById('submitPodBtn');
+        btn.disabled = true;
+        btn.innerText = 'جاري التحقق من إحداثيات الموقع...';
+
+        try {
+            const res = await fetch('/Shop/Financing/SubmitPOD', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tenderId: tenderId,
+                    driverName: driver,
+                    driverPhone: '0790000000',
+                    vehiclePlateNumber: plate,
+                    driverLatitude: driverLat,
+                    driverLongitude: driverLon,
+                    photoUrl: '/images/pod-verified.jpg'
+                })
+            });
+
+            const data = await res.json();
+            alert(data.message || 'تم تسجيل التسليم بنجاح.');
+            if (data.success) {
+                window.location.href = `/Shop/Financing/Details/${tenderId}`;
+            }
+        } catch (e) {
+            alert('حدث خطأ أثناء رفع إثبات التوصيل.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'تأكيد التسليم الموقعي بالـ GPS';
+        }
+    }
+</script>
+}

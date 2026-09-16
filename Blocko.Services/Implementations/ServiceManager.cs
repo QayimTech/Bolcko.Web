@@ -40,6 +40,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IProjectService> _lazyProjectService;
         private readonly Lazy<IDeliveryService> _lazyDeliveryService;
         private readonly Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService> _lazyPaymentGatewayService;
+        private readonly Lazy<Blocko.Services.Interfaces.Financing.IFinancingService> _lazyFinancingService;
 
         public ServiceManager(
             IUnitOfWork unitOfWork,
@@ -67,6 +68,7 @@ namespace Blocko.Services.Implementations
             _lazyProjectService      = new Lazy<IProjectService>(() => new ProjectService(unitOfWork));
             _lazyDeliveryService     = new Lazy<IDeliveryService>(() => new DeliveryService(unitOfWork, notificationService, deliveryDocumentService, emailSender));
             _lazyPaymentGatewayService = new Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService>(() => new Blocko.Services.Implementations.Payment.PaymentGatewayService(unitOfWork));
+            _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>()));
         }
 
         public IUserService UserService        => _lazyUserService.Value;
@@ -82,5 +84,6 @@ namespace Blocko.Services.Implementations
         public IProjectService ProjectService  => _lazyProjectService.Value;
         public IDeliveryService DeliveryService => _lazyDeliveryService.Value;
         public Blocko.Services.Interfaces.Payment.IPaymentGatewayService PaymentGatewayService => _lazyPaymentGatewayService.Value;
+        public Blocko.Services.Interfaces.Financing.IFinancingService FinancingService => _lazyFinancingService.Value;
     }
 }

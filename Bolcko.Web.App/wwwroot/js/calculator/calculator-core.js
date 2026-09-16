@@ -1356,6 +1356,174 @@ class BlockoCalculatorController {
         printWin.focus();
         setTimeout(() => { printWin.print(); printWin.close(); }, 500);
     }
+
+    openMurabahaModal() {
+        const modal = document.getElementById('murabahaFinancingModal');
+        if (!modal) return;
+
+        const totalEl = document.getElementById('grandTotalCost');
+        const grandTotal = totalEl ? totalEl.innerText.trim() : "0";
+        const boqTotalEl = document.getElementById('murabahaBoqTotal');
+        if (boqTotalEl) boqTotalEl.innerText = grandTotal;
+
+        document.getElementById('murabahaFormContent')?.classList.remove('hidden');
+        document.getElementById('murabahaSuccessContent')?.classList.add('hidden');
+        modal.classList.remove('hidden');
+    }
+
+    closeMurabahaModal() {
+        const modal = document.getElementById('murabahaFinancingModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    fetchMurabahaGps() {
+        if (!navigator.geolocation) {
+            alert(this.isEnMode ? "Geolocation is not supported by your browser." : "خدمة تحديد الموقع الجغرافي غير مدعومة في متصفحك.");
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const latEl = document.getElementById('murabahaLatitude');
+                const lngEl = document.getElementById('murabahaLongitude');
+                if (latEl) latEl.value = pos.coords.latitude.toFixed(6);
+                if (lngEl) lngEl.value = pos.coords.longitude.toFixed(6);
+            },
+            (err) => {
+                console.warn(err);
+                alert(this.isEnMode ? "Could not retrieve GPS location automatically. Please enter coordinates manually." : "تعذر جلب إحداثيات الـ GPS تلقائياً. يرجى إدخالها يدوياً أو تفعيل إذن الموقع.");
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+
+    async submitMurabahaTender() {
+        const btn = document.getElementById('submitMurabahaBtn');
+        const fullName = document.getElementById('murabahaContractorName')?.value?.trim();
+        const phone = document.getElementById('murabahaPhone')?.value?.trim();
+        const city = document.getElementById('murabahaCity')?.value || "عمان";
+        const tenure = parseInt(document.getElementById('murabahaTenure')?.value || 60);
+        const address = document.getElementById('murabahaAddress')?.value?.trim() || "";
+        const lat = parseFloat(document.getElementById('murabahaLatitude')?.value || 31.9539);
+        const lng = parseFloat(document.getElementById('murabahaLongitude')?.value || 35.9106);
+
+        if (!fullName || !phone) {
+            alert(this.isEnMode ? "Please enter company/contractor name and phone number." : "يرجى كتابة اسم المقاول / الشركة ورقم الهاتف للتواصل.");
+            return;
+        }
+
+        // Build BOQ Items from calculation
+        const items = [];
+        const steelQty = parseFloat(document.getElementById('metricSteelQty')?.innerText || 0);
+        const steelCost = parseFloat(document.getElementById('metricSteelCost')?.innerText?.replace(/[^0-9.]/g, '') || 0);
+        if (steelQty > 0) {
+            items.push({
+                materialCategory: "Steel",
+                materialName: "حديد تسليح عالي المقاومة مشوه Grade 60",
+                quantity: steelQty,
+                unit: "طن",
+                unitPriceJod: steelQty > 0 ? Math.round((steelCost / steelQty) * 100) / 100 : 540,
+                subtotalJod: steelCost
+            });
+        }
+
+        const concreteQty = parseFloat(document.getElementById('metricConcreteQty')?.innerText || 0);
+        const concreteCost = parseFloat(document.getElementById('metricConcreteCost')?.innerText?.replace(/[^0-9.]/g, '') || 0);
+        if (concreteQty > 0) {
+            items.push({
+                materialCategory: "Concrete",
+                materialName: "خرسانة جاهزة B250/B300 مع مضخة وخلط مركزي",
+                quantity: concreteQty,
+                unit: "م³",
+                unitPriceJod: concreteQty > 0 ? Math.round((concreteCost / concreteQty) * 100) / 100 : 38,
+                subtotalJod: concreteCost
+            });
+        }
+
+        const cementQty = parseFloat(document.getElementById('metricCementQty')?.innerText || 0);
+        const cementCost = parseFloat(document.getElementById('metricCementCost')?.innerText?.replace(/[^0-9.]/g, '') || 0);
+        if (cementQty > 0) {
+            items.push({
+                materialCategory: "Cement",
+                materialName: "إسمنت بورتلاندي مكيس 50 كغم (الراجحي / لافارج)",
+                quantity: cementQty,
+                unit: "كيس",
+                unitPriceJod: cementQty > 0 ? Math.round((cementCost / cementQty) * 100) / 100 : 4.5,
+                subtotalJod: cementCost
+            });
+        }
+
+        const blocksQty = parseFloat(document.getElementById('metricBlocksQty')?.innerText || 0);
+        const blocksCost = parseFloat(document.getElementById('metricBlocksCost')?.innerText?.replace(/[^0-9.]/g, '') || 0);
+        if (blocksQty > 0) {
+            items.push({
+                materialCategory: "Blocks",
+                materialName: "طوب إسمنتي مفرغ وبلوك هوردي مجوف",
+                quantity: blocksQty,
+                unit: "حبة",
+                unitPriceJod: blocksQty > 0 ? Math.round((blocksCost / blocksQty) * 1000) / 1000 : 0.35,
+                subtotalJod: blocksCost
+            });
+        }
+
+        if (items.length === 0) {
+            items.push({
+                materialCategory: "GeneralMaterials",
+                materialName: "حزمة مواد إنشائية وهيكلية بحسب الكشف",
+                quantity: 1,
+                unit: "لوط",
+                unitPriceJod: 5000,
+                subtotalJod: 5000
+            });
+        }
+
+        const payload = {
+            projectTitle: `توريد مواد مشروع (${fullName}) - ${city}`,
+            projectCity: city,
+            projectAddress: address,
+            buildingPermitNumber: `PRMT-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+            fullName: fullName,
+            phone: phone,
+            company: fullName,
+            tenureDays: tenure,
+            latitude: lat,
+            longitude: lng,
+            items: items
+        };
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> ${this.isEnMode ? "Submitting..." : "جاري الطرح في البوابة..."}`;
+        }
+
+        try {
+            const resp = await fetch('/Shop/Financing/CreateFromBOQ', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                document.getElementById('murabahaFormContent')?.classList.add('hidden');
+                document.getElementById('murabahaSuccessContent')?.classList.remove('hidden');
+                document.getElementById('murabahaTenderCodeDisplay').innerText = data.trackingCode;
+                const linkEl = document.getElementById('murabahaTenderLink');
+                if (linkEl && data.tenderId) {
+                    linkEl.href = `/Shop/Financing/Details/${data.tenderId}`;
+                }
+            } else {
+                alert(data.message || (this.isEnMode ? "Submission failed." : "حدث خطأ أثناء طرح العطاء."));
+            }
+        } catch (e) {
+            console.error(e);
+            alert(this.isEnMode ? "Communication error, please try again." : "تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً.");
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">send</span> ${this.isEnMode ? "Publish Tender" : "طرح العطاء للمستثمرين (تمويل فوري)"}`;
+            }
+        }
+    }
 }
 
 // Global Export

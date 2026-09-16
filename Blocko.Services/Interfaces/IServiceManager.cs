@@ -25,5 +25,6 @@ namespace Blocko.Services.Interfaces
         IProjectService ProjectService { get; }
         IDeliveryService DeliveryService { get; }
         IPaymentGatewayService PaymentGatewayService { get; }
+        Blocko.Services.Interfaces.Financing.IFinancingService FinancingService { get; }
     }
 }

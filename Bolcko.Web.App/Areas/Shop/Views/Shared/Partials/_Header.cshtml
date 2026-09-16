@@ -72,6 +72,11 @@
                     <span class="hidden 2xl:inline">@(isArabic ? " الذكية" : "")</span>
                 </a>
 
+                <a asp-action="Index" asp-controller="Financing" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
+                    <span class="material-symbols-outlined text-[15px]">account_balance</span>
+                    <span>@(isArabic ? "تمويل المرابحة" : "Murabaha")</span>
+                </a>
+
                 <a asp-action="Join" asp-controller="Account" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
                     <span class="material-symbols-outlined text-[15px]">storefront</span>
                     <span>@(isArabic ? "انضم كمورد" : "Suppliers")</span>
@@ -405,6 +410,21 @@
                 </div>
             </div>
             <span class="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+        </a>
+
+        <!-- Featured Murabaha Financing in Mobile Drawer -->
+        <a href="@Url.Action("Index", "Financing", new { area = "Shop" })"
+           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all group mb-2 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">account_balance</span>
+                </div>
+                <div>
+                    <span class="font-bold text-sm block text-sky-400">@(isArabic ? "تمويل المرابحة الإسلامية" : "Murabaha Financing")</span>
+                    <span class="text-[10px] text-sky-500/80 font-medium block">@(isArabic ? "سندات توريد وتمويل إسلامي بدون فوائد" : "Sharia-Compliant Trade Tenders")</span>
+                </div>
+            </div>
+            <span class="material-symbols-outlined text-[16px] text-sky-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
         </a>
 
         <!-- Featured Become a Supplier in Mobile Drawer -->

@@ -59,6 +59,11 @@ namespace Blocko.Persistence
         public DbSet<CalculatorDecorItem> CalculatorDecorItems { get; set; }
         public DbSet<VendorProfile> VendorProfiles { get; set; }
 
+        // Islamic Murabaha Financing & Geotagged POD
+        public DbSet<Bolcko.Domain.Entities.Financing.FinancingTender> FinancingTenders { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Financing.FinancingTenderItem> FinancingTenderItems { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteProofOfDeliveries { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -85,6 +90,23 @@ namespace Blocko.Persistence
             modelBuilder.Entity<Bolcko.Domain.Entities.Product.Product>(entity =>
             {
                 entity.Property(e => e.RetailPrice).HasPrecision(18, 2);
+
+            modelBuilder.Entity<Bolcko.Domain.Entities.Financing.FinancingTender>(entity =>
+            {
+                entity.Property(e => e.BaseMaterialCost).HasPrecision(18, 2);
+                entity.Property(e => e.ContractorMarkupRate).HasPrecision(18, 4);
+                entity.Property(e => e.TotalPayableAmount).HasPrecision(18, 2);
+                entity.Property(e => e.PlatformAgencyFeeRate).HasPrecision(18, 4);
+                entity.Property(e => e.PlatformAgencyFeeAmount).HasPrecision(18, 2);
+                entity.Property(e => e.InvestorNetYieldAmount).HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<Bolcko.Domain.Entities.Financing.FinancingTenderItem>(entity =>
+            {
+                entity.Property(e => e.Quantity).HasPrecision(18, 2);
+                entity.Property(e => e.UnitPriceJod).HasPrecision(18, 2);
+                entity.Property(e => e.SubtotalJod).HasPrecision(18, 2);
+            });
                 entity.Property(e => e.Weight).HasPrecision(18, 2);
             });
 
