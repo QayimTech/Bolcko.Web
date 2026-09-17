@@ -65,6 +65,8 @@ namespace Bolcko.Web.App.Extensions
                         context.Response.Redirect("/Admin/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     else if (requestPath.StartsWith("/Delivery", StringComparison.OrdinalIgnoreCase))
                         context.Response.Redirect("/Delivery/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
+                    else if (requestPath.StartsWith("/Vendor", StringComparison.OrdinalIgnoreCase))
+                        context.Response.Redirect("/Vendor/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     else
                         context.Response.Redirect("/Shop/Account/Login?ReturnUrl=" + System.Net.WebUtility.UrlEncode(requestPath));
                     return Task.CompletedTask;
