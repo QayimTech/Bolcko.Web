@@ -2,134 +2,429 @@
 @using Bolcko.Domain.Entities.Order.DTOs
 @using Bolcko.Domain.Entities.Tender.DTOs
 @using Bolcko.Domain.Entities.Project
+@using Bolcko.Domain.Entities.Financing.DTOs
 @{
     ViewData["Title"] = SharedLocalizer["Dashboard"];
     var user = ViewBag.User as User;
     var orders = ViewBag.Orders as List<OrderDto> ?? new List<OrderDto>();
     var tenders = ViewBag.Tenders as List<TenderDto> ?? new List<TenderDto>();
     var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
+
+    var isContractor = (bool)(ViewBag.IsContractor ?? false);
+    var isInvestor = (bool)(ViewBag.IsInvestor ?? false);
+    var isVendor = (bool)(ViewBag.IsVendor ?? false);
+    var isAdmin = (bool)(ViewBag.IsAdmin ?? false);
+
+    var contractorDashboard = ViewBag.ContractorDashboard as ContractorDashboardDto;
+    var investorDashboard = ViewBag.InvestorDashboard as InvestorDashboardDto;
+
     var isAr = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ||
                System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 }
-<main class="max-w-7xl mx-auto px-6 py-12 text-start" dir="@(isAr ? "rtl" : "ltr")">
-    <div class="flex flex-col lg:flex-row gap-gutter">
-        <!-- Sidebar Navigation -->
-        <aside class="w-full lg:w-64 flex-shrink-0">
-            <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
-                <div class="bg-on-surface p-6 text-white text-center">
-                    <div class="w-20 h-20 bg-primary-container rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-4xl text-on-primary-container">person</span>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 text-start" dir="@(isAr ? "rtl" : "ltr")">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar Navigation & Identity Card -->
+        <aside class="w-full lg:w-72 flex-shrink-0">
+            <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden sticky top-24">
+                <!-- User Profile Header -->
+                <div class="bg-gradient-to-br from-[#151B26] to-[#1E293B] p-6 text-white text-center relative overflow-hidden">
+                    <div class="absolute -top-10 -end-10 w-32 h-32 bg-[#E8A020]/10 rounded-full blur-2xl"></div>
+                    
+                    <div class="w-20 h-20 bg-gradient-to-tr from-[#E8A020] to-[#F3B74A] rounded-2xl mx-auto mb-3.5 flex items-center justify-center shadow-lg shadow-[#E8A020]/20 text-[#151B26] font-black text-2xl">
+                        @(user?.FirstName?.Substring(0, 1).ToUpper() ?? "U")
                     </div>
-                    <h2 class="font-bold">@(user?.FirstName + " " + user?.LastName)</h2>
-                    <p class="text-xs text-slate-400">@user?.UserType.ToString()</p>
-                </div>
-                <nav class="p-4">
-                    <ul class="space-y-2">
-                        @if (User.IsInRole("Admin"))
+                    <h2 class="font-bold text-lg text-white">@(user?.FirstName + " " + user?.LastName)</h2>
+                    <p class="text-xs text-slate-400 truncate mt-0.5">@user?.Email</p>
+
+                    <!-- Role Badge -->
+                    <div class="mt-3 flex justify-center">
+                        @if (isAdmin)
                         {
-                            <li>
-                                <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold hover:bg-indigo-100 transition-colors shadow-sm mb-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-                                        <span>لوحة تحكم الإدارة (Admin Panel)</span>
-                                    </div>
-                                    <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_forward</span>
-                                </a>
-                            </li>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                                @(isAr ? "👑 مدير النظام" : "System Admin")
+                            </span>
                         }
-                        <li>
-                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 bg-surface-container-low border-s-4 border-primary font-bold text-on-surface">
-                                <span>@SharedLocalizer["MyDashboard"]</span>
-                                <span class="material-symbols-outlined text-sm">dashboard</span>
+                        else if (isContractor)
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                @(isAr ? "🏗️ مقاول معتمد" : "Verified Contractor")
+                            </span>
+                        }
+                        else if (isInvestor)
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                                <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                                @(isAr ? "📈 مستثمر تمويلي" : "Investor Partner")
+                            </span>
+                        }
+                        else if (isVendor)
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                                @(isAr ? "🏭 مورد ومصنع معتمد" : "Verified Vendor")
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                @(isAr ? "👤 حساب عميل" : "Customer Account")
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Navigation List -->
+                <nav class="p-4 space-y-1 text-xs font-bold">
+                    @if (isAdmin)
+                    {
+                        <div class="mb-3">
+                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center justify-between p-3 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition-colors shadow-sm">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="material-symbols-outlined text-[18px] text-indigo-600">admin_panel_settings</span>
+                                    <span>@(isAr ? "لوحة الإدارة العليا" : "Admin Panel")</span>
+                                </div>
+                                <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
                             </a>
-                        </li>
-                        <li>
-                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>@SharedLocalizer["MyOrders"]</span>
-                                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                        </div>
+                    }
+
+                    @if (isContractor)
+                    {
+                        <div class="mb-3">
+                            <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 transition-colors shadow-sm">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="material-symbols-outlined text-[18px] text-emerald-600">engineering</span>
+                                    <span>@(isAr ? "لوحة المقاول والتسهيلات" : "Contractor Hub")</span>
+                                </div>
+                                <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
                             </a>
-                        </li>
-                        <li>
-                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>@SharedLocalizer["QuoteRequests"]</span>
-                                <span class="material-symbols-outlined text-sm">request_quote</span>
+                        </div>
+                    }
+
+                    @if (isInvestor)
+                    {
+                        <div class="mb-3">
+                            <a href="@Url.Action("InvestorDashboard", "Financing", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-800 hover:bg-sky-100 transition-colors shadow-sm">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="material-symbols-outlined text-[18px] text-sky-600">monitoring</span>
+                                    <span>@(isAr ? "محفظة الاستثمار والعوائد" : "Investor Portfolio")</span>
+                                </div>
+                                <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
                             </a>
-                        </li>
-                        <li>
-                            <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 hover:bg-surface-container-low transition-colors text-on-surface">
-                                <span>@SharedLocalizer["MyProjects"]</span>
-                                <span class="material-symbols-outlined text-sm">architecture</span>
+                        </div>
+                    }
+
+                    @if (isVendor)
+                    {
+                        <div class="mb-3">
+                            <a href="@Url.Action("Index", "Dashboard", new { area = "Vendor" })" class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 transition-colors shadow-sm">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="material-symbols-outlined text-[18px] text-amber-600">storefront</span>
+                                    <span>@(isAr ? "بوابة المورد والمبيعات" : "Vendor Portal")</span>
+                                </div>
+                                <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
                             </a>
-                        </li>
-                        <li class="pt-4 mt-4 border-t border-outline-variant">
-                            <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="w-full flex items-center justify-between p-3 text-error hover:bg-error-container transition-colors">
+                        </div>
+                    }
+
+                    <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl bg-slate-100 text-slate-900 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[18px] text-[#E8A020]">dashboard</span>
+                            <span>@SharedLocalizer["MyDashboard"]</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[14px] text-slate-400">check_circle</span>
+                    </a>
+
+                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl text-slate-700 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[18px] text-slate-400">shopping_bag</span>
+                            <span>@SharedLocalizer["MyOrders"]</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-600">@orders.Count</span>
+                    </a>
+
+                    <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl text-slate-700 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[18px] text-slate-400">request_quote</span>
+                            <span>@SharedLocalizer["QuoteRequests"]</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-600">@tenders.Count</span>
+                    </a>
+
+                    <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="flex items-center justify-between p-3 rounded-2xl text-slate-700 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[18px] text-slate-400">architecture</span>
+                            <span>@SharedLocalizer["MyProjects"]</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-600">@projects.Count</span>
+                    </a>
+
+                    <a href="/calculator" class="flex items-center justify-between p-3 rounded-2xl text-emerald-700 hover:bg-emerald-50 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[18px] text-emerald-600">calculate</span>
+                            <span>@(isAr ? "حاسبة تكاليف البناء" : "Cost Estimator")</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[14px] text-emerald-500 rtl:-scale-x-100">open_in_new</span>
+                    </a>
+
+                    <div class="pt-3 mt-3 border-t border-slate-100">
+                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="w-full flex items-center justify-between p-3 text-red-600 hover:bg-red-50 rounded-2xl transition-colors">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="material-symbols-outlined text-[18px]">logout</span>
                                     <span>@SharedLocalizer["Logout"]</span>
-                                    <span class="material-symbols-outlined text-sm">logout</span>
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
                 </nav>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <div class="flex-1 space-y-8">
-            <header class="border-s-4 border-primary-container ps-6 mb-8">
-                <h1 class="font-headline-xl text-on-surface uppercase mb-2">@SharedLocalizer["MyDashboard"]</h1>
-                <p class="font-body-lg text-secondary">@string.Format(SharedLocalizer["DashboardWelcome"].Value, user?.FirstName)</p>
-            </header>
+        <!-- Main Content Area -->
+        <div class="flex-1 space-y-8 min-w-0">
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">shopping_bag</span>
-                    <h3 class="text-2xl font-bold text-on-surface">@orders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["TotalOrders"]</p>
+            <!-- Dynamic Role-Tailored Workspace Banner -->
+            @if (isContractor)
+            {
+                <div class="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#047857] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-emerald-500/20">
+                    <div class="relative z-10">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                            <div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 mb-2">
+                                    <span class="material-symbols-outlined text-[14px]">verified</span>
+                                    @(isAr ? "مساحة المقاول المالي المعتمد" : "Verified Contractor Workspace")
+                                </span>
+                                <h1 class="text-xl sm:text-2xl font-black">@(isAr ? "مركز تسهيلات وتمويل المقاولات" : "Contractor Financing Hub")</h1>
+                                <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
+                                    @(isAr ? "تابع سقف الائتمان المخصص لمشاريعك، جداول سداد المرابحة، وأضف عطاءات توريد جديدة لمشاريعك الإنشائية." : "Manage your active credit facilities, payment schedules, and launch new Murabaha material tenders.")
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })" class="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black hover:bg-emerald-400 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+                                    <span class="material-symbols-outlined text-[18px]">engineering</span>
+                                    <span>@(isAr ? "لوحة المقاول المالية" : "Contractor Hub")</span>
+                                </a>
+                                <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all border border-white/15 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                                    <span>@(isAr ? "طرح عطاء جديد" : "New Tender")</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Mini KPIs -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "سقف التسهيلات الائتمانية" : "Credit Limit")</span>
+                                <span class="text-lg sm:text-xl font-black text-emerald-400">@(contractorDashboard?.CreditLimitJod.ToString("N0") ?? "50,000") <span class="text-xs font-bold text-slate-300">د.أ</span></span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "الرصيد المتاح للتمويل" : "Available Credit")</span>
+                                <span class="text-lg sm:text-xl font-black text-white">@(contractorDashboard?.AvailableCreditJod.ToString("N0") ?? "50,000") <span class="text-xs font-bold text-slate-300">د.أ</span></span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "مؤشر الموثوقية (Trust Score)" : "Trust Score")</span>
+                                <span class="text-lg sm:text-xl font-black text-amber-400">@(contractorDashboard?.TrustScore.ToString("F0") ?? "95")% <span class="text-[10px] font-medium text-slate-300">(@(contractorDashboard?.TrustTier ?? "بلاتيني"))</span></span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "عطاءات المرابحة النشطة" : "Active Tenders")</span>
+                                <span class="text-lg sm:text-xl font-black text-white">@(contractorDashboard?.ActiveTendersCount ?? 0)</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">request_quote</span>
-                    <h3 class="text-2xl font-bold text-on-surface">@tenders.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["ActiveQuotes"]</p>
+            }
+            else if (isInvestor)
+            {
+                <div class="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0369A1] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-sky-500/20">
+                    <div class="relative z-10">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                            <div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold border border-sky-500/30 mb-2">
+                                    <span class="material-symbols-outlined text-[14px]">account_balance</span>
+                                    @(isAr ? "محفظة المستثمر التمويلية المعتمدة" : "Verified Investor Hub")
+                                </span>
+                                <h1 class="text-xl sm:text-2xl font-black">@(isAr ? "محفظة الاستثمار وعوائد المرابحة" : "Murabaha Financing Portfolio")</h1>
+                                <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
+                                    @(isAr ? "تابع العوائد المحققة، العقود المضمونة بأصول ومواقع عمل موثقة، والفرص الاستثمارية المتاحة للتغطية الآن." : "Track realized profits, asset-backed construction tenders, and discover high-yield opportunities.")
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <a href="@Url.Action("InvestorDashboard", "Financing", new { area = "Shop" })" class="px-5 py-2.5 rounded-xl bg-sky-400 text-slate-950 text-xs font-black hover:bg-sky-300 transition-all flex items-center gap-2 shadow-lg shadow-sky-400/20">
+                                    <span class="material-symbols-outlined text-[18px]">monitoring</span>
+                                    <span>@(isAr ? "لوحة تحكم المحفظة" : "Portfolio Hub")</span>
+                                </a>
+                                <a href="@Url.Action("Index", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all border border-white/15 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                                    <span>@(isAr ? "تصفح العطاءات" : "Explore Tenders")</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Mini KPIs -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "إجمالي التمويل المستثمر" : "Total Invested")</span>
+                                <span class="text-lg sm:text-xl font-black text-sky-400">@(investorDashboard?.TotalInvestedJod.ToString("N0") ?? "0") <span class="text-xs font-bold text-slate-300">د.أ</span></span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "الأرباح المحققة الصافية" : "Realized Profits")</span>
+                                <span class="text-lg sm:text-xl font-black text-emerald-400">@(investorDashboard?.RealizedProfitJod.ToString("N0") ?? "0") <span class="text-xs font-bold text-slate-300">د.أ</span></span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "متوسط العائد السنوي" : "Average Yield")</span>
+                                <span class="text-lg sm:text-xl font-black text-amber-400">@(investorDashboard != null && investorDashboard.AverageAnnualizedYieldPercentage > 0 ? investorDashboard.AverageAnnualizedYieldPercentage.ToString("F1") : "14.8")%</span>
+                            </div>
+                            <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                <span class="text-[11px] font-bold text-slate-400 block mb-1">@(isAr ? "الصفقات النشطة" : "Active Deals")</span>
+                                <span class="text-lg sm:text-xl font-black text-white">@(investorDashboard?.ActiveDealsCount ?? 0)</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white border border-outline-variant p-6 shadow-hard text-center">
-                    <span class="material-symbols-outlined text-primary text-4xl mb-2">architecture</span>
-                    <h3 class="text-2xl font-bold text-on-surface">@projects.Count</h3>
-                    <p class="text-xs text-on-surface-variant uppercase font-bold">@SharedLocalizer["RegisteredProjects"]</p>
+            }
+            else if (isVendor)
+            {
+                <div class="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#B45309] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-amber-500/20">
+                    <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 mb-2">
+                                <span class="material-symbols-outlined text-[14px]">storefront</span>
+                                @(isAr ? "بوابة المصانع والموردين المعتمدين" : "Verified Supplier Portal")
+                            </span>
+                            <h1 class="text-xl sm:text-2xl font-black">@(isAr ? "لوحة إدارة منتجات ومبيعات المورد" : "Vendor Sales & Catalog Center")</h1>
+                            <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
+                                @(isAr ? "استقبل طلبات الشراء المباشرة من المقاولين والعملاء، حدّث أسعار المواد والمخزون، وتابع دفعاتك المالية." : "Manage catalog, live inventory pricing, incoming B2B orders, and financial settlement payouts.")
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <a href="@Url.Action("Index", "Dashboard", new { area = "Vendor" })" class="px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-black hover:bg-amber-300 transition-all flex items-center gap-2 shadow-lg shadow-amber-400/20">
+                                <span class="material-symbols-outlined text-[18px]">dashboard</span>
+                                <span>@(isAr ? "لوحة تحكم المورد" : "Vendor Hub")</span>
+                            </a>
+                            <a href="@Url.Action("Index", "Products", new { area = "Vendor" })" class="px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all border border-white/15 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                                <span>@(isAr ? "إدارة المنتجات" : "Products")</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Regular Customer Upgrade Opportunities Banner -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/30 rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                                <span class="material-symbols-outlined text-[22px]">engineering</span>
+                            </div>
+                            <h2 class="text-base font-bold text-white mb-1">@(isAr ? "هل أنت مقاول أو صاحب مشروع؟" : "Are you a Contractor or Builder?")</h2>
+                            <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                                @(isAr ? "احصل على تمويل مرابحة فوري لشراء مواد البناء بسقف ائتماني مباشر وأقساط مريحة." : "Unlock instant Murabaha trade financing for construction supplies with zero interest and flexible terms.")
+                            </p>
+                        </div>
+                        <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="relative z-10 inline-flex items-center gap-2 text-xs font-black text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                            <span>@(isAr ? "طرح طلب تمويل مقاول الآن" : "Apply for Contractor Financing")</span>
+                            <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
+                        </a>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-amber-950 to-slate-900 border border-amber-500/30 rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+                                <span class="material-symbols-outlined text-[22px]">storefront</span>
+                            </div>
+                            <h2 class="text-base font-bold text-white mb-1">@(isAr ? "هل أنت مصنع أو مورد مواد بناء؟" : "Are you a Supplier or Manufacturer?")</h2>
+                            <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                                @(isAr ? "انضم إلى شبكة موردي BLOCKO المعتمدين واعرض منتجاتك مباشرة لآلاف المقاولين وأصحاب المشاريع." : "Join our verified supplier network and reach thousands of builders with guaranteed corporate payouts.")
+                            </p>
+                        </div>
+                        <a href="@Url.Action("Join", "Account", new { area = "Vendor" })" class="relative z-10 inline-flex items-center gap-2 text-xs font-black text-amber-400 group-hover:text-amber-300 transition-colors">
+                            <span>@(isAr ? "انضمام كمورد معتمد" : "Join as a Supplier")</span>
+                            <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- General Metrics Overview Grid -->
+            <div>
+                <h2 class="text-base font-black text-slate-900 mb-4">@(isAr ? "نظرة عامة على النشاط والعمليات" : "Activity & Account Overview")</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm hover:border-slate-300 transition-all flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-2xl bg-[#E8A020]/10 text-[#E8A020] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">shopping_bag</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-2xl font-black text-slate-900 leading-tight">@orders.Count</h3>
+                            <p class="text-xs text-slate-500 font-bold">@SharedLocalizer["TotalOrders"]</p>
+                        </div>
+                    </a>
+
+                    <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm hover:border-slate-300 transition-all flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">request_quote</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-2xl font-black text-slate-900 leading-tight">@tenders.Count</h3>
+                            <p class="text-xs text-slate-500 font-bold">@SharedLocalizer["ActiveQuotes"]</p>
+                        </div>
+                    </a>
+
+                    <a href="@Url.Action("Projects", "Account", new { area = "Shop" })" class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm hover:border-slate-300 transition-all flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">architecture</span>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-2xl font-black text-slate-900 leading-tight">@projects.Count</h3>
+                            <p class="text-xs text-slate-500 font-bold">@SharedLocalizer["RegisteredProjects"]</p>
+                        </div>
+                    </a>
                 </div>
             </div>
 
             <!-- Recent Orders Table -->
-            <div class="bg-white border border-outline-variant shadow-hard overflow-hidden">
-                <div class="p-6 border-b border-outline-variant flex justify-between items-center">
-                    <h2 class="font-bold text-on-surface uppercase">@SharedLocalizer["RecentOrders"]</h2>
-                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="text-xs text-primary font-bold hover:underline">@SharedLocalizer["ViewAll"]</a>
+            <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[20px] text-slate-400">receipt_long</span>
+                        <h2 class="font-bold text-slate-900 text-sm">@SharedLocalizer["RecentOrders"]</h2>
+                    </div>
+                    <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="text-xs text-[#E8A020] font-black hover:underline flex items-center gap-1">
+                        <span>@SharedLocalizer["ViewAll"]</span>
+                        <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
+                    </a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-start">
-                        <thead class="bg-surface-container-low text-xs font-bold text-on-surface-variant uppercase">
+                    <table class="w-full text-start text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase">
                             <tr>
-                                <th class="p-4">@SharedLocalizer["OrderNo"]</th>
-                                <th class="p-4">@SharedLocalizer["Date"]</th>
-                                <th class="p-4">@SharedLocalizer["Amount"]</th>
-                                <th class="p-4">@SharedLocalizer["Status"]</th>
-                                <th class="p-4">@SharedLocalizer["Action"]</th>
+                                <th class="py-3 px-5">@SharedLocalizer["OrderNo"]</th>
+                                <th class="py-3 px-5">@SharedLocalizer["Date"]</th>
+                                <th class="py-3 px-5">@SharedLocalizer["Amount"]</th>
+                                <th class="py-3 px-5">@SharedLocalizer["Status"]</th>
+                                <th class="py-3 px-5 text-end">@SharedLocalizer["Action"]</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm">
+                        <tbody class="divide-y divide-slate-100">
                             @if (orders.Any())
                             {
                                 @foreach (var order in orders.Take(5))
                                 {
-                                    <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                                        <td class="p-4 font-bold">#BLK-@order.Id.ToString("D5")</td>
-                                        <td class="p-4">@order.OrderDate.ToString("yyyy/MM/dd")</td>
-                                        <td class="p-4">@order.TotalAmount.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
-                                        <td class="p-4">
-                                            <span class="bg-amber-100 text-amber-800 px-2 py-1 text-[10px] font-bold uppercase rounded-sm border border-amber-200">@order.Status.ToString()</span>
+                                    <tr class="hover:bg-slate-50/80 transition-colors">
+                                        <td class="py-4 px-5 font-black text-slate-900">#BLK-@order.Id.ToString("D5")</td>
+                                        <td class="py-4 px-5 text-slate-500">@order.OrderDate.ToString("yyyy/MM/dd")</td>
+                                        <td class="py-4 px-5 font-bold text-slate-900">@order.TotalAmount.ToString("N2") @SharedLocalizer["JordanDinarShort"]</td>
+                                        <td class="py-4 px-5">
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">@order.Status.ToString()</span>
                                         </td>
-                                        <td class="p-4">
-                                            <a href="@Url.Action("OrderDetails", "Account", new { id = order.Id, area = "Shop" })" class="text-primary font-bold hover:underline">@SharedLocalizer["OrderDetails"]</a>
+                                        <td class="py-4 px-5 text-end">
+                                            <a href="@Url.Action("OrderDetails", "Account", new { id = order.Id, area = "Shop" })" class="font-bold text-[#E8A020] hover:underline">@SharedLocalizer["OrderDetails"]</a>
                                         </td>
                                     </tr>
                                 }
@@ -137,7 +432,10 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-on-surface-variant">@SharedLocalizer["NoOrdersFound"]</td>
+                                    <td colspan="5" class="p-8 text-center text-slate-400 font-medium">
+                                        <span class="material-symbols-outlined text-3xl mb-1 text-slate-300 block">shopping_cart_off</span>
+                                        @SharedLocalizer["NoOrdersFound"]
+                                    </td>
                                 </tr>
                             }
                         </tbody>

@@ -167,34 +167,149 @@
                 </div>
 
                 <div class="relative group hidden sm:block" onclick="this.classList.toggle('active')" tabindex="0">
-                    <button type="button" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none" aria-haspopup="true" aria-label="@(isArabic ? "حسابي" : "Account")">
-                        <span class="material-symbols-outlined text-[18px] text-slate-400">person</span>
-                        <span class="text-xs font-bold hidden xl:inline">@(isArabic ? "حسابي" : "Account")</span>
-                        <span class="material-symbols-outlined text-[10px] text-slate-500 hidden xl:inline">expand_more</span>
+                    <button type="button" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none border border-transparent hover:border-white/10" aria-haspopup="true" aria-label="@(isArabic ? "حسابي ومساحة العمل" : "Account & Workspaces")">
+                        <div class="w-6 h-6 rounded-lg bg-[#E8A020]/20 text-[#E8A020] flex items-center justify-center font-bold text-xs">
+                            @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                        </div>
+                        <span class="text-xs font-bold hidden xl:inline max-w-[90px] truncate">@User.Identity.Name</span>
+                        <span class="material-symbols-outlined text-[12px] text-slate-400 hidden xl:inline">expand_more</span>
                     </button>
-                    <div class="absolute end-0 top-full mt-2 w-56 bg-[#161d2d] border border-white/10 shadow-2xl rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100]">
-                        <!-- User Card Header -->
-                        <div class="px-4 py-3 bg-white/5 border-b border-white/10 text-start">
-                            <p class="text-xs font-bold text-white truncate" title="@User.Identity.Name">@User.Identity.Name</p>
+                    <div class="absolute end-0 top-full mt-2 w-72 bg-[#161d2d] border border-white/10 shadow-2xl rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100] backdrop-blur-xl divide-y divide-white/5">
+                        <!-- User Card Header with Role Badge -->
+                        <div class="px-4 py-3 bg-white/5 text-start">
+                            <p class="text-xs font-bold text-white truncate mb-1.5" title="@User.Identity.Name">@User.Identity.Name</p>
+                            <div class="flex items-center flex-wrap gap-1.5">
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                        @(isArabic ? "👑 مدير النظام (Admin)" : "System Admin")
+                                    </span>
+                                }
+                                else if (User.IsInRole("Contractor"))
+                                {
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                        @(isArabic ? "🏗️ مقاول معتمد" : "Verified Contractor")
+                                    </span>
+                                }
+                                else if (User.IsInRole("Investor"))
+                                {
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                                        @(isArabic ? "📈 مستثمر تمويلي" : "Investor Partner")
+                                    </span>
+                                }
+                                else if (User.IsInRole("Vendor"))
+                                {
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                        @(isArabic ? "🏭 مورد ومصنع معتمد" : "Verified Vendor")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        @(isArabic ? "👤 حساب عميل" : "Customer Account")
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Specialized Role Workspaces -->
+                        <div class="py-1">
                             @if (User.IsInRole("Admin"))
                             {
-                                <span class="inline-block mt-1 text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                                    Admin
-                                </span>
+                                <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-indigo-300 hover:bg-indigo-500/10 hover:text-indigo-200 transition-colors text-start">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="material-symbols-outlined text-[18px] text-indigo-400">admin_panel_settings</span>
+                                        <span>@(isArabic ? "لوحة تحكم الإدارة العليا" : "Super Admin Panel")</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[14px] text-indigo-400 rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                            }
+
+                            @if (User.IsInRole("Contractor"))
+                            {
+                                <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })" class="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors text-start">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="material-symbols-outlined text-[18px] text-emerald-400">engineering</span>
+                                        <span>@(isArabic ? "مساحة عمل المقاول والتسهيلات" : "Contractor Workspace")</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[14px] text-emerald-400 rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                                <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-start ps-9">
+                                    <span class="material-symbols-outlined text-[16px] text-emerald-400">post_add</span>
+                                    <span>@(isArabic ? "طرح عطاء مرابحة جديد" : "New Murabaha Tender")</span>
+                                </a>
+                            }
+
+                            @if (User.IsInRole("Investor"))
+                            {
+                                <a href="@Url.Action("InvestorDashboard", "Financing", new { area = "Shop" })" class="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-sky-300 hover:bg-sky-500/10 transition-colors text-start">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="material-symbols-outlined text-[18px] text-sky-400">monitoring</span>
+                                        <span>@(isArabic ? "محفظة الاستثمار والعوائد" : "Investor Portfolio")</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[14px] text-sky-400 rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                                <a href="@Url.Action("Index", "Financing", new { area = "Shop" })" class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-start ps-9">
+                                    <span class="material-symbols-outlined text-[16px] text-sky-400">travel_explore</span>
+                                    <span>@(isArabic ? "تصفح العطاءات المتاحة" : "Browse Open Tenders")</span>
+                                </a>
+                            }
+
+                            @if (User.IsInRole("Vendor"))
+                            {
+                                <a href="@Url.Action("Index", "Dashboard", new { area = "Vendor" })" class="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-amber-300 hover:bg-amber-500/10 transition-colors text-start">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="material-symbols-outlined text-[18px] text-amber-400">storefront</span>
+                                        <span>@(isArabic ? "بوابة المورد والمبيعات" : "Vendor Sales Hub")</span>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[14px] text-amber-400 rtl:-scale-x-100">arrow_forward</span>
+                                </a>
+                                <a href="@Url.Action("Index", "Products", new { area = "Vendor" })" class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-start ps-9">
+                                    <span class="material-symbols-outlined text-[16px] text-amber-400">inventory_2</span>
+                                    <span>@(isArabic ? "إدارة المنتجات والمخزون" : "Products & Stock")</span>
+                                </a>
                             }
                         </div>
-                        <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start">
-                            <span class="material-symbols-outlined text-[16px] text-slate-400">dashboard</span> @SharedLocalizer["Dashboard"]
-                        </a>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-indigo-300 hover:bg-indigo-500/10 hover:text-indigo-200 transition-colors text-start border-t border-white/5">
-                                <span class="material-symbols-outlined text-[16px] text-indigo-400">admin_panel_settings</span> @SharedLocalizer["AdminPanel"]
+
+                        <!-- General Account Navigation -->
+                        <div class="py-1">
+                            <a href="@Url.Action("Index", "Account", new { area = "Shop" })" class="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-start">
+                                <span class="material-symbols-outlined text-[16px] text-[#E8A020]">dashboard</span>
+                                <span>@SharedLocalizer["Dashboard"] (مركز الحساب)</span>
                             </a>
+                            <a href="@Url.Action("Orders", "Account", new { area = "Shop" })" class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-start">
+                                <span class="material-symbols-outlined text-[16px] text-slate-400">shopping_bag</span>
+                                <span>@(isArabic ? "طلباتي وفواتيري" : "My Orders")</span>
+                            </a>
+                            <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors text-start">
+                                <span class="material-symbols-outlined text-[16px] text-slate-400">request_quote</span>
+                                <span>@(isArabic ? "طلبات عروض الأسعار" : "Quote Requests")</span>
+                            </a>
+                        </div>
+
+                        <!-- Upgrade / Expand Hub for Standard Users -->
+                        @if (!User.IsInRole("Contractor") && !User.IsInRole("Vendor") && !User.IsInRole("Investor") && !User.IsInRole("Admin"))
+                        {
+                            <div class="py-1.5 px-3 bg-gradient-to-r from-emerald-500/10 to-sky-500/10">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1">@(isArabic ? "ترقية الخدمات ومساحات العمل:" : "Upgrade Account:")</p>
+                                <div class="flex items-center gap-2">
+                                    <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="text-[10px] font-bold text-emerald-400 hover:underline">@(isArabic ? "🏗️ تمويل مقاول" : "Contractor")</a>
+                                    <span class="text-slate-600">•</span>
+                                    <a href="@Url.Action("Join", "Account", new { area = "Vendor" })" class="text-[10px] font-bold text-amber-400 hover:underline">@(isArabic ? "🏭 انضم كمورد" : "Supplier")</a>
+                                </div>
+                            </div>
                         }
-                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/5">
-                            <button type="submit" class="w-full flex items-center gap-3 text-start px-4 py-3 text-xs font-bold text-red-400 hover:bg-red-500/10 transition-colors">
-                                <span class="material-symbols-outlined text-[16px]">logout</span> @SharedLocalizer["Logout"]
+
+                        <!-- Logout Button -->
+                        <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post" class="p-1">
+                            <button type="submit" class="w-full flex items-center gap-2.5 text-start px-3 py-2 text-xs font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">logout</span>
+                                <span>@SharedLocalizer["Logout"]</span>
                             </button>
                         </form>
                     </div>
@@ -517,6 +632,60 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <div class="my-3 h-px bg-white/5"></div>
+            <p class="px-3 pb-2 text-[9px] font-black uppercase tracking-[3px] text-slate-500">
+                @(isArabic ? "مساحة العمل والحساب" : "Workspace & Account")
+            </p>
+
+            <!-- User Info Card -->
+            <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 mb-3 text-start">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-[#E8A020]/20 text-[#E8A020] flex items-center justify-center font-black text-sm flex-shrink-0">
+                        @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-white truncate">@User.Identity.Name</p>
+                        <div class="mt-1">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                    @(isArabic ? "👑 مدير النظام (Admin)" : "System Admin")
+                                </span>
+                            }
+                            else if (User.IsInRole("Contractor"))
+                            {
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    @(isArabic ? "🏗️ مقاول معتمد" : "Verified Contractor")
+                                </span>
+                            }
+                            else if (User.IsInRole("Investor"))
+                            {
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                                    @(isArabic ? "📈 مستثمر تمويلي" : "Investor Partner")
+                                </span>
+                            }
+                            else if (User.IsInRole("Vendor"))
+                            {
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                    @(isArabic ? "🏭 مورد معتمد" : "Verified Vendor")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                    @(isArabic ? "👤 حساب عميل" : "Customer")
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role-Specific Action Hubs in Mobile Drawer -->
             @if (User.IsInRole("Admin"))
             {
                 <a href="@Url.Action("Index", "Home", new { area = "Admin" })"
@@ -526,21 +695,73 @@
                             <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="font-bold text-sm text-indigo-300">@(isArabic ? "لوحة تحكم الإدارة (Admin)" : "Admin Panel")</span>
-                            <span class="text-[10px] text-indigo-400/80 font-medium">@(isArabic ? "إدارة المتجر والطلبات والأسعار" : "Manage Store & Catalog")</span>
+                            <span class="font-bold text-sm text-indigo-300">@(isArabic ? "لوحة تحكم الإدارة العليا" : "Super Admin Panel")</span>
+                            <span class="text-[10px] text-indigo-400/80 font-medium">@(isArabic ? "إدارة المتجر والطلبات والأسعار" : "Manage Platform")</span>
                         </div>
                     </div>
                     <span class="material-symbols-outlined text-[16px] text-indigo-400 rtl:-scale-x-100">chevron_right</span>
                 </a>
             }
+
+            @if (User.IsInRole("Contractor"))
+            {
+                <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })"
+                   class="flex items-center justify-between px-3 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all mb-2 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">engineering</span>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold text-sm text-emerald-300">@(isArabic ? "مساحة عمل المقاول والتسهيلات" : "Contractor Workspace")</span>
+                            <span class="text-[10px] text-emerald-400/80 font-medium">@(isArabic ? "سقف الائتمان والأقساط والعطاءات" : "Credit & Financing")</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-[16px] text-emerald-400 rtl:-scale-x-100">chevron_right</span>
+                </a>
+            }
+
+            @if (User.IsInRole("Investor"))
+            {
+                <a href="@Url.Action("InvestorDashboard", "Financing", new { area = "Shop" })"
+                   class="flex items-center justify-between px-3 py-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all mb-2 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">monitoring</span>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold text-sm text-sky-300">@(isArabic ? "محفظة الاستثمار والعوائد" : "Investor Portfolio")</span>
+                            <span class="text-[10px] text-sky-400/80 font-medium">@(isArabic ? "العوائد الصافية والفرص النشطة" : "ROI & Active Deals")</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-[16px] text-sky-400 rtl:-scale-x-100">chevron_right</span>
+                </a>
+            }
+
+            @if (User.IsInRole("Vendor"))
+            {
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Vendor" })"
+                   class="flex items-center justify-between px-3 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all mb-2 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">storefront</span>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold text-sm text-amber-300">@(isArabic ? "لوحة تحكم المورد والمبيعات" : "Vendor Portal")</span>
+                            <span class="text-[10px] text-amber-400/80 font-medium">@(isArabic ? "إدارة المخزون والمبيعات والمستحقات" : "Products & Payouts")</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-[16px] text-amber-400 rtl:-scale-x-100">chevron_right</span>
+                </a>
+            }
+
             <a href="@Url.Action("Index", "Account", new { area = "Shop" })"
                class="flex items-center gap-3 px-3 py-3 rounded-2xl text-slate-200 hover:bg-white/5 transition-all mb-1">
                 <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 flex-shrink-0">
-                    <span class="material-symbols-outlined text-[18px]">person</span>
+                    <span class="material-symbols-outlined text-[18px]">dashboard</span>
                 </div>
                 <div class="flex flex-col min-w-0">
-                    <span class="font-bold text-sm truncate">@User.Identity.Name</span>
-                    <span class="text-[10px] text-slate-500">@(isArabic ? "لوحة تحكم المشتري" : "Customer Dashboard")</span>
+                    <span class="font-bold text-sm">@(isArabic ? "مركز الحساب الموحد" : "Main Account Hub")</span>
+                    <span class="text-[10px] text-slate-500">@(isArabic ? "الطلبات والمشاريع والعروض" : "Orders, Projects & Quotes")</span>
                 </div>
             </a>
             <form asp-area="Shop" asp-controller="Account" asp-action="Logout" method="post">

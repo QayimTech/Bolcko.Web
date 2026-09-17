@@ -165,7 +165,26 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var tenders = await _serviceManager.TenderService.GetTendersByUserAsync(user.Id); 
             var projects = await _serviceManager.ProjectService.GetUserProjectsAsync(user.Id);
 
+            var isContractor = await _userManager.IsInRoleAsync(user, "Contractor") || user.UserType == UserType.Contractor;
+            var isInvestor = await _userManager.IsInRoleAsync(user, "Investor") || user.UserType == UserType.Investor;
+            var isVendor = await _userManager.IsInRoleAsync(user, "Vendor") || user.UserType == UserType.Vendor;
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin") || user.UserType == UserType.Admin;
+
+            if (isContractor)
+            {
+                ViewBag.ContractorDashboard = await _serviceManager.FinancingService.GetContractorDashboardAsync(user.Id, user.PhoneNumber);
+            }
+
+            if (isInvestor)
+            {
+                ViewBag.InvestorDashboard = await _serviceManager.FinancingService.GetInvestorDashboardAsync(user.Id, user.PhoneNumber);
+            }
+
             ViewBag.User = user;
+            ViewBag.IsContractor = isContractor;
+            ViewBag.IsInvestor = isInvestor;
+            ViewBag.IsVendor = isVendor;
+            ViewBag.IsAdmin = isAdmin;
             ViewBag.Orders = orders.ToList();
             ViewBag.Tenders = tenders.ToList();
             ViewBag.Projects = projects.ToList();
