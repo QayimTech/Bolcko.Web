@@ -75,6 +75,8 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public int TenderId { get; set; }
         public string FunderName { get; set; } = string.Empty;
         public string FunderPhone { get; set; } = string.Empty;
+        public string? FunderEmail { get; set; }
+        public string? Password { get; set; }
         public string PaymentMethod { get; set; } = "CliQ"; // CliQ, BankTransfer, Wallet
         public bool AcceptWakalaTerms { get; set; }
     }

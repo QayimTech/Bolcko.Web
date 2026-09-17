@@ -1,5 +1,8 @@
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Financing.DTOs;
+using Bolcko.Domain.Entities.User;
+using Bolcko.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
@@ -12,10 +15,17 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     public class FinancingController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public FinancingController(IServiceManager serviceManager)
+        public FinancingController(
+            IServiceManager serviceManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager)
         {
             _serviceManager = serviceManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         /// <summary>
@@ -78,7 +88,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
-        /// موافقة وتمويل المستثمر للعطاء بنظام الوكالة الشرعية
+        /// موافقة وتمويل المستثمر للعطاء بنظام الوكالة الشرعية (مع دعم تسجيل حساب فوري بنقرة واحدة)
         /// </summary>
         [HttpPost]
         [Route("Fund")]
@@ -90,10 +100,60 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             }
 
             int? funderId = null;
+
+            // 1. If already logged in, get user id
             if (User.Identity?.IsAuthenticated == true)
             {
                 var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (int.TryParse(idStr, out var id)) funderId = id;
+            }
+            // 2. If not logged in, but provided email and password -> auto-register / sign in
+            else if (!string.IsNullOrWhiteSpace(request.FunderEmail) && !string.IsNullOrWhiteSpace(request.Password))
+            {
+                var existingUser = await _userManager.FindByEmailAsync(request.FunderEmail.Trim());
+                if (existingUser != null)
+                {
+                    var signInRes = await _signInManager.PasswordSignInAsync(existingUser, request.Password, isPersistent: true, lockoutOnFailure: false);
+                    if (signInRes.Succeeded)
+                    {
+                        funderId = existingUser.Id;
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "البريد مسجل مسبقاً وكلمة المرور غير مطابقة. يرجى تسجيل الدخول أولاً." });
+                    }
+                }
+                else
+                {
+                    var nameParts = (request.FunderName ?? "").Trim().Split(' ');
+                    var firstName = nameParts.Length > 0 ? nameParts[0] : "مستثمر";
+                    var lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "ممول";
+
+                    var newUser = new User
+                    {
+                        UserName = request.FunderEmail.Trim(),
+                        Email = request.FunderEmail.Trim(),
+                        PhoneNumber = request.FunderPhone.Trim(),
+                        FirstName = firstName,
+                        LastName = lastName,
+                        UserType = UserType.Investor,
+                        EmailConfirmed = true,
+                        RegistrationDate = DateTime.UtcNow
+                    };
+
+                    var createRes = await _userManager.CreateAsync(newUser, request.Password);
+                    if (createRes.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(newUser, "Investor");
+                        await _signInManager.SignInAsync(newUser, isPersistent: true);
+                        funderId = newUser.Id;
+                    }
+                    else
+                    {
+                        var firstErr = createRes.Errors.FirstOrDefault()?.Description ?? "فشل إنشاء حساب المستثمر.";
+                        return Json(new { success = false, message = firstErr });
+                    }
+                }
             }
 
             var result = await _serviceManager.FinancingService.FundTenderAsync(request, funderId);
@@ -105,7 +165,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return Json(new
             {
                 success = true,
-                message = "تم تمويل العطاء وشراء البضاعة بنجاح! تم إصدار أمر الشراء (PO) وتوليد عقد الوكالة الشرعي."
+                redirectUrl = "/Shop/Financing/InvestorDashboard",
+                message = "تم تمويل العطاء وشراء البضاعة بنجاح! تم إصدار أمر الشراء (PO) وتوليد عقد الوكالة الشرعي في محفظتك."
             });
         }
 

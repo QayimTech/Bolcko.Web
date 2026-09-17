@@ -1,19 +1,78 @@
 @model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
 @{
-    ViewData["Title"] = $"تفاصيل عطاء المرابحة {Model.TrackingCode} | Block-O";
+    var title = $"عطاء تمويل مرابحة: {Model.ProjectTitle} | عائد {Model.AnnualizedYieldPercentage}% | Block-O";
+    var description = $"فرصة استثمار بالمرابحة الإسلامية لمشروع {Model.ProjectTitle} في {Model.ProjectCity} بقيمة {Model.BaseMaterialCost:N0} د.أ بربح صافي {Model.InvestorNetYieldAmount:N0} د.أ ({Model.AnnualizedYieldPercentage}% APR). موثق بالـ GPS ورخصة البناء {Model.BuildingPermitNumber}.";
+    var pageUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Shop/Financing/Details/{Model.Id}";
+
+    ViewData["Title"] = title;
+    ViewData["MetaDescription"] = description;
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "";
 }
 
-<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12" dir="rtl">
+<!-- Open Graph & Social Sharing SEO Meta Tags -->
+@section Head {
+    <meta name="description" content="@description" />
+    <meta property="og:title" content="@title" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="@pageUrl" />
+    <meta property="og:image" content="https://block-o.com/images/og-murabaha-invest.jpg" />
+    <meta property="og:site_name" content="Block-O Construction Platform" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@title" />
+    <meta name="twitter:description" content="@description" />
+    <meta name="twitter:image" content="https://block-o.com/images/og-murabaha-invest.jpg" />
+
+    <!-- JSON-LD Structured Data Schema for Google Search -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "FinancialProduct",
+      "name": "@Model.ProjectTitle - عطاء تمويل بالمرابحة",
+      "description": "@description",
+      "provider": {
+        "@@type": "Organization",
+        "name": "Block-O Construction Platform",
+        "url": "https://block-o.com"
+      },
+      "offers": {
+        "@@type": "Offer",
+        "price": "@Model.BaseMaterialCost",
+        "priceCurrency": "JOD"
+      },
+      "annualPercentageRate": "@Model.AnnualizedYieldPercentage"
+    }
+    </script>
+}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12" dir="rtl">
     
-    <!-- Navigation Breadcrumbs -->
-    <nav class="flex items-center gap-2 mb-6 text-xs font-bold text-slate-400">
-        <a href="/" class="hover:text-amber-600 transition">الرئيسية</a>
-        <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
-        <a href="@Url.Action("Index", "Financing", new { area = "Shop" })" class="hover:text-amber-600 transition">بوابة عطاءات المرابحة</a>
-        <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
-        <span class="text-slate-800 truncate font-mono">@Model.TrackingCode</span>
-    </nav>
+    <!-- Navigation Breadcrumbs & Social Share Strip -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <nav class="flex items-center gap-2 text-xs font-bold text-slate-400">
+            <a href="/" class="hover:text-amber-600 transition">الرئيسية</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+            <a href="@Url.Action("Index", "Financing", new { area = "Shop" })" class="hover:text-amber-600 transition">بوابة عطاءات المرابحة</a>
+            <span class="material-symbols-outlined text-xs rtl:-scale-x-100">chevron_right</span>
+            <span class="text-slate-800 truncate font-mono">@Model.TrackingCode</span>
+        </nav>
+
+        <!-- Social Sharing Buttons -->
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 font-bold hidden sm:inline">مشاركة الفرصة:</span>
+            <button type="button" onclick="shareWhatsApp()" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/20 text-xs font-bold transition flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">share</span>
+                <span>واتساب</span>
+            </button>
+            <button type="button" onclick="copyShareLink()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">link</span>
+                <span id="copyLinkText">نسخ الرابط</span>
+            </button>
+        </div>
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -31,25 +90,25 @@
                 </div>
 
                 <div>
-                    <h1 class="text-2xl font-black text-slate-900">@Model.ProjectTitle</h1>
-                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm">location_on</span>
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">@Model.ProjectTitle</h1>
+                    <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-amber-600">location_on</span>
                         <span>@Model.ProjectCity - @(string.IsNullOrEmpty(Model.ProjectAddress) ? "الموقع المعتمد" : Model.ProjectAddress)</span>
                     </p>
                 </div>
 
                 <!-- Verification Badges -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
-                        <div class="text-[10px] text-slate-400 font-bold">رقم رخصة البناء</div>
+                        <div class="text-[10px] text-slate-400 font-bold">رقم رخصة البناء المعتمد</div>
                         <div class="font-mono font-bold text-slate-800 mt-0.5">@Model.BuildingPermitNumber</div>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
-                        <div class="text-[10px] text-slate-400 font-bold">المقاول المعتمد</div>
+                        <div class="text-[10px] text-slate-400 font-bold">المقاول الآمر بالشراء</div>
                         <div class="font-bold text-slate-800 mt-0.5">@Model.ContractorName</div>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
-                        <div class="text-[10px] text-slate-400 font-bold">مؤشر الالتزام والثقة</div>
+                        <div class="text-[10px] text-slate-400 font-bold">مؤشر الموثوقية والالتزام</div>
                         <div class="font-bold text-emerald-600 mt-0.5">@Model.ContractorTrustScore% ممتاز</div>
                     </div>
                 </div>
@@ -57,10 +116,13 @@
 
             <!-- BOQ Items Table -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-amber-600">receipt_long</span>
-                    <span>كشف الكميات الفعلي المعتمد (BOQ Table)</span>
-                </h3>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600">receipt_long</span>
+                        <span>كشف الكميات الفعلي المعتمد (BOQ Table)</span>
+                    </h3>
+                    <span class="text-xs font-mono font-bold text-slate-400">@Model.Items.Count مواد أساسية</span>
+                </div>
 
                 <div class="overflow-x-auto rounded-xl border border-slate-100">
                     <table class="w-full text-xs text-start">
@@ -77,7 +139,7 @@
                             @foreach (var item in Model.Items)
                             {
                                 <tr>
-                                    <td class="p-3 font-bold">@item.MaterialName</td>
+                                    <td class="p-3 font-bold text-slate-900">@item.MaterialName</td>
                                     <td class="p-3 text-slate-500">@item.MaterialCategory</td>
                                     <td class="p-3 text-center font-mono font-bold">@item.Quantity @item.Unit</td>
                                     <td class="p-3 text-end font-mono">@item.UnitPriceJod.ToString("N2")</td>
@@ -87,7 +149,7 @@
                         </tbody>
                         <tfoot class="bg-slate-50 font-bold text-slate-900 border-t border-slate-200">
                             <tr>
-                                <td colspan="4" class="p-3 text-start">إجمالي تكلفة الشراء من المصنع:</td>
+                                <td colspan="4" class="p-3 text-start">إجمالي تكلفة شراء الأصول العينية من المصانع:</td>
                                 <td class="p-3 text-end font-mono text-base text-amber-600">@Model.BaseMaterialCost.ToString("N2") د.أ</td>
                             </tr>
                         </tfoot>
@@ -95,66 +157,99 @@
                 </div>
             </div>
 
-            <!-- Sharia Wakala Contract Preview -->
-            <div class="bg-amber-50/60 rounded-3xl p-6 border border-amber-200/80 space-y-3 text-xs text-amber-900 leading-relaxed">
-                <div class="flex items-center gap-2 font-bold text-amber-800 text-sm">
-                    <span class="material-symbols-outlined">verified</span>
-                    <span>صيغة عقد الوكالة والمرابحة الشرعية المعتمدة</span>
+            <!-- Sharia Wakala Contract & Safeguards Note -->
+            <div class="bg-amber-50/70 rounded-3xl p-6 sm:p-7 border border-amber-200/80 space-y-3 text-xs text-amber-950 leading-relaxed">
+                <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                    <span class="material-symbols-outlined text-amber-600">verified</span>
+                    <span>صيغة عقد الوكالة والمرابحة وضمانات التسليم</span>
                 </div>
                 <p>
-                    بموجب هذا العقد، يُوكّل المستثمر منصة <strong>Block-O</strong> بشراء المواد الموضحة أعلاه عيناً من المصنع/المورد نيابة عنه وقبضها لحسابه، ثم إعادة بيعها للمقاول بالمرابحة بربح محدد مقدماً قدره <strong>@Model.InvestorNetYieldAmount.ToString("N2") د.أ</strong> لمدة <strong>@Model.TenureDays يوماً</strong>، وتقتطع المنصة أجر وكالتها المتفق عليه (@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ) دون أي غرامات تأخير أو فوائد مركبة.
+                    بموجب هذا العقد، يُوكّل المستثمر منصة <strong>Block-O</strong> بشراء المواد الموضحة أعلاه عيناً من المصنع/المورد نيابة عنه وقبضها حكماً، ثم إعادة بيعها للمقاول بالمرابحة بربح محدد مقدماً قدره <strong>@Model.InvestorNetYieldAmount.ToString("N2") د.أ</strong> لمدة <strong>@Model.TenureDays يوماً</strong>، وتقتطع المنصة أجر وكالتها المتفق عليه (@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ) دون أي غرامات تأخير أو فوائد مركبة.
                 </p>
+                <div class="pt-2 flex items-center gap-2 text-[11px] font-bold text-emerald-800">
+                    <span class="material-symbols-outlined text-sm text-emerald-600">location_on</span>
+                    <span>لا يتم صرف ثمن البضاعة للمورد إلا بعد مطابقة تسليم الشاحنة بموقع الورشة الجغرافي (Geofencing GPS POD).</span>
+                </div>
             </div>
         </div>
 
         <!-- Sticky Funding Action Card (4 cols) -->
         <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-            <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6 text-white">
+            <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6 text-white">
+                
                 <div class="space-y-1">
-                    <div class="text-xs text-slate-400 font-bold uppercase">المبلغ المطلوب لتمويل الصفقة</div>
-                    <div class="text-3xl font-black text-white font-mono">@Model.BaseMaterialCost.ToString("N0") <span class="text-xs font-sans text-slate-400 font-normal">د.أ</span></div>
+                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">المبلغ المطلوب لتمويل وشراء الصفقة</div>
+                    <div class="text-3xl sm:text-4xl font-black text-white font-mono">
+                        @Model.BaseMaterialCost.ToString("N0") <span class="text-xs font-sans text-slate-400 font-normal">د.أ</span>
+                    </div>
                 </div>
 
                 <div class="space-y-3 pt-4 border-t border-slate-800 text-xs">
                     <div class="flex items-center justify-between text-slate-300">
-                        <span>إجمالي سداد المقاول:</span>
+                        <span>إجمالي سداد المقاول بالمرابحة:</span>
                         <span class="font-mono font-bold text-white">@Model.TotalPayableAmount.ToString("N2") د.أ</span>
                     </div>
                     <div class="flex items-center justify-between text-slate-300">
-                        <span>أتعاب المنصة (1.5% Wakala):</span>
+                        <span>أجر وكالة المنصة (1.5% Wakala):</span>
                         <span class="font-mono text-slate-400">-@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ</span>
                     </div>
-                    <div class="flex items-center justify-between text-emerald-400 font-bold pt-2 border-t border-slate-800 text-sm">
-                        <span>صافي ربح المستثمر:</span>
-                        <span class="font-mono text-emerald-400 text-base">+@Model.InvestorNetYieldAmount.ToString("N2") د.أ</span>
+                    <div class="flex items-center justify-between text-emerald-400 font-bold pt-2.5 border-t border-slate-800 text-sm">
+                        <span>صافي ربح المستثمر الممول:</span>
+                        <span class="font-mono text-emerald-400 text-lg">+@Model.InvestorNetYieldAmount.ToString("N2") د.أ</span>
                     </div>
-                    <div class="flex items-center justify-between text-amber-400 text-xs">
-                        <span>العائد السنوي المحسوب:</span>
-                        <span class="font-mono font-bold">@Model.AnnualizedYieldPercentage% سنوياً</span>
+                    <div class="flex items-center justify-between text-amber-400 text-xs font-mono">
+                        <span>العائد السنوي المحسوب (APR):</span>
+                        <span class="font-bold">@Model.AnnualizedYieldPercentage% سنوياً</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-400 text-[11px]">
+                        <span>مدة الاستثمار والدورة المالية:</span>
+                        <span class="font-bold text-slate-200">@Model.TenureDays يوم</span>
                     </div>
                 </div>
 
                 @if (Model.Status == Bolcko.Domain.Enums.FinancingTenderStatus.OpenForBidding)
                 {
                     <div class="space-y-4 pt-4 border-t border-slate-800">
+                        
+                        @if (!isAuthenticated)
+                        {
+                            <div class="p-3 rounded-xl bg-sky-950/60 border border-sky-500/30 text-sky-200 text-xs flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base text-sky-400 flex-shrink-0">bolt</span>
+                                <span>سيتم إنشاء حسابك وتفعيل محفظتك وتوثيق عقد الوكالة فوراً بضغطة زر واحدة.</span>
+                            </div>
+                        }
+
                         <div class="space-y-2">
-                            <label class="text-xs text-slate-300 font-bold block">الاسم الكامل للمستثمر / جهة التمويل:</label>
-                            <input type="text" id="funderNameInput" placeholder="أدخل اسمك أو اسم شركتك" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500" />
+                            <label class="text-xs text-slate-300 font-bold block">الاسم الكامل للمستثمر / جهة التمويل: <span class="text-rose-400">*</span></label>
+                            <input type="text" id="funderNameInput" placeholder="مثال: م. طارق المجالي" value="@(isAuthenticated ? userName : "")" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500" />
                         </div>
 
                         <div class="space-y-2">
-                            <label class="text-xs text-slate-300 font-bold block">رقم هاتف المستثمر (CliQ / الاتصال):</label>
-                            <input type="tel" id="funderPhoneInput" placeholder="0790000000" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500" />
+                            <label class="text-xs text-slate-300 font-bold block">رقم هاتف المستثمر (CliQ / الاتصال): <span class="text-rose-400">*</span></label>
+                            <input type="tel" id="funderPhoneInput" placeholder="079XXXXXXX" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500 text-start" dir="ltr" />
                         </div>
+
+                        @if (!isAuthenticated)
+                        {
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-300 font-bold block">البريد الإلكتروني: <span class="text-rose-400">*</span></label>
+                                <input type="email" id="funderEmailInput" placeholder="name@example.com" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500 text-start" dir="ltr" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-300 font-bold block">تعيين كلمة مرور لحسابك: <span class="text-rose-400">*</span></label>
+                                <input type="password" id="funderPasswordInput" placeholder="••••••••" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500" />
+                            </div>
+                        }
 
                         <div class="flex items-start gap-2 pt-1">
                             <input type="checkbox" id="agreeWakalaCheck" class="mt-0.5 rounded border-slate-700 text-amber-600 focus:ring-amber-500" checked />
-                            <label for="agreeWakalaCheck" class="text-[11px] text-slate-400 leading-tight">
+                            <label for="agreeWakalaCheck" class="text-[11px] text-slate-400 leading-tight cursor-pointer">
                                 أوافق على شروط عقد الوكالة الشرعية وشراء المواد لحسابي وتفويض Block-O بتسليمها للموقع.
                             </label>
                         </div>
 
-                        <button type="button" onclick="fundTenderAction(@Model.Id)" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-3.5 px-4 rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                        <button type="button" id="fundBtn" onclick="fundTenderAction(@Model.Id)" class="w-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-3.5 px-4 rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95">
                             <span class="material-symbols-outlined text-lg">check_circle</span>
                             <span>تأكيد تمويل وشراء الصفقة</span>
                         </button>
@@ -162,9 +257,14 @@
                 }
                 else
                 {
-                    <div class="bg-slate-800/80 p-4 rounded-xl text-center text-xs text-slate-300 space-y-1">
-                        <div class="font-bold text-amber-400">الصفقة ممولة مسبقاً</div>
-                        <div>تم تمويل هذا العطاء بنجاح ويتم تنفيذه حالياً.</div>
+                    <div class="bg-slate-800/80 p-5 rounded-2xl text-center text-xs text-slate-300 space-y-2 border border-white/5">
+                        <span class="material-symbols-outlined text-3xl text-emerald-400 block">verified</span>
+                        <div class="font-bold text-white text-sm">هذا العطاء ممول ومغلق</div>
+                        <p class="text-slate-400 text-[11px]">تم تمويل وتمليك هذا العطاء ويجري توريده للمشروع تحت إشراف المنصة.</p>
+                        <a href="/Shop/Financing" class="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 font-bold text-xs mt-2">
+                            <span>استعراض عطاءات أخرى متاحة</span>
+                            <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                        </a>
                     </div>
                 }
             </div>
@@ -175,9 +275,28 @@
 
 @section Scripts {
 <script>
+    function shareWhatsApp() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent("فرصة تمويل بالمرابحة الإسلامية: @Model.ProjectTitle بقيمة @Model.BaseMaterialCost.ToString("N0") د.أ وعائد @Model.AnnualizedYieldPercentage% APR عبر منصة Block-O:\n");
+        window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank');
+    }
+
+    function copyShareLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const btn = document.getElementById('copyLinkText');
+            if (btn) {
+                btn.innerText = "تم النسخ بنجاح!";
+                setTimeout(() => { btn.innerText = "نسخ الرابط"; }, 2000);
+            }
+        });
+    }
+
     async function fundTenderAction(tenderId) {
+        const btn = document.getElementById('fundBtn');
         const name = document.getElementById('funderNameInput')?.value?.trim();
         const phone = document.getElementById('funderPhoneInput')?.value?.trim();
+        const email = document.getElementById('funderEmailInput')?.value?.trim();
+        const password = document.getElementById('funderPasswordInput')?.value?.trim();
         const agree = document.getElementById('agreeWakalaCheck')?.checked;
 
         if (!name || !phone) {
@@ -185,9 +304,28 @@
             return;
         }
 
+        @if (!isAuthenticated)
+        {
+            <text>
+            if (!email || !password) {
+                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء محفظتك الاستثمارية.');
+                return;
+            }
+            if (password.length < 6) {
+                alert('كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل.');
+                return;
+            }
+            </text>
+        }
+
         if (!agree) {
             alert('يرجى الموافقة على شروط عقد الوكالة الشرعية للمتابعة.');
             return;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> جاري التوثيق والشراء...`;
         }
 
         try {
@@ -198,6 +336,8 @@
                     tenderId: tenderId,
                     funderName: name,
                     funderPhone: phone,
+                    funderEmail: email,
+                    password: password,
                     paymentMethod: 'CliQ',
                     acceptWakalaTerms: true
                 })
@@ -205,13 +345,23 @@
 
             const data = await res.json();
             if (data.success) {
-                alert('تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.');
-                window.location.reload();
+                alert(data.message || 'تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.');
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    window.location.reload();
+                }
             } else {
                 alert(data.message || 'حدث خطأ أثناء معالجة التمويل.');
             }
         } catch (e) {
+            console.error(e);
             alert('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-outlined text-lg">check_circle</span> <span>تأكيد تمويل وشراء الصفقة</span>`;
+            }
         }
     }
 </script>
