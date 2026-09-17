@@ -20,17 +20,20 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IServiceManager _serviceManager;
+        private readonly Microsoft.AspNetCore.Hosting.IWebHostEnvironment _webHostEnvironment;
 
         public AccountController(
             IUnitOfWork unitOfWork,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            IServiceManager serviceManager)
+            IServiceManager serviceManager,
+            Microsoft.AspNetCore.Hosting.IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _signInManager = signInManager;
             _serviceManager = serviceManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: /Vendor/Join or /Vendor/Account/Join
@@ -58,7 +61,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         // POST: /Vendor/Register or /Vendor/Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(VendorRegistrationDto model)
+        public async Task<IActionResult> Register(
+            VendorRegistrationDto model,
+            IFormFile? commercialRegistrationDoc,
+            IFormFile? vocationalLicenseDoc,
+            IFormFile? taxCertificateDoc,
+            IFormFile? qualityCertificatesDoc)
         {
             if (!ModelState.IsValid)
             {
@@ -101,6 +109,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 return View("Join", model);
             }
 
+            // Process KYC document uploads
+            string? crDocUrl = await SaveKycDocAsync(commercialRegistrationDoc, "CR", user.Id);
+            string? vocDocUrl = await SaveKycDocAsync(vocationalLicenseDoc, "VOC", user.Id);
+            string? taxDocUrl = await SaveKycDocAsync(taxCertificateDoc, "TAX", user.Id);
+            string? qualityDocUrl = await SaveKycDocAsync(qualityCertificatesDoc, "QC", user.Id);
+
             // Create VendorProfile
             var vendorProfile = new VendorProfile
             {
@@ -116,6 +130,10 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 WhatsApp = model.WhatsApp,
                 ContactPersonName = model.ContactPersonName ?? $"{firstName} {lastName}",
                 SuppliedCategories = string.Join(",", model.SuppliedCategories ?? new List<string>()),
+                CommercialRegistrationDocUrl = crDocUrl,
+                VocationalLicenseDocUrl = vocDocUrl,
+                TaxCertificateDocUrl = taxDocUrl,
+                QualityCertificatesDocUrl = qualityDocUrl,
                 Status = "PendingVerification", // Needs admin verification
                 RegisteredAt = DateTime.UtcNow
             };
@@ -126,8 +144,33 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             // Sign in vendor
             await _signInManager.SignInAsync(user, isPersistent: true);
 
-            TempData["SuccessMessage"] = "أهلاً بك في شبكة موردين بلوكو! تم تسجيل حسابك بنجاح وهو قيد المراجعة والاعتماد.";
+            TempData["SuccessMessage"] = "أهلاً بك في شبكة موردين بلوكو! تم تسجيل حسابك ورفع وثائق الاعتماد بنجاح، ملفك قيد التدقيق والمراجعة القانونية.";
             return RedirectToAction("Confirmation");
+        }
+
+        private async Task<string?> SaveKycDocAsync(IFormFile? file, string docType, int userId)
+        {
+            if (file == null || file.Length == 0) return null;
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowedExtensions.Contains(ext)) return null;
+
+            var webRoot = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsFolder = Path.Combine(webRoot, "uploads", "vendor-kyc");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"{docType}_{userId}_{Guid.NewGuid():N}{ext}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/uploads/vendor-kyc/{fileName}";
         }
 
         // GET: /Vendor/Confirmation

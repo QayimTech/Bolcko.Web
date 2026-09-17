@@ -67,7 +67,7 @@
                 </div>
             }
 
-            <form asp-area="Vendor" asp-controller="Account" asp-action="Register" method="post" class="space-y-8">
+            <form asp-area="Vendor" asp-controller="Account" asp-action="Register" method="post" enctype="multipart/form-data" class="space-y-8">
                 @Html.AntiForgeryToken()
 
                 <!-- Section A: Company Information -->
@@ -173,11 +173,58 @@
                     </div>
                 </div>
 
-                <!-- Section D: Account Security -->
+                <!-- Section D: KYC Documents Upload -->
+                <div>
+                    <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">verified_user</span>
+                        <span>@(isArabic ? "4. الوثائق الرسمية والمطابقة القانونية (KYC Documents)" : "4. Legal Verification & KYC Documents")</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 mb-4">@(isArabic ? "ارفع الوثائق الرسمية بصيغة (PDF أو صور عالية الدقة) لتسريع وتيرة التحقق واعتماد متجرك فوراً:" : "Upload official registration docs (PDF/Images) to expedite verification:")</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl hover:border-amber-500 transition-colors">
+                            <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-amber-600">description</span>
+                                <span>@(isArabic ? "السجل التجاري الرسمي (CR Document)" : "Commercial Registration")</span>
+                            </label>
+                            <span class="text-[10px] text-slate-400 block mb-2">PDF, PNG, JPG (Max 10MB)</span>
+                            <input type="file" name="commercialRegistrationDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-600 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer" />
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl hover:border-amber-500 transition-colors">
+                            <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-sky-600">badge</span>
+                                <span>@(isArabic ? "رخصة المهن السارية (Trade License)" : "Vocational / Trade License")</span>
+                            </label>
+                            <span class="text-[10px] text-slate-400 block mb-2">PDF, PNG, JPG (Max 10MB)</span>
+                            <input type="file" name="vocationalLicenseDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-600 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer" />
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl hover:border-amber-500 transition-colors">
+                            <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-emerald-600">receipt_long</span>
+                                <span>@(isArabic ? "شهادة التسجيل الضريبي (Tax Certificate)" : "Tax / VAT Certificate")</span>
+                            </label>
+                            <span class="text-[10px] text-slate-400 block mb-2">PDF, PNG, JPG (اختياري)</span>
+                            <input type="file" name="taxCertificateDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-600 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl hover:border-amber-500 transition-colors">
+                            <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-purple-600">workspace_premium</span>
+                                <span>@(isArabic ? "شهادات الفحص المخبري وضبط الجودة" : "Lab Test & Quality Certificates")</span>
+                            </label>
+                            <span class="text-[10px] text-slate-400 block mb-2">مثل شهادات الجمعية العلمية الملكية أو ISO</span>
+                            <input type="file" name="qualityCertificatesDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-xs text-slate-600 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section E: Account Security -->
                 <div>
                     <h3 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-4 flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-base">lock</span>
-                        <span>@(isArabic ? "4. بيانات الدخول وأمان حساب المورد" : "4. Account Access & Security")</span>
+                        <span>@(isArabic ? "5. بيانات الدخول وأمان حساب المورد" : "5. Account Access & Security")</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>

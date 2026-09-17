@@ -31,6 +31,12 @@ namespace Bolcko.Domain.Entities.Catalog
         public decimal CommissionRatePercentage { get; set; } = 2.0m;
         public double Rating { get; set; } = 5.0;
 
+        // Official KYC Document File Paths
+        public string? CommercialRegistrationDocUrl { get; set; }
+        public string? VocationalLicenseDocUrl { get; set; }
+        public string? TaxCertificateDocUrl { get; set; }
+        public string? QualityCertificatesDocUrl { get; set; }
+
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
         public DateTime? VerifiedAt { get; set; }
     }

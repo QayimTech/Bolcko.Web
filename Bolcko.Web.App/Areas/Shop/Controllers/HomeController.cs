@@ -358,6 +358,42 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View();
         }
 
+        [HttpGet("/Investors")]
+        [HttpGet("/investor-relations")]
+        public IActionResult Investors()
+        {
+            return View();
+        }
+
+        [HttpGet("/Corporate/Partnerships")]
+        public IActionResult CorporatePartnerships()
+        {
+            return View("Investors");
+        }
+
+        [HttpGet("/Downloads/PitchDeck")]
+        public IActionResult DownloadPitchDeck()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Block-O_Pitch_Deck_v2.pptx");
+            if (!System.IO.File.Exists(filePath))
+            {
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads", "Block-O_Pitch_Deck_v2.pptx");
+            }
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("ملف العرض التقديمي غير متاح حالياً.");
+            }
+            return PhysicalFile(filePath, "application/vnd.openxmlformats-officedocument.presentationml.presentation", "BLOCKO_Pitch_Deck_2026.pptx");
+        }
+
+        [HttpPost("/Corporate/Inquiry")]
+        [ValidateAntiForgeryToken]
+        public IActionResult SubmitInvestorInquiry([FromForm] string fullName, [FromForm] string email, [FromForm] string phone, [FromForm] string organizationType, [FromForm] string? message)
+        {
+            TempData["SuccessMessage"] = "شكراً لاهتمامكم الاستثماري في منصة بلوكو. سيقوم فريق علاقات المستثمرين بالتواصل معكم وتزويدكم بالملف التفصيلي خلال 24 ساعة.";
+            return RedirectToAction("Investors");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

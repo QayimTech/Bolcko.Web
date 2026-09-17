@@ -55,6 +55,10 @@ namespace Bolcko.Web.App.Extensions
                     ALTER TABLE ""Addresses"" ADD COLUMN IF NOT EXISTS ""Latitude"" double precision NULL;
                     ALTER TABLE ""Addresses"" ADD COLUMN IF NOT EXISTS ""Longitude"" double precision NULL;
                     ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""IsOversized"" boolean NOT NULL DEFAULT false;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""CommercialRegistrationDocUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""VocationalLicenseDocUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""TaxCertificateDocUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""QualityCertificatesDocUrl"" text NULL;
                 ");
             }
             catch (Exception ex)
