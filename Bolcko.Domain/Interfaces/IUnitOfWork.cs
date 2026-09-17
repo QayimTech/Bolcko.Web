@@ -49,9 +49,13 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; }
         IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; }
 
-                // Islamic Murabaha & Trade Financing
+        // Islamic Murabaha & Trade Financing
         IFinancingTenderRepository FinancingTenders { get; }
         IGenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteDeliveries { get; }
+
+        // Multi-Tier Subscription Engine
+        IGenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Subscription.UserSubscription> UserSubscriptions { get; }
 
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();

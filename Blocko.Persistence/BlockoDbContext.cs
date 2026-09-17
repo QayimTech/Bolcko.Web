@@ -64,6 +64,10 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Financing.FinancingTenderItem> FinancingTenderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteProofOfDeliveries { get; set; }
 
+        // Multi-Tier Subscription Engine (Investors, Contractors, Vendors)
+        public DbSet<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Subscription.UserSubscription> UserSubscriptions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -55,9 +55,11 @@ namespace Blocko.Services
                     sp.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>>(),
                     sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>(),
-                    sp.GetRequiredService<IProductSeoService>()));
+                    sp.GetRequiredService<IProductSeoService>(),
+                    sp.GetRequiredService<Blocko.Persistence.BlockoDbContext>()));
 
             // ─── Individual Services ──────────────────────────────────────────────
+            services.AddScoped<Blocko.Services.Interfaces.Subscription.ISubscriptionService, Blocko.Services.Implementations.Subscription.SubscriptionService>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();

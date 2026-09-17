@@ -1,0 +1,146 @@
+@model IEnumerable<Bolcko.Domain.Entities.Subscription.DTOs.SubscriptionPlanDto>
+@{
+    ViewData["Title"] = "إدارة الاشتراكات والخطط المالية (MRR)";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var stats = ViewBag.Stats as Bolcko.Domain.Entities.Subscription.DTOs.SubscriptionStatsDto;
+    var subscribers = ViewBag.Subscribers as IEnumerable<Bolcko.Domain.Entities.Subscription.DTOs.UserSubscriptionDto> ?? new List<Bolcko.Domain.Entities.Subscription.DTOs.UserSubscriptionDto>();
+    var selectedRole = ViewBag.SelectedRole as string;
+}
+
+<div class="p-6 space-y-8 text-start" dir="rtl">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-mono uppercase text-amber-600 mb-1">
+                <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                <span>إيرادات الاشتراكات المتكررة (SaaS & MRR Engine)</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">إدارة الباقات والاشتراكات الشهرية</h1>
+        </div>
+        <a href="/Shop/Subscription/Plans" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-amber-500 hover:text-slate-900 transition-all shadow-md">
+            <span class="material-symbols-outlined text-sm">open_in_new</span>
+            <span>معاينة صفحة الخطط العامة</span>
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-2">
+            <span class="text-xs text-slate-500 font-bold uppercase">الإيراد الشهري المتكرر (MRR)</span>
+            <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black font-mono text-emerald-600">@((stats?.MonthlyRecurringRevenue ?? 0).ToString("N0"))</span>
+                <span class="text-xs font-bold text-slate-600">د.أ / شهر</span>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-2">
+            <span class="text-xs text-slate-500 font-bold uppercase">إجمالي المشتركين النشطين</span>
+            <div class="text-3xl font-black font-mono text-slate-900">@(stats?.TotalActiveSubscribers ?? 0)</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-2">
+            <span class="text-xs text-slate-500 font-bold uppercase">مشتركو المقاولين (Contractors)</span>
+            <div class="text-3xl font-black font-mono text-sky-600">@(stats?.ContractorSubscribers ?? 0)</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-2">
+            <span class="text-xs text-slate-500 font-bold uppercase">مشتركو كبار المستثمرين (VIP)</span>
+            <div class="text-3xl font-black font-mono text-amber-600">@(stats?.InvestorSubscribers ?? 0)</div>
+        </div>
+    </div>
+
+    <!-- Plans Table -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-500">list_alt</span>
+            <span>باقات وخطط المنظومة المعتمدة</span>
+        </h3>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-start">
+                <thead>
+                    <tr class="border-b border-slate-200 text-slate-500 uppercase font-mono">
+                        <th class="py-3 px-4">اسم الباقة</th>
+                        <th class="py-3 px-4">الفئة المستهدفة</th>
+                        <th class="py-3 px-4">السعر الشهري</th>
+                        <th class="py-3 px-4">السعر السنوي</th>
+                        <th class="py-3 px-4">سقف التمويل / الميزة</th>
+                        <th class="py-3 px-4">الشارة</th>
+                        <th class="py-3 px-4">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="py-3 px-4 font-bold text-slate-900">@p.NameAr</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold @(p.TargetRole == "Investor" ? "bg-amber-50 text-amber-700" : (p.TargetRole == "Contractor" ? "bg-sky-50 text-sky-700" : "bg-emerald-50 text-emerald-700"))">
+                                    @p.TargetRole
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-800">@p.PriceMonthly.ToString("N0") د.أ</td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-800">@p.PriceYearly.ToString("N0") د.أ</td>
+                            <td class="py-3 px-4 text-slate-600 font-mono">
+                                @(p.MaxTenderLimit > 0 ? $"{p.MaxTenderLimit:N0} د.أ سقف" : (p.EarlyAccessHours > 0 ? $"{p.EarlyAccessHours}h وصول مبكر" : (p.CommissionDiscountPercent > 0 ? $"{p.CommissionDiscountPercent}% خصم" : "قياسي")))
+                            </td>
+                            <td class="py-3 px-4 font-bold text-amber-600">@(p.BadgeText ?? "-")</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">نشطة</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Active Subscribers List -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">group</span>
+            <span>قائمة المشتركين الحاليين</span>
+        </h3>
+
+        @if (subscribers.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-start">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-500 uppercase font-mono">
+                            <th class="py-3 px-4">المشترك</th>
+                            <th class="py-3 px-4">البريد</th>
+                            <th class="py-3 px-4">الباقة</th>
+                            <th class="py-3 px-4">المبلغ</th>
+                            <th class="py-3 px-4">المدة</th>
+                            <th class="py-3 px-4">الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach (var s in subscribers)
+                        {
+                            <tr>
+                                <td class="py-3 px-4 font-bold text-slate-900">@s.UserName</td>
+                                <td class="py-3 px-4 font-mono text-slate-600">@s.UserEmail</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">@s.PlanNameAr</td>
+                                <td class="py-3 px-4 font-mono font-bold text-emerald-600">@s.AmountPaid.ToString("N0") د.أ</td>
+                                <td class="py-3 px-4 font-mono text-slate-500">@s.StartDate.ToString("yyyy-MM-dd") إلى @s.EndDate.ToString("yyyy-MM-dd")</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                        @s.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-xs text-slate-500 py-4 text-center">لا يوجد مشتركون مسجلون حالياً.</p>
+        }
+    </div>
+
+</div>

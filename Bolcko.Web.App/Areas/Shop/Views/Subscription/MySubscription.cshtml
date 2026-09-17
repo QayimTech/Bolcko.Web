@@ -1,0 +1,153 @@
+@{
+    ViewData["Title"] = "إدارة اشتراكي والباقات المفعلة";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var activeSub = ViewBag.ActiveSub as Bolcko.Domain.Entities.Subscription.DTOs.UserSubscriptionDto;
+    var history = ViewBag.History as IEnumerable<Bolcko.Domain.Entities.Subscription.DTOs.UserSubscriptionDto> ?? new List<Bolcko.Domain.Entities.Subscription.DTOs.UserSubscriptionDto>();
+}
+
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto space-y-8">
+
+        <!-- Top Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div>
+                <div class="flex items-center gap-2 text-xs text-amber-400 font-mono uppercase tracking-wider mb-1">
+                    <span class="material-symbols-outlined text-sm">card_membership</span>
+                    <span>محفظة الاشتراكات والباقات</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white">إدارة اشتراك حسابك</h1>
+            </div>
+            <a href="/Shop/Subscription/Plans" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-lg">
+                <span class="material-symbols-outlined text-sm">upgrade</span>
+                <span>ترقية أو تغيير الباقة</span>
+            </a>
+        </div>
+
+        @if (activeSub != null)
+        {
+            <!-- Active Plan Card -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-[#151c2c] border border-amber-500/40 rounded-3xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute -end-10 -bottom-10 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold uppercase tracking-wider">
+                            ● اشتراك نشط وفعال
+                        </span>
+                        <h2 class="text-2xl font-black text-white mt-3">@activeSub.PlanNameAr</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">الدور: <span class="font-mono text-amber-400 font-bold">@activeSub.TargetRole</span> | دورة الفوترة: <span class="font-mono text-slate-200">@activeSub.BillingCycle</span></p>
+                    </div>
+                    <div class="text-start sm:text-end">
+                        <span class="text-xs text-slate-400 block">المبلغ المدفوع:</span>
+                        <span class="text-3xl font-black text-amber-400 font-mono">@activeSub.AmountPaid.ToString("N0")</span>
+                        <span class="text-xs font-bold text-amber-300">د.أ</span>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
+                    <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                        <span class="text-[11px] text-slate-400 block">تاريخ البدء:</span>
+                        <span class="font-mono font-bold text-white text-sm">@activeSub.StartDate.ToString("yyyy-MM-dd")</span>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                        <span class="text-[11px] text-slate-400 block">تاريخ الانتهاء / التجديد:</span>
+                        <span class="font-mono font-bold text-white text-sm">@activeSub.EndDate.ToString("yyyy-MM-dd")</span>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
+                        <span class="text-[11px] text-slate-400 block">الأيام المتبقية:</span>
+                        <span class="font-mono font-bold text-emerald-400 text-sm">@activeSub.RemainingDays يوم</span>
+                    </div>
+                </div>
+
+                <!-- Enabled Features -->
+                <div class="space-y-2 pt-2">
+                    <span class="text-xs font-bold text-slate-300 block">المزايا المفعلة بحسابك:</span>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        @if (activeSub.MaxTenderLimit > 0)
+                        {
+                            <span class="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 font-mono">
+                                سقف التمويل: @activeSub.MaxTenderLimit.ToString("N0") د.أ
+                            </span>
+                        }
+                        @if (activeSub.EarlyAccessHours > 0)
+                        {
+                            <span class="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono">
+                                وصول مبكر: @activeSub.EarlyAccessHours ساعات
+                            </span>
+                        }
+                        @if (activeSub.AutoInvestAllowed)
+                        {
+                            <span class="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300">
+                                خاصية الاستثمار الآلي Auto-Pilot
+                            </span>
+                        }
+                        @if (activeSub.CommissionDiscountPercent > 0)
+                        {
+                            <span class="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono">
+                                خصم عمولة: @activeSub.CommissionDiscountPercent%
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-10 text-center space-y-4">
+                <span class="material-symbols-outlined text-5xl text-slate-600">inventory_2</span>
+                <h3 class="text-xl font-bold text-white">لا يوجد اشتراك نشط حالياً</h3>
+                <p class="text-xs text-slate-400 max-w-md mx-auto">حسابك يعمل حالياً بالباقة المجانية القياسية. يمكنك الترقية للحصول على سقوف تمويلية أعلى ومزايا الاستثمار والبيع المتقدمة.</p>
+                <a href="/Shop/Subscription/Plans" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-lg">
+                    استعراض الخطط والترقية
+                </a>
+            </div>
+        }
+
+        <!-- Subscription Invoices & History Table -->
+        <div class="bg-slate-900 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400">receipt_long</span>
+                <span>سجل الفواتير والاشتراكات السابقة</span>
+            </h3>
+
+            @if (history.Any())
+            {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-start">
+                        <thead>
+                            <tr class="border-b border-white/10 text-slate-400 font-mono uppercase">
+                                <th class="py-3 px-4">رقم الفاتورة / الباقة</th>
+                                <th class="py-3 px-4">دورة الفوترة</th>
+                                <th class="py-3 px-4">المبلغ</th>
+                                <th class="py-3 px-4">فترة الاشتراك</th>
+                                <th class="py-3 px-4">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach (var h in history)
+                            {
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-white">@h.PlanNameAr</td>
+                                    <td class="py-3 px-4 text-slate-300">@h.BillingCycle</td>
+                                    <td class="py-3 px-4 font-mono text-amber-400 font-bold">@h.AmountPaid.ToString("N0") د.أ</td>
+                                    <td class="py-3 px-4 text-slate-400 font-mono">@h.StartDate.ToString("yyyy-MM-dd") - @h.EndDate.ToString("yyyy-MM-dd")</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold @(h.Status.ToString() == "Active" ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-700 text-slate-300")">
+                                            @h.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-xs text-slate-500 py-4 text-center">لا توجد عمليات فوترة سابقة.</p>
+            }
+        </div>
+
+    </div>
+</div>

@@ -41,6 +41,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IDeliveryService> _lazyDeliveryService;
         private readonly Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService> _lazyPaymentGatewayService;
         private readonly Lazy<Blocko.Services.Interfaces.Financing.IFinancingService> _lazyFinancingService;
+        private readonly Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService> _lazySubscriptionService;
 
         public ServiceManager(
             IUnitOfWork unitOfWork,
@@ -50,7 +51,8 @@ namespace Blocko.Services.Implementations
             Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager,
             Microsoft.Extensions.Caching.Memory.IMemoryCache cache,
             Microsoft.Extensions.Logging.ILoggerFactory loggerFactory,
-            IProductSeoService productSeoService)
+            IProductSeoService productSeoService,
+            Blocko.Persistence.BlockoDbContext dbContext)
         {
             _lazyUserService        = new Lazy<IUserService>(() => new UserService(unitOfWork));
             _lazyProductService     = new Lazy<IProductService>(() => new ProductService(unitOfWork));
@@ -69,6 +71,7 @@ namespace Blocko.Services.Implementations
             _lazyDeliveryService     = new Lazy<IDeliveryService>(() => new DeliveryService(unitOfWork, notificationService, deliveryDocumentService, emailSender));
             _lazyPaymentGatewayService = new Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService>(() => new Blocko.Services.Implementations.Payment.PaymentGatewayService(unitOfWork));
             _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>()));
+            _lazySubscriptionService = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService>(() => new Blocko.Services.Implementations.Subscription.SubscriptionService(dbContext));
         }
 
         public IUserService UserService        => _lazyUserService.Value;
@@ -85,5 +88,6 @@ namespace Blocko.Services.Implementations
         public IDeliveryService DeliveryService => _lazyDeliveryService.Value;
         public Blocko.Services.Interfaces.Payment.IPaymentGatewayService PaymentGatewayService => _lazyPaymentGatewayService.Value;
         public Blocko.Services.Interfaces.Financing.IFinancingService FinancingService => _lazyFinancingService.Value;
+        public Blocko.Services.Interfaces.Subscription.ISubscriptionService SubscriptionService => _lazySubscriptionService.Value;
     }
 }
