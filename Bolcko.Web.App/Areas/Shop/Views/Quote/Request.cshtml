@@ -773,9 +773,13 @@
         // Must have at least 1 item
         if (!document.querySelectorAll('.q-item').length) {
             var es = document.getElementById('emptyState');
-            es.classList.add('has-error');
-            document.getElementById('emptyStateError').style.display = 'block';
-            es.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (es) {
+                es.classList.add('has-error');
+                var esErr = document.getElementById('emptyStateError');
+                if (esErr) esErr.style.display = 'block';
+                es.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            showToast(IS_AR ? 'يرجى إضافة مادة واحدة على الأقل بالجدول قبل إرسال العطاء والتسعير.' : 'Please add at least one material to the table before submitting the quote request.');
             return;
         }
 
