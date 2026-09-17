@@ -1,0 +1,558 @@
+@{
+    ViewData["Title"] = "طرح عطاء تمويل بالمرابحة الإسلامية للمقاولين";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var materialTypes = ViewBag.MaterialTypes as IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.MaterialType>();
+}
+
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-8" dir="rtl">
+    
+    <!-- Hero / Header Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-10 shadow-2xl">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-3">
+                    <span class="material-symbols-outlined text-sm">handshake</span>
+                    <span>تمويل إسلامي 100% متوافق مع الضوابط الشرعية</span>
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white mb-2">طرح عطاء شراء وتوريد بالمرابحة</h1>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    احصل على تمويل مواد بناء لمشروعك (حديد، خرسانة، حجر، إسمنت) بشراء وتمليك فوري من المستثمرين وسدد بأقساط ميسرة (30 - 180 يوم) بدون فوائد ربوية.
+                </p>
+            </div>
+            <div class="bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700 text-center shrink-0 w-full sm:w-auto">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">الضمان والموثوقية</span>
+                <div class="text-amber-400 font-mono font-black text-xl">BLOCKO ESCROW</div>
+                <span class="text-[11px] text-emerald-400 font-bold block mt-1">تسليم موقعي موثق بالـ GPS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Steps Indicator -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold">
+            <div id="step-tab-1" class="py-2.5 px-2 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center gap-1.5 shadow-sm">
+                <span>1</span> <span class="hidden sm:inline">بيانات المشروع</span>
+            </div>
+            <div id="step-tab-2" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center gap-1.5">
+                <span>2</span> <span class="hidden sm:inline">موقع الـ GPS</span>
+            </div>
+            <div id="step-tab-3" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center gap-1.5">
+                <span>3</span> <span class="hidden sm:inline">جدول الكميات</span>
+            </div>
+            <div id="step-tab-4" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center gap-1.5">
+                <span>4</span> <span class="hidden sm:inline">السداد والمراجعة</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Wizard Form -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
+        
+        <!-- STEP 1: PROJECT & PERMIT DETAILS -->
+        <div id="step-content-1" class="space-y-6">
+            <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+                <h3 class="text-base font-black text-slate-900 dark:text-white">الخطوة 1: بيانات المشروع ورخصة البناء الإنشائية</h3>
+                <p class="text-xs text-slate-400 mt-1">يتم التحقق من بيانات المشروع ورقم الرخصة لرفع التقييم الائتماني Trust Score للمقاول</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المشروع / البناء *</label>
+                    <input type="text" id="projectTitle" placeholder="مثال: مشروع فيلا دابوق - المرحلة الإنشائية" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المدينة / المحافظة *</label>
+                    <select id="projectCity" required
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                        <option value="عمان">عمان</option>
+                        <option value="الزرقاء">الزرقاء</option>
+                        <option value="إربد">إربد</option>
+                        <option value="العقبة">العقبة</option>
+                        <option value="البلقاء / السلط">البلقاء / السلط</option>
+                        <option value="مادبا">مادبا</option>
+                        <option value="جرش">جرش</option>
+                        <option value="عجلون">عجلون</option>
+                        <option value="المفرق">المفرق</option>
+                        <option value="الكرك">الكرك</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المقاول / طالب التمويل *</label>
+                    <input type="text" id="contractorName" value="@User.Identity?.Name" placeholder="الاسم الرباعي أو اسم شركة المقاولات" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم الهاتف للتواصل وإشعار الوكالة *</label>
+                    <input type="tel" id="contractorPhone" placeholder="079XXXXXXX" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono text-left" dir="ltr" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم رخصة البناء / إذن الصب</label>
+                    <input type="text" id="permitNumber" placeholder="مثال: GAM-2026-88412"
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">العنوان التفصيلي للموقع الإنشائي</label>
+                    <input type="text" id="projectAddress" placeholder="الحي، اسم الشارع، معلم بارز..."
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button type="button" onclick="goToStep(2)"
+                        class="px-8 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs transition-all shadow-md">
+                    المتابعة لموقع الـ GPS ⬅️
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: GPS & GEOFENCING -->
+        <div id="step-content-2" class="hidden space-y-6">
+            <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+                <h3 class="text-base font-black text-slate-900 dark:text-white">الخطوة 2: تحديد الموقع الجغرافي للمشروع (Geofenced POD)</h3>
+                <p class="text-xs text-slate-400 mt-1">يستخدم لتوجيه سائقي شاحنات التوريد والتحقق تلقائياً من تسليم وتفريغ المواد داخل حرم الورشة</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-sky-500/5 border border-sky-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-2xl text-sky-500">pin_drop</span>
+                    <div>
+                        <strong class="text-xs text-sky-950 dark:text-sky-300 block">تحديد موقع الورشة الحالية بنقرة واحدة</strong>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">انقر لجلب إحداثيات الـ GPS المباشرة من هاتفك أو جهازك</span>
+                    </div>
+                </div>
+                <button type="button" onclick="getCurrentLocation()"
+                        class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all shrink-0 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">my_location</span>
+                    <span>تحديد موقعي الآن</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">خط العرض (Latitude) *</label>
+                    <input type="text" id="gpsLatitude" value="31.9539" placeholder="31.9539" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono text-left" dir="ltr" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">خط الطول (Longitude) *</label>
+                    <input type="text" id="gpsLongitude" value="35.9106" placeholder="35.9106" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono text-left" dir="ltr" />
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <button type="button" onclick="goToStep(1)" class="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+                    ➡️ السابق
+                </button>
+                <button type="button" onclick="goToStep(3)" class="px-8 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs transition-all shadow-md">
+                    المتابعة لجدول الكميات ⬅️
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: BOQ MATERIALS LIST -->
+        <div id="step-content-3" class="hidden space-y-6">
+            <div class="border-b border-slate-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-black text-slate-900 dark:text-white">الخطوة 3: جدول المواد والكميات المطلوبة للتمويل (BOQ)</h3>
+                    <p class="text-xs text-slate-400 mt-1">أضف بنود المواد ومواصفاتها الإنشائية وأسعار التوريد التقديرية</p>
+                </div>
+                <button type="button" onclick="addMaterialRow()"
+                        class="px-4 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/30 transition-all flex items-center gap-1 self-start sm:self-auto">
+                    <span>➕</span>
+                    <span>إضافة بند مادة إضافي</span>
+                </button>
+            </div>
+
+            <!-- Material Presets Selector -->
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">إضافة سريعة من مواد البناء القياسية:</label>
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var mat in materialTypes)
+                    {
+                        <button type="button" onclick="addPresetMaterial('@mat.NameAr', '@mat.CategoryType', '@mat.UnitOfMeasure', @mat.DefaultPriceEstimated)"
+                                class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-amber-500 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-2xs">
+                            + @mat.NameAr (@mat.UnitOfMeasure)
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- BOQ Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="p-3">المادة / الصنف</th>
+                            <th class="p-3">التصنيف</th>
+                            <th class="p-3">الكمية</th>
+                            <th class="p-3">الوحدة</th>
+                            <th class="p-3">سعر الوحدة (د.أ)</th>
+                            <th class="p-3">الإجمالي (د.أ)</th>
+                            <th class="p-3 text-center">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="boqTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
+                        <!-- Default Row 1: Steel -->
+                        <tr class="boq-row">
+                            <td class="p-3"><input type="text" class="boq-name w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold" value="حديد تسليح Grade 60 (أقطار مختلفة)" /></td>
+                            <td class="p-3">
+                                <select class="boq-category px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold">
+                                    <option value="Steel" selected>Steel</option>
+                                    <option value="Concrete">Concrete</option>
+                                    <option value="Stone">Stone</option>
+                                    <option value="Cement">Cement</option>
+                                    <option value="Blocks">Blocks</option>
+                                </select>
+                            </td>
+                            <td class="p-3"><input type="number" step="0.1" class="boq-qty w-20 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="10" oninput="recalcBOQ()" /></td>
+                            <td class="p-3"><input type="text" class="boq-unit w-16 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs text-center" value="طن" /></td>
+                            <td class="p-3"><input type="number" step="0.1" class="boq-price w-24 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="580" oninput="recalcBOQ()" /></td>
+                            <td class="p-3 font-mono font-bold text-amber-600 dark:text-amber-400 boq-subtotal">5,800.00 د.أ</td>
+                            <td class="p-3 text-center"><button type="button" onclick="removeRow(this)" class="text-rose-500 font-bold hover:text-rose-700 text-base">&times;</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BOQ Cost Summary -->
+            <div class="p-5 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs text-slate-400 block">إجمالي تكلفة المواد الأساسية (Base Material Cost):</span>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span id="baseTotalCost" class="text-3xl font-black font-mono text-amber-400">5,800.00</span>
+                        <span class="text-sm font-bold text-amber-300">دينار أردني</span>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 text-center sm:text-left">
+                    <span id="itemsCountBadge">1 صنف تمويلي</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <button type="button" onclick="goToStep(2)" class="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+                    ➡️ السابق
+                </button>
+                <button type="button" onclick="goToStep(4)" class="px-8 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs transition-all shadow-md">
+                    المتابعة لشروط السداد والاعتماد ⬅️
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: TENURE, AGENCY FEES & REVIEW -->
+        <div id="step-content-4" class="hidden space-y-6">
+            <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+                <h3 class="text-base font-black text-slate-900 dark:text-white">الخطوة 4: شروط السداد بالمرابحة وتوليد العطاء</h3>
+                <p class="text-xs text-slate-400 mt-1">حدد فترة السداد المطلوبة لاحتساب هامش ربح المرابحة وأتعاب الوكالة الشرعية بدقة</p>
+            </div>
+
+            <!-- Tenure Slider -->
+            <div class="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">فترة السداد المطلوبة (Tenure):</label>
+                    <span id="tenureDaysDisplay" class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-sm font-mono">90 يوم</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <button type="button" onclick="setTenure(30)" class="tenure-btn py-2.5 rounded-xl bg-white dark:bg-slate-900 border text-xs font-bold text-slate-700 dark:text-white" data-days="30">30 يوم (3.5%)</button>
+                    <button type="button" onclick="setTenure(60)" class="tenure-btn py-2.5 rounded-xl bg-white dark:bg-slate-900 border text-xs font-bold text-slate-700 dark:text-white" data-days="60">60 يوم (4.5%)</button>
+                    <button type="button" onclick="setTenure(90)" class="tenure-btn py-2.5 rounded-xl bg-amber-500 text-slate-950 border-amber-600 font-bold text-xs shadow-sm" data-days="90">90 يوم (5.5%)</button>
+                    <button type="button" onclick="setTenure(180)" class="tenure-btn py-2.5 rounded-xl bg-white dark:bg-slate-900 border text-xs font-bold text-slate-700 dark:text-white" data-days="180">180 يوم (8.0%)</button>
+                </div>
+                <input type="hidden" id="selectedTenureDays" value="90" />
+            </div>
+
+            <!-- Murabaha Financial Breakdown -->
+            <div class="p-6 rounded-3xl bg-slate-900 text-white space-y-4 border border-slate-800">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">تفاصيل الحسبة المالية لعقد المرابحة والوكالة:</h4>
+                
+                <div class="space-y-2.5 text-xs text-slate-300">
+                    <div class="flex justify-between">
+                        <span>قيمة المواد الأساسية (سعر الشراء من المورد):</span>
+                        <strong id="reviewBaseCost" class="text-white font-mono">5,800.00 د.أ</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>هامش ربح المرابحة للمستثمر (<span id="reviewProfitRate">5.5</span>%):</span>
+                        <strong id="reviewProfitAmount" class="text-emerald-400 font-mono">319.00 د.أ</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>أتعاب الوكالة وإدارة الضمان المنصة (1.5%):</span>
+                        <strong id="reviewAgencyFee" class="text-amber-400 font-mono">87.00 د.أ</strong>
+                    </div>
+                    <div class="flex justify-between pt-3 border-t border-slate-800 text-sm font-black">
+                        <span class="text-white">إجمالي المبلغ المستحق للسداد (Total Payable):</span>
+                        <strong id="reviewTotalPayable" class="text-amber-300 font-mono text-lg">6,206.00 د.أ</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sharia Agency Checkbox -->
+            <div class="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                <input type="checkbox" id="shariaTermsCheckbox" required checked class="w-5 h-5 text-amber-600 rounded mt-0.5" />
+                <label for="shariaTermsCheckbox" class="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+                    أقر وأوافق على توكيل منصة BLOCKO بشراء وتملك المواد نيابة عن المستثمر الممول، وتسليمها موقعياً بعد المعاينة والتوثيق الجغرافي بالـ GPS وفق صيغة المرابحة الإسلامية المعتمدة.
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <button type="button" onclick="goToStep(3)" class="px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+                    ➡️ السابق
+                </button>
+                <button type="button" id="submitTenderBtn" onclick="submitMurabahaTender()"
+                        class="px-10 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-xl shadow-amber-500/20 transition-all cursor-pointer">
+                    🚀 نشر العطاء للمستثمرين الآن
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+
+    function goToStep(step) {
+        // Validation for step 1
+        if (step > 1 && currentStep === 1) {
+            const title = document.getElementById('projectTitle').value.trim();
+            const phone = document.getElementById('contractorPhone').value.trim();
+            if (!title || !phone) {
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert('يرجى إدخال اسم المشروع ورقم الهاتف للمتابعة.', 'حقول مطلوبة', 'warning');
+                } else {
+                    alert('يرجى إدخال اسم المشروع ورقم الهاتف للمتابعة.');
+                }
+                return;
+            }
+        }
+
+        // Hide all steps
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById('step-content-' + i).classList.add('hidden');
+            const tab = document.getElementById('step-tab-' + i);
+            tab.className = 'py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center gap-1.5';
+        }
+
+        document.getElementById('step-content-' + step).classList.remove('hidden');
+        const activeTab = document.getElementById('step-tab-' + step);
+        activeTab.className = 'py-2.5 px-2 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center gap-1.5 shadow-sm';
+
+        currentStep = step;
+        if (step === 4) recalcFinalReview();
+    }
+
+    function getCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert('متصفحك لا يدعم تحديد الموقع الجغرافي.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                document.getElementById('gpsLatitude').value = pos.coords.latitude.toFixed(6);
+                document.getElementById('gpsLongitude').value = pos.coords.longitude.toFixed(6);
+                if (window.BlockoModal) {
+                    window.BlockoModal.toast('تم تحديد إحداثيات الموقع الإنشائي بدقة! 📍', 'success');
+                }
+            },
+            (err) => {
+                alert('تعذر جلب الموقع. يرجى التأكد من تفعيل الـ GPS والسماح للمتصفح.');
+            },
+            { enableHighAccuracy: true }
+        );
+    }
+
+    function addMaterialRow(name = 'مادة جديدة', cat = 'Custom', unit = 'وحدة', price = 100, qty = 1) {
+        const tbody = document.getElementById('boqTableBody');
+        const tr = document.createElement('tr');
+        tr.className = 'boq-row';
+        tr.innerHTML = `
+            <td class="p-3"><input type="text" class="boq-name w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold" value="${name}" /></td>
+            <td class="p-3">
+                <select class="boq-category px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold">
+                    <option value="Steel" ${cat==='Steel'?'selected':''}>Steel</option>
+                    <option value="Concrete" ${cat==='Concrete'?'selected':''}>Concrete</option>
+                    <option value="Stone" ${cat==='Stone'?'selected':''}>Stone</option>
+                    <option value="Cement" ${cat==='Cement'?'selected':''}>Cement</option>
+                    <option value="Blocks" ${cat==='Blocks'?'selected':''}>Blocks</option>
+                    <option value="Custom" ${cat==='Custom'?'selected':''}>Custom</option>
+                </select>
+            </td>
+            <td class="p-3"><input type="number" step="0.1" class="boq-qty w-20 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="${qty}" oninput="recalcBOQ()" /></td>
+            <td class="p-3"><input type="text" class="boq-unit w-16 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs text-center" value="${unit}" /></td>
+            <td class="p-3"><input type="number" step="0.1" class="boq-price w-24 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="${price}" oninput="recalcBOQ()" /></td>
+            <td class="p-3 font-mono font-bold text-amber-600 dark:text-amber-400 boq-subtotal">${(qty * price).toFixed(2)} د.أ</td>
+            <td class="p-3 text-center"><button type="button" onclick="removeRow(this)" class="text-rose-500 font-bold hover:text-rose-700 text-base">&times;</button></td>
+        `;
+        tbody.appendChild(tr);
+        recalcBOQ();
+    }
+
+    function addPresetMaterial(name, cat, unit, price) {
+        addMaterialRow(name, cat, unit, price, 1);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.boq-row');
+        if (rows.length <= 1) {
+            alert('يجب أن يحتوي العطاء على بند مادة واحد على الأقل.');
+            return;
+        }
+        btn.closest('tr').remove();
+        recalcBOQ();
+    }
+
+    function recalcBOQ() {
+        let total = 0;
+        let count = 0;
+        document.querySelectorAll('.boq-row').forEach(row => {
+            const qty = parseFloat(row.querySelector('.boq-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.boq-price').value) || 0;
+            const sub = qty * price;
+            total += sub;
+            count++;
+            row.querySelector('.boq-subtotal').innerText = sub.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' د.أ';
+        });
+
+        document.getElementById('baseTotalCost').innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 });
+        document.getElementById('itemsCountBadge').innerText = `${count} أصناف تمويلية`;
+        recalcFinalReview();
+    }
+
+    function setTenure(days) {
+        document.getElementById('selectedTenureDays').value = days;
+        document.getElementById('tenureDaysDisplay').innerText = days + ' يوم';
+
+        document.querySelectorAll('.tenure-btn').forEach(btn => {
+            if (parseInt(btn.getAttribute('data-days')) === days) {
+                btn.className = 'tenure-btn py-2.5 rounded-xl bg-amber-500 text-slate-950 border-amber-600 font-bold text-xs shadow-sm';
+            } else {
+                btn.className = 'tenure-btn py-2.5 rounded-xl bg-white dark:bg-slate-900 border text-xs font-bold text-slate-700 dark:text-white';
+            }
+        });
+
+        recalcFinalReview();
+    }
+
+    function recalcFinalReview() {
+        const baseCostStr = document.getElementById('baseTotalCost').innerText.replace(/,/g, '');
+        const baseCost = parseFloat(baseCostStr) || 0;
+        const days = parseInt(document.getElementById('selectedTenureDays').value) || 90;
+
+        let profitRate = 0.055;
+        if (days === 30) profitRate = 0.035;
+        else if (days === 60) profitRate = 0.045;
+        else if (days === 90) profitRate = 0.055;
+        else if (days === 180) profitRate = 0.080;
+
+        const profitAmt = baseCost * profitRate;
+        const agencyFee = baseCost * 0.015;
+        const totalPayable = baseCost + profitAmt + agencyFee;
+
+        document.getElementById('reviewBaseCost').innerText = baseCost.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' د.أ';
+        document.getElementById('reviewProfitRate').innerText = (profitRate * 100).toFixed(1);
+        document.getElementById('reviewProfitAmount').innerText = profitAmt.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' د.أ';
+        document.getElementById('reviewAgencyFee').innerText = agencyFee.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' د.أ';
+        document.getElementById('reviewTotalPayable').innerText = totalPayable.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' د.أ';
+    }
+
+    async function submitMurabahaTender() {
+        if (!document.getElementById('shariaTermsCheckbox').checked) {
+            alert('يرجى الموافقة على شروط الوكالة والمرابحة الشرعية.');
+            return;
+        }
+
+        const btn = document.getElementById('submitTenderBtn');
+        btn.disabled = true;
+        btn.innerText = 'جاري الطرح والاعتماد...';
+
+        const items = [];
+        document.querySelectorAll('.boq-row').forEach(row => {
+            items.push({
+                materialCategory: row.querySelector('.boq-category').value,
+                materialName: row.querySelector('.boq-name').value,
+                quantity: parseFloat(row.querySelector('.boq-qty').value) || 1,
+                unitOfMeasure: row.querySelector('.boq-unit').value,
+                estimatedUnitPrice: parseFloat(row.querySelector('.boq-price').value) || 0
+            });
+        });
+
+        const payload = {
+            projectTitle: document.getElementById('projectTitle').value,
+            city: document.getElementById('projectCity').value,
+            address: document.getElementById('projectAddress').value,
+            fullName: document.getElementById('contractorName').value,
+            phone: document.getElementById('contractorPhone').value,
+            buildingPermitNumber: document.getElementById('permitNumber').value,
+            tenureDays: parseInt(document.getElementById('selectedTenureDays').value),
+            jobsiteLatitude: parseFloat(document.getElementById('gpsLatitude').value),
+            jobsiteLongitude: parseFloat(document.getElementById('gpsLongitude').value),
+            items: items
+        };
+
+        try {
+            const res = await fetch('/Shop/Financing/CreateFromBOQ', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert(
+                        `تم طرح عطاء المرابحة بنجاح! كود التتبع: ${data.trackingCode}. تم إشعار الممولين والمستثمرين للشراء فوراً.`,
+                        'نجاح العملية',
+                        'success'
+                    ).then(() => {
+                        window.location.href = '/Shop/Financing/Details/' + data.tenderId;
+                    });
+                } else {
+                    alert(data.message);
+                    window.location.href = '/Shop/Financing/Details/' + data.tenderId;
+                }
+            } else {
+                btn.disabled = false;
+                btn.innerText = '🚀 نشر العطاء للمستثمرين الآن';
+                alert(data.message || 'تعذر إنشاء العطاء.');
+            }
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerText = '🚀 نشر العطاء للمستثمرين الآن';
+            alert('حدث خطأ أثناء التواصل مع الخادم.');
+        }
+    }
+
+    // Auto load items if coming from calculator
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('source') === 'calculator') {
+            const calcItems = localStorage.getItem('blocko_calculator_boq');
+            if (calcItems) {
+                try {
+                    const parsed = JSON.parse(calcItems);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        document.getElementById('boqTableBody').innerHTML = '';
+                        parsed.forEach(item => {
+                            addMaterialRow(item.name, item.category || 'Custom', item.unit || 'وحدة', item.price || 10, item.qty || 1);
+                        });
+                        recalcBOQ();
+                        if (window.BlockoModal) {
+                            window.BlockoModal.toast('تم استيراد كميات المواد من حاسبة البناء بنجاح! 🏗️', 'info');
+                        }
+                    }
+                } catch(e) {}
+            }
+        }
+    });
+</script>

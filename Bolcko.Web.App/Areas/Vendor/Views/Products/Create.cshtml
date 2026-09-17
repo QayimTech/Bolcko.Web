@@ -1,0 +1,193 @@
+@model Bolcko.Domain.Entities.Product.Product
+@{
+    ViewData["Title"] = "إضافة مادة بناء جديدة";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
+    var materialTypes = ViewBag.MaterialTypes as IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.MaterialType>();
+}
+
+<div class="max-w-4xl mx-auto space-y-6" dir="rtl">
+    <!-- Header -->
+    <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div>
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">إضافة مادة بناء / توريد جديد</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">حدد نوع المادة ومواصفاتها الإنشائية لإضافتها فوراً لسوق التوريد وعطاءات التمويل</p>
+        </div>
+        <a asp-action="Index" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+            عودة للكتالوج
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-sm">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- Form -->
+    <form asp-action="Create" method="post" class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- Material Type Preset Selector -->
+        <div class="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+            <label class="block text-xs font-bold text-amber-900 dark:text-amber-400 mb-2">
+                🏗️ اختر نوع مادة البناء لتحميل المواصفات القياسية تلقائياً:
+            </label>
+            <select id="materialTypeSelect" onchange="onMaterialTypeChanged(this)"
+                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-500/30 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                <option value="">-- اختر مادة بناء (حديد، حجر، خرسانة، إسمنت، طوب) --</option>
+                @foreach (var mat in materialTypes)
+                {
+                    <option value="@mat.Id" data-name="@mat.NameAr" data-unit="@mat.UnitOfMeasure" data-price="@mat.DefaultPriceEstimated" data-schema="@mat.SpecSchemaJson">
+                        @mat.NameAr (@mat.CategoryType - @mat.UnitOfMeasure)
+                    </option>
+                }
+            </select>
+        </div>
+
+        <!-- Dynamic Specs Container -->
+        <div id="dynamicSpecsBox" class="hidden p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
+            <h4 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>⚙️</span>
+                <span>المواصفات الفنية الحصرية للمادة:</span>
+            </h4>
+            <div id="dynamicFieldsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+            <input type="hidden" name="dynamicSpecsJson" id="dynamicSpecsJson" value="{}" />
+        </div>
+
+        <!-- Main Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المنتج / المادة بالعربية *</label>
+                <input type="text" asp-for="Name" id="productNameInput" required placeholder="مثال: حديد تسليح 12 ملم - حديد الأردن"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">القسم الرئيسي *</label>
+                <select asp-for="CategoryId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                    <option value="">اختر القسم...</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">سعر البيع (د.أ) *</label>
+                <input type="number" step="0.01" asp-for="RetailPrice" id="retailPriceInput" required placeholder="0.00"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">وحدة القياس *</label>
+                <input type="text" asp-for="UnitOfMeasure" id="unitOfMeasureInput" required placeholder="طن، م²، م³، كيس، ألف حبة"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الكمية المتوفرة بالمخزون *</label>
+                <input type="number" asp-for="StockQuantity" required value="100"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+            </div>
+        </div>
+
+        <!-- Brand, Origin & Oversized -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المصنع / العلامة التجارية</label>
+                <input type="text" asp-for="Brand" id="brandInput" placeholder="مثال: لافارج / حديد الأردن / معان"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">بلد المنشأ / المصدر</label>
+                <input type="text" asp-for="CountryOfOrigin" value="الأردن"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رابط صورة المنتج</label>
+                <input type="text" asp-for="ImageUrl" placeholder="https://..."
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">تفاصيل وملاحظات التوريد</label>
+            <textarea asp-for="Description" rows="3" placeholder="ملاحظات حول طريقة التحميل، التفريغ، أو شروط التوريد..."
+                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <input type="checkbox" asp-for="IsOversized" id="isOversized" class="w-4 h-4 text-amber-500 rounded" />
+            <label for="isOversized" class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                بضاعة ثقيلة / شحنة ضخمة (تتطلب شاحنات نقل ثقيلة ورافعات تفريغ بالموقع)
+            </label>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <a asp-action="Index" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">إلغاء</a>
+            <button type="submit" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-lg shadow-amber-500/20 transition-all">
+                نشر المادة في المتجر
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function onMaterialTypeChanged(selectEl) {
+        const option = selectEl.options[selectEl.selectedIndex];
+        if (!option || !option.value) {
+            document.getElementById('dynamicSpecsBox').classList.add('hidden');
+            return;
+        }
+
+        const name = option.getAttribute('data-name');
+        const unit = option.getAttribute('data-unit');
+        const price = option.getAttribute('data-price');
+        const schemaStr = option.getAttribute('data-schema');
+
+        if (name && !document.getElementById('productNameInput').value) {
+            document.getElementById('productNameInput').value = name;
+        }
+        if (unit) document.getElementById('unitOfMeasureInput').value = unit;
+        if (price && parseFloat(price) > 0) document.getElementById('retailPriceInput').value = price;
+
+        try {
+            const schema = JSON.parse(schemaStr);
+            const grid = document.getElementById('dynamicFieldsGrid');
+            grid.innerHTML = '';
+
+            if (schema.fields && schema.fields.length > 0) {
+                schema.fields.forEach(f => {
+                    const col = document.createElement('div');
+                    col.innerHTML = `
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">${f.label}</label>
+                        <select onchange="updateDynamicSpecsJson()" data-spec-key="${f.name}" data-spec-label="${f.label}"
+                                class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white dynamic-spec-input">
+                            ${f.options ? f.options.map(opt => `<option value="${opt}">${opt}</option>`).join('') : ''}
+                        </select>
+                    `;
+                    grid.appendChild(col);
+                });
+                document.getElementById('dynamicSpecsBox').classList.remove('hidden');
+                updateDynamicSpecsJson();
+            } else {
+                document.getElementById('dynamicSpecsBox').classList.add('hidden');
+            }
+        } catch (e) {
+            document.getElementById('dynamicSpecsBox').classList.add('hidden');
+        }
+    }
+
+    function updateDynamicSpecsJson() {
+        const inputs = document.querySelectorAll('.dynamic-spec-input');
+        const specs = {};
+        inputs.forEach(input => {
+            const label = input.getAttribute('data-spec-label') || input.getAttribute('data-spec-key');
+            specs[label] = input.value;
+        });
+        document.getElementById('dynamicSpecsJson').value = JSON.stringify(specs);
+    }
+</script>

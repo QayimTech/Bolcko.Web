@@ -1,0 +1,88 @@
+@model Bolcko.Domain.Entities.Product.Product
+@{
+    ViewData["Title"] = "تعديل مادة البناء";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
+}
+
+<div class="max-w-4xl mx-auto space-y-6" dir="rtl">
+    <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div>
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">تعديل: @Model.Name</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">تحديث الأسعار، المخزون، وحالة التوفر في المتجر</p>
+        </div>
+        <a asp-action="Index" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+            عودة للكتالوج
+        </a>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+        @Html.AntiForgeryToken()
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المنتج *</label>
+                <input type="text" asp-for="Name" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">القسم الرئيسي *</label>
+                <select asp-for="CategoryId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">سعر البيع (د.أ) *</label>
+                <input type="number" step="0.01" asp-for="RetailPrice" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">وحدة القياس *</label>
+                <input type="text" asp-for="UnitOfMeasure" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الكمية المتوفرة *</label>
+                <input type="number" asp-for="StockQuantity" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">العلامة التجارية</label>
+                <input type="text" asp-for="Brand" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">حالة المنتج</label>
+                <select asp-for="Status" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                    <option value="@Bolcko.Domain.Enums.ProductStatus.InStock">متاح للطلب (متوفر بالمخزون)</option>
+                    <option value="@Bolcko.Domain.Enums.ProductStatus.OutOfStock">نفذ من المخزون</option>
+                    <option value="@Bolcko.Domain.Enums.ProductStatus.PreOrder">طلب مسبق (تصنيع عند الطلب)</option>
+                    <option value="@Bolcko.Domain.Enums.ProductStatus.Discontinued">غير متوفر حالياً</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رابط الصورة</label>
+                <input type="text" asp-for="ImageUrl" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوصف والمواصفات</label>
+            <textarea asp-for="Description" rows="4" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <input type="checkbox" asp-for="IsOversized" id="editOversized" class="w-4 h-4 text-amber-500 rounded" />
+            <label for="editOversized" class="text-xs font-bold text-slate-700 dark:text-slate-300">بضاعة ثقيلة تتطلب شاحنات نقل مخصصة</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <a asp-action="Index" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">إلغاء</a>
+            <button type="submit" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 font-black text-xs shadow-lg shadow-amber-500/20 transition-all">حفظ التغييرات</button>
+        </div>
+    </form>
+</div>

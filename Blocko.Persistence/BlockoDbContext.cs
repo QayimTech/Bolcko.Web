@@ -26,6 +26,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Tender.Tender> Tenders { get; set; }
         public DbSet<Bolcko.Domain.Entities.Tender.TenderItem> TenderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Catalog.MarketPrice> MarketPrices { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Catalog.MaterialType> MaterialTypes { get; set; }
         public DbSet<Bolcko.Domain.Entities.SEO.SEOMetadata> SEOMetadata { get; set; }
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<Bolcko.Domain.Entities.ShoppingCart.ShoppingCartItem> ShoppingCartItems { get; set; }  

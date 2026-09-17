@@ -1,10 +1,13 @@
+using Blocko.Persistence;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Financing.DTOs;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -17,15 +20,37 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly BlockoDbContext _context;
 
         public FinancingController(
             IServiceManager serviceManager,
             UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            SignInManager<User> signInManager,
+            BlockoDbContext context)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
+        }
+
+        /// <summary>
+        /// شاشة معالج طرح عطاء تمويل المرابحة للمقاول (Contractor Murabaha Tender Wizard)
+        /// </summary>
+        [HttpGet]
+        [Route("Create")]
+        public async Task<IActionResult> Create(string? source, decimal? estimatedAmount)
+        {
+            var materialTypes = await _context.MaterialTypes
+                .Where(m => m.IsActive)
+                .OrderBy(m => m.SortOrder)
+                .ToListAsync();
+
+            ViewBag.MaterialTypes = materialTypes;
+            ViewBag.EstimatedAmount = estimatedAmount ?? 0m;
+            ViewBag.Source = source ?? "";
+
+            return View();
         }
 
         /// <summary>

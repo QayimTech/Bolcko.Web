@@ -1524,7 +1524,26 @@ class BlockoCalculatorController {
             }
         }
     }
+
+    sendToFinancingWizard() {
+        if (!this.latestCalculationData || !this.latestCalculationData.items) {
+            window.location.href = '/Shop/Financing/Create';
+            return;
+        }
+
+        const items = this.latestCalculationData.items.map(item => ({
+            name: this.isEnMode ? item.itemNameEn : item.itemNameAr,
+            category: item.category,
+            qty: item.quantity,
+            unit: item.unitOfMeasure,
+            price: item.unitPriceJod
+        }));
+
+        localStorage.setItem('blocko_calculator_boq', JSON.stringify(items));
+        window.location.href = '/Shop/Financing/Create?source=calculator&total=' + (this.latestCalculationData.grandTotalCostJod || 0);
+    }
 }
 
 // Global Export
 window.BlockoCalculator = new BlockoCalculatorController();
+

@@ -1,0 +1,123 @@
+@model IEnumerable<Bolcko.Domain.Entities.Product.Product>
+@{
+    ViewData["Title"] = "تخصيص وضم بضائع القناص";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+}
+
+<div class="space-y-6" dir="rtl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-500 flex items-center justify-center font-black text-2xl ring-8 ring-sky-500/5">
+                🎯
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-slate-900 dark:text-white">تخصيص وضم بضائع مزود "القناص"</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    اختر البضائع الجاهزة والمستوردة من مزود القناص، وحدد سعر التوريد الخاص بك ونسبة ربحك لتظهر تحت اسم متجرك فوراً
+                </p>
+            </div>
+        </div>
+        <a asp-action="Index" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+            عودة للكتالوج
+        </a>
+    </div>
+
+    <!-- Search Form -->
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <form method="get" class="flex gap-3">
+            <input type="text" name="search" value="@Context.Request.Query["search"]" placeholder="ابحث في منتجات القناص..."
+                   class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            <button type="submit" class="px-6 py-2.5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold text-xs rounded-xl">
+                بحث
+            </button>
+        </form>
+    </div>
+
+    <!-- Products List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @foreach (var p in Model)
+        {
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-sky-500/40 transition-all">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <img src="@(string.IsNullOrEmpty(p.ImageUrl) ? "/images/placeholder-product.png" : p.ImageUrl)"
+                             alt="@p.Name" class="w-14 h-14 rounded-2xl object-cover bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shrink-0" />
+                        <div class="flex-1 min-w-0">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 mb-1">
+                                مزود القناص
+                            </span>
+                            <h3 class="text-xs font-black text-slate-900 dark:text-white truncate">@p.Name</h3>
+                            <p class="text-[11px] text-slate-400 font-mono">المرجعي: @p.RetailPrice.ToString("N2") د.أ</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">سعر البيع الخاص بك:</span>
+                            <div class="flex items-center gap-1">
+                                <input type="number" step="0.01" id="price_@p.Id" value="@p.RetailPrice"
+                                       class="w-20 px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-white font-mono text-center" />
+                                <span class="text-[10px] text-slate-400">د.أ</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">الكمية بالمخزون:</span>
+                            <input type="number" id="stock_@p.Id" value="@(p.StockQuantity > 0 ? p.StockQuantity : 50)"
+                                   class="w-20 px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-white font-mono text-center" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="claimProduct(@p.Id)"
+                            class="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-bold text-xs shadow-md shadow-sky-500/20 transition-all flex items-center justify-center gap-1.5">
+                        <span>✨</span>
+                        <span>ضم إلى متجري والتوريد</span>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    async function claimProduct(productId) {
+        const customPrice = parseFloat(document.getElementById('price_' + productId).value) || 0;
+        const customStock = parseInt(document.getElementById('stock_' + productId).value) || 0;
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+        try {
+            const formData = new FormData();
+            formData.append('productId', productId);
+            formData.append('customPrice', customPrice);
+            formData.append('customStock', customStock);
+
+            const res = await fetch('/Vendor/Products/ClaimProduct', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert(data.message, 'نجاح العملية', 'success');
+                } else {
+                    alert(data.message);
+                }
+            } else {
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert(data.message, 'تنبيه', 'error');
+                } else {
+                    alert(data.message);
+                }
+            }
+        } catch (err) {
+            alert('حدث خطأ أثناء حفظ المنتج.');
+        }
+    }
+</script>
