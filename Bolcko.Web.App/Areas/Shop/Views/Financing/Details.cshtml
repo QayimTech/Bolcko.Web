@@ -302,17 +302,29 @@
         const isAuthUser = @(isAuthenticated ? "true" : "false");
         if (!isAuthUser) {
             if (!email || !password) {
-                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء محفظتك الاستثمارية.');
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert('يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء محفظتك الاستثمارية.', 'بيانات مطلوبة', 'warning');
+                } else {
+                    alert('يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء محفظتك الاستثمارية.');
+                }
                 return;
             }
             if (password.length < 6) {
-                alert('كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل.');
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert('كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل.', 'كلمة المرور قصيرة', 'warning');
+                } else {
+                    alert('كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل.');
+                }
                 return;
             }
         }
 
         if (!agree) {
-            alert('يرجى الموافقة على شروط عقد الوكالة الشرعية للمتابعة.');
+            if (window.BlockoModal) {
+                window.BlockoModal.alert('يرجى الموافقة على شروط عقد الوكالة الشرعية للمتابعة.', 'الموافقة الشرعية', 'warning');
+            } else {
+                alert('يرجى الموافقة على شروط عقد الوكالة الشرعية للمتابعة.');
+            }
             return;
         }
 
@@ -338,18 +350,34 @@
 
             const data = await res.json();
             if (data.success) {
-                alert(data.message || 'تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.');
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert(data.message || 'تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.', 'نجاح التمويل والتملك', 'success')
+                        .then(() => {
+                            if (data.redirectUrl) {
+                                window.location.href = data.redirectUrl;
+                            } else {
+                                window.location.reload();
+                            }
+                        });
                 } else {
-                    window.location.reload();
+                    alert(data.message || 'تهانينا! تم تمويل الصفقة وإصدار أمر الشراء وتوقيع عقد الوكالة بنجاح.');
+                    if (data.redirectUrl) window.location.href = data.redirectUrl;
+                    else window.location.reload();
                 }
             } else {
-                alert(data.message || 'حدث خطأ أثناء معالجة التمويل.');
+                if (window.BlockoModal) {
+                    window.BlockoModal.alert(data.message || 'حدث خطأ أثناء معالجة التمويل.', 'تعذر إتمام العملية', 'error');
+                } else {
+                    alert(data.message || 'حدث خطأ أثناء معالجة التمويل.');
+                }
             }
         } catch (e) {
             console.error(e);
-            alert('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+            if (window.BlockoModal) {
+                window.BlockoModal.alert('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.', 'خطأ في الاتصال', 'error');
+            } else {
+                alert('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+            }
         } finally {
             if (btn) {
                 btn.disabled = false;

@@ -138,14 +138,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var existingUser = await _userManager.FindByEmailAsync(request.FunderEmail.Trim());
                 if (existingUser != null)
                 {
-                    var signInRes = await _signInManager.PasswordSignInAsync(existingUser, request.Password, isPersistent: true, lockoutOnFailure: false);
-                    if (signInRes.Succeeded)
+                    var isPasswordValid = await _userManager.CheckPasswordAsync(existingUser, request.Password);
+                    if (isPasswordValid)
                     {
+                        await _signInManager.SignInAsync(existingUser, isPersistent: true);
                         funderId = existingUser.Id;
                     }
                     else
                     {
-                        return Json(new { success = false, message = "البريد مسجل مسبقاً وكلمة المرور غير مطابقة. يرجى تسجيل الدخول أولاً." });
+                        return Json(new { success = false, message = "هذا البريد الإلكتروني مسجل مسبقاً، لكن كلمة المرور المدخلة غير صحيحة. يرجى إدخال كلمة المرور الصحيحة لحسابك للمتابعة." });
                     }
                 }
                 else
@@ -158,7 +159,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     {
                         UserName = request.FunderEmail.Trim(),
                         Email = request.FunderEmail.Trim(),
-                        PhoneNumber = request.FunderPhone.Trim(),
+                        PhoneNumber = request.FunderPhone?.Trim(),
                         FirstName = firstName,
                         LastName = lastName,
                         UserType = UserType.Investor,
@@ -169,7 +170,12 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     var createRes = await _userManager.CreateAsync(newUser, request.Password);
                     if (createRes.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(newUser, "Investor");
+                        try
+                        {
+                            await _userManager.AddToRoleAsync(newUser, "Investor");
+                        }
+                        catch { }
+
                         await _signInManager.SignInAsync(newUser, isPersistent: true);
                         funderId = newUser.Id;
                     }

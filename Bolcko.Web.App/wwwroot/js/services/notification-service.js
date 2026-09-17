@@ -11,13 +11,16 @@
         async fetchNotifications() {
             try {
                 const response = await fetch('/Notification/GetRecent');
+                if (!response.ok) return;
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) return;
                 const data = await response.json();
-                if (data.success) {
+                if (data && data.success) {
                     this.updateUI(data);
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    console.warn('[NotificationService] Fetch failed:', err);
+                    console.debug('[NotificationService] Fetch notice:', err);
                 }
             }
         }
