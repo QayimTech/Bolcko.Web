@@ -32,7 +32,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var cleanedEmail = email?.Trim() ?? "";
+            var user = await _userManager.FindByEmailAsync(cleanedEmail) ?? await _userManager.FindByNameAsync(cleanedEmail);
             if (user != null &&
                 (await _userManager.IsInRoleAsync(user, "Admin") || await _userManager.IsInRoleAsync(user, "DashboardUser")))
             {

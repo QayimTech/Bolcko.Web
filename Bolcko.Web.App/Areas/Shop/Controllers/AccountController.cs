@@ -40,7 +40,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         public async Task<IActionResult> Login(string email, string password, bool rememberMe = false, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            var user = await _userManager.FindByEmailAsync(email);
+            var cleanedEmail = email?.Trim() ?? "";
+            var user = await _userManager.FindByEmailAsync(cleanedEmail) ?? await _userManager.FindByNameAsync(cleanedEmail);
             if (user != null)
             {
                 // Block Admin/DashboardUser from logging in via Shop — they must use the Admin login page

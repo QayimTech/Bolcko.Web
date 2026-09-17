@@ -18,13 +18,13 @@ namespace Bolcko.Web.App.Extensions
         {
             services.AddIdentity<User, IdentityRole<int>>(options =>
             {
-                // Strong password policies for production
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 12;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequiredUniqueChars = 6;
+                // Password policies
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 1;
                 
                 // Lockout policies for security
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);

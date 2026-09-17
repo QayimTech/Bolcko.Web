@@ -163,7 +163,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 return View();
             }
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var cleanedEmail = email?.Trim() ?? "";
+            var user = await _userManager.FindByEmailAsync(cleanedEmail) ?? await _userManager.FindByNameAsync(cleanedEmail);
             if (user != null)
             {
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: rememberMe, lockoutOnFailure: false);
