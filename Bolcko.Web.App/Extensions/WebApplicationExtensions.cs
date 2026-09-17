@@ -149,6 +149,10 @@ public static class WebApplicationExtensions
         app.MapGet("/healthz", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
         app.MapGet("/ping", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
 
+        // Direct /Shop/Checkout and /Checkout Aliases (QT1-70)
+        app.MapGet("/Shop/Checkout", (HttpContext ctx) => ctx.Response.Redirect("/Shop/ShoppingCart/Checkout", permanent: false));
+        app.MapGet("/Checkout", (HttpContext ctx) => ctx.Response.Redirect("/Shop/ShoppingCart/Checkout", permanent: false));
+
         app.MapBlockoAppEndpoints();
     }
 
