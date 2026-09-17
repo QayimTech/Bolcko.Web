@@ -1,0 +1,6 @@
+@{
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+@RenderBody()
+@await RenderSectionAsync("Scripts", required: false)
+@await RenderSectionAsync("Styles", required: false)
