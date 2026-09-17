@@ -299,14 +299,8 @@
         const password = document.getElementById('funderPasswordInput')?.value?.trim();
         const agree = document.getElementById('agreeWakalaCheck')?.checked;
 
-        if (!name || !phone) {
-            alert('يرجى إدخال اسمك ورقم الهاتف لإتمام تسجيل الوكالة والتمويل.');
-            return;
-        }
-
-        @if (!isAuthenticated)
-        {
-            <text>
+        const isAuthUser = @(isAuthenticated ? "true" : "false");
+        if (!isAuthUser) {
             if (!email || !password) {
                 alert('يرجى إدخال البريد الإلكتروني وكلمة المرور لإنشاء محفظتك الاستثمارية.');
                 return;
@@ -315,7 +309,6 @@
                 alert('كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل.');
                 return;
             }
-            </text>
         }
 
         if (!agree) {
