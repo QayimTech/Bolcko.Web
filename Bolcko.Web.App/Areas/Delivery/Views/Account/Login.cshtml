@@ -51,9 +51,10 @@
                 </button>
             </form>
 
-            <p class="text-center text-blue-400/60 text-xs mt-6">
-                للتسجيل كمندوب، تواصل مع الإدارة.
-            </p>
+            <div class="text-center pt-6 border-t border-white/10 text-xs text-blue-300/80">
+                <span>ليس لديك حساب ناقل؟</span>
+                <a href="@Url.Action("Register", "Account", new { area = "Delivery" })" class="text-white font-bold hover:underline me-1">تسجيل أسطول جديد هنا</a>
+            </div>
         </div>
     </div>
 </body>
