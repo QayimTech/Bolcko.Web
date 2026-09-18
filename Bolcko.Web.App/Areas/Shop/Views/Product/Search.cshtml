@@ -30,5 +30,52 @@
                 <partial name="Partials/_ProductCard" model="product" />
             }
         </div>
+
+        @if (ViewBag.TotalPages > 1)
+        {
+            var currentPage = (int)ViewBag.CurrentPage;
+            var totalPages = (int)ViewBag.TotalPages;
+            var q = (string?)ViewBag.Query ?? "";
+
+            <nav class="mt-12 flex items-center justify-center gap-2" aria-label="Pagination">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("Search", "Product", new { area = "Shop", query = q, page = currentPage - 1 })" 
+                       class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        <span>السابق</span>
+                    </a>
+                }
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2))
+                    {
+                        if (i == currentPage)
+                        {
+                            <span class="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs shadow-md font-mono">@i</span>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Search", "Product", new { area = "Shop", query = q, page = i })" 
+                               class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs font-mono transition-all shadow-sm">@i</a>
+                        }
+                    }
+                    else if (i == currentPage - 3 || i == currentPage + 3)
+                    {
+                        <span class="px-2 text-slate-400 font-mono">...</span>
+                    }
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a href="@Url.Action("Search", "Product", new { area = "Shop", query = q, page = currentPage + 1 })" 
+                       class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                        <span>التالي</span>
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                    </a>
+                }
+            </nav>
+        }
     }
 </main>

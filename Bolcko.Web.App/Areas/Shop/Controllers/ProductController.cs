@@ -40,13 +40,25 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return View(product);
         }
 
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string query, int page = 1, int pageSize = 24)
         {
-            var products = await _serviceManager.ProductService.SearchProductsAsync(query);
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 48);
+
+            var products = (await _serviceManager.ProductService.SearchProductsAsync(query)).ToList();
+            var totalCount = products.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            var pagedProducts = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
             var culture = CultureInfo.CurrentCulture.Name;
-            var translatedProducts = await products.TranslateAsync(_translationService, culture, _unitOfWork);
+            var translatedProducts = await pagedProducts.TranslateAsync(_translationService, culture, _unitOfWork);
 
             ViewBag.Query = query;
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+
             return View(translatedProducts);
         }
     }
