@@ -209,58 +209,5 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             TempData["Success"] = "تم تحديث بيانات المنتج وإعدادات محرك الـ SEO بنجاح!";
             return RedirectToAction(nameof(Index));
         }
-
-        /// <summary>
-        /// استعراض وتخصيص بضائع مزود 'القناص' لضمها إلى حساب المورد وتحديد هوامش الربح
-        /// </summary>
-        [HttpGet]
-        [Route("ClaimQannas")]
-        public async Task<IActionResult> ClaimQannas(string? search)
-        {
-            var vendor = await GetCurrentVendorProfileAsync();
-            var query = _context.Products
-                .Include(p => p.Category)
-                .Where(p => p.SupplierKey == "qannas" || p.SupplierId == null || p.SupplierId == 0)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var s = search.Trim().ToLower();
-                query = query.Where(p => p.Name.ToLower().Contains(s) || (p.NameEn != null && p.NameEn.ToLower().Contains(s)));
-            }
-
-            var qannasProducts = await query.OrderByDescending(p => p.Id).Take(50).ToListAsync();
-            ViewBag.VendorProfile = vendor;
-            return View(qannasProducts);
-        }
-
-        [HttpPost]
-        [Route("ClaimProduct")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClaimProduct(int productId, decimal customPrice, int customStock)
-        {
-            var vendor = await GetCurrentVendorProfileAsync();
-            if (vendor == null)
-            {
-                return Json(new { success = false, message = "يرجى توثيق حساب المورد أولاً." });
-            }
-
-            var product = await _context.Products.FindAsync(productId);
-            if (product == null)
-            {
-                return Json(new { success = false, message = "المنتج غير موجود." });
-            }
-
-            // Assign product to vendor with updated pricing
-            product.SupplierId = vendor.Id;
-            product.SupplierKey = "vendor_" + vendor.Id;
-            if (customPrice > 0) product.RetailPrice = customPrice;
-            if (customStock > 0) product.StockQuantity = customStock;
-            product.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "تم ضم المنتج إلى متجرك بنجاح وتحديث أسعار التوريد!" });
-        }
     }
 }
