@@ -125,6 +125,51 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// مكتب استقبال وتسعير طلبات الأسعار للكميات الكبيرة (RFQ Response Desk)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> RfqDesk()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account", new { area = "Vendor" });
+
+            var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            var profile = profileList.FirstOrDefault();
+
+            return View(profile);
+        }
+
+        /// <summary>
+        /// مركز الربط البرمجي وتكامل الـ ERP (ERP Integration Hub)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> Integration()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account", new { area = "Vendor" });
+
+            var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            var profile = profileList.FirstOrDefault();
+
+            return View(profile);
+        }
+
+        /// <summary>
+        /// كشف حساب المستحقات والضمان المالي (Escrow Payouts & Settlements)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> Escrow()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account", new { area = "Vendor" });
+
+            var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            var profile = profileList.FirstOrDefault();
+
+            return View(profile);
+        }
+
         private async Task<string?> SaveKycDocAsync(IFormFile? file, string docType, int userId)
         {
             if (file == null || file.Length == 0) return null;

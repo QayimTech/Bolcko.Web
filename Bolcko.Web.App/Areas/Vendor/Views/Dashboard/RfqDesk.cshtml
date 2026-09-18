@@ -1,0 +1,94 @@
+@model Bolcko.Domain.Entities.Catalog.VendorProfile
+@{
+    ViewData["Title"] = "مكتب تسعير طلبات الكميات (RFQ Desk)";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div class="space-y-6 text-right" dir="rtl">
+    <!-- Header Card -->
+    <div class="bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="relative z-10 space-y-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold">
+                <span class="material-symbols-outlined text-sm">request_quote</span>
+                <span>بوابة تسعير عروض الجملة B2B</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black">مكتب استقبال وتسعير طلبات الأسعار (RFQ Desk) 🏭</h1>
+            <p class="text-xs text-amber-100 max-w-2xl">
+                استقبل طلبات عروض الأسعار الواردة من شركات ومؤسسات المقاولات المعتمدة، وقدم عروض أسعار تنافسية بأسعار الجملة المباشرة مع تحديد جدول التوريد.
+            </p>
+        </div>
+    </div>
+
+    <!-- RFQ Items Table -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+            <div>
+                <h2 class="text-base font-bold text-slate-900">طلبات التسعير الواردة والنشطة</h2>
+                <p class="text-xs text-slate-500">طلبات عروض أسعار تحتاج إلى تسعير وتحديد مدة الصلاحية</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+                    3 طلبات جديدة بانتظار التسعير
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                    <tr>
+                        <th class="p-3.5">رقم الـ RFQ</th>
+                        <th class="p-3.5">اسم المقاول / المنشأة</th>
+                        <th class="p-3.5">المواد المطلوبة</th>
+                        <th class="p-3.5">الكمية</th>
+                        <th class="p-3.5">موقع المشروع</th>
+                        <th class="p-3.5">تاريخ الطلب</th>
+                        <th class="p-3.5 text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-882</td>
+                        <td class="p-3.5 font-bold text-slate-900">مؤسسة التعمير الإنشائي</td>
+                        <td class="p-3.5">حديد تسليح 16 ملم و 14 ملم (سابك)</td>
+                        <td class="p-3.5 font-bold text-slate-900 font-mono">120 طن</td>
+                        <td class="p-3.5 text-slate-600">الرياض - حي النرجس</td>
+                        <td class="p-3.5 text-slate-500 font-mono">اليوم 14:30</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="alert('فتح نافذة تقديم عرض سعر ملزم للـ RFQ #882')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
+                                تقديم عرض سعر
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-879</td>
+                        <td class="p-3.5 font-bold text-slate-900">شركة آفاق الهندسة للمقاولات</td>
+                        <td class="p-3.5">خرسانة جاهزة مقاومة C40 مع مضخة 42م</td>
+                        <td class="p-3.5 font-bold text-slate-900 font-mono">450 م³</td>
+                        <td class="p-3.5 text-slate-600">الدرعية - مشروع سكني</td>
+                        <td class="p-3.5 text-slate-500 font-mono">أمس 18:15</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="alert('فتح نافذة تقديم عرض سعر ملزم للـ RFQ #879')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
+                                تقديم عرض سعر
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-865</td>
+                        <td class="p-3.5 font-bold text-slate-900">مجموعة الرواد للمقاولات</td>
+                        <td class="p-3.5">بلوك إسمنتي مفرغ 20 سم عالي المقاومة</td>
+                        <td class="p-3.5 font-bold text-slate-900 font-mono">15,000 حبة</td>
+                        <td class="p-3.5 text-slate-600">جدة - حي أبحر الشمالية</td>
+                        <td class="p-3.5 text-slate-500 font-mono">16/09/2026</td>
+                        <td class="p-3.5 text-center">
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
+                                تم إرسال العرض (2.80 ر.س)
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
