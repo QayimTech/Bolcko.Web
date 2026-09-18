@@ -6,6 +6,7 @@
 }
 
 <div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+    @Html.AntiForgeryToken()
     <div class="max-w-7xl mx-auto space-y-8">
 
         <!-- Top Header & Breadcrumb -->
@@ -270,7 +271,13 @@ async function settleTenderDirect(tenderId) {
     if (!confirm("هل أنت متأكد من تأكيد سداد دفعة المرابحة؟ سيتم إفراج الأرباح للمستثمر ورفع نقاط موثوقيتك الائتمانية.")) return;
 
     try {
-        const resp = await fetch(`/Shop/Financing/Settle/${tenderId}`, { method: 'POST' });
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const resp = await fetch(`/Shop/Financing/Settle/${tenderId}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token
+            }
+        });
         const data = await resp.json();
         alert(data.message || "تمت التسوية بنجاح!");
         if (data.success) {

@@ -215,10 +215,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
-        /// رفع إثبات التسليم الموقعي وفحص الـ Geofencing
+        /// رفع إثبات التسليم الموقعي وفحص الـ Geofencing (مؤمن ومحكوم بأدوار السائقين والإشراف)
         /// </summary>
         [HttpPost]
         [Route("SubmitPOD")]
+        [Authorize(Roles = "DeliveryDriver, DeliveryCompanyUser, Admin, SuperAdmin")]
         public async Task<IActionResult> SubmitPOD([FromBody] SubmitJobsitePodRequestDto request)
         {
             if (request == null || request.TenderId <= 0)
@@ -287,13 +288,42 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
-        /// سداد وتسوية عطاء المرابحة (Settlement Engine) - يتطلب صلاحيات الإدارة المالية
+        /// سداد وتسوية عطاء المرابحة (Settlement Engine) - مؤمن بصلاحيات SuperAdmin / Admin أو المقاول صاحب العطاء (Zero-Trust)
         /// </summary>
         [HttpPost]
         [Route("Settle/{id}")]
-        [Authorize(Roles = "Admin,FinanceManager,DashboardUser")]
+        [Authorize(Roles = "SuperAdmin,Admin,Contractor,FinanceManager,DashboardUser")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Settle(int id)
         {
+            var tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
+            if (tender == null)
+            {
+                return NotFound(new { success = false, message = "العطاء المطلوب غير موجود." });
+            }
+
+            var isPrivileged = User.IsInRole("SuperAdmin") || User.IsInRole("Admin") || User.IsInRole("FinanceManager") || User.IsInRole("DashboardUser");
+            if (!isPrivileged)
+            {
+                var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserPhone = User.FindFirstValue(ClaimTypes.MobilePhone) ?? User.Identity?.Name;
+
+                bool isOwner = false;
+                if (int.TryParse(currentUserIdStr, out var currentUserId) && tender.ContractorId == currentUserId)
+                {
+                    isOwner = true;
+                }
+                else if (!string.IsNullOrEmpty(currentUserPhone) && !string.IsNullOrEmpty(tender.ContractorPhone) && currentUserPhone.Contains(tender.ContractorPhone))
+                {
+                    isOwner = true;
+                }
+
+                if (!isOwner)
+                {
+                    return StatusCode(403, new { success = false, message = "غير مصرح لك بتسوية هذا العطاء (انتهاك ملكية العطاء IDOR)." });
+                }
+            }
+
             var success = await _serviceManager.FinancingService.SettleTenderAsync(id);
             if (!success)
             {
