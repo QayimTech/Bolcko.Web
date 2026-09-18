@@ -126,10 +126,83 @@
             </label>
         </div>
 
+        <!-- Comprehensive Vendor SEO Engine Suite -->
+        <div class="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-[#151B26] text-white border border-sky-500/20 shadow-xl space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-black">
+                        <span class="material-symbols-outlined text-[22px]">travel_explore</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white flex items-center gap-2">
+                            <span>محرك تحسين محركات البحث والظهور في Google</span>
+                            <span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[10px] font-bold border border-sky-500/30">B2B SEO Suite</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">اجعل مادتك تظهر في أولى نتائج بحث المقاولين والشركات عند البحث عن مواد البناء في الأردن</p>
+                    </div>
+                </div>
+                <button type="button" onclick="autoGenerateSeo()"
+                        class="px-4 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-xs font-black transition-all flex items-center gap-1.5 self-start sm:self-auto shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                    <span>توليد SEO ذكي تلقائياً</span>
+                </button>
+            </div>
+
+            <!-- Google Search Live Preview Card -->
+            <div class="p-4 rounded-2xl bg-white text-slate-900 shadow-md border border-slate-200">
+                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        معاينة حية لشكل ظهور المنتج في نتائج بحث Google:
+                    </span>
+                    <span id="seoScoreBadge" class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black">مؤشر الجودة: ممتاز (95/100)</span>
+                </div>
+                <div class="font-sans text-start space-y-1">
+                    <div class="flex items-center gap-2 text-xs text-slate-600">
+                        <span class="w-4 h-4 rounded-full bg-[#E8A020] text-[#151B26] font-black text-[9px] flex items-center justify-center">B</span>
+                        <span class="text-slate-800 font-medium">https://blocko.jo › shop › product</span>
+                    </div>
+                    <h4 id="googlePreviewTitle" class="text-base font-medium text-[#1a0dab] hover:underline cursor-pointer truncate">
+                        اسم المنتج ومواصفاته وسعر التوريد | BLOCKO Jordan
+                    </h4>
+                    <p id="googlePreviewDesc" class="text-xs text-[#4d5156] line-clamp-2 leading-relaxed">
+                        اطلب أفضل مواد البناء والتوريدات الإنشائية مباشرة من المصانع والموردين المعتمدين مع تسهيلات المرابحة والتوصيل لكافة المحافظات.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SEO Inputs -->
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-300">عنوان الصفحة في Google (Meta Title)</label>
+                        <span id="titleCounter" class="text-[10px] font-mono text-slate-400">0 / 60 حرف</span>
+                    </div>
+                    <input type="text" name="metaTitle" id="metaTitleInput" oninput="updateSeoPreview()" placeholder="مثال: حديد تسليح 12 ملم أردني Grade 60 - توريد مباشر"
+                           class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-sky-500 focus:outline-none" />
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-300">وصف المنتج في محركات البحث (Meta Description)</label>
+                        <span id="descCounter" class="text-[10px] font-mono text-slate-400">0 / 160 حرف</span>
+                    </div>
+                    <textarea name="metaDescription" id="metaDescriptionInput" rows="2" oninput="updateSeoPreview()" placeholder="اكتب وصفاً جذاباً يشمل الكلمات المفتاحية وسعر التوريد وميزة التوصيل..."
+                              class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-sky-500 focus:outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">الكلمات المفتاحية والوسوم (Meta Keywords - مفصولة بفواصل)</label>
+                    <input type="text" name="metaKeywords" id="metaKeywordsInput" placeholder="حديد تسليح, أسعار مواد البناء الأردن, توريد مشاريع, إسمنت, خرسانة"
+                           class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-sky-500 focus:outline-none" />
+                </div>
+            </div>
+        </div>
+
         <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
             <a asp-action="Index" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">إلغاء</a>
             <button type="submit" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-lg shadow-amber-500/20 transition-all">
-                نشر المادة في المتجر
+                نشر المادة في المتجر مع ضبط الـ SEO
             </button>
         </div>
     </form>
@@ -189,5 +262,67 @@
             specs[label] = input.value;
         });
         document.getElementById('dynamicSpecsJson').value = JSON.stringify(specs);
+    }
+
+    function updateSeoPreview() {
+        const titleInput = document.getElementById('metaTitleInput');
+        const descInput = document.getElementById('metaDescriptionInput');
+        const prodName = document.getElementById('productNameInput')?.value || 'اسم مادة البناء';
+        
+        const title = titleInput.value.trim() || `${prodName} | BLOCKO Jordan`;
+        const desc = descInput.value.trim() || 'اطلب أفضل مواد البناء والتوريدات الإنشائية مباشرة من المصانع والموردين المعتمدين مع تسهيلات المرابحة والتوصيل لكافة المحافظات.';
+
+        document.getElementById('googlePreviewTitle').textContent = title;
+        document.getElementById('googlePreviewDesc').textContent = desc;
+
+        // Counters
+        const titleLen = titleInput.value.length;
+        const descLen = descInput.value.length;
+        
+        const titleCounter = document.getElementById('titleCounter');
+        titleCounter.textContent = `${titleLen} / 60 حرف`;
+        titleCounter.className = `text-[10px] font-mono ${titleLen >= 35 && titleLen <= 60 ? 'text-emerald-400 font-bold' : (titleLen > 60 ? 'text-rose-400 font-bold' : 'text-slate-400')}`;
+
+        const descCounter = document.getElementById('descCounter');
+        descCounter.textContent = `${descLen} / 160 حرف`;
+        descCounter.className = `text-[10px] font-mono ${descLen >= 100 && descLen <= 160 ? 'text-emerald-400 font-bold' : (descLen > 160 ? 'text-rose-400 font-bold' : 'text-slate-400')}`;
+
+        // SEO Health Badge
+        const badge = document.getElementById('seoScoreBadge');
+        if (titleLen >= 30 && descLen >= 80) {
+            badge.textContent = 'مؤشر الجودة: ممتاز (98/100)';
+            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black';
+        } else if (titleLen >= 15 || descLen >= 40) {
+            badge.textContent = 'مؤشر الجودة: جيد (70/100)';
+            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-black';
+        } else {
+            badge.textContent = 'مؤشر الجودة: بحاجة لتحسين';
+            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black';
+        }
+    }
+
+    function autoGenerateSeo() {
+        const prodName = document.getElementById('productNameInput')?.value || '';
+        const brand = document.getElementById('brandInput')?.value || '';
+        const price = document.getElementById('retailPriceInput')?.value || '';
+        const unit = document.getElementById('unitOfMeasureInput')?.value || '';
+        
+        if (!prodName) {
+            alert('يرجى كتابة اسم المنتج أولاً لتوليد بيانات الـ SEO بناءً عليه.');
+            return;
+        }
+
+        const brandSuffix = brand ? ` ماركة ${brand}` : '';
+        const priceSuffix = price && unit ? ` بسعر ${price} د.أ/${unit}` : '';
+        
+        const genTitle = `${prodName}${brandSuffix} - توريد مباشر ومواصفات معتمدة | BLOCKO`;
+        const genDesc = `احصل على ${prodName}${brandSuffix}${priceSuffix} بأعلى مواصفات الجودة المعتمدة في الأردن مع خيارات تمويل المرابحة والتوصيل السريع للموقع الإنشائي.`;
+        const genKeywords = `${prodName}, ${brand ? brand + ', ' : ''}توريد مواد بناء, أسعار مواد البناء الأردن, بلوكو, مواد إنشائية, شحن مباشر للموقع`;
+
+        document.getElementById('metaTitleInput').value = genTitle.substring(0, 65);
+        document.getElementById('metaDescriptionInput').value = genDesc.substring(0, 160);
+        document.getElementById('metaKeywordsInput').value = genKeywords;
+
+        updateSeoPreview();
     }
 </script>

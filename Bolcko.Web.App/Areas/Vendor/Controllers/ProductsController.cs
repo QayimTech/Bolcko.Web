@@ -79,7 +79,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product model, string? dynamicSpecsJson)
+        public async Task<IActionResult> Create(Product model, string? dynamicSpecsJson, string? metaTitle, string? metaDescription, string? metaKeywords)
         {
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null)
@@ -111,7 +111,21 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             _context.Products.Add(model);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تمت إضافة مادة البناء إلى كتالوج متجرك بنجاح!";
+            // Save SEO Metadata
+            string pageKey = $"/Product/Index/{model.Id}";
+            var seo = new Bolcko.Domain.Entities.SEO.SEOMetadata
+            {
+                PageName = pageKey,
+                PageTitle = !string.IsNullOrWhiteSpace(metaTitle) ? metaTitle.Trim() : $"{model.Name} | {vendor.CompanyNameAr}",
+                MetaDescription = !string.IsNullOrWhiteSpace(metaDescription) ? metaDescription.Trim() : model.Description,
+                MetaKeywords = !string.IsNullOrWhiteSpace(metaKeywords) ? metaKeywords.Trim() : $"{model.Name}, توريد مواد بناء, {vendor.CompanyNameAr}, أسعار المواد الأردن",
+                PageUrl = $"/Shop/Product/Details/{model.Id}",
+                LastUpdated = DateTime.UtcNow
+            };
+            _context.SEOMetadata.Add(seo);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "تمت إضافة مادة البناء وتكوين محرك الـ SEO بنجاح!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -128,8 +142,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
             if (product == null) return NotFound();
 
+            string pageKey = $"/Product/Index/{product.Id}";
+            var seo = await _context.SEOMetadata.FirstOrDefaultAsync(s => s.PageName == pageKey);
+
             ViewBag.Categories = await _context.Categories.OrderBy(c => c.DisplayOrder).ToListAsync();
             ViewBag.MaterialTypes = await _context.MaterialTypes.Where(m => m.IsActive).OrderBy(m => m.SortOrder).ToListAsync();
+            ViewBag.SeoMetadata = seo;
 
             return View(product);
         }
@@ -137,7 +155,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         [HttpPost]
         [Route("Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product model)
+        public async Task<IActionResult> Edit(int id, Product model, string? metaTitle, string? metaDescription, string? metaKeywords)
         {
             var vendor = await GetCurrentVendorProfileAsync();
             var vendorId = vendor?.Id ?? 0;
@@ -161,7 +179,34 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            TempData["Success"] = "تم تحديث بيانات المنتج والمخزون بنجاح!";
+
+            // Save / Update SEO Metadata
+            string pageKey = $"/Product/Index/{existing.Id}";
+            var seo = await _context.SEOMetadata.FirstOrDefaultAsync(s => s.PageName == pageKey);
+            if (seo == null)
+            {
+                seo = new Bolcko.Domain.Entities.SEO.SEOMetadata
+                {
+                    PageName = pageKey,
+                    PageTitle = !string.IsNullOrWhiteSpace(metaTitle) ? metaTitle.Trim() : $"{existing.Name} | {vendor?.CompanyNameAr ?? "BLOCKO"}",
+                    MetaDescription = !string.IsNullOrWhiteSpace(metaDescription) ? metaDescription.Trim() : existing.Description,
+                    MetaKeywords = metaKeywords?.Trim(),
+                    PageUrl = $"/Shop/Product/Details/{existing.Id}",
+                    LastUpdated = DateTime.UtcNow
+                };
+                _context.SEOMetadata.Add(seo);
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(metaTitle)) seo.PageTitle = metaTitle.Trim();
+                if (!string.IsNullOrWhiteSpace(metaDescription)) seo.MetaDescription = metaDescription.Trim();
+                if (!string.IsNullOrWhiteSpace(metaKeywords)) seo.MetaKeywords = metaKeywords.Trim();
+                seo.LastUpdated = DateTime.UtcNow;
+                _context.SEOMetadata.Update(seo);
+            }
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "تم تحديث بيانات المنتج وإعدادات محرك الـ SEO بنجاح!";
             return RedirectToAction(nameof(Index));
         }
 
