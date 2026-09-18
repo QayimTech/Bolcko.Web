@@ -97,6 +97,7 @@ namespace Blocko.Services
             services.AddScoped<Blocko.Services.Imports.BulkImportService>();
 
             services.AddScoped<Blocko.Services.Interfaces.Auth.ITokenService, Blocko.Services.Implementations.Auth.TokenService>();
+            services.AddScoped<Blocko.Services.Interfaces.Tax.ITaxInvoicingService, Blocko.Services.Implementations.Tax.TaxInvoicingService>();
             services.AddMemoryCache();
             services.AddScoped<ITranslationService, TranslationService>();
             services.AddScoped<Blocko.Services.Interfaces.Delivery.IDeliveryService, Blocko.Services.Implementations.Delivery.DeliveryService>();

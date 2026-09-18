@@ -1,0 +1,153 @@
+@model Blocko.Services.Interfaces.Tax.TaxInvoiceViewModel
+@{
+    Layout = null;
+    var isArabic = true;
+    bool isB2B = Model.InvoiceType == "B2B_Standard";
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة ضريبية - @Model.InvoiceNumber</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-8 text-slate-800 antialiased">
+    
+    <!-- Action Bar -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center no-print">
+        <a href="javascript:history.back()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
+            ← العودة للطلبات
+        </a>
+        <button onclick="window.print()" class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition shadow-md flex items-center gap-2">
+            <span>🖨️ طباعة الفاتورة الضريبية</span>
+        </button>
+    </div>
+
+    <!-- Invoice Sheet -->
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl p-8 sm:p-12 shadow-lg border border-slate-200 space-y-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-8 gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl font-black text-slate-900">Block<span class="text-[#E8A020]">O</span></span>
+                    <span class="px-2.5 py-0.5 rounded-full @(isB2B ? "bg-indigo-100 text-indigo-800" : "bg-emerald-100 text-emerald-800") text-[11px] font-bold">
+                        @(isB2B ? "فاتورة ضريبية قياسية للشركات (B2B Standard)" : "فاتورة ضريبية مبسطة للأفراد (B2C Simplified)")
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 font-bold">@Model.SellerName</p>
+                <div class="text-[11px] text-slate-600 space-y-0.5">
+                    <p>الرقم الضريبي للبائع: <span class="font-mono font-bold text-slate-900">@Model.SellerVatNumber</span></p>
+                    <p>السجل التجاري: <span class="font-mono font-bold text-slate-900">@Model.SellerCrNumber</span></p>
+                    <p>العنوان: @Model.SellerAddress</p>
+                </div>
+            </div>
+
+            <!-- Invoice Meta & QR -->
+            <div class="flex items-center gap-6">
+                <div class="text-left space-y-1 text-xs">
+                    <p class="font-bold text-slate-900">رقم الفاتورة: <span class="font-mono text-indigo-600">@Model.InvoiceNumber</span></p>
+                    <p class="text-slate-500">التاريخ: <span class="font-mono text-slate-700">@Model.IssueDate.ToString("yyyy-MM-dd HH:mm")</span></p>
+                    <p class="text-slate-500">المطابقة: <span class="text-emerald-600 font-bold">ZATCA Phase 2 E-Invoice</span></p>
+                </div>
+                <!-- Simulated ZATCA QR Code -->
+                <div class="w-24 h-24 border border-slate-300 rounded-xl p-1 bg-white flex flex-col items-center justify-center text-center shadow-inner">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=@System.Net.WebUtility.UrlEncode(Model.QrCodeBase64)" alt="ZATCA QR" class="w-full h-full object-contain" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Buyer Info Section -->
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+                <span class="text-slate-400 font-bold block mb-1">بيانات العميل / المشتري:</span>
+                <p class="font-bold text-slate-900 text-sm">@Model.BuyerName</p>
+                @if (isB2B)
+                {
+                    <p class="text-slate-600 mt-1">السجل التجاري: <span class="font-mono font-bold text-slate-800">@(Model.BuyerCrNumber ?? "1010XXXXXX")</span></p>
+                    <p class="text-slate-600">الرقم الضريبي للمشتري (VAT): <span class="font-mono font-bold text-slate-800">@(Model.BuyerVatNumber ?? "300101000000003")</span></p>
+                }
+            </div>
+            <div>
+                <span class="text-slate-400 font-bold block mb-1">موقع التسليم والمشروع الإنشائي:</span>
+                <p class="text-slate-800 font-medium">@Model.JobsiteAddress</p>
+                @if (!string.IsNullOrEmpty(Model.BuildingPermitNumber))
+                {
+                    <p class="text-slate-600 mt-1">رقم تصريح البناء: <span class="font-mono font-bold text-slate-800">@Model.BuildingPermitNumber</span></p>
+                }
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+                <thead class="bg-slate-900 text-white font-bold">
+                    <tr>
+                        <th class="p-3">#</th>
+                        <th class="p-3">تفاصيل المادة والمنتج</th>
+                        <th class="p-3 text-center">الكمية</th>
+                        <th class="p-3">سعر الوحدة</th>
+                        <th class="p-3">ضريبة القيمة المضافة (15%)</th>
+                        <th class="p-3 text-left">الإجمالي شامل الضريبة</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    @for (int i = 0; i < Model.Items.Count; i++)
+                    {
+                        var itm = Model.Items[i];
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 text-slate-400 font-mono">@(i + 1)</td>
+                            <td class="p-3 font-bold text-slate-900">@itm.ProductName</td>
+                            <td class="p-3 text-center font-mono font-bold">@itm.Quantity</td>
+                            <td class="p-3 font-mono">@itm.UnitPrice.ToString("N2") ر.س</td>
+                            <td class="p-3 font-mono text-slate-600">@itm.VatAmount.ToString("N2") ر.س</td>
+                            <td class="p-3 font-mono font-bold text-slate-900 text-left">@itm.TotalPrice.ToString("N2") ر.س</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals & Summary -->
+        <div class="flex justify-end pt-4 border-t border-slate-200">
+            <div class="w-full sm:w-72 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-600">
+                    <span>المجموع الفرعي (غير شامل الضريبة):</span>
+                    <span class="font-mono font-bold text-slate-900">@Model.Subtotal.ToString("N2") ر.س</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>ضريبة القيمة المضافة (15%):</span>
+                    <span class="font-mono font-bold text-slate-900">@Model.VatAmount.ToString("N2") ر.س</span>
+                </div>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="flex justify-between text-emerald-600">
+                        <span>الخصم المطبق:</span>
+                        <span class="font-mono font-bold">-@Model.DiscountAmount.ToString("N2") ر.س</span>
+                    </div>
+                }
+                <div class="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-200">
+                    <span>الإجمالي المستحق:</span>
+                    <span class="font-mono text-indigo-700">@Model.TotalAmount.ToString("N2") ر.س</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400 space-y-1">
+            <p>فاتورة ضريبية إلكترونية صادرة ومطابقة للائحة التنفيذية لضريبة القيمة المضافة وهيئة الزكاة والضريبة والجمارك (ZATCA).</p>
+            <p class="font-mono">BlockO Platform © 2026 • Electronic Invoice System</p>
+        </div>
+
+    </div>
+</body>
+</html>
