@@ -151,8 +151,36 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public int ActiveDealsCount { get; set; }
         public int CompletedDealsCount { get; set; }
 
+        public decimal AvailableWalletBalanceJod { get; set; }
+        public decimal PendingPayoutRequestsJod { get; set; }
+        public decimal TotalWithdrawnJod { get; set; }
+
         public List<FinancingTenderDto> ActiveInvestments { get; set; } = new();
         public List<FinancingTenderDto> CompletedInvestments { get; set; } = new();
+        public List<InvestorWalletTransactionDto> WalletLedger { get; set; } = new();
+    }
+
+    public class InvestorWalletTransactionDto
+    {
+        public int Id { get; set; }
+        public string TransactionCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public decimal AmountJod { get; set; }
+        public string Type { get; set; } = "ProfitCredit"; // Deposit, ProfitCredit, PayoutWithdrawal
+        public string PaymentChannel { get; set; } = "CliQ"; // CliQ, BankIBAN, EscrowRelease
+        public string Status { get; set; } = "Completed"; // Completed, Pending, Processing
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? ReferenceCode { get; set; }
+    }
+
+    public class InvestorPayoutRequestDto
+    {
+        public decimal AmountJod { get; set; }
+        public string PayoutMethod { get; set; } = "CliQ"; // CliQ, BankTransfer
+        public string? CliqAlias { get; set; }
+        public string? IbanNumber { get; set; }
+        public string? BankName { get; set; }
+        public string? Notes { get; set; }
     }
 
     public class AdminFinancingOverviewDto

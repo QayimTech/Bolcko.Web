@@ -343,12 +343,48 @@ namespace Blocko.Services.Implementations.Financing
             decimal totalInvested = list.Sum(t => t.BaseMaterialCost);
             decimal realizedProfit = settled.Sum(t => t.InvestorNetYieldAmount);
             decimal upcomingProfit = active.Sum(t => t.InvestorNetYieldAmount);
+            decimal returnedCapital = settled.Sum(t => t.BaseMaterialCost);
+            decimal availableBalance = returnedCapital + realizedProfit;
 
             decimal avgYield = list.Any(t => t.BaseMaterialCost > 0)
                 ? Math.Round(list.Average(t => (t.InvestorNetYieldAmount / (t.BaseMaterialCost > 0 ? t.BaseMaterialCost : 1m)) * (365.0m / (t.TenureDays > 0 ? t.TenureDays : 45)) * 100m), 2)
                 : 12.5m;
 
             var investorName = list.FirstOrDefault()?.FunderName ?? "المستثمر الممول";
+
+            var ledger = new List<InvestorWalletTransactionDto>();
+            int ledgerIdx = 1;
+            foreach (var s in settled)
+            {
+                ledger.Add(new InvestorWalletTransactionDto
+                {
+                    Id = ledgerIdx++,
+                    TransactionCode = $"TXN-PAY-{s.TrackingCode}",
+                    Title = $"تحصيل مستحقات وأرباح عطاء {s.ProjectTitle}",
+                    AmountJod = s.BaseMaterialCost + s.InvestorNetYieldAmount,
+                    Type = "ProfitCredit",
+                    PaymentChannel = "CliQ Instant / Central Escrow",
+                    Status = "Completed",
+                    CreatedAt = s.SettledAt ?? DateTime.UtcNow,
+                    ReferenceCode = s.TrackingCode
+                });
+            }
+
+            foreach (var a in active)
+            {
+                ledger.Add(new InvestorWalletTransactionDto
+                {
+                    Id = ledgerIdx++,
+                    TransactionCode = $"TXN-ESC-{a.TrackingCode}",
+                    Title = $"تمويل وتملك أصول عطاء {a.ProjectTitle}",
+                    AmountJod = a.BaseMaterialCost,
+                    Type = "Deposit",
+                    PaymentChannel = "Escrow Hold",
+                    Status = "Processing",
+                    CreatedAt = a.FundedAt ?? DateTime.UtcNow,
+                    ReferenceCode = a.TrackingCode
+                });
+            }
 
             return new InvestorDashboardDto
             {
@@ -360,9 +396,37 @@ namespace Blocko.Services.Implementations.Financing
                 AverageAnnualizedYieldPercentage = avgYield,
                 ActiveDealsCount = active.Count,
                 CompletedDealsCount = settled.Count,
+                AvailableWalletBalanceJod = availableBalance,
+                PendingPayoutRequestsJod = 0m,
+                TotalWithdrawnJod = 0m,
                 ActiveInvestments = active.Select(MapToDto).ToList(),
-                CompletedInvestments = settled.Select(MapToDto).ToList()
+                CompletedInvestments = settled.Select(MapToDto).ToList(),
+                WalletLedger = ledger.OrderByDescending(l => l.CreatedAt).ToList()
             };
+        }
+
+        public async Task<bool> RequestPayoutAsync(InvestorPayoutRequestDto request, int? userId)
+        {
+            if (request == null || request.AmountJod <= 0)
+            {
+                throw new ArgumentException("قيمة السحب يجب أن تكون أكبر من صفر.");
+            }
+
+            if (request.PayoutMethod == "CliQ" && string.IsNullOrWhiteSpace(request.CliqAlias))
+            {
+                throw new ArgumentException("يرجى إدخال الاسم المستعار لنظام CliQ أو رقم الهاتف.");
+            }
+
+            if (request.PayoutMethod == "BankTransfer" && string.IsNullOrWhiteSpace(request.IbanNumber))
+            {
+                throw new ArgumentException("يرجى إدخال رقم الآيبان البنكي (IBAN) الصحيح.");
+            }
+
+            _logger.LogInformation("Investor {UserId} requested payout of {Amount} JOD via {Method} ({Destination})",
+                userId, request.AmountJod, request.PayoutMethod, request.CliqAlias ?? request.IbanNumber);
+
+            await Task.Delay(50); // Simulate instant escrow gateway dispatch
+            return true;
         }
 
         public async Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync()

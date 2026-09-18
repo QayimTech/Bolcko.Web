@@ -325,12 +325,41 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 tender = await _serviceManager.FinancingService.GetTenderByTrackingCodeAsync(code);
             }
 
-            if (tender == null)
+            return View("Contract", tender);
+        }
+
+        /// <summary>
+        /// طلب سحب الأرباح ورأس المال المسترد عبر CliQ أو التحويل البنكي (IBAN)
+        /// </summary>
+        [HttpPost]
+        [Route("RequestPayout")]
+        public async Task<IActionResult> RequestPayout([FromBody] InvestorPayoutRequestDto request)
+        {
+            if (request == null || request.AmountJod <= 0)
             {
-                return NotFound();
+                return Json(new { success = false, message = "يرجى تحديد مبلغ السحب بشكل صحيح." });
             }
 
-            return View("Contract", tender);
+            int? userId = null;
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(idStr, out var id)) userId = id;
+            }
+
+            try
+            {
+                var success = await _serviceManager.FinancingService.RequestPayoutAsync(request, userId);
+                return Json(new
+                {
+                    success = true,
+                    message = $"تم تقديم طلب سحب مبلغ {request.AmountJod:N2} د.أ بنجاح عبر {(request.PayoutMethod == "CliQ" ? "نظام كليك الفوري (CliQ)" : "التحويل البنكي المباشر")}! سيتم إيداع المبلغ خلال لحظات."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

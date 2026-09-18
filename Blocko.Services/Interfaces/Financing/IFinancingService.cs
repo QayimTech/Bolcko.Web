@@ -16,6 +16,7 @@ namespace Blocko.Services.Interfaces.Financing
         double CalculateDistanceMeters(double lat1, double lon1, double lat2, double lon2);
         Task<ContractorDashboardDto> GetContractorDashboardAsync(int? userId, string? phone = null);
         Task<InvestorDashboardDto> GetInvestorDashboardAsync(int? userId, string? phone = null);
+        Task<bool> RequestPayoutAsync(InvestorPayoutRequestDto request, int? userId);
         Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync();
     }
 }

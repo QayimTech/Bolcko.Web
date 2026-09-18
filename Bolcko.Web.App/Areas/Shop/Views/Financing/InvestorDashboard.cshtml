@@ -5,7 +5,7 @@
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
 }
 
-<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8" dir="rtl">
     <div class="max-w-7xl mx-auto space-y-8">
 
         <!-- Top Header & Actions -->
@@ -28,6 +28,28 @@
                     <span class="material-symbols-outlined text-sm">add_circle</span>
                     <span>تمويل عطاء جديد</span>
                 </a>
+            </div>
+        </div>
+
+        <!-- Digital Wallet & Instant Payout Hub (QT1-81) -->
+        <div class="bg-gradient-to-r from-emerald-950/80 via-slate-900 to-[#151B26] border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold font-mono">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>محفظة المستثمر المباشرة • الرصيد المتاح للسحب الفوري</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-4xl sm:text-5xl font-black text-white font-mono" id="walletBalanceVal">@Model.AvailableWalletBalanceJod.ToString("N2")</span>
+                    <span class="text-sm font-bold text-emerald-400">دينار أردني</span>
+                </div>
+                <p class="text-xs text-slate-400">يشمل رأس المال المسترد من العطاءات المسددة والأرباح الصافية المحررة من الضمان.</p>
+            </div>
+
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <button type="button" onclick="openPayoutModal()" class="w-full md:w-auto px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span>طلب سحب الأرباح (CliQ / IBAN)</span>
+                </button>
             </div>
         </div>
 
@@ -100,12 +122,12 @@
                         <p class="text-slate-400 text-xs mt-0.5">متابعة مسار شراء المواد وتمليكها والتسليم الموقعي بالـ GPS</p>
                     </div>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/5 text-slate-300 font-mono">@Model.ActiveInvestments.Count عطاءات</span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold font-mono">@Model.ActiveInvestments.Count صفقة نشطة</span>
             </div>
 
-            @if (Model.ActiveInvestments != null && Model.ActiveInvestments.Any())
+            @if (Model.ActiveInvestments.Any())
             {
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach (var inv in Model.ActiveInvestments)
                     {
                         <div class="bg-[#1B2234] border border-white/5 hover:border-emerald-500/30 rounded-2xl p-5 transition-all flex flex-col justify-between">
@@ -142,7 +164,7 @@
                                     <span class="text-sm font-bold text-white font-mono">@inv.BaseMaterialCost.ToString("N0") د.أ</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <a href="/Shop/Financing/Details/@inv.Id" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all flex items-center gap-1">
+                                    <a href="/Shop/Financing/Contract/@inv.TrackingCode" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-bold transition-all flex items-center gap-1 border border-emerald-500/20">
                                         <span class="material-symbols-outlined text-xs">description</span>
                                         <span>عقد الوكالة</span>
                                     </a>
@@ -165,51 +187,208 @@
             }
         </div>
 
-        <!-- Completed & Settled Deals Archive -->
-        @if (Model.CompletedInvestments != null && Model.CompletedInvestments.Any())
-        {
-            <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl space-y-4">
-                <div class="flex items-center justify-between pb-3 border-b border-white/5">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-purple-400">history</span>
-                        <h2 class="text-sm font-bold text-white">سجل العمليات المسددة والأرباح المحولة</h2>
-                    </div>
+        <!-- Wallet Ledger & Transaction History (QT1-81) -->
+        <div class="bg-[#151B26] border border-white/10 rounded-2xl p-6 shadow-xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-400">receipt_long</span>
+                    <h2 class="text-sm font-bold text-white">سجل الحركات المالية والمحفظة الرقمية (Wallet Ledger)</h2>
                 </div>
+                <span class="text-xs text-slate-400 font-mono">@Model.WalletLedger.Count حركة مسجلة</span>
+            </div>
 
+            @if (Model.WalletLedger.Any())
+            {
                 <div class="overflow-x-auto">
                     <table class="w-full text-start text-xs">
-                        <thead>
-                            <tr class="border-b border-white/5 text-slate-400 font-bold">
-                                <th class="py-3 px-2 text-start">رمز العطاء</th>
-                                <th class="py-3 px-2 text-start">المشروع والمقاول</th>
-                                <th class="py-3 px-2 text-end">رأس المال</th>
-                                <th class="py-3 px-2 text-end">الربح الصافي</th>
-                                <th class="py-3 px-2 text-center">مدة التمويل</th>
-                                <th class="py-3 px-2 text-center">الحالة</th>
+                        <thead class="bg-white/5 text-slate-400 font-bold">
+                            <tr>
+                                <th class="p-3 text-start">رقم الحركة</th>
+                                <th class="p-3 text-start">تفاصيل العملية</th>
+                                <th class="p-3 text-start">قناة الدفع / التحويل</th>
+                                <th class="p-3 text-start">المبلغ</th>
+                                <th class="p-3 text-start">الحالة</th>
+                                <th class="p-3 text-start">التاريخ</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-white/5 text-slate-300">
-                            @foreach (var c in Model.CompletedInvestments)
+                        <tbody class="divide-y divide-white/5">
+                            @foreach (var l in Model.WalletLedger)
                             {
-                                <tr class="hover:bg-white/5">
-                                    <td class="py-3 px-2 font-mono font-bold text-sky-400">@c.TrackingCode</td>
-                                    <td class="py-3 px-2">
-                                        <div class="font-bold text-white truncate max-w-xs">@c.ProjectTitle</div>
-                                        <div class="text-[10px] text-slate-500">@c.ContractorName</div>
+                                <tr class="text-slate-300 hover:bg-white/5 transition-colors">
+                                    <td class="p-3 font-mono font-bold text-emerald-400">@l.TransactionCode</td>
+                                    <td class="p-3 font-semibold text-white">@l.Title</td>
+                                    <td class="p-3 font-mono text-slate-400">@l.PaymentChannel</td>
+                                    <td class="p-3 font-mono font-bold @(l.Type == "ProfitCredit" ? "text-emerald-400" : "text-amber-400")">
+                                        @(l.Type == "ProfitCredit" ? "+" : "")@l.AmountJod.ToString("N2") د.أ
                                     </td>
-                                    <td class="py-3 px-2 text-end font-mono font-bold">@c.BaseMaterialCost.ToString("N0") د.أ</td>
-                                    <td class="py-3 px-2 text-end font-mono font-bold text-emerald-400">+@c.InvestorNetYieldAmount.ToString("N0") د.أ</td>
-                                    <td class="py-3 px-2 text-center font-mono">@c.TenureDays يوم</td>
-                                    <td class="py-3 px-2 text-center">
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">تم السداد بنجاح</span>
+                                    <td class="p-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold @(l.Status == "Completed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20")">
+                                            @(l.Status == "Completed" ? "مكتملة ومحررة" : "قيد المعالجة")
+                                        </span>
                                     </td>
+                                    <td class="p-3 font-mono text-slate-500">@l.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-            </div>
-        }
+            }
+            else
+            {
+                <div class="py-8 text-center text-xs text-slate-500">لا توجد حركات مالية مسجلة بعد. عند سداد المقاولين ستظهر الأرباح هنا مباشرة.</div>
+            }
+        </div>
 
     </div>
 </div>
+
+<!-- Payout Modal Dialog (QT1-81) -->
+<div id="payoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" dir="rtl">
+    <div class="bg-slate-900 border border-white/15 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-start">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2 text-white font-bold text-base">
+                <span class="material-symbols-outlined text-emerald-400">account_balance</span>
+                <span>طلب تحويل وسحب الأرباح</span>
+            </div>
+            <button type="button" onclick="closePayoutModal()" class="text-slate-400 hover:text-white cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Payout Method Tabs -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-white/5 text-xs font-bold text-center">
+            <button type="button" onclick="setPayoutTab('CliQ')" id="tabCliQ" class="p-2.5 rounded-lg bg-emerald-600 text-white transition-all cursor-pointer">
+                نظام كليك الفوري (CliQ)
+            </button>
+            <button type="button" onclick="setPayoutTab('BankTransfer')" id="tabBank" class="p-2.5 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer">
+                تحويل آيبان بنكي (IBAN)
+            </button>
+        </div>
+
+        <div class="space-y-4 text-xs">
+            <div class="space-y-1">
+                <div class="flex justify-between text-slate-400">
+                    <span>مبلغ السحب (د.أ):</span>
+                    <span>الرصيد المتاح: <strong class="text-emerald-400 font-mono">@Model.AvailableWalletBalanceJod.ToString("N2") د.أ</strong></span>
+                </div>
+                <input type="number" id="payoutAmount" value="@Model.AvailableWalletBalanceJod" max="@Model.AvailableWalletBalanceJod" min="10" step="10" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono text-sm focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div id="cliqFieldContainer" class="space-y-1">
+                <label class="font-bold text-slate-300 block">الاسم المستعار في CliQ أو رقم الهاتف:</label>
+                <input type="text" id="cliqAlias" placeholder="مثال: ALI.CLI@JO أو 079XXXXXXX" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div id="ibanFieldContainer" class="hidden space-y-3">
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-300 block">اسم البنك الأردني:</label>
+                    <input type="text" id="bankName" placeholder="مثال: البنك العربي / بنك الإسكان / بنك الاتحاد" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-300 block">رقم الآيبان (IBAN):</label>
+                    <input type="text" id="ibanNumber" placeholder="JO00XXXX0000000000000000000000" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono uppercase focus:outline-none focus:border-emerald-500" />
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between gap-3">
+            <button type="button" onclick="closePayoutModal()" class="w-1/3 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-all cursor-pointer">
+                إلغاء
+            </button>
+            <button type="button" id="confirmPayoutBtn" onclick="submitPayoutRequest()" class="w-2/3 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">send</span>
+                <span>تأكيد طلب التحويل</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let activePayoutMethod = 'CliQ';
+
+    function openPayoutModal() {
+        document.getElementById('payoutModal').classList.remove('hidden');
+    }
+
+    function closePayoutModal() {
+        document.getElementById('payoutModal').classList.add('hidden');
+    }
+
+    function setPayoutTab(method) {
+        activePayoutMethod = method;
+        if (method === 'CliQ') {
+            document.getElementById('tabCliQ').className = 'p-2.5 rounded-lg bg-emerald-600 text-white transition-all cursor-pointer';
+            document.getElementById('tabBank').className = 'p-2.5 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer';
+            document.getElementById('cliqFieldContainer').classList.remove('hidden');
+            document.getElementById('ibanFieldContainer').classList.add('hidden');
+        } else {
+            document.getElementById('tabBank').className = 'p-2.5 rounded-lg bg-emerald-600 text-white transition-all cursor-pointer';
+            document.getElementById('tabCliQ').className = 'p-2.5 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer';
+            document.getElementById('ibanFieldContainer').classList.remove('hidden');
+            document.getElementById('cliqFieldContainer').classList.add('hidden');
+        }
+    }
+
+    async function submitPayoutRequest() {
+        const amount = parseFloat(document.getElementById('payoutAmount')?.value) || 0;
+        const cliq = document.getElementById('cliqAlias')?.value?.trim();
+        const iban = document.getElementById('ibanNumber')?.value?.trim();
+        const bank = document.getElementById('bankName')?.value?.trim();
+
+        if (amount <= 0) {
+            if (window.BlockoModal) BlockoModal.alert('يرجى إدخال مبلغ سحب صالح.');
+            else alert('يرجى إدخال مبلغ سحب صالح.');
+            return;
+        }
+
+        if (activePayoutMethod === 'CliQ' && !cliq) {
+            if (window.BlockoModal) BlockoModal.alert('يرجى إدخال الاسم المستعار في CliQ.');
+            else alert('يرجى إدخال الاسم المستعار في CliQ.');
+            return;
+        }
+
+        if (activePayoutMethod === 'BankTransfer' && !iban) {
+            if (window.BlockoModal) BlockoModal.alert('يرجى إدخال رقم الآيبان البنكي (IBAN).');
+            else alert('يرجى إدخال رقم الآيبان البنكي (IBAN).');
+            return;
+        }
+
+        const btn = document.getElementById('confirmPayoutBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري المعالجة...</span>';
+
+        try {
+            const res = await fetch('/Shop/Financing/RequestPayout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amountJod: amount,
+                    payoutMethod: activePayoutMethod,
+                    cliqAlias: cliq,
+                    ibanNumber: iban,
+                    bankName: bank
+                })
+            });
+
+            const data = await res.json();
+            if (window.BlockoModal) {
+                BlockoModal.alert(data.message || 'تم تقديم طلب السحب بنجاح.', () => {
+                    closePayoutModal();
+                    window.location.reload();
+                });
+            } else {
+                alert(data.message || 'تم تقديم طلب السحب بنجاح.');
+                closePayoutModal();
+                window.location.reload();
+            }
+        } catch (e) {
+            if (window.BlockoModal) BlockoModal.alert('حدث خطأ أثناء معالجة طلب السحب.');
+            else alert('حدث خطأ أثناء معالجة طلب السحب.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">send</span> <span>تأكيد طلب التحويل</span>';
+        }
+    }
+</script>
+}
