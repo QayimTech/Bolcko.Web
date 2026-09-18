@@ -41,6 +41,7 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<IDeliveryService> _lazyDeliveryService;
         private readonly Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService> _lazyPaymentGatewayService;
         private readonly Lazy<Blocko.Services.Interfaces.Financing.IFinancingService> _lazyFinancingService;
+        private readonly Lazy<Blocko.Services.Interfaces.Financing.ICrifCreditBureauService> _lazyCrifCreditBureauService;
         private readonly Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService> _lazySubscriptionService;
 
         public ServiceManager(
@@ -70,7 +71,10 @@ namespace Blocko.Services.Implementations
             _lazyProjectService      = new Lazy<IProjectService>(() => new ProjectService(unitOfWork));
             _lazyDeliveryService     = new Lazy<IDeliveryService>(() => new DeliveryService(unitOfWork, notificationService, deliveryDocumentService, emailSender));
             _lazyPaymentGatewayService = new Lazy<Blocko.Services.Interfaces.Payment.IPaymentGatewayService>(() => new Blocko.Services.Implementations.Payment.PaymentGatewayService(unitOfWork));
-            _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>()));
+            
+            var crifService = new Blocko.Services.Implementations.Financing.CrifCreditBureauService(loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.CrifCreditBureauService>());
+            _lazyCrifCreditBureauService = new Lazy<Blocko.Services.Interfaces.Financing.ICrifCreditBureauService>(() => crifService);
+            _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>(), crifService));
             _lazySubscriptionService = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService>(() => new Blocko.Services.Implementations.Subscription.SubscriptionService(dbContext));
         }
 
@@ -88,6 +92,7 @@ namespace Blocko.Services.Implementations
         public IDeliveryService DeliveryService => _lazyDeliveryService.Value;
         public Blocko.Services.Interfaces.Payment.IPaymentGatewayService PaymentGatewayService => _lazyPaymentGatewayService.Value;
         public Blocko.Services.Interfaces.Financing.IFinancingService FinancingService => _lazyFinancingService.Value;
+        public Blocko.Services.Interfaces.Financing.ICrifCreditBureauService CrifCreditBureauService => _lazyCrifCreditBureauService.Value;
         public Blocko.Services.Interfaces.Subscription.ISubscriptionService SubscriptionService => _lazySubscriptionService.Value;
     }
 }

@@ -15,11 +15,13 @@ namespace Blocko.Services.Implementations.Financing
     {
         private readonly IUnitOfWork _uow;
         private readonly ILogger<FinancingService> _logger;
+        private readonly ICrifCreditBureauService? _crifService;
 
-        public FinancingService(IUnitOfWork uow, ILogger<FinancingService> logger)
+        public FinancingService(IUnitOfWork uow, ILogger<FinancingService> logger, ICrifCreditBureauService? crifService = null)
         {
             _uow = uow;
             _logger = logger;
+            _crifService = crifService;
         }
 
         public async Task<FinancingTenderDto> CreateTenderFromBOQAsync(CreateFinancingTenderRequestDto request, int? userId = null)
@@ -291,6 +293,16 @@ namespace Blocko.Services.Implementations.Financing
             decimal creditLimit = 50000m;
             decimal utilized = active.Sum(t => t.TotalPayableAmount);
             double trustScore = 95.0 + (settled.Count * 2.0);
+
+            var contractorName = list.FirstOrDefault()?.ContractorName ?? "المقاول المعتمد";
+            var company = list.FirstOrDefault()?.ContractorCompany ?? "مؤسسة المقاولات";
+
+            if (_crifService != null)
+            {
+                var assessment = await _crifService.AssessContractorAsync(phone ?? "200194827", utilized, company);
+                creditLimit = assessment.RecommendedCreditLimitJod;
+                trustScore = Math.Min(100.0, assessment.TrustScorePercentage + (settled.Count * 1.5));
+            }
             if (trustScore > 100.0) trustScore = 100.0;
 
             string tier = trustScore >= 95.0 ? "بلاتيني (Platinum)" : (trustScore >= 85.0 ? "ذهبي (Gold)" : "فضي (Silver)");
@@ -309,9 +321,6 @@ namespace Blocko.Services.Implementations.Financing
                     Status = t.Status
                 };
             }).OrderBy(s => s.DueDate).ToList();
-
-            var contractorName = list.FirstOrDefault()?.ContractorName ?? "المقاول المعتمد";
-            var company = list.FirstOrDefault()?.ContractorCompany ?? "مؤسسة المقاولات";
 
             return new ContractorDashboardDto
             {
