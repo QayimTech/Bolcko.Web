@@ -10,7 +10,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     [Route("Admin/Security/Center")]
     [Route("Admin/SecurityCenter")]
     [Route("Admin/[controller]/[action]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin")]
     public class SecurityCenterController : Controller
     {
         private readonly ISecurityAuditService _securityAuditService;
@@ -47,6 +47,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> BlacklistIp(string ipAddress, string reason, int? durationHours)
         {
             // Self-Blacklist Protection Protocol
@@ -63,6 +64,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveBlacklist(string ipAddress)
         {
             var success = await _securityAuditService.RemoveFromBlacklistAsync(ipAddress);
@@ -70,6 +72,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DismissThreat(long auditLogId)
         {
             var success = await _securityAuditService.DismissThreatAsync(auditLogId);
@@ -77,6 +80,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearAllData()
         {
             var success = await _securityAuditService.ClearAllThreatLogsAndBlacklistAsync();

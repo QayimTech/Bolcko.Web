@@ -7,7 +7,7 @@ using Bolcko.Domain.Entities.Payment;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin")]
     public class PaymentSettingsController : Controller
     {
         private readonly IPaymentGatewayService _paymentGatewayService;
