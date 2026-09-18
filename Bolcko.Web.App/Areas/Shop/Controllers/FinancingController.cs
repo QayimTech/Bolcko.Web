@@ -286,10 +286,11 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
-        /// سداد وتسوية عطاء المرابحة (Settlement Engine)
+        /// سداد وتسوية عطاء المرابحة (Settlement Engine) - يتطلب صلاحيات الإدارة المالية
         /// </summary>
         [HttpPost]
         [Route("Settle/{id}")]
+        [Authorize(Roles = "Admin,FinanceManager,DashboardUser")]
         public async Task<IActionResult> Settle(int id)
         {
             var success = await _serviceManager.FinancingService.SettleTenderAsync(id);
