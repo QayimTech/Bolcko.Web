@@ -232,6 +232,8 @@ namespace Blocko.Services.Implementations.Financing
             return new FinancingTenderDto
             {
                 Id = t.Id,
+                ContractorId = t.ContractorId,
+                FunderInvestorId = t.FunderInvestorId,
                 TrackingCode = t.TrackingCode,
                 ProjectTitle = t.ProjectTitle,
                 ProjectCity = t.ProjectCity,
@@ -463,7 +465,7 @@ namespace Blocko.Services.Implementations.Financing
             };
         }
 
-        public async Task<IEnumerable<Bolcko.Domain.Entities.Financing.MaterialType>> GetActiveMaterialTypesAsync()
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType>> GetActiveMaterialTypesAsync()
         {
             var list = await _uow.MaterialTypes.GetAllAsync();
             return list.Where(m => m.IsActive).OrderBy(m => m.SortOrder).ToList();

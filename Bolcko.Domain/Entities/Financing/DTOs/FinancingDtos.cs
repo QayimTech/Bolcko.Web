@@ -34,6 +34,8 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
     public class FinancingTenderDto
     {
         public int Id { get; set; }
+        public int? ContractorId { get; set; }
+        public int? FunderInvestorId { get; set; }
         public string TrackingCode { get; set; } = string.Empty;
         public string ProjectTitle { get; set; } = string.Empty;
         public string ProjectCity { get; set; } = string.Empty;

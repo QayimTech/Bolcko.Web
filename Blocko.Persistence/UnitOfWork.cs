@@ -70,7 +70,7 @@ namespace Blocko.Persistence
             // Islamic Murabaha & Geotagged POD
             FinancingTenders = new Blocko.Persistence.Repositories.Financing.FinancingTenderRepository(_context);
             JobsiteDeliveries = new GenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery>(_context);
-            MaterialTypes = new GenericRepository<Bolcko.Domain.Entities.Financing.MaterialType>(_context);
+            MaterialTypes = new GenericRepository<Bolcko.Domain.Entities.Catalog.MaterialType>(_context);
 
             // Multi-Tier Subscription Engine
             SubscriptionPlans = new GenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan>(_context);
@@ -122,7 +122,7 @@ namespace Blocko.Persistence
         // Islamic Murabaha & Trade Financing
         public IFinancingTenderRepository FinancingTenders { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteDeliveries { get; private set; }
-        public IGenericRepository<Bolcko.Domain.Entities.Financing.MaterialType> MaterialTypes { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Catalog.MaterialType> MaterialTypes { get; private set; }
 
         public IGenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Subscription.UserSubscription> UserSubscriptions { get; private set; }

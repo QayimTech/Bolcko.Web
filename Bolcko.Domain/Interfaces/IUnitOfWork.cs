@@ -53,7 +53,7 @@ namespace Bolcko.Domain.Interfaces
         // Islamic Murabaha & Trade Financing
         IFinancingTenderRepository FinancingTenders { get; }
         IGenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteDeliveries { get; }
-        IGenericRepository<Bolcko.Domain.Entities.Financing.MaterialType> MaterialTypes { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Catalog.MaterialType> MaterialTypes { get; }
 
         // Multi-Tier Subscription Engine
         IGenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; }
