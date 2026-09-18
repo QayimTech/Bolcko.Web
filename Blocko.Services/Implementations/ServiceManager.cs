@@ -43,6 +43,8 @@ namespace Blocko.Services.Implementations
         private readonly Lazy<Blocko.Services.Interfaces.Financing.IFinancingService> _lazyFinancingService;
         private readonly Lazy<Blocko.Services.Interfaces.Financing.ICrifCreditBureauService> _lazyCrifCreditBureauService;
         private readonly Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService> _lazySubscriptionService;
+        private readonly Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine> _lazySubscriptionBillingEngine;
+        private readonly Lazy<Blocko.Services.Interfaces.Auth.ISmsOtpService> _lazySmsOtpService;
 
         public ServiceManager(
             IUnitOfWork unitOfWork,
@@ -76,6 +78,8 @@ namespace Blocko.Services.Implementations
             _lazyCrifCreditBureauService = new Lazy<Blocko.Services.Interfaces.Financing.ICrifCreditBureauService>(() => crifService);
             _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>(), crifService));
             _lazySubscriptionService = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService>(() => new Blocko.Services.Implementations.Subscription.SubscriptionService(dbContext));
+            _lazySubscriptionBillingEngine = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine>(() => new Blocko.Services.Implementations.Subscription.SubscriptionBillingEngine(dbContext, loggerFactory.CreateLogger<Blocko.Services.Implementations.Subscription.SubscriptionBillingEngine>()));
+            _lazySmsOtpService       = new Lazy<Blocko.Services.Interfaces.Auth.ISmsOtpService>(() => new Blocko.Services.Implementations.Auth.SmsOtpService(cache, loggerFactory.CreateLogger<Blocko.Services.Implementations.Auth.SmsOtpService>()));
         }
 
         public IUserService UserService        => _lazyUserService.Value;
@@ -94,5 +98,7 @@ namespace Blocko.Services.Implementations
         public Blocko.Services.Interfaces.Financing.IFinancingService FinancingService => _lazyFinancingService.Value;
         public Blocko.Services.Interfaces.Financing.ICrifCreditBureauService CrifCreditBureauService => _lazyCrifCreditBureauService.Value;
         public Blocko.Services.Interfaces.Subscription.ISubscriptionService SubscriptionService => _lazySubscriptionService.Value;
+        public Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine SubscriptionBillingEngine => _lazySubscriptionBillingEngine.Value;
+        public Blocko.Services.Interfaces.Auth.ISmsOtpService SmsOtpService => _lazySmsOtpService.Value;
     }
 }

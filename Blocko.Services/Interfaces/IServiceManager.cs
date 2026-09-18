@@ -28,5 +28,7 @@ namespace Blocko.Services.Interfaces
         Blocko.Services.Interfaces.Financing.IFinancingService FinancingService { get; }
         Blocko.Services.Interfaces.Financing.ICrifCreditBureauService CrifCreditBureauService { get; }
         Blocko.Services.Interfaces.Subscription.ISubscriptionService SubscriptionService { get; }
+        Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine SubscriptionBillingEngine { get; }
+        Blocko.Services.Interfaces.Auth.ISmsOtpService SmsOtpService { get; }
     }
 }
