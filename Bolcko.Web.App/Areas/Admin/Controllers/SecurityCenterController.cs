@@ -83,7 +83,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return Json(new { success, message = success ? "تم تنظيف كافة السجلات والحظر القديم بنجاح!" : "لا يوجد سجلات لتنظيفها." });
         }
 
-        [HttpGet]
+        [HttpGet("alerts-json")]
+        [HttpGet("Alerts")]
+        [HttpGet("GetSecurityAlertsJson")]
         public async Task<IActionResult> GetSecurityAlertsJson()
         {
             var pendingThreats = await _securityAuditService.GetPendingThreatLogsAsync(10);
