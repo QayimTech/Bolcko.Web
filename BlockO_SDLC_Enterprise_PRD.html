@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وثيقة متطلبات وهندسة النظام الشاملة (Enterprise SDLC & PRD) — منصة BlockO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fbf8f2',
+                            100: '#f5edd9',
+                            500: '#E8A020',
+                            600: '#d18911',
+                            700: '#a8670c',
+                            900: '#1e1b15',
+                        },
+                        navy: {
+                            800: '#161e2e',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm 12mm 15mm 12mm;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+        .gradient-border {
+            border-image: linear-gradient(to right, #E8A020, #3b82f6) 1;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-6xl mx-auto space-y-8 bg-white text-slate-800 antialiased">
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- COVER / HEADER BANNER                                               -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <header class="relative overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10">
+        <div class="absolute -end-20 -top-20 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -start-20 -bottom-20 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/10 pb-8">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-500 text-xs font-black tracking-wide uppercase mb-3">
+                    <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                    Software Development Life Cycle (SDLC) & Enterprise PRD
+                </div>
+                <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                    منصة <span class="text-brand-500">BlockO</span> للإنشاءات والتمويل
+                </h1>
+                <p class="text-slate-300 text-base md:text-lg mt-2 font-medium">
+                    وثيقة متطلبات وهندسة المنتج الشاملة عبر دورة حياة تطوير البرمجيات المتكاملة
+                </p>
+            </div>
+            <div class="bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 text-xs space-y-2.5 min-w-[240px]">
+                <div class="flex justify-between"><span class="text-slate-400">الإصدار:</span><span class="font-mono font-bold text-brand-500">v2.4 Enterprise</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">الحالة:</span><span class="font-bold text-emerald-400">Approved & Active</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">المنهجية:</span><span class="font-bold text-white">Agile / Scrum (2-Week Sprints)</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">تاريخ الاعتماد:</span><span class="font-mono text-slate-300">2026-09-18</span></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-2">
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                <span class="text-[11px] text-slate-400 block">المستخدمون المستهدفون</span>
+                <span class="text-sm font-bold text-white">6 أدوار معزولة (RBAC)</span>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                <span class="text-[11px] text-slate-400 block">المعمارية البرمجية</span>
+                <span class="text-sm font-bold text-white">Clean Architecture & ASP.NET 8</span>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                <span class="text-[11px] text-slate-400 block">الامتثال والتشريعات</span>
+                <span class="text-sm font-bold text-emerald-400">شريعة إسلامية + ZATCA Phase 2</span>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/5">
+                <span class="text-[11px] text-slate-400 block">التدفق اللوجستي</span>
+                <span class="text-sm font-bold text-brand-500">Live GPS & Digital POD</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SDLC 6-PHASE ROADMAP                                                -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <section class="space-y-4">
+        <div class="flex items-center gap-3 border-b-2 border-brand-500 pb-2">
+            <span class="text-2xl font-black text-slate-900">🔄 دورة حياة تطوير النظام (The 6 SDLC Phases)</span>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            تمت هيكلة وبناء منصة BlockO وفق المعايير العالمية لدورة حياة البرمجيات الموجهة للمؤسسات الكبرى (Enterprise SDLC) لضمان الاستقرار، القابلية للتوسع، وعزل الصلاحيات:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black flex items-center justify-center mb-2">1</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">جمع وتحليل المتطلبات (Requirements)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">تحديد متطلبات الأطراف الستة، ضوابط المرابحة الشرعية، واشتراطات هيئة الزكاة والضريبة والجمارك والبلديات.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black flex items-center justify-center mb-2">2</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">التصميم المعماري وتجربة المستخدم (Design)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">مخططات ERD، واجهات Tailwind CSS معزولة لكل رول، وهيكلية Clean Architecture متعددة الطبقات.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-black flex items-center justify-center mb-2">3</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">التطوير البرمجي السريع (Agile Sprints)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">برمجة وحدات BOQ، محرك RFQ، بوابات التمويل، إشعارات SignalR، ومهام Hangfire الخلفية.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-amber-600 text-white font-black flex items-center justify-center mb-2">4</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">ضمان الجودة واختبارات الأمان (QA & Sec)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">اختبارات التكامل، فحص ثغرات الاختراق (Pen-Test)، Rate Limiting، ومصادقة مكافحة التزوير CSRF.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-purple-600 text-white font-black flex items-center justify-center mb-2">5</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">النشر المؤتمت والبنية التحتية (DevOps)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">خطوط أنابيب CI/CD، سيرفرات Docker/Linux/Windows، قواعد بيانات PostgreSQL/SQL Server مع النسخ المتماثل.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative overflow-hidden shadow-sm">
+                <div class="w-7 h-7 rounded-lg bg-rose-600 text-white font-black flex items-center justify-center mb-2">6</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-1">المراقبة والتحسين المستمر (Ops & SRE)</h3>
+                <p class="text-slate-600 text-[11px] leading-relaxed">مركز مراقبة السجلات والحركة الحية (Security Center)، تتبع الأداء اللحظي، وتحديثات الميزات.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- RBAC & ROLE MATRIX                                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <section class="space-y-4 page-break">
+        <div class="flex items-center gap-3 border-b-2 border-brand-500 pb-2">
+            <span class="text-2xl font-black text-slate-900">👥 مصفوفة حوكمة الأدوار وتكامل الواجهات (RBAC Matrix)</span>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed">
+            تم فصل المنظومة إلى 6 مسارات مستقلة تماماً لمنع أي خلط بين تجربة المستهلك الفردي والتعاملات المؤسسية الكبرى:
+        </p>
+
+        <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm text-xs">
+            <table class="text-right">
+                <thead class="bg-slate-900 text-white">
+                    <tr>
+                        <th class="p-3">الدور (Role)</th>
+                        <th class="p-3">طبيعة الكيان</th>
+                        <th class="p-3">مسار التسجيل (Onboarding)</th>
+                        <th class="p-3">الواجهة ومساحة العمل</th>
+                        <th class="p-3">آلية الدفع والفوترة</th>
+                        <th class="p-3">المهام الجوهرية</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-indigo-700">👑 SuperAdmin / Admin</td>
+                        <td class="p-3 text-slate-600">الإدارة العليا والعمليات</td>
+                        <td class="p-3 font-mono text-slate-500">حسابات مشفرة داخلية</td>
+                        <td class="p-3 font-bold text-indigo-900">لوحة الإدارة /Admin</td>
+                        <td class="p-3">تحكم بالبوابات والعمولات</td>
+                        <td class="p-3">الرقابة الشرعية، تدقيق سجلات KYC، مراقبة الزيارات والأمان، والتحكم بالأسعار.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 bg-amber-50/40">
+                        <td class="p-3 font-bold text-amber-700">🏭 Vendor (المورد)</td>
+                        <td class="p-3 text-slate-600">مصانع ومستودعات المواد</td>
+                        <td class="p-3 font-mono text-slate-500">/Vendor/Account/Join</td>
+                        <td class="p-3 font-bold text-amber-900">بوابة الموردين /Vendor</td>
+                        <td class="p-3">تسويات B2B وعمولات مبيعات</td>
+                        <td class="p-3">إدارة المنتجات وأسعار الجملة (Tiered Pricing)، تسعير الـ RFQ، وتجهيز الشحنات.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 bg-emerald-50/40">
+                        <td class="p-3 font-bold text-emerald-700">🏗️ Contractor (المقاول)</td>
+                        <td class="p-3 text-slate-600">شركات ومؤسسات البناء</td>
+                        <td class="p-3 font-mono text-slate-500">/Shop/Contractor/Join</td>
+                        <td class="p-3 font-bold text-emerald-900">بوابة المقاولين /Contractor</td>
+                        <td class="p-3">تمويل مرابحة، تحويل B2B</td>
+                        <td class="p-3">حاسبة الكميات BOQ، طلبات عروض أسعار الجملة RFQ، تمويل المواد، ودخول المناقصات.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 bg-sky-50/40">
+                        <td class="p-3 font-bold text-sky-700">📈 Investor (المستثمر)</td>
+                        <td class="p-3 text-slate-600">بنوك وصناديق التمويل</td>
+                        <td class="p-3 font-mono text-slate-500">اعتماد مالي ودعوة خاصة</td>
+                        <td class="p-3 font-bold text-sky-900">لوحة المستثمر /Financing</td>
+                        <td class="p-3">عوائد أرباح المرابحة</td>
+                        <td class="p-3">تمويل صفقات شراء المواد، فحص الجدارة الائتمانية، وتملك المواد قبل بيعها شرعياً.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 bg-purple-50/40">
+                        <td class="p-3 font-bold text-purple-700">🚚 Delivery Driver</td>
+                        <td class="p-3 text-slate-600">أسطول الشاحنات والنقل</td>
+                        <td class="p-3 font-mono text-slate-500">تسجيل عبر شركات النقل</td>
+                        <td class="p-3 font-bold text-purple-900">تطبيق السائق /DriverPOD</td>
+                        <td class="p-3">أجور النقل والتوصيل</td>
+                        <td class="p-3">الملاحة للموقع الإنشائي، تأكيد أوزان الشحنات، وإثبات الاستلام الرقمي (POD / OTP).</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-slate-700">👤 Customer (العميل)</td>
+                        <td class="p-3 text-slate-600">الأفراد وملاك المنازل</td>
+                        <td class="p-3 font-mono text-slate-500">/Shop/Account/Register</td>
+                        <td class="p-3 font-bold text-slate-900">متجر التجزئة العام /Shop</td>
+                        <td class="p-3">مدى، Apple Pay، تابي/تمارا</td>
+                        <td class="p-3">شراء مواد التشطيب بالتجزئة، الدفع الإلكتروني المباشر، وتوصيل الطلبات للمنازل.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SDLC PHASE-BY-PHASE EXECUTION DETAILS                               -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <section class="space-y-6 avoid-break">
+        <div class="flex items-center gap-3 border-b-2 border-brand-500 pb-2">
+            <span class="text-2xl font-black text-slate-900">⚙️ التفاصيل الهندسية والوظيفية للأنظمة الأساسية</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Box 1 -->
+            <div class="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm space-y-2">
+                <div class="flex items-center gap-2 text-brand-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">calculate</span>
+                    <span>1. محرك حاسبة الكميات الذكية (Smart BOQ Engine)</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                    يتيح للمقاولين وملاك المشاريع إدخال أبعاد الأرض (م²)، عدد الأدوار، ونوع الهيكل الخرساني ليقوم النظام آلياً بحساب:
+                </p>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                    <li>أطنان حديد التسليح (موزعة على القواعد، الأعمدة، والأسقف).</li>
+                    <li>أكياس وصبات الأسمنت والخرسانة الجاهزة C35/C40.</li>
+                    <li>عدد البلوك الإسمنتي والبركاني ومساحات اللياسة والعزل.</li>
+                    <li>تصدير فوري لشيت الكميات كـ Excel أو تحويله مباشرة لسلة طلب أسعار (RFQ).</li>
+                </ul>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm space-y-2">
+                <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">account_balance</span>
+                    <span>2. محرك تمويل المرابحة الإسلامية (Islamic Murabaha)</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                    منظومة ائتمانية متوافقة مع ضوابط الشريعة الإسلامية تضمن:
+                </p>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                    <li><strong>صحة التملك والقبض:</strong> يقوم المستثمر بشراء المواد من المورد مباشرة وتملكها.</li>
+                    <li><strong>عقد البيع بالمرابحة:</strong> بيع المواد للمقاول بهامش ربح معلوم ومحدد بدون فوائد ربوية خفية.</li>
+                    <li><strong>جدولة الأقساط:</strong> أقساط مرنة تبدأ من 3 إلى 24 شهراً مع تتبع آلي لمدفوعات السداد وسندات الأمر.</li>
+                </ul>
+            </div>
+
+            <!-- Box 3 -->
+            <div class="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm space-y-2">
+                <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">local_shipping</span>
+                    <span>3. المنظومة اللوجستية وإثبات الاستلام الرقمي (POD)</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                    إدارة حركة شاحنات التوريد من المصنع إلى الموقع الإنشائي بدقة عالية:
+                </p>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                    <li>تحديد إحداثيات الموقع وتصريح البناء لضمان وصول الشحنة لموقع المشروع الصحيح.</li>
+                    <li>إشعار لحظي عبر SignalR للمقاول عند انطلاق الشاحنة من مستودع المورد.</li>
+                    <li>تأكيد الاستلام عبر كود تحقق لمرة واحدة (OTP) والتوقيع الرقمي لمنع أي نزاعات استلام.</li>
+                </ul>
+            </div>
+
+            <!-- Box 4 -->
+            <div class="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm space-y-2">
+                <div class="flex items-center gap-2 text-purple-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">shield</span>
+                    <span>4. مركز الأمان والدفاع الرقمي (Security Center)</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                    حماية استباقية متكاملة لبيانات المنشآت والمعاملات المالية:
+                </p>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                    <li>فحص حركة الزيارات، حظر الـ IPs المشبوهة تلقائياً عند تجاوز معدل الطلبات (Rate Limiting).</li>
+                    <li>سجل تدقيق كامل (Audit Trail) لجميع العمليات الحساسة وتغييرات الأسعار وصرف التمويل.</li>
+                    <li>تشفير فائق للبيانات والامتثال لمعايير الهيئة الوطنية للأمن السيبراني (NCA).</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SIGN-OFF / FOOTER                                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <footer class="mt-12 pt-6 border-t border-slate-200 text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <span class="font-bold text-slate-800">منصة BlockO للتقنية العقارية والإنشائية</span> — وثيقة الـ PRD و SDLC المعتمدة
+        </div>
+        <div class="flex items-center gap-4 font-mono text-[11px]">
+            <span>Status: Production-Ready</span>
+            <span>•</span>
+            <span>Security: Strict RBAC</span>
+            <span>•</span>
+            <span>Ref: QT1-ENTERPRISE-2026</span>
+        </div>
+    </footer>
+
+</body>
+</html>
