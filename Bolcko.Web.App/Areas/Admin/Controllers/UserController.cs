@@ -304,8 +304,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var currentUserId = _userManager.GetUserId(User);
             var currentUser = await _userManager.GetUserAsync(User);
 
-            // Rule 1: SuperAdmin Only check
-            if (currentUser == null || !await _userManager.IsInRoleAsync(currentUser, "Admin"))
+            // Rule 1: SuperAdmin / Admin check
+            var isSuperAdmin = await _userManager.IsInRoleAsync(currentUser, "SuperAdmin") || await _userManager.IsInRoleAsync(currentUser, "Admin");
+            if (currentUser == null || !isSuperAdmin)
             {
                 TempData["ErrorMessage"] = "غير مصرح لك باستخدام ميزة المحاكاة. هذه الميزة مخصصة للـ SuperAdmin فقط.";
                 return RedirectToAction("Index");
@@ -318,17 +319,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Rule 2: Prevent Impersonation of other SuperAdmins
-            if (await _userManager.IsInRoleAsync(targetUser, "Admin"))
+            // Rule 2: Prevent Impersonation of other SuperAdmins / Admins
+            if (await _userManager.IsInRoleAsync(targetUser, "SuperAdmin") || await _userManager.IsInRoleAsync(targetUser, "Admin"))
             {
-                TempData["ErrorMessage"] = "أمنياً: يمنع محاكاة حسابات الـ SuperAdmin الآخرين.";
+                TempData["ErrorMessage"] = "أمنياً: يمنع محاكاة حسابات الـ SuperAdmin أو مدراء النظام.";
                 return RedirectToAction("Index");
             }
 
             // Rule 3: Check target role for proper safe redirection
             var targetRoles = await _userManager.GetRolesAsync(targetUser);
             var isDeliveryUser = targetRoles.Contains("DeliveryCompanyUser") || targetRoles.Contains("DeliveryDriver");
-            var isCustomer = targetRoles.Contains("Customer") || (!isDeliveryUser && targetUser.UserType == UserType.Customer);
+            var isVendor = targetRoles.Contains("Vendor") || targetUser.UserType == UserType.Vendor;
+            var isContractor = targetRoles.Contains("Contractor") || targetUser.UserType == UserType.Contractor;
+            var isInvestor = targetRoles.Contains("Investor") || targetUser.UserType == UserType.Investor;
 
             // Store original Admin state securely in Session
             HttpContext.Session.SetString("OriginalAdminUserId", currentUserId!);
@@ -346,7 +349,19 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
             if (isDeliveryUser)
             {
-                return RedirectToAction("Index", "Home", new { area = "Shop" });
+                return RedirectToAction("Index", "Home", new { area = "Delivery" });
+            }
+            if (isVendor)
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Vendor" });
+            }
+            if (isInvestor)
+            {
+                return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
+            }
+            if (isContractor)
+            {
+                return RedirectToAction("Index", "Financing", new { area = "Shop" });
             }
 
             return RedirectToAction("Index", "Home", new { area = "Shop" });
