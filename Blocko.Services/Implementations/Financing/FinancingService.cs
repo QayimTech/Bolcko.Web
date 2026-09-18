@@ -123,7 +123,7 @@ namespace Blocko.Services.Implementations.Financing
             tender.FunderPhone = request.FunderPhone;
             tender.FundedAt = DateTime.UtcNow;
             tender.Status = FinancingTenderStatus.Funded;
-            tender.WakalaContractPdfUrl = $"/contracts/wakala-{tender.TrackingCode}.pdf";
+            tender.WakalaContractPdfUrl = $"/Shop/Financing/Contract/{tender.TrackingCode}";
 
             _uow.FinancingTenders.Update(tender);
             await _uow.CompleteAsync();

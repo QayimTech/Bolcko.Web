@@ -3,6 +3,7 @@ using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.Financing.DTOs;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -304,6 +305,32 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 success = true,
                 message = "تمت التسوية المالية بنجاح! تم توزيع الأرباح على المستثمر واقتطاع أجر الوكالة ورفع تقييم موثوقية المقاول."
             });
+        }
+
+        /// <summary>
+        /// استعراض وتنزيل عقد الوكالة الشرعي بالمرابحة للأمر بالشراء (Wakala Agreement)
+        /// </summary>
+        [HttpGet]
+        [Route("Contract/{code}")]
+        [Route("WakalaContract/{code}")]
+        public async Task<IActionResult> Contract(string code)
+        {
+            FinancingTenderDto? tender = null;
+            if (int.TryParse(code, out var id))
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
+            }
+            if (tender == null)
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByTrackingCodeAsync(code);
+            }
+
+            if (tender == null)
+            {
+                return NotFound();
+            }
+
+            return View("Contract", tender);
         }
     }
 }

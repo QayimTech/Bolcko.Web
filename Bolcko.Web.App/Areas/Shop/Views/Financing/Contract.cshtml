@@ -1,0 +1,202 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@{
+    Layout = null; // Standalone printable contract document
+    var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Model.TrackingCode + Model.TotalPayableAmount + (Model.FundedAt?.ToString("o") ?? "UNFUNDED")))).Substring(0, 16);
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>عقد وكالة شراء بالمرابحة الشرعية - @Model.TrackingCode - Block-O</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @@media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .print-border { border-color: #cbd5e1 !important; }
+            .page-break { page-break-after: always; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+
+    <!-- Action Toolbar (Hidden in Print) -->
+    <div class="max-w-4xl mx-auto mb-6 flex items-center justify-between no-print">
+        <a href="/Shop/Financing/InvestorDashboard" class="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            <span>العودة للمحفظة الاستثمارية</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <button onclick="window.print()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-900/30 transition-all flex items-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">print</span>
+                <span>طباعة العقد الرسمي / حفظ PDF</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Legal Document Container -->
+    <main class="max-w-4xl mx-auto bg-slate-950 border border-white/10 rounded-2xl p-8 sm:p-12 shadow-2xl relative overflow-hidden print-border print:bg-white print:text-black">
+        
+        <!-- Header / Letterhead -->
+        <header class="border-b border-white/10 pb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 print:border-slate-300">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl font-black tracking-tight text-white print:text-black">BLOCK<span class="text-emerald-500 font-extrabold">-O</span></span>
+                    <span class="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold font-mono">SHARIA COMPLIANT</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1 print:text-slate-600">منصة بلوكو للتوريدات الإنشائية وعقود المرابحة الإسلامية</p>
+                <p class="text-[11px] text-slate-500 print:text-slate-500">مسجلة لدى وزارة الصناعة والتجارة - المملكة الأردنية الهاشمية</p>
+            </div>
+
+            <div class="text-start sm:text-end">
+                <div class="inline-block bg-slate-900 border border-white/10 rounded-xl px-4 py-2 print:bg-slate-100 print:border-slate-300">
+                    <span class="text-[10px] text-slate-400 block print:text-slate-500">رقم الوثيقة المرجعي</span>
+                    <span class="font-mono text-sm font-bold text-emerald-400 print:text-black">@Model.TrackingCode</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1.5 font-mono print:text-slate-600">
+                    تاريخ التحرير: @(Model.FundedAt?.ToString("yyyy/MM/dd HH:mm") ?? DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm")) UTC
+                </p>
+            </div>
+        </header>
+
+        <!-- Document Title -->
+        <section class="text-center my-8">
+            <h1 class="text-xl sm:text-2xl font-black text-white print:text-black">عقد وكالة شراء بالمرابحة للأمر بالشراء</h1>
+            <p class="text-xs text-slate-400 mt-1.5 print:text-slate-600">محرر وفقاً للضوابط والمعايير الشرعية لهيئة المحاسبة والمراجعة للمؤسسات المالية الإسلامية (AAOIFI)</p>
+        </section>
+
+        <!-- Contract Parties -->
+        <section class="space-y-4 mb-8">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider print:text-emerald-700">أولاً: أطراف العقد</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-900/60 border border-white/5 rounded-xl p-4 print:bg-slate-50 print:border-slate-200">
+                    <span class="text-slate-400 block font-bold text-[11px] mb-1 print:text-slate-700">الطرف الأول (المستثمر الممول / المشتري):</span>
+                    <p class="text-white font-bold print:text-black">@(string.IsNullOrWhiteSpace(Model.FunderName) ? "مستثمر تمويلي مسجل" : Model.FunderName)</p>
+                    <p class="text-slate-400 font-mono mt-1 print:text-slate-600">هاتف: @(Model.FunderPhone ?? "محمي بالنظام")</p>
+                    <p class="text-[11px] text-slate-500 mt-1">الصفة: المالك الأصلي للبضاعة والموكل لشراء وتسليم المواد.</p>
+                </div>
+
+                <div class="bg-slate-900/60 border border-white/5 rounded-xl p-4 print:bg-slate-50 print:border-slate-200">
+                    <span class="text-slate-400 block font-bold text-[11px] mb-1 print:text-slate-700">الطرف الثاني (المقاول الآمر بالشراء / المستلم):</span>
+                    <p class="text-white font-bold print:text-black">@Model.ContractorName</p>
+                    <p class="text-slate-400 mt-1 print:text-slate-600">المنشأة: <strong class="text-slate-200 print:text-black">@Model.ContractorCompany</strong></p>
+                    <p class="text-slate-400 font-mono mt-1 print:text-slate-600">هاتف: @Model.ContractorPhone | رخصة بناء: @Model.BuildingPermitNumber</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/40 border border-white/5 rounded-xl p-3.5 text-xs text-slate-400 print:bg-slate-50 print:border-slate-200 print:text-slate-700">
+                <strong class="text-slate-200 print:text-black">الطرف الثالث (الوكيل والوسيط الرقمي):</strong> شركة منصة بلوكو لتقنية المعلومات والتوريدات، بصفتها الوكيل التجاري الحصري لإبرام صفقة الشراء العينية والتحقق من التسليم الموقعي عبر الـ GPS.
+            </div>
+        </section>
+
+        <!-- BOQ / Materials Schedule -->
+        <section class="space-y-3 mb-8">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider print:text-emerald-700">ثانياً: جدول المواد الإنشائية المشتراة (BOQ)</h2>
+            <div class="overflow-x-auto border border-white/10 rounded-xl print:border-slate-300">
+                <table class="w-full text-start text-xs">
+                    <thead class="bg-slate-900/80 text-slate-400 font-bold print:bg-slate-100 print:text-slate-700">
+                        <tr>
+                            <th class="p-3 text-start">م</th>
+                            <th class="p-3 text-start">تصنيف المادة</th>
+                            <th class="p-3 text-start">اسم المادة والمواصفات</th>
+                            <th class="p-3 text-start">الكمية</th>
+                            <th class="p-3 text-start">سعر الوحدة</th>
+                            <th class="p-3 text-end">الإجمالي (د.أ)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 print:divide-slate-200">
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            int idx = 1;
+                            foreach (var it in Model.Items)
+                            {
+                                <tr class="text-slate-300 print:text-black">
+                                    <td class="p-3 font-mono text-slate-500">@(idx++)</td>
+                                    <td class="p-3 font-semibold">@it.MaterialCategory</td>
+                                    <td class="p-3">@it.MaterialName</td>
+                                    <td class="p-3 font-mono font-bold">@it.Quantity @it.Unit</td>
+                                    <td class="p-3 font-mono">@it.UnitPriceJod.ToString("N2")</td>
+                                    <td class="p-3 font-mono font-bold text-end">@it.SubtotalJod.ToString("N2")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Financial Breakdown Table -->
+        <section class="space-y-3 mb-8">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider print:text-emerald-700">ثالثاً: البيانات المالية والربح المحدد</h2>
+            <div class="bg-slate-900/60 border border-white/10 rounded-xl p-5 text-xs space-y-2.5 print:bg-slate-50 print:border-slate-300">
+                <div class="flex justify-between items-center text-slate-300 print:text-black">
+                    <span>1. تكلفة شراء المواد الإنشائية الأصلية من المصنع/المحجر:</span>
+                    <span class="font-mono font-bold">@Model.BaseMaterialCost.ToString("N2") د.أ</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-300 print:text-black">
+                    <span>2. هامش ربح المرابحة الإجمالي المقرّر (@((Model.ContractorMarkupRate * 100).ToString("N1"))%):</span>
+                    <span class="font-mono font-bold text-emerald-400 print:text-black">+@((Model.TotalPayableAmount - Model.BaseMaterialCost).ToString("N2")) د.أ</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-400 print:text-slate-600 text-[11px] pr-4">
+                    <span>- صافي عائد المستثمر الممول:</span>
+                    <span class="font-mono text-emerald-400 print:text-black">@Model.InvestorNetYieldAmount.ToString("N2") د.أ</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-400 print:text-slate-600 text-[11px] pr-4">
+                    <span>- أجر وكالة منصة بلوكو التنفيذية (1.5%):</span>
+                    <span class="font-mono">@Model.PlatformAgencyFeeAmount.ToString("N2") د.أ</span>
+                </div>
+                <div class="pt-3 border-t border-white/10 flex justify-between items-center text-sm font-bold text-white print:text-black print:border-slate-300">
+                    <span>الإجمالي النهائي المستحق سداده عند الاستحقاق (أصل + ربح):</span>
+                    <span class="font-mono text-lg text-emerald-400 print:text-emerald-800">@Model.TotalPayableAmount.ToString("N2") د.أ</span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-amber-400 font-bold pt-1 print:text-amber-800">
+                    <span>أجل وسداد المبلغ:</span>
+                    <span>خلال @Model.TenureDays يوماً (تاريخ الاستحقاق: @(Model.DueDate?.ToString("yyyy/MM/dd") ?? "-"))</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Terms & Sharia Provisions -->
+        <section class="space-y-3 mb-8 text-xs text-slate-400 leading-relaxed print:text-slate-700">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider print:text-emerald-700">رابعاً: الشروط والأحكام الشرعية والقانونية</h2>
+            <ol class="list-decimal list-inside space-y-1.5 pr-2">
+                <li><strong>تملك المبيع وقبضه:</strong> أقر الطرفان بأن الطرف الأول (المستثمر) قد اشترى المواد وتملكها عيناً قبل بيعها للطرف الثاني، ووكل منصة بلوكو باستلامها وفحصها وتسليمها لموقع المقاول.</li>
+                <li><strong>ضمان الهلاك والتسليم:</strong> تقع تبعة هلاك البضاعة على عاتق المستثمر حتى استلامها الفعلي في ورشة العمل وتوثيق إشعار التسليم الجغرافي (Geotagged POD) بالـ GPS.</li>
+                <li><strong>الالتزام بالسداد:</strong> يتعهد المقاول بسداد إجمالي المبلغ المقطوع دون أي زيادة ربوية في موعد الاستحقاق المحدد أعلاه.</li>
+                <li><strong>الإثبات الرقمي:</strong> يعد هذا العقد وثيقة إلكترونية ملزمة قانونياً بموجب قانون المعاملات الإلكترونية الأردني رقم (15) لسنة 2015.</li>
+            </ol>
+        </section>
+
+        <!-- Digital Signatures & Cryptographic Seal -->
+        <footer class="border-t border-white/10 pt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs print:border-slate-300">
+            <div class="text-center sm:text-start space-y-1">
+                <span class="text-slate-400 block print:text-slate-600">توقيع المستثمر الممول:</span>
+                <p class="text-white font-bold print:text-black">@(Model.FunderName ?? "موافق إلكترونياً")</p>
+                <span class="inline-block px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-mono border border-emerald-500/20">DIGITALLY SIGNED</span>
+            </div>
+
+            <div class="text-center space-y-1">
+                <span class="text-slate-400 block print:text-slate-600">توقيع المقاول الآمر بالشراء:</span>
+                <p class="text-white font-bold print:text-black">@Model.ContractorName</p>
+                <span class="inline-block px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-mono border border-blue-500/20">OTP VERIFIED</span>
+            </div>
+
+            <div class="text-center sm:text-end space-y-1">
+                <span class="text-slate-400 block print:text-slate-600">ختم منصة بلوكو الرقمي:</span>
+                <p class="font-mono text-[10px] text-slate-400 print:text-slate-600 break-all">HASH: @hash</p>
+                <span class="inline-block px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-mono border border-purple-500/20">OFFICIAL ESCROW SEAL</span>
+            </div>
+        </footer>
+    </main>
+
+    <footer class="max-w-4xl mx-auto mt-6 text-center text-xs text-slate-500 no-print">
+        منصة بلوكو للتوريدات الإنشائية © @DateTime.UtcNow.Year - جميع الحقوق محفوظة
+    </footer>
+</body>
+</html>
