@@ -41,7 +41,7 @@
                 @{
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
                     var currentAction     = ViewContext.RouteData.Values["action"]?.ToString();
-                    bool isAdmin = User.IsInRole("Admin");
+                    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
 
                     var menuItems = new List<(string Key, string Icon, string Controller, string Action)>
                     {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Blocko.Services.Interfaces.Supplier;
 using Bolcko.Domain.Entities.Supplier;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class SupplierSettingsController : Controller
     {
         private readonly ISupplierApiService _supplierApiService;

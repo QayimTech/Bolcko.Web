@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Block-O Product Requirement Document & Business Architecture</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #ffffff;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .page {
+            padding: 40px;
+            margin: 0 auto;
+            max-width: 900px;
+            background: #ffffff;
+            page-break-after: always;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        /* Header / Cover */
+        .cover {
+            text-align: center;
+            padding: 60px 20px 40px 20px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+        }
+
+        .logo-box {
+            display: inline-block;
+            background: #0f172a;
+            color: #E8A020;
+            padding: 12px 28px;
+            border-radius: 16px;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        .cover h1 {
+            font-size: 26px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .cover .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            max-width: 650px;
+            margin: 0 auto 25px auto;
+            font-weight: 500;
+        }
+
+        .meta-table {
+            width: 100%;
+            max-width: 550px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            text-align: right;
+            background: #f8fafc;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .meta-table td {
+            padding: 9px 16px;
+            font-size: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .meta-table td:first-child {
+            font-weight: 800;
+            color: #475569;
+            width: 38%;
+            background: #f1f5f9;
+        }
+
+        /* Section Headings */
+        h2.section-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            border-bottom: 2px solid #E8A020;
+            padding-bottom: 6px;
+            margin: 22px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3.subsection-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #334155;
+            margin: 14px 0 8px 0;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: #334155;
+            text-align: justify;
+        }
+
+        /* Cards & Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .card-header {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 12.5px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card p {
+            font-size: 11.5px;
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        /* Highlight Boxes */
+        .highlight-box {
+            background: #fffbeb;
+            border-right: 4px solid #E8A020;
+            padding: 12px 16px;
+            border-radius: 0 12px 12px 0;
+            margin: 14px 0;
+            border: 1px solid #fef3c7;
+            border-right-width: 4px;
+        }
+
+        .highlight-box.blue {
+            background: #f0f9ff;
+            border-right: 4px solid #0284c7;
+            border-color: #e0f2fe;
+            border-right-width: 4px;
+        }
+
+        .highlight-box.emerald {
+            background: #ecfdf5;
+            border-right: 4px solid #059669;
+            border-color: #d1fae5;
+            border-right-width: 4px;
+        }
+
+        /* Tables */
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 11.5px;
+        }
+
+        table.data-table th, table.data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: right;
+        }
+
+        table.data-table th {
+            background: #0f172a;
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        table.data-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        /* Flow Steps */
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin: 12px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 12px;
+        }
+
+        .step-badge {
+            background: #0f172a;
+            color: #E8A020;
+            font-weight: 900;
+            font-size: 12px;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .step-content p {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+        .badge-green { background: #dcfce7; color: #166534; }
+
+        @media print {
+            body {
+                background: #ffffff;
+                font-size: 12px;
+            }
+            .page {
+                padding: 15px 25px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: COVER & EXECUTIVE SUMMARY -->
+    <div class="page">
+        <div class="cover">
+            <div class="logo-box">BLOCK-O | بلوكو</div>
+            <h1>وثيقة المتطلبات والنموذج التجاري لمنصة بلوكو</h1>
+            <p class="subtitle">Product Requirement Document & Business Architecture Specification (PRD V2.4)<br>نظام التجارة الإنشائية المجمعة وتمويل المرابحة الإسلامية وتوثيق التسليم الجغرافي</p>
+            
+            <table class="meta-table">
+                <tr>
+                    <td>الدور في المشروع</td>
+                    <td>Product Owner & Scrum Master</td>
+                </tr>
+                <tr>
+                    <td>اسم المنصة</td>
+                    <td>Bolcko.Web (Block-O Construction FinTech Ecosystem)</td>
+                </tr>
+                <tr>
+                    <td>البيئة والنطاق الجغرافي</td>
+                    <td>B2B & B2C Construction & FinTech (المملكة الأردنية الهاشمية والشرق الأوسط)</td>
+                </tr>
+                <tr>
+                    <td>تاريخ الإصدار والاعتماد</td>
+                    <td>سبتمبر 2026</td>
+                </tr>
+                <tr>
+                    <td>حالة الجاهزية البرمجية</td>
+                    <td><span class="badge badge-green">مكتمل 100% (30 Jira Tickets Completed & Verified)</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <h2 class="section-title">1. الملخص التنفيذي والرؤية الاستراتيجية (Executive Summary)</h2>
+        <p>
+            تعد منصة <strong>بلوكو (Block-O)</strong> أول منصة رقمية متكاملة في الأردن والشرق الأوسط تجمع بين <strong>سوق التجارة الإلكترونية لمواد البناء (B2B/B2C Construction Marketplace)</strong>، وبين <strong>محرك تمويل التجارة بالمرابحة الإسلامية (Islamic FinTech Trade Syndication)</strong>، مع <strong>منظومة التحقق الميداني الجغرافي (Geotagged Proof of Delivery)</strong>.
+        </p>
+
+        <div class="highlight-box">
+            <strong>جوهر المشكلة في قطاع الإنشاءات (The Core Problem):</strong>
+            يعاني المقاولون وأصحاب المشاريع من أزمة سيولة حادة تحرمهم من شراء مواد البناء نقداً للحصول على أسعار المصنع التفضيلية، وفي المقابل ترفض المصانع والموردون البيع بالشيكات المؤجلة لارتفاع مخاطر التعثر. بلوكو تجسر هذه الفجوة بربط <strong>المقاول بالمستثمر الممول والمورد</strong> تحت مظلة مرابحة شرعية وضمان ميداني موثق.
+        </div>
+
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-header">🏗️ للمقاولين</div>
+                <p>تمويل فوري لمواد البناء بدون شيكات مؤجلة وفترات سداد مريحة (30-90 يوماً) مع بناء مؤشر ائتماني قوي.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">🏭 للمصانع والموردين</div>
+                <p>مبيعات مضمونة بكاش فوري محجوز في حساب الضمان (Escrow) فور تجهيز الشحنة وتفريغها بالموقع.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">💰 للمستثمرين</div>
+                <p>عوائد استثمارية حلال (14% - 20% سنوياً) مدعومة بأصول عينية، وتقييم كريف الائتماني، وسحب أرباح لحظي عبر كليك.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: ACTORS & DETAILED LIFECYCLE -->
+    <div class="page">
+        <h2 class="section-title">2. تحليل الأطراف الخمسة (The 5 Platform Actors)</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>الطرف (Actor)</th>
+                    <th>الدور والمسؤولية في النظام</th>
+                    <th>المكسب والقيمة المضافة (Value)</th>
+                    <th>البوابة والمسار المخصص</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1. المقاول / المهندس</strong><br>(Contractor)</td>
+                    <td>حصر الكميات (BOQ)، طرح عطاء التمويل، توقيع عقد الشراء بالمرابحة، وسداد الدفعات عند الاستحقاق.</td>
+                    <td>الحصول على المواد فوراً لموقع البناء بدون دفع كاش مسبق ودون تعقيدات البنوك التقليدية.</td>
+                    <td><code>/Contractor/Financing/Dashboard</code></td>
+                </tr>
+                <tr>
+                    <td><strong>2. المورد / المصنع</strong><br>(Vendor)</td>
+                    <td>عرض منتجات الحجر ومواد البناء، تسعير المواد، تجهيز طلبيات التوريد، وتحصيل المستحقات.</td>
+                    <td>تصريف كميات ضخمة، بيع نقدي مضمون 100%، وخفض تكاليف التحصيل ومخاطر الشيكات المرتجعة.</td>
+                    <td><code>/Vendor/Dashboard</code></td>
+                </tr>
+                <tr>
+                    <td><strong>3. المستثمر الممول</strong><br>(FinTech Investor)</td>
+                    <td>تصفح فرص العطاءات، تمويل ثمن شراء البضاعة نقداً، وتوكيل المنصة كوكيل شرعي للتوريد والقبض.</td>
+                    <td>عائد استثماري حلال ومجزي ومضمون بأصول عينية وإثباتات تسليم جغرافية موثقة.</td>
+                    <td><code>/Investor/Marketplace</code></td>
+                </tr>
+                <tr>
+                    <td><strong>4. السائق والأسطول</strong><br>(Carrier / Driver)</td>
+                    <td>استلام البضاعة من المصنع، نقلها للموقع، وتوثيق التفريغ بالـ GPS والكاميرا (Geotagged POD).</td>
+                    <td>فرص نقل مستمرة، تسعير عادل للمسافات، ومحفظة تشغيلية لأجور النقل.</td>
+                    <td><code>/Delivery/Home</code></td>
+                </tr>
+                <tr>
+                    <td><strong>5. منصة بلوكو</strong><br>(Platform / SuperAdmin)</td>
+                    <td>التدقيق الائتماني (CRIF)، الوساطة الشرعية، إدارة حساب الضمان Escrow، والتسوية المالية الآلية.</td>
+                    <td>تحصيل أجر وكالة استثمارية (1.5% Agency Fee) + اشتراكات التجار السحابية.</td>
+                    <td><code>/Admin/Dashboard</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="section-title">3. دورة العمل التشغيلية خطوة بخطوة (End-to-End Workflow)</h2>
+        <div class="step-container">
+            <div class="step-item">
+                <div class="step-badge">1</div>
+                <div class="step-content">
+                    <h4>طرح كشف الكميات (BOQ Tender Creation)</h4>
+                    <p>يقوم المقاول بإدخال أبعاد مشروعه عبر حاسبة بلوكو الذكية أو إدخال جدول المواد (مثلاً: 600م حجر + 25 طن إسمنت) وتحديد رخصة البناء وموقع الورشة وإرسال طلب التمويل.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">2</div>
+                <div class="step-content">
+                    <h4>الاستعلام الائتماني اللحظي (CRIF Jordan Credit Assessment)</h4>
+                    <p>يقوم محرك <code>CrifCreditBureauService</code> بالاستعلام عن السجل الائتماني للمقاول واحتساب مؤشر الثقة (Trust Score: 0-100) وتحديد السقف المالي المسموح به أوتوماتيكياً.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">3</div>
+                <div class="step-content">
+                    <h4>التمويل وتوقيع عقد الوكالة الشرعي (Wakala & Syndication)</h4>
+                    <p>يستعرض المستثمر العطاء في سوق الفرص، ويقوم بتمويله بضغطة زر مع المصادقة عبر التوقيع الإلكتروني ورمز الـ SMS OTP، ليتولد عقد وكالة شرعي فوري وموثق.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">4</div>
+                <div class="step-content">
+                    <h4>التحميل والتسليم الموقعي الموثق بالـ GPS (Geofenced POD)</h4>
+                    <p>يتم تجهيز البضاعة من المصنع، ويتولى السائق نقلها. عند وصول الورشة، يفحص النظام موقع السائق عبر الـ Geofencing (&lt; 150م) ويلتقط صورة التفريغ الحية لتحرير أمر التوريد.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">5</div>
+                <div class="step-content">
+                    <h4>السداد والتسوية وتوزيع الأرباح عبر كليك (Settlement & CliQ Payout)</h4>
+                    <p>عند انقضاء فترة المرابحة (45 يوماً)، يسدد المقاول أصل المبلغ وهامش الربح. يحرر محرك التسوية الأرباح للمستثمر فوراً في محفظته لسحبها عبر CliQ وتقتطع بلوكو عمولتها.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: SHARIA, FINANCIALS, & SCRUM SPEC -->
+    <div class="page">
+        <h2 class="section-title">4. الهندسة المالية والامتثال الشرعي (Sharia & Financial Model)</h2>
+        
+        <div class="highlight-box emerald">
+            <strong>الضوابط الشرعية المعتمدة (Sharia Compliance Rules):</strong>
+            <ul style="margin-right: 20px; font-size: 11.5px; color: #065f46; margin-top: 5px;">
+                <li><strong>المرابحة للأمر بالشراء:</strong> لا يتم بيع البضاعة للمقاول إلا بعد تملك المستثمر لها حقيقة وشرائها من المصنع.</li>
+                <li><strong>الوكالة الاستثمارية بأجر معلوم:</strong> منصة بلوكو وكيل عن المستثمر في فحص المواد وقبضها بموجب أجر وكالة ثابت (1.5%).</li>
+                <li><strong>القبض الحقيقي والحكمي:</strong> يتم إثبات تملك واستلام البضاعة من خلال إحداثيات الـ GPS الموقعي وصور التفريغ الميداني (Jobsite POD).</li>
+            </ul>
+        </div>
+
+        <h3 class="subsection-title">📊 نموذج الحسابات المالية (Financial Numbers Example):</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>البند المالي</th>
+                    <th>المعادلة البرمجية / القيمة</th>
+                    <th>مثال رقمي (دينار أردني)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>تكلفة المواد الأساسية للمصنع (Base Material Cost)</td>
+                    <td><code>SubtotalJod = Quantity * UnitPrice</code></td>
+                    <td>10,000 د.أ</td>
+                </tr>
+                <tr>
+                    <td>هامش ربح المرابحة للمقاول (Markup Rate)</td>
+                    <td><code>6.0% (خلال فترة 45 يوماً)</code></td>
+                    <td>+ 600 د.أ</td>
+                </tr>
+                <tr>
+                    <td><strong>إجمالي المبلغ المستحق على المقاول (Total Payable)</strong></td>
+                    <td><code>Base + Markup</code></td>
+                    <td><strong>10,600 د.أ</strong></td>
+                </tr>
+                <tr>
+                    <td>أجر الوكالة لمنصة بلوكو (Platform Agency Fee)</td>
+                    <td><code>1.5% من أصل المبلغ</code></td>
+                    <td>150 د.أ (إيراد صافي للمنصة)</td>
+                </tr>
+                <tr>
+                    <td><strong>صافي ربح المستثمر الممول (Investor Net Yield)</strong></td>
+                    <td><code>Markup - Agency Fee</code></td>
+                    <td><strong>450 د.أ (عائد 18.2% سنوياً)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="section-title">5. هيكلية سكرام وحزم العمل المنجزة (Scrum Epics & PRD Deliverables)</h2>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">🎯 Epic 1: محرك التمويل والمرابحة</div>
+                <p>تحويل الـ BOQ إلى عطاءات، حساب الأرباح، ربط كريف الأردن، وتوليد عقود الوكالة الموثقة رقمياً.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">🛡️ Epic 2: أمان Zero-Trust والسيادة</div>
+                <p>إدراج دور SuperAdmin، حماية لوحات الدفع وسجلات الخوادم، وتأمين endpoints التسوية ضد IDOR و CSRF.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">🚚 Epic 3: اللوجستيات وتوثيق الموقع</div>
+                <p>فصل مسارات التوصيل في <code>/Delivery</code>، فحص الـ Geofencing (&lt; 150م)، وتصوير تفريغ الشاحنات.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">💳 Epic 4: المحفظة الرقمية واشتراكات الموردين</div>
+                <p>محفظة المستثمر، سحب أرباح CliQ، تحصيل رسوم الاشتراكات الدورية، والفوترة الضريبية JoFotara.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box blue">
+            <strong>جاهزية الإنتاج والتشغيل (Production Readiness):</strong>
+            تم تنفيذ كافة متطلبات النظام وفق مبادئ <strong>SOLID</strong> و <strong>Clean Architecture</strong>، وتوثيق كافة التعديلات في مستودع الكود عبر 45+ Git Commits مخصصة، وإغلاق كافة البطاقات بنجاح في Jira.
+        </div>
+    </div>
+
+</body>
+</html>

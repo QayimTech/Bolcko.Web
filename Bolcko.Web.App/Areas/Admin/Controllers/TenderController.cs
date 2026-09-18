@@ -6,7 +6,7 @@ using Bolcko.Domain.Entities.Tender.DTOs;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class TenderController : Controller
     {
         private readonly ITenderService _tenderService;

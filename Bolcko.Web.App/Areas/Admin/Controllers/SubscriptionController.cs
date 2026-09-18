@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     [Route("Admin/[controller]")]
     public class SubscriptionController : Controller
     {

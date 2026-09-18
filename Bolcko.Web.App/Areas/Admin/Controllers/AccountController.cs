@@ -20,7 +20,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
-            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("DashboardUser")))
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("SuperAdmin") || User.IsInRole("Admin") || User.IsInRole("DashboardUser")))
             {
                 return RedirectToAction("Index", "Home", new { area = "Admin" });
             }
@@ -35,7 +35,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var cleanedEmail = email?.Trim() ?? "";
             var user = await _userManager.FindByEmailAsync(cleanedEmail) ?? await _userManager.FindByNameAsync(cleanedEmail);
             if (user != null &&
-                (await _userManager.IsInRoleAsync(user, "Admin") || await _userManager.IsInRoleAsync(user, "DashboardUser")))
+                (await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin") || await _userManager.IsInRoleAsync(user, "DashboardUser")))
             {
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: true, lockoutOnFailure: false);
                 if (result.Succeeded)

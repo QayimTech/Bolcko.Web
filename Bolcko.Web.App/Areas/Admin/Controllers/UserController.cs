@@ -11,7 +11,7 @@ using Bolcko.Web.App.Areas.Admin.Models.ViewModels;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class UserController : Controller
     {
         private readonly UserManager<User> _userManager;

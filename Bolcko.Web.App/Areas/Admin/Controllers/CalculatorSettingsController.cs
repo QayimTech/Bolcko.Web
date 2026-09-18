@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class CalculatorSettingsController : Controller
     {
         private readonly IServiceManager _serviceManager;

@@ -7,7 +7,7 @@ using Bolcko.Domain.Interfaces;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class SEOController : Controller
     {
         private readonly IServiceManager _serviceManager;
@@ -267,7 +267,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// <summary>
         /// الصفحة الرئيسية لمركز إدارة وتصدير البيانات الشامل (Data Hub)
         /// </summary>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> ImportExport()
         {
             var (total, approved, pending, missingDesc) = await _serviceManager.ProductSeoService.GetSeoMetricsAsync();
@@ -283,7 +283,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetSeoMetricsJson()
         {
             var (total, approved, pending, missingDesc) = await _serviceManager.ProductSeoService.GetSeoMetricsAsync();
@@ -294,7 +294,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// تصدير شيت Excel لبيانات الـ SEO بحسب الفلاتر المحددة
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> ExportFilteredSeo(
             int? categoryId,
             string? brand,
@@ -327,7 +327,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// تصدير شيت SEO لمنتج منفرد
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> ExportSingleProductSeo(int productId)
         {
             var fileBytes = await _serviceManager.ProductSeoService.ExportSingleProductSeoToExcelAsync(productId);
@@ -342,7 +342,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [RequestSizeLimit(524_288_000)] // 500 MB
         public async Task<IActionResult> UploadSeoImport(
             List<IFormFile>? files, 
@@ -485,7 +485,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// الاستعلام عن حالة وظيفة استيراد خلفية بـ Hangfire
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetJobStatus(string jobId)
         {
             if (string.IsNullOrWhiteSpace(jobId))

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class DeliverySettingsController : Controller
     {
         private readonly IDeliveryApiService _deliveryApiService;

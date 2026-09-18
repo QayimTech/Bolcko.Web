@@ -179,7 +179,7 @@
                         <div class="px-4 py-3 bg-white/5 text-start">
                             <p class="text-xs font-bold text-white truncate mb-1.5" title="@User.Identity.Name">@User.Identity.Name</p>
                             <div class="flex items-center flex-wrap gap-1.5">
-                                @if (User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                                 {
                                     <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                         <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
@@ -219,7 +219,7 @@
 
                         <!-- Specialized Role Workspaces -->
                         <div class="py-1">
-                            @if (User.IsInRole("Admin"))
+                            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
                                 <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-indigo-300 hover:bg-indigo-500/10 hover:text-indigo-200 transition-colors text-start">
                                     <div class="flex items-center gap-2.5">
@@ -293,7 +293,7 @@
                         </div>
 
                         <!-- Upgrade / Expand Hub for Standard Users -->
-                        @if (!User.IsInRole("Contractor") && !User.IsInRole("Vendor") && !User.IsInRole("Investor") && !User.IsInRole("Admin"))
+                        @if (!User.IsInRole("Contractor") && !User.IsInRole("Vendor") && !User.IsInRole("Investor") && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin"))
                         {
                             <div class="py-1.5 px-3 bg-gradient-to-r from-emerald-500/10 to-sky-500/10">
                                 <p class="text-[10px] font-bold text-slate-400 mb-1">@(isArabic ? "ترقية الخدمات ومساحات العمل:" : "Upgrade Account:")</p>
@@ -645,7 +645,7 @@
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-bold text-white truncate">@User.Identity.Name</p>
                         <div class="mt-1">
-                            @if (User.IsInRole("Admin"))
+                            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
                                 <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
@@ -686,7 +686,7 @@
             </div>
 
             <!-- Role-Specific Action Hubs in Mobile Drawer -->
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
             {
                 <a href="@Url.Action("Index", "Home", new { area = "Admin" })"
                    class="flex items-center justify-between px-3 py-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all mb-2 shadow-sm">

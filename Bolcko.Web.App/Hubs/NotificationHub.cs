@@ -21,9 +21,10 @@ namespace Bolcko.Web.App.Hubs
             if (Context.User != null && Context.User.Identity != null && Context.User.Identity.IsAuthenticated)
             {
                 // Robust check using ASP.NET Core framework method
-                if (Context.User.IsInRole("Admin"))
+                if (Context.User.IsInRole("Admin") || Context.User.IsInRole("SuperAdmin"))
                 {
                     await Groups.AddToGroupAsync(Context.ConnectionId, "Role_Admin");
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "Role_SuperAdmin");
                 }
                 if (Context.User.IsInRole("DeliveryDriver"))
                 {
@@ -53,6 +54,7 @@ namespace Bolcko.Web.App.Hubs
             var roles = new System.Collections.Generic.List<string>();
             if (user != null)
             {
+                if (user.IsInRole("SuperAdmin")) roles.Add("SuperAdmin");
                 if (user.IsInRole("Admin")) roles.Add("Admin");
                 if (user.IsInRole("DeliveryDriver")) roles.Add("DeliveryDriver");
             }

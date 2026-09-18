@@ -2,7 +2,7 @@
     ViewData["Title"] = "Data Hub - مركز إدارة وتصدير البيانات";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
-    bool isAdmin = User.IsInRole("Admin");
+    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
 }
 
 @* Hidden antiforgery form *@

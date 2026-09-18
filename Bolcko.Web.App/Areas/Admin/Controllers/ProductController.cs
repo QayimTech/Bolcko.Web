@@ -14,7 +14,7 @@ using Bolcko.Domain.Interfaces;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;
@@ -295,7 +295,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> BulkTranslate()
         {
             try
@@ -333,7 +333,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         /// REMOVE IN PRODUCTION after debugging.
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> TestTranslate(string word = "صوف صخري")
         {
             var results = new System.Text.StringBuilder();

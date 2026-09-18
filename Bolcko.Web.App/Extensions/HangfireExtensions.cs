@@ -63,9 +63,9 @@ namespace Bolcko.Web.App.Extensions
                 return true;
             }
 
-            // Allow only if authenticated and in Admin role
+            // Allow only if authenticated and in Admin or SuperAdmin role
             return httpContext.User?.Identity?.IsAuthenticated == true && 
-                   httpContext.User.IsInRole("Admin");
+                   (httpContext.User.IsInRole("Admin") || httpContext.User.IsInRole("SuperAdmin"));
         }
     }
 }

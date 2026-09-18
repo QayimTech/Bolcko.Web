@@ -3,7 +3,7 @@
     ViewData["Title"] = "الإشعارات";
     var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
     var isArabic = currentCulture.StartsWith("ar");
-    bool isAdmin = User.IsInRole("Admin");
+    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
     Layout = isAdmin ? "~/Areas/Admin/Views/Shared/_Layout.cshtml" : "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 }
 

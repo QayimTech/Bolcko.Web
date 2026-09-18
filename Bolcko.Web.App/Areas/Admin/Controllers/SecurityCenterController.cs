@@ -10,7 +10,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     [Route("Admin/Security/Center")]
     [Route("Admin/SecurityCenter")]
     [Route("Admin/[controller]/[action]")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class SecurityCenterController : Controller
     {
         private readonly ISecurityAuditService _securityAuditService;

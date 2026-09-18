@@ -6,7 +6,7 @@ using Bolcko.Domain.Entities.Setting;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, DashboardUser")]
+    [Authorize(Roles = "SuperAdmin,Admin,DashboardUser")]
     public class SettingsController : Controller
     {
         private readonly IServiceManager _serviceManager;
