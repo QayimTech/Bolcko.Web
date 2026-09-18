@@ -21,6 +21,8 @@ namespace Bolcko.Web.App.Hubs
             if (Context.User != null && Context.User.Identity != null && Context.User.Identity.IsAuthenticated)
             {
                 // Robust check using ASP.NET Core framework method
+                var userId = Context.UserIdentifier ?? Context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
                 if (Context.User.IsInRole("Admin") || Context.User.IsInRole("SuperAdmin"))
                 {
                     await Groups.AddToGroupAsync(Context.ConnectionId, "Role_Admin");
@@ -29,6 +31,21 @@ namespace Bolcko.Web.App.Hubs
                 if (Context.User.IsInRole("DeliveryDriver"))
                 {
                     await Groups.AddToGroupAsync(Context.ConnectionId, "Role_DeliveryDriver");
+                }
+                if (Context.User.IsInRole("Vendor") && !string.IsNullOrEmpty(userId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "Role_Vendor");
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"Role_Vendor_{userId}");
+                }
+                if (Context.User.IsInRole("Contractor") && !string.IsNullOrEmpty(userId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "Role_Contractor");
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"Role_Contractor_{userId}");
+                }
+                if (Context.User.IsInRole("Investor") && !string.IsNullOrEmpty(userId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, "Role_Investor");
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"Role_Investor_{userId}");
                 }
 
                 // Fallback scan for role claims
@@ -42,7 +59,6 @@ namespace Bolcko.Web.App.Hubs
                     }
                 }
                 
-                var userId = Context.UserIdentifier;
                 _logger.LogInformation($"[SignalR] UserIdentifier: {userId}");
             }
             await base.OnConnectedAsync();
