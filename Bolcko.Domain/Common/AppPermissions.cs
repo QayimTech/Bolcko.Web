@@ -44,6 +44,22 @@ namespace Bolcko.Domain.Common
             public const string Manage = "Permissions.MarketPrices.Manage";
         }
 
+        public static class Financing
+        {
+            public const string View = "Permissions.Financing.View";
+            public const string Approve = "Permissions.Financing.Approve";
+            public const string Settle = "Permissions.Financing.Settle";
+            public const string RiskAudit = "Permissions.Financing.RiskAudit";
+        }
+
+        public static class SuperAdmin
+        {
+            public const string PaymentGateways = "Permissions.SuperAdmin.PaymentGateways";
+            public const string SystemLogs = "Permissions.SuperAdmin.SystemLogs";
+            public const string SecurityPurge = "Permissions.SuperAdmin.SecurityPurge";
+            public const string Impersonate = "Permissions.SuperAdmin.Impersonate";
+        }
+
         public static class Settings
         {
             public const string View = "Permissions.Settings.View";
@@ -91,6 +107,28 @@ namespace Bolcko.Domain.Common
                     {
                         new PermissionItemDto { Key = Security.ViewAnalytics, Name = "مشاهدة إحصائيات الزيارات والترافيك" },
                         new PermissionItemDto { Key = Security.ManageBlacklist, Name = "إدارة القائمة السوداء وحظر الـ IPs" }
+                    }
+                },
+                new PermissionGroupDto
+                {
+                    GroupName = "🏦 التمويل الإسلامي والمرابحة (FinTech & Financing)",
+                    Permissions = new List<PermissionItemDto>
+                    {
+                        new PermissionItemDto { Key = Financing.View, Name = "مشاهدة عطاءات التمويل والمستثمرين" },
+                        new PermissionItemDto { Key = Financing.Approve, Name = "اعتماد عطاءات المرابحة للمقاولين" },
+                        new PermissionItemDto { Key = Financing.Settle, Name = "التسوية المالية وتحرير أرباح الوكالة" },
+                        new PermissionItemDto { Key = Financing.RiskAudit, Name = "تدقيق تقارير كريف والاستعلام الائتماني" }
+                    }
+                },
+                new PermissionGroupDto
+                {
+                    GroupName = "👑 صلاحيات السيادة والإدارة العليا (SuperAdmin Governance)",
+                    Permissions = new List<PermissionItemDto>
+                    {
+                        new PermissionItemDto { Key = SuperAdmin.PaymentGateways, Name = "إدارة بوابات الدفع البنكية وإعدادات CliQ" },
+                        new PermissionItemDto { Key = SuperAdmin.SystemLogs, Name = "عرض وتصدير سجلات النظام الداخلية (Logs)" },
+                        new PermissionItemDto { Key = SuperAdmin.SecurityPurge, Name = "مسح سجلات التهديدات وتجاوز الحظر" },
+                        new PermissionItemDto { Key = SuperAdmin.Impersonate, Name = "الولوج ومحاكاة حسابات المستخدمين والتجار" }
                     }
                 },
                 new PermissionGroupDto

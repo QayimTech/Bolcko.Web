@@ -70,7 +70,7 @@ namespace Bolcko.Web.App.Extensions
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
             // 1. Seed Roles & Sync AppPermissions
-            string[] roles = { "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser", "Vendor", "Contractor", "Investor" };
+            string[] roles = { "SuperAdmin", "Admin", "DashboardUser", "Customer", "DeliveryDriver", "DeliveryCompanyUser", "Vendor", "Contractor", "Investor" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -79,21 +79,27 @@ namespace Bolcko.Web.App.Extensions
                 }
             }
 
-            // Sync All System AppPermissions to Admin Role
-            var adminRole = await roleManager.FindByNameAsync("Admin");
-            if (adminRole != null)
-            {
-                var existingClaims = await roleManager.GetClaimsAsync(adminRole);
-                var existingPermissionValues = existingClaims.Where(c => c.Type == "Permission").Select(c => c.Value).ToHashSet();
-                var allPermissionKeys = Bolcko.Domain.Common.AppPermissions.GetAllPermissionGroups()
-                    .SelectMany(g => g.Permissions)
-                    .Select(p => p.Key);
+            // Sync All System AppPermissions to SuperAdmin and Admin Roles
+            var privilegedRoles = new[] { "SuperAdmin", "Admin" };
+            var allPermissionKeys = Bolcko.Domain.Common.AppPermissions.GetAllPermissionGroups()
+                .SelectMany(g => g.Permissions)
+                .Select(p => p.Key)
+                .ToList();
 
-                foreach (var permKey in allPermissionKeys)
+            foreach (var roleName in privilegedRoles)
+            {
+                var roleEntity = await roleManager.FindByNameAsync(roleName);
+                if (roleEntity != null)
                 {
-                    if (!existingPermissionValues.Contains(permKey))
+                    var existingClaims = await roleManager.GetClaimsAsync(roleEntity);
+                    var existingPermissionValues = existingClaims.Where(c => c.Type == "Permission").Select(c => c.Value).ToHashSet();
+
+                    foreach (var permKey in allPermissionKeys)
                     {
-                        await roleManager.AddClaimAsync(adminRole, new System.Security.Claims.Claim("Permission", permKey));
+                        if (!existingPermissionValues.Contains(permKey))
+                        {
+                            await roleManager.AddClaimAsync(roleEntity, new System.Security.Claims.Claim("Permission", permKey));
+                        }
                     }
                 }
             }
@@ -119,11 +125,16 @@ namespace Bolcko.Web.App.Extensions
                 var result = await userManager.CreateAsync(newAdmin, "BolckoAdmin@2026!");
                 if (result.Succeeded)
                 {
+                    await userManager.AddToRoleAsync(newAdmin, "SuperAdmin");
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
                 }
             }
             else
             {
+                if (!await userManager.IsInRoleAsync(adminUser, "SuperAdmin"))
+                {
+                    await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
+                }
                 if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
