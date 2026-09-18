@@ -29,7 +29,12 @@ namespace Blocko.Services.Implementations.Financing
                 throw new ArgumentException("Cannot create a financing tender with empty items.");
             }
 
-            decimal baseCost = request.Items.Sum(i => i.SubtotalJod);
+            decimal baseCost = request.Items.Sum(i => i.SubtotalJod > 0 ? i.SubtotalJod : Math.Round(i.Quantity * i.UnitPriceJod, 2));
+            if (baseCost <= 0)
+            {
+                throw new ArgumentException("Base material cost must be greater than zero.");
+            }
+
             decimal markupRate = 0.06m; // 6% Murabaha markup
             decimal totalPayable = Math.Round(baseCost * (1.0m + markupRate), 2);
             decimal agencyFeeRate = 0.015m; // 1.5% Block-O agency fee
@@ -67,6 +72,7 @@ namespace Blocko.Services.Implementations.Financing
 
             foreach (var it in request.Items)
             {
+                decimal itemSubtotal = it.SubtotalJod > 0 ? it.SubtotalJod : Math.Round(it.Quantity * it.UnitPriceJod, 2);
                 tender.Items.Add(new FinancingTenderItem
                 {
                     MaterialCategory = it.MaterialCategory,
@@ -74,7 +80,7 @@ namespace Blocko.Services.Implementations.Financing
                     Quantity = it.Quantity,
                     Unit = it.Unit,
                     UnitPriceJod = it.UnitPriceJod,
-                    SubtotalJod = it.SubtotalJod
+                    SubtotalJod = itemSubtotal
                 });
             }
 
