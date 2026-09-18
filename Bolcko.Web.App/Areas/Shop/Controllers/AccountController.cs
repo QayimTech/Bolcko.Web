@@ -1,7 +1,10 @@
 using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.User;
 using Bolcko.Domain.Entities.User;
+using Bolcko.Domain.Entities.User.DTOs;
 using Bolcko.Domain.Enums;
+using Bolcko.Web.App.Areas.Shop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

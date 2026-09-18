@@ -41,7 +41,7 @@ namespace Blocko.Services.Implementations.Tax
                 BuyerName = isB2B ? (order.User?.CompanyName ?? $"{order.User?.FirstName} {order.User?.LastName}".Trim()) : $"{order.User?.FirstName} {order.User?.LastName}".Trim(),
                 BuyerCrNumber = order.User?.BusinessRegistrationNumber,
                 BuyerVatNumber = isB2B ? "300" + (order.User?.BusinessRegistrationNumber ?? "1010123456") + "00003" : null,
-                JobsiteAddress = order.ShippingAddress != null ? $"{order.ShippingAddress.City} - {order.ShippingAddress.StreetAddress}" : "موقع المشروع الإنشائي المعتمد",
+                JobsiteAddress = order.ShippingAddress != null ? $"{order.ShippingAddress.City} - {order.ShippingAddress.AddressLine1}" : "موقع المشروع الإنشائي المعتمد",
                 BuildingPermitNumber = isB2B ? $"PERMIT-{order.Id + 10400}" : null,
                 TotalAmount = order.TotalAmount,
                 DiscountAmount = order.DiscountAmount

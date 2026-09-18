@@ -6,6 +6,7 @@ using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Entities.User.DTOs;
 using Bolcko.Domain.Enums;
+using Bolcko.Web.App.Areas.Shop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -50,7 +51,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 return RedirectToAction(nameof(Workspace));
             }
 
-            var model = new ContractorRegistrationDto();
+            var model = new ContractorJoinViewModel();
             return View(model);
         }
 
@@ -60,7 +61,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [HttpPost("Join")]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Join(ContractorRegistrationDto model)
+        public async Task<IActionResult> Join(ContractorJoinViewModel model)
         {
             if (!ModelState.IsValid)
             {

@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace Bolcko.Domain.Entities.User.DTOs
+namespace Bolcko.Web.App.Areas.Shop.Models
 {
-    public class ContractorRegistrationDto
+    public class ContractorJoinViewModel
     {
         [Required(ErrorMessage = "الاسم التجاري للمؤسسة/الشركة مطلوب")]
         [Display(Name = "اسم المؤسسة / الشركة")]
@@ -52,10 +53,10 @@ namespace Bolcko.Domain.Entities.User.DTOs
         [Display(Name = "العنوان الوطني")]
         public string? NationalAddress { get; set; }
 
-        [Display(Name = "رابط ملف السجل التجاري")]
-        public string? CrDocumentUrl { get; set; }
+        [Display(Name = "شهادة السجل التجاري (PDF/Image)")]
+        public IFormFile? CrDocument { get; set; }
 
-        [Display(Name = "رابط ملف الشهادة الضريبية")]
-        public string? TaxCertificateUrl { get; set; }
+        [Display(Name = "شهادة التسجيل الضريبي (PDF/Image)")]
+        public IFormFile? TaxCertificate { get; set; }
     }
 }
