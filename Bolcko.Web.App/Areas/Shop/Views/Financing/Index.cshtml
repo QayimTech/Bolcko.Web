@@ -2,12 +2,13 @@
 @{
     ViewData["Title"] = "بوابة المستثمر التمويلي | عطاءات المرابحة الإنشائية الحلال";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var isArabic = true;
 }
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12" dir="rtl">
     
     <!-- Hero Banner -->
-    <div class="relative bg-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl overflow-hidden mb-10">
+    <div class="relative bg-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl overflow-hidden mb-8">
         <div class="absolute -top-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -21,7 +22,7 @@
                     بوابة تمويل عطاءات المرابحة الإنشائية
                 </h1>
                 <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                    استثمر سيولتك في شراء وتملك مواد بناء حقيقية (حديد، باطون، حجر) لمشاريع معتمدة ومرخصة في الأردن، وحقق عائداً شرعياً صافياً <strong>8% – 12% سنوياً</strong> مع دورة رأس مال سريعة وضمان عيني موثق بالـ GPS.
+                    استثمر سيولتك في شراء وتملك مواد بناء حقيقية (حديد، باطون، حجر) لمشاريع معتمدة ومرخصة في الأردن، وحقق عائداً شرعياً صافياً <strong>8% – 14% سنوياً</strong> مع دورة رأس مال سريعة وضمان عيني موثق بالـ GPS.
                 </p>
             </div>
 
@@ -37,23 +38,122 @@
         </div>
     </div>
 
+    <!-- Interactive Investor ROI & Yield Calculator Widget (QT1-80) -->
+    <section class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl mb-10 text-white relative overflow-hidden">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold font-mono mb-2">
+                    <span class="material-symbols-outlined text-sm">calculate</span>
+                    <span>محاكي أرباح المستثمر التفاعلي (ROI & Yield Simulator)</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black text-white">احسب أرباحك وعوائدك التمويلية المتوقعة لحظياً</h2>
+                <p class="text-xs text-slate-400 mt-1">حدد المبلغ الذي ترغب باستثماره واختر مدة العطاء لمعاينة الأرباح الصافية ونسبة الـ APR</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-400">ضمانات التمويل:</span>
+                <span class="px-2.5 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 text-xs font-bold font-mono">100% عيني + GPS POD</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+            <!-- Left Controls: Capital Slider & Tenor -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Investment Capital Slider -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-300">مبلغ الاستثمار التمويلي:</label>
+                        <div class="text-xl sm:text-2xl font-black font-mono text-emerald-400">
+                            <span id="sliderCapitalVal">10,000</span> <span class="text-xs font-sans text-slate-400">د.أ</span>
+                        </div>
+                    </div>
+                    <input type="range" id="capitalSlider" min="1000" max="100000" step="500" value="10000" 
+                           class="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500" oninput="updateRoiCalculation()" />
+                    
+                    <!-- Quick Amount Chips -->
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button type="button" onclick="setSliderAmount(2500)" class="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold font-mono text-slate-300 transition-all border border-white/5">2,500 د.أ</button>
+                        <button type="button" onclick="setSliderAmount(5000)" class="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold font-mono text-slate-300 transition-all border border-white/5">5,000 د.أ</button>
+                        <button type="button" onclick="setSliderAmount(10000)" class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold font-mono transition-all border border-emerald-500/30">10,000 د.أ</button>
+                        <button type="button" onclick="setSliderAmount(25000)" class="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold font-mono text-slate-300 transition-all border border-white/5">25,000 د.أ</button>
+                        <button type="button" onclick="setSliderAmount(50000)" class="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold font-mono text-slate-300 transition-all border border-white/5">50,000 د.أ</button>
+                    </div>
+                </div>
+
+                <!-- Tenor Selector (Duration) -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-300 block">مدة أجل السداد والدورة التشغيلية:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" onclick="setTenor(30, 0.045)" id="tenorBtn-30" class="tenor-btn p-3 rounded-xl bg-white/5 border border-white/10 text-center transition-all hover:bg-white/10">
+                            <span class="block text-sm font-black font-mono">30 يوماً</span>
+                            <span class="text-[10px] text-slate-400">عائد ~9% سنوي</span>
+                        </button>
+                        <button type="button" onclick="setTenor(45, 0.055)" id="tenorBtn-45" class="tenor-btn p-3 rounded-xl bg-emerald-600 border border-emerald-500 text-center transition-all">
+                            <span class="block text-sm font-black font-mono">45 يوماً</span>
+                            <span class="text-[10px] text-emerald-200">عائد ~11% سنوي</span>
+                        </button>
+                        <button type="button" onclick="setTenor(60, 0.060)" id="tenorBtn-60" class="tenor-btn p-3 rounded-xl bg-white/5 border border-white/10 text-center transition-all hover:bg-white/10">
+                            <span class="block text-sm font-black font-mono">60 يوماً</span>
+                            <span class="text-[10px] text-slate-400">عائد ~12% سنوي</span>
+                        </button>
+                        <button type="button" onclick="setTenor(90, 0.070)" id="tenorBtn-90" class="tenor-btn p-3 rounded-xl bg-white/5 border border-white/10 text-center transition-all hover:bg-white/10">
+                            <span class="block text-sm font-black font-mono">90 يوماً</span>
+                            <span class="text-[10px] text-slate-400">عائد ~14% سنوي</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Results: Dynamic KPI Cards -->
+            <div class="lg:col-span-5 bg-slate-950/80 border border-white/10 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="text-xs text-slate-400">صافي الربح المكتسب للصفقة:</span>
+                        <span class="text-xl font-black font-mono text-emerald-400" id="calcNetProfit">+450 د.أ</span>
+                    </div>
+
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="text-xs text-slate-400">العائد السنوي المعادل (APR):</span>
+                        <span class="text-sm font-bold font-mono text-amber-400" id="calcAnnualApr">11.0% APR</span>
+                    </div>
+
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="text-xs text-slate-400">إجمالي المبلغ المسترد عند الاستحقاق:</span>
+                        <span class="text-base font-bold font-mono text-white" id="calcTotalReturn">10,450 د.أ</span>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400">
+                        <span>أتعاب إدارة المنصة (1.5% مخصومة):</span>
+                        <span class="font-mono text-slate-300" id="calcAgencyFee">150 د.أ</span>
+                    </div>
+                </div>
+
+                <button type="button" onclick="filterTendersByBudget()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">filter_alt</span>
+                    <span>فلترة العطاءات المطابقة لقدرتي التمويلية</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
     <!-- Tenders Grid Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6" id="tendersCatalogSection">
         <div>
             <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                 <span class="material-symbols-outlined text-amber-600">gavel</span>
-                <span>العطاءات المتاحة للتمويل والتملك الفوري (@Model.Count())</span>
+                <span>العطاءات المتاحة للتمويل والتملك الفوري (<span id="tendersCount">@Model.Count()</span>)</span>
             </h2>
             <p class="text-xs text-slate-500 mt-1">كشوف كميات معتمدة هندسياً ومربوطة برخص بناء سارية في عمان والمحافظات</p>
         </div>
 
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-500">فلترة بحسب المدينة:</span>
-            <select class="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500">
+        <div class="flex items-center gap-3">
+            <button type="button" onclick="resetTenderFilters()" class="text-xs font-bold text-slate-500 hover:text-slate-800 underline cursor-pointer">إعادة تعيين الفلترة</button>
+            <select id="cityFilter" onchange="filterTendersByCity(this.value)" class="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500">
                 <option value="All">كافة المحافظات</option>
-                <option value="Amman">عمّان</option>
-                <option value="Zarqa">الزرقاء</option>
-                <option value="Irbid">إربد</option>
+                <option value="عمان">عمّان</option>
+                <option value="الزرقاء">الزرقاء</option>
+                <option value="إربد">إربد</option>
+                <option value="العقبة">العقبة</option>
             </select>
         </div>
     </div>
@@ -71,10 +171,11 @@
     }
     else
     {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tendersGrid">
             @foreach (var t in Model)
             {
-                <div class="bg-white rounded-2xl border border-slate-200 hover:border-amber-500/50 shadow-sm hover:shadow-md transition-all p-6 space-y-5 flex flex-col justify-between group">
+                <div class="tender-card bg-white rounded-2xl border border-slate-200 hover:border-amber-500/50 shadow-sm hover:shadow-md transition-all p-6 space-y-5 flex flex-col justify-between group"
+                     data-cost="@t.BaseMaterialCost" data-city="@t.ProjectCity" data-tenure="@t.TenureDays">
                     <div class="space-y-3">
                         <!-- Card Header Badge & Code -->
                         <div class="flex items-center justify-between">
@@ -149,3 +250,95 @@
         </div>
     }
 </div>
+
+@section Scripts {
+<script>
+    let selectedTenor = 45;
+    let selectedRate = 0.055;
+
+    function setSliderAmount(amount) {
+        document.getElementById('capitalSlider').value = amount;
+        updateRoiCalculation();
+    }
+
+    function setTenor(days, rate) {
+        selectedTenor = days;
+        selectedRate = rate;
+
+        document.querySelectorAll('.tenor-btn').forEach(btn => {
+            btn.className = 'tenor-btn p-3 rounded-xl bg-white/5 border border-white/10 text-center transition-all hover:bg-white/10';
+        });
+
+        const activeBtn = document.getElementById(`tenorBtn-${days}`);
+        if (activeBtn) {
+            activeBtn.className = 'tenor-btn p-3 rounded-xl bg-emerald-600 border border-emerald-500 text-center transition-all';
+        }
+
+        updateRoiCalculation();
+    }
+
+    function updateRoiCalculation() {
+        const capital = parseFloat(document.getElementById('capitalSlider').value) || 10000;
+        document.getElementById('sliderCapitalVal').textContent = capital.toLocaleString();
+
+        const markupRate = 0.06;
+        const agencyFeeRate = 0.015;
+        const grossMarkup = capital * markupRate;
+        const agencyFee = capital * agencyFeeRate;
+        const netProfit = grossMarkup - agencyFee;
+        const totalReturn = capital + grossMarkup;
+        const apr = ((netProfit / capital) * (365 / selectedTenor) * 100).toFixed(1);
+
+        document.getElementById('calcNetProfit').textContent = `+${Math.round(netProfit).toLocaleString()} د.أ`;
+        document.getElementById('calcAnnualApr').textContent = `${apr}% APR`;
+        document.getElementById('calcTotalReturn').textContent = `${Math.round(totalReturn).toLocaleString()} د.أ`;
+        document.getElementById('calcAgencyFee').textContent = `${Math.round(agencyFee).toLocaleString()} د.أ`;
+    }
+
+    function filterTendersByBudget() {
+        const targetBudget = parseFloat(document.getElementById('capitalSlider').value) || 10000;
+        const cards = document.querySelectorAll('.tender-card');
+        let matched = 0;
+
+        cards.forEach(c => {
+            const cost = parseFloat(c.getAttribute('data-cost')) || 0;
+            if (cost <= targetBudget * 1.35 && cost >= targetBudget * 0.4) {
+                c.style.display = 'flex';
+                matched++;
+            } else {
+                c.style.display = 'none';
+            }
+        });
+
+        document.getElementById('tendersCount').textContent = matched;
+        document.getElementById('tendersCatalogSection')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterTendersByCity(city) {
+        const cards = document.querySelectorAll('.tender-card');
+        let matched = 0;
+
+        cards.forEach(c => {
+            const cCity = c.getAttribute('data-city') || '';
+            if (city === 'All' || cCity.includes(city)) {
+                c.style.display = 'flex';
+                matched++;
+            } else {
+                c.style.display = 'none';
+            }
+        });
+
+        document.getElementById('tendersCount').textContent = matched;
+    }
+
+    function resetTenderFilters() {
+        document.querySelectorAll('.tender-card').forEach(c => c.style.display = 'flex');
+        document.getElementById('tendersCount').textContent = document.querySelectorAll('.tender-card').length;
+        document.getElementById('cityFilter').value = 'All';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateRoiCalculation();
+    });
+</script>
+}
