@@ -144,10 +144,8 @@ public static class WebApplicationExtensions
     /// </summary>
     public static void MapApplicationEndpoints(this WebApplication app)
     {
-        // Direct Minimal API Health Endpoints (Fastest, zero-overhead for AWS ALB)
-        app.MapGet("/health", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
-        app.MapGet("/healthz", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
-        app.MapGet("/ping", () => Results.Ok(new { status = "Healthy", service = "Bolcko.Web", timestampUtc = DateTime.UtcNow })).AllowAnonymous();
+        // Health endpoints are managed by HealthController (/health, /healthz, /ping, /health/ready)
+
 
         // Direct /Shop/Checkout and /Checkout Aliases (QT1-70)
         app.MapGet("/Shop/Checkout", (HttpContext ctx) => ctx.Response.Redirect("/Shop/ShoppingCart/Checkout", permanent: false));
