@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "الحساب معلق أمنياً";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+<div class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 text-right" dir="rtl">
+    <div class="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-4">
+        <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-3xl">gavel</span>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900">تم تجميد وتعليق الحساب أمنياً</h1>
+        <p class="text-xs text-slate-600 leading-relaxed">
+            تم تعليق حساب المنشأة مؤقتاً لمراجعة الوثائق التجارية أو لانتهاء صلاحية السجل التجاري والضريبي أو بموجب قرار الحوكمة والامتثال.
+        </p>
+        <div class="p-4 bg-slate-50 rounded-2xl text-xs text-slate-500 font-mono text-center">
+            Reference Code: SEC-SUSPEND-HOLD
+        </div>
+        <a href="mailto:support@blocko.com" class="block w-full py-3 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition">
+            التواصل مع الدعم القانوني والامتثال
+        </a>
+    </div>
+</div>

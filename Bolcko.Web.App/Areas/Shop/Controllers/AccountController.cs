@@ -148,6 +148,69 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             return await Index();
         }
 
+        /// <summary>
+        /// ترقية حساب العميل الفردي إلى مقاول معتمد (Customer to Contractor Upgrade)
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> UpgradeToContractor()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            if (await _userManager.IsInRoleAsync(user, "Contractor"))
+            {
+                return RedirectToAction("Workspace", "Contractor", new { area = "Shop" });
+            }
+
+            var model = new ContractorRegistrationDto
+            {
+                Email = user.Email ?? "",
+                AuthorizedPersonName = $"{user.FirstName} {user.LastName}".Trim(),
+                AuthorizedPhone = user.PhoneNumber ?? "",
+                CompanyName = user.CompanyName ?? ""
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpgradeToContractor(ContractorRegistrationDto model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            user.CompanyName = model.CompanyName;
+            user.BusinessRegistrationNumber = model.CommercialRegistration;
+            user.UserType = UserType.Contractor;
+
+            await _userManager.UpdateAsync(user);
+
+            var roleManager = HttpContext.RequestServices.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            if (!await roleManager.RoleExistsAsync("Contractor"))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>("Contractor"));
+            }
+
+            await _userManager.AddToRoleAsync(user, "Contractor");
+            await _signInManager.RefreshSignInAsync(user);
+
+            TempData["SuccessMessage"] = "تهانينا! تم ترقية حسابك إلى مقاول معتمد وتحديث ملف المنشأة بنجاح.";
+            return RedirectToAction("Workspace", "Contractor", new { area = "Shop", registered = true });
+        }
+
+        /// <summary>
+        /// صفحة توضيح تعليق الحساب أمنياً
+        /// </summary>
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Suspended()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(User user, string password, string confirmPassword)

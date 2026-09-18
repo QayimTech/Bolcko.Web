@@ -393,5 +393,52 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             TempData["SuccessMessage"] = "تم إنهاء وضع المحاكاة والعودة لحساب الأدمن الرئيسي بنجاح.";
             return RedirectToAction("Index", "User", new { area = "Admin" });
         }
+
+        /// <summary>
+        /// تعليق وتجميد حساب المنشأة أمنياً وإبطال جميع الجلسات المفتوحة فوراً
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuspendEntity(int userId, string? reason)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "المستخدم غير موجود.";
+                return RedirectToAction("Index");
+            }
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(10);
+            await _userManager.UpdateAsync(user);
+
+            // Instant Security Stamp Invalidation across all devices
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            TempData["SuccessMessage"] = $"تم إيقاف وتعليق حساب ({user.CompanyName ?? user.UserName}) أمنياً وإبطال كافة جلسات الدخول.";
+            return RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// إعادة تفعيل وإلغاء تعليق الحساب
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnsuspendEntity(int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "المستخدم غير موجود.";
+                return RedirectToAction("Index");
+            }
+
+            user.LockoutEnd = null;
+            await _userManager.UpdateAsync(user);
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            TempData["SuccessMessage"] = $"تم إلغاء تعليق وتفعيل الحساب ({user.CompanyName ?? user.UserName}) بنجاح.";
+            return RedirectToAction("Index");
+        }
     }
 }
