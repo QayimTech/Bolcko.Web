@@ -463,6 +463,12 @@ namespace Blocko.Services.Implementations.Financing
             };
         }
 
+        public async Task<IEnumerable<Bolcko.Domain.Entities.Financing.MaterialType>> GetActiveMaterialTypesAsync()
+        {
+            var list = await _uow.MaterialTypes.GetAllAsync();
+            return list.Where(m => m.IsActive).OrderBy(m => m.SortOrder).ToList();
+        }
+
         private static string GetStatusArabicName(FinancingTenderStatus status) => status switch
         {
             FinancingTenderStatus.Draft => "مسودة",

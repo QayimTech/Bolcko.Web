@@ -18,5 +18,6 @@ namespace Blocko.Services.Interfaces.Financing
         Task<InvestorDashboardDto> GetInvestorDashboardAsync(int? userId, string? phone = null);
         Task<bool> RequestPayoutAsync(InvestorPayoutRequestDto request, int? userId);
         Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync();
+        Task<IEnumerable<Bolcko.Domain.Entities.Financing.MaterialType>> GetActiveMaterialTypesAsync();
     }
 }

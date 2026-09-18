@@ -21,18 +21,15 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly BlockoDbContext _context;
 
         public FinancingController(
             IServiceManager serviceManager,
             UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            BlockoDbContext context)
+            SignInManager<User> signInManager)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context;
         }
 
         /// <summary>
@@ -42,10 +39,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [Route("Create")]
         public async Task<IActionResult> Create(string? source, decimal? estimatedAmount)
         {
-            var materialTypes = await _context.MaterialTypes
-                .Where(m => m.IsActive)
-                .OrderBy(m => m.SortOrder)
-                .ToListAsync();
+            var materialTypes = await _serviceManager.FinancingService.GetActiveMaterialTypesAsync();
 
             ViewBag.MaterialTypes = materialTypes;
             ViewBag.EstimatedAmount = estimatedAmount ?? 0m;
