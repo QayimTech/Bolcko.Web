@@ -55,15 +55,25 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: rememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
-                        await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
-                    {
-                        return RedirectToAction("Index", "Home", new { area = "Delivery" });
-                    }
-
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
+                    }
+
+                    // Zero-View Leakage Contextual Routing
+                    if (await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    }
+
+                    if (await _userManager.IsInRoleAsync(user, "Vendor"))
+                    {
+                        return RedirectToAction("Index", "Dashboard", new { area = "Vendor" });
+                    }
+
+                    if (await _userManager.IsInRoleAsync(user, "Contractor"))
+                    {
+                        return RedirectToAction("Workspace", "Contractor", new { area = "Shop" });
                     }
 
                     if (await _userManager.IsInRoleAsync(user, "Investor"))
@@ -71,9 +81,10 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
                     }
 
-                    if (await _userManager.IsInRoleAsync(user, "Contractor"))
+                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
+                        await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
                     {
-                        return RedirectToAction("ContractorDashboard", "Financing", new { area = "Shop" });
+                        return RedirectToAction("DriverPOD", "Financing", new { area = "Shop" });
                     }
 
                     return RedirectToAction("Index", "Category", new { area = "Shop" });
@@ -82,6 +93,36 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             ViewBag.Error = "بيانات الدخول غير صحيحة";
             return View();
+        }
+
+        /// <summary>
+        /// محول الأدوار الديناميكي (Dynamic Role Switcher / Impersonation Mode)
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> SwitchRole(string role)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var isPrivileged = User.IsInRole("SuperAdmin") || User.IsInRole("Admin");
+            var hasRole = isPrivileged || await _userManager.IsInRoleAsync(user, role);
+
+            if (!hasRole)
+            {
+                TempData["ErrorMessage"] = "ليس لديك صلاحية التبديل إلى هذا الدور.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            Response.Cookies.Append("ActivePersonaRole", role, new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = true, SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
+
+            if (role == "Admin" || role == "SuperAdmin") return RedirectToAction("Index", "Home", new { area = "Admin" });
+            if (role == "Vendor") return RedirectToAction("Index", "Dashboard", new { area = "Vendor" });
+            if (role == "Contractor") return RedirectToAction("Workspace", "Contractor", new { area = "Shop" });
+            if (role == "Investor") return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
+            if (role == "DeliveryDriver") return RedirectToAction("DriverPOD", "Financing", new { area = "Shop" });
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
