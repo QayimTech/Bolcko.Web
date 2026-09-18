@@ -175,6 +175,9 @@ namespace Blocko.Services.Implementations.Financing
 
             await _uow.CompleteAsync();
 
+            _logger.LogInformation("Jobsite POD submitted for Tender {Id} ({Code}) by Driver {Driver} ({Phone}) - Variance: {Dist}m, WithinGeofence: {Within}",
+                tender.Id, tender.TrackingCode, request.DriverName, request.DriverPhone, pod.DistanceVarianceMeters, pod.IsWithinGeoFence);
+
             return new JobsitePodDto
             {
                 Id = pod.Id,
