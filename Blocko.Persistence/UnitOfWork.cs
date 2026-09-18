@@ -65,6 +65,7 @@ namespace Blocko.Persistence
             CalculatorStoneTypes = new GenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType>(_context);
             CalculatorDecorItems = new GenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem>(_context);
             VendorProfiles = new GenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile>(_context);
+            VendorTeamMembers = new GenericRepository<Bolcko.Domain.Entities.Catalog.VendorTeamMember>(_context);
 
             // Islamic Murabaha & Geotagged POD
             FinancingTenders = new Blocko.Persistence.Repositories.Financing.FinancingTenderRepository(_context);
@@ -115,6 +116,7 @@ namespace Blocko.Persistence
         public IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType> CalculatorStoneTypes { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; private set; }
+        public IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorTeamMember> VendorTeamMembers { get; private set; }
 
         public IFinancingTenderRepository FinancingTenders { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteDeliveries { get; private set; }

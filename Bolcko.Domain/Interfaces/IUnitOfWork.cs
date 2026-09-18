@@ -48,6 +48,7 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorStoneType> CalculatorStoneTypes { get; }
         IGenericRepository<Bolcko.Domain.Entities.Catalog.CalculatorDecorItem> CalculatorDecorItems { get; }
         IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorProfile> VendorProfiles { get; }
+        IGenericRepository<Bolcko.Domain.Entities.Catalog.VendorTeamMember> VendorTeamMembers { get; }
 
         // Islamic Murabaha & Trade Financing
         IFinancingTenderRepository FinancingTenders { get; }

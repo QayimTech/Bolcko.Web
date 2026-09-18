@@ -59,6 +59,7 @@ namespace Blocko.Persistence
         public DbSet<CalculatorStoneType> CalculatorStoneTypes { get; set; }
         public DbSet<CalculatorDecorItem> CalculatorDecorItems { get; set; }
         public DbSet<VendorProfile> VendorProfiles { get; set; }
+        public DbSet<VendorTeamMember> VendorTeamMembers { get; set; }
 
         // Islamic Murabaha Financing & Geotagged POD
         public DbSet<Bolcko.Domain.Entities.Financing.FinancingTender> FinancingTenders { get; set; }

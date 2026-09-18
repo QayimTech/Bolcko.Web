@@ -76,4 +76,13 @@ public enum TenderStatus
         Accepted = 2,
         Rejected = 3
     }
+
+    public enum VendorRoleType
+    {
+        VendorAdmin = 1,
+        DataEntry = 2,
+        WarehouseDispatch = 3,
+        Accountant = 4,
+        SalesTender = 5
+    }
 }

@@ -226,15 +226,15 @@
         </div>
 
         <!-- Vendor Quick Action Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <a asp-area="Vendor" asp-controller="Products" asp-action="Index"
                class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-amber-500 shadow-sm hover:shadow-md transition-all group flex items-start gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black text-xl shrink-0 group-hover:scale-110 transition-transform">
                     📦
                 </div>
                 <div>
-                    <h3 class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors">إدارة المنتجات والمخزون</h3>
-                    <p class="text-xs text-slate-500 mt-1">إضافة مواد بناء جديدة (حديد، خرسانة، حجر، إسمنت) وضبط الأسعار والمخزون</p>
+                    <h3 class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors">المنتجات والكتالوج</h3>
+                    <p class="text-xs text-slate-500 mt-1">إضافة مواد بناء جديدة وضبط محرك الـ SEO والأسعار</p>
                 </div>
             </a>
 
@@ -245,7 +245,7 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-black text-slate-900 group-hover:text-sky-600 transition-colors">تخصيص بضائع القناص</h3>
-                    <p class="text-xs text-slate-500 mt-1">استعراض وتوريد منتجات القناص المعتمدة وإضافتها لمتجرك مع تحديد هامش ربحك</p>
+                    <p class="text-xs text-slate-500 mt-1">استعراض وتوريد منتجات القناص المعتمدة وإضافتها لمتجرك</p>
                 </div>
             </a>
 
@@ -255,8 +255,19 @@
                     💰
                 </div>
                 <div>
-                    <h3 class="text-sm font-black text-slate-900 group-hover:text-emerald-600 transition-colors">المحفظة المالية والأرباح</h3>
-                    <p class="text-xs text-slate-500 mt-1">متابعة المبيعات وعمولة المنصة وطلب تحويل المستحقات والأرباح عبر CliQ / IBAN</p>
+                    <h3 class="text-sm font-black text-slate-900 group-hover:text-emerald-600 transition-colors">المحفظة والأرباح</h3>
+                    <p class="text-xs text-slate-500 mt-1">متابعة المبيعات وعمولة المنصة وطلب تحويل الأرباح</p>
+                </div>
+            </a>
+
+            <a asp-area="Vendor" asp-controller="Team" asp-action="Index"
+               class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-purple-500 shadow-sm hover:shadow-md transition-all group flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center font-black text-xl shrink-0 group-hover:scale-110 transition-transform">
+                    👥
+                </div>
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 group-hover:text-purple-600 transition-colors">فريق العمل والصلاحيات</h3>
+                    <p class="text-xs text-slate-500 mt-1">إضافة مدخلي البيانات، مسؤولي المستودع، والمحاسبين</p>
                 </div>
             </a>
         </div>

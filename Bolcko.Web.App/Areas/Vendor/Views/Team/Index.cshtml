@@ -1,0 +1,426 @@
+@using Bolcko.Domain.Entities.Catalog
+@using Bolcko.Domain.Enums
+@model IEnumerable<VendorTeamMember>
+@{
+    ViewData["Title"] = "فريق العمل وإدارة الصلاحيات";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var vendor = ViewBag.VendorProfile as VendorProfile;
+}
+
+<div class="space-y-6" dir="rtl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-black border border-amber-500/20">
+                    🏢 @(vendor?.CompanyNameAr ?? "منشأة التوريد")
+                </span>
+                <span class="text-xs text-slate-400 font-bold">•</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">إدارة المستخدمين والصلاحيات الداخلية (RBAC)</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">فريق العمل والصلاحيات</h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                أضف موظفي المنشأة ووزع الأدوار (مدخل بيانات، أمين مستودع، محاسب، مدير) مع عزل وحماية الحسابات المالية
+            </p>
+        </div>
+        <button type="button" onclick="openInviteModal()"
+                class="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 self-start sm:self-auto">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            <span>دعوة موظف جديد</span>
+        </button>
+    </div>
+
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-base">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 font-bold text-xs flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-base">error</span>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Stat KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-[22px]">group</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">إجمالي الموظفين</span>
+                <span class="text-xl font-black text-slate-900 dark:text-white">@ViewBag.TotalCount</span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-500 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-[22px]">edit_note</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">مدخلو البيانات والكتالوج</span>
+                <span class="text-xl font-black text-sky-500">@ViewBag.DataEntryCount</span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-[22px]">local_shipping</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">المستودع ومراقبو التحميل</span>
+                <span class="text-xl font-black text-emerald-500">@ViewBag.WarehouseCount</span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black">
+                <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">المحاسبون الماليون</span>
+                <span class="text-xl font-black text-amber-500">@ViewBag.AccountantCount</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members Table Card -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        <!-- Filter Header -->
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>أعضاء فريق العمل النشطين</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">@Model.Count()</span>
+            </h2>
+
+            <form method="get" class="flex items-center gap-2.5 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-64">
+                    <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                    <input type="text" name="search" value="@Context.Request.Query["search"]" placeholder="بحث بالاسم أو البريد..."
+                           class="w-full ps-4 pe-9 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none" />
+                </div>
+                <select name="role" onchange="this.form.submit()"
+                        class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none">
+                    <option value="">جميع الأدوار</option>
+                    <option value="@VendorRoleType.VendorAdmin" selected="@(Context.Request.Query["role"] == "VendorAdmin")">مدير منشأة</option>
+                    <option value="@VendorRoleType.DataEntry" selected="@(Context.Request.Query["role"] == "DataEntry")">مدخل بيانات</option>
+                    <option value="@VendorRoleType.WarehouseDispatch" selected="@(Context.Request.Query["role"] == "WarehouseDispatch")">أمين مستودع</option>
+                    <option value="@VendorRoleType.Accountant" selected="@(Context.Request.Query["role"] == "Accountant")">محاسب مالي</option>
+                    <option value="@VendorRoleType.SalesTender" selected="@(Context.Request.Query["role"] == "SalesTender")">ممثل مبيعات وعطاءات</option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-slate-400 font-bold uppercase">
+                    <tr>
+                        <th class="py-4 px-6 text-start">الموظف / الاسم</th>
+                        <th class="py-4 px-6 text-start">بيانات الاتصال</th>
+                        <th class="py-4 px-6 text-start">الدور الوظيفي</th>
+                        <th class="py-4 px-6 text-start">صلاحيات النظام (RBAC)</th>
+                        <th class="py-4 px-6 text-start">الحالة</th>
+                        <th class="py-4 px-6 text-end">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @if (Model.Any())
+                    {
+                        @foreach (var member in Model)
+                        {
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <!-- Name & Avatar -->
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-amber-600/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-sm flex-shrink-0">
+                                            @(member.FullName.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <div>
+                                            <p class="font-black text-slate-900 dark:text-white text-sm">@member.FullName</p>
+                                            <p class="text-[11px] text-slate-400 font-medium">@(member.JobTitle ?? "موظف معتمد")</p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Contact Info -->
+                                <td class="py-4 px-6">
+                                    <p class="font-bold text-slate-700 dark:text-slate-300">@member.Email</p>
+                                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">@(string.IsNullOrWhiteSpace(member.PhoneNumber) ? "--" : member.PhoneNumber)</p>
+                                </td>
+
+                                <!-- Role Type -->
+                                <td class="py-4 px-6">
+                                    @switch (member.RoleType)
+                                    {
+                                        case VendorRoleType.VendorAdmin:
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-black text-[11px] border border-purple-500/20">
+                                                <span>👑</span> مدير المنشأة
+                                            </span>
+                                            break;
+                                        case VendorRoleType.DataEntry:
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 font-black text-[11px] border border-sky-500/20">
+                                                <span>👨‍💻</span> مدخل بيانات
+                                            </span>
+                                            break;
+                                        case VendorRoleType.WarehouseDispatch:
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-[11px] border border-emerald-500/20">
+                                                <span>🚚</span> أمين مستودع
+                                            </span>
+                                            break;
+                                        case VendorRoleType.Accountant:
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-black text-[11px] border border-amber-500/20">
+                                                <span>📊</span> محاسب مالي
+                                            </span>
+                                            break;
+                                        default:
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-400 font-black text-[11px] border border-slate-500/20">
+                                                <span>📑</span> ممثل مبيعات
+                                            </span>
+                                            break;
+                                    }
+                                </td>
+
+                                <!-- Granular Permissions -->
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center flex-wrap gap-1.5">
+                                        @if (member.CanManageCatalog)
+                                        {
+                                            <span class="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 text-[10px] font-bold border border-sky-500/20" title="إضافة وتعديل المنتجات">
+                                                📦 الكتالوج
+                                            </span>
+                                        }
+                                        @if (member.CanManageOrders)
+                                        {
+                                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20" title="معالجة وتجهيز الطلبات وبوالص الشحن">
+                                                🚚 الطلبات
+                                            </span>
+                                        }
+                                        @if (member.CanViewFinance)
+                                        {
+                                            <span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold border border-amber-500/20" title="كشوفات الحسابات والمستحقات المالية">
+                                                💰 المالية
+                                            </span>
+                                        }
+                                        @if (member.CanManageTeam)
+                                        {
+                                            <span class="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-bold border border-purple-500/20" title="إدارة الفريق والصلاحيات">
+                                                👥 إدارة الفريق
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+
+                                <!-- Status Toggle -->
+                                <td class="py-4 px-6">
+                                    <button type="button" onclick="toggleMemberStatus(@member.Id, this)"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black transition-colors @(member.IsActive ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-slate-500/10 text-slate-400 border border-slate-500/20")">
+                                        <span class="w-1.5 h-1.5 rounded-full @(member.IsActive ? "bg-emerald-500" : "bg-slate-400")"></span>
+                                        <span>@(member.IsActive ? "نشط ومفعل" : "معطل")</span>
+                                    </button>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="py-4 px-6 text-end">
+                                    <button type="button" onclick="deleteMember(@member.Id, '@member.FullName')"
+                                            class="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors" title="حذف العضو">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="p-12 text-center text-slate-400">
+                                <span class="material-symbols-outlined text-4xl text-slate-300 mb-2 block">person_off</span>
+                                <p class="font-bold text-sm">لم يتم تسجيل أي موظفين في فريق عمل منشأتك بعد</p>
+                                <p class="text-xs text-slate-500 mt-1">اضغط على "دعوة موظف جديد" لإضافة مدخلي البيانات وأمناء المستودعات</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL: Invite Team Member -->
+<!-- ======================================================== -->
+<div id="inviteModal" class="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200" dir="rtl">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black">
+                    <span class="material-symbols-outlined text-[22px]">person_add</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-900 dark:text-white">دعوة موظف جديد لفريق العمل</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">حدد بيانات الموظف والصلاحيات الممنوحة له</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeInviteModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <form asp-action="Invite" method="post" class="p-6 space-y-4">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل للموظف *</label>
+                <input type="text" name="fullName" required placeholder="مثال: أحمد عبد الله"
+                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني *</label>
+                    <input type="email" name="email" required placeholder="name@company.com"
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم الهاتف / الواتساب</label>
+                    <input type="tel" name="phoneNumber" placeholder="079XXXXXXX"
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-amber-500" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المسمى الوظيفي</label>
+                    <input type="text" name="jobTitle" placeholder="مثال: مسؤول إدخال المواد"
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الدور الوظيفي الأساسي *</label>
+                    <select name="roleType" id="roleTypeSelect" onchange="onRolePresetChanged(this)"
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-amber-500">
+                        <option value="@VendorRoleType.DataEntry">👨‍💻 مدخل بيانات (Data Entry)</option>
+                        <option value="@VendorRoleType.WarehouseDispatch">🚚 أمين مستودع وتحميل (Warehouse)</option>
+                        <option value="@VendorRoleType.Accountant">📊 محاسب مالي (Accountant)</option>
+                        <option value="@VendorRoleType.SalesTender">📑 ممثل مبيعات وعطاءات (Sales)</option>
+                        <option value="@VendorRoleType.VendorAdmin">👑 مدير منشأة (كامل الصلاحيات)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Granular Permissions Checklist -->
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
+                <p class="text-xs font-black text-slate-900 dark:text-white">الصلاحيات الممنوحة لهذا الحساب:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" name="canManageCatalog" id="permCatalog" value="true" checked class="w-4 h-4 text-amber-500 rounded" />
+                        <span>📦 إضافة وتعديل الكتالوج والـ SEO</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" name="canManageOrders" id="permOrders" value="true" class="w-4 h-4 text-amber-500 rounded" />
+                        <span>🚚 تجهيز الطلبات وبوالص الشحن</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" name="canViewFinance" id="permFinance" value="true" class="w-4 h-4 text-amber-500 rounded" />
+                        <span>💰 الاطلاع على الكشوفات المالية</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" name="canManageTeam" id="permTeam" value="true" class="w-4 h-4 text-amber-500 rounded" />
+                        <span>👥 إدارة أعضاء الفريق والصلاحيات</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeInviteModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">إلغاء</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/20 transition-all">
+                    تأكيد الدعوة وإضافة الحساب
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openInviteModal() {
+        document.getElementById('inviteModal').classList.remove('hidden');
+    }
+
+    function closeInviteModal() {
+        document.getElementById('inviteModal').classList.add('hidden');
+    }
+
+    function onRolePresetChanged(selectEl) {
+        const val = selectEl.value;
+        const pCatalog = document.getElementById('permCatalog');
+        const pOrders = document.getElementById('permOrders');
+        const pFinance = document.getElementById('permFinance');
+        const pTeam = document.getElementById('permTeam');
+
+        // Uncheck all
+        pCatalog.checked = false;
+        pOrders.checked = false;
+        pFinance.checked = false;
+        pTeam.checked = false;
+
+        if (val === 'DataEntry') {
+            pCatalog.checked = true;
+        } else if (val === 'WarehouseDispatch') {
+            pOrders.checked = true;
+        } else if (val === 'Accountant') {
+            pFinance.checked = true;
+        } else if (val === 'SalesTender') {
+            pCatalog.checked = true;
+            pOrders.checked = true;
+        } else if (val === 'VendorAdmin') {
+            pCatalog.checked = true;
+            pOrders.checked = true;
+            pFinance.checked = true;
+            pTeam.checked = true;
+        }
+    }
+
+    function toggleMemberStatus(memberId, btn) {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        fetch(`/Vendor/Team/ToggleStatus/${memberId}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'فشلت العملية.');
+            }
+        });
+    }
+
+    function deleteMember(memberId, name) {
+        if (!confirm(`هل أنت متأكد من رغبتك في إزالة الموظف (${name}) من فريق عمل المنشأة؟`)) return;
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        fetch(`/Vendor/Team/Delete/${memberId}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'فشلت العملية.');
+            }
+        });
+    }
+</script>
