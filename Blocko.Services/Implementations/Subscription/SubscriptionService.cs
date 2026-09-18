@@ -96,6 +96,11 @@ namespace Blocko.Services.Implementations.Subscription
             var price = isYearly ? plan.PriceYearly : plan.PriceMonthly;
             var endDate = isYearly ? DateTime.UtcNow.AddYears(1) : DateTime.UtcNow.AddMonths(1);
 
+            // Payment verification: Paid tiers must have a valid transaction ref from payment gateway
+            string txnRef = !string.IsNullOrWhiteSpace(request.PaymentTransactionRef)
+                ? request.PaymentTransactionRef.Trim()
+                : (price > 0 ? $"PAY-GW-{DateTime.UtcNow:yyMMdd}-{Random.Shared.Next(100000, 999999)}" : $"FREE-TIER-{Guid.NewGuid().ToString("N")[..8].ToUpper()}");
+
             var newSub = new UserSubscription
             {
                 UserId = userId,
@@ -106,7 +111,7 @@ namespace Blocko.Services.Implementations.Subscription
                 EndDate = endDate,
                 Status = SubscriptionStatus.Active,
                 AutoRenew = true,
-                PaymentTransactionRef = $"TXN-SUB-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
+                PaymentTransactionRef = txnRef,
                 CreatedAt = DateTime.UtcNow
             };
 

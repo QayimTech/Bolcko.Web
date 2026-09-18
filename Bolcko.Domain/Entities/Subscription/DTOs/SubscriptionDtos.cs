@@ -34,6 +34,8 @@ namespace Bolcko.Domain.Entities.Subscription.DTOs
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
+        public string? PaymentTransactionRef { get; set; }
+        public bool IsPaymentVerified { get; set; }
     }
 
     public class UserSubscriptionDto
