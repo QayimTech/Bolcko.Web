@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = $"إثبات تسليم المواد للموقع | {Model.TrackingCode}";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+    var isArabic = true;
 }
 
 <div class="max-w-xl mx-auto px-4 py-8" dir="rtl">
@@ -46,25 +47,38 @@
         <!-- Driver Input Fields -->
         <div class="space-y-4 text-xs">
             <div class="space-y-1">
-                <label class="font-bold text-slate-700 block">اسم سائق الشاحنة:</label>
-                <input type="text" id="driverName" placeholder="مثال: أحمد محمود" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:border-amber-500" />
+                <label class="font-bold text-slate-700 block">اسم سائق الشاحنة المعتمد:</label>
+                <input type="text" id="driverName" value="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")" placeholder="مثال: أحمد محمود" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:border-amber-500" />
             </div>
 
             <div class="space-y-1">
-                <label class="font-bold text-slate-700 block">رقم لوحة الشاحنة:</label>
+                <label class="font-bold text-slate-700 block">رقم هاتف السائق:</label>
+                <input type="tel" id="driverPhone" placeholder="07XXXXXXXX" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">رقم لوحة الشاحنة / ونش التوريد:</label>
                 <input type="text" id="vehiclePlate" placeholder="مثال: 12-34567" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono focus:outline-none focus:border-amber-500" />
             </div>
 
             <div class="space-y-1">
-                <label class="font-bold text-slate-700 block">صورة تفريغ المواد في الورشة (Photo Proof):</label>
-                <input type="file" id="podPhotoInput" accept="image/*" capture="camera" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-amber-600" />
+                <label class="font-bold text-slate-700 block">رمز الاستلام أو توقيع المقاول (Delivery Token):</label>
+                <input type="text" id="deliveryToken" placeholder="أدخل كود الاستلام المكون من 4 أرقام من المقاول" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">صورة حية لتفريغ المواد في الورشة (Photo Proof):</label>
+                <input type="file" id="podPhotoInput" accept="image/*" capture="camera" onchange="previewPodPhoto(this)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-amber-600 cursor-pointer" />
+                <div id="photoPreviewContainer" class="hidden mt-2">
+                    <img id="photoPreviewImg" src="" alt="Live Preview" class="w-full h-40 object-cover rounded-xl border border-slate-200" />
+                </div>
             </div>
         </div>
 
         <!-- Submit Button -->
         <button type="button" id="submitPodBtn" onclick="submitPodVerification(@Model.Id)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95">
             <span class="material-symbols-outlined">verified</span>
-            <span>تأكيد التسليم الموقعي بالـ GPS</span>
+            <span>تأكيد التسليم الموقعي بالـ GPS ونقل الضمان</span>
         </button>
 
     </div>
@@ -74,6 +88,19 @@
 <script>
     let driverLat = 0;
     let driverLon = 0;
+    let podPhotoBase64 = "";
+
+    function previewPodPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                podPhotoBase64 = e.target.result;
+                document.getElementById('photoPreviewImg').src = podPhotoBase64;
+                document.getElementById('photoPreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         if ("geolocation" in navigator) {
@@ -93,16 +120,21 @@
 
     async function submitPodVerification(tenderId) {
         const driver = document.getElementById('driverName')?.value?.trim();
+        const phone = document.getElementById('driverPhone')?.value?.trim() || '0790000000';
         const plate = document.getElementById('vehiclePlate')?.value?.trim();
 
         if (!driver || !plate) {
-            alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
+            if (window.BlockoModal) {
+                BlockoModal.alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
+            } else {
+                alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
+            }
             return;
         }
 
         const btn = document.getElementById('submitPodBtn');
         btn.disabled = true;
-        btn.innerText = 'جاري التحقق من إحداثيات الموقع...';
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري التحقق من إحداثيات الموقع...</span>';
 
         try {
             const res = await fetch('/Shop/Financing/SubmitPOD', {
@@ -111,24 +143,36 @@
                 body: JSON.stringify({
                     tenderId: tenderId,
                     driverName: driver,
-                    driverPhone: '0790000000',
+                    driverPhone: phone,
                     vehiclePlateNumber: plate,
                     driverLatitude: driverLat,
                     driverLongitude: driverLon,
-                    photoUrl: '/images/pod-verified.jpg'
+                    photoUrl: podPhotoBase64 || '/images/pod-verified.jpg'
                 })
             });
 
             const data = await res.json();
-            alert(data.message || 'تم تسجيل التسليم بنجاح.');
-            if (data.success) {
-                window.location.href = `/Shop/Financing/Details/${tenderId}`;
+            if (window.BlockoModal) {
+                BlockoModal.alert(data.message || 'تم تسجيل التسليم بنجاح.', () => {
+                    if (data.success) {
+                        window.location.href = `/Shop/Financing/Details/${tenderId}`;
+                    }
+                });
+            } else {
+                alert(data.message || 'تم تسجيل التسليم بنجاح.');
+                if (data.success) {
+                    window.location.href = `/Shop/Financing/Details/${tenderId}`;
+                }
             }
         } catch (e) {
-            alert('حدث خطأ أثناء رفع إثبات التوصيل.');
+            if (window.BlockoModal) {
+                BlockoModal.alert('حدث خطأ أثناء رفع إثبات التوصيل.');
+            } else {
+                alert('حدث خطأ أثناء رفع إثبات التوصيل.');
+            }
         } finally {
             btn.disabled = false;
-            btn.innerText = 'تأكيد التسليم الموقعي بالـ GPS';
+            btn.innerHTML = '<span class="material-symbols-outlined">verified</span> <span>تأكيد التسليم الموقعي بالـ GPS ونقل الضمان</span>';
         }
     }
 </script>
