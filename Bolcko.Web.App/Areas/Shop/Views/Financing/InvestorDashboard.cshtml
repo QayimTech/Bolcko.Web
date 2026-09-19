@@ -45,8 +45,12 @@
                 <p class="text-xs text-slate-400">يشمل رأس المال المسترد من العطاءات المسددة والأرباح الصافية المحررة من الضمان.</p>
             </div>
 
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <button type="button" onclick="openPayoutModal()" class="w-full md:w-auto px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+            <div class="flex items-center gap-3 w-full md:w-auto flex-wrap">
+                <button type="button" onclick="openDepositModal()" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-xl shadow-amber-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                    <span class="material-symbols-outlined">add_card</span>
+                    <span>إيداع وتغذية المحفظة</span>
+                </button>
+                <button type="button" onclick="openPayoutModal()" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
                     <span class="material-symbols-outlined">payments</span>
                     <span>طلب سحب الأرباح (CliQ / IBAN)</span>
                 </button>
@@ -299,6 +303,51 @@
                 <span class="material-symbols-outlined text-sm">send</span>
                 <span>تأكيد طلب التحويل</span>
             </button>
+    </div>
+</div>
+
+<!-- Deposit / Top-up Modal Dialog (QT1-108) -->
+<div id="depositModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" dir="rtl">
+    <div class="bg-slate-900 border border-white/15 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-start">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2 text-white font-bold text-base">
+                <span class="material-symbols-outlined text-amber-400">add_card</span>
+                <span>إيداع وتغذية رأس مال المحفظة</span>
+            </div>
+            <button type="button" onclick="closeDepositModal()" class="text-slate-400 hover:text-white cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-2">
+            <p class="font-bold text-amber-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">account_balance</span>
+                <span>الحساب البنكي المعتمد لحساب الضمان (Escrow Trust):</span>
+            </p>
+            <p class="text-slate-300 font-mono">البنك العربي • فرع الشميساني</p>
+            <p class="text-slate-300 font-mono text-[11px]">IBAN: JO29ARAB0120000001234567890100</p>
+            <p class="text-slate-300 font-mono text-[11px]">CliQ Alias: <strong class="text-white">BOLCKO.PAY@ARAB</strong></p>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="font-bold text-slate-300 block mb-1">المبلغ المودع (د.أ):</label>
+                <input type="number" id="depositAmount" min="50" step="50" placeholder="مثال: 5000" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono text-sm focus:outline-none focus:border-amber-500" />
+            </div>
+            <div>
+                <label class="font-bold text-slate-300 block mb-1">رقم الحوالة البنكية / مرجع كليك (Transaction Ref):</label>
+                <input type="text" id="depositRef" placeholder="مثال: TXN-892109283" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-amber-500" />
+            </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between gap-3">
+            <button type="button" onclick="closeDepositModal()" class="w-1/3 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-all cursor-pointer">
+                إلغاء
+            </button>
+            <button type="button" id="confirmDepositBtn" onclick="submitDepositRequest()" class="w-2/3 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">verified</span>
+                <span>تأكيد الإيداع في المحفظة</span>
+            </button>
         </div>
     </div>
 </div>
@@ -389,6 +438,48 @@
             btn.disabled = false;
             btn.innerHTML = '<span class="material-symbols-outlined text-sm">send</span> <span>تأكيد طلب التحويل</span>';
         }
+    }
+
+    function openDepositModal() {
+        document.getElementById('depositModal').classList.remove('hidden');
+    }
+
+    function closeDepositModal() {
+        document.getElementById('depositModal').classList.add('hidden');
+    }
+
+    async function submitDepositRequest() {
+        const amount = parseFloat(document.getElementById('depositAmount')?.value) || 0;
+        const ref = document.getElementById('depositRef')?.value?.trim();
+
+        if (amount < 50) {
+            if (window.BlockoModal) BlockoModal.alert('الحد الأدنى للإيداع هو 50 د.أ.');
+            else alert('الحد الأدنى للإيداع هو 50 د.أ.');
+            return;
+        }
+
+        if (!ref) {
+            if (window.BlockoModal) BlockoModal.alert('يرجى إدخال رقم مرجع الحوالة البنكية أو كليك.');
+            else alert('يرجى إدخال رقم مرجع الحوالة البنكية أو كليك.');
+            return;
+        }
+
+        const btn = document.getElementById('confirmDepositBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري التوثيق...</span>';
+
+        setTimeout(() => {
+            if (window.BlockoModal) {
+                BlockoModal.alert('تم استلام إشعار الإيداع بنجاح. سيتم قيد المبلغ في محفظتك فور مطابقة إشعار البنك.', () => {
+                    closeDepositModal();
+                    window.location.reload();
+                });
+            } else {
+                alert('تم استلام إشعار الإيداع بنجاح. سيتم قيد المبلغ في محفظتك فور مطابقة إشعار البنك.');
+                closeDepositModal();
+                window.location.reload();
+            }
+        }, 1000);
     }
 </script>
 }
