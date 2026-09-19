@@ -31,72 +31,110 @@
     </div>
 
     <!-- Navigation -->
-    <div class="flex-1 overflow-y-auto py-6 px-3 space-y-6 custom-scrollbar">
-        <div>
-            <p class="sidebar-text px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">
-                @L["MainMenu"]
+    <div class="flex-1 overflow-y-auto py-4 px-3 space-y-5 custom-scrollbar text-start" dir="rtl">
+        @{
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+            var currentAction     = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+            bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+
+            var fintechGroup = new List<(string Title, string Icon, string Controller, string Action)>
+            {
+                ("لوحة التحكم العامة", "dashboard", "Home", "Index"),
+                ("تمويل المرابحة والرقابة الشرعية", "account_balance", "Financing", "Index"),
+                ("مركز البيانات Data Hub", "database", "SEO", "ImportExport"),
+                ("إدارة المستخدمين والـ KYC", "manage_accounts", "User", "Index"),
+                ("إعدادات وبوابات الدفع", "account_balance_wallet", "PaymentSettings", "Index")
+            };
+
+            var supplyChainGroup = new List<(string Title, string Icon, string Controller, string Action)>
+            {
+                ("تصنيفات ومواد البناء الإنشائية", "construction", "MaterialTypes", "Index"),
+                ("مؤشرات أسعار السوق", "payments", "MarketPrice", "Index"),
+                ("إعدادات حاسبة البناء", "calculate", "CalculatorSettings", "Index"),
+                ("مركز التوزيع والنقل اللوجستي", "local_shipping", "DeliveryDispatch", "Index"),
+                ("تكامل الموردين والمخازن", "warehouse", "SupplierSettings", "Index")
+            };
+
+            var governanceGroup = new List<(string Title, string Icon, string Controller, string Action)>
+            {
+                ("مركز الأمان والزيارات والـ Audit", "shield_person", "SecurityCenter", "Index"),
+                ("إدارة الاشتراكات والباقات", "card_membership", "Subscription", "Index"),
+                ("الأسئلة الشائعة FAQ", "quiz", "FAQ", "Index"),
+                ("إعدادات النظام", "settings", "Settings", "Index"),
+                ("سجلات النظام والتشخيص", "bug_report", "Log", "Index")
+            };
+        }
+
+        <!-- Group 1: FinTech & Escrow Governance -->
+        <div class="space-y-1">
+            <p class="sidebar-text px-3 text-[10px] font-black text-amber-500/90 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <span>الحوكمة والعمليات المالية</span>
             </p>
-
-            <nav class="space-y-1">
-                @{
-                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-                    var currentAction     = ViewContext.RouteData.Values["action"]?.ToString();
-                    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
-
-                    var menuItems = new List<(string Key, string Icon, string Controller, string Action)>
+            @foreach (var item in fintechGroup)
+            {
+                bool isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) 
+                             && string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
+                <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group text-xs font-bold @(isActive ? "bg-slate-900 text-white shadow-md shadow-slate-900/20" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900")">
+                    <span class="material-symbols-outlined text-lg transition-colors @(isActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
+                        @item.Icon
+                    </span>
+                    <span class="sidebar-text truncate">@item.Title</span>
+                    @if (isActive)
                     {
-                        ("Dashboard",          "dashboard",       "Home",        "Index"),
-                        ("مركز البيانات Data Hub", "database",    "SEO",         "ImportExport"),
-                        ("ManageCategories",   "category",        "Category",    "Index"),
-                        ("ManageProducts",     "inventory_2",     "Product",     "Index"),
-                        ("ManageSEO",          "search_check",    "SEO",         "Index"),
-                        ("ManageOrders",       "shopping_bag",    "Order",       "Index"),
-                        ("الأسئلة الشائعة FAQ", "quiz",            "FAQ",         "Index"),
-                    };
-
-                    if (isAdmin)
-                    {
-                        menuItems.Add(("مركز الأمان والزيارات", "shield_person", "SecurityCenter", "Index"));
-                        menuItems.Add(("تمويل المرابحة الإسلامية", "account_balance", "Financing", "Index"));
-                        menuItems.Add(("تصنيفات ومواد البناء", "construction", "MaterialTypes", "Index"));
-                        menuItems.Add(("إدارة الاشتراكات والباقات", "card_membership", "Subscription", "Index"));
-                        menuItems.Add(("ManageMarketPrices", "payments", "MarketPrice", "Index"));
-                        menuItems.Add(("إعدادات حاسبة البناء", "calculate", "CalculatorSettings", "Index"));
-                        menuItems.Add(("SystemSettings",     "settings", "Settings",    "Index"));
-                        menuItems.Add(("إعدادات وبوابات الدفع", "account_balance_wallet", "PaymentSettings", "Index"));
-                        menuItems.Add(("ManageUsers", "manage_accounts", "User", "Index"));
-                        menuItems.Add(("تكامل الموردين والجملة", "warehouse", "SupplierSettings", "Index"));
-                        menuItems.Add(("DeliveryDistributionCenter", "local_shipping", "DeliveryDispatch", "Index"));
-                        menuItems.Add(("SystemLogs", "bug_report", "Log", "Index"));
+                        <div class="sidebar-text ms-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
                     }
-                    else
+                </a>
+            }
+        </div>
+
+        <!-- Group 2: Supply Chain & Engineering Standards -->
+        <div class="space-y-1 pt-2 border-t border-slate-100">
+            <p class="sidebar-text px-3 text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                <span>سلاسل الإمداد ومواصفات البناء</span>
+            </p>
+            @foreach (var item in supplyChainGroup)
+            {
+                bool isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) 
+                             && string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
+                <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group text-xs font-bold @(isActive ? "bg-slate-900 text-white shadow-md shadow-slate-900/20" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900")">
+                    <span class="material-symbols-outlined text-lg transition-colors @(isActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
+                        @item.Icon
+                    </span>
+                    <span class="sidebar-text truncate">@item.Title</span>
+                    @if (isActive)
                     {
-                        menuItems.Add(("SystemSettings",     "settings", "Settings",    "Index"));
+                        <div class="sidebar-text ms-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
                     }
-                }
+                </a>
+            }
+        </div>
 
-                @foreach (var item in menuItems)
-                {
-                    bool isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) 
-                                 && string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
-                    <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
-                       class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group @(isActive ? "bg-slate-900 text-white shadow-lg" : "text-slate-600 hover:bg-slate-50")">
-
-                        <span class="material-symbols-outlined transition-colors @(isActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
-                            @item.Icon
-                        </span>
-
-                        <span class="sidebar-text text-sm font-bold truncate">
-                            @(item.Key.Any(c => c >= 0x600 && c <= 0x6FF) ? item.Key : L[item.Key])
-                        </span>
-
-                        @if (isActive)
-                        {
-                            <div class="sidebar-text ms-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
-                        }
-                    </a>
-                }
-            </nav>
+        <!-- Group 3: Security & Platform Operations -->
+        <div class="space-y-1 pt-2 border-t border-slate-100">
+            <p class="sidebar-text px-3 text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                <span>الأمان والرقابة الإدارية</span>
+            </p>
+            @foreach (var item in governanceGroup)
+            {
+                bool isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) 
+                             && string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
+                <a href="@Url.Action(item.Action, item.Controller, new { area = "Admin" })"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group text-xs font-bold @(isActive ? "bg-slate-900 text-white shadow-md shadow-slate-900/20" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900")">
+                    <span class="material-symbols-outlined text-lg transition-colors @(isActive ? "text-[#E8A020]" : "text-slate-400 group-hover:text-[#E8A020]")">
+                        @item.Icon
+                    </span>
+                    <span class="sidebar-text truncate">@item.Title</span>
+                    @if (isActive)
+                    {
+                        <div class="sidebar-text ms-auto w-1.5 h-1.5 rounded-full bg-[#E8A020]"></div>
+                    }
+                </a>
+            }
         </div>
     </div>
 
