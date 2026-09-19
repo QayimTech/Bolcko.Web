@@ -467,6 +467,32 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
+        /// استعراض وطباعة شهادة القبض والتملك الحكمي الشرعي (Constructive Possession Certificate)
+        /// </summary>
+        [HttpGet]
+        [Route("PossessionNotice/{code}")]
+        [Route("ConstructivePossession/{code}")]
+        public async Task<IActionResult> PossessionNotice(string code)
+        {
+            FinancingTenderDto? tender = null;
+            if (int.TryParse(code, out var id))
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
+            }
+            if (tender == null)
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByTrackingCodeAsync(code);
+            }
+
+            if (tender == null)
+            {
+                return NotFound("شهادة القبض الحكمي غير موجودة أو لم يتم إصدارها بعد.");
+            }
+
+            return View("PossessionNotice", tender);
+        }
+
+        /// <summary>
         /// طلب سحب الأرباح ورأس المال المسترد عبر CliQ أو التحويل البنكي (IBAN)
         /// </summary>
         [HttpPost]
