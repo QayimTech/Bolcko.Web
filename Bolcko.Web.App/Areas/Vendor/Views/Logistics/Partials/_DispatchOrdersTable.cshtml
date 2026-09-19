@@ -1,0 +1,110 @@
+@model IEnumerable<Bolcko.Domain.Entities.Delivery.DTOs.VendorDispatchOrderDto>
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>أوامر التوريد الجاهزة للشحن والتحميل</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-mono font-bold">@Model.Count() شحنة</span>
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">تعيين السائقين، تسجيل تذاكر القبان وتوليد بيانات الحمولة المعتمدة (Dispatch Manifest)</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-16 text-slate-400 text-xs font-bold">
+            لا توجد شحنات بانتظار التحميل حالياً.
+        </div>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                        <th class="p-4">رقم الشحنة</th>
+                        <th class="p-4">المشروع والموقع</th>
+                        <th class="p-4">المادة والكمية</th>
+                        <th class="p-4">السائق والشاحنة</th>
+                        <th class="p-4">تذكرة القبان والوزن</th>
+                        <th class="p-4 text-center">الحالة</th>
+                        <th class="p-4 text-center">الإجراءات اللوجستية</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                            <td class="p-4 font-mono font-bold text-amber-600 dark:text-amber-400">@item.TrackingCode</td>
+                            <td class="p-4">
+                                <div class="font-bold text-slate-900 dark:text-white">@item.ProjectTitle</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                                    <span>@item.DestinationCity - @item.DestinationAddress</span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">@item.MaterialName</div>
+                                <div class="text-[11px] font-mono text-slate-500 font-bold mt-0.5">@item.Quantity.ToString("N1") @item.Unit • @item.TotalAmountJod.ToString("N0") د.أ</div>
+                            </td>
+                            <td class="p-4">
+                                @if (!string.IsNullOrEmpty(item.AssignedDriverName))
+                                {
+                                    <div class="font-bold text-slate-900 dark:text-white">@item.AssignedDriverName</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">@item.TruckPlateNumber (@item.VehicleType)</div>
+                                }
+                                else
+                                {
+                                    <button type="button" onclick="openDriverModal(@item.OrderId, '@item.TrackingCode', '@item.ProjectTitle')"
+                                            class="px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 hover:bg-sky-100 border border-sky-200 dark:border-sky-800 text-[11px] font-bold flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">person_add</span>
+                                        <span>تعيين سائق</span>
+                                    </button>
+                                }
+                            </td>
+                            <td class="p-4">
+                                @if (!string.IsNullOrEmpty(item.WeighbridgeTicketNo))
+                                {
+                                    <div class="font-mono font-bold text-emerald-600 dark:text-emerald-400">صافي: @item.NetWeightTons?.ToString("N2") طن</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">تذكرة: @item.WeighbridgeTicketNo</div>
+                                }
+                                else
+                                {
+                                    <button type="button" onclick="openWeighbridgeModal(@item.OrderId, '@item.TrackingCode', '@item.MaterialName', @item.Quantity)"
+                                            class="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 text-[11px] font-bold flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">scale</span>
+                                        <span>تسجيل وزن القبان</span>
+                                    </button>
+                                }
+                            </td>
+                            <td class="p-4 text-center">
+                                @if (item.Status == "WeighedAndDispatched")
+                                {
+                                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400">تم الوزن وانطلقت</span>
+                                }
+                                else if (item.Status == "Delivered")
+                                {
+                                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-500/10 text-emerald-500">تم التسليم بالموقع</span>
+                                }
+                                else
+                                {
+                                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-amber-500/10 text-amber-500">جاهزة للتحميل</span>
+                                }
+                            </td>
+                            <td class="p-4 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <a asp-action="Manifest" asp-route-id="@item.OrderId" target="_blank"
+                                       class="px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 font-bold text-[11px] transition-colors flex items-center gap-1 shadow-sm">
+                                        <span class="material-symbols-outlined text-xs">receipt_long</span>
+                                        <span>بيان الحمولة A4</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

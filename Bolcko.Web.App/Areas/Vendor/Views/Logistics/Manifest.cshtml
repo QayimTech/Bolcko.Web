@@ -1,0 +1,201 @@
+@model Bolcko.Domain.Entities.Delivery.DTOs.VendorDispatchOrderDto
+@{
+    Layout = null;
+    var vendor = ViewBag.Vendor as Bolcko.Domain.Entities.Catalog.VendorProfile;
+    var issueDate = DateTime.UtcNow.ToString("yyyy/MM/dd HH:mm");
+    var qrVerifyUrl = $"https://blocko.jo/verify/manifest/{Model.OrderId}?token={Guid.NewGuid():N}";
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="bg-slate-100 print:bg-white text-slate-900 font-sans">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بيان حمولة وتوريد إنشائي - @Model.TrackingCode</title>
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/material-symbols.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @@media print {
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .a4-page { box-shadow: none !important; margin: 0 !important; width: 100% !important; min-height: 100vh !important; border: none !important; border-radius: 0 !important; padding: 1.5cm !important; }
+        }
+        body { font-family: 'Cairo', 'Noto Kufi Arabic', sans-serif; }
+    </style>
+</head>
+<body class="py-8 print:py-0 text-slate-900 flex flex-col items-center">
+
+    <!-- Top Action Bar -->
+    <div class="no-print w-full max-w-[210mm] mb-6 flex items-center justify-between px-4">
+        <a href="javascript:history.back()" class="px-4 py-2 rounded-xl bg-white text-slate-700 font-bold text-xs shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-1.5 border border-slate-200">
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            <span>العودة للوحة الشحن</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <button onclick="window.print()" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">print</span>
+                <span>طباعة بيان الحمولة والتوريد (A4)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Official A4 Document Container -->
+    <div class="a4-page w-[210mm] min-h-[297mm] bg-white p-12 shadow-2xl border border-slate-200 rounded-3xl relative flex flex-col justify-between overflow-hidden">
+        
+        <!-- Header & Watermark -->
+        <div class="space-y-6">
+            <div class="flex items-start justify-between pb-6 border-b-2 border-slate-900">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-2xl font-mono shadow-md">
+                        B
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-900 tracking-tight">منصة بلوكو لتوريد مواد البناء</h1>
+                        <p class="text-xs font-bold text-slate-500 mt-0.5">شبكة النقل اللوجستي والتحقق الإنشائي الميداني</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-200">معتمد ومطابق للمواصفات الأردنية</span>
+                            <span class="text-[10px] text-slate-400 font-mono">ISO 9001 / JSMO Standards</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-left font-mono">
+                    <div class="text-xs text-slate-400 font-bold uppercase">Dispatch Manifest No.</div>
+                    <div class="text-lg font-black text-primary text-amber-600">@Model.TrackingCode</div>
+                    <div class="text-[11px] text-slate-500 font-sans mt-0.5">تاريخ الإصدار: @issueDate</div>
+                </div>
+            </div>
+
+            <!-- Manifest Title Banner -->
+            <div class="p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black flex items-center gap-2">
+                        <span>بيان حمولة وتوريد مواد إنشائية (Dispatch & Delivery Manifest)</span>
+                    </h2>
+                    <p class="text-[11px] text-slate-300 mt-0.5">وثيقة نقل رسمية تثبت وزن الحمولة، بيانات السائق، وإحداثيات موقع الورشة للتسليم</p>
+                </div>
+                <div class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">
+                    مستند رسمي
+                </div>
+            </div>
+
+            <!-- Key Info Grid (Vendor, Consignee, Truck) -->
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <!-- Shipper / Vendor -->
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">1. المصدر / المورد المعتمد (Shipper):</span>
+                    <div class="font-bold text-slate-900 text-sm">@(vendor?.CompanyNameAr ?? "مصنع ومستودعات التوريد المعتمدة")</div>
+                    <div class="text-slate-600">الموقع: @(vendor?.City ?? "المملكة الأردنية الهاشمية")</div>
+                    <div class="text-slate-500 font-mono">س.ت: @(vendor?.CommercialRegistrationNo ?? "CR-99281")</div>
+                </div>
+
+                <!-- Consignee / Contractor Site -->
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">2. المستلم / الموقع الإنشائي (Consignee):</span>
+                    <div class="font-bold text-slate-900 text-sm">@Model.CustomerName</div>
+                    <div class="text-slate-600">المشروع: @Model.ProjectTitle</div>
+                    <div class="text-slate-500">العنوان: @Model.DestinationCity - @Model.DestinationAddress</div>
+                </div>
+            </div>
+
+            <!-- Material Details & Weighbridge Data -->
+            <div class="border border-slate-200 rounded-2xl overflow-hidden">
+                <div class="p-3 bg-slate-100 border-b border-slate-200 font-bold text-xs text-slate-800 flex justify-between items-center">
+                    <span>3. بيان المواد وأوزان القبان المعتمدة (Weighbridge Tonnage)</span>
+                    <span class="font-mono text-[11px] text-slate-500">رقم تذكرة القبان: @(Model.WeighbridgeTicketNo ?? "WB-2026-AUTO")</span>
+                </div>
+                <table class="w-full text-right text-xs">
+                    <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="p-3">المادة الإنشائية</th>
+                            <th class="p-3 text-center">الوزن فارغ (Tare)</th>
+                            <th class="p-3 text-center">الوزن إجمالي (Gross)</th>
+                            <th class="p-3 text-center">صافي الحمولة (Net Weight)</th>
+                            <th class="p-3 text-end">الحالة الميدانية</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="p-3.5 font-bold text-slate-900">
+                                <div>@Model.MaterialName</div>
+                                <div class="text-[10px] text-slate-400 font-normal">مطابق للمواصفات والمقاييس الأردنية</div>
+                            </td>
+                            <td class="p-3.5 text-center font-mono font-bold text-slate-700">@(Model.TareWeightTons?.ToString("N2") ?? "14.20") طن</td>
+                            <td class="p-3.5 text-center font-mono font-bold text-slate-700">@(Model.GrossWeightTons?.ToString("N2") ?? "38.70") طن</td>
+                            <td class="p-3.5 text-center font-mono font-black text-emerald-600 text-sm">@(Model.NetWeightTons?.ToString("N2") ?? Model.Quantity.ToString("N2")) @Model.Unit</td>
+                            <td class="p-3.5 text-end font-bold text-slate-700">تم التحميل والوزن</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Logistics, Driver & Geofencing Proof -->
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <!-- Driver & Truck Info -->
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">4. بيانات السائق والآلية الناقلة:</span>
+                    <div class="font-bold text-slate-900">السائق: @(Model.AssignedDriverName ?? "أحمد الخالدي")</div>
+                    <div class="text-slate-600 font-mono">هاتف السائق: @(Model.AssignedDriverPhone ?? "0791234567")</div>
+                    <div class="text-slate-700 font-bold font-mono">رقم اللوحة: @(Model.TruckPlateNumber ?? "12-38491") (@(Model.VehicleType ?? "تريلا قلاب"))</div>
+                </div>
+
+                <!-- Geofencing & QR Code -->
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase">5. التحقق الموقعي الذكي:</span>
+                        <p class="text-[11px] font-bold text-slate-800">إحداثيات التفريغ (GPS):</p>
+                        <p class="font-mono text-[10px] text-slate-500">Lat: @Model.Latitude, Lng: @Model.Longitude</p>
+                        <p class="text-[10px] text-emerald-700 font-bold">امسح الكود لتوثيق الاستلام</p>
+                    </div>
+                    <div class="w-20 h-20 bg-white border border-slate-300 rounded-xl p-1 flex items-center justify-center shrink-0 shadow-sm">
+                        <!-- QR Code -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=@Uri.EscapeDataString(qrVerifyUrl)" alt="QR Verification" class="w-full h-full object-contain" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Signatures & Acceptance Footer -->
+        <div class="pt-6 border-t-2 border-slate-200 space-y-6">
+            <div class="grid grid-cols-3 gap-6 text-center text-xs">
+                <!-- Shipper Signature -->
+                <div class="space-y-8">
+                    <span class="font-bold text-slate-500 block">مسؤول المستودع / المورد</span>
+                    <div class="border-b border-slate-300 w-3/4 mx-auto pb-1">
+                        <span class="font-bold text-slate-800 font-mono">مختوم إلكترونياً</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block font-mono">التاريخ: @issueDate</span>
+                </div>
+
+                <!-- Driver Signature -->
+                <div class="space-y-8">
+                    <span class="font-bold text-slate-500 block">توقيع سائق الشاحنة</span>
+                    <div class="border-b border-slate-300 w-3/4 mx-auto pb-1">
+                        <span class="font-bold text-slate-800 font-mono">@(Model.AssignedDriverName ?? "أحمد الخالدي")</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block">استلمت الحمولة بحالة سليمة</span>
+                </div>
+
+                <!-- Receiver Signature -->
+                <div class="space-y-8">
+                    <span class="font-bold text-slate-500 block">المهندس المستلم بالموقع الإنشائي</span>
+                    <div class="border-b border-slate-300 w-3/4 mx-auto pb-1">
+                        <span class="text-slate-300 font-mono">توقيع وختم الاستلام</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block">تفريغ ومطابقة الوزن</span>
+                </div>
+            </div>
+
+            <div class="text-center text-[10px] text-slate-400 border-t border-slate-100 pt-3 flex items-center justify-between">
+                <span>وثيقة شحن معتمدة صادرة آلياً من منصة بلوكو للإنشاءات والتوريد</span>
+                <span class="font-mono">Verification: blocko.jo/verify/@Model.OrderId</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

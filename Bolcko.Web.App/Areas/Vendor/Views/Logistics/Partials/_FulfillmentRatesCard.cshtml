@@ -1,0 +1,72 @@
+@model Bolcko.Domain.Entities.Delivery.DTOs.VendorFulfillmentConfigDto
+
+<div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
+            💵
+        </div>
+        <div>
+            <h3 class="text-sm font-black text-slate-900 dark:text-white">تعرفة التوصيل وتفريغ الونش والمحافظات المشمولة</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">حدد أجور النقل الإنشائي، رسوم التفريغ بالونش، وحد التوصيل المجاني للطلبات الكبرى</p>
+        </div>
+    </div>
+
+    <!-- Pricing Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">أجرة النقل الأساسية (د.أ) *</label>
+            <div class="relative">
+                <input type="number" step="0.01" asp-for="StandardDeliveryFeeJod" required
+                       class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">د.أ</span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">لكل نقلة داخل المحافظة</span>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">رسوم التفريغ بالونش (د.أ)</label>
+            <div class="relative">
+                <input type="number" step="0.01" asp-for="CraneOffloadingFeeJod" required
+                       class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">د.أ</span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">للمواد الثقيلة (طوب، حجر، إسمنت)</span>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">حد التوصيل المجاني (د.أ)</label>
+            <div class="relative">
+                <input type="number" step="0.01" asp-for="FreeDeliveryThresholdJod" required
+                       class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">د.أ</span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">توصيل مجاني للطلبات فوق هذا المبلغ</span>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">فترة التوريد المتوقعة (SLA)</label>
+            <select asp-for="EstimatedSlaHours" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                <option value="6">خلال 6 ساعات (توريد فوري طارئ)</option>
+                <option value="12">خلال 12 ساعة (نفس اليوم)</option>
+                <option value="24" selected>خلال 24 ساعة (اليوم التالي)</option>
+                <option value="48">خلال 48 ساعة</option>
+            </select>
+            <span class="text-[10px] text-slate-400 mt-1 block">التزام وقت الوصول للموقع</span>
+        </div>
+    </div>
+
+    <!-- Covered Governorates Multi-select/Tags -->
+    <div>
+        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">المحافظات المغطاة بشبكة توريدك:</label>
+        <div class="flex flex-wrap gap-2">
+            @foreach (var gov in new[] { "عمان", "الزرقاء", "البلقاء", "مأدبا", "إربد", "جرش", "عجلون", "المفرق", "الكرك", "الطفيلة", "معان", "العقبة" })
+            {
+                var isCovered = Model.CoveredGovernorates != null && Model.CoveredGovernorates.Contains(gov);
+                <label class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex items-center gap-1.5 @(isCovered ? "bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300" : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400")">
+                    <input type="checkbox" name="CoveredGovs" value="@gov" @(isCovered ? "checked" : "") class="rounded text-amber-500" />
+                    <span>@gov</span>
+                </label>
+            }
+        </div>
+    </div>
+</div>

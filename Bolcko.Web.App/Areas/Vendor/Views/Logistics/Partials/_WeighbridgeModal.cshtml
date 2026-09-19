@@ -1,0 +1,74 @@
+<div id="weighbridgeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-2xl space-y-4" dir="rtl">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div>
+                <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <span>⚖️</span>
+                    <span>تسجيل تذكرة القبان والوزن المعتمد</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5" id="wbModalSub">الشحنة: BLK-00000</p>
+            </div>
+            <button type="button" onclick="closeWeighbridgeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl font-bold">&times;</button>
+        </div>
+
+        <form asp-action="UploadWeighbridgeTicket" method="post" enctype="multipart/form-data" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" id="wbOrderId" value="0" />
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم تذكرة القبان (Ticket #) *</label>
+                <input type="text" name="ticketNo" id="wbTicketNo" required placeholder="مثال: WB-2026-9921"
+                       class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوزن فارغ (طن) *</label>
+                    <input type="number" step="0.01" name="tareWeight" id="wbTareWeight" required placeholder="0.00" oninput="calcNetWeight()"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الوزن الإجمالي محمل (طن) *</label>
+                    <input type="number" step="0.01" name="grossWeight" id="wbGrossWeight" required placeholder="0.00" oninput="calcNetWeight()"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+            </div>
+
+            <!-- Auto-calculated Net Weight -->
+            <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-900 dark:text-emerald-300">صافي وزن الحمولة الموردة:</span>
+                <span id="wbNetDisplay" class="text-base font-black text-emerald-700 dark:text-emerald-400 font-mono">0.00 طن</span>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">صورة / مسح تذكرة القبان الموقعة</label>
+                <input type="file" name="ticketFile" accept=".pdf,.png,.jpg,.jpeg,.webp"
+                       class="w-full text-[11px] text-slate-600 dark:text-slate-300 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-100 dark:file:bg-amber-900/60 file:text-amber-800 dark:file:text-amber-200 cursor-pointer" />
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeWeighbridgeModal()" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">إلغاء</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black text-xs shadow-md transition-all">تأكيد الوزن وإصدار بيان الحمولة</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openWeighbridgeModal(orderId, trackingCode, materialName, reqQty) {
+        document.getElementById('wbOrderId').value = orderId;
+        document.getElementById('wbModalSub').textContent = `${trackingCode} • ${materialName} (مطلوب: ${reqQty} طن)`;
+        document.getElementById('weighbridgeModal').classList.remove('hidden');
+        document.getElementById('weighbridgeModal').classList.add('flex');
+    }
+    function closeWeighbridgeModal() {
+        document.getElementById('weighbridgeModal').classList.add('hidden');
+        document.getElementById('weighbridgeModal').classList.remove('flex');
+    }
+    function calcNetWeight() {
+        const tare = parseFloat(document.getElementById('wbTareWeight').value) || 0;
+        const gross = parseFloat(document.getElementById('wbGrossWeight').value) || 0;
+        const net = Math.max(0, gross - tare);
+        document.getElementById('wbNetDisplay').textContent = `${net.toFixed(2)} طن`;
+    }
+</script>

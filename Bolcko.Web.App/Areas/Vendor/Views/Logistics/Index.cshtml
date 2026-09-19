@@ -1,0 +1,63 @@
+@model Bolcko.Domain.Entities.Delivery.DTOs.VendorFulfillmentConfigDto
+@{
+    ViewData["Title"] = "مركز اللوجستيات والشحن الإنشائي";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+}
+
+<div class="space-y-6" dir="rtl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black text-2xl ring-8 ring-amber-500/5">
+                🚚
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-slate-900 dark:text-white">مركز اللوجستيات والشحن الذاتي (Fulfillment Hub)</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    إدارة استراتيجية شحن مواد البناء (أسطول خاص، 3PL، أو أسطول بلوكو)، ضبط تعرفة النقل والونش، وجدولة الشاحنات
+                </p>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a asp-action="Dispatch"
+               class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">local_shipping</span>
+                <span>لوحة الشحن وتذاكر القبان (VL-02)</span>
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-2">
+            <span>✅</span> <span>@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-sm flex items-center gap-2">
+            <span>⚠️</span> <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <form asp-action="SaveFulfillmentConfig" method="post" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- 1. Fulfillment Strategy Selector (Own Fleet, 3PL, Platform Pool) -->
+        <partial name="Partials/_FulfillmentModeSelector" model="Model" />
+
+        <!-- 2. Delivery Rates, Crane Offloading Fees & Covered Governorates -->
+        <partial name="Partials/_FulfillmentRatesCard" model="Model" />
+
+        <!-- Submit Settings -->
+        <div class="flex items-center justify-end gap-3">
+            <button type="submit" class="px-8 py-3.5 rounded-2xl bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-xs shadow-xl transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">save</span>
+                <span>حفظ إعدادات الشحن والتوريد</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- 3. Registered Fleet Vehicles & Drivers -->
+    <partial name="Partials/_FleetRosterTable" />
+</div>
