@@ -453,6 +453,33 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
+        /// صفحة التحقق العامة والختم الرقمي لعقود المرابحة والشهادات الشرعية (Public Contract Verification Portal)
+        /// </summary>
+        [HttpGet]
+        [Route("Verify")]
+        [Route("Verify/{code}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Verify(string? code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return View("~/Areas/Shop/Views/Financing/Verify.cshtml", null);
+            }
+
+            FinancingTenderDto? tender = null;
+            if (int.TryParse(code, out var id))
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
+            }
+            if (tender == null)
+            {
+                tender = await _serviceManager.FinancingService.GetTenderByTrackingCodeAsync(code);
+            }
+
+            return View("~/Areas/Shop/Views/Financing/Verify.cshtml", tender);
+        }
+
+        /// <summary>
         /// استعراض وتنزيل عقد الوكالة الشرعي بالمرابحة للأمر بالشراء (Wakala Agreement)
         /// </summary>
         [HttpGet]
