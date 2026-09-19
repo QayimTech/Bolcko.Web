@@ -1,3 +1,4 @@
+using Blocko.Services.Interfaces;
 using Blocko.Services.Interfaces.Financing;
 using Bolcko.Web.App.Hubs;
 using Microsoft.AspNetCore.SignalR;
@@ -14,16 +15,16 @@ namespace Bolcko.Web.App.Jobs
 
     public class FinancingAutomationJobs : IFinancingAutomationJobs
     {
-        private readonly IFinancingService _financingService;
+        private readonly IServiceManager _serviceManager;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ILogger<FinancingAutomationJobs> _logger;
 
         public FinancingAutomationJobs(
-            IFinancingService financingService,
+            IServiceManager serviceManager,
             IHubContext<NotificationHub> hubContext,
             ILogger<FinancingAutomationJobs> logger)
         {
-            _financingService = financingService;
+            _serviceManager = serviceManager;
             _hubContext = hubContext;
             _logger = logger;
         }
@@ -34,7 +35,7 @@ namespace Bolcko.Web.App.Jobs
 
             try
             {
-                int processedCount = await _financingService.ProcessDailyRepaymentsAndYieldDistributionAsync();
+                int processedCount = await _serviceManager.FinancingService.ProcessDailyRepaymentsAndYieldDistributionAsync();
 
                 if (processedCount > 0)
                 {
