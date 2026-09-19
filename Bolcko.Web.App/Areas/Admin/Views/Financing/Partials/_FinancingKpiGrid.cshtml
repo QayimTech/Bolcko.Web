@@ -1,0 +1,51 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.AdminFinancingOverviewDto
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- Total Facilitated Capital -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">إجمالي التمويل الميسر (حساب الضمان)</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+            </div>
+        </div>
+        <p class="text-2xl font-black text-slate-900 font-mono">@Model.TotalFacilitatedFinancingJod.ToString("N0") <span class="text-xs font-bold text-slate-500">د.أ</span></p>
+        <p class="text-[11px] text-slate-400 font-medium">بضائع وأصول إنشائية عينية مشتراة</p>
+    </div>
+
+    <!-- Platform Agency Fee -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">أجر وكالة المنصة المحصل</span>
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+            </div>
+        </div>
+        <p class="text-2xl font-black text-amber-600 font-mono">@Model.TotalPlatformFeesCollectedJod.ToString("N0") <span class="text-xs font-bold text-slate-500">د.أ</span></p>
+        <p class="text-[11px] text-slate-400 font-medium">1.5% أجر وكالة شرعي للمنصة</p>
+    </div>
+
+    <!-- Investor Profits Distributed -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">أرباح المستثمرين الموزعة</span>
+            <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">trending_up</span>
+            </div>
+        </div>
+        <p class="text-2xl font-black text-sky-600 font-mono">@Model.TotalInvestorProfitsDistributedJod.ToString("N0") <span class="text-xs font-bold text-slate-500">د.أ</span></p>
+        <p class="text-[11px] text-slate-400 font-medium">عوائد صافية محولة للممولين</p>
+    </div>
+
+    <!-- Active Tenders in Pipeline -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">العطاءات قيد التنفيذ والتسليم</span>
+            <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+            </div>
+        </div>
+        <p class="text-2xl font-black text-purple-600 font-mono">@(Model.InTransitCount + Model.DeliveredPendingSettlementCount) <span class="text-xs font-bold text-slate-500">عطاء</span></p>
+        <p class="text-[11px] text-slate-400 font-medium">@Model.DeliveredPendingSettlementCount بانتظار السداد والتسوية النهائية</p>
+    </div>
+</div>

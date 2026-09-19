@@ -1,0 +1,110 @@
+@model IReadOnlyList<Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto>
+
+<div class="bg-white border border-slate-200/80 shadow-sm overflow-hidden rounded-2xl">
+    <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
+        <div>
+            <h2 class="font-black text-sm text-slate-900 flex items-center gap-2">
+                <span>سجل تدقيق عطاءات المرابحة والتوثيق الميداني</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">@Model.Count عطاء</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">مراقبة الجدارة الائتمانية CRIF، التحقق الجغرافي GPS، وإفراجات حساب الضمان Escrow</p>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-right border-collapse min-w-[950px] text-xs">
+            <thead>
+                <tr class="bg-slate-50/90 border-b border-slate-200 text-slate-500 font-bold">
+                    <th class="px-4 py-3.5">رمز العطاء</th>
+                    <th class="px-4 py-3.5">المشروع والموقع</th>
+                    <th class="px-4 py-3.5">المقاول والجدارة الائتمانية</th>
+                    <th class="px-4 py-3.5">المستثمر الممول</th>
+                    <th class="px-4 py-3.5 text-end">رأس المال (د.أ)</th>
+                    <th class="px-4 py-3.5 text-end">أجر الوكالة</th>
+                    <th class="px-4 py-3.5 text-center">المدة</th>
+                    <th class="px-4 py-3.5 text-center">الحالة الشرعية</th>
+                    <th class="px-4 py-3.5 text-center">إجراءات الرقابة</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var t in Model)
+                {
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="px-4 py-3.5 font-mono font-black text-primary">@t.TrackingCode</td>
+                        <td class="px-4 py-3.5 font-bold text-slate-900">
+                            <div>@t.ProjectTitle</div>
+                            <div class="text-[10px] text-slate-400 font-normal flex items-center gap-1 mt-0.5">
+                                <span class="material-symbols-outlined text-[12px] text-slate-400">location_on</span>
+                                <span>@t.ProjectCity</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3.5">
+                            <div class="font-bold text-slate-800">@t.ContractorName</div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] text-slate-400 font-mono">@t.ContractorPhone</span>
+                                <span class="px-1.5 py-0.2 rounded text-[9px] font-bold @(t.ContractorTrustScore >= 80 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")">
+                                    CRIF @t.ContractorTrustScore
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3.5">
+                            @if (!string.IsNullOrEmpty(t.FunderName))
+                            {
+                                <div class="font-bold text-emerald-700 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span>@t.FunderName</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400 italic text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">بانتظار التمويل</span>
+                            }
+                        </td>
+                        <td class="px-4 py-3.5 text-end font-mono font-black text-slate-900">@t.BaseMaterialCost.ToString("N0") د.أ</td>
+                        <td class="px-4 py-3.5 text-end font-mono font-bold text-amber-600">@t.PlatformAgencyFeeAmount.ToString("N0") د.أ</td>
+                        <td class="px-4 py-3.5 text-center font-mono font-bold text-slate-700">@t.TenureDays يوم</td>
+                        <td class="px-4 py-3.5 text-center">
+                            @{
+                                var statusClass = t.Status switch
+                                {
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Draft => "bg-slate-100 text-slate-700",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.OpenForBidding => "bg-blue-100 text-blue-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Funded => "bg-sky-100 text-sky-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.GoodsPurchased => "bg-indigo-100 text-indigo-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Dispatched => "bg-purple-100 text-purple-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Delivered => "bg-amber-100 text-amber-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Settled => "bg-emerald-100 text-emerald-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Defaulted => "bg-rose-100 text-rose-800",
+                                    Bolcko.Domain.Enums.FinancingTenderStatus.Cancelled => "bg-rose-50 text-rose-600",
+                                    _ => "bg-slate-100 text-slate-700"
+                                };
+                            }
+                            <span class="px-2.5 py-1 text-[10px] font-black rounded-full @statusClass">
+                                @t.StatusNameAr
+                            </span>
+                        </td>
+                        <td class="px-4 py-3.5 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <a href="@Url.Action("Details", new { id = t.Id })" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors text-[11px] inline-flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">policy</span>
+                                    <span>تدقيق الحوكمة</span>
+                                </a>
+                                <a href="/Shop/Financing/Contract/@t.Id" target="_blank" title="عرض العقد الشرعي" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-xs">description</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center text-slate-400 italic">
+                            لا توجد عطاءات مسجلة حتى الآن.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
