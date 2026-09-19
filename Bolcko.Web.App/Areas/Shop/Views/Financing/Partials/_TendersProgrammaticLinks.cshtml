@@ -1,0 +1,65 @@
+@model Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+
+<div class="mt-12 pt-8 border-t border-slate-800">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Regional Cities Links -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
+            <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                <i class="fas fa-map-marked-alt text-amber-400"></i>
+                <span>فرص المرابحة الإنشائية حسب المحافظة</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">
+                تصفح فرص الاستثمار وتوريد مواد البناء في كافة محافظات المملكة الأردنية الهاشمية
+            </p>
+            <div class="flex flex-wrap gap-2">
+                @foreach (var city in Model.AvailableCities)
+                {
+                    var isActive = city.Slug.Equals(Model.CitySlug, StringComparison.OrdinalIgnoreCase);
+                    <a href="/Invest/Tenders/@city.Slug/@Model.MaterialSlug" 
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition @(isActive ? "bg-amber-500 text-slate-950 font-bold" : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60")">
+                        <span>@city.NameAr</span>
+                        @if (city.ActiveDealsCount > 0)
+                        {
+                            <span class="text-[10px] px-1.5 py-0.2 rounded-full @(isActive ? "bg-slate-950 text-amber-400" : "bg-slate-700 text-slate-300")">
+                                @city.ActiveDealsCount
+                            </span>
+                        }
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- Material Commodities Links -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
+            <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                <i class="fas fa-boxes text-emerald-400"></i>
+                <span>اكتتابات المواد وسلاسل الإمداد الإنشائية</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">
+                فرص تمويل شراء وتوريد المواد الإنشائية الأساسية من المصانع مباشرة
+            </p>
+            <div class="flex flex-wrap gap-2">
+                @foreach (var mat in Model.AvailableMaterials)
+                {
+                    var isActive = mat.Slug.Equals(Model.MaterialSlug, StringComparison.OrdinalIgnoreCase);
+                    <a href="/Invest/Tenders/@Model.CitySlug/@mat.Slug" 
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition @(isActive ? "bg-emerald-500 text-slate-950 font-bold" : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60")">
+                        <span>@mat.NameAr</span>
+                        @if (mat.ActiveDealsCount > 0)
+                        {
+                            <span class="text-[10px] px-1.5 py-0.2 rounded-full @(isActive ? "bg-slate-950 text-emerald-400" : "bg-slate-700 text-slate-300")">
+                                @mat.ActiveDealsCount
+                            </span>
+                        }
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Sharia & Legal Notice -->
+    <div class="mt-8 p-4 rounded-xl bg-slate-950/40 border border-slate-800/60 text-center text-xs text-slate-400 leading-relaxed">
+        <span class="text-emerald-400 font-semibold">إشعار الامتثال الشرعي:</span>
+        كافة عمليات التمويل عبر منصة بلكو تتم وفق صيغة <strong class="text-slate-200">المرابحة للآمر بالشراء مع الوكالة الشرعية</strong>، حيث يتملك المستثمر المواد فعلياً أو حكمياً بموجب سندات توريد رسمية وفحص قبان معتمد قبل إعادة بيعها وتمليكها للمقاول، بما يتوافق كلياً مع معايير هيئة المحاسبة والمراجعة للمؤسسات المالية الإسلامية (AAOIFI).
+    </div>
+</div>

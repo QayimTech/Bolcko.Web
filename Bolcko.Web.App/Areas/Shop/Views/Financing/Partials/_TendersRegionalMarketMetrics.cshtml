@@ -1,0 +1,67 @@
+@model Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <!-- Metric 1: Expected Yield -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-emerald-500/30 transition">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">متوسط العائد السنوي (APR)</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+        <div>
+            <div class="text-2xl sm:text-3xl font-black text-emerald-400 mb-1">
+                @Model.AverageAnnualizedYield%
+            </div>
+            <p class="text-[11px] text-slate-400">صافي ربح المستثمر بعد رسوم الوكالة</p>
+        </div>
+    </div>
+
+    <!-- Metric 2: Average Tenure -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-amber-500/30 transition">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">متوسط أجل الدورة المالية</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div>
+            <div class="text-2xl sm:text-3xl font-black text-white mb-1">
+                @Model.AverageTenureDays <span class="text-sm font-normal text-slate-400">يوماً</span>
+            </div>
+            <p class="text-[11px] text-slate-400">دوران رأس مال سريع وسيولة مرنة</p>
+        </div>
+    </div>
+
+    <!-- Metric 3: Total Volume -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-blue-500/30 transition">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">إجمالي حجم الفرص المعروضة</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+        <div>
+            <div class="text-2xl sm:text-3xl font-black text-blue-400 mb-1">
+                @Model.TotalSyndicateVolumeJod.ToString("N0") <span class="text-sm font-normal text-slate-400">د.أ</span>
+            </div>
+            <p class="text-[11px] text-slate-400">عقود توريد مضمونة بأصول حقيقية</p>
+        </div>
+    </div>
+
+    <!-- Metric 4: Repayment Track Record -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:border-purple-500/30 transition">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">نسبة الالتزام بالسداد</span>
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+        </div>
+        <div>
+            <div class="text-2xl sm:text-3xl font-black text-purple-400 mb-1">
+                @Model.RepaymentSuccessRate%
+            </div>
+            <p class="text-[11px] text-slate-400">فحص ملاءمة ائتمانية CRIF وسندات لأمر</p>
+        </div>
+    </div>
+</div>

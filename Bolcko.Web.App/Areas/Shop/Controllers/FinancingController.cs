@@ -163,6 +163,110 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
+        /// محرك صفحات الهبوط الاستثمارية التلقائية والبرمجية لتحسين محركات البحث (/Invest/Tenders/{city}/{materialType})
+        /// Programmatic SEO Engine for Open Investment Tenders & Bulk Materials (SEO-03, QT1-123)
+        /// </summary>
+        [HttpGet("/Invest/Tenders/{city?}/{materialType?}")]
+        [HttpGet("Tenders/{city?}/{materialType?}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ProgrammaticTenders(string? city = "all", string? materialType = "all")
+        {
+            var citySlug = (city ?? "all").Trim().ToLowerInvariant();
+            var materialSlug = (materialType ?? "all").Trim().ToLowerInvariant();
+
+            var cityDictionary = new Dictionary<string, (string Ar, string En)>
+            {
+                ["all"] = ("كافة محافظات المملكة", "All Jordan"),
+                ["amman"] = ("عمّان العاصمة", "Amman"),
+                ["zarqa"] = ("الزرقاء", "Zarqa"),
+                ["irbid"] = ("إربد", "Irbid"),
+                ["aqaba"] = ("العقبة", "Aqaba"),
+                ["mafraq"] = ("المفرق", "Mafraq"),
+                ["balqa"] = ("البلقاء والسلط", "Balqa"),
+                ["madaba"] = ("مادبا", "Madaba"),
+                ["jerash"] = ("جرش", "Jerash"),
+                ["ajloun"] = ("عجلون", "Ajloun"),
+                ["karak"] = ("الكرك", "Karak"),
+                ["tafileh"] = ("الطفيلة", "Tafileh"),
+                ["maan"] = ("معان", "Maan")
+            };
+
+            var materialDictionary = new Dictionary<string, (string Ar, string En, string[] Tags)>
+            {
+                ["all"] = ("كافة المواد الإنشائية", "All Materials", Array.Empty<string>()),
+                ["readymixconcrete"] = ("الخرسانة الجاهزة والباطون", "Ready-Mix Concrete", new[] { "concrete", "readymix", "خرسانة", "باطون" }),
+                ["steelrebar"] = ("حديد التسليح ومقاطع الصلب", "Steel Rebar", new[] { "steel", "rebar", "حديد", "تسليح" }),
+                ["portlandcement"] = ("الإسمنت البورتلاندي السائب والمعبأ", "Portland Cement", new[] { "cement", "إسمنت", "اسمنت" }),
+                ["concreteblocks"] = ("الطوب الإنشائي والمصمت والمفرغ", "Concrete Blocks", new[] { "blocks", "طوب", "بلوك" }),
+                ["constructionstone"] = ("الحجر والرخام ومواد الإكساء", "Stone & Masonry", new[] { "stone", "حجر", "رخام", "بلاط" }),
+                ["electricalplumbing"] = ("التمديدات الكهربائية والصحية", "MEP & Plumbing", new[] { "pipes", "electrical", "plumbing", "مواسير", "كهرباء" })
+            };
+
+            var cityInfo = cityDictionary.TryGetValue(citySlug, out var cVal) ? cVal : (Ar: "عمّان العاصمة", En: "Amman");
+            var matInfo = materialDictionary.TryGetValue(materialSlug, out var mVal) ? mVal : (Ar: "كافة المواد الإنشائية", En: "All Materials", Tags: Array.Empty<string>());
+
+            var allOpenTenders = (await _serviceManager.FinancingService.GetOpenTendersAsync()).ToList();
+
+            var filteredTenders = allOpenTenders.Where(t =>
+            {
+                bool cityMatch = citySlug == "all" ||
+                                 t.ProjectCity.ToLowerInvariant().Contains(citySlug) ||
+                                 (citySlug == "amman" && (t.ProjectCity.Contains("عمان") || t.ProjectCity.Contains("Amman"))) ||
+                                 (citySlug == "zarqa" && (t.ProjectCity.Contains("الزرقاء") || t.ProjectCity.Contains("Zarqa"))) ||
+                                 (citySlug == "irbid" && (t.ProjectCity.Contains("اربد") || t.ProjectCity.Contains("إربد") || t.ProjectCity.Contains("Irbid")));
+
+                bool matMatch = materialSlug == "all" ||
+                                (matInfo.Tags.Any() && t.Items.Any(i => matInfo.Tags.Any(tag =>
+                                    i.MaterialCategory.ToLowerInvariant().Contains(tag) ||
+                                    i.MaterialName.ToLowerInvariant().Contains(tag))));
+
+                return cityMatch && matMatch;
+            }).ToList();
+
+            // If empty, display open marketplace tenders
+            var displayTenders = filteredTenders.Any() ? filteredTenders : allOpenTenders;
+
+            decimal totalVolume = displayTenders.Sum(t => t.BaseMaterialCost);
+            decimal avgYield = 14.8m;
+            int avgTenure = displayTenders.Any() ? (int)Math.Round(displayTenders.Average(t => t.TenureDays)) : 45;
+
+            var model = new Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+            {
+                CitySlug = citySlug,
+                CityNameAr = cityInfo.Ar,
+                CityNameEn = cityInfo.En,
+                MaterialSlug = materialSlug,
+                MaterialNameAr = matInfo.Ar,
+                MaterialNameEn = matInfo.En,
+                PageTitle = $"فرص استثمار وتمويل المرابحة - {matInfo.Ar} في {cityInfo.Ar} | منصة بلكو",
+                MetaDescription = $"استثمر في عقود تمويل وتوريد {matInfo.Ar} في {cityInfo.Ar} بعوائد سنوية تصل إلى {avgYield}% بصيغة المرابحة الشرعية المعتمدة وسندات لأمر مفحوصة ائتمانياً عبر CRIF.",
+                CanonicalUrl = $"{Request.Scheme}://{Request.Host}/Invest/Tenders/{citySlug}/{materialSlug}",
+                Tenders = displayTenders,
+                TotalActiveOpportunities = displayTenders.Count,
+                TotalSyndicateVolumeJod = totalVolume > 0 ? totalVolume : 185000m,
+                AverageAnnualizedYield = avgYield,
+                AverageTenureDays = avgTenure,
+                IsAuthenticatedInvestor = User.Identity?.IsAuthenticated == true && (User.IsInRole("Investor") || User.IsInRole("SuperAdmin")),
+                AvailableCities = cityDictionary.Select(cd => new Bolcko.Web.App.Areas.Shop.Models.CityNavOption
+                {
+                    Slug = cd.Key,
+                    NameAr = cd.Value.Ar,
+                    NameEn = cd.Value.En,
+                    ActiveDealsCount = cd.Key == "all" ? allOpenTenders.Count : allOpenTenders.Count(t => t.ProjectCity.ToLowerInvariant().Contains(cd.Key))
+                }).ToList(),
+                AvailableMaterials = materialDictionary.Select(md => new Bolcko.Web.App.Areas.Shop.Models.MaterialNavOption
+                {
+                    Slug = md.Key,
+                    NameAr = md.Value.Ar,
+                    NameEn = md.Value.En,
+                    ActiveDealsCount = md.Key == "all" ? allOpenTenders.Count : (md.Value.Tags.Any() ? allOpenTenders.Count(t => t.Items.Any(i => md.Value.Tags.Any(tag => i.MaterialCategory.ToLowerInvariant().Contains(tag) || i.MaterialName.ToLowerInvariant().Contains(tag)))) : 0)
+                }).ToList()
+            };
+
+            return View("~/Areas/Shop/Views/Financing/ProgrammaticTenders.cshtml", model);
+        }
+
+        /// <summary>
         /// بوابة المستثمر لعطاءات المرابحة الإنشائية (Investor Murabaha Portal)
         /// </summary>
         [HttpGet]

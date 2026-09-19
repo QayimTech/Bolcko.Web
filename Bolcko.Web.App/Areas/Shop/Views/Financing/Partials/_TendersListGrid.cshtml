@@ -1,0 +1,135 @@
+@model Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+
+<div class="mb-10">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-hand-holding-usd text-amber-400"></i>
+                <span>عطاءات التمويل المفتوحة للاكتتاب المباشر</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                تصفح فرص المرابحة الإنشائية المؤهلة مع الضمانات وفحص الائتمان وسندات الأمر
+            </p>
+        </div>
+        <span class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+            @Model.TotalActiveOpportunities فرصة نشطة
+        </span>
+    </div>
+
+    @if (!Model.Tenders.Any())
+    {
+        <div class="bg-slate-900/60 border border-dashed border-slate-800 rounded-3xl p-12 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mx-auto mb-4">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">لا توجد عطاءات مفتوحة حالياً في هذه الفئة</h3>
+            <p class="text-sm text-slate-400 max-w-md mx-auto mb-6">
+                يتم طرح عطاءات تمويل دورية لمشاريع @Model.MaterialNameAr في @Model.CityNameAr فور اكتمال تدقيق جداول الكميات.
+            </p>
+            <a href="/Invest" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">
+                <i class="fas fa-arrow-right"></i>
+                <span>استعراض كافة العطاءات في المملكة</span>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var tender in Model.Tenders)
+            {
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-amber-500/40 hover:shadow-xl hover:shadow-amber-500/5 transition flex flex-col justify-between group">
+                    <div>
+                        <!-- Header / Status -->
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                                @tender.TrackingCode
+                            </span>
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                متاح للاكتتاب
+                            </span>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 class="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition leading-snug">
+                            @tender.ProjectTitle
+                        </h3>
+
+                        <!-- Contractor Identification (Masked for SEO & privacy if not logged in) -->
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-4 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                            @if (Model.IsAuthenticatedInvestor)
+                            {
+                                <i class="fas fa-user-check text-emerald-400"></i>
+                                <span class="text-slate-200 font-medium">@tender.ContractorName</span>
+                                @if (!string.IsNullOrEmpty(tender.ContractorCompany))
+                                {
+                                    <span class="text-slate-500">(@tender.ContractorCompany)</span>
+                                }
+                            }
+                            else
+                            {
+                                <i class="fas fa-lock text-amber-400"></i>
+                                <span>مقاول مصنف درجة أولى - @tender.ProjectCity</span>
+                                <span class="text-[10px] text-amber-400/80 ms-auto font-medium">[سجل للاطلاع]</span>
+                            }
+                        </div>
+
+                        <!-- Financial Highlights Grid -->
+                        <div class="grid grid-cols-2 gap-3 mb-4 bg-slate-950/40 p-3 rounded-xl border border-slate-800/50">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block mb-0.5">قيمة شراء المواد</span>
+                                <span class="text-base font-extrabold text-white">@tender.BaseMaterialCost.ToString("N0") <span class="text-xs font-normal text-slate-400">د.أ</span></span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block mb-0.5">صافي ربح المستثمر</span>
+                                <span class="text-base font-extrabold text-emerald-400">+@tender.InvestorNetYieldAmount.ToString("N0") <span class="text-xs font-normal text-emerald-500/70">د.أ</span></span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block mb-0.5">أجل الاسترداد</span>
+                                <span class="text-xs font-bold text-slate-200"><i class="fas fa-calendar-day text-amber-400 me-1"></i>@tender.TenureDays يوماً</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block mb-0.5">تقييم الملاءمة CRIF</span>
+                                <span class="text-xs font-bold text-emerald-400"><i class="fas fa-shield-check text-emerald-400 me-1"></i>@tender.ContractorTrustScore/100</span>
+                            </div>
+                        </div>
+
+                        <!-- Material Items Preview -->
+                        @if (tender.Items.Any())
+                        {
+                            <div class="mb-4">
+                                <span class="text-[11px] font-semibold text-slate-400 block mb-1.5">أصناف المواد المطلوبة:</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach (var item in tender.Items.Take(3))
+                                    {
+                                        <span class="inline-flex items-center text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                                            @item.MaterialName (@item.Quantity @item.Unit)
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Footer Action -->
+                    <div class="pt-4 border-t border-slate-800/80">
+                        @if (Model.IsAuthenticatedInvestor)
+                        {
+                            <a href="/Shop/Financing/Details/@tender.Id" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-xs shadow-md transition">
+                                <i class="fas fa-file-signature"></i>
+                                <span>اكتتاب وشراء وتمليك (وكالة شرعية)</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/Shop/Financing/InvestorJoin" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 hover:border-amber-500/60 font-bold text-xs transition">
+                                <i class="fas fa-key"></i>
+                                <span>سجل للاكتتاب وعرض كشف الكميات</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

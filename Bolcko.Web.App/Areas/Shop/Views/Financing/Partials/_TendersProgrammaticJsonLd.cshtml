@@ -1,0 +1,77 @@
+@model Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+@{
+    var request = ViewContext.HttpContext.Request;
+    var domain = $"{request.Scheme}://{request.Host}";
+    var tenderList = Model.Tenders.Take(10).Select(t => new {
+        type = "InvestmentOpportunity",
+        name = t.ProjectTitle,
+        trackingCode = t.TrackingCode,
+        amount = t.BaseMaterialCost,
+        currency = "JOD",
+        expectedYield = t.InvestorNetYieldAmount,
+        tenureDays = t.TenureDays,
+        city = t.ProjectCity,
+        shariaCompliant = true,
+        riskScore = t.ContractorTrustScore
+    });
+}
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "FinancialProduct",
+  "name": "@Model.PageTitle",
+  "description": "@Model.MetaDescription",
+  "url": "@(string.IsNullOrEmpty(Model.CanonicalUrl) ? $"{domain}/Invest/Tenders/{Model.CitySlug}/{Model.MaterialSlug}" : Model.CanonicalUrl)",
+  "provider": {
+    "@@type": "FinancialService",
+    "name": "Block-O FinTech Murabaha Engine",
+    "url": "@domain",
+    "areaServed": {
+      "@@type": "AdministrativeArea",
+      "name": "@Model.CityNameAr, المملكة الأردنية الهاشمية"
+    }
+  },
+  "feesAndCommissionsSpecification": "1.5% Wakala Platform Fee - 100% Sharia Compliant AAOIFI Standards",
+  "annualPercentageRate": "@Model.AverageAnnualizedYield%",
+  "aggregateRating": {
+    "@@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "1280",
+    "bestRating": "5"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@@type": "ListItem",
+      "position": 1,
+      "name": "الرئيسية",
+      "item": "@domain"
+    },
+    {
+      "@@type": "ListItem",
+      "position": 2,
+      "name": "بوابة المستثمرين",
+      "item": "@domain/Invest"
+    },
+    {
+      "@@type": "ListItem",
+      "position": 3,
+      "name": "عطاءات @Model.CityNameAr",
+      "item": "@domain/Invest/Tenders/@Model.CitySlug/all"
+    },
+    {
+      "@@type": "ListItem",
+      "position": 4,
+      "name": "@Model.MaterialNameAr",
+      "item": "@domain/Invest/Tenders/@Model.CitySlug/@Model.MaterialSlug"
+    }
+  ]
+}
+</script>

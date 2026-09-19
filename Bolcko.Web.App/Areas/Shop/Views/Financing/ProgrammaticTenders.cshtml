@@ -1,0 +1,40 @@
+@model Bolcko.Web.App.Areas.Shop.Models.ProgrammaticTendersViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    ViewData["MetaDescription"] = Model.MetaDescription;
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+
+@section Head {
+    <meta name="description" content="@Model.MetaDescription" />
+    <meta name="keywords" content="استثمار مرابحة, تمويل مواد بناء, @Model.CityNameAr, @Model.MaterialNameAr, عوائد استثمارية إسلامية, توريد خرسانة حديد إسمنت, بلكو المالية" />
+    @if (!string.IsNullOrEmpty(Model.CanonicalUrl))
+    {
+        <link rel="canonical" href="@Model.CanonicalUrl" />
+    }
+    
+    <!-- Open Graph SEO -->
+    <meta property="og:title" content="@Model.PageTitle" />
+    <meta property="og:description" content="@Model.MetaDescription" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="منصة بلكو للتمويل الإنشائي الإسلامي" />
+
+    <!-- Schema.org JSON-LD -->
+    <partial name="Partials/_TendersProgrammaticJsonLd" model="Model" />
+}
+
+<div class="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- 1. Regional Hero & Breadcrumb -->
+        <partial name="Partials/_TendersRegionalHeader" model="Model" />
+
+        <!-- 2. Market Metrics & KPIs -->
+        <partial name="Partials/_TendersRegionalMarketMetrics" model="Model" />
+
+        <!-- 3. Live Tenders Grid -->
+        <partial name="Partials/_TendersListGrid" model="Model" />
+
+        <!-- 4. Programmatic Crawlable Links & Sharia Seal -->
+        <partial name="Partials/_TendersProgrammaticLinks" model="Model" />
+    </div>
+</div>
