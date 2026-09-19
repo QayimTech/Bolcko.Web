@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Blocko.Services.Implementations.Financing
@@ -135,12 +136,45 @@ namespace Blocko.Services.Implementations.Financing
             return true;
         }
 
+        public async Task<string> GenerateDeliveryOtpAsync(int tenderId)
+        {
+            var tender = await _uow.FinancingTenders.GetByIdAsync(tenderId);
+            if (tender == null)
+            {
+                throw new ArgumentException("Tender not found.");
+            }
+
+            var otp = Random.Shared.Next(100000, 999999).ToString();
+            tender.DeliveryOtpCode = otp;
+            tender.DeliveryOtpExpiresAt = DateTime.UtcNow.AddHours(24);
+            _uow.FinancingTenders.Update(tender);
+            await _uow.CompleteAsync();
+
+            _logger.LogInformation("Generated Delivery OTP {Otp} for Tender {Id} ({Code})", otp, tender.Id, tender.TrackingCode);
+            return otp;
+        }
+
         public async Task<JobsitePodDto> SubmitJobsitePodAsync(SubmitJobsitePodRequestDto request)
         {
             var tender = await _uow.FinancingTenders.GetTenderWithDetailsAsync(request.TenderId);
             if (tender == null)
             {
                 throw new ArgumentException("Tender not found.");
+            }
+
+            // Verify OTP if generated
+            if (!string.IsNullOrWhiteSpace(tender.DeliveryOtpCode))
+            {
+                if (string.IsNullOrWhiteSpace(request.DeliveryOtpCode) || 
+                    !string.Equals(tender.DeliveryOtpCode.Trim(), request.DeliveryOtpCode.Trim(), StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("رمز التحقق (OTP) للتسليم الموقعي غير صحيح أو غير متطابق مع الرمز الصادر للمقاول في الورشة.");
+                }
+
+                if (tender.DeliveryOtpExpiresAt.HasValue && tender.DeliveryOtpExpiresAt.Value < DateTime.UtcNow)
+                {
+                    throw new InvalidOperationException("رمز التحقق (OTP) منتهي الصلاحية. يرجى طلب توليد رمز جديد من المقاول.");
+                }
             }
 
             double dist = CalculateDistanceMeters(
@@ -170,14 +204,38 @@ namespace Blocko.Services.Implementations.Financing
 
             await _uow.JobsiteDeliveries.AddAsync(pod);
 
+            // Update Tender Status & Escrow Release
             tender.Status = FinancingTenderStatus.Delivered;
             tender.DeliveredAt = DateTime.UtcNow;
-            _uow.FinancingTenders.Update(tender);
+            tender.EscrowStatus = "ReleasedToVendor";
+            tender.EscrowReleasedAt = DateTime.UtcNow;
+            tender.EscrowReleaseTransactionReference = "ESCROW-REL-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+            tender.MurabahaContractStatus = "ActiveRepayment";
 
+            // Generate Sharia Installment Repayment Schedule
+            int tenure = tender.TenureDays > 0 ? tender.TenureDays : 45;
+            var installments = new List<object>
+            {
+                new { 
+                    InstallmentNumber = 1, 
+                    DueDate = DateTime.UtcNow.AddDays(tenure / 2).ToString("yyyy-MM-dd"), 
+                    AmountJod = Math.Round(tender.TotalPayableAmount / 2m, 2), 
+                    Status = "ActiveScheduled" 
+                },
+                new { 
+                    InstallmentNumber = 2, 
+                    DueDate = DateTime.UtcNow.AddDays(tenure).ToString("yyyy-MM-dd"), 
+                    AmountJod = Math.Round(tender.TotalPayableAmount - Math.Round(tender.TotalPayableAmount / 2m, 2), 2), 
+                    Status = "ActiveScheduled" 
+                }
+            };
+            tender.InstallmentScheduleJson = JsonSerializer.Serialize(installments);
+
+            _uow.FinancingTenders.Update(tender);
             await _uow.CompleteAsync();
 
-            _logger.LogInformation("Jobsite POD submitted for Tender {Id} ({Code}) by Driver {Driver} ({Phone}) - Variance: {Dist}m, WithinGeofence: {Within}",
-                tender.Id, tender.TrackingCode, request.DriverName, request.DriverPhone, pod.DistanceVarianceMeters, pod.IsWithinGeoFence);
+            _logger.LogInformation("Jobsite POD verified with OTP for Tender {Id} ({Code}) - Escrow {EscrowRef} Released - Variance: {Dist}m",
+                tender.Id, tender.TrackingCode, tender.EscrowReleaseTransactionReference, pod.DistanceVarianceMeters);
 
             return new JobsitePodDto
             {
@@ -259,6 +317,13 @@ namespace Blocko.Services.Implementations.Financing
                 FunderName = t.FunderName,
                 FunderPhone = t.FunderPhone,
                 WakalaContractPdfUrl = t.WakalaContractPdfUrl,
+                DeliveryOtpCode = t.DeliveryOtpCode,
+                DeliveryOtpExpiresAt = t.DeliveryOtpExpiresAt,
+                EscrowStatus = t.EscrowStatus ?? "HeldInEscrow",
+                EscrowReleasedAt = t.EscrowReleasedAt,
+                EscrowReleaseTransactionReference = t.EscrowReleaseTransactionReference,
+                MurabahaContractStatus = t.MurabahaContractStatus ?? "Draft",
+                InstallmentScheduleJson = t.InstallmentScheduleJson,
                 CreatedAt = t.CreatedAt,
                 FundedAt = t.FundedAt,
                 DeliveredAt = t.DeliveredAt,

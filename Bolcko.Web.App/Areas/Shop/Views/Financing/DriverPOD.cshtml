@@ -62,8 +62,14 @@
             </div>
 
             <div class="space-y-1">
-                <label class="font-bold text-slate-700 block">رمز الاستلام أو توقيع المقاول (Delivery Token):</label>
-                <input type="text" id="deliveryToken" placeholder="أدخل كود الاستلام المكون من 4 أرقام من المقاول" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono focus:outline-none focus:border-amber-500" />
+                <label class="font-bold text-slate-700 flex items-center justify-between">
+                    <span>رمز الاستلام السري الموقعي (Contractor 6-Digit OTP):</span>
+                    <span class="text-[10px] text-amber-600 font-normal">اطلبه من مهندس / مقاول الورشة</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="deliveryOtpCode" maxlength="6" placeholder="مثال: 582910" class="w-full p-3.5 rounded-xl border-2 border-amber-300 bg-amber-50/50 text-slate-900 font-mono text-center tracking-[0.4em] font-black text-lg focus:outline-none focus:border-amber-600 focus:bg-white transition-all shadow-inner" />
+                </div>
+                <p class="text-[10px] text-slate-500">لا يتم تحرير أموال الضمان للمورد أو تفعيل العقد إلا بعد التحقق من الرمز الصحيح.</p>
             </div>
 
             <div class="space-y-1">
@@ -78,7 +84,7 @@
         <!-- Submit Button -->
         <button type="button" id="submitPodBtn" onclick="submitPodVerification(@Model.Id)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95">
             <span class="material-symbols-outlined">verified</span>
-            <span>تأكيد التسليم الموقعي بالـ GPS ونقل الضمان</span>
+            <span>تأكيد التسليم الموقعي بالـ OTP ونقل الضمان</span>
         </button>
 
     </div>
@@ -122,19 +128,16 @@
         const driver = document.getElementById('driverName')?.value?.trim();
         const phone = document.getElementById('driverPhone')?.value?.trim() || '0790000000';
         const plate = document.getElementById('vehiclePlate')?.value?.trim();
+        const otp = document.getElementById('deliveryOtpCode')?.value?.trim();
 
         if (!driver || !plate) {
-            if (window.BlockoModal) {
-                BlockoModal.alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
-            } else {
-                alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
-            }
+            alert('يرجى إدخال اسم السائق ورقم لوحة الشاحنة.');
             return;
         }
 
         const btn = document.getElementById('submitPodBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري التحقق من إحداثيات الموقع...</span>';
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري التحقق من رمز OTP وإحداثيات الموقع...</span>';
 
         try {
             const res = await fetch('/Shop/Financing/SubmitPOD', {
@@ -147,32 +150,22 @@
                     vehiclePlateNumber: plate,
                     driverLatitude: driverLat,
                     driverLongitude: driverLon,
+                    deliveryOtpCode: otp,
                     photoUrl: podPhotoBase64 || '/images/pod-verified.jpg'
                 })
             });
 
             const data = await res.json();
-            if (window.BlockoModal) {
-                BlockoModal.alert(data.message || 'تم تسجيل التسليم بنجاح.', () => {
-                    if (data.success) {
-                        window.location.href = `/Shop/Financing/Details/${tenderId}`;
-                    }
-                });
-            } else {
-                alert(data.message || 'تم تسجيل التسليم بنجاح.');
-                if (data.success) {
-                    window.location.href = `/Shop/Financing/Details/${tenderId}`;
-                }
+            alert(data.message || (data.success ? 'تم تسجيل التسليم وتحرير الضمان بنجاح.' : 'تعذر التحقق.'));
+            if (data.success) {
+                window.location.href = `/Shop/Financing/Details/${tenderId}`;
             }
         } catch (e) {
-            if (window.BlockoModal) {
-                BlockoModal.alert('حدث خطأ أثناء رفع إثبات التوصيل.');
-            } else {
-                alert('حدث خطأ أثناء رفع إثبات التوصيل.');
-            }
+            console.error(e);
+            alert('حدث خطأ أثناء معالجة إثبات التوصيل.');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined">verified</span> <span>تأكيد التسليم الموقعي بالـ GPS ونقل الضمان</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined">verified</span> <span>تأكيد التسليم الموقعي بالـ OTP ونقل الضمان</span>';
         }
     }
 </script>

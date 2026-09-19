@@ -1,0 +1,144 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorSubscriptionViewModel
+
+<div class="space-y-6">
+    <div class="text-start">
+        <h3 class="text-xl font-extrabold text-white">مصفوفة مقارنة باقات الموردين والشركاء التجاريين</h3>
+        <p class="text-xs text-slate-400 mt-1">اختر الباقة المناسبة لحجم أعمالك لتخفيض عمولة المبيعات ومضاعفة تصدر منتجاتك في نتائج البحث وطلبات كشف الكميات (BOQ).</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        
+        <!-- 1. Standard Tier (Base) -->
+        <div class="bg-[#151B26] border border-white/10 rounded-3xl p-6 flex flex-col justify-between hover:border-slate-500/40 transition-all shadow-xl">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 uppercase">باقة الانطلاق</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-bold">Standard</span>
+                </div>
+                <div>
+                    <h4 class="text-lg font-black text-white">التاجر الأساسي</h4>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span class="text-3xl font-black text-white font-mono">0</span>
+                        <span class="text-xs text-slate-400">د.أ / شهرياً</span>
+                    </div>
+                </div>
+                <ul class="space-y-2.5 text-xs text-slate-300 border-t border-white/5 pt-4">
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-slate-500">check</span>
+                        <span>عمولة المنصة: <strong class="text-white">3.5%</strong> لكل طلب</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-slate-500">check</span>
+                        <span>إدراج غير محدود للمنتجات</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-slate-500">check</span>
+                        <span>ظهور قياسي في نتائج البحث (1.0x)</span>
+                    </li>
+                    <li class="flex items-center gap-2 text-slate-500">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                        <span>بدون شارة المورد المعتمد</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="pt-6">
+                <button type="button" disabled class="w-full py-3 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold cursor-not-allowed">
+                    الباقة الافتراضية
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Silver Partner Tier (39 JOD) -->
+        <div class="bg-[#151B26] border border-slate-400/30 rounded-3xl p-6 flex flex-col justify-between hover:border-slate-300/50 transition-all shadow-xl relative overflow-hidden">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-300 uppercase">باقة النمو والتوريد</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-slate-300/20 text-slate-200 font-mono font-bold border border-slate-400/30">Silver</span>
+                </div>
+                <div>
+                    <h4 class="text-lg font-black text-white">الشريك الفضي (Silver)</h4>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span class="text-3xl font-black text-slate-100 font-mono">39</span>
+                        <span class="text-xs text-slate-400">د.أ / شهرياً</span>
+                    </div>
+                </div>
+                <ul class="space-y-2.5 text-xs text-slate-200 border-t border-white/5 pt-4">
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                        <span>عمولة مخفضة: <strong class="text-emerald-400">2.5%</strong> لكل طلب</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                        <span>مضاعف ترتيب في البحث: <strong class="text-white font-mono">1.2x Boost</strong></span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                        <span>أولوية التوريد في طلبات كشوف الكميات (BOQ)</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                        <span>شارة مورد فضي موثق على بطاقات المنتجات</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="pt-6">
+                <button type="button" onclick="selectPlanUpgrade(8, 'الشريك الفضي (Silver)', 39)" class="w-full py-3 rounded-xl bg-slate-200 hover:bg-white text-slate-950 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer">
+                    @(Model.ActiveTier == "Silver" ? "باقتك الحالية" : "الترقية إلى الفضي (39 د.أ)")
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Gold Partner Tier (89 JOD - Best Value) -->
+        <div class="bg-gradient-to-b from-[#1E2536] to-[#151B26] border-2 border-amber-500/60 rounded-3xl p-6 flex flex-col justify-between hover:border-amber-400 transition-all shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-1 -end-1 bg-gradient-to-l from-amber-500 to-amber-400 text-slate-950 text-[10px] font-black px-4 py-1 rounded-bl-xl shadow-md">
+                الأكثر طلباً للمصانع
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-400 uppercase">باقة الريادة الصناعية</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-500/30">Gold</span>
+                </div>
+                <div>
+                    <h4 class="text-lg font-black text-white flex items-center gap-1.5">
+                        <span>الشريك الذهبي (Gold)</span>
+                        <span class="material-symbols-outlined text-amber-400 text-base">verified</span>
+                    </h4>
+                    <div class="mt-2 flex items-baseline gap-1">
+                        <span class="text-3xl font-black text-amber-400 font-mono">89</span>
+                        <span class="text-xs text-slate-400">د.أ / شهرياً</span>
+                    </div>
+                </div>
+                <ul class="space-y-2.5 text-xs text-slate-200 border-t border-white/5 pt-4">
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">check_circle</span>
+                        <span>أدنى عمولة بالمنصة: <strong class="text-emerald-400 font-mono">1.5% فقط</strong></span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-amber-400">workspace_premium</span>
+                        <span>مضاعف الصدارة القصوى: <strong class="text-amber-300 font-mono">1.5x Boost</strong> (الصفحة الأولى)</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-amber-400">check_circle</span>
+                        <span>ظهور حصري في سلايدر الصفحة الرئيسية الرئيسي</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-amber-400">check_circle</span>
+                        <span>شارة [مورد ذهبي معتمد] الذهبية اللامعة</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-amber-400">check_circle</span>
+                        <span>ربط الويب هوك المباشر مع أنظمة ERP والمخازن</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="pt-6">
+                <button type="button" onclick="selectPlanUpgrade(9, 'الشريك الذهبي (Gold)', 89)" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 text-xs font-black transition-all shadow-lg shadow-amber-500/20 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                    <span>@(Model.ActiveTier == "Gold" ? "باقتك النشطة حالياً ✓" : "الترقية إلى الذهبي (89 د.أ)")</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

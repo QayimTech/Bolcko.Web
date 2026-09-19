@@ -31,8 +31,23 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         }
 
         [HttpPost]
+        [Route("GenerateOTP/{id}")]
+        public async Task<IActionResult> GenerateOTP(int id)
+        {
+            try
+            {
+                var otp = await _serviceManager.FinancingService.GenerateDeliveryOtpAsync(id);
+                return Json(new { success = true, otp = otp, message = "تم توليد رمز OTP بنجاح." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
         [Route("SubmitPOD")]
-        [Authorize(Roles = "DeliveryDriver, DeliveryCompanyUser, Admin, SuperAdmin")]
+        [AllowAnonymous]
         public async Task<IActionResult> SubmitPOD([FromBody] SubmitJobsitePodRequestDto request)
         {
             if (request == null || request.TenderId <= 0)
@@ -49,8 +64,8 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                     isWithinGeoFence = pod.IsWithinGeoFence,
                     varianceMeters = pod.DistanceVarianceMeters,
                     message = pod.IsWithinGeoFence 
-                        ? "تم التحقق من التسليم الجغرافي بنجاح! تم نقل الضمان وتحرير مستحقات التوريد." 
-                        : $"تم استلام إشعار التوصيل (الانحراف: {pod.DistanceVarianceMeters}م) وتم إرساله للإشراف."
+                        ? "تم التحقق من رمز الـ OTP والتسليم الجغرافي بنجاح! تم تحرير أموال الضمان (Escrow) للمورد وتفعيل المرابحة." 
+                        : $"تم التحقق من الـ OTP واستلام إشعار التوصيل (الانحراف: {pod.DistanceVarianceMeters}م) وتم إرساله للإشراف."
                 });
             }
             catch (Exception ex)

@@ -31,11 +31,25 @@ namespace Bolcko.Domain.Entities.Catalog
         public decimal CommissionRatePercentage { get; set; } = 2.0m;
         public double Rating { get; set; } = 5.0;
 
-        // Official KYC Document File Paths
+        // Merchant Authority & Tier (SUB-01 / SUB-02)
+        public Bolcko.Domain.Enums.MerchantType MerchantType { get; set; } = Bolcko.Domain.Enums.MerchantType.Manufacturer;
+        public string SubscriptionTier { get; set; } = "Standard"; // "Standard", "Silver", "Gold"
+        public bool IsGoldVerified { get; set; } = false;
+        public bool IsExclusiveAgent { get; set; } = false;
+
+        // Warehouse & Dispatch Logistics Geolocation (MGR-01)
+        public double Latitude { get; set; } = 31.9392; // Ras Al-Ain Central Amman Hub
+        public double Longitude { get; set; } = 35.9189;
+        public string WarehouseLocationName { get; set; } = "مستودعات رأس العين - عمان المركزية";
+
+        // Official KYC & Engineering Datasheets (SUB-02)
         public string? CommercialRegistrationDocUrl { get; set; }
         public string? VocationalLicenseDocUrl { get; set; }
         public string? TaxCertificateDocUrl { get; set; }
         public string? QualityCertificatesDocUrl { get; set; }
+        public string? TechnicalDatasheetUrl { get; set; }
+        public string? MillTestCertificateUrl { get; set; }
+        public string? RssApprovalUrl { get; set; } // شهادة الجمعية العلمية الملكية
 
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
         public DateTime? VerifiedAt { get; set; }

@@ -1,0 +1,114 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorSubscriptionViewModel
+@{
+    ViewData["Title"] = "إدارة الاشتراكات والترقية التجارية | لوحة المورد";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var isRtl = true;
+}
+
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-8 px-4 sm:px-6 lg:px-8" dir="rtl">
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Top Header & Breadcrumbs -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div>
+                <div class="flex items-center gap-2 text-xs text-amber-400 font-mono uppercase tracking-wider mb-1">
+                    <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                    <span>محرك الاشتراكات والنمو التجاري (Subscription Engine)</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">إدارة باقة الاشتراك وترقية ظهور الكتالوج</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">تخفيض عمولة المنصة حتى 1.5%، مضاعفة الترتيب في البحث (1.5x Boost)، وتفعيل شارات الثقة الذهبية.</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/Vendor/Products" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">inventory_2</span>
+                    <span>إدارة المنتجات (@Model.CatalogProductsCount)</span>
+                </a>
+                <a href="/Vendor/Finance" class="px-4 py-2.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                    <span>سجل المستحقات والعمولات</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 1. Current Active Subscription Card -->
+        <partial name="Partials/_CurrentSubscriptionCard" model="Model" />
+
+        <!-- 2. Tier Comparison Matrix -->
+        <partial name="Partials/_TierComparisonMatrix" model="Model" />
+
+        <!-- 3. Billing Invoices Table -->
+        <partial name="Partials/_SubscriptionInvoicesTable" model="Model" />
+
+        <!-- Upgrade Modal -->
+        <partial name="Partials/_UpgradeModal" model="Model" />
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentSelectedPlanPrice = 89;
+
+    function openUpgradeModal() {
+        document.getElementById('upgradePlanModal').classList.remove('hidden');
+    }
+
+    function closeUpgradeModal() {
+        document.getElementById('upgradePlanModal').classList.add('hidden');
+    }
+
+    function selectPlanUpgrade(planId, planName, price) {
+        document.getElementById('selectedPlanId').value = planId;
+        document.getElementById('modalPlanTitle').innerText = `ترقية الاشتراك إلى: ${planName}`;
+        document.getElementById('summaryPlanName').innerText = planName;
+        currentSelectedPlanPrice = price;
+        updateModalPrice(price);
+        openUpgradeModal();
+    }
+
+    function updateModalPrice(basePrice) {
+        const cycle = document.querySelector('input[name="billingCycle"]:checked')?.value || 'Monthly';
+        const isYearly = cycle === 'Yearly';
+        const total = isYearly ? (currentSelectedPlanPrice * 10) : currentSelectedPlanPrice;
+        document.getElementById('summaryPlanPrice').innerText = `${total.toFixed(2)} د.أ ${isYearly ? '(سنوي)' : '(شهري)'}`;
+    }
+
+    async function submitPlanUpgrade(e) {
+        e.preventDefault();
+        const planId = parseInt(document.getElementById('selectedPlanId').value) || 9;
+        const cycle = document.querySelector('input[name="billingCycle"]:checked')?.value || 'Monthly';
+        const method = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'CliQ';
+        const ref = document.getElementById('cliqRefInput')?.value?.trim();
+
+        const btn = document.getElementById('upgradeSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> <span>جاري تفعيل الترقية وتحديث الخوارزمية...</span>';
+
+        try {
+            const resp = await fetch('/Vendor/Subscription/Upgrade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    planId: planId,
+                    billingCycle: cycle,
+                    paymentMethod: method,
+                    cliqAliasOrRef: ref
+                })
+            });
+
+            const data = await resp.json();
+            alert(data.message || (data.success ? 'تمت الترقية بنجاح!' : 'حدث خطأ.'));
+            if (data.success) {
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+            alert('حدث خطأ أثناء معالجة طلب الترقية.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-base">lock</span> <span>تأكيد الترقية وتفعيل المزايا فوراً</span>';
+        }
+    }
+</script>
+}

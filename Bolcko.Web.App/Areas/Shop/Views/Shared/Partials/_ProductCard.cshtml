@@ -48,20 +48,30 @@
 
     <!-- Product Text Content -->
     <div class="pt-4 flex flex-col flex-1">
-        <!-- Category Tag & Merchant Badge (VM-01) -->
+        <!-- Category Tag & Merchant Badge (VM-01, SUB-01, SUB-02) -->
         <div class="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
             @if (!string.IsNullOrEmpty(displayCategory))
             {
                 <span class="text-[10px] font-bold text-[#E8A020] uppercase tracking-widest">@displayCategory</span>
             }
             
-            <a href="@Url.Action("Index", "Store", new { area = "Shop", slug = Model.SupplierSlug ?? "al-qannas" })" 
-               class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-amber-600 transition bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/60"
-               onclick="event.stopPropagation();"
-               title="مباع ومشحون بواسطة @Model.SupplierName">
-                <span class="material-symbols-outlined text-[11px] text-emerald-600">verified</span>
-                <span class="truncate max-w-[110px]">@(Model.SupplierName ?? "مجموعة القناص")</span>
-            </a>
+            <div class="flex items-center gap-1">
+                @if (Model.SearchRankingScore >= 1.2 || Model.SupplierTier == "Gold")
+                {
+                    <span class="inline-flex items-center gap-0.5 text-[9px] font-black text-amber-900 bg-gradient-to-r from-amber-200 to-amber-400 px-1.5 py-0.5 rounded border border-amber-300 shadow-sm" title="مورد ذهبي معتمد ذو أولوية توريد وضمان معتمد">
+                        <span class="material-symbols-outlined text-[10px]">workspace_premium</span>
+                        <span>مورد ذهبي معتمد</span>
+                    </span>
+                }
+                
+                <a href="@Url.Action("Index", "Store", new { area = "Shop", slug = Model.SupplierSlug ?? "al-qannas" })" 
+                   class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-amber-600 transition bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/60"
+                   onclick="event.stopPropagation();"
+                   title="مباع ومشحون بواسطة @Model.SupplierName">
+                    <span class="material-symbols-outlined text-[11px] text-emerald-600">verified</span>
+                    <span class="truncate max-w-[100px]">@(Model.SupplierName ?? "مجموعة القناص")</span>
+                </a>
+            </div>
         </div>
         
         <!-- Product Title -->

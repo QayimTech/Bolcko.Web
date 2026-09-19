@@ -20,5 +20,6 @@ namespace Blocko.Services.Interfaces.Financing
         Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync();
         Task<IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType>> GetActiveMaterialTypesAsync();
         Task<int> ProcessDailyRepaymentsAndYieldDistributionAsync();
+        Task<string> GenerateDeliveryOtpAsync(int tenderId);
     }
 }

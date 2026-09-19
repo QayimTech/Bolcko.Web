@@ -1,13 +1,81 @@
 @model Bolcko.Domain.Entities.Product.DTOs.ProductDto
 
-@if (!string.IsNullOrEmpty(Model.Description))
-{
-    <div class="space-y-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
+<div class="space-y-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
+    <!-- Merchant Authority & Trust Seals (SUB-02) -->
+    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-amber-500 text-2xl">verified</span>
+            <div>
+                <div class="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <span>@Model.SupplierName</span>
+                    @if (Model.SupplierTier == "Gold" || Model.SearchRankingScore >= 1.2)
+                    {
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black border border-amber-500/30">مورد ذهبي معتمد</span>
+                    }
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <span>@Model.MerchantTypeName</span> • <span>@Model.SupplierCity</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span class="material-symbols-outlined text-xs">factory</span>
+                <span>مصنع مباشر - خالي من وسيط البيع</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Technical Description -->
+    @if (!string.IsNullOrEmpty(Model.Description))
+    {
         <div>
             <h3 class="font-black text-slate-900 dark:text-white mb-3 border-s-4 border-[#E8A020] ps-3 text-base">@SharedLocalizer["ProductDetails"]</h3>
             <p class="font-body-md text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">
                 @Model.Description
             </p>
         </div>
+    }
+
+    <!-- Specifications Table -->
+    <div class="border-t border-slate-100 dark:border-slate-800 pt-5">
+        <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-3">المواصفات الفنية والمطابقة الإنشائية</h4>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                <span class="text-slate-400 block text-[10px]">العلامة التجارية / المصنع</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200">@(Model.Brand ?? "وطني معتمد")</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                <span class="text-slate-400 block text-[10px]">بلد المنشأ والمطابقة</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200">@(Model.CountryOfOrigin ?? "المملكة الأردنية الهاشمية")</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                <span class="text-slate-400 block text-[10px]">كود المادة (SKU)</span>
+                <span class="font-mono font-bold text-slate-800 dark:text-slate-200">@Model.Sku</span>
+            </div>
+        </div>
     </div>
-}
+
+    <!-- Official Engineering Submittal & Datasheet Downloads (SUB-02) -->
+    <div class="border-t border-slate-100 dark:border-slate-800 pt-5">
+        <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sky-500 text-sm">description</span>
+            <span>الاعتمادات الهندسية والنشرات الفنية (MTC / TDS / RSS)</span>
+        </h4>
+        <div class="flex flex-wrap gap-2">
+            <a href="@(!string.IsNullOrEmpty(Model.TechnicalDatasheetUrl) ? Model.TechnicalDatasheetUrl : "#")" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-xs font-bold hover:bg-sky-100 transition shadow-sm">
+                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                <span>النشرة الفنية للمادة (TDS)</span>
+            </a>
+            <a href="@(!string.IsNullOrEmpty(Model.MillTestCertificateUrl) ? Model.MillTestCertificateUrl : "#")" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold hover:bg-purple-100 transition shadow-sm">
+                <span class="material-symbols-outlined text-sm">verified_user</span>
+                <span>شهادة فحص المصنع (MTC Certificate)</span>
+            </a>
+            <a href="@(!string.IsNullOrEmpty(Model.RssApprovalUrl) ? Model.RssApprovalUrl : "#")" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 transition shadow-sm">
+                <span class="material-symbols-outlined text-sm">approval</span>
+                <span>اعتماد الجمعية العلمية الملكية (RSS)</span>
+            </a>
+        </div>
+    </div>
+</div>

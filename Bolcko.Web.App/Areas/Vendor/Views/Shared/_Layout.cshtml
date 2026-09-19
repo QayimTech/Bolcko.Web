@@ -82,6 +82,11 @@
                         <span class="material-symbols-outlined text-base">local_shipping</span>
                         <span>@(isRtl ? "اللوجستيات والأسطول" : "Logistics & Fleet")</span>
                     </a>
+                    <a asp-area="Vendor" asp-controller="Subscription" asp-action="Index"
+                       class="text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-1 font-bold">
+                        <span class="material-symbols-outlined text-base">workspace_premium</span>
+                        <span>@(isRtl ? "الباقات والترقية" : "Subscription")</span>
+                    </a>
                     <a asp-area="Vendor" asp-controller="Webhooks" asp-action="Index"
                        class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
                         <span class="material-symbols-outlined text-base">webhook</span>

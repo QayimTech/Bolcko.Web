@@ -1,0 +1,60 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorSubscriptionViewModel
+
+<div class="bg-[#151B26] border border-white/10 rounded-3xl p-6 shadow-xl space-y-4">
+    <div class="flex items-center justify-between border-b border-white/5 pb-3">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sky-400">receipt_long</span>
+            <h3 class="text-sm font-bold text-white">سجل الفواتير والاشتراكات الضريبية</h3>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono">فواتير رسمية متوافقة مع ضريبة الدخل والمبيعات الأردنية</span>
+    </div>
+
+    @if (Model.BillingHistory != null && Model.BillingHistory.Any())
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-start">
+                <thead>
+                    <tr class="border-b border-white/5 text-slate-400 text-[11px]">
+                        <th class="py-3 px-3 text-start">رقم الفاتورة</th>
+                        <th class="py-3 px-3 text-start">الباقة</th>
+                        <th class="py-3 px-3 text-start">تاريخ الاشتراك</th>
+                        <th class="py-3 px-3 text-start">تاريخ الانتهاء</th>
+                        <th class="py-3 px-3 text-start">المبلغ المدفوع</th>
+                        <th class="py-3 px-3 text-start">الحالة</th>
+                        <th class="py-3 px-3 text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach (var sub in Model.BillingHistory)
+                    {
+                        <tr class="hover:bg-white/5 transition">
+                            <td class="py-3 px-3 font-mono text-slate-300">INV-SUB-@sub.Id.ToString("D4")</td>
+                            <td class="py-3 px-3 font-bold text-white">@sub.PlanNameAr</td>
+                            <td class="py-3 px-3 text-slate-400 font-mono">@sub.StartDate.ToString("yyyy-MM-dd")</td>
+                            <td class="py-3 px-3 text-slate-400 font-mono">@sub.EndDate.ToString("yyyy-MM-dd")</td>
+                            <td class="py-3 px-3 font-mono font-bold text-emerald-400">@sub.AmountPaid.ToString("N2") د.أ</td>
+                            <td class="py-3 px-3">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    مسددة ✓
+                                </span>
+                            </td>
+                            <td class="py-3 px-3 text-center">
+                                <a href="#" onclick="alert('جاري تحميل الفاتورة الضريبية...'); return false;" class="text-sky-400 hover:text-sky-300 font-bold inline-flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">download</span>
+                                    <span>PDF</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="py-8 text-center text-slate-400 text-xs">
+            <span class="material-symbols-outlined text-3xl text-slate-600 mb-2 block">receipt</span>
+            <span>فاتورة الاشتراك الحالية تم تفعيلها كجزء من باقة الشريك المؤسس.</span>
+        </div>
+    }
+</div>

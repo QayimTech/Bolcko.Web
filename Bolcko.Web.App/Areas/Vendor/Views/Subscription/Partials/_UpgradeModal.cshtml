@@ -1,0 +1,85 @@
+<div id="upgradePlanModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#151B26] border border-white/10 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-start">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+                <span class="text-[10px] text-amber-400 font-mono uppercase">بوابة الدفع والترقية الفورية</span>
+                <h3 class="text-lg font-black text-white" id="modalPlanTitle">ترقية اشتراك المورد</h3>
+            </div>
+            <button type="button" onclick="closeUpgradeModal()" class="text-slate-400 hover:text-white transition">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="upgradeForm" onsubmit="submitPlanUpgrade(event)" class="space-y-5">
+            <input type="hidden" id="selectedPlanId" value="9" />
+
+            <!-- Plan Summary & Cycle -->
+            <div class="bg-black/30 p-4 rounded-2xl border border-white/5 space-y-3 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">الباقة المختارة:</span>
+                    <strong class="text-amber-400 font-bold" id="summaryPlanName">الشريك الذهبي (Gold)</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">دورة الفوترة:</span>
+                    <div class="flex items-center gap-2">
+                        <label class="inline-flex items-center gap-1 cursor-pointer text-slate-200">
+                            <input type="radio" name="billingCycle" value="Monthly" checked onchange="updateModalPrice(89)" class="accent-amber-500" />
+                            <span>شهري</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1 cursor-pointer text-slate-200">
+                            <input type="radio" name="billingCycle" value="Yearly" onchange="updateModalPrice(890)" class="accent-amber-500" />
+                            <span>سنوي (خصم شهرين)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <span class="text-slate-400 font-bold">المبلغ الإجمالي المستحق:</span>
+                    <span class="text-lg font-black text-emerald-400 font-mono" id="summaryPlanPrice">89.00 د.أ</span>
+                </div>
+            </div>
+
+            <!-- Payment Method Selector -->
+            <div class="space-y-3">
+                <label class="text-xs font-bold text-slate-300 block">طريقة الدفع المعتمدة:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="p-3.5 rounded-xl border border-amber-500/50 bg-amber-500/10 flex items-center gap-2.5 cursor-pointer text-xs font-bold text-white">
+                        <input type="radio" name="paymentMethod" value="CliQ" checked class="accent-amber-500" />
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-amber-400 text-base">bolt</span>
+                            <span>دفع فوري عبر CliQ</span>
+                        </div>
+                    </label>
+
+                    <label class="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-300">
+                        <input type="radio" name="paymentMethod" value="VisaMasterCard" class="accent-amber-500" />
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sky-400 text-base">credit_card</span>
+                            <span>بطاقة فيزا / ماستركارد</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- CliQ Alias Info & Reference Input -->
+            <div id="cliqDetailsBox" class="p-4 rounded-xl bg-slate-900 border border-amber-500/30 text-xs space-y-2">
+                <div class="flex items-center justify-between text-slate-300">
+                    <span>اسم مستعار كليك (CliQ Alias):</span>
+                    <strong class="font-mono text-amber-400 font-bold">BLOCKO</strong>
+                </div>
+                <div class="space-y-1 pt-2">
+                    <label class="text-[11px] text-slate-400 block">الرقم المرجعي للحوالة أو الاسم المحول منه:</label>
+                    <input type="text" id="cliqRefInput" placeholder="مثال: CLIQ-982347 أو اسم الشركة" class="w-full p-2.5 rounded-lg bg-black/40 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-amber-500" />
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="upgradeSubmitBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm transition-all shadow-lg shadow-amber-500/20 active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">lock</span>
+                <span>تأكيد الترقية وتفعيل المزايا فوراً</span>
+            </button>
+        </form>
+
+    </div>
+</div>

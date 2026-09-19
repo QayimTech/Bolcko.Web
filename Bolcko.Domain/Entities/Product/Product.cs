@@ -35,6 +35,15 @@ namespace Bolcko.Domain.Entities.Product
         public string? SupplierKey { get; set; } = "qannas"; // "qannas", "vendor_b"
         public int? ExternalSupplierVariantId { get; set; }  // e.g. 3643 in Qannas API
 
+        // Engineering Datasheets & Merchant Authority (SUB-02)
+        public string? TechnicalDatasheetUrl { get; set; }
+        public string? MillTestCertificateUrl { get; set; }
+        public string? RssApprovalUrl { get; set; }
+        public bool IsExclusivePatented { get; set; } = false;
+
+        // Algorithmic Catalog Ranking Boost (SUB-01: Gold 1.5x, Silver 1.2x, Standard 1.0x)
+        public double SearchRankingScore { get; set; } = 1.0;
+
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
     }
 }

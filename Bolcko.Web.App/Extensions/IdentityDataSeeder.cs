@@ -55,10 +55,43 @@ namespace Bolcko.Web.App.Extensions
                     ALTER TABLE ""Addresses"" ADD COLUMN IF NOT EXISTS ""Latitude"" double precision NULL;
                     ALTER TABLE ""Addresses"" ADD COLUMN IF NOT EXISTS ""Longitude"" double precision NULL;
                     ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""IsOversized"" boolean NOT NULL DEFAULT false;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""SupplierKey"" text NULL DEFAULT 'qannas';
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""ExternalSupplierVariantId"" integer NULL;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""TechnicalDatasheetUrl"" text NULL;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""MillTestCertificateUrl"" text NULL;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""RssApprovalUrl"" text NULL;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""IsExclusivePatented"" boolean NOT NULL DEFAULT false;
+                    ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""SearchRankingScore"" double precision NOT NULL DEFAULT 1.0;
+
                     ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""CommercialRegistrationDocUrl"" text NULL;
                     ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""VocationalLicenseDocUrl"" text NULL;
                     ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""TaxCertificateDocUrl"" text NULL;
                     ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""QualityCertificatesDocUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""MerchantType"" integer NOT NULL DEFAULT 1;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""SubscriptionTier"" text NOT NULL DEFAULT 'Gold';
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""IsGoldVerified"" boolean NOT NULL DEFAULT true;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""IsExclusiveAgent"" boolean NOT NULL DEFAULT false;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""Latitude"" double precision NOT NULL DEFAULT 31.9392;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""Longitude"" double precision NOT NULL DEFAULT 35.9189;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""WarehouseLocationName"" text NOT NULL DEFAULT 'مستودعات رأس العين - عمان المركزية';
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""TechnicalDatasheetUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""MillTestCertificateUrl"" text NULL;
+                    ALTER TABLE ""VendorProfiles"" ADD COLUMN IF NOT EXISTS ""RssApprovalUrl"" text NULL;
+
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""DeliveryOtpCode"" text NULL;
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""DeliveryOtpExpiresAt"" timestamp with time zone NULL;
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""EscrowStatus"" text NOT NULL DEFAULT 'HeldInEscrow';
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""EscrowReleasedAt"" timestamp with time zone NULL;
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""EscrowReleaseTransactionReference"" text NULL;
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""MurabahaContractStatus"" text NOT NULL DEFAULT 'Draft';
+                    ALTER TABLE ""FinancingTenders"" ADD COLUMN IF NOT EXISTS ""InstallmentScheduleJson"" text NULL;
+
+                    -- Catalog Attribution Migration (MGR-01 / QT1-137)
+                    UPDATE ""Products""
+                    SET ""SupplierId"" = 1,
+                        ""SupplierKey"" = 'qannas',
+                        ""SearchRankingScore"" = 1.5
+                    WHERE ""SupplierId"" IS NULL OR ""SupplierKey"" IS NULL OR ""SupplierKey"" = '';
                 ");
             }
             catch (Exception ex)
@@ -241,6 +274,84 @@ namespace Bolcko.Web.App.Extensions
                         LastUpdated = DateTime.UtcNow 
                     }
                 );
+                await dbContext.SaveChangesAsync();
+            }
+
+            // 7. Seed Al-Qannas Gold Benchmark Supplier (User 13 / MGR-01)
+            var vendorEmail = "cleanrjo@gmail.com";
+            var vendorUser = await userManager.FindByEmailAsync(vendorEmail);
+            if (vendorUser == null)
+            {
+                var newVendor = new User
+                {
+                    UserName = vendorEmail,
+                    Email = vendorEmail,
+                    PhoneNumber = "0782023800",
+                    FirstName = "مجموعة القناص",
+                    LastName = "لمواد البناء",
+                    CompanyName = "شركة القناص لتجارة مواد البناء ذ.م.م",
+                    UserType = UserType.Vendor,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+                var vResult = await userManager.CreateAsync(newVendor, "Qannas@2026!");
+                if (vResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newVendor, "Vendor");
+                    vendorUser = newVendor;
+                }
+            }
+            else
+            {
+                if (!await userManager.IsInRoleAsync(vendorUser, "Vendor"))
+                {
+                    await userManager.AddToRoleAsync(vendorUser, "Vendor");
+                }
+            }
+
+            if (vendorUser != null)
+            {
+                var vProfile = await dbContext.VendorProfiles.FirstOrDefaultAsync(v => v.UserId == vendorUser.Id || v.Id == 1);
+                if (vProfile == null)
+                {
+                    vProfile = new Bolcko.Domain.Entities.Catalog.VendorProfile
+                    {
+                        UserId = vendorUser.Id,
+                        CompanyNameAr = "مجموعة القنّاص لمواد البناء",
+                        CompanyNameEn = "Al-Qannas Building Materials",
+                        CommercialRegistrationNo = "200194827",
+                        TaxNumber = "10928374",
+                        City = "عمان",
+                        AddressText = "رأس العين - المنطقة الصناعية",
+                        Phone = "0782023800",
+                        WhatsApp = "962782023800",
+                        ContactPersonName = "إدارة المبيعات والتوريد",
+                        SuppliedCategories = "Stone,Steel,ReadyMix,Insulation,Plumbing,BuildingMaterials",
+                        Status = "Active",
+                        CommissionRatePercentage = 1.5m,
+                        Rating = 4.9,
+                        SubscriptionTier = "Gold",
+                        IsGoldVerified = true,
+                        MerchantType = Bolcko.Domain.Enums.MerchantType.Manufacturer,
+                        Latitude = 31.9392,
+                        Longitude = 35.9189,
+                        WarehouseLocationName = "مستودعات رأس العين - عمان المركزية",
+                        RegisteredAt = DateTime.UtcNow,
+                        VerifiedAt = DateTime.UtcNow
+                    };
+                    await dbContext.VendorProfiles.AddAsync(vProfile);
+                }
+                else
+                {
+                    vProfile.SubscriptionTier = "Gold";
+                    vProfile.CommissionRatePercentage = 1.5m;
+                    vProfile.IsGoldVerified = true;
+                    vProfile.MerchantType = Bolcko.Domain.Enums.MerchantType.Manufacturer;
+                    vProfile.Latitude = 31.9392;
+                    vProfile.Longitude = 35.9189;
+                    vProfile.WarehouseLocationName = "مستودعات رأس العين - عمان المركزية";
+                    dbContext.VendorProfiles.Update(vProfile);
+                }
                 await dbContext.SaveChangesAsync();
             }
         }

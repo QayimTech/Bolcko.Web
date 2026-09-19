@@ -60,7 +60,7 @@ namespace Blocko.Services.Implementations.Product
                 "name_desc" => q => q.OrderByDescending(p => p.Name),
                 "price_asc" => q => q.OrderBy(p => p.RetailPrice),
                 "price_desc" => q => q.OrderByDescending(p => p.RetailPrice),
-                _ => q => q.OrderByDescending(p => p.Id)
+                _ => q => q.OrderByDescending(p => p.SearchRankingScore).ThenByDescending(p => p.Id)
             };
 
             IQueryable<Bolcko.Domain.Entities.Product.Product> query = _unitOfWork.Products.GetAllAsQueryable()
@@ -92,6 +92,11 @@ namespace Blocko.Services.Implementations.Product
                     Sku = p.Sku,
                     ImageUrl = p.ImageUrl,
                     BulkPricingAvailable = p.BulkPricingAvailable,
+                    TechnicalDatasheetUrl = p.TechnicalDatasheetUrl,
+                    MillTestCertificateUrl = p.MillTestCertificateUrl,
+                    RssApprovalUrl = p.RssApprovalUrl,
+                    IsExclusivePatented = p.IsExclusivePatented,
+                    SearchRankingScore = p.SearchRankingScore,
                     UpdatedAt = p.UpdatedAt,
                     Variants = p.Variants.Select(v => new ProductVariantDto
                     {
@@ -133,6 +138,11 @@ namespace Blocko.Services.Implementations.Product
                 Brand = p.Brand,
                 CountryOfOrigin = p.CountryOfOrigin,
                 BulkPricingAvailable = p.BulkPricingAvailable,
+                TechnicalDatasheetUrl = p.TechnicalDatasheetUrl,
+                MillTestCertificateUrl = p.MillTestCertificateUrl,
+                RssApprovalUrl = p.RssApprovalUrl,
+                IsExclusivePatented = p.IsExclusivePatented,
+                SearchRankingScore = p.SearchRankingScore,
                 UpdatedAt = p.UpdatedAt,
                 Images = p.Images.Select(img => new ProductImageDto
                 {

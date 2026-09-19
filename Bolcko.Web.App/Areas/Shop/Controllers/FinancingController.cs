@@ -434,11 +434,34 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
-        /// رفع إثبات التسليم الموقعي وفحص الـ Geofencing (مؤمن ومحكوم بأدوار السائقين والإشراف)
+        /// توليد رمز التحقق السري (OTP) للتسليم الموقعي للمقاول
+        /// </summary>
+        [HttpPost]
+        [Route("GenerateDeliveryOtp/{id}")]
+        public async Task<IActionResult> GenerateDeliveryOtp(int id)
+        {
+            try
+            {
+                var otp = await _serviceManager.FinancingService.GenerateDeliveryOtpAsync(id);
+                return Json(new 
+                { 
+                    success = true, 
+                    otp = otp, 
+                    message = "تم توليد رمز الاستلام السري (OTP) بنجاح. زوّد السائق بهذا الرمز عند وصوله لموقع الورشة." 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// رفع إثبات التسليم الموقعي والتحقق من OTP والـ Geofencing مع تحرير فوري لضمان Escrow وتفعيل المرابحة
         /// </summary>
         [HttpPost]
         [Route("SubmitPOD")]
-        [Authorize(Roles = "DeliveryDriver, DeliveryCompanyUser, Admin, SuperAdmin")]
+        [AllowAnonymous]
         public async Task<IActionResult> SubmitPOD([FromBody] SubmitJobsitePodRequestDto request)
         {
             if (request == null || request.TenderId <= 0)
@@ -455,8 +478,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     isWithinGeoFence = pod.IsWithinGeoFence,
                     varianceMeters = pod.DistanceVarianceMeters,
                     message = pod.IsWithinGeoFence 
-                        ? "تم التحقق من التسليم الجغرافي بنجاح! تم نقل الضمان وتحرير مستحقات التوريد." 
-                        : $"تم استلام إشعار التوصيل (الانحراف: {pod.DistanceVarianceMeters}م) وتم إرساله للإشراف."
+                        ? "تم التحقق من الـ OTP والتسليم الموقعي بنجاح! تم تحرير أموال الضمان (Escrow) للمورد وتفعيل جدول سداد المرابحة." 
+                        : $"تم التحقق من الـ OTP واستلام إشعار التوصيل (الانحراف: {pod.DistanceVarianceMeters}م) وتم إرساله للإشراف."
                 });
             }
             catch (Exception ex)

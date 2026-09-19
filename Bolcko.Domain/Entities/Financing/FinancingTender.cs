@@ -48,6 +48,19 @@ namespace Bolcko.Domain.Entities.Financing
         public bool IsCollateralVerified { get; set; } = true;
         public double ContractorTrustScore { get; set; } = 95.0; // Trust index (0 - 100)
 
+        // OTP Delivery & Verification (EP-01)
+        public string? DeliveryOtpCode { get; set; }
+        public DateTime? DeliveryOtpExpiresAt { get; set; }
+
+        // Escrow & Settlement Control
+        public string EscrowStatus { get; set; } = "HeldInEscrow"; // "HeldInEscrow", "ReleasedToVendor", "Refunded"
+        public DateTime? EscrowReleasedAt { get; set; }
+        public string? EscrowReleaseTransactionReference { get; set; }
+
+        // Sharia Repayment & Murabaha Contract
+        public string MurabahaContractStatus { get; set; } = "Draft"; // "Draft", "Funded", "ActiveRepayment", "Settled"
+        public string? InstallmentScheduleJson { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? FundedAt { get; set; }
         public DateTime? DeliveredAt { get; set; }

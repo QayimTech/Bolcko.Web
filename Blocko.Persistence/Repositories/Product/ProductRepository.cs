@@ -15,8 +15,9 @@ namespace Blocko.Persistence.Repositories.Product
             await _context.Products
                 .AsNoTracking()
                 .Include(p => p.Images)
-                .OrderByDescending(p => p.Id) // Simplify ordering to avoid heavy subquery joins and aggregate calculations on every page load
-                .Take(10)
+                .OrderByDescending(p => p.SearchRankingScore)
+                .ThenByDescending(p => p.Id)
+                .Take(12)
                 .ToListAsync();
 
         public async Task<Bolcko.Domain.Entities.Product.Product?> GetByIdWithImagesAsync(int id) =>
@@ -29,7 +30,12 @@ namespace Blocko.Persistence.Repositories.Product
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return await _context.Products.Include(p => p.Images).Include(p => p.Category).ToListAsync();
+                return await _context.Products
+                    .Include(p => p.Images)
+                    .Include(p => p.Category)
+                    .OrderByDescending(p => p.SearchRankingScore)
+                    .ThenByDescending(p => p.Id)
+                    .ToListAsync();
             }
 
             var trimmed = query.Trim();
@@ -68,7 +74,10 @@ namespace Blocko.Persistence.Repositories.Product
                         (p.Name != null && (EF.Functions.ILike(p.Name, "%حجر%") || EF.Functions.ILike(p.Name, "%stone%"))) ||
                         (p.NameEn != null && EF.Functions.ILike(p.NameEn, "%stone%"))
                     ))
-                ).ToListAsync();
+                )
+                .OrderByDescending(p => p.SearchRankingScore)
+                .ThenByDescending(p => p.Id)
+                .ToListAsync();
         }
     }
 }

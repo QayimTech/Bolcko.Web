@@ -64,6 +64,16 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public string? FunderName { get; set; }
         public string? FunderPhone { get; set; }
         public string? WakalaContractPdfUrl { get; set; }
+
+        // OTP & Escrow
+        public string? DeliveryOtpCode { get; set; }
+        public DateTime? DeliveryOtpExpiresAt { get; set; }
+        public string EscrowStatus { get; set; } = "HeldInEscrow";
+        public DateTime? EscrowReleasedAt { get; set; }
+        public string? EscrowReleaseTransactionReference { get; set; }
+        public string MurabahaContractStatus { get; set; } = "Draft";
+        public string? InstallmentScheduleJson { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? FundedAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
@@ -105,6 +115,7 @@ namespace Bolcko.Domain.Entities.Financing.DTOs
         public string VehiclePlateNumber { get; set; } = string.Empty;
         public double DriverLatitude { get; set; }
         public double DriverLongitude { get; set; }
+        public string DeliveryOtpCode { get; set; } = string.Empty;
         public string? PhotoBase64 { get; set; }
         public string? PhotoUrl { get; set; }
     }

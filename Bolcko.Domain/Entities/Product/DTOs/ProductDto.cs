@@ -34,14 +34,23 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public Bolcko.Domain.Enums.SeoStatus SeoStatus { get; set; } = Bolcko.Domain.Enums.SeoStatus.PendingSeo;
         public DateTime UpdatedAt { get; set; }
 
-        // Merchant Identity & Attribution (VM-01, VM-02)
+        // Merchant Identity & Attribution (VM-01, VM-02, SUB-01, SUB-02)
         public string SupplierName { get; set; } = "مجموعة القنّاص لمواد البناء";
         public string SupplierSlug { get; set; } = "al-qannas";
         public bool SupplierIsVerified { get; set; } = true;
-        public string SupplierBadge { get; set; } = "تاجر ذهبي موثق";
-        public string SupplierCity { get; set; } = "عمّان - سحاب";
+        public string SupplierBadge { get; set; } = "مورد ذهبي معتمد";
+        public string SupplierCity { get; set; } = "عمّان - رأس العين";
         public double SupplierRating { get; set; } = 4.9;
         public int SupplierCompletedOrders { get; set; } = 1420;
+        public string SupplierTier { get; set; } = "Gold";
+        public string MerchantTypeName { get; set; } = "مصنع مباشر - خالي من وسيط البيع";
+
+        // Engineering Datasheets & Merchant Authority (SUB-02)
+        public string? TechnicalDatasheetUrl { get; set; }
+        public string? MillTestCertificateUrl { get; set; }
+        public string? RssApprovalUrl { get; set; }
+        public bool IsExclusivePatented { get; set; } = false;
+        public double SearchRankingScore { get; set; } = 1.0;
 
         public decimal DisplayPrice
         {

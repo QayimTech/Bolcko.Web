@@ -225,16 +225,20 @@
                                         </div>
                                     </div>
 
-                                    <!-- Bottom Action Links -->
-                                    <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                                    <!-- Bottom Action Links & OTP Generator (EP-01) -->
+                                    <div class="mt-4 pt-3 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <div class="flex items-center gap-2 text-[11px] text-slate-400">
                                             <span class="material-symbols-outlined text-sm text-sky-400">verified_user</span>
-                                            <span>توثيق التسليم عبر إحداثيات الـ GPS الموقعية</span>
+                                            <span>الضمان: <strong class="text-amber-400 font-mono">@(item.EscrowStatus == "ReleasedToVendor" ? "تم الإفراج للمورد ✓" : "محجوز بالضمان (Escrow)")</strong></span>
                                         </div>
-                                        <div class="flex items-center gap-2">
-                                            <a href="/Shop/Financing/DriverPOD/@item.Id" class="px-3 py-1.5 rounded-lg bg-amber-600/20 text-amber-300 border border-amber-500/30 hover:bg-amber-600/30 text-[11px] font-bold transition-all flex items-center gap-1">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <button type="button" onclick="generateTenderOtp(@item.Id, '@item.TrackingCode')" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black transition-all flex items-center gap-1 shadow-sm">
+                                                <span class="material-symbols-outlined text-xs">key</span>
+                                                <span id="otpBtnText-@item.Id">@(string.IsNullOrEmpty(item.DeliveryOtpCode) ? "توليد رمز الاستلام (OTP)" : $"رمز الورشة: {item.DeliveryOtpCode}")</span>
+                                            </button>
+                                            <a href="/Shop/Financing/DriverPOD/@item.Id" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-600/20 text-sky-300 border border-sky-500/30 hover:bg-sky-600/30 text-[11px] font-bold transition-all flex items-center gap-1">
                                                 <span class="material-symbols-outlined text-xs">qr_code_scanner</span>
-                                                <span>بوابة السائق (GPS POD)</span>
+                                                <span>بوابة السائق (e-POD)</span>
                                             </a>
                                             <a href="/Shop/Financing/Details/@item.Id" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-all flex items-center gap-1">
                                                 <span>التفاصيل</span>
@@ -267,6 +271,28 @@
 </div>
 
 <script>
+async function generateTenderOtp(tenderId, trackingCode) {
+    try {
+        const resp = await fetch(`/Shop/Financing/GenerateDeliveryOtp/${tenderId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await resp.json();
+        if (data.success && data.otp) {
+            const btnText = document.getElementById(`otpBtnText-${tenderId}`);
+            if (btnText) {
+                btnText.innerText = `رمز الورشة: ${data.otp}`;
+            }
+            alert(`تم توليد رمز الاستلام (OTP) بنجاح:\n\nكود الورشة: [ ${data.otp} ]\nالعطاء: ${trackingCode}\n\nيرجى تزويد سائق الشاحنة بهذا الرمز عند تفريغ المواد لتأكيد الاستلام وتحرير الضمان.`);
+        } else {
+            alert(data.message || "تعذر توليد الرمز.");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("حدث خطأ أثناء توليد رمز الـ OTP.");
+    }
+}
+
 async function settleTenderDirect(tenderId) {
     if (!confirm("هل أنت متأكد من تأكيد سداد دفعة المرابحة؟ سيتم إفراج الأرباح للمستثمر ورفع نقاط موثوقيتك الائتمانية.")) return;
 
