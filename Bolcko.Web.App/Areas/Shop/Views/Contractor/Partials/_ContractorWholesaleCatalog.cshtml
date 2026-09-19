@@ -1,0 +1,31 @@
+<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#E8A020]">warehouse</span>
+            <h2 class="text-base font-bold text-slate-900">أسعار الجملة المباشرة المعتمدة للمقاولين (B2B Pricing)</h2>
+        </div>
+        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="text-xs font-bold text-amber-600 hover:text-amber-700 transition">تصفح الكتالوج بالكامل ←</a>
+    </div>
+    
+    <p class="text-xs text-slate-600 leading-relaxed">
+        كمقاول معتمد في منصة بلوكو، يتم تطبيق خصومات شرائح الجملة (Tier Pricing) تلقائياً على حديد التسليح، الإسمنت، الخرسانة الجاهزة، والبلوك الإسمنتي مع ضمان التسليم الموقعي بالـ GPS.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-500/5 hover:border-amber-500/30 border border-slate-200 transition text-center space-y-1 block group">
+            <span class="material-symbols-outlined text-slate-700 group-hover:text-amber-600 text-2xl">iron</span>
+            <p class="text-xs font-bold text-slate-900">حديد تسليح عالي المقاومة (Grade 60)</p>
+            <span class="text-[10px] text-emerald-600 font-bold font-mono">سعر الجملة: ~580 د.أ / طن</span>
+        </a>
+        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-500/5 hover:border-amber-500/30 border border-slate-200 transition text-center space-y-1 block group">
+            <span class="material-symbols-outlined text-slate-700 group-hover:text-amber-600 text-2xl">foundation</span>
+            <p class="text-xs font-bold text-slate-900">خرسانة جاهزة معتمدة (C30/C35)</p>
+            <span class="text-[10px] text-emerald-600 font-bold font-mono">سعر المتر: ~38 د.أ / م³</span>
+        </a>
+        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="p-4 rounded-2xl bg-slate-50 hover:bg-amber-500/5 hover:border-amber-500/30 border border-slate-200 transition text-center space-y-1 block group">
+            <span class="material-symbols-outlined text-slate-700 group-hover:text-amber-600 text-2xl">domain</span>
+            <p class="text-xs font-bold text-slate-900">طوب إسمنتي وبلوك هوردي مفرغ</p>
+            <span class="text-[10px] text-emerald-600 font-bold font-mono">سعر الألف: ~350 د.أ</span>
+        </a>
+    </div>
+</div>

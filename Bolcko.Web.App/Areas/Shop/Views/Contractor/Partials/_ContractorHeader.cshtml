@@ -1,0 +1,39 @@
+@model Bolcko.Domain.Entities.User.User
+@{
+    var user = Model;
+}
+
+<div class="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-white/10">
+    <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div class="space-y-2">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    🏗️ مقاول معتمد (Verified B2B Contractor)
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-mono">
+                    س.ت: @(user?.BusinessRegistrationNumber ?? "200189422")
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold font-mono">
+                    درجة التصنيف: @(user?.LastName ?? "درجة أولى إنشائي")
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white">@(user?.CompanyName ?? user?.FirstName ?? "شركة المقاولات الإنشائية")</h1>
+            <p class="text-xs text-slate-300 max-w-2xl">
+                مساحة عمل مركزية متكاملة لحساب كميات المشاريع الهندسية، استدراج عروض الأسعار بالجملة، وتسهيلات تمويل المرابحة الإسلامية المباشرة.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-md active:scale-95">
+                <span class="material-symbols-outlined text-base">calculate</span>
+                <span>حاسبة الكميات الذكية BOQ</span>
+            </a>
+            <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-white/10 transition flex items-center gap-1.5 shadow-md active:scale-95">
+                <span class="material-symbols-outlined text-base text-emerald-400">account_balance</span>
+                <span>طلب تمويل مرابحة فوري</span>
+            </a>
+        </div>
+    </div>
+</div>

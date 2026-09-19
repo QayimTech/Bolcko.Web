@@ -1,10 +1,11 @@
 @model Bolcko.Domain.Entities.User.User
 @{
-    ViewData["Title"] = "مجمع أعمال المقاولين (Contractor Workspace)";
+    ViewData["Title"] = "مجمع أعمال المقاولين المعتمدين (Contractor Workspace)";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
     bool isNew = ViewBag.IsNewRegistration == true;
     var user = Model;
+    var financingDashboard = ViewBag.FinancingDashboard as Bolcko.Domain.Entities.Financing.DTOs.ContractorDashboardDto;
 }
 
 <div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 text-right" dir="rtl">
@@ -12,216 +13,72 @@
 
         @if (isNew)
         {
-            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between shadow-2xs animate-fade-in">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-emerald-600 text-2xl">check_circle</span>
                     <div>
-                        <p class="text-sm font-bold text-emerald-900">تم تسجيل حساب المنشأة بنجاح ومطابقة السجل التجاري!</p>
-                        <p class="text-xs text-emerald-700">مرحباً بك في مجمع أعمال المقاولين المعتمدين في BlockO.</p>
+                        <p class="text-sm font-bold text-emerald-900">تم تسجيل حساب المنشأة بنجاح ومطابقة السجل التجاري الأردني!</p>
+                        <p class="text-xs text-emerald-700">مرحباً بك في مجمع أعمال المقاولين المعتمدين في منصة Block-O.</p>
                     </div>
                 </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-200/60 text-emerald-800 text-xs font-bold font-mono">KYC Submitted</span>
+                <span class="px-3 py-1 rounded-full bg-emerald-200/60 text-emerald-800 text-xs font-bold font-mono">KYC Verified</span>
             </div>
         }
 
-        <!-- Top Header Card with Badges -->
-        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-white/10">
-            <div class="absolute -left-12 -top-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            🏗️ مقاول معتمد (Verified Contractor)
-                        </span>
-                        <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-mono">
-                            CR: @(user?.BusinessRegistrationNumber ?? "1010XXXXXX")
-                        </span>
-                    </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-white">@(user?.CompanyName ?? user?.FirstName ?? "مؤسسة المقاولات")</h1>
-                    <p class="text-xs text-slate-300">مساحة عمل مركزية لإدارة توريدات المواد، حاسبة الكميات، طلبات الأسعار (RFQ)، والتمويل الإسلامي.</p>
-                </div>
+        <!-- 1. Header Partial -->
+        <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorHeader.cshtml" model="user" />
 
-                <div class="flex flex-wrap gap-3">
-                    <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold text-xs hover:bg-amber-400 transition flex items-center gap-1.5 shadow-md">
-                        <span class="material-symbols-outlined text-sm">calculate</span>
-                        <span>حاسبة الكميات الذكية BOQ</span>
-                    </a>
-                    <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition flex items-center gap-1.5 shadow-md">
-                        <span class="material-symbols-outlined text-sm">payments</span>
-                        <span>طلب تمويل مرابحة</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+        <!-- 2. Stats Grid Partial -->
+        <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorStatsGrid.cshtml" model="financingDashboard" />
 
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-1">
-                <span class="text-xs text-slate-500 font-bold">عروض الأسعار النشطة (RFQs)</span>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-2xl font-black text-slate-900 font-mono">3</span>
-                    <span class="text-xs text-emerald-600 font-bold">2 موردين قيد التسعير</span>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-1">
-                <span class="text-xs text-slate-500 font-bold">خط التمويل بالمرابحة المتاح</span>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-2xl font-black text-emerald-600 font-mono">500,000</span>
-                    <span class="text-xs text-slate-400">ريال سعودي</span>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-1">
-                <span class="text-xs text-slate-500 font-bold">المشاريع والمناقصات المتاحة</span>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-2xl font-black text-indigo-600 font-mono">12</span>
-                    <a href="@Url.Action("Index", "Tender", new { area = "Shop" })" class="text-xs text-indigo-500 font-bold hover:underline">استعراض</a>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-1">
-                <span class="text-xs text-slate-500 font-bold">شحنات التوريد الجارية</span>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-2xl font-black text-amber-600 font-mono">1</span>
-                    <span class="text-xs text-amber-600 font-bold">قيد الشحن للموقع</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Workspace Hub Sections -->
+        <!-- 3. Main Workspace Hub Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Left 2 Cols: Services & Tools -->
             <div class="lg:col-span-2 space-y-6">
                 
-                <!-- BOQ & Wholesale Purchasing -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[#E8A020]">warehouse</span>
-                            <h2 class="text-base font-bold text-slate-900">كتالوج مواد البناء بأسعار الجملة المباشرة</h2>
-                        </div>
-                        <a href="@Url.Action("Index", "Product", new { area = "Shop" })" class="text-xs font-bold text-indigo-600 hover:underline">تصفح الكتالوج بالكامل</a>
-                    </div>
-                    
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        كمقاول معتمد، يتم تطبيق خصومات شرائح الجملة (Tier Pricing) تلقائياً على حديد التسليح، الإسمنت، الخرسانة الجاهزة، والبلوك مع إمكانية جدولة مواعيد الصب والتوريد.
-                    </p>
+                <!-- B2B Wholesale Materials Partial -->
+                <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorWholesaleCatalog.cshtml" />
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                        <a href="@Url.Action("Index", "Product", new { area = "Shop", categoryId = 1 })" class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition text-center space-y-1 block">
-                            <span class="material-symbols-outlined text-slate-700 text-2xl">iron</span>
-                            <p class="text-xs font-bold text-slate-900">حديد التسليح (سابك/اليمامة)</p>
-                            <span class="text-[10px] text-emerald-600 font-bold">أسعار الجملة للطن</span>
-                        </a>
-                        <a href="@Url.Action("Index", "Product", new { area = "Shop", categoryId = 2 })" class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition text-center space-y-1 block">
-                            <span class="material-symbols-outlined text-slate-700 text-2xl">foundation</span>
-                            <p class="text-xs font-bold text-slate-900">الخرسانة الجاهزة C35/C40</p>
-                            <span class="text-[10px] text-emerald-600 font-bold">تسعير المتر المكعب</span>
-                        </a>
-                        <a href="@Url.Action("Index", "Product", new { area = "Shop", categoryId = 3 })" class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition text-center space-y-1 block">
-                            <span class="material-symbols-outlined text-slate-700 text-2xl">domain</span>
-                            <p class="text-xs font-bold text-slate-900">البلوك الإسمنتي والبركاني</p>
-                            <span class="text-[10px] text-emerald-600 font-bold">توريد مباشر للموقع</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Smart BOQ Exporter & Multi-Vendor RFQ Engine -->
+                <!-- BOQ & RFQ Engine Card -->
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-indigo-600">request_quote</span>
-                            <h2 class="text-base font-bold text-slate-900">محرك تصدير جدول الكميات (Smart BOQ Exporter) وطلب عروض الأسعار</h2>
+                            <h2 class="text-base font-bold text-slate-900">محرك تصدير جدول الكميات (Smart BOQ) وطلب عروض الأسعار (RFQ)</h2>
                         </div>
-                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold">Multi-Vendor RFQ</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold font-mono">Multi-Vendor RFQ</span>
                     </div>
 
                     <p class="text-xs text-slate-600 leading-relaxed">
-                        قم بتصدير جدول الكميات (BOQ) الناتج من الحاسبة الهندسية أو ملف Excel وارسله فوراً إلى شبكة الموردين المعتمدين لتلقي عروض أسعار تنافسية ومقارنتها بنقرة واحدة.
+                        قم بتصدير جدول الكميات (BOQ) الناتج من الحاسبة الهندسية الذكية وارسله فوراً لشبكة الموردين والمصانع المعتمدة لتلقي عروض أسعار تنافسية ومقارنتها بنقرة واحدة.
                     </p>
 
                     <div class="flex flex-wrap items-center gap-3 pt-1">
-                        <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2">
-                            <span class="material-symbols-outlined text-sm">upload_file</span>
-                            <span>استيراد جدول كميات من الحاسبة الهندسية</span>
+                        <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">calculate</span>
+                            <span>فتح حاسبة البناء الهندسية</span>
                         </a>
                         <a href="@Url.Action("Index", "Quote", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-2 border border-slate-200">
                             <span class="material-symbols-outlined text-sm text-indigo-600">compare_arrows</span>
-                            <span>مقارنة عروض أسعار الموردين النشطة</span>
+                            <span>مقارنة عروض أسعار الموردين</span>
                         </a>
                     </div>
                 </div>
 
-                <!-- Islamic Financing Section -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-600">account_balance</span>
-                            <h2 class="text-base font-bold text-slate-900">عقود التمويل بالمرابحة الإسلامية</h2>
-                        </div>
-                        <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })" class="text-xs font-bold text-emerald-600 hover:underline">لوحة التمويل الكاملة</a>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-xs space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-emerald-900">طلب تمويل مواد عظم - فيلا الياسمين</span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-800 text-[10px] font-bold">معتمد وجاري التوريد</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 pt-1 text-[11px] text-slate-600">
-                            <div>قيمة التمويل: <span class="font-bold text-slate-900 font-mono">180,000 ريال</span></div>
-                            <div>المدة: <span class="font-bold text-slate-900">12 شهر</span></div>
-                            <div>القسط الشهري: <span class="font-bold text-slate-900 font-mono">15,000 ريال</span></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Islamic Murabaha Financing Summary Partial -->
+                <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorFinancingSummary.cshtml" model="financingDashboard" />
 
             </div>
 
-            <!-- Right Col: Verification Status & Documents -->
+            <!-- Right Col: KYC & Logistics Widgets -->
             <div class="space-y-6">
                 
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <span class="material-symbols-outlined text-indigo-600">verified</span>
-                        <h2 class="text-base font-bold text-slate-900">ملف التوثيق والامتثال (KYC)</h2>
-                    </div>
+                <!-- KYC Status Card Partial -->
+                <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorKycCard.cshtml" model="user" />
 
-                    <div class="space-y-3 text-xs">
-                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                            <span class="text-slate-600">السجل التجاري:</span>
-                            <span class="font-bold text-slate-900 font-mono">@(user?.BusinessRegistrationNumber ?? "1010XXXXXX")</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                            <span class="text-slate-600">درجة التصنيف:</span>
-                            <span class="font-bold text-indigo-600">@(user?.LastName ?? "الدرجة الثالثة")</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                            <span class="text-slate-600">حالة الاعتماد:</span>
-                            <span class="inline-flex items-center gap-1 font-bold text-emerald-600">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                ساري ومطابق للأنظمة
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Dispatch Quick Widget -->
-                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-md space-y-3">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[#E8A020]">local_shipping</span>
-                        <h3 class="font-bold text-sm">التتبع اللوجستي للشحنات الحية</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-300 leading-relaxed">
-                        تتبع شاحنات الخرسانة والحديد المتجهة لموقعك الإنشائي مع إشعار بالـ OTP عند التفريغ.
-                    </p>
-                    <a href="@Url.Action("DriverPOD", "Financing", new { area = "Shop" })" class="inline-flex items-center gap-1 text-xs font-bold text-[#E8A020] hover:underline pt-1">
-                        <span>إثبات الاستلام الرقمي (Driver POD)</span>
-                        <span class="material-symbols-outlined text-xs rtl:-scale-x-100">arrow_forward</span>
-                    </a>
-                </div>
+                <!-- Live Logistics Dispatch Widget Partial -->
+                <partial name="~/Areas/Shop/Views/Contractor/Partials/_ContractorLiveLogistics.cshtml" />
 
             </div>
 

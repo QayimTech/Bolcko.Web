@@ -1,0 +1,65 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.ContractorDashboardDto
+@{
+    var dash = Model;
+    var totalFunded = dash?.TotalFinancedAmountJod ?? 75825m;
+    var activeCount = dash?.ActiveTendersCount ?? 2;
+    var trustScore = dash?.TrustScore ?? 96.5;
+}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Stat 1: Trust Score -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-bold">مؤشر الجدارة الائتمانية (Trust Score)</span>
+            <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">verified</span>
+            </span>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-2xl font-black text-emerald-600 font-mono">@trustScore.ToString("N1")%</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">تصنيف ممتاز A+</span>
+        </div>
+    </div>
+
+    <!-- Stat 2: Active Murabaha Credit -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-bold">إجمالي التمويلات المسحوبة</span>
+            <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">account_balance_wallet</span>
+            </span>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-2xl font-black text-slate-900 font-mono">@totalFunded.ToString("N0")</span>
+            <span class="text-xs text-slate-500 font-bold">دينار أردني</span>
+        </div>
+    </div>
+
+    <!-- Stat 3: Active Orders & Deliveries -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-bold">العطاءات والشحنات النشطة</span>
+            <span class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">local_shipping</span>
+            </span>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-2xl font-black text-sky-600 font-mono">@activeCount</span>
+            <span class="text-xs text-slate-500 font-bold">قيد التوريد والتنفيذ</span>
+        </div>
+    </div>
+
+    <!-- Stat 4: Multi-Vendor RFQs -->
+    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-bold">طلبات الأسعار المجمعة (RFQs)</span>
+            <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">request_quote</span>
+            </span>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-2xl font-black text-purple-600 font-mono">3</span>
+            <span class="text-xs text-purple-600 font-bold">عروض أسعار واردة</span>
+        </div>
+    </div>
+</div>

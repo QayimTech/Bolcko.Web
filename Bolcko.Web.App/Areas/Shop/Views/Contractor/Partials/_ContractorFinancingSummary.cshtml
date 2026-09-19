@@ -1,0 +1,60 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.ContractorDashboardDto
+@{
+    var dash = Model;
+}
+
+<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">account_balance</span>
+            <h2 class="text-base font-bold text-slate-900">عطاءات وتسهيلات المرابحة الإنشائية</h2>
+        </div>
+        <a href="@Url.Action("ContractorDashboard", "Financing", new { area = "Shop" })" class="text-xs font-bold text-emerald-600 hover:underline">لوحة التمويل الكاملة ←</a>
+    </div>
+
+    @if (dash?.ActiveTenders != null && dash.ActiveTenders.Any())
+    {
+        <div class="space-y-3">
+            @foreach (var tender in dash.ActiveTenders.Take(3))
+            {
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 hover:border-emerald-500/40 transition">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-slate-900 text-sm block">@tender.ProjectTitle</span>
+                            <span class="text-[11px] text-slate-500 font-mono">رمز العطاء: @tender.TrackingCode • @tender.ProjectCity</span>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-[10px] font-bold font-mono">
+                            @tender.Status.ToString()
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/60 text-[11px] text-slate-600">
+                        <div>قيمة المواد: <strong class="text-slate-900 font-mono">@tender.BaseMaterialCost.ToString("N2") د.أ</strong></div>
+                        <div>المدة: <strong class="text-slate-900 font-mono">@tender.TenureDays يوماً</strong></div>
+                        <div>المستحق النهائي: <strong class="text-emerald-700 font-mono">@tender.TotalPayableAmount.ToString("N2") د.أ</strong></div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-1">
+                        <a href="/Shop/Financing/Contract/@tender.TrackingCode" target="_blank" class="px-3 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-[10px] transition">
+                            عرض العقد الرسمي A4
+                        </a>
+                        <a href="/Shop/Financing/Details/@tender.Id" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] transition">
+                            تفاصيل التوريد والـ BOQ
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="p-6 rounded-2xl bg-emerald-50/40 border border-emerald-100 text-center space-y-2">
+            <span class="material-symbols-outlined text-3xl text-emerald-600">finance_chip</span>
+            <p class="text-xs font-bold text-slate-700">لا توجد عطاءات تمويل مرابحة نشطة حالياً.</p>
+            <p class="text-[11px] text-slate-500">يمكنك تصدير كشف الكميات من حاسبة البناء وطرح أول عطاء توريد بتمويل فوري.</p>
+            <a href="/Shop/Financing/Create" class="inline-block mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                طرح عطاء تمويلي جديد 🚀
+            </a>
+        </div>
+    }
+</div>

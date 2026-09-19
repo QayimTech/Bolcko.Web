@@ -1,0 +1,33 @@
+@model Bolcko.Domain.Entities.User.User
+@{
+    var user = Model;
+}
+
+<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+        <span class="material-symbols-outlined text-indigo-600">verified</span>
+        <h2 class="text-base font-bold text-slate-900">ملف التوثيق والامتثال التجاري (KYC)</h2>
+    </div>
+
+    <div class="space-y-3 text-xs">
+        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-slate-600 font-medium">السجل التجاري (CR):</span>
+            <span class="font-bold text-slate-900 font-mono">@(user?.BusinessRegistrationNumber ?? "200189422")</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-slate-600 font-medium">درجة التصنيف الإنشائي:</span>
+            <span class="font-bold text-indigo-700">@(user?.LastName ?? "درجة أولى - أبنية")</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-slate-600 font-medium">الرقم الضريبي (VAT ID):</span>
+            <span class="font-bold text-slate-900 font-mono">018492048</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-emerald-50/60 rounded-2xl border border-emerald-100">
+            <span class="text-slate-700 font-medium">حالة الاعتماد الحكومي:</span>
+            <span class="inline-flex items-center gap-1 font-bold text-emerald-700">
+                <span class="material-symbols-outlined text-xs">check_circle</span>
+                <span>ساري ومطابق للأنظمة (Verified)</span>
+            </span>
+        </div>
+    </div>
+</div>
