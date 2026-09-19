@@ -20,17 +20,20 @@ namespace Blocko.Services.Implementations.order
         private readonly INotificationService _notificationService;
         private readonly Blocko.Services.Interfaces.User.IEmailSender _emailSender;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
+        private readonly Blocko.Services.Interfaces.Webhook.IOutboundWebhookService? _webhookService;
 
         public OrderService(
             IUnitOfWork unitOfWork, 
             INotificationService notificationService,
             Blocko.Services.Interfaces.User.IEmailSender emailSender,
-            Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager)
+            Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager,
+            Blocko.Services.Interfaces.Webhook.IOutboundWebhookService? webhookService = null)
         {
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
             _emailSender = emailSender;
             _userManager = userManager;
+            _webhookService = webhookService;
         }
 
         public async Task<OrderDto> PlaceOrderAsync(int userId, ShoppingCartDto cart, CheckoutDto checkoutDto)
@@ -131,6 +134,33 @@ namespace Blocko.Services.Implementations.order
 
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync();
+
+                // Trigger Outbound ERP Webhook (WH-01)
+                if (_webhookService != null)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await _webhookService.PublishEventAsync(1, "order.placed", new
+                            {
+                                orderId = order.Id,
+                                orderNumber = order.OrderNumber,
+                                totalAmount = order.TotalAmount,
+                                status = order.Status.ToString(),
+                                paymentMethod = order.PaymentMethod,
+                                city = checkoutDto.City,
+                                area = checkoutDto.Area,
+                                itemsCount = order.Items.Count,
+                                createdAt = order.OrderDate
+                            });
+                        }
+                        catch
+                        {
+                            // Background webhook dispatch failure shouldn't throw to caller
+                        }
+                    });
+                }
 
                 // Send confirmation email to User
                 try

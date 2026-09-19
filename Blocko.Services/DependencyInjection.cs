@@ -105,6 +105,7 @@ namespace Blocko.Services
             services.AddScoped<Blocko.Services.Interfaces.Payment.IPaymentGatewayService, Blocko.Services.Implementations.Payment.PaymentGatewayService>();
             services.AddScoped<Blocko.Services.Interfaces.Financing.IFinancingService, Blocko.Services.Implementations.Financing.FinancingService>();
             services.AddScoped<Blocko.Services.Interfaces.Logistics.IGeoDistancePricingService, Blocko.Services.Implementations.Logistics.GeoDistancePricingService>();
+            services.AddScoped<Blocko.Services.Interfaces.Webhook.IOutboundWebhookService, Blocko.Services.Implementations.Webhook.OutboundWebhookService>();
 
             // Register FluentValidation validators
             services.AddValidatorsFromAssembly(typeof(Blocko.Services.Validation.ProductImportDtoValidator).Assembly);

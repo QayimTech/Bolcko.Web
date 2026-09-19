@@ -1,0 +1,116 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorWebhooksViewModel
+@{
+    ViewData["Title"] = "بوابة الويب هوك والربط مع أنظمة الـ ERP | بلكو الموردين";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+}
+
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    B2B Enterprise Integration
+                </span>
+                <span class="text-xs text-slate-400 font-mono">WH-01 & WH-02</span>
+            </div>
+            <h1 class="text-2xl font-black text-white">مركز تكامل الـ ERP والـ Webhooks</h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">مزامنة لحظية لحالات الطلبات، إيداع المرابحة، وأوزان القبان مع برامجكم المحاسبية</p>
+        </div>
+    </div>
+
+    <!-- 1. Outbound Config Form (WH-01) -->
+    <partial name="Partials/_WebhookConfigForm" model="Model" />
+
+    <!-- 2. Inbound Tracking Docs (WH-02) -->
+    <partial name="Partials/_WebhookInboundDocsCard" model="Model" />
+
+    <!-- 3. Delivery Logs Table -->
+    <partial name="Partials/_WebhookDeliveryLogsTable" model="Model" />
+</div>
+
+<!-- Payload Inspection Modal -->
+<div id="payloadModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400 text-base">code</span>
+                <span>تفاصيل حمولة الويب هوك والتوقيع الأمني</span>
+            </h3>
+            <button type="button" onclick="closePayloadModal()" class="text-slate-400 hover:text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div>
+            <span class="text-xs font-bold text-slate-400 block mb-1">توقيع التشفير (Signature Header):</span>
+            <div id="modalSignature" class="p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-amber-400 truncate" dir="ltr"></div>
+        </div>
+
+        <div>
+            <span class="text-xs font-bold text-slate-400 block mb-1">حمولة الطلب (Sent Payload JSON):</span>
+            <pre id="modalPayload" class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-emerald-400 max-h-48 overflow-y-auto" dir="ltr"></pre>
+        </div>
+
+        <div>
+            <span class="text-xs font-bold text-slate-400 block mb-1">استجابة سيرفر الـ ERP (Response Body):</span>
+            <pre id="modalResponse" class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 max-h-32 overflow-y-auto" dir="ltr"></pre>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function regenerateSecret() {
+            if (!confirm('هل أنت متأكد من توليد مفتاح سري جديد؟ سيتطلب ذلك تحديث الكود في نظام الـ ERP الخاص بكم.')) return;
+
+            fetch('/Vendor/Webhooks/GenerateNewSecret', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    document.getElementById('webhookSecretInput').value = res.secretKey;
+                    alert('تم توليد مفتاح توقيع جديد بنجاح!');
+                }
+            });
+        }
+
+        function testWebhookPing() {
+            fetch('/Vendor/Webhooks/TestPing', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(r => r.json())
+            .then(res => {
+                alert(res.message);
+                if (res.success) {
+                    location.reload();
+                }
+            })
+            .catch(err => alert('حدث خطأ أثناء الاتصال بالخادم.'));
+        }
+
+        function showPayloadModal(payload, response, signature) {
+            try {
+                const formattedPayload = JSON.stringify(JSON.parse(payload), null, 2);
+                document.getElementById('modalPayload').textContent = formattedPayload;
+            } catch {
+                document.getElementById('modalPayload').textContent = payload;
+            }
+
+            document.getElementById('modalResponse').textContent = response;
+            document.getElementById('modalSignature').textContent = signature || 'X-Blocko-Signature: sha256=...';
+            document.getElementById('payloadModal').classList.remove('hidden');
+        }
+
+        function closePayloadModal() {
+            document.getElementById('payloadModal').classList.add('hidden');
+        }
+    </script>
+}

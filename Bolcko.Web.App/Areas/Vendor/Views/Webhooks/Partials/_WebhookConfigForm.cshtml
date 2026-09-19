@@ -1,0 +1,87 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorWebhooksViewModel
+
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-xl">webhook</span>
+            </div>
+            <div>
+                <h2 class="text-base sm:text-lg font-bold text-white">إعدادات الـ Webhook الصادر للـ ERP (WH-01)</h2>
+                <p class="text-xs text-slate-400">إرسال حمولات JSON موقعة بـ HMAC-SHA256 إلى نظام المستودعات أو الـ ERP الخاص بكم فوراً</p>
+            </div>
+        </div>
+
+        <button type="button" onclick="testWebhookPing()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold text-xs transition flex items-center gap-1.5 active:scale-95">
+            <span class="material-symbols-outlined text-sm">send</span>
+            <span>إرسال فحص تجريبي (Ping)</span>
+        </button>
+    </div>
+
+    <form asp-action="SaveConfig" asp-controller="Webhooks" asp-area="Vendor" method="post" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <!-- Endpoint URL -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-300">رابط الاستلام على سيرفركم (Destination Webhook URL) <span class="text-rose-500">*</span></label>
+            <div class="relative">
+                <input type="url" name="endpointUrl" value="@Model.Config.EndpointUrl" required
+                       class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-mono text-emerald-400 focus:border-amber-400 focus:outline-none transition" 
+                       placeholder="https://erp.yourcompany-jo.com/api/webhooks/blocko" dir="ltr" />
+                <span class="material-symbols-outlined absolute end-3 top-3 text-slate-500 text-lg pointer-events-none">link</span>
+            </div>
+            <p class="text-[11px] text-slate-500">يجب أن يدعم السيرفر بروتوكول HTTPS المشفر ويعيد كود استجابة 200 OK فور الاستلام.</p>
+        </div>
+
+        <!-- Secret Key with Regenerate Button -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-300">مفتاح التوقيع والتشفير السري (HMAC Secret Key) <span class="text-rose-500">*</span></label>
+            <div class="flex gap-2">
+                <div class="relative flex-grow">
+                    <input type="text" id="webhookSecretInput" name="secretKey" value="@Model.Config.SecretKey" required readonly
+                           class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-mono text-amber-400 focus:border-amber-400 focus:outline-none transition" dir="ltr" />
+                </div>
+                <button type="button" onclick="regenerateSecret()" class="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1 border border-slate-700">
+                    <span class="material-symbols-outlined text-sm">cached</span>
+                    <span>توليد مفتاح جديد</span>
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-500">يتم توقيع كل حمولة بهيدر: <code class="text-amber-400">X-Blocko-Signature: sha256={computed_hash}</code> للتحقق من أمان ومصدر البيانات.</p>
+        </div>
+
+        <!-- Subscribed Topics -->
+        <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-300">أحداث النظام المشترك بها (Subscribed Event Topics):</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @{
+                    var currentEvents = (Model.Config.SubscribedEvents ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                }
+                @foreach (var ev in Model.AvailableEvents)
+                {
+                    var isChecked = currentEvents.Contains(ev.Key, StringComparer.OrdinalIgnoreCase);
+                    <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 transition cursor-pointer">
+                        <input type="checkbox" name="selectedEvents" value="@ev.Key" @(isChecked ? "checked" : "")
+                               class="mt-1 w-4 h-4 text-amber-500 border-slate-700 rounded bg-slate-900 focus:ring-amber-500" />
+                        <div>
+                            <span class="text-xs font-bold text-white block">@ev.Value.Title</span>
+                            <span class="text-[11px] text-slate-400">@ev.Value.Description</span>
+                        </div>
+                    </label>
+                }
+            </div>
+        </div>
+
+        <!-- Active Toggle & Save -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800 flex-wrap gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="isActive" value="true" @(Model.Config.IsActive ? "checked" : "")
+                       class="w-4 h-4 text-amber-500 border-slate-700 rounded bg-slate-900 focus:ring-amber-500" />
+                <span class="text-xs font-bold text-slate-200">تفعيل إرسال إشعارات الويب هوك التلقائية</span>
+            </label>
+
+            <button type="submit" class="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-lg transition">
+                حفظ الإعدادات والمفتاح
+            </button>
+        </div>
+    </form>
+</div>

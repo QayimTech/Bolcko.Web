@@ -1,0 +1,40 @@
+@model Bolcko.Web.App.Areas.Vendor.Models.VendorWebhooksViewModel
+
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+        <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-xl">move_to_inbox</span>
+        </div>
+        <div>
+            <h3 class="text-base font-bold text-white">رابط الاستلام الوارد لتحديثات الشاحنات والأساطيل (WH-02 Inbound)</h3>
+            <p class="text-xs text-slate-400">زوّد أسطولك أو شركات الشحن بهذا الرابط لتحديث مراحل التوريد آلياً في بلكو</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="space-y-3">
+            <div>
+                <span class="text-xs font-bold text-slate-400 block mb-1">الرابط المخصص لمستودعك (Inbound Endpoint):</span>
+                <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-blue-400 select-all break-all" dir="ltr">
+                    POST @Model.InboundWebhookEndpoint
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-400 space-y-1.5 leading-relaxed">
+                <p>الحالات المعيارية المدعومة (Supported Statuses):</p>
+                <div class="flex flex-wrap gap-1.5 text-[10px] font-mono">
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">PICKED_UP</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-blue-400">IN_TRANSIT</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-amber-400">ARRIVED_AT_SITE</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400">DELIVERED</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-rose-400">CANCELLED</span>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <span class="text-xs font-bold text-slate-400 block mb-1">نموذج الحمولة (Sample Request Payload):</span>
+            <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto" dir="ltr"><code>@Model.SampleInboundPayload</code></pre>
+        </div>
+    </div>
+</div>
