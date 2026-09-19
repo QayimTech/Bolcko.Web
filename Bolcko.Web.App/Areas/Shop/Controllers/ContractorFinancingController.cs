@@ -70,17 +70,24 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 if (int.TryParse(idStr, out var id)) userId = id;
             }
 
-            var tender = await _serviceManager.FinancingService.CreateTenderFromBOQAsync(request, userId);
-
-            return Json(new
+            try
             {
-                success = true,
-                trackingCode = tender.TrackingCode,
-                tenderId = tender.Id,
-                totalPayable = tender.TotalPayableAmount,
-                tenureDays = tender.TenureDays,
-                message = "تم طرح عطاء تمويل المرابحة بنجاح! سيتم إشعار المستثمرين التمويليين للشراء والتمليك فوراً."
-            });
+                var tender = await _serviceManager.FinancingService.CreateTenderFromBOQAsync(request, userId);
+
+                return Json(new
+                {
+                    success = true,
+                    trackingCode = tender.TrackingCode,
+                    tenderId = tender.Id,
+                    totalPayable = tender.TotalPayableAmount,
+                    tenureDays = tender.TenureDays,
+                    message = "تم طرح عطاء تمويل المرابحة بنجاح! سيتم إشعار المستثمرين التمويليين للشراء والتمليك فوراً."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

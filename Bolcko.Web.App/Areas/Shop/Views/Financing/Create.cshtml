@@ -476,25 +476,29 @@
 
         const items = [];
         document.querySelectorAll('.boq-row').forEach(row => {
+            const qty = parseFloat(row.querySelector('.boq-qty')?.value) || 1;
+            const price = parseFloat(row.querySelector('.boq-price')?.value) || 0;
             items.push({
-                materialCategory: row.querySelector('.boq-category').value,
-                materialName: row.querySelector('.boq-name').value,
-                quantity: parseFloat(row.querySelector('.boq-qty').value) || 1,
-                unitOfMeasure: row.querySelector('.boq-unit').value,
-                estimatedUnitPrice: parseFloat(row.querySelector('.boq-price').value) || 0
+                materialCategory: row.querySelector('.boq-category')?.value || 'GeneralMaterials',
+                materialName: row.querySelector('.boq-name')?.value || 'مادة بناء',
+                quantity: qty,
+                unit: row.querySelector('.boq-unit')?.value || 'وحدة',
+                unitPriceJod: price,
+                subtotalJod: Math.round(qty * price * 100) / 100
             });
         });
 
         const payload = {
-            projectTitle: document.getElementById('projectTitle').value,
-            city: document.getElementById('projectCity').value,
-            address: document.getElementById('projectAddress').value,
-            fullName: document.getElementById('contractorName').value,
-            phone: document.getElementById('contractorPhone').value,
-            buildingPermitNumber: document.getElementById('permitNumber').value,
-            tenureDays: parseInt(document.getElementById('selectedTenureDays').value),
-            jobsiteLatitude: parseFloat(document.getElementById('gpsLatitude').value),
-            jobsiteLongitude: parseFloat(document.getElementById('gpsLongitude').value),
+            projectTitle: document.getElementById('projectTitle')?.value || '',
+            projectCity: document.getElementById('projectCity')?.value || 'Amman',
+            projectAddress: document.getElementById('projectAddress')?.value || '',
+            fullName: document.getElementById('contractorName')?.value || '',
+            phone: document.getElementById('contractorPhone')?.value || '',
+            company: document.getElementById('contractorName')?.value || '',
+            buildingPermitNumber: document.getElementById('permitNumber')?.value || '',
+            tenureDays: parseInt(document.getElementById('selectedTenureDays')?.value) || 90,
+            latitude: parseFloat(document.getElementById('gpsLatitude')?.value) || 31.9539,
+            longitude: parseFloat(document.getElementById('gpsLongitude')?.value) || 35.9106,
             items: items
         };
 

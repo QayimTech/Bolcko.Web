@@ -74,14 +74,15 @@ namespace Blocko.Services.Implementations.Financing
 
             foreach (var it in request.Items)
             {
-                decimal itemSubtotal = it.SubtotalJod > 0 ? it.SubtotalJod : Math.Round(it.Quantity * it.UnitPriceJod, 2);
+                decimal itemPrice = it.UnitPriceJod > 0 ? it.UnitPriceJod : (it.Quantity > 0 ? Math.Round(it.SubtotalJod / it.Quantity, 2) : 0);
+                decimal itemSubtotal = it.SubtotalJod > 0 ? it.SubtotalJod : Math.Round(it.Quantity * itemPrice, 2);
                 tender.Items.Add(new FinancingTenderItem
                 {
-                    MaterialCategory = it.MaterialCategory,
-                    MaterialName = it.MaterialName,
-                    Quantity = it.Quantity,
-                    Unit = it.Unit,
-                    UnitPriceJod = it.UnitPriceJod,
+                    MaterialCategory = string.IsNullOrWhiteSpace(it.MaterialCategory) ? "GeneralMaterials" : it.MaterialCategory,
+                    MaterialName = string.IsNullOrWhiteSpace(it.MaterialName) ? "مادة بناء" : it.MaterialName,
+                    Quantity = it.Quantity > 0 ? it.Quantity : 1,
+                    Unit = string.IsNullOrWhiteSpace(it.Unit) ? "وحدة" : it.Unit,
+                    UnitPriceJod = itemPrice,
                     SubtotalJod = itemSubtotal
                 });
             }
