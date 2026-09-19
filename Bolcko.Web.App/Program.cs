@@ -54,6 +54,7 @@ try
 
     // Register our LogCleanupService for dependency injection
     builder.Services.AddTransient<LogCleanupService>();
+    builder.Services.AddTransient<Bolcko.Web.App.Jobs.IFinancingAutomationJobs, Bolcko.Web.App.Jobs.FinancingAutomationJobs>();
 
     // =========================================================================
     // STEP 2b: Configure Performance Optimizations (NEW)
@@ -107,6 +108,12 @@ try
         "hourly-market-prices-sync",
         service => service.SyncLiveGlobalMarketPricesAsync(),
         Cron.Hourly);
+
+    // Schedule recurring daily Murabaha repayment & yield settlement (runs daily at 1:00 AM UTC)
+    RecurringJob.AddOrUpdate<Bolcko.Web.App.Jobs.IFinancingAutomationJobs>(
+        "daily-repayments-yield-distribution",
+        job => job.ProcessDailyRepaymentsAndYieldDistributionAsync(),
+        Cron.Daily(1));
 
     // =========================================================================
     // STEP 6: Map Endpoints

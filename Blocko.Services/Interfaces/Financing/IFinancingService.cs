@@ -19,5 +19,6 @@ namespace Blocko.Services.Interfaces.Financing
         Task<bool> RequestPayoutAsync(InvestorPayoutRequestDto request, int? userId);
         Task<AdminFinancingOverviewDto> GetAdminFinancingOverviewAsync();
         Task<IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType>> GetActiveMaterialTypesAsync();
+        Task<int> ProcessDailyRepaymentsAndYieldDistributionAsync();
     }
 }

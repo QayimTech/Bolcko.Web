@@ -471,6 +471,32 @@ namespace Blocko.Services.Implementations.Financing
             return list.Where(m => m.IsActive).OrderBy(m => m.SortOrder).ToList();
         }
 
+        public async Task<int> ProcessDailyRepaymentsAndYieldDistributionAsync()
+        {
+            var dueTenders = await _uow.FinancingTenders.FindAsync(t =>
+                (t.Status == FinancingTenderStatus.Funded || t.Status == FinancingTenderStatus.Delivered || t.Status == FinancingTenderStatus.Dispatched) &&
+                t.DueDate.HasValue && t.DueDate.Value <= DateTime.UtcNow);
+
+            int processedCount = 0;
+            foreach (var tender in dueTenders)
+            {
+                tender.Status = FinancingTenderStatus.Settled;
+                tender.SettledAt = DateTime.UtcNow;
+                _uow.FinancingTenders.Update(tender);
+                processedCount++;
+
+                _logger.LogInformation("Automated Repayment Processed for Tender {Code}. Settled {Amount} JOD to Investor {FunderId}",
+                    tender.TrackingCode, tender.BaseMaterialCost + tender.InvestorNetYieldAmount, tender.FunderInvestorId);
+            }
+
+            if (processedCount > 0)
+            {
+                await _uow.CompleteAsync();
+            }
+
+            return processedCount;
+        }
+
         private static string GetStatusArabicName(FinancingTenderStatus status) => status switch
         {
             FinancingTenderStatus.Draft => "مسودة",
