@@ -2,327 +2,55 @@
 @{
     ViewData["Title"] = "إضافة مادة بناء جديدة";
     Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
-    var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
-    var materialTypes = ViewBag.MaterialTypes as IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.MaterialType>();
 }
 
 <div class="max-w-4xl mx-auto space-y-6" dir="rtl">
     <!-- Header -->
     <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div>
-            <h1 class="text-xl font-black text-slate-900 dark:text-white">إضافة مادة بناء / توريد جديد</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">حدد نوع المادة ومواصفاتها الإنشائية لإضافتها فوراً لسوق التوريد وعطاءات التمويل</p>
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black text-xl">
+                ➕
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-slate-900 dark:text-white">إضافة مادة بناء / توريد جديد</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">حدد نوع المادة ومواصفاتها الإنشائية لإضافتها فوراً لسوق التوريد وعطاءات التمويل</p>
+            </div>
         </div>
-        <a asp-action="Index" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs">
+        <a asp-action="Index" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-colors">
             عودة للكتالوج
         </a>
     </div>
 
     @if (TempData["Error"] != null)
     {
-        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-sm">
-            @TempData["Error"]
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-sm flex items-center gap-2">
+            <span>⚠️</span> <span>@TempData["Error"]</span>
         </div>
     }
 
     <!-- Form -->
-    <form asp-action="Create" method="post" class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+    <form asp-action="Create" method="post" class="space-y-6">
         @Html.AntiForgeryToken()
 
-        <!-- Material Type Preset Selector -->
-        <div class="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
-            <label class="block text-xs font-bold text-amber-900 dark:text-amber-400 mb-2">
-                🏗️ اختر نوع مادة البناء لتحميل المواصفات القياسية تلقائياً:
-            </label>
-            <select id="materialTypeSelect" onchange="onMaterialTypeChanged(this)"
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-500/30 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
-                <option value="">-- اختر مادة بناء (حديد، حجر، خرسانة، إسمنت، طوب) --</option>
-                @foreach (var mat in materialTypes)
-                {
-                    <option value="@mat.Id" data-name="@mat.NameAr" data-unit="@mat.UnitOfMeasure" data-price="@mat.DefaultPriceEstimated" data-schema="@mat.SpecSchemaJson">
-                        @mat.NameAr (@mat.CategoryType - @mat.UnitOfMeasure)
-                    </option>
-                }
-            </select>
-        </div>
+        <!-- 1. Engineering Material Specs & Presets -->
+        <partial name="Partials/_ProductDynamicSpecs" />
 
-        <!-- Dynamic Specs Container -->
-        <div id="dynamicSpecsBox" class="hidden p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
-            <h4 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-                <span>⚙️</span>
-                <span>المواصفات الفنية الحصرية للمادة:</span>
-            </h4>
-            <div id="dynamicFieldsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
-            <input type="hidden" name="dynamicSpecsJson" id="dynamicSpecsJson" value="{}" />
-        </div>
+        <!-- 2. Basic Info & Pricing Details -->
+        <partial name="Partials/_ProductBasicInfo" model="Model" />
 
-        <!-- Main Info -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المنتج / المادة بالعربية *</label>
-                <input type="text" asp-for="Name" id="productNameInput" required placeholder="مثال: حديد تسليح 12 ملم - حديد الأردن"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">القسم الرئيسي *</label>
-                <select asp-for="CategoryId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
-                    <option value="">اختر القسم...</option>
-                    @foreach (var c in categories)
-                    {
-                        <option value="@c.Id">@c.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
+        <!-- 3. B2B Wholesale Pricing Matrix -->
+        <partial name="Partials/_ProductWholesaleTiers" model="Model" />
 
-        <!-- Pricing & Stock -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">سعر البيع (د.أ) *</label>
-                <input type="number" step="0.01" asp-for="RetailPrice" id="retailPriceInput" required placeholder="0.00"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">وحدة القياس *</label>
-                <input type="text" asp-for="UnitOfMeasure" id="unitOfMeasureInput" required placeholder="طن، م²، م³، كيس، ألف حبة"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الكمية المتوفرة بالمخزون *</label>
-                <input type="number" asp-for="StockQuantity" required value="100"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
-            </div>
-        </div>
+        <!-- 4. Comprehensive B2B SEO Suite -->
+        <partial name="Partials/_ProductSeoMeta" model="Model" />
 
-        <!-- Brand, Origin & Oversized -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المصنع / العلامة التجارية</label>
-                <input type="text" asp-for="Brand" id="brandInput" placeholder="مثال: لافارج / حديد الأردن / معان"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">بلد المنشأ / المصدر</label>
-                <input type="text" asp-for="CountryOfOrigin" value="الأردن"
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رابط صورة المنتج</label>
-                <input type="text" asp-for="ImageUrl" placeholder="https://..."
-                       class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
-            </div>
-        </div>
-
-        <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">تفاصيل وملاحظات التوريد</label>
-            <textarea asp-for="Description" rows="3" placeholder="ملاحظات حول طريقة التحميل، التفريغ، أو شروط التوريد..."
-                      class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white"></textarea>
-        </div>
-
-        <div class="flex items-center gap-3 pt-2">
-            <input type="checkbox" asp-for="IsOversized" id="isOversized" class="w-4 h-4 text-amber-500 rounded" />
-            <label for="isOversized" class="text-xs font-bold text-slate-700 dark:text-slate-300">
-                بضاعة ثقيلة / شحنة ضخمة (تتطلب شاحنات نقل ثقيلة ورافعات تفريغ بالموقع)
-            </label>
-        </div>
-
-        <!-- Comprehensive Vendor SEO Engine Suite -->
-        <div class="p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-[#151B26] text-white border border-sky-500/20 shadow-xl space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-black">
-                        <span class="material-symbols-outlined text-[22px]">travel_explore</span>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-black text-white flex items-center gap-2">
-                            <span>محرك تحسين محركات البحث والظهور في Google</span>
-                            <span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[10px] font-bold border border-sky-500/30">B2B SEO Suite</span>
-                        </h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">اجعل مادتك تظهر في أولى نتائج بحث المقاولين والشركات عند البحث عن مواد البناء في الأردن</p>
-                    </div>
-                </div>
-                <button type="button" onclick="autoGenerateSeo()"
-                        class="px-4 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-xs font-black transition-all flex items-center gap-1.5 self-start sm:self-auto shadow-sm">
-                    <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
-                    <span>توليد SEO ذكي تلقائياً</span>
-                </button>
-            </div>
-
-            <!-- Google Search Live Preview Card -->
-            <div class="p-4 rounded-2xl bg-white text-slate-900 shadow-md border border-slate-200">
-                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center justify-between">
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        معاينة حية لشكل ظهور المنتج في نتائج بحث Google:
-                    </span>
-                    <span id="seoScoreBadge" class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black">مؤشر الجودة: ممتاز (95/100)</span>
-                </div>
-                <div class="font-sans text-start space-y-1">
-                    <div class="flex items-center gap-2 text-xs text-slate-600">
-                        <span class="w-4 h-4 rounded-full bg-[#E8A020] text-[#151B26] font-black text-[9px] flex items-center justify-center">B</span>
-                        <span class="text-slate-800 font-medium">https://blocko.jo › shop › product</span>
-                    </div>
-                    <h4 id="googlePreviewTitle" class="text-base font-medium text-[#1a0dab] hover:underline cursor-pointer truncate">
-                        اسم المنتج ومواصفاته وسعر التوريد | BLOCKO Jordan
-                    </h4>
-                    <p id="googlePreviewDesc" class="text-xs text-[#4d5156] line-clamp-2 leading-relaxed">
-                        اطلب أفضل مواد البناء والتوريدات الإنشائية مباشرة من المصانع والموردين المعتمدين مع تسهيلات المرابحة والتوصيل لكافة المحافظات.
-                    </p>
-                </div>
-            </div>
-
-            <!-- SEO Inputs -->
-            <div class="space-y-4">
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-bold text-slate-300">عنوان الصفحة في Google (Meta Title)</label>
-                        <span id="titleCounter" class="text-[10px] font-mono text-slate-400">0 / 60 حرف</span>
-                    </div>
-                    <input type="text" name="metaTitle" id="metaTitleInput" oninput="updateSeoPreview()" placeholder="مثال: حديد تسليح 12 ملم أردني Grade 60 - توريد مباشر"
-                           class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-sky-500 focus:outline-none" />
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-bold text-slate-300">وصف المنتج في محركات البحث (Meta Description)</label>
-                        <span id="descCounter" class="text-[10px] font-mono text-slate-400">0 / 160 حرف</span>
-                    </div>
-                    <textarea name="metaDescription" id="metaDescriptionInput" rows="2" oninput="updateSeoPreview()" placeholder="اكتب وصفاً جذاباً يشمل الكلمات المفتاحية وسعر التوريد وميزة التوصيل..."
-                              class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-medium text-white focus:border-sky-500 focus:outline-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">الكلمات المفتاحية والوسوم (Meta Keywords - مفصولة بفواصل)</label>
-                    <input type="text" name="metaKeywords" id="metaKeywordsInput" placeholder="حديد تسليح, أسعار مواد البناء الأردن, توريد مشاريع, إسمنت, خرسانة"
-                           class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs font-bold text-white focus:border-sky-500 focus:outline-none" />
-                </div>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-            <a asp-action="Index" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">إلغاء</a>
-            <button type="submit" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-lg shadow-amber-500/20 transition-all">
-                نشر المادة في المتجر مع ضبط الـ SEO
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <a asp-action="Index" class="px-6 py-3 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-colors">إلغاء</a>
+            <button type="submit" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-black text-xs shadow-xl shadow-amber-500/20 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">publish</span>
+                <span>نشر المادة في المتجر مع ضبط الـ SEO</span>
             </button>
         </div>
     </form>
 </div>
-
-<script>
-    function onMaterialTypeChanged(selectEl) {
-        const option = selectEl.options[selectEl.selectedIndex];
-        if (!option || !option.value) {
-            document.getElementById('dynamicSpecsBox').classList.add('hidden');
-            return;
-        }
-
-        const name = option.getAttribute('data-name');
-        const unit = option.getAttribute('data-unit');
-        const price = option.getAttribute('data-price');
-        const schemaStr = option.getAttribute('data-schema');
-
-        if (name && !document.getElementById('productNameInput').value) {
-            document.getElementById('productNameInput').value = name;
-        }
-        if (unit) document.getElementById('unitOfMeasureInput').value = unit;
-        if (price && parseFloat(price) > 0) document.getElementById('retailPriceInput').value = price;
-
-        try {
-            const schema = JSON.parse(schemaStr);
-            const grid = document.getElementById('dynamicFieldsGrid');
-            grid.innerHTML = '';
-
-            if (schema.fields && schema.fields.length > 0) {
-                schema.fields.forEach(f => {
-                    const col = document.createElement('div');
-                    col.innerHTML = `
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">${f.label}</label>
-                        <select onchange="updateDynamicSpecsJson()" data-spec-key="${f.name}" data-spec-label="${f.label}"
-                                class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white dynamic-spec-input">
-                            ${f.options ? f.options.map(opt => `<option value="${opt}">${opt}</option>`).join('') : ''}
-                        </select>
-                    `;
-                    grid.appendChild(col);
-                });
-                document.getElementById('dynamicSpecsBox').classList.remove('hidden');
-                updateDynamicSpecsJson();
-            } else {
-                document.getElementById('dynamicSpecsBox').classList.add('hidden');
-            }
-        } catch (e) {
-            document.getElementById('dynamicSpecsBox').classList.add('hidden');
-        }
-    }
-
-    function updateDynamicSpecsJson() {
-        const inputs = document.querySelectorAll('.dynamic-spec-input');
-        const specs = {};
-        inputs.forEach(input => {
-            const label = input.getAttribute('data-spec-label') || input.getAttribute('data-spec-key');
-            specs[label] = input.value;
-        });
-        document.getElementById('dynamicSpecsJson').value = JSON.stringify(specs);
-    }
-
-    function updateSeoPreview() {
-        const titleInput = document.getElementById('metaTitleInput');
-        const descInput = document.getElementById('metaDescriptionInput');
-        const prodName = document.getElementById('productNameInput')?.value || 'اسم مادة البناء';
-        
-        const title = titleInput.value.trim() || `${prodName} | BLOCKO Jordan`;
-        const desc = descInput.value.trim() || 'اطلب أفضل مواد البناء والتوريدات الإنشائية مباشرة من المصانع والموردين المعتمدين مع تسهيلات المرابحة والتوصيل لكافة المحافظات.';
-
-        document.getElementById('googlePreviewTitle').textContent = title;
-        document.getElementById('googlePreviewDesc').textContent = desc;
-
-        // Counters
-        const titleLen = titleInput.value.length;
-        const descLen = descInput.value.length;
-        
-        const titleCounter = document.getElementById('titleCounter');
-        titleCounter.textContent = `${titleLen} / 60 حرف`;
-        titleCounter.className = `text-[10px] font-mono ${titleLen >= 35 && titleLen <= 60 ? 'text-emerald-400 font-bold' : (titleLen > 60 ? 'text-rose-400 font-bold' : 'text-slate-400')}`;
-
-        const descCounter = document.getElementById('descCounter');
-        descCounter.textContent = `${descLen} / 160 حرف`;
-        descCounter.className = `text-[10px] font-mono ${descLen >= 100 && descLen <= 160 ? 'text-emerald-400 font-bold' : (descLen > 160 ? 'text-rose-400 font-bold' : 'text-slate-400')}`;
-
-        // SEO Health Badge
-        const badge = document.getElementById('seoScoreBadge');
-        if (titleLen >= 30 && descLen >= 80) {
-            badge.textContent = 'مؤشر الجودة: ممتاز (98/100)';
-            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black';
-        } else if (titleLen >= 15 || descLen >= 40) {
-            badge.textContent = 'مؤشر الجودة: جيد (70/100)';
-            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-black';
-        } else {
-            badge.textContent = 'مؤشر الجودة: بحاجة لتحسين';
-            badge.className = 'text-[10px] px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black';
-        }
-    }
-
-    function autoGenerateSeo() {
-        const prodName = document.getElementById('productNameInput')?.value || '';
-        const brand = document.getElementById('brandInput')?.value || '';
-        const price = document.getElementById('retailPriceInput')?.value || '';
-        const unit = document.getElementById('unitOfMeasureInput')?.value || '';
-        
-        if (!prodName) {
-            alert('يرجى كتابة اسم المنتج أولاً لتوليد بيانات الـ SEO بناءً عليه.');
-            return;
-        }
-
-        const brandSuffix = brand ? ` ماركة ${brand}` : '';
-        const priceSuffix = price && unit ? ` بسعر ${price} د.أ/${unit}` : '';
-        
-        const genTitle = `${prodName}${brandSuffix} - توريد مباشر ومواصفات معتمدة | BLOCKO`;
-        const genDesc = `احصل على ${prodName}${brandSuffix}${priceSuffix} بأعلى مواصفات الجودة المعتمدة في الأردن مع خيارات تمويل المرابحة والتوصيل السريع للموقع الإنشائي.`;
-        const genKeywords = `${prodName}, ${brand ? brand + ', ' : ''}توريد مواد بناء, أسعار مواد البناء الأردن, بلوكو, مواد إنشائية, شحن مباشر للموقع`;
-
-        document.getElementById('metaTitleInput').value = genTitle.substring(0, 65);
-        document.getElementById('metaDescriptionInput').value = genDesc.substring(0, 160);
-        document.getElementById('metaKeywordsInput').value = genKeywords;
-
-        updateSeoPreview();
-    }
-</script>

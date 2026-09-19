@@ -1,0 +1,108 @@
+@model Bolcko.Domain.Entities.Product.Product
+@{
+    var categories = ViewBag.Categories as IEnumerable<Bolcko.Domain.Entities.Catalog.Category> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.Category>();
+    bool isEdit = Model?.Id > 0;
+}
+
+<div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+            📋
+        </div>
+        <div>
+            <h3 class="text-sm font-black text-slate-900 dark:text-white">البيانات الأساسية للمادة والتسعير</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">حدد اسم المادة، القسم، السعر الفردي بالدينار الأردني، والمخزون المتوفر</p>
+        </div>
+    </div>
+
+    <!-- Main Info Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اسم المنتج / المادة بالعربية *</label>
+            <input type="text" asp-for="Name" id="productNameInput" required placeholder="مثال: حديد تسليح 12 ملم - حديد الأردن"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors" />
+            <span asp-validation-for="Name" class="text-[11px] text-rose-500 mt-1 block"></span>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">القسم والتصنيف الرئيسي *</label>
+            <select asp-for="CategoryId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors">
+                <option value="">-- اختر القسم الرئيسي --</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id" selected="@(Model?.CategoryId == c.Id)">@c.Name</option>
+                }
+            </select>
+            <span asp-validation-for="CategoryId" class="text-[11px] text-rose-500 mt-1 block"></span>
+        </div>
+    </div>
+
+    <!-- Pricing & Stock Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">سعر البيع الفردي (د.أ) *</label>
+            <div class="relative">
+                <input type="number" step="0.01" asp-for="RetailPrice" id="retailPriceInput" required placeholder="0.00"
+                       class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono focus:border-amber-500 focus:outline-none transition-colors" />
+                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">د.أ</span>
+            </div>
+            <span asp-validation-for="RetailPrice" class="text-[11px] text-rose-500 mt-1 block"></span>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">وحدة القياس والتوريد *</label>
+            <input type="text" asp-for="UnitOfMeasure" id="unitOfMeasureInput" required placeholder="طن، م²، م³، كيس، ألف حبة"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors" />
+            <span asp-validation-for="UnitOfMeasure" class="text-[11px] text-rose-500 mt-1 block"></span>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">الكمية المتوفرة بالمخزون *</label>
+            <input type="number" asp-for="StockQuantity" required placeholder="100"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono focus:border-amber-500 focus:outline-none transition-colors" />
+            <span asp-validation-for="StockQuantity" class="text-[11px] text-rose-500 mt-1 block"></span>
+        </div>
+    </div>
+
+    <!-- Brand, Origin & Status Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">المصنع / العلامة التجارية</label>
+            <input type="text" asp-for="Brand" id="brandInput" placeholder="مثال: لافارج / حديد الأردن / معان"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors" />
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">بلد المنشأ والمصدر</label>
+            <input type="text" asp-for="CountryOfOrigin" value="@(Model?.CountryOfOrigin ?? "الأردن")"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors" />
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">حالة التوفر</label>
+            <select asp-for="Status" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors">
+                <option value="@Bolcko.Domain.Enums.ProductStatus.InStock">متاح للطلب (متوفر بالمخزون)</option>
+                <option value="@Bolcko.Domain.Enums.ProductStatus.OutOfStock">نفذ من المخزون</option>
+                <option value="@Bolcko.Domain.Enums.ProductStatus.PreOrder">طلب مسبق (تصنيع عند الطلب)</option>
+                <option value="@Bolcko.Domain.Enums.ProductStatus.Discontinued">غير متوفر حالياً</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Image & Logistics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">رابط صورة المنتج أو المادة</label>
+            <input type="text" asp-for="ImageUrl" placeholder="https://..."
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors" />
+        </div>
+        <div class="flex items-center gap-3 pt-6">
+            <input type="checkbox" asp-for="IsOversized" id="isOversized" class="w-4 h-4 text-amber-500 rounded focus:ring-amber-500 border-slate-300" />
+            <label for="isOversized" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                بضاعة ثقيلة / شحنة ضخمة (تتطلب شاحنات نقل ثقيلة ورافعات تفريغ بالموقع)
+            </label>
+        </div>
+    </div>
+
+    <!-- Description & Handling Notes -->
+    <div>
+        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">تفاصيل وملاحظات التوريد والتحميل</label>
+        <textarea asp-for="Description" rows="3" placeholder="ملاحظات حول طريقة التحميل، التفريغ، أدنى حد للتوريد، أو شروط التوريد بالموقع..."
+                  class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-white focus:border-amber-500 focus:outline-none transition-colors"></textarea>
+    </div>
+</div>

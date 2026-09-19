@@ -1,0 +1,87 @@
+@model Bolcko.Domain.Entities.Product.Product
+
+<div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
+                💰
+            </div>
+            <div>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white">شرائح أسعار الجملة لطلبات المقاولين وعطاءات التمويل</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">تقديم أسعار تفضيلية للكميات الكبيرة يرفع فرص اختيار عطائك في صفقات المرابحة الإنشائية</p>
+            </div>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black border border-emerald-500/20">
+            B2B Wholesale Matrix
+        </span>
+    </div>
+
+    <!-- Wholesale Pricing Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Tier 1: Small Contractor -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">الشريحة الأولى (تجزئة)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">1 - 10 وحدات</span>
+            </div>
+            <div class="text-lg font-black text-slate-900 dark:text-white font-mono flex items-center gap-1">
+                <span id="tier1Preview">0.00</span>
+                <span class="text-xs font-normal text-slate-500">د.أ / وحدة</span>
+            </div>
+            <p class="text-[11px] text-slate-400">سعر البيع الفردي الأساسي للمشاريع الصغيرة</p>
+        </div>
+
+        <!-- Tier 2: Medium Volume -->
+        <div class="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-900 dark:text-sky-300">الشريحة الثانية (جملة متوسطة)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300">11 - 50 وحدة</span>
+            </div>
+            <div class="text-lg font-black text-sky-700 dark:text-sky-400 font-mono flex items-center gap-1">
+                <span id="tier2Preview">0.00</span>
+                <span class="text-xs font-normal text-sky-600">د.أ / وحدة</span>
+            </div>
+            <p class="text-[11px] text-sky-600/80 dark:text-sky-400/80">خصم تلقائي 3% لعقود التوريد المتوسطة</p>
+        </div>
+
+        <!-- Tier 3: Major Wholesale / Tenders -->
+        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-900 dark:text-emerald-300">الشريحة الكبرى (عطاءات التمويل)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">50+ وحدة</span>
+            </div>
+            <div class="text-lg font-black text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1">
+                <span id="tier3Preview">0.00</span>
+                <span class="text-xs font-normal text-emerald-600">د.أ / وحدة</span>
+            </div>
+            <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">خصم تلقائي 6% لعطاءات التمويل والمشاريع الكبرى</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateWholesalePreview() {
+        const retailInput = document.getElementById('retailPriceInput');
+        const base = parseFloat(retailInput?.value) || 0;
+        
+        const tier1 = base;
+        const tier2 = base > 0 ? (base * 0.97) : 0;
+        const tier3 = base > 0 ? (base * 0.94) : 0;
+
+        const el1 = document.getElementById('tier1Preview');
+        const el2 = document.getElementById('tier2Preview');
+        const el3 = document.getElementById('tier3Preview');
+
+        if (el1) el1.textContent = tier1.toFixed(2);
+        if (el2) el2.textContent = tier2.toFixed(2);
+        if (el3) el3.textContent = tier3.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const retailInput = document.getElementById('retailPriceInput');
+        if (retailInput) {
+            retailInput.addEventListener('input', updateWholesalePreview);
+            updateWholesalePreview();
+        }
+    });
+</script>
