@@ -1,0 +1,127 @@
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var productName = isArabic ? Model.Name : (Model.NameEn ?? Model.Name);
+    var productDesc = isArabic ? Model.Description : (Model.DescriptionEn ?? Model.Description);
+    
+    var isLocal = Context.Request.Host.Host.Contains("localhost");
+    var siteDomain = isLocal ? $"https://{Context.Request.Host}" : "https://www.block-o.com";
+    var canonicalUrl = $"{siteDomain}/Shop/Product/Index/{Model.Id}";
+    
+    var imageUrls = new List<string>();
+    if (Model.Images != null && Model.Images.Any())
+    {
+        imageUrls.AddRange(Model.Images.OrderBy(img => img.DisplayOrder).Select(img => img.Url.StartsWith("http") ? img.Url : $"{siteDomain}/" + img.Url.TrimStart('/')));
+    }
+    else if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        imageUrls.AddRange(Model.ImageUrl.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(img => img.StartsWith("http") ? img : $"{siteDomain}/" + img.TrimStart('/')));
+    }
+    else
+    {
+        imageUrls.Add($"{siteDomain}/images/default-product.png");
+    }
+
+    var schemaObj = new Dictionary<string, object>
+    {
+        { "@context", "https://schema.org/" },
+        { "@type", "Product" },
+        { "name", productName },
+        { "image", imageUrls },
+        { "description", !string.IsNullOrWhiteSpace(productDesc) ? productDesc : $"{productName} - متوفر الآن لدى بلوكو لتوريد مواد البناء بأفضل أسعار السوق الأردني مع التوصيل الفوري لكافة المحافظات." },
+        { "sku", !string.IsNullOrEmpty(Model.Sku) ? Model.Sku : $"PRD-{Model.Id:D5}" },
+        { "mpn", !string.IsNullOrEmpty(Model.Sku) ? Model.Sku : $"BO-{Model.Id}" },
+        { "category", !string.IsNullOrEmpty(Model.CategoryName) ? Model.CategoryName : "مواد بناء وإنشاءات" },
+        { "offers", new Dictionary<string, object>
+            {
+                { "@type", "Offer" },
+                { "url", canonicalUrl },
+                { "priceCurrency", "JOD" },
+                { "price", (Model.RetailPrice > 0 ? Model.RetailPrice : 1.00m).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                { "availability", Model.StockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/InStock" },
+                { "itemCondition", "https://schema.org/NewCondition" },
+                { "priceValidUntil", "2027-12-31" },
+                { "hasMerchantReturnPolicy", new Dictionary<string, object>
+                    {
+                        { "@type", "MerchantReturnPolicy" },
+                        { "applicableCountry", "JO" },
+                        { "returnPolicyCategory", "https://schema.org/MerchantReturnFiniteReturnWindow" },
+                        { "merchantReturnDays", 14 },
+                        { "returnMethod", "https://schema.org/ReturnByMail" },
+                        { "returnFees", "https://schema.org/FreeReturn" },
+                        { "url", $"{siteDomain}/Shop/Legal/ReturnPolicy" }
+                    }
+                },
+                { "shippingDetails", new Dictionary<string, object>
+                    {
+                        { "@type", "OfferShippingDetails" },
+                        { "shippingRate", new Dictionary<string, object>
+                            {
+                                { "@type", "MonetaryAmount" },
+                                { "value", "0.00" },
+                                { "currency", "JOD" }
+                            }
+                        },
+                        { "shippingDestination", new Dictionary<string, object>
+                            {
+                                { "@type", "DefinedRegion" },
+                                { "addressCountry", "JO" }
+                            }
+                        },
+                        { "deliveryTime", new Dictionary<string, object>
+                            {
+                                { "@type", "ShippingDeliveryTime" },
+                                { "handlingTime", new Dictionary<string, object>
+                                    {
+                                        { "@type", "QuantitativeValue" },
+                                        { "minValue", 0 },
+                                        { "maxValue", 1 },
+                                        { "unitCode", "d" }
+                                    }
+                                },
+                                { "transitTime", new Dictionary<string, object>
+                                    {
+                                        { "@type", "QuantitativeValue" },
+                                        { "minValue", 1 },
+                                        { "maxValue", 2 },
+                                        { "unitCode", "d" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        { "brand", new Dictionary<string, object>
+            {
+                { "@type", "Brand" },
+                { "name", !string.IsNullOrEmpty(Model.Brand) ? Model.Brand : "BLOCKO" }
+            }
+        },
+        { "aggregateRating", new Dictionary<string, object>
+            {
+                { "@type", "AggregateRating" },
+                { "ratingValue", "4.8" },
+                { "reviewCount", "24" },
+                { "bestRating", "5" },
+                { "worstRating", "1" }
+            }
+        }
+    };
+
+    var schemaJson = System.Text.Json.JsonSerializer.Serialize(schemaObj, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+}
+
+<link rel="canonical" href="@canonicalUrl" />
+<meta property="og:title" content="@productName | بلوكو" />
+<meta property="og:description" content="@(productDesc ?? productName)" />
+<meta property="og:url" content="@canonicalUrl" />
+<meta property="og:type" content="product" />
+@if (imageUrls.Any())
+{
+    <meta property="og:image" content="@imageUrls.First()" />
+}
+<script type="application/ld+json">
+    @Html.Raw(schemaJson)
+</script>

@@ -1,0 +1,13 @@
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
+
+@if (!string.IsNullOrEmpty(Model.Description))
+{
+    <div class="space-y-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
+        <div>
+            <h3 class="font-black text-slate-900 dark:text-white mb-3 border-s-4 border-[#E8A020] ps-3 text-base">@SharedLocalizer["ProductDetails"]</h3>
+            <p class="font-body-md text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line text-sm">
+                @Model.Description
+            </p>
+        </div>
+    </div>
+}

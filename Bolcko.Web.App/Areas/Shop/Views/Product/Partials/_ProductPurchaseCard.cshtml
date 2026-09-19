@@ -1,0 +1,157 @@
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div class="flex flex-col gap-6">
+    <div>
+        @if (!string.IsNullOrEmpty(Model.CategoryName))
+        {
+            <span class="text-xs font-bold text-[#E8A020] uppercase tracking-widest">@Model.CategoryName</span>
+        }
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 mb-4 leading-snug">@Model.Name</h1>
+        
+        <!-- Glowing Stock Indicator -->
+        <div class="flex items-center gap-2">
+            @if (Model.StockQuantity > 0)
+            {
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">@SharedLocalizer["AvailableForImmediateShipping"]</span>
+            }
+            else
+            {
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span class="text-xs font-bold text-rose-500">@SharedLocalizer["TemporarilyOutOfStock"]</span>
+            }
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
+        <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-100 dark:border-slate-800 pb-6">
+            <span class="text-4xl font-extrabold text-slate-900 dark:text-white font-mono" id="product-display-price">@Model.RetailPrice.ToString("N2")</span>
+            <span class="text-sm font-bold text-slate-400">@SharedLocalizer["JordanDinarShort"] / @Model.UnitOfMeasure</span>
+            <span class="text-xs font-medium text-slate-400 mr-2">@SharedLocalizer["VatIncluded"]</span>
+        </div>
+
+        <!-- Premium Variant Selector (Size / Color / Unit) -->
+        @if (Model.Variants != null && Model.Variants.Any())
+        {
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-6 mb-6">
+                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">@SharedLocalizer["AvailableOptionsVariants"]</h3>
+                <div class="flex flex-wrap gap-2.5" id="variant-selector-container">
+                    @{
+                        var defaultProductImg = "";
+                        if (Model.Images != null && Model.Images.Any())
+                        {
+                            var firstImg = Model.Images.OrderBy(img => img.DisplayOrder).First().Url;
+                            defaultProductImg = firstImg.StartsWith("http") ? firstImg : "/" + firstImg.TrimStart('/');
+                        }
+                        else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            defaultProductImg = Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "/" + Model.ImageUrl.TrimStart('/');
+                        }
+                    }
+                    @for (int i = 0; i < Model.Variants.Count; i++)
+                    {
+                        var v = Model.Variants[i];
+                        var variantLabel = new List<string>();
+                        if (!string.IsNullOrEmpty(v.Size)) variantLabel.Add(v.Size);
+                        if (!string.IsNullOrEmpty(v.Color)) variantLabel.Add(v.Color);
+                        if (!string.IsNullOrEmpty(v.PackagingUnit)) variantLabel.Add(v.PackagingUnit);
+                        if (!string.IsNullOrEmpty(v.CountryOfOrigin)) variantLabel.Add(v.CountryOfOrigin);
+                        var displayLabel = string.Join(" - ", variantLabel);
+                        if (string.IsNullOrEmpty(displayLabel)) displayLabel = $"Option #{v.Id}";
+
+                        var vImg = !string.IsNullOrEmpty(v.ImageUrl) ? (v.ImageUrl.StartsWith("http") ? v.ImageUrl : "/" + v.ImageUrl.TrimStart('/')) : defaultProductImg;
+
+                        <button type="button" 
+                                class="variant-select-btn px-4 py-3 rounded-2xl border text-xs font-bold transition-all cursor-pointer active:scale-95 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-[#E8A020] hover:bg-slate-50 dark:hover:bg-slate-800"
+                                data-variant-id="@v.Id"
+                                data-price="@v.Price.ToString("N2")"
+                                data-sku="@v.Sku"
+                                data-stock="@v.StockQuantity"
+                                data-image="@vImg"
+                                data-default-price="@Model.RetailPrice.ToString("N2")"
+                                data-default-sku="@Model.Sku"
+                                data-default-image="@defaultProductImg">
+                            @displayLabel
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+
+        <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post" class="flex flex-col gap-6">
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <input type="hidden" name="productVariantId" id="selected-variant-id-input" value="" />
+            
+            <div class="flex flex-col gap-2">
+                <label class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">@SharedLocalizer["QuantityRequired"]</label>
+                <div class="flex gap-4 items-center">
+                    <!-- Modern Quantity Selector -->
+                    <div class="flex border border-slate-100 dark:border-slate-800 rounded-2xl h-14 overflow-hidden shadow-sm items-center bg-white dark:bg-slate-900">
+                        <button type="button" data-quantity-btn="add" class="px-5 h-full text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 transition-colors flex items-center justify-center">
+                            <span class="material-symbols-outlined text-sm font-bold">add</span>
+                        </button>
+                        <input id="quantity-input" class="w-16 border-x border-slate-100 dark:border-slate-800 text-center focus:outline-none focus:ring-0 bg-white dark:bg-slate-900 font-bold text-slate-800 dark:text-white text-base" type="number" name="quantity" value="1" min="1" />
+                        <button type="button" data-quantity-btn="remove" class="px-5 h-full text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 transition-colors flex items-center justify-center">
+                            <span class="material-symbols-outlined text-sm font-bold">remove</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Modern Add to Cart Button -->
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <button type="submit" class="flex-1 h-14 bg-[#151B26] hover:bg-[#E8A020] text-white hover:text-[#151B26] font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95">
+                            <span class="material-symbols-outlined text-xl">shopping_cart</span>
+                            <span class="text-sm tracking-wider">@SharedLocalizer["AddToCart"]</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" disabled class="flex-1 h-14 bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed font-bold rounded-2xl flex items-center justify-center gap-3 shadow-none">
+                            <span class="material-symbols-outlined text-xl">block</span>
+                            <span class="text-sm tracking-wider">@SharedLocalizer["TemporarilyOutOfStock"]</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Direct WhatsApp Order & Inquiry CTA -->
+            @{
+                var waPhone = "962790000000";
+                var reqHost = Context.Request.Host.Value;
+                var reqScheme = Context.Request.Scheme;
+                var productUrl = $"{reqScheme}://{reqHost}/Shop/Product/Index/{Model.Id}";
+                var waMsg = isArabic 
+                    ? $"مرحباً منصة بلوكو، أود الاستفسار والطلب بخصوص مادة البناء:\n- الاسم: {Model.Name}\n- الكود SKU: {Model.Sku}\n- السعر: {Model.RetailPrice:N2} د.أ\n- الرابط: {productUrl}"
+                    : $"Hello Blocko Team, I would like to order/inquire about:\n- Product: {Model.Name}\n- SKU: {Model.Sku}\n- Price: {Model.RetailPrice:N2} JOD\n- Link: {productUrl}";
+                var waEncodedMsg = System.Net.WebUtility.UrlEncode(waMsg);
+                var waUrl = $"https://wa.me/{waPhone}?text={waEncodedMsg}";
+            }
+            <a href="@waUrl" target="_blank" rel="noopener noreferrer" 
+               class="w-full h-14 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-md active:scale-95 text-sm cursor-pointer">
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.058.376-.058c.101-.116.433-.506.549-.68.116-.174.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-10.416c-5.514 0-10 4.486-10 10 0 1.761.458 3.418 1.258 4.864l-1.297 4.736 4.872-1.278c1.399.756 2.996 1.178 4.667 1.178 5.514 0 10-4.486 10-10s-4.486-10-10-10z"/>
+                </svg>
+                <span>@(isArabic ? "طلب واستفسار مباشر عبر واتساب" : "Order via WhatsApp")</span>
+            </a>
+        </form>
+        
+        <!-- Trust Checkout Badges -->
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6 flex flex-wrap gap-4 items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-slate-300">verified</span>
+                @SharedLocalizer["OriginalAndGuaranteed"]
+            </span>
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-slate-300">local_shipping</span>
+                @SharedLocalizer["FastShipping"]
+            </span>
+            <span class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-slate-300">lock</span>
+                @SharedLocalizer["SecurePayment"]
+            </span>
+        </div>
+    </div>
+</div>
