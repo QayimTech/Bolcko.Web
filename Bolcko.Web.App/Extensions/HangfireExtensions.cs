@@ -24,15 +24,30 @@ namespace Bolcko.Web.App.Extensions
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found for Hangfire.");
             }
 
+            // Ensure IPv4 is used instead of IPv6 [::1] on Windows to avoid SocketException in VS Debugger
+            if (connectionString.Contains("Host=localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                connectionString = connectionString.Replace("Host=localhost", "Host=127.0.0.1", StringComparison.OrdinalIgnoreCase);
+            }
+
             // Add Hangfire services
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connectionString)));
+                .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connectionString), new PostgreSqlStorageOptions
+                {
+                    QueuePollInterval = TimeSpan.FromSeconds(15),
+                    InvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    DistributedLockTimeout = TimeSpan.FromMinutes(10),
+                    PrepareSchemaIfNecessary = true
+                }));
 
             // Add the processing server as IHostedService
-            services.AddHangfireServer();
+            services.AddHangfireServer(options =>
+            {
+                options.WorkerCount = Math.Min(Environment.ProcessorCount * 2, 8);
+            });
 
             return services;
         }
