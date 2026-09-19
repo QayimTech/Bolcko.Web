@@ -56,7 +56,7 @@
                         <td class="p-3.5 text-slate-600">الرياض - حي النرجس</td>
                         <td class="p-3.5 text-slate-500 font-mono">اليوم 14:30</td>
                         <td class="p-3.5 text-center">
-                            <button onclick="alert('فتح نافذة تقديم عرض سعر ملزم للـ RFQ #882')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
+                            <button onclick="openRfqModal('RFQ-2026-882', 'مؤسسة التعمير الإنشائي', 'حديد تسليح 16 ملم و 14 ملم', '120 طن', 'الرياض - حي النرجس')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
                                 تقديم عرض سعر
                             </button>
                         </td>
@@ -69,7 +69,7 @@
                         <td class="p-3.5 text-slate-600">الدرعية - مشروع سكني</td>
                         <td class="p-3.5 text-slate-500 font-mono">أمس 18:15</td>
                         <td class="p-3.5 text-center">
-                            <button onclick="alert('فتح نافذة تقديم عرض سعر ملزم للـ RFQ #879')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
+                            <button onclick="openRfqModal('RFQ-2026-879', 'شركة آفاق الهندسة للمقاولات', 'خرسانة جاهزة مقاومة C40', '450 م³', 'الدرعية - مشروع سكني')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
                                 تقديم عرض سعر
                             </button>
                         </td>
@@ -91,4 +91,68 @@
             </table>
         </div>
     </div>
+
+    <!-- Live RFQ Quote Modal -->
+    <div id="rfqQuoteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="font-black text-lg text-slate-900" id="modalRfqTitle">تقديم عرض سعر ملزم</h3>
+                    <p class="text-xs text-slate-400" id="modalRfqSub">طلب رقم: #RFQ-882</p>
+                </div>
+                <button onclick="closeRfqModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">سعر الوحدة المقترح شامل الضريبة والتوريد (د.أ / ر.س):</label>
+                    <input type="number" step="0.01" id="rfqUnitPrice" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-mono text-slate-900 outline-none focus:ring-2 focus:ring-[#E8A020]" placeholder="0.00" />
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">المدة الزمنية لبدء التوريد والصب بالموقع:</label>
+                    <select id="rfqLeadTime" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 outline-none">
+                        <option value="24h">خلال 24 ساعة (فوري)</option>
+                        <option value="48h">خلال 48 ساعة</option>
+                        <option value="3d">خلال 3 أيام عمل</option>
+                        <option value="scheduled">جدول زمني مخصص حسب طلب المقاول</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ملاحظات والتزامات الجودة والمطابقة:</label>
+                    <textarea rows="2" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-slate-900 outline-none" placeholder="الشهادات المرفقة، نوع الإسمنت، شروط المضخة..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="submitRfqQuote()" class="flex-1 py-3 rounded-xl bg-[#E8A020] hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition">
+                    إرسال عرض السعر للمقاول
+                </button>
+                <button onclick="closeRfqModal()" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function openRfqModal(rfqCode, contractor, material, qty, loc) {
+        document.getElementById('modalRfqTitle').innerText = 'تقديم عرض سعر: ' + material;
+        document.getElementById('modalRfqSub').innerText = 'طلب رقم: ' + rfqCode + ' | المقاول: ' + contractor + ' | الكمية: ' + qty;
+        document.getElementById('rfqQuoteModal').classList.remove('hidden');
+    }
+    function closeRfqModal() {
+        document.getElementById('rfqQuoteModal').classList.add('hidden');
+    }
+    function submitRfqQuote() {
+        var price = document.getElementById('rfqUnitPrice').value;
+        if (!price || parseFloat(price) <= 0) {
+            alert('يرجى إدخال سعر الوحدة المقترح.');
+            return;
+        }
+        alert('تم إرسال عرض السعر بنجاح إلى المقاول والمنصة وتم تسجيله في دفتر العروض!');
+        closeRfqModal();
+    }
+</script>
