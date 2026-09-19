@@ -66,21 +66,57 @@
                     </button>
                 </div>
 
-                <a href="/calculator" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold transition-all whitespace-nowrap border border-emerald-500/20">
+                <!-- B2B Contractor Portal Link -->
+                @if (User.IsInRole("Contractor"))
+                {
+                    <a asp-action="Workspace" asp-controller="Contractor" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold transition-all whitespace-nowrap border border-emerald-500/20">
+                        <span class="material-symbols-outlined text-[15px]">engineering</span>
+                        <span>@(isArabic ? "مساحة المقاول" : "Contractor Hub")</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Join" asp-controller="Contractor" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold transition-all whitespace-nowrap border border-emerald-500/20">
+                        <span class="material-symbols-outlined text-[15px]">engineering</span>
+                        <span>@(isArabic ? "بوابة المقاولين" : "Contractors B2B")</span>
+                    </a>
+                }
+
+                <!-- Investor Portal Link -->
+                @if (User.IsInRole("Investor"))
+                {
+                    <a asp-action="InvestorDashboard" asp-controller="Financing" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
+                        <span class="material-symbols-outlined text-[15px]">monitoring</span>
+                        <span>@(isArabic ? "محفظة الاستثمار" : "Investor Portfolio")</span>
+                    </a>
+                }
+                else
+                {
+                    <a href="/Invest" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
+                        <span class="material-symbols-outlined text-[15px]">trending_up</span>
+                        <span>@(isArabic ? "فرص الاستثمار" : "Invest Hub")</span>
+                    </a>
+                }
+
+                <!-- Vendor / Supplier Portal Link -->
+                @if (User.IsInRole("Vendor"))
+                {
+                    <a asp-action="Index" asp-controller="Dashboard" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
+                        <span class="material-symbols-outlined text-[15px]">storefront</span>
+                        <span>@(isArabic ? "لوحة المورد" : "Vendor Hub")</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Join" asp-controller="Account" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
+                        <span class="material-symbols-outlined text-[15px]">storefront</span>
+                        <span>@(isArabic ? "انضم كمورد" : "Suppliers")</span>
+                    </a>
+                }
+
+                <a href="/calculator" class="hidden 2xl:flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold transition-all whitespace-nowrap border border-purple-500/20">
                     <span class="material-symbols-outlined text-[15px]">calculate</span>
-                    <span>@(isArabic ? "حاسبة البناء" : "Cost Estimator")</span>
-                    <span class="hidden 2xl:inline">@(isArabic ? " الذكية" : "")</span>
-                </a>
-
-                <a asp-action="Index" asp-controller="Financing" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
-                    <span class="material-symbols-outlined text-[15px]">account_balance</span>
-                    <span>@(isArabic ? "تمويل المرابحة" : "Murabaha Financing")</span>
-                </a>
-
-                <a asp-action="Join" asp-controller="Account" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
-                    <span class="material-symbols-outlined text-[15px]">storefront</span>
-                    <span>@(isArabic ? "انضم كمورد" : "Suppliers")</span>
-                    <span class="hidden xl:inline">@(isArabic ? "" : " Portal")</span>
+                    <span>@(isArabic ? "حاسبة البناء" : "Estimator")</span>
                 </a>
 
                 <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="hidden xl:flex items-center gap-1 px-2 py-1.5 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
@@ -508,54 +544,131 @@
     <!-- Nav links -->
     <nav class="flex-1 overflow-y-auto px-3 py-2">
 
-        <p class="px-3 pb-2 pt-1 text-[9px] font-black uppercase tracking-[3px] text-slate-600">
-            @(isArabic ? "التصفح" : "Navigation")
+        <p class="px-3 pb-2 pt-1 text-[9px] font-black uppercase tracking-[3px] text-[#E8A020]">
+            @(isArabic ? "مساحات الشركاء والاستثمار (B2B & Fintech)" : "Partner & Fintech Portals")
         </p>
 
+        <!-- Contractor Portal in Mobile Drawer -->
+        @if (User.IsInRole("Contractor"))
+        {
+            <a asp-action="Workspace" asp-controller="Contractor" asp-area="Shop"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">engineering</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-emerald-400">@(isArabic ? "مساحة عمل المقاول" : "Contractor Workspace")</span>
+                        <span class="text-[10px] text-emerald-500/80 font-medium block">@(isArabic ? "المشاريع والعطاءات والتمويل" : "Projects, RFQ & Murabaha")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+        else
+        {
+            <a asp-action="Join" asp-controller="Contractor" asp-area="Shop"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">engineering</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-emerald-400">@(isArabic ? "بوابة المقاولين (B2B)" : "Contractor Portal")</span>
+                        <span class="text-[10px] text-emerald-500/80 font-medium block">@(isArabic ? "تسجيل شركات المقاولات والتمويل" : "B2B Registration & Credit")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+
+        <!-- Investor Portal in Mobile Drawer -->
+        @if (User.IsInRole("Investor"))
+        {
+            <a asp-action="InvestorDashboard" asp-controller="Financing" asp-area="Shop"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">monitoring</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-sky-400">@(isArabic ? "محفظة الاستثمار والعوائد" : "Investor Portfolio")</span>
+                        <span class="text-[10px] text-sky-500/80 font-medium block">@(isArabic ? "الأرباح المحققة والصفقات النشطة" : "Realized IRR & Active Deals")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-sky-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+        else
+        {
+            <a href="/Invest"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">trending_up</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-sky-400">@(isArabic ? "بوابة المستثمرين (/Invest)" : "Investor Gateway")</span>
+                        <span class="text-[10px] text-sky-500/80 font-medium block">@(isArabic ? "عوائد 10-14% مرابحة متوافقة مع الشريعة" : "10-14% Sharia-Compliant Murabaha")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-sky-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+
+        <!-- Vendor Portal in Mobile Drawer -->
+        @if (User.IsInRole("Vendor"))
+        {
+            <a asp-action="Index" asp-controller="Dashboard" asp-area="Vendor"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">storefront</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-amber-400">@(isArabic ? "لوحة تحكم المورد والمبيعات" : "Vendor Sales Hub")</span>
+                        <span class="text-[10px] text-amber-500/80 font-medium block">@(isArabic ? "العروض والطلبات والربط الآلي" : "Live RFQs & Payouts")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-amber-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+        else
+        {
+            <a asp-action="Join" asp-controller="Account" asp-area="Vendor"
+               class="flex items-center justify-between px-3 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all group mb-2 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">storefront</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sm block text-amber-400">@(isArabic ? "انضم كمورد ومصنع معتمد" : "Join as Verified Supplier")</span>
+                        <span class="text-[10px] text-amber-500/80 font-medium block">@(isArabic ? "بوابة المصانع والمحاجر والتوريد" : "Manufacturers & Wholesalers")</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-amber-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            </a>
+        }
+
         <!-- Featured Cost Calculator in Mobile Drawer -->
-        <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })"
-           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all group mb-2 shadow-sm">
+        <a href="/calculator"
+           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 transition-all group mb-3 shadow-sm">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 flex-shrink-0">
                     <span class="material-symbols-outlined text-[20px]">calculate</span>
                 </div>
                 <div>
-                    <span class="font-bold text-sm block text-emerald-400">@(isArabic ? "حاسبة تكاليف البناء" : "Cost Estimator")</span>
-                    <span class="text-[10px] text-emerald-500/80 font-medium block">@(isArabic ? "حساب كميات وتكاليف حية" : "Live Quantities & Costs")</span>
+                    <span class="font-bold text-sm block text-purple-400">@(isArabic ? "حاسبة تكاليف ومواد البناء" : "Smart Cost Estimator")</span>
+                    <span class="text-[10px] text-purple-500/80 font-medium block">@(isArabic ? "حساب كميات الحديد والخرسانة والتكلفة" : "BOQ & Material Quantities")</span>
                 </div>
             </div>
-            <span class="material-symbols-outlined text-[16px] text-emerald-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+            <span class="material-symbols-outlined text-[16px] text-purple-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
         </a>
 
-        <!-- Featured Murabaha Financing in Mobile Drawer -->
-        <a href="@Url.Action("Index", "Financing", new { area = "Shop" })"
-           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 transition-all group mb-2 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
-                    <span class="material-symbols-outlined text-[20px]">account_balance</span>
-                </div>
-                <div>
-                    <span class="font-bold text-sm block text-sky-400">@(isArabic ? "تمويل المرابحة الإسلامية" : "Murabaha Financing")</span>
-                    <span class="text-[10px] text-sky-500/80 font-medium block">@(isArabic ? "سندات توريد وتمويل إسلامي بدون فوائد" : "Sharia-Compliant Trade Tenders")</span>
-                </div>
-            </div>
-            <span class="material-symbols-outlined text-[16px] text-sky-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
-        </a>
-
-        <!-- Featured Become a Supplier in Mobile Drawer -->
-        <a href="@Url.Action("Join", "Account", new { area = "Vendor" })"
-           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-all group mb-2 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
-                    <span class="material-symbols-outlined text-[20px]">storefront</span>
-                </div>
-                <div>
-                    <span class="font-bold text-sm block text-amber-400">@(isArabic ? "انضم كمورد معتمد" : "Become a Supplier")</span>
-                    <span class="text-[10px] text-amber-500/80 font-medium block">@(isArabic ? "بوابة المصانع والمحاجر والتوريد" : "Quarries & Suppliers Portal")</span>
-                </div>
-            </div>
-            <span class="material-symbols-outlined text-[16px] text-amber-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
-        </a>
+        <div class="my-2 h-px bg-white/5"></div>
+        <p class="px-3 pb-2 text-[9px] font-black uppercase tracking-[3px] text-slate-600">
+            @(isArabic ? "التسوق المباشر والخدمات" : "Store & Customer Services")
+        </p>
 
         <!-- Track Order in Mobile Drawer -->
         <a href="@Url.Action("TrackOrder", "Home", new { area = "Shop" })"
