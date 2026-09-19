@@ -49,6 +49,18 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         }
 
         /// <summary>
+        /// صفحة الهبوط الترويجية لبوابة المستثمرين وحاسبة العوائد التفاعلية (/Invest)
+        /// </summary>
+        [HttpGet("/Invest")]
+        [HttpGet("Invest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Invest()
+        {
+            var tenders = await _serviceManager.FinancingService.GetOpenTendersAsync();
+            return View("~/Areas/Shop/Views/Financing/Invest.cshtml", tenders);
+        }
+
+        /// <summary>
         /// بوابة المستثمر لعطاءات المرابحة الإنشائية (Investor Murabaha Portal)
         /// </summary>
         [HttpGet]
