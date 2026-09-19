@@ -129,6 +129,32 @@
                     </div>
                 </div>
 
+                <!-- Smart BOQ Exporter & Multi-Vendor RFQ Engine -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-600">request_quote</span>
+                            <h2 class="text-base font-bold text-slate-900">محرك تصدير جدول الكميات (Smart BOQ Exporter) وطلب عروض الأسعار</h2>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold">Multi-Vendor RFQ</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        قم بتصدير جدول الكميات (BOQ) الناتج من الحاسبة الهندسية أو ملف Excel وارسله فوراً إلى شبكة الموردين المعتمدين لتلقي عروض أسعار تنافسية ومقارنتها بنقرة واحدة.
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                        <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">upload_file</span>
+                            <span>استيراد جدول كميات من الحاسبة الهندسية</span>
+                        </a>
+                        <a href="@Url.Action("Index", "Quote", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-2 border border-slate-200">
+                            <span class="material-symbols-outlined text-sm text-indigo-600">compare_arrows</span>
+                            <span>مقارنة عروض أسعار الموردين النشطة</span>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Islamic Financing Section -->
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
