@@ -1,0 +1,67 @@
+<div id="fundTenderModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-white space-y-5 shadow-2xl relative">
+        <button type="button" onclick="closeFundModal()" class="absolute top-5 left-5 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-xl">account_balance</span>
+            </div>
+            <div>
+                <h3 class="text-base font-black text-white">تمويل وشراء صفقة المواد بالمرابحة</h3>
+                <p id="modalTenderTitle" class="text-xs text-slate-400 truncate max-w-xs">مشروع توريد المواد الإنشائية</p>
+            </div>
+        </div>
+
+        <!-- Financial Summary Box -->
+        <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 text-xs space-y-2">
+            <div class="flex justify-between">
+                <span class="text-slate-400">قيمة شراء المواد من المورد:</span>
+                <strong id="modalBaseCost" class="text-white font-mono">0.00 د.أ</strong>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-400">صافي ربح المستثمر الممول:</span>
+                <strong id="modalNetProfit" class="text-emerald-400 font-mono">+0.00 د.أ</strong>
+            </div>
+            <div class="flex justify-between border-t border-slate-800 pt-2 font-bold text-sm">
+                <span class="text-slate-200">إجمالي المبلغ المسترد:</span>
+                <strong id="modalTotalPayable" class="text-amber-400 font-mono">0.00 د.أ</strong>
+            </div>
+        </div>
+
+        <form id="fundTenderForm" onsubmit="submitFunderDecision(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="modalTenderId" />
+            
+            <div class="space-y-1.5">
+                <label class="block font-bold text-slate-300">الاسم الكامل للمستثمر / المنشأة:</label>
+                <input type="text" id="funderNameInput" required placeholder="أدخل اسمك الكامل" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white focus:border-amber-500 outline-none" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-300">رقم الهاتف للتواصل والتوثيق:</label>
+                    <input type="tel" id="funderPhoneInput" required placeholder="079XXXXXXX" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white font-mono focus:border-amber-500 outline-none" />
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-300">البريد الإلكتروني:</label>
+                    <input type="email" id="funderEmailInput" placeholder="investor@example.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white font-mono focus:border-amber-500 outline-none" />
+                </div>
+            </div>
+
+            <!-- Sharia Agency Checkbox -->
+            <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2.5">
+                <input type="checkbox" id="shariaTermsCheckbox" required checked class="mt-0.5 w-4 h-4 rounded text-amber-500 accent-amber-500" />
+                <label for="shariaTermsCheckbox" class="text-[11px] text-slate-300 leading-relaxed">
+                    أوافق على تفويض منصة بلوكو كوكيل شراء شرعي لقبض البضاعة حكمياً وفحصها وتسليمها للمقاول بموجب عقد المرابحة للأمر بالشراء المعتمد (AAOIFI).
+                </label>
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeFundModal()" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition">إلغاء</button>
+                <button type="submit" id="confirmFundBtn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black transition shadow-lg flex items-center gap-1.5 active:scale-95">
+                    <span class="material-symbols-outlined text-sm">lock</span>
+                    <span>تأكيد التمويل وتوقيع عقد الوكالة ⚡</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

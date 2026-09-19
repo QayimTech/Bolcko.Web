@@ -1,0 +1,81 @@
+@model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@{
+    var tender = Model;
+    var isFunded = tender.Status != Bolcko.Domain.Enums.FinancingTenderStatus.OpenForBidding;
+    var netProfit = tender.TotalPayableAmount - tender.BaseMaterialCost - tender.PlatformAgencyFeeAmount;
+    var annualizedReturn = tender.TenureDays > 0 ? (netProfit / (tender.BaseMaterialCost > 0 ? tender.BaseMaterialCost : 1)) * (365m / tender.TenureDays) * 100m : 11.5m;
+}
+
+<div class="bg-white rounded-3xl p-6 border border-slate-200 hover:border-amber-500/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-5 group relative overflow-hidden">
+    <!-- Top Ribbon & Status -->
+    <div class="flex items-start justify-between gap-3">
+        <div class="space-y-1">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-[11px] font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>@tender.ProjectCity • @tender.TrackingCode</span>
+            </span>
+            <h3 class="text-base font-black text-slate-900 group-hover:text-amber-600 transition-colors pt-1">
+                @tender.ProjectTitle
+            </h3>
+        </div>
+
+        <div class="text-end shrink-0">
+            <span class="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-black font-mono block">
+                @annualizedReturn.ToString("N1")% APR
+            </span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">عائد سنوي متوقع</span>
+        </div>
+    </div>
+
+    <!-- Materials Overview -->
+    <div class="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-100 text-xs">
+        <div class="flex justify-between text-slate-600">
+            <span>المقاول المنفذ:</span>
+            <strong class="text-slate-900">@(tender.ContractorName.Contains("@") ? tender.ContractorName.Split('@')[0] : tender.ContractorName)</strong>
+        </div>
+        <div class="flex justify-between text-slate-600">
+            <span>مواد التوريد العينية:</span>
+            <strong class="text-slate-900">@(tender.Items?.Count ?? 1) أصناف إنشائية</strong>
+        </div>
+        <div class="flex justify-between text-slate-600">
+            <span>رخصة البناء المعتمدة:</span>
+            <strong class="text-slate-900 font-mono">@(string.IsNullOrWhiteSpace(tender.BuildingPermitNumber) ? "مرخصة رسمياً" : tender.BuildingPermitNumber)</strong>
+        </div>
+    </div>
+
+    <!-- Financial Numbers -->
+    <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100 text-xs">
+        <div class="space-y-0.5">
+            <span class="text-[10px] text-slate-400 block">رأس المال المطلوب:</span>
+            <span class="text-lg font-black font-mono text-slate-950">@tender.BaseMaterialCost.ToString("N2") د.أ</span>
+        </div>
+        <div class="space-y-0.5 text-end">
+            <span class="text-[10px] text-slate-400 block">صافي الربح المحدد:</span>
+            <span class="text-lg font-black font-mono text-emerald-600">+@netProfit.ToString("N2") د.أ</span>
+        </div>
+    </div>
+
+    <!-- Actions & Tenor -->
+    <div class="flex items-center justify-between gap-3 pt-2">
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+            <span class="material-symbols-outlined text-base text-amber-500">schedule</span>
+            <span>@tender.TenureDays يوماً</span>
+        </div>
+
+        @if (!isFunded)
+        {
+            <button type="button" onclick="openFundModal(@tender.Id, '@tender.ProjectTitle', @tender.BaseMaterialCost, @netProfit, @tender.TenureDays, '@tender.TrackingCode')" 
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">payments</span>
+                <span>تمويل وشراء البضاعة ⚡</span>
+            </button>
+        }
+        else
+        {
+            <a href="/Shop/Financing/Contract/@tender.TrackingCode" target="_blank" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">description</span>
+                <span>معاينة العقد الرسمي</span>
+            </a>
+        }
+    </div>
+</div>
