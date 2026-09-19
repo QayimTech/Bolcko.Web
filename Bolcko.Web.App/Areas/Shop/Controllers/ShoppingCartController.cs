@@ -12,11 +12,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     {
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderService _orderService;
+        private readonly Blocko.Services.Interfaces.Logistics.IGeoDistancePricingService _geoDistancePricingService;
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService, IOrderService orderService)
+        public ShoppingCartController(
+            IShoppingCartService shoppingCartService, 
+            IOrderService orderService,
+            Blocko.Services.Interfaces.Logistics.IGeoDistancePricingService geoDistancePricingService)
         {
             _shoppingCartService = shoppingCartService;
             _orderService = orderService;
+            _geoDistancePricingService = geoDistancePricingService;
         }
 
         public async Task<IActionResult> Index()
@@ -175,6 +180,47 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
             var fee = await _orderService.GetShippingFeeAsync(city ?? string.Empty, cart.HasOversizedItems);
             return Json(new { success = true, rate = fee });
+        }
+
+        /// <summary>
+        /// احتساب كلفة الشحن اللوجستي بدقة المسافة الجغرافية بالكيلومتر ونوع المواد والشاحنة (GP-02)
+        /// Distance-Based Delivery Fee Engine for Heavy Bulk Materials
+        /// </summary>
+        [HttpPost]
+        [HttpGet]
+        public async Task<IActionResult> CalculateDistanceShipping(double latitude, double longitude, string? city = null)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(GetSessionId(), GetUserId());
+            if (cart == null)
+            {
+                return Json(new { success = false, message = "Cart not found." });
+            }
+
+            var calcResult = _geoDistancePricingService.CalculateFreightFee(
+                latitude, 
+                longitude, 
+                cart.Subtotal, 
+                cart.HasOversizedItems, 
+                city);
+
+            decimal grandTotal = Math.Round(cart.Subtotal + calcResult.ShippingFeeJod + cart.Tax, 2);
+
+            return Json(new
+            {
+                success = true,
+                distanceKm = calcResult.DistanceKm,
+                shippingFee = calcResult.ShippingFeeJod,
+                nearestHubNameAr = calcResult.NearestHubNameAr,
+                nearestHubNameEn = calcResult.NearestHubNameEn,
+                estimatedTransitMinutes = calcResult.EstimatedTransitMinutes,
+                recommendedVehicleType = calcResult.RecommendedVehicleType,
+                isHeavyBulkTier = calcResult.IsHeavyBulkTier,
+                isFreeShipping = calcResult.IsFreeShippingApplied,
+                pricingFormula = calcResult.PricingFormulaDescription,
+                cartSubtotal = cart.Subtotal,
+                cartTax = cart.Tax,
+                cartTotal = grandTotal
+            });
         }
 
         [HttpPost]

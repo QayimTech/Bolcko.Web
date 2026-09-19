@@ -1,0 +1,95 @@
+@model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
+@{
+    bool isEnglish = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en");
+    var activeMethods = ViewBag.ActivePaymentMethods as List<Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto> 
+                       ?? new List<Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto>();
+    if (!activeMethods.Any())
+    {
+        activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+        {
+            Code = "COD",
+            Title = isEnglish ? "Cash On Delivery (COD)" : "الدفع عند الاستلام (Cash On Delivery - COD)",
+            Description = isEnglish ? "Pay in cash to the delivery driver upon inspection at the site" : "ادفع نقدياً لسائق توصيل الشحنة فور الفحص والمعاينة وتدقيق وزن القبان بالموقع",
+            Icon = "local_atm",
+            ColorClass = "amber",
+            IsSelectedDefault = true
+        });
+
+        activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+        {
+            Code = "BNPL_4X",
+            Title = isEnglish ? "Split in 4 (BNPL - 0% Interest)" : "قسّمها على 4 دفعات (اشتري الآن وادفع لاحقاً بدون فوائد)",
+            Description = isEnglish ? "Pay 25% today and 3 monthly installments. 100% Sharia-compliant" : "ادفع 25% اليوم وقسّم الباقي على 3 أشهر متساوية. متوافق تماماً مع صيغ المرابحة الشرعية",
+            Icon = "credit_score",
+            ColorClass = "emerald"
+        });
+
+        activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+        {
+            Code = "CLIQ",
+            Title = isEnglish ? "Instant CliQ Transfer" : "الدفع الفوري عبر نظام كليك (CliQ)",
+            Description = isEnglish ? "Instant transfer to Alias: BLOCKO with 0 transaction fees" : "تحويل بنكي فوري إلى الاسم المستعار BLOCKO بدون أي رسوم تحويل إضافية",
+            Icon = "account_balance",
+            ColorClass = "indigo"
+        });
+    }
+}
+
+<div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-[#E8A020] flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-xl">payments</span>
+        </div>
+        <div>
+            <h2 class="text-lg font-black text-slate-900">@SharedLocalizer["PaymentMethodTitle"]</h2>
+            <p class="text-slate-400 text-xs font-medium">@SharedLocalizer["PaymentMethodDesc"]</p>
+        </div>
+    </div>
+
+    <!-- Payment Options Radio Group -->
+    <div class="space-y-3">
+        @for (int i = 0; i < activeMethods.Count; i++)
+        {
+            var method = activeMethods[i];
+            bool isChecked = (Model.PaymentMethod == method.Code) || (string.IsNullOrEmpty(Model.PaymentMethod) && i == 0);
+            var borderClass = isChecked ? "border-[#E8A020] bg-amber-50/40 ring-2 ring-[#E8A020]/20" : "border-slate-200 bg-white hover:border-slate-300";
+            var iconColorClass = method.ColorClass == "emerald" ? "text-emerald-600 bg-emerald-50 border-emerald-200" :
+                                method.ColorClass == "blue" ? "text-blue-600 bg-blue-50 border-blue-200" :
+                                method.ColorClass == "indigo" ? "text-indigo-600 bg-indigo-50 border-indigo-200" :
+                                "text-[#E8A020] bg-amber-50 border-amber-200";
+
+            <label class="payment-method-card block relative border rounded-2xl p-4 cursor-pointer transition-all duration-200 @borderClass" data-method="@method.Code">
+                <div class="flex items-start gap-4">
+                    <input type="radio" 
+                           name="PaymentMethod" 
+                           value="@method.Code" 
+                           @(isChecked ? "checked" : "") 
+                           class="payment-radio mt-1 w-4 h-4 text-[#E8A020] border-slate-300 focus:ring-[#E8A020] cursor-pointer" />
+                    
+                    <div class="w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 @iconColorClass">
+                        <span class="material-symbols-outlined text-lg">@method.Icon</span>
+                    </div>
+                    
+                    <div class="flex-grow min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-black text-xs sm:text-sm text-slate-900">@method.Title</span>
+                            @if (method.Code == "BNPL_4X")
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    0% فوائد
+                                </span>
+                            }
+                            else if (method.Code == "CLIQ")
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                    تحويل فوري
+                                </span>
+                            }
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1 font-medium leading-relaxed">@method.Description</p>
+                    </div>
+                </div>
+            </label>
+        }
+    </div>
+</div>

@@ -1,0 +1,111 @@
+@model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
+
+<div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-xl">map</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-slate-900">تحديد موقع المشروع ومسار الشاحنات (GM-01)</h2>
+                <p class="text-slate-400 text-xs font-medium">اسحب الدبوس على الخريطة لتحديد موقع التفريغ واحتساب كلفة الشحن بدقة المسافة</p>
+            </div>
+        </div>
+
+        <!-- GPS Button -->
+        <button type="button" onclick="getCurrentGpsLocation()" class="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-4 py-2.5 rounded-2xl transition-all shadow-sm flex items-center gap-2 active:scale-95 shrink-0 border border-slate-700">
+            <span class="material-symbols-outlined text-base text-[#E8A020]">my_location</span>
+            <span>تحديد موقعي المباشر GPS</span>
+        </button>
+    </div>
+
+    <!-- Interactive Leaflet Map Container -->
+    <div class="relative rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+        <div id="jobsite-map" class="w-full h-72 sm:h-80 z-0 bg-slate-100"></div>
+
+        <!-- Map Control Overlay -->
+        <div class="absolute top-3 start-3 z-10 flex flex-col gap-2">
+            <div class="bg-white/95 backdrop-blur px-3 py-1.5 rounded-xl shadow-md border border-slate-200 text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-rose-500 text-sm animate-bounce">location_on</span>
+                <span>انقر أو اسحب الدبوس لتحديد نقطة تفريغ الشاحنات</span>
+            </div>
+        </div>
+
+        <!-- Live Coords Badge -->
+        <div class="absolute bottom-3 end-3 z-10 bg-slate-900/90 text-white px-3 py-1.5 rounded-xl shadow-lg text-[11px] font-mono flex items-center gap-2 backdrop-blur">
+            <span class="material-symbols-outlined text-amber-400 text-xs">radar</span>
+            <span id="map-coords-indicator">31.9539, 35.9106</span>
+        </div>
+    </div>
+
+    <!-- GPS Live Notification Status -->
+    <div id="gpsStatusMessage" class="hidden p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 transition-all">
+        <span class="material-symbols-outlined text-lg text-emerald-600">near_me</span>
+        <span id="gpsCoordsText">تم التقاط إحداثيات الموقع بنجاح!</span>
+    </div>
+
+    <!-- Hidden Map Coordinates Inputs -->
+    <input type="hidden" asp-for="Latitude" id="gpsLatitude" value="31.9539" />
+    <input type="hidden" asp-for="Longitude" id="gpsLongitude" value="35.9106" />
+    <input type="hidden" asp-for="CalculatedDistanceKm" id="calculatedDistanceKm" />
+    <input type="hidden" asp-for="CalculatedShippingFee" id="calculatedShippingFee" />
+    <input type="hidden" asp-for="NearestFulfillmentHub" id="nearestFulfillmentHub" />
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="space-y-1.5">
+            <label class="block text-xs font-black text-slate-700">المحافظة <span class="text-rose-500">*</span></label>
+            <select asp-for="City" id="checkout-city-select" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
+                <option value="عمان" data-rate="2.50">عمان (عمّان الكبرى)</option>
+                <option value="الزرقاء" data-rate="3.00">الزرقاء والرصيفة</option>
+                <option value="البلقاء" data-rate="3.00">البلقاء والسلط والفحيص</option>
+                <option value="مادبا" data-rate="3.00">مادبا وذيبان</option>
+                <option value="إربد" data-rate="3.50">إربد ولواء الرمثا</option>
+                <option value="جرش" data-rate="3.50">جرش</option>
+                <option value="عجلون" data-rate="3.50">عجلون</option>
+                <option value="المفرق" data-rate="3.50">المفرق والبادية الشمالية</option>
+                <option value="الكرك" data-rate="4.00">الكرك والأغوار الجنوبية</option>
+                <option value="الطفيلة" data-rate="4.00">الطفيلة</option>
+                <option value="معان" data-rate="4.00">معان والبتراء</option>
+                <option value="العقبة" data-rate="4.00">العقبة والمنطقة الاقتصادية</option>
+            </select>
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="block text-xs font-black text-slate-700">الحي / المنطقة <span class="text-rose-500">*</span></label>
+            <input asp-for="Area" id="checkout-area-input" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all" type="text" placeholder="مثال: دابوق، عبدون، طبربور، شارع الجامعة" />
+            <span asp-validation-for="Area" class="text-rose-500 text-xs font-bold block"></span>
+        </div>
+
+        <div class="sm:col-span-2 space-y-1.5">
+            <label class="block text-xs font-black text-slate-700">العنوان التفصيلي واسم الشارع <span class="text-rose-500">*</span></label>
+            <textarea asp-for="DetailedAddress" id="detailedAddressTextarea" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all leading-relaxed" placeholder="رقم البناية / رقم القطعة والحوض / أقرب معلم بارز"></textarea>
+            <span asp-validation-for="DetailedAddress" class="text-rose-500 text-xs font-bold block"></span>
+        </div>
+
+        <!-- Site Access & Logistics Road Constraints -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-black text-slate-700">
+                <span class="material-symbols-outlined text-xs text-amber-500 align-middle">commute</span>
+                طبيعة مدخل الموقع والشارع
+            </label>
+            <select asp-for="SiteAccessType" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
+                <option value="StandardRoad">شارع رئيسي عريض (أكثر من 8 أمتار - يتسع للتريلات)</option>
+                <option value="NarrowAlley">شارع فرعي ضيق (أقل من 4 أمتار - يتطلب شاحنة متوسطة)</option>
+                <option value="CraneZoneNeeded">موقع يتطلب حيز تشغيل ونش تفريغ هيدروليكي</option>
+                <option value="ConcretePumpAccess">موقع يتطلب حيز لمد مواسير مضخة الخرسانة</option>
+            </select>
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="block text-xs font-black text-slate-700">
+                <span class="material-symbols-outlined text-xs text-amber-500 align-middle">precision_manufacturing</span>
+                طريقة التنزيل المطلوبة
+            </label>
+            <select asp-for="UnloadingMethod" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-[#E8A020] focus:bg-white focus:ring-2 focus:ring-[#E8A020]/20 outline-none transition-all">
+                <option value="ManualOrForklift">تنزيل يدوي / شوكة عمال الموقع</option>
+                <option value="CraneBoom">تفريغ بواسطة الونش الهيدروليكي (Crane Boom)</option>
+                <option value="ConcretePump">صب مباشر بواسطة مضخة الخرسانة (Concrete Pump)</option>
+            </select>
+        </div>
+    </div>
+</div>

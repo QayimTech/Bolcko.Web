@@ -50,5 +50,12 @@ namespace Bolcko.Domain.Entities.Order.DTOs
         public string? Notes { get; set; }
 
         public bool IsExpressDelivery { get; set; } = false;
+
+        // Geo-Map & Distance-Based Freight Fields (GM-01, GP-02)
+        public string? SiteAccessType { get; set; } = "StandardRoad"; // StandardRoad, NarrowAlley, CraneZoneNeeded, ConcretePumpAccess
+        public string? UnloadingMethod { get; set; } = "ManualOrForklift"; // ManualOrForklift, CraneBoom, ConcretePump
+        public double? CalculatedDistanceKm { get; set; }
+        public decimal? CalculatedShippingFee { get; set; }
+        public string? NearestFulfillmentHub { get; set; }
     }
 }

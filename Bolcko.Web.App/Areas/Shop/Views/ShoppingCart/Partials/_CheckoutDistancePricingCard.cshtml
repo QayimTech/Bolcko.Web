@@ -1,0 +1,55 @@
+@model Bolcko.Domain.Entities.Order.DTOs.CheckoutDto
+
+<div id="distance-pricing-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-lg text-white space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-lg">local_shipping</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span>حساب كلفة الشحن والمسار اللوجستي (GP-02)</span>
+                    <span id="distance-calc-spinner" class="hidden inline-block w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
+                </h3>
+                <p class="text-[11px] text-slate-400">حساب ديناميكي وفق مسار أقرب مركز مستودعات لموقع المشروع</p>
+            </div>
+        </div>
+
+        <span id="pricing-tier-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            تسعير بالمسافة الحية
+        </span>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+            <span class="text-[10px] text-slate-400 block mb-0.5">المسافة المقدرة</span>
+            <span id="geo-distance-val" class="text-base font-extrabold text-white">-- <span class="text-xs font-normal text-slate-400">كم</span></span>
+        </div>
+
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+            <span class="text-[10px] text-slate-400 block mb-0.5">كلفة التوريد</span>
+            <span id="geo-shipping-fee-val" class="text-base font-extrabold text-amber-400">-- <span class="text-xs font-normal text-amber-400/70">د.أ</span></span>
+        </div>
+
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+            <span class="text-[10px] text-slate-400 block mb-0.5">زمن الوصول المتوقع</span>
+            <span id="geo-eta-val" class="text-xs font-bold text-slate-200">-- دقيقة</span>
+        </div>
+
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+            <span class="text-[10px] text-slate-400 block mb-0.5">الشاحنة الموصى بها</span>
+            <span id="geo-vehicle-val" class="text-[11px] font-semibold text-emerald-400 truncate block" title="شاحنة نقل مخصصة">شاحنة مخصصة</span>
+        </div>
+    </div>
+
+    <!-- Dispatch Hub & Formula Details -->
+    <div class="text-[11px] text-slate-400 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60 flex items-start gap-2">
+        <span class="material-symbols-outlined text-sm text-slate-400 shrink-0 mt-0.5">warehouse</span>
+        <div>
+            <span class="text-slate-300 font-semibold">نقطة الانطلاق: </span>
+            <span id="geo-hub-name">مستودعات عمّان اللوجستية المركزية - مدينة سحاب الصناعية</span>
+            <p id="geo-formula-text" class="text-[10px] text-slate-400 mt-1 font-mono"></p>
+        </div>
+    </div>
+</div>
