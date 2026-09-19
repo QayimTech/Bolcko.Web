@@ -1,0 +1,53 @@
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div id="kycUploadModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-start" dir="@(isArabic ? "rtl" : "ltr")">
+        <button type="button" onclick="document.getElementById('kycUploadModal').classList.add('hidden')" class="absolute top-6 end-6 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div class="space-y-1">
+            <div class="inline-flex items-center gap-1.5 text-xs font-mono uppercase text-amber-600 dark:text-amber-400 font-bold">
+                <span class="material-symbols-outlined text-sm">verified_user</span>
+                <span>@(isArabic ? "بوابة رفع المستندات الرسمية (KYC)" : "Upload Official Documents")</span>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white">@(isArabic ? "رفع وتحديث وثائق الاعتماد القانوني" : "Upload & Update Legal Documents")</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">@(isArabic ? "ارفع الوثائق بصيغة (PDF، PNG، JPG) لتحديث ملفك وتفعيل الشارة المعتمدة." : "Upload docs to update your profile and activate your verified badge.")</p>
+        </div>
+
+        <form asp-area="Vendor" asp-controller="Dashboard" asp-action="UploadKycDocs" method="post" enctype="multipart/form-data" class="space-y-4">
+            @Html.AntiForgeryToken()
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">@(isArabic ? "السجل التجاري (CR)" : "Commercial Reg.")</label>
+                    <input type="file" name="commercialRegistrationDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-[11px] text-slate-600 dark:text-slate-300 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-100 dark:file:bg-amber-900/60 file:text-amber-800 dark:file:text-amber-200 cursor-pointer" />
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">@(isArabic ? "رخصة المهن (Trade License)" : "Vocational License")</label>
+                    <input type="file" name="vocationalLicenseDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-[11px] text-slate-600 dark:text-slate-300 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-sky-100 dark:file:bg-sky-900/60 file:text-sky-800 dark:file:text-sky-200 cursor-pointer" />
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">@(isArabic ? "الشهادة الضريبية" : "Tax Certificate")</label>
+                    <input type="file" name="taxCertificateDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-[11px] text-slate-600 dark:text-slate-300 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-emerald-100 dark:file:bg-emerald-900/60 file:text-emerald-800 dark:file:text-emerald-200 cursor-pointer" />
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">@(isArabic ? "شهادات الجودة والمختبر" : "Lab Test / ISO Certs")</label>
+                    <input type="file" name="qualityCertificatesDoc" accept=".pdf,.png,.jpg,.jpeg,.webp" class="w-full text-[11px] text-slate-600 dark:text-slate-300 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-purple-100 dark:file:bg-purple-900/60 file:text-purple-800 dark:file:text-purple-200 cursor-pointer" />
+                </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="document.getElementById('kycUploadModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all">
+                    @(isArabic ? "إلغاء" : "Cancel")
+                </button>
+                <button type="submit" class="px-7 py-2.5 rounded-xl bg-slate-900 hover:bg-amber-500 hover:text-slate-900 text-white text-xs font-black transition-all shadow-md flex items-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">cloud_upload</span>
+                    <span>@(isArabic ? "حفظ ورفع الوثائق" : "Upload Documents")</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

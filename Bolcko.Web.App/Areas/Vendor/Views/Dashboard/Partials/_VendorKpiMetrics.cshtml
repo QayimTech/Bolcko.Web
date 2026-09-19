@@ -1,0 +1,27 @@
+@model Bolcko.Domain.Entities.Catalog.VendorProfile
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+        <span class="text-[11px] font-bold text-slate-400">@(isArabic ? "طلبات التوريد المتاحة بمنطقتك" : "Local Construction RFQs")</span>
+        <p class="text-2xl font-black text-slate-900 dark:text-white font-mono">14</p>
+        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">↑ @(isArabic ? "4 طلبات جديدة اليوم" : "4 new RFQs today")</span>
+    </div>
+    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+        <span class="text-[11px] font-bold text-slate-400">@(isArabic ? "العروض المقدمة" : "Submitted Bids")</span>
+        <p class="text-2xl font-black text-slate-900 dark:text-white font-mono">0</p>
+        <span class="text-[10px] text-slate-400">@(isArabic ? "ابدأ بتقديم عروض أسعارك" : "Ready to bid")</span>
+    </div>
+    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+        <span class="text-[11px] font-bold text-slate-400">@(isArabic ? "تقييم الجودة والالتزام" : "Quality Rating")</span>
+        <p class="text-2xl font-black text-amber-500 font-mono">5.0 ★</p>
+        <span class="text-[10px] text-slate-400">@(isArabic ? "ممتاز (مورد جديد)" : "Excellent (New)")</span>
+    </div>
+    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+        <span class="text-[11px] font-bold text-slate-400">@(isArabic ? "المواد المسجلة للتوريد" : "Supplied Materials")</span>
+        <p class="text-xs font-bold text-slate-800 dark:text-slate-200 pt-2 truncate">@(Model?.SuppliedCategories ?? (isArabic ? "حجر وواجهات / مواد إنشائية" : "Stone & Facades / Materials"))</p>
+        <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold">@(isArabic ? "جاهز للتوريد المباشر" : "Ready for Supply")</span>
+    </div>
+</div>

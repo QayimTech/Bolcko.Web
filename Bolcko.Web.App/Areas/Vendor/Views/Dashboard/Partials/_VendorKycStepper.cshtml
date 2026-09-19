@@ -1,0 +1,159 @@
+@model Bolcko.Domain.Entities.Catalog.VendorProfile
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var hasCr = !string.IsNullOrEmpty(Model?.CommercialRegistrationDocUrl);
+    var hasVoc = !string.IsNullOrEmpty(Model?.VocationalLicenseDocUrl);
+    var hasTax = !string.IsNullOrEmpty(Model?.TaxCertificateDocUrl);
+    var hasQc = !string.IsNullOrEmpty(Model?.QualityCertificatesDocUrl);
+    var docsCount = (hasCr ? 1 : 0) + (hasVoc ? 1 : 0) + (hasTax ? 1 : 0) + (hasQc ? 1 : 0);
+    var isApproved = Model?.Status == "Active";
+}
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+        <div>
+            <h2 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500">verified</span>
+                <span>@(isArabic ? "مسار التحقق والاعتماد القانوني للمورد (KYC Verification)" : "Supplier KYC Verification Stepper")</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                @(isArabic ? "مراحل تدقيق وتوثيق السجل التجاري والمصنع لفتح صلاحيات التوريد والمناقصات الكبرى" : "Verification stages for official supplier accreditation and bidding access")
+            </p>
+        </div>
+        <div>
+            <button type="button" onclick="document.getElementById('kycUploadModal').classList.remove('hidden')"
+                    class="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-xl transition-all border border-amber-200 dark:border-amber-700/50 flex items-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-base">cloud_upload</span>
+                <span>@(isArabic ? "رفع / تحديث الوثائق الرسمية" : "Upload / Update Documents")</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Visual 4-Step Stepper -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Step 1: Basic Info -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0">✓</span>
+            <div>
+                <h4 class="text-xs font-black text-emerald-900 dark:text-emerald-300">@(isArabic ? "1. البيانات الأساسية" : "1. Basic Profile")</h4>
+                <p class="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">@(isArabic ? "تم التسجيل وتوثيق الاتصال" : "Completed & Verified")</p>
+            </div>
+        </div>
+
+        <!-- Step 2: KYC Docs Upload -->
+        <div class="p-4 rounded-2xl @(docsCount > 0 ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(docsCount > 0 ? "bg-emerald-500 text-white" : "bg-amber-500 text-white") flex items-center justify-center font-bold text-sm shrink-0">
+                @(docsCount > 0 ? "✓" : "2")
+            </span>
+            <div>
+                <h4 class="text-xs font-black @(docsCount > 0 ? "text-emerald-900 dark:text-emerald-300" : "text-amber-900 dark:text-amber-300")">@(isArabic ? "2. الوثائق والمستندات" : "2. KYC Documents")</h4>
+                <p class="text-[11px] @(docsCount > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400") mt-0.5">
+                    @(docsCount > 0 ? (isArabic ? $"تم رفع {docsCount} من 4 وثائق" : $"{docsCount}/4 docs uploaded") : (isArabic ? "بانتظار رفع الوثائق" : "Pending upload"))
+                </p>
+            </div>
+        </div>
+
+        <!-- Step 3: Legal Audit -->
+        <div class="p-4 rounded-2xl @(isApproved ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/60") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(isApproved ? "bg-emerald-500 text-white" : "bg-sky-500 text-white") flex items-center justify-center font-bold text-sm shrink-0">
+                @(isApproved ? "✓" : "3")
+            </span>
+            <div>
+                <h4 class="text-xs font-black @(isApproved ? "text-emerald-900 dark:text-emerald-300" : "text-sky-900 dark:text-sky-300")">@(isArabic ? "3. التدقيق والمطابقة" : "3. Legal Audit")</h4>
+                <p class="text-[11px] @(isApproved ? "text-emerald-700 dark:text-emerald-400" : "text-sky-700 dark:text-sky-400") mt-0.5">
+                    @(isApproved ? (isArabic ? "تم التدقيق والمطابقة" : "Audited & Cleared") : (isArabic ? "جاري المراجعة والتدقيق" : "Under Review"))
+                </p>
+            </div>
+        </div>
+
+        <!-- Step 4: Full Accreditation -->
+        <div class="p-4 rounded-2xl @(isApproved ? "bg-emerald-500 text-white" : "bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-400") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(isApproved ? "bg-white text-emerald-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400") flex items-center justify-center font-bold text-sm shrink-0">
+                @(isApproved ? "★" : "4")
+            </span>
+            <div>
+                <h4 class="text-xs font-black @(isApproved ? "text-white" : "text-slate-700 dark:text-slate-300")">@(isArabic ? "4. مورد معتمد رسمي" : "4. Verified Supplier")</h4>
+                <p class="text-[11px] @(isApproved ? "text-emerald-100" : "text-slate-400") mt-0.5">
+                    @(isApproved ? (isArabic ? "مفعل للمناقصات والطلبات" : "Bidding & RFQs Active") : (isArabic ? "بانتظار الاعتماد النهائي" : "Awaiting badge"))
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- KYC Documents Preview Grid -->
+    <div class="pt-2">
+        <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm text-slate-400">folder_open</span>
+            <span>@(isArabic ? "حالة الوثائق المرفقة بالسجل:" : "Attached Legal Documents:")</span>
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- CR -->
+            <div class="p-3.5 rounded-xl border @(hasCr ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40") flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg @(hasCr ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400")">description</span>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">@(isArabic ? "السجل التجاري" : "Commercial Reg.")</p>
+                        <span class="text-[10px] @(hasCr ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-400")">@(hasCr ? (isArabic ? "مرفوع ومحفوظ" : "Uploaded") : (isArabic ? "غير مرفوع" : "Missing"))</span>
+                    </div>
+                </div>
+                @if (hasCr)
+                {
+                    <a href="@Model?.CommercialRegistrationDocUrl" target="_blank" class="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 hover:bg-emerald-200 text-emerald-800 dark:text-emerald-300 text-xs transition-colors" title="عرض الملف">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                    </a>
+                }
+            </div>
+
+            <!-- Trade License -->
+            <div class="p-3.5 rounded-xl border @(hasVoc ? "border-sky-200 dark:border-sky-800 bg-sky-50/30 dark:bg-sky-950/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40") flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg @(hasVoc ? "text-sky-600 dark:text-sky-400" : "text-slate-400")">badge</span>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">@(isArabic ? "رخصة المهن" : "Trade License")</p>
+                        <span class="text-[10px] @(hasVoc ? "text-sky-600 dark:text-sky-400 font-bold" : "text-slate-400")">@(hasVoc ? (isArabic ? "مرفوع ومحفوظ" : "Uploaded") : (isArabic ? "غير مرفوع" : "Missing"))</span>
+                    </div>
+                </div>
+                @if (hasVoc)
+                {
+                    <a href="@Model?.VocationalLicenseDocUrl" target="_blank" class="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/60 hover:bg-sky-200 text-sky-800 dark:text-sky-300 text-xs transition-colors" title="عرض الملف">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                    </a>
+                }
+            </div>
+
+            <!-- Tax Certificate -->
+            <div class="p-3.5 rounded-xl border @(hasTax ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40") flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg @(hasTax ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400")">receipt_long</span>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">@(isArabic ? "الشهادة الضريبية" : "Tax Certificate")</p>
+                        <span class="text-[10px] @(hasTax ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-400")">@(hasTax ? (isArabic ? "مرفوع ومحفوظ" : "Uploaded") : (isArabic ? "غير مرفوع" : "Missing"))</span>
+                    </div>
+                </div>
+                @if (hasTax)
+                {
+                    <a href="@Model?.TaxCertificateDocUrl" target="_blank" class="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 hover:bg-emerald-200 text-emerald-800 dark:text-emerald-300 text-xs transition-colors" title="عرض الملف">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                    </a>
+                }
+            </div>
+
+            <!-- Quality Certificate -->
+            <div class="p-3.5 rounded-xl border @(hasQc ? "border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-950/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40") flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg @(hasQc ? "text-purple-600 dark:text-purple-400" : "text-slate-400")">workspace_premium</span>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">@(isArabic ? "شهادات الجودة والفحص" : "Quality Test Certs")</p>
+                        <span class="text-[10px] @(hasQc ? "text-purple-600 dark:text-purple-400 font-bold" : "text-slate-400")">@(hasQc ? (isArabic ? "مرفوع ومحفوظ" : "Uploaded") : (isArabic ? "غير مرفوع" : "Missing"))</span>
+                    </div>
+                </div>
+                @if (hasQc)
+                {
+                    <a href="@Model?.QualityCertificatesDocUrl" target="_blank" class="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/60 hover:bg-purple-200 text-purple-800 dark:text-purple-300 text-xs transition-colors" title="عرض الملف">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
