@@ -21,15 +21,117 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole<int>>? _roleManager;
+        private readonly IWebHostEnvironment? _env;
 
         public FinancingController(
             IServiceManager serviceManager,
             UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            SignInManager<User> signInManager,
+            RoleManager<IdentityRole<int>>? roleManager = null,
+            IWebHostEnvironment? env = null)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
+            _env = env;
+        }
+
+        /// <summary>
+        /// صفحة تسجيل وتأهيل المستثمر المالي ومكافحة غسل الأموال (Investor Onboarding & AML KYC)
+        /// </summary>
+        [HttpGet("InvestorJoin")]
+        [AllowAnonymous]
+        public IActionResult InvestorJoin()
+        {
+            if (User.Identity?.IsAuthenticated == true && User.IsInRole("Investor"))
+            {
+                return RedirectToAction(nameof(InvestorDashboard));
+            }
+
+            var model = new Bolcko.Web.App.Areas.Shop.Models.InvestorJoinViewModel();
+            return View(model);
+        }
+
+        /// <summary>
+        /// معالجة تسجيل المستثمر والتحقق من الملاءمة المالية ومكافحة غسل الأموال
+        /// </summary>
+        [HttpPost("InvestorJoin")]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InvestorJoin(Bolcko.Web.App.Areas.Shop.Models.InvestorJoinViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "البريد الإلكتروني مسجل مسبقاً كمستثمر أو عميل.");
+                return View(model);
+            }
+
+            var user = new User
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber,
+                FirstName = model.LegalName,
+                LastName = $"({model.InvestorCategory})",
+                CompanyName = model.LegalName,
+                BusinessRegistrationNumber = model.NationalIdOrCr,
+                UserType = UserType.Investor,
+                RegistrationDate = DateTime.UtcNow
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var err in result.Errors)
+                {
+                    ModelState.AddModelError("", err.Description);
+                }
+                return View(model);
+            }
+
+            if (_roleManager != null && !await _roleManager.RoleExistsAsync("Investor"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<int>("Investor"));
+            }
+
+            await _userManager.AddToRoleAsync(user, "Investor");
+
+            // Handle KYC documents upload
+            if (_env != null)
+            {
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "investors", user.Id.ToString());
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                if (model.IdentityDocument != null && model.IdentityDocument.Length > 0)
+                {
+                    string idPath = Path.Combine(uploadsFolder, "ID_" + Path.GetFileName(model.IdentityDocument.FileName));
+                    using var stream = new FileStream(idPath, FileMode.Create);
+                    await model.IdentityDocument.CopyToAsync(stream);
+                }
+
+                if (model.IbanDocument != null && model.IbanDocument.Length > 0)
+                {
+                    string ibanPath = Path.Combine(uploadsFolder, "IBAN_" + Path.GetFileName(model.IbanDocument.FileName));
+                    using var stream = new FileStream(ibanPath, FileMode.Create);
+                    await model.IbanDocument.CopyToAsync(stream);
+                }
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: true);
+
+            TempData["SuccessMessage"] = "مرحباً بك في منصة بلكو المالية! تم إنشاء محفظتك الاستثمارية وتوثيق بيانات الملاءمة ومكافحة غسل الأموال بنجاح.";
+            return RedirectToAction(nameof(InvestorDashboard), new { registered = true });
         }
 
         /// <summary>
