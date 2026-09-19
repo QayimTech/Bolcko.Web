@@ -268,6 +268,24 @@
                                     ColorClass = "amber",
                                     IsSelectedDefault = true
                                 });
+
+                                activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+                                {
+                                    Code = "BNPL_4X",
+                                    Title = isEnglish ? "Split in 4 (BNPL - 0% Interest)" : "قسّمها على 4 دفعات (اشتري الآن وادفع لاحقاً بدون فوائد)",
+                                    Description = isEnglish ? "Pay 25% today and 3 monthly installments. 100% Sharia-compliant" : "ادفع 25% اليوم وقسّم الباقي على 3 أشهر متساوية. متوافق تماماً مع الشريعة",
+                                    Icon = "credit_score",
+                                    ColorClass = "emerald"
+                                });
+
+                                activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
+                                {
+                                    Code = "CLIQ",
+                                    Title = isEnglish ? "Instant CliQ Transfer" : "الدفع الفوري عبر نظام كليك (CliQ)",
+                                    Description = isEnglish ? "Instant transfer to Alias: BLOCKO with 0 transaction fees" : "تحويل بنكي فوري إلى الاسم المستعار BLOCKO بدون أي رسوم تحويل",
+                                    Icon = "account_balance",
+                                    ColorClass = "indigo"
+                                });
                             }
                         }
 

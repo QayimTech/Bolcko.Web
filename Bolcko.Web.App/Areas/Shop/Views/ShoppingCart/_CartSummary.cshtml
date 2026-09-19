@@ -30,6 +30,24 @@
             <span class="font-bold text-lg text-on-surface">@SharedLocalizer["Total"]</span>
             <span id="summary-total" class="font-headline-md text-primary">@Model.Total.ToString("N2") @SharedLocalizer["JordanDinarShort"]</span>
         </div>
+
+        <!-- BNPL Consumer Split Preview -->
+        @if (Model.Total > 0)
+        {
+            var installmentVal = (Model.Total / 4).ToString("N2");
+            <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-3 text-xs space-y-1.5">
+                <div class="flex items-center justify-between font-bold text-emerald-900">
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-emerald-600">credit_score</span>
+                        <span>قسّم فاتورتك على 4 دفعات</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-200/60 text-emerald-950 text-[10px] font-mono font-black">0% فوائد</span>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">
+                    ادفع <strong class="text-emerald-700 font-mono font-black">@installmentVal @SharedLocalizer["JordanDinarShort"]</strong> اليوم والباقي على 3 أشهر بدون أي رسوم إضافية.
+                </p>
+            </div>
+        }
     </div>
 
     <a href="@Url.Action("Checkout", "ShoppingCart", new { area = "Shop" })"
