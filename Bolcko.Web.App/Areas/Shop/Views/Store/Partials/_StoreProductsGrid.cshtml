@@ -1,0 +1,51 @@
+@model Bolcko.Web.App.Areas.Shop.Models.VendorShowroomViewModel
+
+<div id="showroom-catalog" class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400">inventory_2</span>
+                <span>منتجات ومواد التوريد الخاصة بـ @Model.Name</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">تصفح الأسعار المباشرة واطلب الكميات مع خيارات تفريغ الونش والفحص المخبري</p>
+        </div>
+
+        <!-- Category Pills Filter -->
+        @if (Model.AvailableCategories.Any())
+        {
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+                <a href="/Shop/Store/@Model.Slug" 
+                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap @(string.IsNullOrEmpty(Model.SelectedCategory) ? "bg-amber-500 text-slate-950 font-black" : "bg-slate-800 text-slate-300 hover:text-white border border-slate-700")">
+                    الكل
+                </a>
+                @foreach (var cat in Model.AvailableCategories)
+                {
+                    var isSelected = cat.Equals(Model.SelectedCategory, StringComparison.OrdinalIgnoreCase);
+                    <a href="/Shop/Store/@Model.Slug?category=@Uri.EscapeDataString(cat)" 
+                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap @(isSelected ? "bg-amber-500 text-slate-950 font-black" : "bg-slate-800 text-slate-300 hover:text-white border border-slate-700")">
+                        @cat
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Products Grid -->
+    @if (!Model.Products.Any())
+    {
+        <div class="bg-slate-900/60 border border-dashed border-slate-800 rounded-3xl p-12 text-center text-slate-400">
+            <span class="material-symbols-outlined text-5xl text-slate-600 mb-3">search_off</span>
+            <h3 class="text-base font-bold text-white mb-1">لا توجد منتجات معروضة حالياً في هذه الفئة</h3>
+            <p class="text-xs">يرجى اختيار تصنيف آخر أو مراجعة الكتالوج الكامل للمورد.</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach (var product in Model.Products)
+            {
+                <partial name="~/Areas/Shop/Views/Shared/Partials/_ProductCard.cshtml" model="product" />
+            }
+        </div>
+    }
+</div>

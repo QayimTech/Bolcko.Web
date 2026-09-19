@@ -1,0 +1,51 @@
+@model Bolcko.Web.App.Areas.Shop.Models.VendorShowroomViewModel
+
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <!-- Rating -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-400">تقييم الجودة والتوريد</span>
+            <span class="material-symbols-outlined text-amber-400 text-lg">star</span>
+        </div>
+        <div>
+            <div class="text-2xl font-black text-white">@Model.Rating <span class="text-xs text-slate-400 font-normal">/ 5.0</span></div>
+            <span class="text-[11px] text-slate-400">بناءً على @Model.ReviewCount تقييم مقاول</span>
+        </div>
+    </div>
+
+    <!-- Completed Orders -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-400">الطلبيات المكتملة</span>
+            <span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+        </div>
+        <div>
+            <div class="text-2xl font-black text-emerald-400">@Model.CompletedOrders.ToString("N0")+</div>
+            <span class="text-[11px] text-slate-400">توريد ناجح عبر المنصة</span>
+        </div>
+    </div>
+
+    <!-- On-Time Delivery -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-400">الالتزام بالموعد (SLA)</span>
+            <span class="material-symbols-outlined text-blue-400 text-lg">schedule</span>
+        </div>
+        <div>
+            <div class="text-2xl font-black text-blue-400">@Model.OnTimeDeliveryRate%</div>
+            <span class="text-[11px] text-slate-400">تفريغ فوري في موقع العمل</span>
+        </div>
+    </div>
+
+    <!-- Commercial Registry & Tax Compliance -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-400">الامتثال الضريبي</span>
+            <span class="material-symbols-outlined text-purple-400 text-lg">policy</span>
+        </div>
+        <div>
+            <div class="text-sm font-bold text-white font-mono">@Model.CommercialRegistrationNumber</div>
+            <span class="text-[11px] text-slate-400">فواتير وطنية إلكترونية معتمدة</span>
+        </div>
+    </div>
+</div>

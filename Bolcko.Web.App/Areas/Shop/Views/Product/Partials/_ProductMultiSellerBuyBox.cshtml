@@ -1,0 +1,115 @@
+@model Bolcko.Domain.Entities.Product.DTOs.ProductDto
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    
+    // Multi-Seller offers comparison dataset for standard construction commodities
+    var alternativeSellers = new[]
+    {
+        new {
+            Name = "شركة المناصير للإسمنت والخرسانة",
+            Slug = "al-manaseer",
+            Badge = "وكيل معتمد ومصنع",
+            Price = Model.RetailPrice > 0 ? Model.RetailPrice * 0.98m : 4.80m,
+            LeadTime = "توصيل خلال 24 ساعة",
+            City = "عمان - القسطل",
+            DistanceKm = 14.5,
+            Rating = 4.95,
+            InStock = true
+        },
+        new {
+            Name = "مصانع الأردنية لحديد وصلب البناء",
+            Slug = "arab-steel",
+            Badge = "تاجر ذهبي موثق",
+            Price = Model.RetailPrice > 0 ? Model.RetailPrice * 1.02m : 5.10m,
+            LeadTime = "توصيل بنفس اليوم",
+            City = "الزرقاء - الهاشمية",
+            DistanceKm = 22.0,
+            Rating = 4.88,
+            InStock = true
+        },
+        new {
+            Name = "مستودعات لافارج هولسيم الأردن",
+            Slug = "lafarge-jordan",
+            Badge = "شريك استراتيجي",
+            Price = Model.RetailPrice > 0 ? Model.RetailPrice * 0.99m : 4.90m,
+            LeadTime = "توصيل مجدول 48 ساعة",
+            City = "إربد - مدينة الحسن",
+            DistanceKm = 68.0,
+            Rating = 4.90,
+            InStock = true
+        }
+    };
+}
+
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-base">storefront</span>
+            </div>
+            <div>
+                <h3 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white">متوفر لدى موردين آخرين (Multi-Seller Buy Box)</h3>
+                <p class="text-[11px] text-slate-400">قارن الأسعار وأوقات التوريد من أقرب مصنع أو مستودع لموقعك</p>
+            </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            3 عروض متنافسة
+        </span>
+    </div>
+
+    <!-- Offers List -->
+    <div class="space-y-3">
+        @foreach (var seller in alternativeSellers)
+        {
+            <div class="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
+                <div class="space-y-1 min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <a href="/Shop/Store/@seller.Slug" class="text-xs font-bold text-slate-900 dark:text-white hover:text-amber-600 transition truncate">
+                            @seller.Name
+                        </a>
+                        <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                            <span class="material-symbols-outlined text-[10px]">verified</span>
+                            @seller.Badge
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
+                        <span class="flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-xs text-amber-500">location_on</span>
+                            <span>@seller.City (@seller.DistanceKm كم)</span>
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                            <span class="material-symbols-outlined text-xs">schedule</span>
+                            <span>@seller.LeadTime</span>
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-0.5 text-amber-500">
+                            <span class="material-symbols-outlined text-xs">star</span>
+                            <span class="font-bold">@seller.Rating</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Price & Add Button -->
+                <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-800">
+                    <div class="text-end">
+                        <span class="text-base font-extrabold text-slate-950 dark:text-white font-mono">
+                            @seller.Price.ToString("N2")
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-normal">د.أ</span>
+                    </div>
+
+                    <form asp-action="AddToCart" asp-controller="ShoppingCart" asp-area="Shop" method="post">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#E8A020] text-white hover:text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                            <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                            <span>شراء من هذا المورد</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

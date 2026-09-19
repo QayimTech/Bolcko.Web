@@ -48,11 +48,21 @@
 
     <!-- Product Text Content -->
     <div class="pt-4 flex flex-col flex-1">
-        <!-- Category Tag -->
-        @if (!string.IsNullOrEmpty(displayCategory))
-        {
-            <span class="text-[10px] font-bold text-[#E8A020] uppercase tracking-widest mb-1">@displayCategory</span>
-        }
+        <!-- Category Tag & Merchant Badge (VM-01) -->
+        <div class="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
+            @if (!string.IsNullOrEmpty(displayCategory))
+            {
+                <span class="text-[10px] font-bold text-[#E8A020] uppercase tracking-widest">@displayCategory</span>
+            }
+            
+            <a href="@Url.Action("Index", "Store", new { area = "Shop", slug = Model.SupplierSlug ?? "al-qannas" })" 
+               class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-amber-600 transition bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/60"
+               onclick="event.stopPropagation();"
+               title="مباع ومشحون بواسطة @Model.SupplierName">
+                <span class="material-symbols-outlined text-[11px] text-emerald-600">verified</span>
+                <span class="truncate max-w-[110px]">@(Model.SupplierName ?? "مجموعة القناص")</span>
+            </a>
+        </div>
         
         <!-- Product Title -->
         <h5 class="font-bold text-base text-slate-800 cursor-pointer hover:text-[#E8A020] transition-colors line-clamp-1 mb-2"
