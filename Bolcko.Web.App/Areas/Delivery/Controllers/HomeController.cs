@@ -24,6 +24,7 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             _notificationService = notificationService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index(DateTime? startDate = null, DateTime? endDate = null)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -32,64 +33,7 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             // 1. Handle Delivery Company Manager login
             if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser"))
             {
-                var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
-                if (company == null)
-                {
-                    TempData["Error"] = "حسابك غير مرتبط بشركة شحن مسجلة. يرجى التواصل مع الإدارة.";
-                    return RedirectToAction("AccessDenied", "Account", new { area = "Shop" });
-                }
-
-                var jobsQuery = (await _serviceManager.DeliveryService.GetCompanyJobsAsync(company.Id)).AsQueryable();
-
-                if (startDate.HasValue)
-                {
-                    jobsQuery = jobsQuery.Where(j => j.AssignedAt >= startDate.Value || (j.DeliveredAt.HasValue && j.DeliveredAt >= startDate.Value));
-                }
-                if (endDate.HasValue)
-                {
-                    var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
-                    jobsQuery = jobsQuery.Where(j => j.AssignedAt <= endOfDay || (j.DeliveredAt.HasValue && j.DeliveredAt <= endOfDay));
-                }
-
-                var jobs = jobsQuery.ToList();
-
-                // Compute Financial statistics
-                ViewBag.Company = company;
-                ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
-                ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
-
-                ViewBag.TotalJobs = jobs.Count;
-                ViewBag.ActiveJobs = jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.InTransit);
-                ViewBag.DeliveredJobs = jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered);
-                
-                // COD collected & fees calculations
-                ViewBag.TotalCollected = jobs.Where(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0);
-                ViewBag.TotalFees = jobs.Where(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Returned).Sum(j => j.DeliveryFee);
-                ViewBag.UnreconciledAmount = jobs.Where(j => !j.IsReconciled && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => (j.CollectedAmount ?? 0) - j.DeliveryFee);
-
-                // Prepare Chart Data for Company Dashboard
-                var last7Days = Enumerable.Range(0, 7)
-                    .Select(i => DateTime.UtcNow.Date.AddDays(-6 + i))
-                    .ToList();
-
-                var dailyLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
-                var dailyDelivered = last7Days.Select(d => jobs.Count(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered)).ToList();
-                var dailyCollected = last7Days.Select(d => jobs.Where(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0)).ToList();
-
-                ViewBag.DailyLabelsJson = System.Text.Json.JsonSerializer.Serialize(dailyLabels);
-                ViewBag.DailyDeliveredJson = System.Text.Json.JsonSerializer.Serialize(dailyDelivered);
-                ViewBag.DailyCollectedJson = System.Text.Json.JsonSerializer.Serialize(dailyCollected);
-
-                var statusCounts = new[]
-                {
-                    jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Available),
-                    jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.InTransit),
-                    jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered),
-                    jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Returned)
-                };
-                ViewBag.StatusCountsJson = System.Text.Json.JsonSerializer.Serialize(statusCounts);
-
-                return View("CompanyIndex", jobs);
+                return await LoadCompanyDashboard(user, startDate, endDate);
             }
 
             // 2. Handle Delivery Driver login
@@ -114,6 +58,77 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             ViewBag.AvailableJobs = availableJobs;
             ViewBag.MyBids = myBids;
             return View(myJobs);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CompanyIndex(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            return await LoadCompanyDashboard(user, startDate, endDate);
+        }
+
+        private async Task<IActionResult> LoadCompanyDashboard(User user, DateTime? startDate, DateTime? endDate)
+        {
+            var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
+            if (company == null)
+            {
+                TempData["Error"] = "حسابك غير مرتبط بشركة شحن مسجلة. يرجى التواصل مع الإدارة.";
+                return RedirectToAction("AccessDenied", "Account", new { area = "Shop" });
+            }
+
+            var jobsQuery = (await _serviceManager.DeliveryService.GetCompanyJobsAsync(company.Id)).AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                jobsQuery = jobsQuery.Where(j => j.AssignedAt >= startDate.Value || (j.DeliveredAt.HasValue && j.DeliveredAt >= startDate.Value));
+            }
+            if (endDate.HasValue)
+            {
+                var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                jobsQuery = jobsQuery.Where(j => j.AssignedAt <= endOfDay || (j.DeliveredAt.HasValue && j.DeliveredAt <= endOfDay));
+            }
+
+            var jobs = jobsQuery.ToList();
+
+            // Compute Financial statistics
+            ViewBag.Company = company;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+            ViewBag.TotalJobs = jobs.Count;
+            ViewBag.ActiveJobs = jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.InTransit);
+            ViewBag.DeliveredJobs = jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered);
+            
+            // COD collected & fees calculations
+            ViewBag.TotalCollected = jobs.Where(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0);
+            ViewBag.TotalFees = jobs.Where(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Returned).Sum(j => j.DeliveryFee);
+            ViewBag.UnreconciledAmount = jobs.Where(j => !j.IsReconciled && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => (j.CollectedAmount ?? 0) - j.DeliveryFee);
+
+            // Prepare Chart Data for Company Dashboard
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(i => DateTime.UtcNow.Date.AddDays(-6 + i))
+                .ToList();
+
+            var dailyLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
+            var dailyDelivered = last7Days.Select(d => jobs.Count(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered)).ToList();
+            var dailyCollected = last7Days.Select(d => jobs.Where(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered).Sum(j => j.CollectedAmount ?? 0)).ToList();
+
+            ViewBag.DailyLabelsJson = System.Text.Json.JsonSerializer.Serialize(dailyLabels);
+            ViewBag.DailyDeliveredJson = System.Text.Json.JsonSerializer.Serialize(dailyDelivered);
+            ViewBag.DailyCollectedJson = System.Text.Json.JsonSerializer.Serialize(dailyCollected);
+
+            var statusCounts = new[]
+            {
+                jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Available),
+                jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp || j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.InTransit),
+                jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered),
+                jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Returned)
+            };
+            ViewBag.StatusCountsJson = System.Text.Json.JsonSerializer.Serialize(statusCounts);
+
+            return View("CompanyIndex", jobs);
         }
 
         [HttpPost]
