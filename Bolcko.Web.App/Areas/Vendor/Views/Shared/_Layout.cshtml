@@ -25,144 +25,140 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
     <partial name="Partials/_Styles" />
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-['Noto_Kufi_Arabic',sans-serif]">
+<body class="bg-[#0D111A] text-slate-100 min-h-screen flex font-['Noto_Kufi_Arabic',sans-serif] antialiased overflow-x-hidden">
 
-    <!-- B2B Vendor Portal Top Navigation -->
-    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    @if (isAuth)
+    {
+        <!-- Enterprise Collapsible Sidebar -->
+        <partial name="Partials/_VendorSidebar" />
+
+        <!-- Main Content Area with Sticky Header -->
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
             
-            <!-- Brand Logo & Portal Badge -->
-            <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-                    <svg viewBox="0 0 56 56" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 flex-shrink-0">
-                        <defs>
-                            <mask id="v-brand-b-mask">
-                                <rect width="56" height="56" fill="white" />
-                                <path d="M 24.5,12 H 30 A 5,5 0 0 1 35,17 V 19 A 5,5 0 0 1 30,24 H 24.5 Z" fill="black" />
-                                <path d="M 24.5,32 H 31 A 6,6 0 0 1 37,38 V 43 A 6,6 0 0 1 31,49 H 24.5 Z" fill="black" />
-                            </mask>
-                        </defs>
-                        <rect width="56" height="56" rx="12" fill="#E8A020" mask="url(#v-brand-b-mask)" />
-                    </svg>
-                    <span class="font-black text-xl tracking-tight uppercase text-white font-mono">BLOCKO</span>
-                </a>
-                <span class="h-5 w-px bg-slate-700 mx-1 hidden sm:block"></span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
-                    <span class="material-symbols-outlined text-sm">handshake</span>
-                    <span>@(isRtl ? "بوابة الموردين" : "Vendor Portal")</span>
-                </span>
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center gap-5 text-xs font-semibold">
-                <a href="/" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1">
-                    <span class="material-symbols-outlined text-base">storefront</span>
-                    <span>@(isRtl ? "متجر بلوكو" : "Back to Store")</span>
-                </a>
-
-                @if (isAuth)
-                {
-                    <a asp-area="Vendor" asp-controller="Dashboard" asp-action="Index"
-                       class="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 font-bold">
-                        <span class="material-symbols-outlined text-base">dashboard</span>
-                        <span>@(isRtl ? "لوحة التحكم" : "Dashboard")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Products" asp-action="Index"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">inventory_2</span>
-                        <span>@(isRtl ? "إدارة المنتجات والمخزون" : "Products")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Finance" asp-action="Index"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">payments</span>
-                        <span>@(isRtl ? "المحفظة والأرباح" : "Finance")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Logistics" asp-action="Index"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">local_shipping</span>
-                        <span>@(isRtl ? "اللوجستيات والأسطول" : "Logistics & Fleet")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Subscription" asp-action="Index"
-                       class="text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-1 font-bold">
-                        <span class="material-symbols-outlined text-base">workspace_premium</span>
-                        <span>@(isRtl ? "الباقات والترقية" : "Subscription")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Webhooks" asp-action="Index"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">webhook</span>
-                        <span>@(isRtl ? "الويب هوك و ERP" : "Webhooks")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Team" asp-action="Index"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">badge</span>
-                        <span>@(isRtl ? "فريق العمل والصلاحيات" : "Team & Roles")</span>
-                    </a>
-                }
-                else
-                {
-                    <a asp-area="Vendor" asp-controller="Account" asp-action="Join"
-                       class="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 font-bold">
-                        <span class="material-symbols-outlined text-base">how_to_reg</span>
-                        <span>@(isRtl ? "انضم كمورد" : "Join as Vendor")</span>
-                    </a>
-                    <a asp-area="Vendor" asp-controller="Account" asp-action="Login"
-                       class="text-slate-300 hover:text-white transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">login</span>
-                        <span>@(isRtl ? "دخول الموردين" : "Vendor Login")</span>
-                    </a>
-                }
-            </nav>
-
-            <!-- User Status / Auth Actions -->
-            <div class="flex items-center gap-3">
-                @if (isAuth)
-                {
-                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-slate-300 font-mono">@userName</span>
+            <!-- Clean Header -->
+            <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white sticky top-0 z-30 shadow-sm px-4 sm:px-6 h-16 flex items-center justify-between">
+                
+                <!-- Left: Mobile Toggle & Breadcrumbs -->
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="toggleVendorMobileDrawer()" class="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                        <span class="material-symbols-outlined text-xl">menu</span>
+                    </button>
+                    
+                    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400">
+                        <span class="text-slate-500 font-mono">B2B /</span>
+                        <span class="text-white font-bold">@(ViewData["Title"] ?? "لوحة تحكم المورد")</span>
                     </div>
+                </div>
 
-                    <form asp-area="Vendor" asp-controller="Account" asp-action="Logout" method="post" class="inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-1 border border-slate-700 transition-all cursor-pointer" title="@(isRtl ? "تسجيل الخروج" : "Logout")">
-                            <span class="material-symbols-outlined text-base">logout</span>
-                            <span class="hidden sm:inline">@(isRtl ? "خروج" : "Logout")</span>
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <a asp-area="Vendor" asp-controller="Account" asp-action="Join"
-                       class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-sm flex items-center gap-1">
-                        <span class="material-symbols-outlined text-base">rocket_launch</span>
-                        <span>@(isRtl ? "ابدأ التوريد الآن" : "Start Supplying")</span>
+                <!-- Right: Actions & User Info -->
+                <div class="flex items-center gap-3">
+                    <a href="/Store/al-qannas" target="_blank" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold hover:bg-amber-500/20 transition shadow-sm">
+                        <span class="material-symbols-outlined text-sm">storefront</span>
+                        <span>معاينة متجر المعرض</span>
                     </a>
-                }
-            </div>
 
+                    <!-- Notification Bell -->
+                    <a href="/Vendor/Dashboard" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition relative" title="الإشعارات">
+                        <span class="material-symbols-outlined text-xl">notifications</span>
+                        <span class="absolute top-1.5 end-1.5 w-2 h-2 rounded-full bg-amber-400"></span>
+                    </a>
+
+                    <!-- User Avatar & Quick Info -->
+                    <div class="flex items-center gap-2 ps-2 border-s border-slate-800">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black flex items-center justify-center text-xs shadow-sm">
+                            ق
+                        </div>
+                        <div class="hidden sm:block text-start">
+                            <div class="text-xs font-bold text-white leading-tight">@userName</div>
+                            <div class="text-[10px] text-amber-400 font-bold">مورد ذهبي معتمد</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Body Content -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-slate-900/60 border-t border-slate-800/80 text-slate-500 py-4 px-6 text-xs text-center">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <p>© 2026 BLOCKO Enterprise Vendor Network. @(isRtl ? "جميع الحقوق محفوظة لمنظومة بلوكو الإنشائية." : "All rights reserved.")</p>
+                    <div class="flex items-center gap-4 text-[11px]">
+                        <a href="/Shop/Legal/Terms" class="hover:text-slate-400">@(isRtl ? "الشروط والأحكام" : "Terms")</a>
+                        <span>•</span>
+                        <a href="/Shop/Legal/Privacy" class="hover:text-slate-400">@(isRtl ? "الخصوصية" : "Privacy")</a>
+                    </div>
+                </div>
+            </footer>
         </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1">
-        @RenderBody()
-    </main>
-
-    <!-- Portal Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-6 text-xs text-center">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>© 2026 BLOCKO B2B Vendor Network. @(isRtl ? "جميع الحقوق محفوظة لموردي شبكة بلوكو الإنشائية." : "All rights reserved.")</p>
-            <div class="flex items-center gap-4 text-[11px]">
-                <a href="/Shop/Legal/Terms" class="hover:text-slate-200">@(isRtl ? "الشروط والأحكام" : "Terms")</a>
-                <span>•</span>
-                <a href="/Shop/Legal/Privacy" class="hover:text-slate-200">@(isRtl ? "سياسة الخصوصية" : "Privacy")</a>
-                <span>•</span>
-                <a href="/Shop/Home/Contact" class="hover:text-slate-200">@(isRtl ? "الدعم الفني للموردين" : "Vendor Support")</a>
-            </div>
+    }
+    else
+    {
+        <!-- Unauthenticated Layout (Login / Join) -->
+        <div class="flex-1 flex flex-col min-h-screen">
+            <header class="bg-slate-900 border-b border-slate-800 text-white h-16 flex items-center justify-between px-6">
+                <a href="/" class="flex items-center gap-2">
+                    <span class="font-black text-xl font-mono text-white">BLOCKO</span>
+                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Vendor Portal</span>
+                </a>
+                <div class="flex items-center gap-3 text-xs">
+                    <a href="/Vendor/Account/Login" class="text-slate-300 hover:text-white">تسجيل الدخول</a>
+                    <a href="/Vendor/Account/Join" class="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold">انضم كمورد</a>
+                </div>
+            </header>
+            
+            <main class="flex-1">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+    }
 
     <script src="~/js/blocko-modal.js" asp-append-version="true"></script>
+    <script>
+        function toggleVendorMobileDrawer() {
+            const drawer = document.getElementById('vendorMobileDrawer');
+            const backdrop = document.getElementById('vendorMobileDrawerBackdrop');
+            if (drawer && backdrop) {
+                const isHidden = backdrop.classList.contains('hidden');
+                if (isHidden) {
+                    backdrop.classList.remove('hidden');
+                    drawer.classList.remove('-translate-x-full', 'rtl:translate-x-full');
+                } else {
+                    backdrop.classList.add('hidden');
+                    drawer.classList.add('-translate-x-full', 'rtl:translate-x-full');
+                }
+            }
+        }
+
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('vendorSidebar');
+            const isCollapsed = sidebar.classList.contains('w-20');
+            if (isCollapsed) {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
+                localStorage.setItem('vendor_sidebar_collapsed', 'false');
+            } else {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+                localStorage.setItem('vendor_sidebar_collapsed', 'true');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('vendor_sidebar_collapsed') === 'true') {
+                const sidebar = document.getElementById('vendorSidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-20');
+                    document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+                }
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

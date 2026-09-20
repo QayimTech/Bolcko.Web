@@ -1,0 +1,192 @@
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<!-- Desktop Sidebar -->
+<aside id="vendorSidebar" class="hidden lg:flex flex-col w-64 bg-slate-900 border-e border-slate-800 text-white min-h-screen transition-all duration-300 select-none flex-shrink-0 sticky top-0 h-screen z-40">
+    
+    <!-- Sidebar Header & Store Identity -->
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-2">
+        <a href="/Vendor/Dashboard" class="flex items-center gap-2.5 overflow-hidden group">
+            <svg viewBox="0 0 56 56" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 flex-shrink-0">
+                <defs>
+                    <mask id="v-brand-side-mask">
+                        <rect width="56" height="56" fill="white" />
+                        <path d="M 24.5,12 H 30 A 5,5 0 0 1 35,17 V 19 A 5,5 0 0 1 30,24 H 24.5 Z" fill="black" />
+                        <path d="M 24.5,32 H 31 A 6,6 0 0 1 37,38 V 43 A 6,6 0 0 1 31,49 H 24.5 Z" fill="black" />
+                    </mask>
+                </defs>
+                <rect width="56" height="56" rx="10" fill="#E8A020" mask="url(#v-brand-side-mask)" />
+            </svg>
+            <div class="sidebar-text truncate text-start">
+                <div class="font-black text-sm tracking-tight text-white uppercase font-mono">BLOCKO</div>
+                <div class="text-[10px] text-amber-400 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">verified</span>
+                    <span class="truncate">بوابة الموردين</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Collapse Sidebar Toggle Button -->
+        <button type="button" onclick="toggleSidebarCollapse()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="طي / توسيع القائمة">
+            <span id="sidebarCollapseIcon" class="material-symbols-outlined text-sm rtl:rotate-180">chevron_left</span>
+        </button>
+    </div>
+
+    <!-- Store Live Preview Card -->
+    <div class="p-3 border-b border-slate-800/80 sidebar-text">
+        <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs">
+            <div class="truncate text-start">
+                <span class="text-[10px] text-slate-400 block font-bold">المتجر الفعّال</span>
+                <span class="font-bold text-white text-xs truncate block">مجموعة القنّاص</span>
+            </div>
+            <a href="/Store/al-qannas" target="_blank" class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition text-[10px] font-bold flex items-center gap-1" title="معاينة المعرض في المتجر">
+                <span class="material-symbols-outlined text-xs">visibility</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Nav Items List -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-6 text-xs text-start">
+        
+        <!-- Group 1: Overview -->
+        <div class="space-y-1">
+            <div class="sidebar-text text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">الرئيسية والمتابعة</div>
+            <a asp-area="Vendor" asp-controller="Dashboard" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Dashboard" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">dashboard</span>
+                <span class="sidebar-text">لوحة التحكم العامة</span>
+            </a>
+            <a href="/" target="_blank"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all font-semibold">
+                <span class="material-symbols-outlined text-lg">storefront</span>
+                <span class="sidebar-text">متجر بلوكو الرئيسي</span>
+                <span class="material-symbols-outlined text-xs ms-auto sidebar-text text-slate-500">open_in_new</span>
+            </a>
+        </div>
+
+        <!-- Group 2: Catalog & Commerce -->
+        <div class="space-y-1">
+            <div class="sidebar-text text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">الكتالوج والمنتجات</div>
+            <a asp-area="Vendor" asp-controller="Products" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Products" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">inventory_2</span>
+                <span class="sidebar-text">المنتجات والمخزون</span>
+                <span class="sidebar-text ms-auto text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">1,229</span>
+            </a>
+        </div>
+
+        <!-- Group 3: Operations & Logistics -->
+        <div class="space-y-1">
+            <div class="sidebar-text text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">العمليات والشحن</div>
+            <a asp-area="Vendor" asp-controller="Logistics" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Logistics" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">local_shipping</span>
+                <span class="sidebar-text">اللوجستيات والأسطول</span>
+            </a>
+        </div>
+
+        <!-- Group 4: Finance & Growth -->
+        <div class="space-y-1">
+            <div class="sidebar-text text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">المالية والاشتراكات</div>
+            <a asp-area="Vendor" asp-controller="Finance" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Finance" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">payments</span>
+                <span class="sidebar-text">المحفظة والمستحقات</span>
+            </a>
+            <a asp-area="Vendor" asp-controller="Subscription" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Subscription" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-amber-300 hover:text-amber-200 hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg text-amber-400">workspace_premium</span>
+                <span class="sidebar-text">الباقات والترقية الذهبية</span>
+                <span class="sidebar-text ms-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">Gold</span>
+            </a>
+        </div>
+
+        <!-- Group 5: Integrations & Administration -->
+        <div class="space-y-1">
+            <div class="sidebar-text text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">الربط والتحكم</div>
+            <a asp-area="Vendor" asp-controller="Webhooks" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Webhooks" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">webhook</span>
+                <span class="sidebar-text">الويب هوك و ERP</span>
+            </a>
+            <a asp-area="Vendor" asp-controller="Team" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Team" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">badge</span>
+                <span class="sidebar-text">فريق العمل والصلاحيات</span>
+            </a>
+        </div>
+
+    </nav>
+
+    <!-- Sidebar Bottom User Info -->
+    <div class="p-3 border-t border-slate-800/80 bg-slate-950/40 sidebar-text">
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 overflow-hidden text-start">
+                <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-xs flex-shrink-0">
+                    ق
+                </div>
+                <div class="truncate">
+                    <div class="text-xs font-bold text-white truncate">@(User.Identity?.Name ?? "المورد المعتمد")</div>
+                    <div class="text-[10px] text-emerald-400 font-mono">متصل الآن ✓</div>
+                </div>
+            </div>
+            
+            <form asp-area="Vendor" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-slate-800 transition" title="تسجيل الخروج">
+                    <span class="material-symbols-outlined text-base">logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<!-- Mobile Sidebar Drawer Backdrop -->
+<div id="vendorMobileDrawerBackdrop" onclick="toggleVendorMobileDrawer()" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden lg:hidden transition-opacity"></div>
+
+<!-- Mobile Sidebar Drawer -->
+<div id="vendorMobileDrawer" class="fixed top-0 bottom-0 start-0 z-50 w-72 bg-slate-900 text-white shadow-2xl transform -translate-x-full rtl:translate-x-full transition-transform duration-300 ease-in-out lg:hidden flex flex-col">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="font-black text-base text-white font-mono">BLOCKO VENDOR</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">B2B</span>
+        </div>
+        <button type="button" onclick="toggleVendorMobileDrawer()" class="p-1.5 rounded-lg text-slate-400 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    
+    <nav class="flex-1 overflow-y-auto p-4 space-y-4 text-xs text-start">
+        <a asp-area="Vendor" asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Dashboard" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>لوحة التحكم</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Products" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Products" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span>المنتجات والمخزون</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Logistics" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Logistics" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>اللوجستيات والأسطول</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Finance" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Finance" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">payments</span>
+            <span>المحفظة والمستحقات</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Subscription" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Subscription" ? "bg-amber-500 text-slate-950" : "text-amber-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined text-amber-400">workspace_premium</span>
+            <span>الباقات والترقية الذهبية</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Webhooks" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Webhooks" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">webhook</span>
+            <span>الويب هوك و ERP</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="Team" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Team" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">badge</span>
+            <span>فريق العمل والصلاحيات</span>
+        </a>
+    </nav>
+</div>
