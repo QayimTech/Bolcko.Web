@@ -1,4 +1,12 @@
 @model Bolcko.Web.App.Areas.Shop.Models.VendorShowroomViewModel
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var storeDisplayName = Model.Name;
+    if (!isArabic && (storeDisplayName.Contains("قناص") || storeDisplayName.Contains("القناص")))
+    {
+        storeDisplayName = "Al-Qannas Building Materials Co.";
+    }
+}
 
 <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-10 mb-8">
     <!-- Ambient glow -->
@@ -14,50 +22,47 @@
                 </div>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-2 text-start">
                 <!-- Badges -->
                 <div class="flex flex-wrap items-center gap-2">
-                    @if (Model.IsGoldSupplier)
-                    {
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            <span class="material-symbols-outlined text-sm">workspace_premium</span>
-                            مورد ذهبي معتمد
-                        </span>
-                    }
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="material-symbols-outlined text-sm">verified</span>
+                        @(isArabic ? "متجر معتمد وموثق" : "Verified Store")
+                    </span>
                     @if (Model.IsFactoryDirect)
                     {
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-sky-500/10 text-sky-400 border border-sky-500/20">
                             <span class="material-symbols-outlined text-sm">precision_manufacturing</span>
-                            توريد مباشر من المصنع
+                            @(isArabic ? "توريد مباشر من المصنع" : "Direct Factory Supply")
                         </span>
                     }
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
                         <span class="material-symbols-outlined text-sm text-rose-400">location_on</span>
-                        @Model.City
+                        @(Model.City ?? (isArabic ? "عمّان، الأردن" : "Amman, Jordan"))
                     </span>
                 </div>
 
                 <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
-                    @Model.Name
+                    @storeDisplayName
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-300 font-medium max-w-2xl leading-relaxed">
-                    @Model.Tagline
+                    @(Model.Tagline ?? (isArabic ? "المصدر الأول لمواد البناء المعتمدة وحلول التشطيبات الإنشائية في الأردن." : "Leading verified supplier of certified building materials and construction solutions in Jordan."))
                 </p>
             </div>
         </div>
 
         <!-- Contact & RFQ Actions -->
         <div class="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 min-w-[200px]">
-            <a href="https://wa.me/@Model.ContactWhatsApp?text=@Uri.EscapeDataString($"مرحباً، أود طلب عرض أسعار كميات جملة من معرضكم في منصة بلكو ({Model.Name})")" 
+            <a href="https://wa.me/@Model.ContactWhatsApp?text=@Uri.EscapeDataString(isArabic ? $"مرحباً، أود طلب عرض أسعار كميات جملة من معرضكم في منصة بلكو ({storeDisplayName})" : $"Hello, I would like to request a bulk wholesale quotation for ({storeDisplayName}) on Blocko")" 
                target="_blank" rel="noopener noreferrer"
                class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs shadow-lg transition">
                 <span class="material-symbols-outlined text-base">chat</span>
-                <span>طلب تسعير جملة (واتساب)</span>
+                <span>@(isArabic ? "طلب تسعير جملة (واتساب)" : "Request Wholesale Quote (WhatsApp)")</span>
             </a>
             
             <a href="#showroom-catalog" class="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition">
                 <span class="material-symbols-outlined text-base text-amber-400">inventory_2</span>
-                <span>تصفح كتالوج المنتجات</span>
+                <span>@(isArabic ? "تصفح كتالوج المنتجات" : "Browse Product Catalog")</span>
             </a>
         </div>
     </div>
