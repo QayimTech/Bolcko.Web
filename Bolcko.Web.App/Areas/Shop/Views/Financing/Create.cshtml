@@ -1,10 +1,12 @@
 @{
-    ViewData["Title"] = "طرح عطاء تمويل بالمرابحة الإسلامية للمقاولين";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "طرح عطاء تمويل بالمرابحة الإسلامية للمقاولين" : "Murabaha Islamic Financing Tender for Contractors";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var materialTypes = ViewBag.MaterialTypes as IEnumerable<Bolcko.Domain.Entities.Catalog.MaterialType> ?? Enumerable.Empty<Bolcko.Domain.Entities.Catalog.MaterialType>();
 }
 
-<div class="max-w-5xl mx-auto px-4 py-8 space-y-8" dir="rtl">
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-8 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     
     <!-- Hero / Header Banner -->
     <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-10 shadow-2xl">

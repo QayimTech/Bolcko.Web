@@ -1,11 +1,12 @@
 @model Bolcko.Domain.Entities.Financing.DTOs.InvestorDashboardDto
 @{
-    ViewData["Title"] = "محفظة المستثمر التمويلية وعوائد المرابحة";
-    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "محفظة المستثمر التمويلية وعوائد المرابحة" : "Investor Financing Portfolio & Murabaha Yields";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 }
 
-<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8" dir="rtl">
+<div class="min-h-screen bg-[#0D111A] text-slate-100 py-10 px-4 sm:px-6 lg:px-8 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <div class="max-w-7xl mx-auto space-y-8">
 
         <!-- Top Header & Actions -->

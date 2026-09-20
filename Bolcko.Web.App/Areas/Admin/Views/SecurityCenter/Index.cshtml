@@ -14,9 +14,10 @@
 
     var currentStartDate = ViewBag.StartDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
     var currentEndDate = ViewBag.EndDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
 }
 
-<div class="p-8 space-y-8 text-right font-sans min-h-screen" dir="rtl">
+<div class="p-8 space-y-8 text-start font-sans min-h-screen" dir="@(isRtl ? "rtl" : "ltr")">
     @Html.AntiForgeryToken()
     
     <!-- Top Executive Header & Filter Bar (Clean Modern Aesthetic) -->

@@ -6,9 +6,11 @@
     var hash = Model != null 
         ? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes((Model.TrackingCode ?? "") + Model.TotalPayableAmount + (Model.FundedAt?.ToString("o") ?? "UNFUNDED") + (Model.ContractorName ?? "")))).Substring(0, 16)
         : null;
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
 
-<div class="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
+<div class="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8" dir="@(isRtl ? "rtl" : "ltr")">
     <div class="max-w-3xl mx-auto space-y-8">
 
         <!-- Top Header & Search Bar -->

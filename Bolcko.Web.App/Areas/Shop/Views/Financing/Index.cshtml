@@ -1,11 +1,12 @@
 @model IEnumerable<Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto>
 @{
-    ViewData["Title"] = "بوابة المستثمر التمويلي | عطاءات المرابحة الإنشائية الحلال";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "بوابة المستثمر التمويلي | عطاءات المرابحة الإنشائية الحلال" : "Investor Financing Portal | Murabaha Trade Tenders";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
-    var isArabic = true;
 }
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-right" dir="rtl">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     
     <!-- 1. Hero Banner Partial -->
     <partial name="~/Areas/Shop/Views/Financing/Partials/_InvestorHeroBanner.cshtml" />
