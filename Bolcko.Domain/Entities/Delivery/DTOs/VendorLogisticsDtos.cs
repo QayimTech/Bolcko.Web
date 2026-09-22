@@ -5,9 +5,10 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
 {
     public enum VendorFulfillmentMode
     {
-        OwnFleet = 1,      // أسطول المورد الخاص وسائقيه
-        Custom3PL = 2,     // شركات نقل وشحن خارجية معتمدة (3PL)
-        PlatformPool = 3   // شبكة أسطول شاحنات وروافع بلوكو الموحدة
+        OwnFleet = 1,          // أسطول المورد الخاص وسائقيه
+        Custom3PL = 2,         // شركات نقل وشحن ثقيل خارجية معتمدة (Custom 3PL)
+        CustomerPickup = 3,    // استلام مباشر من موقع/مستودع المورد (Jobsite Self-Pickup)
+        PlatformPool = 3       // توافق قديم
     }
 
     public class VendorFulfillmentConfigDto
