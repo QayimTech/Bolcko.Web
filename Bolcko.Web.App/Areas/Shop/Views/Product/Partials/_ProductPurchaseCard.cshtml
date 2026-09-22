@@ -27,10 +27,37 @@
     </div>
     
     <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-[0_4px_25px_rgba(0,0,0,0.02)]">
-        <div class="flex items-baseline gap-2 mb-6 justify-start border-b border-slate-100 dark:border-slate-800 pb-6">
+        <div class="flex items-baseline gap-2 mb-4 justify-start border-b border-slate-100 dark:border-slate-800 pb-4">
             <span class="text-4xl font-extrabold text-slate-900 dark:text-white font-mono" id="product-display-price">@Model.RetailPrice.ToString("N2")</span>
             <span class="text-sm font-bold text-slate-400">@SharedLocalizer["JordanDinarShort"] / @Model.UnitOfMeasure</span>
             <span class="text-xs font-medium text-slate-400 mr-2">@SharedLocalizer["VatIncluded"]</span>
+        </div>
+
+        <!-- B2B Wholesale Volume Discount Tiers (B2B-01) -->
+        <div class="mb-6 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-emerald-600">payments</span>
+                    <span>شرائح أسعار الجملة وعطاءات المشاريع (Wholesale Matrix)</span>
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                    خصم كميات آلي
+                </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-bold">1 - 10 @Model.UnitOfMeasure</div>
+                    <div class="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">@Model.RetailPrice.ToString("N2") <span class="text-[9px] font-normal text-slate-400">د.أ</span></div>
+                </div>
+                <div class="p-2 rounded-xl bg-sky-50/60 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800">
+                    <div class="text-[10px] text-sky-700 dark:text-sky-300 font-bold">11 - 50 @Model.UnitOfMeasure (-3%)</div>
+                    <div class="font-extrabold text-sky-700 dark:text-sky-400 font-mono mt-0.5">@((Model.RetailPrice * 0.97m).ToString("N2")) <span class="text-[9px] font-normal text-sky-600/70">د.أ</span></div>
+                </div>
+                <div class="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                    <div class="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold">50+ @Model.UnitOfMeasure (-6%)</div>
+                    <div class="font-extrabold text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">@((Model.RetailPrice * 0.94m).ToString("N2")) <span class="text-[9px] font-normal text-emerald-600/70">د.أ</span></div>
+                </div>
+            </div>
         </div>
 
         <!-- Premium Variant Selector (Size / Color / Unit) -->

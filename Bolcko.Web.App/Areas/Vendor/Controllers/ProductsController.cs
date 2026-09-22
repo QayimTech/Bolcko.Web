@@ -79,7 +79,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product model, string? dynamicSpecsJson, string? metaTitle, string? metaDescription, string? metaKeywords)
+        public async Task<IActionResult> Create(Product model, string? dynamicSpecsJson, string? metaTitle, string? metaDescription, string? metaKeywords, decimal? tier2Discount, decimal? tier3Discount)
         {
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null)
@@ -112,6 +112,40 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             _context.Products.Add(model);
             await _context.SaveChangesAsync();
 
+            // Save B2B Wholesale Tier Pricing (B2B-01)
+            decimal d2 = tier2Discount ?? 3.0m;
+            decimal d3 = tier3Discount ?? 6.0m;
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = model.Id,
+                MinQuantity = 1,
+                MaxQuantity = 10,
+                UnitPrice = model.RetailPrice,
+                DiscountPercentage = 0,
+                TierName = "تجزئة"
+            });
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = model.Id,
+                MinQuantity = 11,
+                MaxQuantity = 50,
+                UnitPrice = Math.Round(model.RetailPrice * (1.0m - (d2 / 100.0m)), 2),
+                DiscountPercentage = d2,
+                TierName = "جملة متوسطة"
+            });
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = model.Id,
+                MinQuantity = 51,
+                MaxQuantity = null,
+                UnitPrice = Math.Round(model.RetailPrice * (1.0m - (d3 / 100.0m)), 2),
+                DiscountPercentage = d3,
+                TierName = "عطاءات ومشاريع كبرى"
+            });
+
             // Save SEO Metadata
             string pageKey = $"/Product/Index/{model.Id}";
             var seo = new Bolcko.Domain.Entities.SEO.SEOMetadata
@@ -126,7 +160,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             _context.SEOMetadata.Add(seo);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تمت إضافة مادة البناء بنجاح! تم إدراجها قيد مراجعة الجودة ومطابقة المواصفات الهندسية من إدارة المنصة.";
+            TempData["Success"] = "تمت إضافة مادة البناء وشرائح أسعار الجملة بنجاح! تم إدراجها قيد مراجعة الجودة ومطابقة المواصفات الهندسية من إدارة المنصة.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -139,6 +173,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
             var product = await _context.Products
                 .Include(p => p.Images)
+                .Include(p => p.TierPricings)
                 .FirstOrDefaultAsync(p => p.Id == id && (p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId));
 
             if (product == null) return NotFound();
@@ -156,12 +191,14 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         [HttpPost]
         [Route("Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product model, string? metaTitle, string? metaDescription, string? metaKeywords)
+        public async Task<IActionResult> Edit(int id, Product model, string? metaTitle, string? metaDescription, string? metaKeywords, decimal? tier2Discount, decimal? tier3Discount)
         {
             var vendor = await GetCurrentVendorProfileAsync();
             var vendorId = vendor?.Id ?? 0;
 
-            var existing = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && (p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId));
+            var existing = await _context.Products
+                .Include(p => p.TierPricings)
+                .FirstOrDefaultAsync(p => p.Id == id && (p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId));
             if (existing == null) return NotFound();
 
             existing.Name = model.Name;
@@ -179,6 +216,43 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             existing.ImageUrl = model.ImageUrl;
             existing.UpdatedAt = DateTime.UtcNow;
 
+            // Update Wholesale Tier Pricings
+            var existingTiers = await _context.ProductTierPricings.Where(t => t.ProductId == id).ToListAsync();
+            _context.ProductTierPricings.RemoveRange(existingTiers);
+
+            decimal d2 = tier2Discount ?? 3.0m;
+            decimal d3 = tier3Discount ?? 6.0m;
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = id,
+                MinQuantity = 1,
+                MaxQuantity = 10,
+                UnitPrice = existing.RetailPrice,
+                DiscountPercentage = 0,
+                TierName = "تجزئة"
+            });
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = id,
+                MinQuantity = 11,
+                MaxQuantity = 50,
+                UnitPrice = Math.Round(existing.RetailPrice * (1.0m - (d2 / 100.0m)), 2),
+                DiscountPercentage = d2,
+                TierName = "جملة متوسطة"
+            });
+
+            _context.ProductTierPricings.Add(new ProductTierPricing
+            {
+                ProductId = id,
+                MinQuantity = 51,
+                MaxQuantity = null,
+                UnitPrice = Math.Round(existing.RetailPrice * (1.0m - (d3 / 100.0m)), 2),
+                DiscountPercentage = d3,
+                TierName = "عطاءات ومشاريع كبرى"
+            });
+
             await _context.SaveChangesAsync();
 
             // Save / Update SEO Metadata
@@ -189,9 +263,9 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 seo = new Bolcko.Domain.Entities.SEO.SEOMetadata
                 {
                     PageName = pageKey,
-                    PageTitle = !string.IsNullOrWhiteSpace(metaTitle) ? metaTitle.Trim() : $"{existing.Name} | {vendor?.CompanyNameAr ?? "BLOCKO"}",
+                    PageTitle = !string.IsNullOrWhiteSpace(metaTitle) ? metaTitle.Trim() : $"{existing.Name} | {vendor.CompanyNameAr}",
                     MetaDescription = !string.IsNullOrWhiteSpace(metaDescription) ? metaDescription.Trim() : existing.Description,
-                    MetaKeywords = metaKeywords?.Trim(),
+                    MetaKeywords = !string.IsNullOrWhiteSpace(metaKeywords) ? metaKeywords.Trim() : $"{existing.Name}, توريد مواد بناء, {vendor.CompanyNameAr}, أسعار المواد الأردن",
                     PageUrl = $"/Shop/Product/Details/{existing.Id}",
                     LastUpdated = DateTime.UtcNow
                 };
@@ -199,15 +273,15 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(metaTitle)) seo.PageTitle = metaTitle.Trim();
-                if (!string.IsNullOrWhiteSpace(metaDescription)) seo.MetaDescription = metaDescription.Trim();
-                if (!string.IsNullOrWhiteSpace(metaKeywords)) seo.MetaKeywords = metaKeywords.Trim();
+                seo.PageTitle = !string.IsNullOrWhiteSpace(metaTitle) ? metaTitle.Trim() : seo.PageTitle;
+                seo.MetaDescription = !string.IsNullOrWhiteSpace(metaDescription) ? metaDescription.Trim() : seo.MetaDescription;
+                seo.MetaKeywords = !string.IsNullOrWhiteSpace(metaKeywords) ? metaKeywords.Trim() : seo.MetaKeywords;
                 seo.LastUpdated = DateTime.UtcNow;
-                _context.SEOMetadata.Update(seo);
             }
+
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تم تحديث بيانات المنتج وإعدادات محرك الـ SEO بنجاح!";
+            TempData["Success"] = "تم تحديث مادة البناء وشرائح أسعار الجملة بنجاح!";
             return RedirectToAction(nameof(Index));
         }
     }

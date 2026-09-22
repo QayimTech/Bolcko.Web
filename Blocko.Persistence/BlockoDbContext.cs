@@ -33,6 +33,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Order.OrderItem> OrderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.ProductImage> ProductImages { get; set; }
         public DbSet<Bolcko.Domain.Entities.Product.ProductVariant> ProductVariants { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Product.ProductTierPricing> ProductTierPricings { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.AppSetting> AppSettings { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.ShippingRate> ShippingRates { get; set; }
         public DbSet<Bolcko.Domain.Entities.Setting.Coupon> Coupons { get; set; }

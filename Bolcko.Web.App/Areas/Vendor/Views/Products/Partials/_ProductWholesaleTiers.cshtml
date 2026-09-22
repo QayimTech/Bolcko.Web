@@ -41,7 +41,12 @@
                 <span id="tier2Preview">0.00</span>
                 <span class="text-xs font-normal text-sky-600">د.أ / وحدة</span>
             </div>
-            <p class="text-[11px] text-sky-600/80 dark:text-sky-400/80">خصم تلقائي 3% لعقود التوريد المتوسطة</p>
+            <div class="flex items-center gap-2 pt-1">
+                <label class="text-[10px] font-bold text-slate-500">نسبة الخصم:</label>
+                <input type="number" name="tier2Discount" id="tier2Discount" value="3.0" step="0.5" min="0" max="50" oninput="updateWholesalePreview()" class="w-16 text-center text-xs font-bold rounded-lg border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-900 p-1 font-mono" />
+                <span class="text-xs font-bold text-sky-600">%</span>
+            </div>
+            <p class="text-[11px] text-sky-600/80 dark:text-sky-400/80">خصم تلقائي لعقود التوريد المتوسطة</p>
         </div>
 
         <!-- Tier 3: Major Wholesale / Tenders -->
@@ -54,7 +59,12 @@
                 <span id="tier3Preview">0.00</span>
                 <span class="text-xs font-normal text-emerald-600">د.أ / وحدة</span>
             </div>
-            <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">خصم تلقائي 6% لعطاءات التمويل والمشاريع الكبرى</p>
+            <div class="flex items-center gap-2 pt-1">
+                <label class="text-[10px] font-bold text-slate-500">نسبة الخصم:</label>
+                <input type="number" name="tier3Discount" id="tier3Discount" value="6.0" step="0.5" min="0" max="50" oninput="updateWholesalePreview()" class="w-16 text-center text-xs font-bold rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 p-1 font-mono" />
+                <span class="text-xs font-bold text-emerald-600">%</span>
+            </div>
+            <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">خصم تلقائي لعطاءات التمويل والمشاريع الكبرى</p>
         </div>
     </div>
 </div>
@@ -64,9 +74,12 @@
         const retailInput = document.getElementById('retailPriceInput');
         const base = parseFloat(retailInput?.value) || 0;
         
+        const d2 = parseFloat(document.getElementById('tier2Discount')?.value) || 3.0;
+        const d3 = parseFloat(document.getElementById('tier3Discount')?.value) || 6.0;
+
         const tier1 = base;
-        const tier2 = base > 0 ? (base * 0.97) : 0;
-        const tier3 = base > 0 ? (base * 0.94) : 0;
+        const tier2 = base > 0 ? (base * (1 - (d2 / 100.0))) : 0;
+        const tier3 = base > 0 ? (base * (1 - (d3 / 100.0))) : 0;
 
         const el1 = document.getElementById('tier1Preview');
         const el2 = document.getElementById('tier2Preview');

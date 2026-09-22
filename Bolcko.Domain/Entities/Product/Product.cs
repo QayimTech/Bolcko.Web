@@ -48,5 +48,6 @@ namespace Bolcko.Domain.Entities.Product
         public DateTime? ModeratedAt { get; set; }
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+        public ICollection<ProductTierPricing> TierPricings { get; set; } = new List<ProductTierPricing>();
     }
 }
