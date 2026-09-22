@@ -68,16 +68,30 @@
                 </div>
             </div>
 
-            <!-- Manifest Title Banner -->
-            <div class="p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between">
+            <!-- Manifest Title Banner & Sovereignty Status -->
+            <div class="p-4 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div>
                     <h2 class="text-base font-black flex items-center gap-2">
                         <span>بيان حمولة وتوريد مواد إنشائية (Dispatch & Delivery Manifest)</span>
                     </h2>
                     <p class="text-[11px] text-slate-300 mt-0.5">وثيقة نقل رسمية تثبت وزن الحمولة، بيانات السائق، وإحداثيات موقع الورشة للتسليم</p>
                 </div>
-                <div class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">
-                    مستند رسمي
+                <div class="flex items-center gap-2">
+                    @if (Model.FulfillmentType == "OwnFleet")
+                    {
+                        <span class="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold">
+                            أسطول خاص • عمولة المنصة: 0.00 د.أ
+                        </span>
+                    }
+                    else if (Model.IsCapacityOverflow || Model.FulfillmentType == "BlockoPool")
+                    {
+                        <span class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 text-xs font-black">
+                            فائض سعة • شبكة بلوكو (Escrow)
+                        </span>
+                    }
+                    <div class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs font-mono">
+                        @(Model.WaybillNumber ?? "WB-OF-MANUAL")
+                    </div>
                 </div>
             </div>
 
@@ -153,6 +167,22 @@
                         <!-- QR Code -->
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=@Uri.EscapeDataString(qrVerifyUrl)" alt="QR Verification" class="w-full h-full object-contain" />
                     </div>
+                </div>
+            </div>
+
+            <!-- 6. Jobsite e-POD OTP Verification Security Box -->
+            <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-dashed border-amber-500/40 flex items-center justify-between">
+                <div class="space-y-1">
+                    <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base text-amber-600">lock</span>
+                        <span>رمز التحقق الميداني وأمان التسليم (e-POD OTP Verification Code):</span>
+                    </span>
+                    <p class="text-[11px] text-slate-600">
+                        لا تقم بتفريغ الشحنة إلا بعد مطابقة هذا الرمز وتأكيده مع مهندس أو مشرف الموقع لتوثيق التسليم وحماية المستحقات.
+                    </p>
+                </div>
+                <div class="px-5 py-2.5 rounded-xl bg-slate-900 text-amber-400 font-mono font-black text-xl tracking-widest shadow-inner border border-amber-500/30">
+                    @(Model.DeliveryOtpCode ?? "842190")
                 </div>
             </div>
 

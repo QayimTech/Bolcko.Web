@@ -49,18 +49,45 @@
                                 <div class="text-[11px] font-mono text-slate-500 font-bold mt-0.5">@item.Quantity.ToString("N1") @item.Unit • @item.TotalAmountJod.ToString("N0") د.أ</div>
                             </td>
                             <td class="p-4">
-                                @if (!string.IsNullOrEmpty(item.AssignedDriverName))
+                                @if (item.IsCapacityOverflow)
+                                {
+                                    <div class="space-y-1">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-black text-[10px] border border-amber-500/20">
+                                            <span class="material-symbols-outlined text-[12px]">bolt</span>
+                                            <span>فائض سعة • شبكة بلوكو</span>
+                                        </span>
+                                        <div class="text-[10px] text-slate-400 font-medium">حجز الضمان المالي للشحنة (Escrow)</div>
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(item.AssignedDriverName))
                                 {
                                     <div class="font-bold text-slate-900 dark:text-white">@item.AssignedDriverName</div>
                                     <div class="text-[10px] text-slate-400 font-mono">@item.TruckPlateNumber (@item.VehicleType)</div>
+                                    @if (item.FulfillmentType == "OwnFleet")
+                                    {
+                                        <div class="flex items-center gap-1 mt-0.5">
+                                            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">أسطول خاص (0.00 د.أ)</span>
+                                            @if (!string.IsNullOrEmpty(item.DeliveryOtpCode))
+                                            {
+                                                <span class="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-[9px] font-mono font-black text-slate-700 dark:text-slate-300">OTP: @item.DeliveryOtpCode</span>
+                                            }
+                                        </div>
+                                    }
                                 }
                                 else
                                 {
-                                    <button type="button" onclick="openDriverModal(@item.OrderId, '@item.TrackingCode', '@item.ProjectTitle')"
-                                            class="px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 hover:bg-sky-100 border border-sky-200 dark:border-sky-800 text-[11px] font-bold flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-xs">person_add</span>
-                                        <span>تعيين سائق</span>
-                                    </button>
+                                    <div class="flex flex-col gap-1.5">
+                                        <button type="button" onclick="openDriverModal(@item.OrderId, '@item.TrackingCode', '@item.ProjectTitle')"
+                                                class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 hover:bg-sky-100 border border-sky-200 dark:border-sky-800 text-[10px] font-bold flex items-center justify-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">local_shipping</span>
+                                            <span>أسطول المنشأة</span>
+                                        </button>
+                                        <button type="button" onclick="openCapacityOverflowModal(@item.OrderId, '@item.TrackingCode', '@item.MaterialName', @item.Quantity, '@item.DestinationCity - @item.DestinationAddress', 35)"
+                                                class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black flex items-center justify-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">bolt</span>
+                                            <span>إسناد الفائض لبلوكو</span>
+                                        </button>
+                                    </div>
                                 }
                             </td>
                             <td class="p-4">
@@ -87,6 +114,10 @@
                                 {
                                     <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-500/10 text-emerald-500">تم التسليم بالموقع</span>
                                 }
+                                else if (item.IsCapacityOverflow)
+                                {
+                                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 animate-pulse">معروضة للكباتن</span>
+                                }
                                 else
                                 {
                                     <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-amber-500/10 text-amber-500">جاهزة للتحميل</span>
@@ -99,6 +130,14 @@
                                         <span class="material-symbols-outlined text-xs">receipt_long</span>
                                         <span>بيان الحمولة A4</span>
                                     </a>
+                                    @if (!item.IsCapacityOverflow && item.Status != "Delivered")
+                                    {
+                                        <button type="button" onclick="openCapacityOverflowModal(@item.OrderId, '@item.TrackingCode', '@item.MaterialName', @item.Quantity, '@item.DestinationCity - @item.DestinationAddress', 35)"
+                                                title="إسناد الفائض لشبكة كباتن بلوكو (Overflow)"
+                                                class="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 transition-colors flex items-center">
+                                            <span class="material-symbols-outlined text-sm">bolt</span>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>

@@ -37,10 +37,11 @@ namespace Bolcko.Domain.Entities.Catalog
         public bool IsGoldVerified { get; set; } = false;
         public bool IsExclusiveAgent { get; set; } = false;
 
-        // Warehouse & Dispatch Logistics Geolocation (MGR-01)
+        // Warehouse & Dispatch Logistics Geolocation (MGR-01) & Fulfillment Mode (LOG-05)
         public double Latitude { get; set; } = 31.9392; // Ras Al-Ain Central Amman Hub
         public double Longitude { get; set; } = 35.9189;
         public string WarehouseLocationName { get; set; } = "مستودعات رأس العين - عمان المركزية";
+        public string FulfillmentMode { get; set; } = "OwnFleet"; // "OwnFleet", "Custom3PL", "CustomerPickup", "BlockoPool"
 
         // Official KYC & Engineering Datasheets (SUB-02)
         public string? CommercialRegistrationDocUrl { get; set; }

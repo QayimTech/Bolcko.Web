@@ -1,0 +1,169 @@
+@*
+    LOG-05: One-Click Capacity Overflow to Block-O Pool Modal
+    Scenario 2: Given a vendor experiencing peak demand exceeding internal trucks,
+    When clicking "إسناد الفائض لشبكة كباتن بلوكو",
+    Then the system broadcasts the order to the Block-O carrier pool, charging standard freight rates and locking cargo escrow.
+*@
+
+<div id="capacityOverflowModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm transition-opacity duration-200">
+    <div class="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 text-right" dir="rtl">
+        
+        <!-- Header -->
+        <div class="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center font-black text-2xl shadow-inner">
+                    ⚡
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-base font-black text-slate-900 dark:text-white">إسناد الفائض لشبكة كباتن وأسطول بلوكو</h3>
+                        <span class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                            1-Click Overflow
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="overflowModalSub">
+                        بث فوري للشحنات الفائضة عن طاقة أسطولك إلى شبكة الناقلين والكباتن المعتمدين
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCapacityOverflowModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center font-bold text-lg transition">
+                &times;
+            </button>
+        </div>
+
+        <!-- Escrow & Take-Rate Trust Callout -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base">verified_user</span>
+                    <span>ضمان مالي للشحنة (Cargo Escrow Locked)</span>
+                </span>
+                <span class="text-[11px] font-mono font-bold text-amber-700 dark:text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-md">
+                    عمولة المنصة 7%
+                </span>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                يتم حجز أجور النقل وقيمة البضاعة في محفظة الضمان (Escrow) فور قبول الكابتن للطلب، مع تتبع GPS حي، وعدم تحرير المستحقات إلا بعد إدخال كود OTP الميداني من قبل مهندس الموقع.
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form asp-action="BroadcastCapacityOverflow" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" id="overflowOrderId" value="10422" />
+            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+
+            <!-- Order & Destination Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 text-xs">
+                <div>
+                    <span class="text-slate-400 block mb-0.5">رقم أمر التوريد:</span>
+                    <span class="font-mono font-black text-amber-600 dark:text-amber-400 text-sm" id="overflowDisplayCode">BLK-10422</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block mb-0.5">عنوان ووجهة التفريغ:</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200 line-clamp-1" id="overflowDisplayDest">عمان - دابوق</span>
+                </div>
+            </div>
+
+            <!-- Material & Weight Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">المادة الإنشائية المحمولة</label>
+                    <input type="text" name="materialType" id="overflowMaterialType" value="حديد تسليح / إسمنت" required
+                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">الوزن الصافي التقديري (طن)</label>
+                    <div class="relative">
+                        <input type="number" step="0.5" name="weightTons" id="overflowWeightTons" value="24.5" oninput="recalculateOverflowTariff()" required
+                               class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none pl-12" />
+                        <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">طن</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination Address Input (Fallback or Custom) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">موقع ورشة المقاول المستلم (GPS / العنوان)</label>
+                <input type="text" name="destinationAddress" id="overflowDestinationInput" value="دابوق - قرب قصر العبد"
+                       class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none" />
+            </div>
+
+            <!-- Dynamic Tariff Calculation Breakdown -->
+            <div class="p-4 bg-slate-900 text-white rounded-2xl space-y-3">
+                <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+                    <span class="text-slate-400">تسعيرة النقل القياسية للرحلة (Standard Freight):</span>
+                    <div class="flex items-center gap-1 font-mono font-black text-amber-400">
+                        <input type="number" step="1.0" name="freightFeeJod" id="overflowFreightInput" value="37.25" oninput="recalculateOverflowTakeRate()"
+                               class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-xs font-bold text-amber-400 outline-none" />
+                        <span>د.أ</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>حصة الكابتن الصافية (Net Carrier Payout):</span>
+                    <span class="font-mono font-bold text-emerald-400" id="overflowDriverPayout">34.64 د.أ</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>عمولة منصة بلوكو (Platform Take-Rate 7%):</span>
+                    <span class="font-mono font-bold text-amber-500" id="overflowPlatformTakeRate">2.61 د.أ</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onclick="closeCapacityOverflowModal()"
+                        class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition">
+                    إلغاء
+                </button>
+                <button type="submit"
+                        class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-base">sensors</span>
+                    <span>بث الشحنة فوراً لشبكة كباتن بلوكو</span>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function openCapacityOverflowModal(orderId, trackingCode, material, tons, address, freightFee) {
+        document.getElementById('overflowOrderId').value = orderId || 0;
+        document.getElementById('overflowDisplayCode').innerText = trackingCode || ('BLK-' + orderId);
+        document.getElementById('overflowDisplayDest').innerText = address || 'موقع الورشة الإنشائية';
+        document.getElementById('overflowDestinationInput').value = address || 'موقع الورشة الإنشائية';
+        if (material) document.getElementById('overflowMaterialType').value = material;
+        if (tons) document.getElementById('overflowWeightTons').value = tons;
+        
+        recalculateOverflowTariff();
+        
+        const modal = document.getElementById('capacityOverflowModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeCapacityOverflowModal() {
+        const modal = document.getElementById('capacityOverflowModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function recalculateOverflowTariff() {
+        const tonsInput = document.getElementById('overflowWeightTons');
+        const tons = parseFloat(tonsInput.value) || 20;
+        // Base rate 25 JOD + 0.50 JOD per ton
+        const totalFreight = Math.round((25 + (tons * 0.50)) * 100) / 100;
+        document.getElementById('overflowFreightInput').value = totalFreight.toFixed(2);
+        recalculateOverflowTakeRate();
+    }
+
+    function recalculateOverflowTakeRate() {
+        const freightInput = document.getElementById('overflowFreightInput');
+        const freight = parseFloat(freightInput.value) || 35;
+        const takeRate = Math.round((freight * 0.07) * 100) / 100;
+        const payout = Math.round((freight - takeRate) * 100) / 100;
+        
+        document.getElementById('overflowPlatformTakeRate').innerText = takeRate.toFixed(2) + ' د.أ';
+        document.getElementById('overflowDriverPayout').innerText = payout.toFixed(2) + ' د.أ';
+    }
+</script>

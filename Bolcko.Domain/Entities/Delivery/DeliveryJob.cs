@@ -46,6 +46,12 @@ namespace Bolcko.Domain.Entities.Delivery
         public bool IsPodVerified { get; set; } = false;
         public DateTime? PodVerifiedAt { get; set; }
 
+        // LOG-05 Vendor Logistics Sovereignty & Capacity Overflow Specifications
+        public decimal? PlatformFreightFee { get; set; } = 0.00m;
+        public string? FulfillmentType { get; set; } = "OwnFleet"; // "OwnFleet", "Custom3PL", "BlockoPool"
+        public string? WaybillNumber { get; set; }
+        public bool IsCapacityOverflow { get; set; } = false;
+
         public ICollection<DeliveryBid> Bids { get; set; } = new List<DeliveryBid>();
         public DeliveryRating? Rating { get; set; }
     }

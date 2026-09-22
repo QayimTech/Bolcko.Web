@@ -54,11 +54,17 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
+            VendorFulfillmentMode parsedMode = VendorFulfillmentMode.OwnFleet;
+            if (!string.IsNullOrEmpty(vendor.FulfillmentMode) && Enum.TryParse<VendorFulfillmentMode>(vendor.FulfillmentMode, true, out var m))
+            {
+                parsedMode = m;
+            }
+
             var config = new VendorFulfillmentConfigDto
             {
                 VendorId = vendor.Id,
                 CompanyName = vendor.CompanyNameAr,
-                Mode = VendorFulfillmentMode.PlatformPool,
+                Mode = parsedMode,
                 StandardDeliveryFeeJod = 25.00m,
                 CraneOffloadingFeeJod = 35.00m,
                 FreeDeliveryThresholdJod = 1500.00m,
@@ -68,6 +74,10 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 HasCraneUnloadingEquipped = true,
                 CoveredGovernorates = new List<string> { "عمان", "الزرقاء", "البلقاء", "إربد", "المفرق", "مأدبا" }
             };
+
+            var activeOverflowCount = await _context.DeliveryJobs
+                .CountAsync(j => j.IsCapacityOverflow && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Available);
+            ViewBag.ActiveOverflowCount = activeOverflowCount;
 
             var vehicles = new List<VendorFleetVehicleDto>
             {
@@ -181,6 +191,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null) return NotFound();
 
+            vendor.FulfillmentMode = model.Mode.ToString();
+
             if (!string.IsNullOrWhiteSpace(governoratesList))
             {
                 vendor.CoverageAreasJson = System.Text.Json.JsonSerializer.Serialize(governoratesList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
@@ -188,7 +200,15 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تم تحديث استراتيجية التوريد والخدمات اللوجستية بنجاح!";
+            string modeDesc = model.Mode switch
+            {
+                VendorFulfillmentMode.OwnFleet => "أسطول المنشأة الخاص (عمولة المنصة 0.00 د.أ + بوالص وأكواد OTP رقمية مجانية)",
+                VendorFulfillmentMode.Custom3PL => "شركاء النقل والشحن الثقيل المعتمدين (Custom 3PL)",
+                VendorFulfillmentMode.BlockoPool => "شبكة أسطول وكباتن بلوكو المفتوحة (Block-O Carrier Pool)",
+                _ => "استلام مباشر من المستودع"
+            };
+
+            TempData["Success"] = $"تم حفظ استراتيجية التوريد والخدمات اللوجستية بنجاح: {modeDesc}";
             return RedirectToAction(nameof(Index));
         }
 
@@ -218,10 +238,19 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
             var dispatchOrders = new List<VendorDispatchOrderDto>();
 
+            var orderIds = orderItems.Select(oi => oi.OrderId).Distinct().ToList();
+            var deliveryJobs = await _context.DeliveryJobs
+                .Include(j => j.Driver)
+                    .ThenInclude(d => d!.User)
+                .Include(j => j.Company)
+                .Where(j => orderIds.Contains(j.OrderId))
+                .ToDictionaryAsync(j => j.OrderId);
+
             if (orderItems.Any())
             {
                 foreach (var oi in orderItems)
                 {
+                    deliveryJobs.TryGetValue(oi.OrderId, out var job);
                     dispatchOrders.Add(new VendorDispatchOrderDto
                     {
                         OrderId = oi.OrderId,
@@ -235,8 +264,25 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                         Quantity = oi.Quantity,
                         Unit = oi.Product?.UnitOfMeasure ?? "طن",
                         TotalAmountJod = oi.UnitPrice * oi.Quantity,
-                        Status = oi.Order?.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "Delivered" : "ReadyForLoading",
-                        OrderDate = oi.Order?.OrderDate ?? DateTime.UtcNow
+                        Status = job != null ? job.Status.ToString() : (oi.Order?.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "Delivered" : "ReadyForLoading"),
+                        OrderDate = oi.Order?.OrderDate ?? DateTime.UtcNow,
+
+                        // LOG-05 Financial Sovereignty & Waybill
+                        DeliveryFee = job?.DeliveryFee ?? 0.00m,
+                        PlatformFreightFee = job?.PlatformFreightFee ?? 0.00m,
+                        FulfillmentType = job?.FulfillmentType ?? (vendor.FulfillmentMode ?? "OwnFleet"),
+                        WaybillNumber = job?.WaybillNumber ?? $"WB-OF-{oi.OrderId}-{(oi.OrderId * 17) % 9000 + 1000}",
+                        DeliveryOtpCode = job?.DeliveryOtpCode,
+                        IsCapacityOverflow = job?.IsCapacityOverflow ?? false,
+                        AssignedDriverName = job?.Driver?.User != null ? $"{job.Driver.User.FirstName} {job.Driver.User.LastName}" : (job?.Company != null ? job.Company.Name : null),
+                        AssignedDriverPhone = job?.Driver?.User?.PhoneNumber ?? job?.Company?.PhoneNumber,
+                        TruckPlateNumber = job?.Driver?.VehiclePlateNumber ?? job?.Company?.TaxId,
+                        VehicleType = job?.Driver?.VehicleType ?? "شاحنة نقل إنشائي",
+                        WeighbridgeTicketNo = !string.IsNullOrEmpty(job?.WeighbridgeTicketUrl) ? $"WB-TK-{oi.OrderId}" : null,
+                        GrossWeightTons = job?.GrossWeightTons,
+                        TareWeightTons = job?.TareWeightTons,
+                        NetWeightTons = job?.WeightTons,
+                        WeighedAt = job?.WeighedAt
                     });
                 }
             }
@@ -268,7 +314,13 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                     NetWeightTons = 24.50m,
                     WeighedAt = DateTime.UtcNow.AddHours(-2),
                     Status = "WeighedAndDispatched",
-                    OrderDate = DateTime.UtcNow.AddHours(-4)
+                    OrderDate = DateTime.UtcNow.AddHours(-4),
+                    FulfillmentType = "OwnFleet",
+                    DeliveryFee = 0.00m,
+                    PlatformFreightFee = 0.00m,
+                    WaybillNumber = "WB-OF-10421-8842",
+                    DeliveryOtpCode = "842190",
+                    IsCapacityOverflow = false
                 });
 
                 dispatchOrders.Add(new VendorDispatchOrderDto
@@ -287,7 +339,13 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                     Unit = "م²",
                     TotalAmountJod = 5850.00m,
                     Status = "ReadyForLoading",
-                    OrderDate = DateTime.UtcNow.AddHours(-1)
+                    OrderDate = DateTime.UtcNow.AddHours(-1),
+                    FulfillmentType = "OwnFleet",
+                    DeliveryFee = 0.00m,
+                    PlatformFreightFee = 0.00m,
+                    WaybillNumber = "WB-OF-10422-9901",
+                    DeliveryOtpCode = "513824",
+                    IsCapacityOverflow = false
                 });
             }
 
@@ -327,8 +385,126 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 }
             }
 
-            string logType = carrierType == "3PL" ? "شريك الشحن الثقيل المعتمد (3PL)" : "سائق الأسطول الخاص";
-            TempData["Success"] = $"تم تعيين {logType} ({carrierName} - {truckPlateNumber}) للشحنة #{orderId} وتوليد بيان الشحن بنجاح!";
+            string assignedType = carrierType == "3PL" ? "Custom3PL" : "OwnFleet";
+            string otp = Random.Shared.Next(100000, 999999).ToString();
+            string waybill = $"WB-{(carrierType == "3PL" ? "3PL" : "OF")}-{orderId}-{Random.Shared.Next(1000, 9999)}";
+
+            var job = await _context.DeliveryJobs.FirstOrDefaultAsync(j => j.OrderId == orderId);
+            if (job == null)
+            {
+                job = new Bolcko.Domain.Entities.Delivery.DeliveryJob
+                {
+                    OrderId = orderId,
+                    Status = Bolcko.Domain.Enums.DeliveryJobStatus.Assigned,
+                    AssignedAt = DateTime.UtcNow,
+                    PickupLocation = !string.IsNullOrEmpty(vendor.WarehouseLocationName) ? vendor.WarehouseLocationName : $"{vendor.City} - مستودع التوريد",
+                    DropoffLocation = "موقع المشروع الإنشائي",
+                    DeliveryFee = 0.00m,
+                    PlatformFreightFee = 0.00m,
+                    FulfillmentType = assignedType,
+                    WaybillNumber = waybill,
+                    DeliveryOtpCode = otp,
+                    IsCapacityOverflow = false
+                };
+                _context.DeliveryJobs.Add(job);
+            }
+            else
+            {
+                job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Assigned;
+                job.AssignedAt = DateTime.UtcNow;
+                job.FulfillmentType = assignedType;
+                if (carrierType != "3PL")
+                {
+                    // Scenario 1: Vendor Own Fleet Free Protection -> 0.00 JOD platform freight fee
+                    job.DeliveryFee = 0.00m;
+                    job.PlatformFreightFee = 0.00m;
+                }
+                job.IsCapacityOverflow = false;
+                if (string.IsNullOrEmpty(job.DeliveryOtpCode)) job.DeliveryOtpCode = otp;
+                if (string.IsNullOrEmpty(job.WaybillNumber)) job.WaybillNumber = waybill;
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (carrierType == "3PL")
+            {
+                TempData["Success"] = $"تم إسناد الشحنة #{orderId} لشريك الشحن ({carrierName}) بنجاح! تم توليد بيان الشحن وتأمين كود التسليم OTP ({job.DeliveryOtpCode}).";
+            }
+            else
+            {
+                // Scenario 1: Platform fee for freight is set to 0.00 JOD, and digital waybill + OTP verification are provided for jobsite safety
+                TempData["Success"] = $"تم تعيين سائق الأسطول الخاص ({carrierName} - {truckPlateNumber}) للشحنة #{orderId}. عمولة المنصة على الشحن: 0.00 د.أ (مجاناً 100%)، وبوليصة الشحن #{job.WaybillNumber} مع رمز أمان التسليم OTP ({job.DeliveryOtpCode}) جاهزة للتحميل!";
+            }
+            return RedirectToAction(nameof(Dispatch));
+        }
+
+        // ==========================================
+        // Scenario 2: One-Click Capacity Overflow to Block-O Pool
+        // ==========================================
+        [HttpPost]
+        [Route("BroadcastCapacityOverflow")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BroadcastCapacityOverflow(int orderId, decimal? weightTons, decimal? freightFeeJod, string? materialType, string? destinationAddress, string? returnUrl)
+        {
+            var vendor = await GetCurrentVendorProfileAsync();
+            if (vendor == null) return NotFound();
+
+            decimal tons = weightTons.HasValue && weightTons.Value > 0 ? weightTons.Value : 20.0m;
+            // Standard freight tariff calculation: base 25 JOD + 0.50 JOD per ton if not specified
+            decimal standardFee = freightFeeJod.HasValue && freightFeeJod.Value > 0 
+                ? freightFeeJod.Value 
+                : Math.Round(25.00m + (tons * 0.50m), 2);
+
+            // Platform captures standard freight take-rate (7%)
+            decimal platformTakeRate = Math.Round(standardFee * 0.07m, 2);
+
+            var job = await _context.DeliveryJobs.FirstOrDefaultAsync(j => j.OrderId == orderId);
+            string otp = Random.Shared.Next(100000, 999999).ToString();
+            string waybill = $"WB-OV-{orderId}-{Random.Shared.Next(1000, 9999)}";
+
+            if (job == null)
+            {
+                job = new Bolcko.Domain.Entities.Delivery.DeliveryJob
+                {
+                    OrderId = orderId,
+                    Status = Bolcko.Domain.Enums.DeliveryJobStatus.Available,
+                    DeliveryFee = standardFee,
+                    PlatformFreightFee = platformTakeRate,
+                    FulfillmentType = "BlockoPool",
+                    IsCapacityOverflow = true,
+                    MaterialType = !string.IsNullOrWhiteSpace(materialType) ? materialType : "مواد بناء إنشائية ثقيلة",
+                    WeightTons = tons,
+                    PickupLocation = !string.IsNullOrEmpty(vendor.WarehouseLocationName) ? vendor.WarehouseLocationName : $"{vendor.City} - مستودع التوريد المركزي",
+                    DropoffLocation = !string.IsNullOrWhiteSpace(destinationAddress) ? destinationAddress : "موقع المشروع الإنشائي",
+                    DeliveryOtpCode = otp,
+                    WaybillNumber = waybill
+                };
+                _context.DeliveryJobs.Add(job);
+            }
+            else
+            {
+                job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Available;
+                job.DeliveryFee = standardFee;
+                job.PlatformFreightFee = platformTakeRate;
+                job.FulfillmentType = "BlockoPool";
+                job.IsCapacityOverflow = true;
+                job.DriverId = null; // Open for Block-O pool
+                job.DeliveryCompanyId = null;
+                job.WeightTons = tons;
+                if (!string.IsNullOrWhiteSpace(materialType)) job.MaterialType = materialType;
+                if (!string.IsNullOrWhiteSpace(destinationAddress)) job.DropoffLocation = destinationAddress;
+                if (string.IsNullOrEmpty(job.DeliveryOtpCode)) job.DeliveryOtpCode = otp;
+                if (string.IsNullOrEmpty(job.WaybillNumber)) job.WaybillNumber = waybill;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"تم بنجاح بث الشحنة #{orderId} فائضة السعة (Capacity Overflow) إلى شبكة أسطول وكباتن بلوكو! تم قفل الضمان المالي للشحنة (Cargo Escrow)، وتحديد أجور النقل ({standardFee:N2} د.أ) وعمولة المنصة ({platformTakeRate:N2} د.أ).";
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
             return RedirectToAction(nameof(Dispatch));
         }
 
@@ -361,6 +537,21 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 fileUrl = $"/uploads/weighbridge/{fileName}";
             }
 
+            var job = await _context.DeliveryJobs.FirstOrDefaultAsync(j => j.OrderId == orderId);
+            if (job != null)
+            {
+                job.GrossWeightTons = grossWeight;
+                job.TareWeightTons = tareWeight;
+                job.WeightTons = netWeight;
+                job.WeighedAt = DateTime.UtcNow;
+                if (fileUrl != null) job.WeighbridgeTicketUrl = fileUrl;
+                if (job.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned)
+                {
+                    job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.PickedUp;
+                }
+                await _context.SaveChangesAsync();
+            }
+
             TempData["Success"] = $"تم تسجيل تذكرة القبان #{ticketNo} بصافي حمولة {netWeight:N2} طن وتحديث بيان الشحنة!";
             return RedirectToAction(nameof(Dispatch));
         }
@@ -374,6 +565,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         {
             var vendor = await GetCurrentVendorProfileAsync();
             
+            var job = await _context.DeliveryJobs
+                .Include(j => j.Driver)
+                    .ThenInclude(d => d!.User)
+                .Include(j => j.Company)
+                .FirstOrDefaultAsync(j => j.OrderId == id);
+
             var manifest = new VendorDispatchOrderDto
             {
                 OrderId = id,
@@ -385,21 +582,29 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 DestinationCity = "عمان",
                 Latitude = 31.9921,
                 Longitude = 35.8451,
-                MaterialName = "حديد تسليح 14 ملم أردني Grade 60 (مواصفات قياسية معتمدة)",
-                Quantity = 24.5m,
+                MaterialName = job?.MaterialType ?? "حديد تسليح 14 ملم أردني Grade 60 (مواصفات قياسية معتمدة)",
+                Quantity = job?.WeightTons ?? 24.5m,
                 Unit = "طن",
                 TotalAmountJod = 14210.00m,
-                AssignedDriverName = "أحمد الخالدي",
-                AssignedDriverPhone = "0791234567",
-                TruckPlateNumber = "12-38491",
-                VehicleType = "تريلا قلاب 30 طن",
+                AssignedDriverName = job?.Driver?.User != null ? $"{job.Driver.User.FirstName} {job.Driver.User.LastName}" : (job?.Company != null ? job.Company.Name : "أحمد الخالدي"),
+                AssignedDriverPhone = job?.Driver?.User?.PhoneNumber ?? job?.Company?.PhoneNumber ?? "0791234567",
+                TruckPlateNumber = job?.Driver?.VehiclePlateNumber ?? job?.Company?.TaxId ?? "12-38491",
+                VehicleType = job?.Driver?.VehicleType ?? "تريلا قلاب 30 طن",
                 WeighbridgeTicketNo = "WB-2026-9921",
-                TareWeightTons = 14.20m,
-                GrossWeightTons = 38.70m,
-                NetWeightTons = 24.50m,
-                WeighedAt = DateTime.UtcNow.AddHours(-1),
-                Status = "WeighedAndDispatched",
-                OrderDate = DateTime.UtcNow
+                TareWeightTons = job?.TareWeightTons ?? 14.20m,
+                GrossWeightTons = job?.GrossWeightTons ?? 38.70m,
+                NetWeightTons = job?.WeightTons ?? 24.50m,
+                WeighedAt = job?.WeighedAt ?? DateTime.UtcNow.AddHours(-1),
+                Status = job?.Status.ToString() ?? "WeighedAndDispatched",
+                OrderDate = DateTime.UtcNow,
+
+                // LOG-05 Details
+                WaybillNumber = job?.WaybillNumber ?? $"WB-OF-{id}-8842",
+                DeliveryOtpCode = job?.DeliveryOtpCode ?? "842190",
+                PlatformFreightFee = job?.PlatformFreightFee ?? 0.00m,
+                DeliveryFee = job?.DeliveryFee ?? 0.00m,
+                FulfillmentType = job?.FulfillmentType ?? "OwnFleet",
+                IsCapacityOverflow = job?.IsCapacityOverflow ?? false
             };
 
             ViewBag.Vendor = vendor;

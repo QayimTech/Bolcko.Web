@@ -166,6 +166,14 @@ public static class DatabaseExtensions
                 ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "DeliveryOtpCode" text;
                 ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "IsPodVerified" boolean NOT NULL DEFAULT false;
                 ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "PodVerifiedAt" timestamp with time zone;
+
+                -- LOG-05 Vendor Logistics Sovereignty & Capacity Overflow Columns
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "PlatformFreightFee" numeric NOT NULL DEFAULT 0.00;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "FulfillmentType" text NOT NULL DEFAULT 'OwnFleet';
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "WaybillNumber" text;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "IsCapacityOverflow" boolean NOT NULL DEFAULT false;
+
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "FulfillmentMode" text NOT NULL DEFAULT 'OwnFleet';
                 """);
 
             // Ensure DeliveryProviderConfigs has origin and sender columns

@@ -5,10 +5,11 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
 {
     public enum VendorFulfillmentMode
     {
-        OwnFleet = 1,          // أسطول المورد الخاص وسائقيه
+        OwnFleet = 1,          // أسطول المورد الخاص وسائقيه (0% عمولة شحن، بوالص وتأكيد OTP رقمي مجاني)
         Custom3PL = 2,         // شركات نقل وشحن ثقيل خارجية معتمدة (Custom 3PL)
         CustomerPickup = 3,    // استلام مباشر من موقع/مستودع المورد (Jobsite Self-Pickup)
-        PlatformPool = 3       // توافق قديم
+        BlockoPool = 4,        // شبكة أسطول وكباتن بلوكو (Block-O Carrier Pool)
+        PlatformPool = 4       // توافق قديم
     }
 
     public class VendorFulfillmentConfigDto
@@ -65,6 +66,14 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
         public decimal? NetWeightTons { get; set; }     // صافي المادة
         public string? WeighbridgeSlipUrl { get; set; }
         public DateTime? WeighedAt { get; set; }
+
+        // Financial & Logistics Sovereignty (LOG-05)
+        public decimal DeliveryFee { get; set; } = 0.00m;
+        public decimal PlatformFreightFee { get; set; } = 0.00m;
+        public string FulfillmentType { get; set; } = "OwnFleet"; // OwnFleet, Custom3PL, BlockoPool
+        public string? WaybillNumber { get; set; }
+        public string? DeliveryOtpCode { get; set; }
+        public bool IsCapacityOverflow { get; set; } = false;
 
         public string Status { get; set; } = "ReadyForLoading"; // ReadyForLoading, WeighedAndDispatched, InTransit, Delivered
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
