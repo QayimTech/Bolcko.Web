@@ -7,29 +7,29 @@
     {
         activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
         {
-            Code = "COD",
-            Title = isEnglish ? "Cash On Delivery (COD)" : "الدفع عند الاستلام (Cash On Delivery - COD)",
-            Description = isEnglish ? "Pay in cash to the delivery driver upon inspection at the site" : "ادفع نقدياً لسائق توصيل الشحنة فور الفحص والمعاينة وتدقيق وزن القبان بالموقع",
-            Icon = "local_atm",
+            Code = "MURABAHA",
+            Title = isEnglish ? "Murabaha Financing Facility (Credit Terms)" : "تمويل بالمرابحة وتسهيلات الدفع الآجل (Murabaha Credit Terms)",
+            Description = isEnglish ? "Flexible payment terms for contractors and engineering firms via Sharia-compliant facility" : "تسهيلات سداد مرنة للمقاولين والشركات بصيغ المرابحة الإسلامية المعتمدة شرعياً بعد فحص واستلام المواد",
+            Icon = "account_balance",
             ColorClass = "amber",
             IsSelectedDefault = true
         });
 
         activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
         {
-            Code = "BNPL_4X",
-            Title = isEnglish ? "Split in 4 (BNPL - 0% Interest)" : "قسّمها على 4 دفعات (اشتري الآن وادفع لاحقاً بدون فوائد)",
-            Description = isEnglish ? "Pay 25% today and 3 monthly installments. 100% Sharia-compliant" : "ادفع 25% اليوم وقسّم الباقي على 3 أشهر متساوية. متوافق تماماً مع صيغ المرابحة الشرعية",
-            Icon = "credit_score",
+            Code = "COD",
+            Title = isEnglish ? "COD upon Weighbridge Inspection & e-POD" : "الدفع عند الاستلام بعد فحص القبان والـ e-POD (COD)",
+            Description = isEnglish ? "Pay to driver or authorized carrier upon physical site inspection and digital weighbridge verification" : "سداد القيمة نقداً أو شيك مصدق فور معاينة المواد وتدقيق وزن القبان الإلكتروني والـ e-POD بالموقع",
+            Icon = "local_atm",
             ColorClass = "emerald"
         });
 
         activeMethods.Add(new Bolcko.Domain.Entities.Payment.PaymentMethodOptionDto
         {
-            Code = "CLIQ",
-            Title = isEnglish ? "Instant CliQ Transfer" : "الدفع الفوري عبر نظام كليك (CliQ)",
-            Description = isEnglish ? "Instant transfer to Alias: BLOCKO with 0 transaction fees" : "تحويل بنكي فوري إلى الاسم المستعار BLOCKO بدون أي رسوم تحويل إضافية",
-            Icon = "account_balance",
+            Code = "ONLINE_CLIQ",
+            Title = isEnglish ? "Direct Online Payment & Instant CliQ Transfer" : "الدفع الإلكتروني المباشر / تحويل كليك الفوري (Card & CliQ)",
+            Description = isEnglish ? "Instant payment via Credit/Debit cards or Jordanian CliQ system (Alias: BLOCKO) with 0 fees" : "سداد فوري مؤمن عبر البطاقات الائتمانية والبنكية أو نظام كليك الأردني الفوري (Alias: BLOCKO) بدون أي عمولات إضافية",
+            Icon = "credit_card",
             ColorClass = "indigo"
         });
     }
@@ -73,16 +73,22 @@
                     <div class="flex-grow min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-black text-xs sm:text-sm text-slate-900">@method.Title</span>
-                            @if (method.Code == "BNPL_4X")
+                            @if (method.Code == "MURABAHA")
                             {
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                    0% فوائد
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                                    مرابحة معتمدة شرعياً
                                 </span>
                             }
-                            else if (method.Code == "CLIQ")
+                            else if (method.Code == "COD")
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    معاينة وفحص قبان بالموقع
+                                </span>
+                            }
+                            else if (method.Code == "ONLINE_CLIQ" || method.Code == "CLIQ")
                             {
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800 border border-indigo-200">
-                                    تحويل فوري
+                                    تحويل كليك 0% عمولة
                                 </span>
                             }
                         </div>
