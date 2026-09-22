@@ -75,6 +75,9 @@ namespace Blocko.Persistence
             // Multi-Tier Subscription Engine
             SubscriptionPlans = new GenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan>(_context);
             UserSubscriptions = new GenericRepository<Bolcko.Domain.Entities.Subscription.UserSubscription>(_context);
+
+            // LOG-06 Carrier Payouts & Escrow
+            CarrierPayoutTransactions = new GenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -126,6 +129,9 @@ namespace Blocko.Persistence
 
         public IGenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; private set; }
         public IGenericRepository<Bolcko.Domain.Entities.Subscription.UserSubscription> UserSubscriptions { get; private set; }
+
+        // LOG-06 Carrier Payouts & Escrow
+        public IGenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction> CarrierPayoutTransactions { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

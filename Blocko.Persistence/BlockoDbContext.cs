@@ -68,6 +68,7 @@ namespace Blocko.Persistence
         public DbSet<Bolcko.Domain.Entities.Financing.FinancingTender> FinancingTenders { get; set; }
         public DbSet<Bolcko.Domain.Entities.Financing.FinancingTenderItem> FinancingTenderItems { get; set; }
         public DbSet<Bolcko.Domain.Entities.Financing.JobsiteProofOfDelivery> JobsiteProofOfDeliveries { get; set; }
+        public DbSet<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction> CarrierPayoutTransactions { get; set; }
 
         // Multi-Tier Subscription Engine (Investors, Contractors, Vendors)
         public DbSet<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; set; }

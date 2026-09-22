@@ -78,5 +78,10 @@ namespace Blocko.Services.Interfaces.Delivery
         // Ratings
         Task SubmitRatingAsync(int jobId, int customerId, int ratingValue, string? comment);
         Task<IEnumerable<DeliveryRating>> GetDriverRatingsAsync(int driverId);
+
+        // LOG-06 Instant CliQ Carrier Wallet Payout & Escrow Release
+        Task<Bolcko.Domain.Entities.Delivery.DTOs.CarrierPayoutResultDto> ReleaseJobsiteOtpPayoutAsync(int jobId, string otpCode, string? receiverNotes = null);
+        Task<bool> DisputeDeliveryJobAsync(int jobId, string disputeReason, string? photoEvidenceUrl = null);
+        Task<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction?> GetPayoutTransactionByJobIdAsync(int jobId);
     }
 }

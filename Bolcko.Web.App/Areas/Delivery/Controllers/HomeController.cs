@@ -378,24 +378,14 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (string.IsNullOrWhiteSpace(otpCode) || (job.DeliveryOtpCode != null && job.DeliveryOtpCode.Trim() != otpCode.Trim()))
+            var result = await _serviceManager.DeliveryService.ReleaseJobsiteOtpPayoutAsync(jobId, otpCode);
+            if (!result.Success)
             {
-                TempData["Error"] = "رمز التسليم الرقمي (e-POD OTP) غير صحيح! اطلب الرمز المكون من 6 أرقام من المقاول أو المشرف في الورشة.";
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
-            job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Delivered;
-            job.DeliveredAt = DateTime.UtcNow;
-            job.IsPodVerified = true;
-            job.PodVerifiedAt = DateTime.UtcNow;
-
-            driver.TotalDeliveredOrders += 1;
-            _unitOfWork.DeliveryDrivers.Update(driver);
-            _unitOfWork.DeliveryJobs.Update(job);
-
-            await _unitOfWork.CompleteAsync();
-
-            TempData["Success"] = $"تم إثبات التسليم الرقمي e-POD بنجاح! تم إيداع أتعاب التوصيل ({job.DeliveryFee:F2} د.أ) إلى محفظة CliQ الخاصة بك.";
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 

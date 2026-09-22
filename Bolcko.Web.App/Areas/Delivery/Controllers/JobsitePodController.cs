@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Blocko.Services.Interfaces;
+using Bolcko.Domain.Entities.Delivery.DTOs;
 using Bolcko.Domain.Entities.Financing.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +20,114 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             _serviceManager = serviceManager;
         }
 
+        // ==========================================
+        // LOG-06: Jobsite e-POD Cockpit & Verification
+        // ==========================================
+        [HttpGet]
+        [Route("Verify/{id}")]
+        [Route("JobsiteVerification/{id}")]
+        public async Task<IActionResult> Verify(int id)
+        {
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(id);
+            if (job == null)
+            {
+                job = await _serviceManager.DeliveryService.GetJobByOrderIdAsync(id);
+            }
+
+            if (job != null)
+            {
+                var txn = await _serviceManager.DeliveryService.GetPayoutTransactionByJobIdAsync(job.Id);
+                ViewBag.PayoutTransaction = txn;
+                return View("~/Areas/Delivery/Views/JobsitePod/Verify.cshtml", job);
+            }
+
+            // Fallback for financing tender legacy route
+            var tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
+            if (tender != null)
+            {
+                return View("~/Areas/Shop/Views/Financing/DriverPOD.cshtml", tender);
+            }
+
+            return NotFound("لم يتم العثور على أمر التوصيل المطلوب.");
+        }
+
+        [HttpPost]
+        [Route("ReleaseOtpPayout")]
+        public async Task<IActionResult> ReleaseOtpPayout([FromBody] CarrierPayoutRequestDto request)
+        {
+            if (request == null || request.JobId <= 0 || string.IsNullOrWhiteSpace(request.OtpCode))
+            {
+                return Json(new { success = false, message = "يرجى إدخال رمز التحقق الميداني (OTP) المكون من 6 أرقام." });
+            }
+
+            try
+            {
+                var result = await _serviceManager.DeliveryService.ReleaseJobsiteOtpPayoutAsync(request.JobId, request.OtpCode, request.ReceiverNotes);
+                return Json(new
+                {
+                    success = result.Success,
+                    message = result.Message,
+                    payoutAmount = result.PayoutAmountJod,
+                    grossAmount = result.GrossFreightAmount,
+                    takeRate = result.PlatformTakeRate,
+                    cliqAlias = result.CliqAlias,
+                    transactionReference = result.TransactionReference,
+                    epodDocumentUrl = result.EpodDocumentUrl,
+                    isEscrowReleased = result.IsEscrowReleased,
+                    settledAt = result.SettledAt.ToString("yyyy/MM/dd HH:mm")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"خطأ في معالجة الإفراج المالي: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        [Route("RaiseDispute")]
+        public async Task<IActionResult> RaiseDispute(int jobId, string reason, string? photoUrl)
+        {
+            if (jobId <= 0 || string.IsNullOrWhiteSpace(reason))
+            {
+                return Json(new { success = false, message = "يرجى توضيح سبب النزاع أو الاعتراض." });
+            }
+
+            try
+            {
+                var ok = await _serviceManager.DeliveryService.DisputeDeliveryJobAsync(jobId, reason, photoUrl);
+                return Json(new
+                {
+                    success = ok,
+                    message = "تم تجميد الضمان المالي للشحنة وإحالة الاعتراض إلى فريق الرقابة والمطابقة الميدانية."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"تعذر تسجيل النزاع: {ex.Message}" });
+            }
+        }
+
+        // ==========================================
+        // Financing Tender e-POD Legacy Endpoints
+        // ==========================================
         [HttpGet]
         [Route("POD/{id}")]
         [Route("DriverPOD/{id}")]
         public async Task<IActionResult> DriverPOD(int id)
         {
             var tender = await _serviceManager.FinancingService.GetTenderByIdAsync(id);
-            if (tender == null) return NotFound();
+            if (tender != null)
+            {
+                return View("~/Areas/Shop/Views/Financing/DriverPOD.cshtml", tender);
+            }
 
-            return View("~/Areas/Shop/Views/Financing/DriverPOD.cshtml", tender);
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(id);
+            if (job != null)
+            {
+                return RedirectToAction("Verify", new { id = job.Id });
+            }
+
+            return NotFound();
         }
 
         [HttpPost]

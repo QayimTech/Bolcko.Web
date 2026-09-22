@@ -59,6 +59,9 @@ namespace Bolcko.Domain.Interfaces
         IGenericRepository<Bolcko.Domain.Entities.Subscription.SubscriptionPlan> SubscriptionPlans { get; }
         IGenericRepository<Bolcko.Domain.Entities.Subscription.UserSubscription> UserSubscriptions { get; }
 
+        // LOG-06 Carrier Payouts & Escrow
+        IGenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction> CarrierPayoutTransactions { get; }
+
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

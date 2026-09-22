@@ -836,5 +836,169 @@ namespace Blocko.Services.Implementations.Delivery
                 includes: new System.Linq.Expressions.Expression<Func<DeliveryJob, object>>[] { j => j.Order!, j => j.Order!.ShippingAddress! });
         }
         #endregion
+
+        #region LOG-06 Instant CliQ Carrier Wallet Payout & Escrow Release
+        public async Task<Bolcko.Domain.Entities.Delivery.DTOs.CarrierPayoutResultDto> ReleaseJobsiteOtpPayoutAsync(int jobId, string otpCode, string? receiverNotes = null)
+        {
+            var job = await _unitOfWork.DeliveryJobs.GetAllAsQueryable()
+                .Include(j => j.Order)
+                .Include(j => j.Driver)
+                    .ThenInclude(d => d!.User)
+                .Include(j => j.Company)
+                .FirstOrDefaultAsync(j => j.Id == jobId);
+
+            if (job == null)
+            {
+                return new Bolcko.Domain.Entities.Delivery.DTOs.CarrierPayoutResultDto
+                {
+                    Success = false,
+                    Message = "شحنة التوصيل غير موجودة."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(otpCode) || (job.DeliveryOtpCode != null && job.DeliveryOtpCode.Trim() != otpCode.Trim()))
+            {
+                return new Bolcko.Domain.Entities.Delivery.DTOs.CarrierPayoutResultDto
+                {
+                    Success = false,
+                    JobId = jobId,
+                    OrderId = job.OrderId,
+                    Message = "رمز التحقق الميداني (e-POD OTP) غير صحيح! اطلب الرمز المكون من 6 أرقام من المقاول أو المشرف في الورشة."
+                };
+            }
+
+            // 1. Update Job and Order Status to Delivered
+            job.Status = DeliveryJobStatus.Delivered;
+            job.DeliveredAt = DateTime.UtcNow;
+            job.IsPodVerified = true;
+            job.PodVerifiedAt = DateTime.UtcNow;
+
+            if (job.Order != null)
+            {
+                job.Order.Status = OrderStatus.Delivered;
+                _unitOfWork.Orders.Update(job.Order);
+            }
+
+            // 2. Determine Payout Amounts
+            decimal grossFreight = job.DeliveryFee > 0 ? job.DeliveryFee : 35.00m;
+            decimal platformTakeRate = job.PlatformFreightFee.HasValue && job.PlatformFreightFee.Value > 0
+                ? job.PlatformFreightFee.Value
+                : Math.Round(grossFreight * 0.07m, 2);
+            decimal netPayout = Math.Round(grossFreight - platformTakeRate, 2);
+            if (netPayout < 0) netPayout = 0;
+
+            // 3. Resolve Beneficiary & CliQ Alias
+            string cliqAlias = "CLIQ-CARRIER-PAYOUT";
+            int? driverId = job.DriverId;
+            int? companyId = job.DeliveryCompanyId;
+
+            if (job.Driver != null)
+            {
+                job.Driver.TotalDeliveredOrders += 1;
+                _unitOfWork.DeliveryDrivers.Update(job.Driver);
+                cliqAlias = !string.IsNullOrWhiteSpace(job.Driver.CliqAlias) 
+                    ? job.Driver.CliqAlias 
+                    : (job.Driver.User?.PhoneNumber ?? "0790000000");
+            }
+            else if (job.Company != null)
+            {
+                cliqAlias = !string.IsNullOrWhiteSpace(job.Company.CliqAlias)
+                    ? job.Company.CliqAlias
+                    : (job.Company.PhoneNumber ?? "0780000000");
+            }
+
+            // 4. Generate e-POD Document Reference
+            string epodDocUrl = $"/Delivery/Jobsite/POD/{job.OrderId}";
+
+            // 5. Create Carrier Payout Transaction (Escrow Released)
+            var txn = new Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction
+            {
+                DeliveryJobId = job.Id,
+                OrderId = job.OrderId,
+                DriverId = driverId,
+                DeliveryCompanyId = companyId,
+                GrossFreightAmountJod = grossFreight,
+                PlatformTakeRateFee = platformTakeRate,
+                PayoutAmountJod = netPayout,
+                PayoutMethod = "CliQ",
+                DestinationCliqAlias = cliqAlias,
+                TransactionReference = $"CLIQ-EPOD-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(10000, 99999)}",
+                Status = "Completed",
+                InitiatedAt = DateTime.UtcNow,
+                SettledAt = DateTime.UtcNow,
+                DeliveryOtpVerified = otpCode.Trim(),
+                EpodDocumentUrl = epodDocUrl,
+                IsEscrowReleased = true
+            };
+
+            await _unitOfWork.CarrierPayoutTransactions.AddAsync(txn);
+            _unitOfWork.DeliveryJobs.Update(job);
+            await _unitOfWork.CompleteAsync();
+
+            // 6. Send Notifications
+            if (job.Driver?.UserId != null)
+            {
+                await _notificationService.SendNotificationToUserAsync(
+                    job.Driver.UserId,
+                    "🎉 إيداع فوري لمستحقات الشحن عبر CliQ",
+                    $"تم توثيق تسليم الشحنة #{job.OrderId} بنجاح! تم تحرير الضمان المالي وإيداع صافي أجور النقل ({netPayout:N2} د.أ) فوراً إلى حساب CliQ ({cliqAlias}).",
+                    epodDocUrl);
+            }
+
+            return new Bolcko.Domain.Entities.Delivery.DTOs.CarrierPayoutResultDto
+            {
+                Success = true,
+                Message = $"تم إثبات التسليم الرقمي (e-POD) بنجاح! تم تحرير الضمان المالي وإيداع {netPayout:N2} د.أ فوراً إلى حساب CliQ ({cliqAlias})، وتوليد وثيقة التسليم.",
+                JobId = job.Id,
+                OrderId = job.OrderId,
+                GrossFreightAmount = grossFreight,
+                PlatformTakeRate = platformTakeRate,
+                PayoutAmountJod = netPayout,
+                TransactionReference = txn.TransactionReference,
+                CliqAlias = cliqAlias,
+                EpodDocumentUrl = epodDocUrl,
+                IsEscrowReleased = true,
+                SettledAt = txn.SettledAt ?? DateTime.UtcNow
+            };
+        }
+
+        public async Task<bool> DisputeDeliveryJobAsync(int jobId, string disputeReason, string? photoEvidenceUrl = null)
+        {
+            var job = await _unitOfWork.DeliveryJobs.GetByIdAsync(jobId);
+            if (job == null) return false;
+
+            job.ReturnReason = disputeReason;
+            _unitOfWork.DeliveryJobs.Update(job);
+
+            var txn = new Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction
+            {
+                DeliveryJobId = job.Id,
+                OrderId = job.OrderId,
+                DriverId = job.DriverId,
+                DeliveryCompanyId = job.DeliveryCompanyId,
+                GrossFreightAmountJod = job.DeliveryFee,
+                PayoutAmountJod = 0.00m,
+                PayoutMethod = "CliQ",
+                TransactionReference = $"CLIQ-DISPUTE-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}",
+                Status = "FrozenDisputed",
+                InitiatedAt = DateTime.UtcNow,
+                IsEscrowReleased = false,
+                DisputeReason = disputeReason,
+                DisputePhotoEvidenceUrl = photoEvidenceUrl,
+                DisputedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.CarrierPayoutTransactions.AddAsync(txn);
+            await _unitOfWork.CompleteAsync();
+            return true;
+        }
+
+        public async Task<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction?> GetPayoutTransactionByJobIdAsync(int jobId)
+        {
+            return await _unitOfWork.CarrierPayoutTransactions.GetAllAsQueryable()
+                .OrderByDescending(t => t.Id)
+                .FirstOrDefaultAsync(t => t.DeliveryJobId == jobId);
+        }
+        #endregion
     }
 }

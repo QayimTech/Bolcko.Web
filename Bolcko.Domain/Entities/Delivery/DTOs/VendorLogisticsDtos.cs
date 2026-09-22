@@ -90,4 +90,28 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
         public bool IsAvailable { get; set; } = true;
         public bool HasCrane { get; set; } = false;
     }
+
+    public class CarrierPayoutResultDto
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public int JobId { get; set; }
+        public int OrderId { get; set; }
+        public decimal GrossFreightAmount { get; set; }
+        public decimal PlatformTakeRate { get; set; }
+        public decimal PayoutAmountJod { get; set; }
+        public string? TransactionReference { get; set; }
+        public string? CliqAlias { get; set; }
+        public string? EpodDocumentUrl { get; set; }
+        public bool IsEscrowReleased { get; set; }
+        public DateTime SettledAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class CarrierPayoutRequestDto
+    {
+        public int JobId { get; set; }
+        public string OtpCode { get; set; } = string.Empty;
+        public string? ReceiverNotes { get; set; }
+        public string? ReceiverSignatureUrl { get; set; }
+    }
 }
