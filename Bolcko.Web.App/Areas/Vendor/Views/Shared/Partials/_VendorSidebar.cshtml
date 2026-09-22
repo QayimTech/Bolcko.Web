@@ -65,6 +65,12 @@
                 <span class="sidebar-text">المنتجات والمخزون</span>
                 <span class="sidebar-text ms-auto text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">1,229</span>
             </a>
+            <a asp-area="Vendor" asp-controller="DataHub" asp-action="Index"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "DataHub" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
+                <span class="material-symbols-outlined text-lg">database</span>
+                <span class="sidebar-text">مركز البيانات (Data Hub)</span>
+                <span class="sidebar-text ms-auto text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold">Excel</span>
+            </a>
         </div>
 
         <!-- Group 3: Operations & Logistics -->
@@ -153,6 +159,10 @@
         <a asp-area="Vendor" asp-controller="Products" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Products" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
             <span class="material-symbols-outlined">inventory_2</span>
             <span>المنتجات والمخزون</span>
+        </a>
+        <a asp-area="Vendor" asp-controller="DataHub" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "DataHub" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
+            <span class="material-symbols-outlined">database</span>
+            <span>مركز البيانات (Data Hub)</span>
         </a>
         <a asp-area="Vendor" asp-controller="Logistics" asp-action="Index" class="flex items-center gap-3 p-3 rounded-xl font-bold @(currentCtrl == "Logistics" ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")">
             <span class="material-symbols-outlined">local_shipping</span>

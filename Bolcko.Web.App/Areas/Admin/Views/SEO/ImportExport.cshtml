@@ -242,24 +242,29 @@
                     <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-l from-emerald-50/60 via-teal-50/30 to-white flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                                <span class="material-symbols-outlined text-lg">upload_file</span>
+                                <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
                             </div>
                             <div>
-                                <h2 class="font-black text-slate-800 text-base">📥 استيراد وتحديث البيانات (Import)</h2>
-                                <p class="text-slate-500 text-xs">ارفع ملف Excel المعدّل لتحديث الـ SEO والمنتجات والفارينتس والأسعار</p>
+                                <h2 class="font-black text-slate-800 text-base">📥 تدقيق واستيراد البيانات السيادي (Platform Governance Audit)</h2>
+                                <p class="text-slate-500 text-xs">أداة الإدارة لتدقيق واستيراد الكتالوج العام للمنصة ومراجعة بيانات الامتثال</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="@Url.Action("DownloadProductImportTemplate", "SEO", new { area = "Admin" })"
-                               class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-[#E8A020] font-black text-xs rounded-xl shadow transition-all flex items-center gap-1.5 border border-slate-700">
-                                <span class="material-symbols-outlined text-base">file_download</span>
-                                تحميل نموذج إكسل (Master Template)
+                            <a href="/Vendor/DataHub"
+                               class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow transition-all flex items-center gap-1.5 border border-amber-600">
+                                <span class="material-symbols-outlined text-base">storefront</span>
+                                بوابة الموردين (Vendor Data Hub)
                             </a>
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">استيراد Upload</span>
+                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">SuperAdmin Audit</span>
                         </div>
                     </div>
 
                     <div class="p-6 space-y-5">
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-600 text-base flex-shrink-0">info</span>
+                            <span>ملاحظة الحوكمة اللامركزية: يُنصح الموردون والشركاء باستخدام بوابة الموردين (/Vendor/DataHub) لإدارة واستيراد أسعارهم الخاصة بشكل مستقل.</span>
+                        </div>
+
                         <form id="import-form" enctype="multipart/form-data" class="space-y-4">
 
                             <!-- Drag and Drop Area -->

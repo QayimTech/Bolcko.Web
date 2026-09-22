@@ -1,0 +1,251 @@
+@model IEnumerable<Bolcko.Domain.Entities.Product.Product>
+@{
+    ViewData["Title"] = "مركز استيراد وتصدير البيانات (Data Hub)";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var vendor = ViewBag.VendorProfile as Bolcko.Domain.Entities.Catalog.VendorProfile;
+}
+
+<div class="space-y-8" dir="@(isRtl ? "rtl" : "ltr")">
+    
+    <!-- Header Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl text-start">
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 font-mono">
+                    <span class="material-symbols-outlined text-sm">database</span>
+                    <span>VENDOR DATA HUB & SKU ENGINE</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">مركز البيانات والاستيراد الشامل (Data Hub)</h1>
+                <p class="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+                    إدارة واستيراد قوائم الأسعار والكميات الضخمة من مواد البناء عبر ملفات Excel بشكل مباشر ومستقل دون الحاجة لتدخل الإدارة.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                <a asp-action="DownloadTemplate" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                    <span class="material-symbols-outlined text-base text-amber-400">download</span>
+                    <span>تحميل قالب Excel النموذجي</span>
+                </a>
+                <a asp-action="Export" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                    <span class="material-symbols-outlined text-base">file_export</span>
+                    <span>تصدير كتالوج منتجاتك (Excel)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+            <span class="material-symbols-outlined text-lg text-emerald-400">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+            <span class="material-symbols-outlined text-lg text-rose-400">error</span>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- KPI Metrics Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm text-start">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-400">إجمالي المواد المسجلة</span>
+                <span class="material-symbols-outlined text-lg text-indigo-400">inventory_2</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-white font-mono">@ViewBag.TotalProducts</div>
+            <span class="text-[10px] text-slate-500 mt-1 block">ضمن متجرك المعتمد</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm text-start">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-400">المواد المتوفرة للبيع</span>
+                <span class="material-symbols-outlined text-lg text-emerald-400">check_circle</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">@ViewBag.InStockProducts</div>
+            <span class="text-[10px] text-slate-500 mt-1 block">رصيد المخزون أكبر من صفر</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm text-start">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-400">مواد قاربت على النفاد</span>
+                <span class="material-symbols-outlined text-lg text-amber-400">warning</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-amber-400 font-mono">@ViewBag.LowStockProducts</div>
+            <span class="text-[10px] text-slate-500 mt-1 block">أقل من 5 وحدات بالمستودع</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm text-start">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-400">مواد نافدة من المخزون</span>
+                <span class="material-symbols-outlined text-lg text-rose-400">cancel</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-rose-400 font-mono">@ViewBag.OutOfStockProducts</div>
+            <span class="text-[10px] text-slate-500 mt-1 block">تحتاج إلى تغذية الرصيد</span>
+        </div>
+    </div>
+
+    <!-- Upload Section & Guidelines -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left 2 Cols: Drag & Drop Upload Card -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-start">
+            <div class="border-b border-slate-800 pb-4">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-400">upload_file</span>
+                    <span>رفع وتحديث قائمة المنتجات دفعة واحدة (Bulk Import)</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                    قم برفع ملف Excel (.xlsx) يحتوي على قائمة المواد. سيتم إضافة المواد الجديدة تلقائياً وتحديث أسعار وكميات المواد الحالية بناءً على كود المادة (SKU).
+                </p>
+            </div>
+
+            <form asp-action="Upload" method="post" enctype="multipart/form-data" class="space-y-6">
+                @Html.AntiForgeryToken()
+
+                <div class="border-2 border-dashed border-slate-700 hover:border-amber-500/80 transition-colors rounded-2xl p-8 text-center bg-slate-950/40 cursor-pointer relative group" onclick="document.getElementById('catalogFileInput').click()">
+                    <input type="file" id="catalogFileInput" name="catalogFile" accept=".xlsx,.xls" class="hidden" onchange="updateSelectedFileName(this)" />
+                    
+                    <div class="w-16 h-16 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">cloud_upload</span>
+                    </div>
+
+                    <div id="fileUploadPrompt">
+                        <span class="text-sm font-bold text-white block">اضغط لاختيار ملف Excel أو اسحب الملف وأفلته هنا</span>
+                        <span class="text-xs text-slate-400 mt-1 block">يدعم ملفات Microsoft Excel (.xlsx) حتى حجم 50 ميغابايت</span>
+                    </div>
+
+                    <div id="selectedFileInfo" class="hidden text-center">
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold font-mono">
+                            <span class="material-symbols-outlined text-sm">description</span>
+                            <span id="selectedFileName">filename.xlsx</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-emerald-400 text-sm">verified_user</span>
+                        <span>عزل آمن للبيانات: لا يمكن تعديل أو الوصول إلى منتجات موردين آخرين.</span>
+                    </div>
+
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all flex items-center gap-2 shadow-lg shadow-amber-500/10 active:scale-95 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">cloud_sync</span>
+                        <span>بدء معالجة واستيراد الملف</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Col: Format Instructions -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-sm space-y-4 text-start">
+            <h4 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-400 text-sm">info</span>
+                <span>إرشادات تجهيز ملف الإكسل</span>
+            </h4>
+            
+            <ul class="space-y-3 text-xs text-slate-300">
+                <li class="flex items-start gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>
+                    <span><strong>كود المادة (SKU):</strong> المعرف الفريد لكل صنف في مستودعك. عند تكرار الـ SKU يتم تحديث السعر والكمية.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>
+                    <span><strong>اسم المادة والتصنيف:</strong> تأكد من تطابق اسم التصنيف مع تصنيفات بلوكو (مثل: مواد البناء الأساسية، الحديد، الإسمنت).</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>
+                    <span><strong>أسعار المواد:</strong> يتم إدخال الأسعار بالدينار الأردني (د.أ) شاملة أو غير شاملة بحسب اتفاقية التوريد.</span>
+                </li>
+            </ul>
+
+            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 space-y-2">
+                <span class="text-white font-bold block">تحتاج مساعدة في الربط التلقائي؟</span>
+                <p>يمكنك أيضاً ربط برنامجك المحاسبي (ERP) مباشرة عبر الويب هوك لإرسال التحديثات اللحظية للمخزون.</p>
+                <a asp-area="Vendor" asp-controller="Webhooks" asp-action="Index" class="text-amber-400 hover:underline font-bold inline-flex items-center gap-1">
+                    <span>إعدادات ERP Webhooks</span>
+                    <span class="material-symbols-outlined text-xs rtl:rotate-180">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Preview Table of Managed SKUs -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4 text-start">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-black text-white">معاينة عينة من مواد الكتالوج المعتمدة</h3>
+                <p class="text-xs text-slate-400">آخر 15 مادة مسجلة في مستودعك</p>
+            </div>
+            <a asp-area="Vendor" asp-controller="Products" asp-action="Index" class="text-xs font-bold text-amber-400 hover:text-amber-300">
+                عرض كامل الكتالوج (@ViewBag.TotalProducts) ←
+            </a>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+            <table class="w-full text-xs text-start">
+                <thead class="bg-slate-950/80 text-slate-400 font-bold border-b border-slate-800">
+                    <tr>
+                        <th class="p-3.5">كود المادة (SKU)</th>
+                        <th class="p-3.5">اسم المادة</th>
+                        <th class="p-3.5">التصنيف</th>
+                        <th class="p-3.5">سعر التجزئة</th>
+                        <th class="p-3.5">سعر الجملة</th>
+                        <th class="p-3.5">المخزون</th>
+                        <th class="p-3.5">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-200">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-slate-400">
+                                لا توجد مواد مسجلة حالياً. استخدم نموذج الرفع أعلاه لاستيراد منتجاتك دفعة واحدة.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var p in Model)
+                        {
+                            <tr class="hover:bg-slate-800/40 transition">
+                                <td class="p-3.5 font-mono text-amber-300">@p.Sku</td>
+                                <td class="p-3.5 font-bold text-white">@p.Name</td>
+                                <td class="p-3.5 text-slate-400">@(p.Category?.Name ?? "مواد عامة")</td>
+                                <td class="p-3.5 font-mono text-emerald-400 font-bold">@p.RetailPrice.ToString("N2") د.أ</td>
+                                <td class="p-3.5 font-mono text-slate-300">@((p.RetailPrice * 0.95m).ToString("N2")) د.أ</td>
+                                <td class="p-3.5 font-mono">@p.StockQuantity @(!string.IsNullOrWhiteSpace(p.UnitOfMeasure) ? p.UnitOfMeasure : "حبة")</td>
+                                <td class="p-3.5">
+                                    @if (p.StockQuantity > 0)
+                                    {
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">متوفر</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">نفذ</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateSelectedFileName(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('fileUploadPrompt').classList.add('hidden');
+            document.getElementById('selectedFileInfo').classList.remove('hidden');
+            document.getElementById('selectedFileName').textContent = input.files[0].name;
+        }
+    }
+</script>
