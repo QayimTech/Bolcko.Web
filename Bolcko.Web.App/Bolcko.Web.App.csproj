@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Content Remove="appsettings.json" />
+    <Content Remove="wwwroot\uploads\**" />
   </ItemGroup>
 
   <ItemGroup>
