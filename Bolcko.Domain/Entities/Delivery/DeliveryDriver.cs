@@ -1,5 +1,7 @@
 using Bolcko.Domain.Common;
 using Bolcko.Domain.Entities.User;
+using System;
+using System.Collections.Generic;
 
 namespace Bolcko.Domain.Entities.Delivery
 {
@@ -12,14 +14,24 @@ namespace Bolcko.Domain.Entities.Delivery
         public DeliveryCompany? DeliveryCompany { get; set; }
 
         // Freelancer & Oversized Tracking
-        public bool HasTruck { get; set; } = false;
+        public bool HasTruck { get; set; } = true;
         public string TierLevel { get; set; } = "Bronze";
         public int TotalDeliveredOrders { get; set; } = 0;
 
         public string? VehicleType { get; set; }
         public string? VehiclePlateNumber { get; set; }
-        
         public string? LicenseNumber { get; set; }
+
+        // LOG-01 Heavy Hauler KYC Specifications
+        public string? NationalId { get; set; }
+        public string? HeavyLicenseCategory { get; set; } = "الفئة السادسة - قاطرة ومقطورة";
+        public string? LicenseDocUrl { get; set; }
+        public string? RegistrationDocUrl { get; set; }
+        public string? VehiclePhotoUrl { get; set; }
+        public string? CliqAlias { get; set; } // CliQ ID or IBAN for instant e-POD payouts
+        public int CapacityTons { get; set; } = 15;
+        public string? CoveredGovernorate { get; set; } = "كافة محافظات المملكة";
+        public DateTime? ApprovedAt { get; set; }
 
         // Is the driver currently available to take jobs?
         public bool IsAvailable { get; set; } = true;

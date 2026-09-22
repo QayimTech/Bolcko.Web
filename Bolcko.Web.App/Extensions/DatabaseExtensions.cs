@@ -134,6 +134,25 @@ public static class DatabaseExtensions
                     CONSTRAINT "FK_ProductTierPricings_Products_ProductId" FOREIGN KEY ("ProductId") REFERENCES "Products" ("Id") ON DELETE CASCADE
                 );
                 CREATE INDEX IF NOT EXISTS "IX_ProductTierPricings_ProductId" ON "ProductTierPricings" ("ProductId");
+
+                -- Heavy Hauler & 3PL Carrier KYC Columns (LOG-01)
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "NationalId" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "HeavyLicenseCategory" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "LicenseDocUrl" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "RegistrationDocUrl" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "VehiclePhotoUrl" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "CliqAlias" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "CapacityTons" integer NOT NULL DEFAULT 15;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "CoveredGovernorate" text;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "ApprovedAt" timestamp with time zone;
+
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TaxId" text;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TransportCommissionLicense" text;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "CommercialRegisterDocUrl" text;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TransportLicenseDocUrl" text;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "CliqAlias" text;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TotalTrucksCount" integer NOT NULL DEFAULT 5;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "IsApproved" boolean NOT NULL DEFAULT false;
                 """);
 
             // Ensure DeliveryProviderConfigs has origin and sender columns

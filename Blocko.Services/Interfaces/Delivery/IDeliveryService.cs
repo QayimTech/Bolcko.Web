@@ -6,7 +6,20 @@ namespace Blocko.Services.Interfaces.Delivery
     public interface IDeliveryService
     {
         // Companies
-        Task<DeliveryCompany> CreateCompanyAsync(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate, string? managerUserId = null);
+        Task<DeliveryCompany> CreateCompanyAsync(
+            string name,
+            string? email,
+            string? phoneNumber,
+            string? commercialRegister,
+            decimal baseRate,
+            string? managerUserId = null,
+            string? taxId = null,
+            string? transportCommissionLicense = null,
+            string? commercialRegisterDocUrl = null,
+            string? transportLicenseDocUrl = null,
+            string? cliqAlias = null,
+            int totalTrucksCount = 5,
+            bool isApproved = false);
         Task<IEnumerable<DeliveryCompany>> GetActiveCompaniesAsync();
         Task DeleteCompanyAsync(int companyId);
         Task<IEnumerable<DeliveryCompany>> GetAllCompaniesAsync();
@@ -21,7 +34,20 @@ namespace Blocko.Services.Interfaces.Delivery
         Task AssignOrderToCompanyAsync(int orderId, int companyId, decimal deliveryFee);
 
         // Drivers
-        Task<DeliveryDriver> RegisterDriverAsync(int userId, int? companyId, string? vehicleType, string? vehiclePlateNumber, string? licenseNumber);
+        Task<DeliveryDriver> RegisterDriverAsync(
+            int userId,
+            int? companyId,
+            string? vehicleType,
+            string? vehiclePlateNumber,
+            string? licenseNumber,
+            string? nationalId = null,
+            string? heavyLicenseCategory = null,
+            string? licenseDocUrl = null,
+            string? registrationDocUrl = null,
+            string? vehiclePhotoUrl = null,
+            string? cliqAlias = null,
+            int capacityTons = 15,
+            string? coveredGovernorate = null);
         Task<DeliveryDriver?> GetDriverByUserIdAsync(int userId);
         Task<DeliveryDriver?> GetDriverByIdAsync(int driverId);
         Task<IEnumerable<DeliveryDriver>> GetDriversAsync();

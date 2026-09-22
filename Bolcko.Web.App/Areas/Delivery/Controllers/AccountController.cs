@@ -80,11 +80,26 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             string phone,
             string email,
             string password,
-            string? vehicleType,
-            string? plateNumber,
-            int? capacityTons,
-            string? coveredCity,
-            string? registrationType = null,
+            string? registrationType = "captain",
+            // Freelance Captain Heavy Transport KYC
+            string? nationalId = null,
+            string? heavyLicenseCategory = null,
+            string? vehicleType = null,
+            string? plateNumber = null,
+            int? capacityTons = 15,
+            string? coveredGovernorate = null,
+            IFormFile? licenseDoc = null,
+            IFormFile? registrationDoc = null,
+            IFormFile? vehiclePhoto = null,
+            string? driverCliqAlias = null,
+            // 3PL Fleet Company Carrier KYC
+            string? commercialRegister = null,
+            string? taxId = null,
+            string? transportCommissionLicense = null,
+            int? totalTrucksCount = 5,
+            IFormFile? commercialRegisterDoc = null,
+            IFormFile? transportLicenseDoc = null,
+            string? companyCliqAlias = null,
             string? returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -104,7 +119,7 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var firstName = nameParts.Length > 0 ? nameParts[0] : "سائق";
             var lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "أسطول";
 
-            bool isCompany = !string.IsNullOrWhiteSpace(companyName) || registrationType == "company";
+            bool isCompany = registrationType == "company" || !string.IsNullOrWhiteSpace(companyName);
 
             var user = new User
             {
@@ -125,16 +140,27 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 if (isCompany)
                 {
                     await _userManager.AddToRoleAsync(user, "DeliveryCompanyUser");
-                    // Persist DeliveryCompany record
+
+                    // Save 3PL Company KYC documents
+                    string? commDocUrl = await SaveKycFileAsync(commercialRegisterDoc, user.Id, "company_cr");
+                    string? ltrcDocUrl = await SaveKycFileAsync(transportLicenseDoc, user.Id, "company_ltrc");
+
                     try
                     {
                         await _serviceManager.DeliveryService.CreateCompanyAsync(
-                            user.CompanyName ?? $"{fullName} لخدمات الشحن",
-                            email.Trim(),
-                            phone?.Trim(),
-                            "200189422",
-                            25.00m,
-                            user.Id.ToString()
+                            name: user.CompanyName ?? $"{fullName} لخدمات الشحن واللوجستيات",
+                            email: email.Trim(),
+                            phoneNumber: phone?.Trim(),
+                            commercialRegister: commercialRegister?.Trim() ?? "200189422",
+                            baseRate: 25.00m,
+                            managerUserId: user.Id.ToString(),
+                            taxId: taxId?.Trim(),
+                            transportCommissionLicense: transportCommissionLicense?.Trim(),
+                            commercialRegisterDocUrl: commDocUrl,
+                            transportLicenseDocUrl: ltrcDocUrl,
+                            cliqAlias: companyCliqAlias?.Trim(),
+                            totalTrucksCount: totalTrucksCount.HasValue && totalTrucksCount.Value > 0 ? totalTrucksCount.Value : 5,
+                            isApproved: false
                         );
                     }
                     catch (Exception ex)
@@ -145,15 +171,28 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 else
                 {
                     await _userManager.AddToRoleAsync(user, "DeliveryDriver");
-                    // Persist DeliveryDriver record
+
+                    // Save Freelance Captain KYC documents
+                    string? licDocUrl = await SaveKycFileAsync(licenseDoc, user.Id, "license");
+                    string? regDocUrl = await SaveKycFileAsync(registrationDoc, user.Id, "registration");
+                    string? vehPhotoUrl = await SaveKycFileAsync(vehiclePhoto, user.Id, "vehicle");
+
                     try
                     {
                         await _serviceManager.DeliveryService.RegisterDriverAsync(
-                            user.Id,
-                            null,
-                            vehicleType ?? "ونش تفريغ هيدروليكي",
-                            plateNumber ?? "12-38491",
-                            "DL-" + user.Id
+                            userId: user.Id,
+                            companyId: null,
+                            vehicleType: vehicleType ?? "تريلا مقطورات مسطحة ثقيلة (30-40 طن)",
+                            vehiclePlateNumber: plateNumber?.Trim() ?? "12-38491",
+                            licenseNumber: "DL-" + user.Id,
+                            nationalId: nationalId?.Trim(),
+                            heavyLicenseCategory: heavyLicenseCategory?.Trim() ?? "الفئة السادسة - قاطرة ومقطورة",
+                            licenseDocUrl: licDocUrl,
+                            registrationDocUrl: regDocUrl,
+                            vehiclePhotoUrl: vehPhotoUrl,
+                            cliqAlias: driverCliqAlias?.Trim(),
+                            capacityTons: capacityTons.HasValue && capacityTons.Value > 0 ? capacityTons.Value : 15,
+                            coveredGovernorate: coveredGovernorate?.Trim() ?? "كافة محافظات المملكة"
                         );
                     }
                     catch (Exception ex)
@@ -163,14 +202,39 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 }
 
                 await _signInManager.SignInAsync(user, isPersistent: true);
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    return Redirect(returnUrl);
+                TempData["Success"] = isCompany 
+                    ? "تم استلام طلب اعتماد شركة الشحن والأسطول بنجاح. سيتم مراجعة التراخيص والمصادقة على الحساب."
+                    : "تم استلام طلب تسجيل كابتن النقل الثقيل بنجاح. ملفك قيد التدقيق والمطابقة لدى الإدارة.";
 
-                return RedirectToAction("Index", "Home", new { area = "Delivery" });
+                return RedirectToAction("PendingApproval", "Home", new { area = "Delivery" });
             }
 
             ViewBag.Error = result.Errors.FirstOrDefault()?.Description ?? "فشل تسجيل حساب الناقل.";
             return View();
+        }
+
+        private async Task<string?> SaveKycFileAsync(IFormFile? file, int userId, string prefix)
+        {
+            if (file == null || file.Length == 0) return null;
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf" };
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(ext)) return null;
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "delivery", userId.ToString());
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            var fileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
+            var filePath = Path.Combine(folderPath, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/uploads/delivery/{userId}/{fileName}";
         }
 
         [HttpPost]

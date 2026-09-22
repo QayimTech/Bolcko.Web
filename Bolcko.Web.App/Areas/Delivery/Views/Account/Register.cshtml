@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "تسجيل وانضمام أسطول الشحن والونشات | بولكو";
+    ViewData["Title"] = "بوابة تسجيل أسطول النقل الثقيل وكباتن الشحن الإنشائي | بولكو";
 }
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -18,122 +18,296 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
 
-    <div class="w-full max-w-2xl bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
+    <div class="w-full max-w-3xl bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
         
         <!-- Header -->
-        <div class="text-center space-y-2 border-b border-white/10 pb-6">
-            <div class="w-16 h-16 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+        <div class="text-center space-y-3 border-b border-white/10 pb-6">
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-600 to-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-blue-500/20">
                 <span class="material-symbols-outlined text-3xl">local_shipping</span>
             </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-mono font-bold border border-blue-500/20">
-                <span>CARRIER & FLEET ONBOARDING</span>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-mono font-bold border border-blue-500/20">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span>HEAVY LOGISTICS & 3PL CARRIER ONBOARDING</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-black text-white">انضمام شركات الشحن وأصحاب الونشات</h1>
-            <p class="text-slate-400 text-xs sm:text-sm">سجل شاحنتك أو أسطول النقل الخاص بك لاستلام مهام توصيل وتفريغ المواد الإنشائية في كافة المحافظات.</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-white">انضمام أسطول النقل الثقيل وناقلي المواد الإنشائية</h1>
+            <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+                بوابة التوثيق المعتمدة لقطاع الإنشاءات (KYC). سجل شاحنتك أو أسطولك التجاري لنقل وتفريغ الإسمنت، الحديد، الطوب، والخرسانة في الأردن.
+            </p>
         </div>
 
         @if (ViewBag.Error != null)
         {
-            <div class="bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-xl text-xs flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">error</span>
+            <div class="bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-2xl text-xs flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-400 text-xl">error</span>
                 <span>@ViewBag.Error</span>
             </div>
         }
 
-        <form asp-action="Register" method="post" class="space-y-5 text-xs text-start">
+        <!-- Mode Selector: Captain vs 3PL Company -->
+        <div class="grid grid-cols-2 gap-3 p-1.5 bg-slate-950/80 rounded-2xl border border-white/5">
+            <button type="button" id="tabCaptain" onclick="switchRole('captain')" 
+                    class="py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-blue-600 text-white shadow-lg shadow-blue-950/60 cursor-pointer">
+                <span class="material-symbols-outlined text-lg">person_pin</span>
+                <span>كابتن مستقل (سائق شاحنة فردي)</span>
+            </button>
+            <button type="button" id="tabCompany" onclick="switchRole('company')" 
+                    class="py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white cursor-pointer">
+                <span class="material-symbols-outlined text-lg">domain</span>
+                <span>شركة شحن وأسطول 3PL</span>
+            </button>
+        </div>
+
+        <form asp-action="Register" method="post" enctype="multipart/form-data" class="space-y-6 text-xs text-start">
             @Html.AntiForgeryToken()
             <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            <input type="hidden" id="registrationType" name="registrationType" value="captain" />
 
-            <!-- Account Details -->
+            <!-- Section 1: Account & Owner Info -->
             <div class="space-y-4">
-                <h2 class="text-xs font-bold text-blue-400 uppercase tracking-wider">بيانات السائق / المنشأة</h2>
+                <div class="flex items-center gap-2 text-blue-400 font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-base">badge</span>
+                    <span>1. البيانات الأساسية وبيانات الدخول</span>
+                </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">الاسم الكامل للسائق / المالك: <span class="text-red-400">*</span></label>
-                        <input name="fullName" type="text" required placeholder="مثال: يوسف محمود" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500" />
+                        <label class="font-bold text-slate-300 block" id="lblFullName">الاسم الكامل للكابتن / المالك: <span class="text-red-400">*</span></label>
+                        <input name="fullName" type="text" required placeholder="مثال: يوسف محمود العبادي" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">اسم شركة الشحن / المؤسسة (اختياري):</label>
-                        <input name="companyName" type="text" placeholder="مثال: مؤسسة النقل السريع" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500" />
+                    <div class="space-y-1" id="companyNameContainer" style="display: none;">
+                        <label class="font-bold text-slate-300 block">اسم الشركة / المؤسسة المسجلة: <span class="text-red-400">*</span></label>
+                        <input name="companyName" id="txtCompanyName" type="text" placeholder="مثال: شركة البرج للخدمات اللوجستية والنقل الثقيل" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+
+                    <div class="space-y-1" id="nationalIdContainer">
+                        <label class="font-bold text-slate-300 block">الرقم الوطني الأردني: <span class="text-red-400">*</span></label>
+                        <input name="nationalId" id="txtNationalId" type="text" maxlength="10" placeholder="مثال: 9851029384" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">رقم الهاتف الأردني (مربوط بالواتساب): <span class="text-red-400">*</span></label>
-                        <input name="phone" type="tel" required placeholder="079XXXXXXX" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500" />
+                        <label class="font-bold text-slate-300 block">رقم الهاتف الخلوي (مربوط بالواتساب): <span class="text-red-400">*</span></label>
+                        <input name="phone" type="tel" required placeholder="079XXXXXXXX" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">البريد الإلكتروني لتسجيل الدخول: <span class="text-red-400">*</span></label>
-                        <input name="email" type="email" required placeholder="driver@example.com" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500" />
+                        <label class="font-bold text-slate-300 block">البريد الإلكتروني المهني: <span class="text-red-400">*</span></label>
+                        <input name="email" type="email" required placeholder="hauler@bolcko.jo" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="space-y-1">
-                    <label class="font-bold text-slate-300 block">كلمة المرور: <span class="text-red-400">*</span></label>
-                    <input name="password" type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500" />
+                    <label class="font-bold text-slate-300 block">كلمة المرور المشفرة: <span class="text-red-400">*</span></label>
+                    <input name="password" type="password" required placeholder="••••••••••••" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                 </div>
             </div>
 
-            <!-- Fleet & Vehicle Specifications -->
-            <div class="space-y-4 pt-4 border-t border-white/10">
-                <h2 class="text-xs font-bold text-blue-400 uppercase tracking-wider">مواصفات المركبة وأسطول النقل</h2>
+            <!-- Section 2: Fleet / Heavy Machinery Specifications -->
+            <div id="sectionCaptainDetails" class="space-y-4 pt-4 border-t border-white/10">
+                <div class="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-base">rv_hookup</span>
+                    <span>2. مواصفات شاحنة النقل الثقيل ورخصة القيادة</span>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">نوع المركبة / الشاحنة: <span class="text-red-400">*</span></label>
-                        <select name="vehicleType" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500">
-                            <option value="ونش تفريغ هيدروليكي (Crane)">ونش تفريغ هيدروليكي (Crane Truck)</option>
-                            <option value="تريلا مقطورات ثقيلة (Flatbed Trailer)">تريلا مقطورات ثقيلة (Flatbed Trailer)</option>
-                            <option value="قلاب باطون وحصمة (Dump Truck)">قلاب باطون وحصمة ورمل (Dump Truck)</option>
-                            <option value="بيك أب نقل وتوريد خفيف (Pickup)">بيك أب نقل وتوريد خفيف (Pickup)</option>
+                        <label class="font-bold text-slate-300 block">نوع المركبة / الشاحنة الإنشائية: <span class="text-red-400">*</span></label>
+                        <select name="vehicleType" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="تريلا مقطورات 30-40 طن">تريلا مقطورات 30-40 طن (تريلا مسطحة مقطورات ثقيلة)</option>
+                            <option value="قلاب رمل وحصمة">قلاب رمل وحصمة (قلاب باطون ورمل وحصمة 16-32 م³)</option>
+                            <option value="شاحنة ونش هيدروليكي">شاحنة ونش هيدروليكي (لتنزيل الطوب، الإسمنت، والحديد)</option>
+                            <option value="خلاطة خرسانة جاهزة">خلاطة خرسانة جاهزة (Transit Mixer)</option>
+                            <option value="لوري 4-7 طن">لوري 4-7 طن (شاحنة متوسطة لمواد التشطيب والدهان)</option>
                         </select>
                     </div>
 
                     <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">فئة رخصة القيادة المهنية: <span class="text-red-400">*</span></label>
+                        <select name="heavyLicenseCategory" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="الفئة السادسة - قاطرة ومقطورة">الفئة السادسة - قاطرة ومقطورة / مركبات ثقيلة</option>
+                            <option value="الفئة الخامسة - مركبات شحن عمومي">الفئة الخامسة - مركبات شحن عمومي وتفريغ</option>
+                            <option value="تصريح تشغيل ونش ومعدات هيدروليكية">تصريح تشغيل ونش ومعدات هيدروليكية خاصة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="space-y-1">
                         <label class="font-bold text-slate-300 block">رقم لوحة الشاحنة: <span class="text-red-400">*</span></label>
-                        <input name="plateNumber" type="text" required placeholder="مثال: 12-45890" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500" />
+                        <input name="plateNumber" type="text" placeholder="مثال: 12-45890" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">سعة الحمولة الصافية (طن): <span class="text-red-400">*</span></label>
+                        <input name="capacityTons" type="number" value="25" min="2" max="60" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">نطاق التغطية والمحافظات: <span class="text-red-400">*</span></label>
+                        <select name="coveredGovernorate" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="كافة محافظات المملكة">كافة محافظات المملكة</option>
+                            <option value="محافظة العاصمة عمّان ومحيطها">محافظة العاصمة عمّان ومحيطها</option>
+                            <option value="الزرقاء والرصيفة والحلابات">الزرقاء والرصيفة والحلابات</option>
+                            <option value="إربد وعجلون والشمال">إربد وعجلون والشمال</option>
+                            <option value="المفرق والرويشد">المفرق والرويشد</option>
+                            <option value="الكرك والطفيلة ومعان والعقبة">الكرك والطفيلة ومعان والعقبة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Mandatory KYC Docs for Freelance Driver -->
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 space-y-3">
+                    <div class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-blue-400 text-sm">verified_user</span>
+                        <span>الوثائق الثبوتية ورخصة الشاحنة (KYC Verification):</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="p-3 bg-slate-900 border border-white/10 rounded-xl space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-300 block">1. صورة رخصة القيادة الثقيلة <span class="text-red-400">*</span></label>
+                            <input name="licenseDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-white/10 rounded-xl space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-300 block">2. رخصة اقتناء المركبة / الفحص <span class="text-red-400">*</span></label>
+                            <input name="registrationDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-white/10 rounded-xl space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-300 block">3. صورة واضحة للشاحنة / الونش</label>
+                            <input name="vehiclePhoto" type="file" accept=".jpg,.jpeg,.png" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CliQ / Payout for Captain -->
+                <div class="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-2xl space-y-2">
+                    <div class="flex items-center gap-2 text-emerald-400 font-bold">
+                        <span class="material-symbols-outlined text-base">payments</span>
+                        <span>معرّف كليك (CliQ Alias) أو الآيبان لصرف أجور النقل الفورية: <span class="text-red-400">*</span></span>
+                    </div>
+                    <input name="driverCliqAlias" type="text" placeholder="مثال: CAPTAIN99 أو JO98ARAB0000000000000000000000" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-emerald-500 transition-colors" />
+                    <p class="text-[11px] text-emerald-400/80">يتم تحويل أجور النقل والتفريغ فور تأكيد استلام العميل في موقع العمل عبر رمز e-POD بنظام كليك الأردني الفوري.</p>
+                </div>
+            </div>
+
+            <!-- Section 3: 3PL Fleet Company Carrier Specifications -->
+            <div id="sectionCompanyDetails" style="display: none;" class="space-y-4 pt-4 border-t border-white/10">
+                <div class="flex items-center gap-2 text-blue-400 font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-base">corporate_fare</span>
+                    <span>2. بيانات السجل التجاري والترخيص الحكومي (3PL Carrier)</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">رقم السجل التجاري: <span class="text-red-400">*</span></label>
+                        <input name="commercialRegister" id="txtCommercialRegister" type="text" placeholder="مثال: 200194821" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">الرقم الضريبي للمنشأة:</label>
+                        <input name="taxId" type="text" placeholder="مثال: 100482910" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-300 block">ترخيص هيئة تنظيم النقل (LTRC):</label>
+                        <input name="transportCommissionLicense" type="text" placeholder="مثال: LTRC-2024-8849" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">سعة الحمولة الصافية (طن): <span class="text-red-400">*</span></label>
-                        <input name="capacityTons" type="number" value="15" min="1" max="60" required class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500" />
+                        <label class="font-bold text-slate-300 block">إجمالي عدد الشاحنات في الأسطول: <span class="text-red-400">*</span></label>
+                        <input name="totalTrucksCount" type="number" value="5" min="1" max="500" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1">
-                        <label class="font-bold text-slate-300 block">نطاق التغطية والمحافظة الأساسية: <span class="text-red-400">*</span></label>
-                        <select name="coveredCity" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white focus:outline-none focus:border-blue-500">
-                            <option value="كافة محافظات المملكة">كافة محافظات المملكة</option>
-                            <option value="عمّان وضواحيها">عمّان وضواحيها</option>
-                            <option value="الزرقاء والرصيفة">الزرقاء والرصيفة</option>
-                            <option value="إربد والشمال">إربد والشمال</option>
-                            <option value="العقبة والجنوب">العقبة والجنوب</option>
-                            <option value="المفرق والبادية">المفرق والبادية</option>
-                        </select>
+                        <label class="font-bold text-slate-300 block">معرّف كليك للشركات / الآيبان البنكي (CliQ / IBAN): <span class="text-red-400">*</span></label>
+                        <input name="companyCliqAlias" type="text" placeholder="مثال: 3PLCORP@ETIHAD أو الآيبان البنكي" class="w-full p-3 rounded-xl border border-white/10 bg-slate-950 text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                    </div>
+                </div>
+
+                <!-- Mandatory KYC Docs for 3PL Company -->
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 space-y-3">
+                    <div class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-blue-400 text-sm">folder_open</span>
+                        <span>مرفقات الاعتماد المؤسسي (KYC B2B Carrier Documents):</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="p-3 bg-slate-900 border border-white/10 rounded-xl space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-300 block">1. صورة شهادة السجل التجاري <span class="text-red-400">*</span></label>
+                            <input name="commercialRegisterDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
+                        </div>
+
+                        <div class="p-3 bg-slate-900 border border-white/10 rounded-xl space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-300 block">2. رخصة هيئة تنظيم النقل البري <span class="text-red-400">*</span></label>
+                            <input name="transportLicenseDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Submit CTA -->
             <div class="pt-4">
-                <button type="submit" class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm shadow-xl shadow-blue-950/50 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
-                    <span class="material-symbols-outlined text-base">how_to_reg</span>
-                    <span>تسجيل واعتماد أسطول النقل فوراً</span>
+                <button type="submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-blue-950/60 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                    <span class="material-symbols-outlined text-xl">how_to_reg</span>
+                    <span id="btnSubmitText">تقديم طلب تسجيل كابتن النقل الثقيل (KYC)</span>
                 </button>
             </div>
         </form>
 
         <!-- Login Switcher -->
         <div class="text-center pt-4 border-t border-white/10 text-xs text-slate-400">
-            <span>لديك حساب ناقل مسبقاً؟</span>
-            <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="text-blue-400 font-bold hover:underline me-1">تسجيل الدخول هنا</a>
+            <span>لديك حساب ناقل معتمد مسبقاً؟</span>
+            <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="text-blue-400 font-bold hover:underline me-1">تسجيل الدخول إلى البوابة هنا</a>
         </div>
 
     </div>
+
+    <script>
+        function switchRole(role) {
+            const isCompany = role === 'company';
+            document.getElementById('registrationType').value = role;
+
+            const tabCaptain = document.getElementById('tabCaptain');
+            const tabCompany = document.getElementById('tabCompany');
+            const sectionCaptain = document.getElementById('sectionCaptainDetails');
+            const sectionCompany = document.getElementById('sectionCompanyDetails');
+            const companyNameContainer = document.getElementById('companyNameContainer');
+            const nationalIdContainer = document.getElementById('nationalIdContainer');
+            const txtCompanyName = document.getElementById('txtCompanyName');
+            const btnSubmitText = document.getElementById('btnSubmitText');
+            const lblFullName = document.getElementById('lblFullName');
+
+            if (isCompany) {
+                tabCompany.className = "py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-blue-600 text-white shadow-lg shadow-blue-950/60 cursor-pointer";
+                tabCaptain.className = "py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white cursor-pointer";
+
+                sectionCompany.style.display = "block";
+                sectionCaptain.style.display = "none";
+                companyNameContainer.style.display = "block";
+                nationalIdContainer.style.display = "none";
+                txtCompanyName.required = true;
+
+                lblFullName.innerHTML = 'اسم مدير الحركة / المفوّض بالتوقيع: <span class="text-red-400">*</span>';
+                btnSubmitText.textContent = "تقديم طلب اعتماد شركة الشحن والأسطول (3PL KYC)";
+            } else {
+                tabCaptain.className = "py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-blue-600 text-white shadow-lg shadow-blue-950/60 cursor-pointer";
+                tabCompany.className = "py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white cursor-pointer";
+
+                sectionCaptain.style.display = "block";
+                sectionCompany.style.display = "none";
+                companyNameContainer.style.display = "none";
+                nationalIdContainer.style.display = "block";
+                txtCompanyName.required = false;
+
+                lblFullName.innerHTML = 'الاسم الكامل للكابتن / السائق المستقل: <span class="text-red-400">*</span>';
+                btnSubmitText.textContent = "تقديم طلب تسجيل كابتن النقل الثقيل (KYC)";
+            }
+        }
+    </script>
 </body>
 </html>

@@ -34,7 +34,7 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return RedirectToAction("Register", "Account", new { area = "Delivery" });
         }
 
         [HttpGet]
@@ -53,14 +53,14 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var driver = await _serviceManager.DeliveryService.GetDriverByUserIdAsync(user.Id);
             if (driver == null)
             {
-                TempData["Info"] = "لم يتم ربط حسابك بملف مندوب. يرجى التسجيل كمندوب أولاً.";
-                return View("Register");
+                TempData["Info"] = "لم يتم ربط حسابك بملف ناقل أو كابتن بعد. يرجى إكمال التسجيل أولاً.";
+                return RedirectToAction("Register", "Account", new { area = "Delivery" });
             }
 
-            if (!driver.IsApproved)
+            if (!driver.IsApproved && !(await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin")))
             {
-                TempData["Warning"] = "حسابك قيد المراجعة من الإدارة. سيتم إشعارك عند الموافقة.";
-                return View("PendingApproval");
+                TempData["Warning"] = "حسابك قيد المراجعة والتدقيق لدى إدارة العمليات اللوجستية (KYC Pending). سيتم إشعارك فور اعتماد الأوراق.";
+                return RedirectToAction("PendingApproval");
             }
 
             var myJobs = await _serviceManager.DeliveryService.GetDriverJobsAsync(driver.Id);
@@ -96,8 +96,14 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 if (company == null)
                 {
                     var companyName = !string.IsNullOrWhiteSpace(user.CompanyName) ? user.CompanyName : $"{user.FirstName} {user.LastName} للشحن";
-                    company = await _serviceManager.DeliveryService.CreateCompanyAsync(companyName, user.Email, user.PhoneNumber, "200189422", 25.00m, user.Id.ToString());
+                    company = await _serviceManager.DeliveryService.CreateCompanyAsync(companyName, user.Email, user.PhoneNumber, "200189422", 25.00m, user.Id.ToString(), isApproved: true);
                 }
+            }
+
+            if (!company.IsApproved && !(await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin")))
+            {
+                TempData["Warning"] = "ملف شركة الشحن والأسطول قيد التدقيق القانوني (KYC Verification). سيتم تفعيل حسابكم فور المصادقة على السجل التجاري وترخيص هيئة النقل البري.";
+                return RedirectToAction("PendingApproval");
             }
 
             var jobsQuery = (await _serviceManager.DeliveryService.GetCompanyJobsAsync(company.Id)).AsQueryable();

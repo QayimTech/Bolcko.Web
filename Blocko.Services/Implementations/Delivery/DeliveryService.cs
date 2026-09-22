@@ -29,7 +29,20 @@ namespace Blocko.Services.Implementations.Delivery
 
 
         #region Companies
-        public async Task<DeliveryCompany> CreateCompanyAsync(string name, string? email, string? phoneNumber, string? commercialRegister, decimal baseRate, string? managerUserId = null)
+        public async Task<DeliveryCompany> CreateCompanyAsync(
+            string name,
+            string? email,
+            string? phoneNumber,
+            string? commercialRegister,
+            decimal baseRate,
+            string? managerUserId = null,
+            string? taxId = null,
+            string? transportCommissionLicense = null,
+            string? commercialRegisterDocUrl = null,
+            string? transportLicenseDocUrl = null,
+            string? cliqAlias = null,
+            int totalTrucksCount = 5,
+            bool isApproved = false)
         {
             var company = new DeliveryCompany
             {
@@ -39,7 +52,14 @@ namespace Blocko.Services.Implementations.Delivery
                 CommercialRegister = commercialRegister,
                 BaseDeliveryRate = baseRate,
                 ManagerUserId = managerUserId,
-                IsActive = true
+                IsActive = true,
+                TaxId = taxId,
+                TransportCommissionLicense = transportCommissionLicense,
+                CommercialRegisterDocUrl = commercialRegisterDocUrl,
+                TransportLicenseDocUrl = transportLicenseDocUrl,
+                CliqAlias = cliqAlias,
+                TotalTrucksCount = totalTrucksCount,
+                IsApproved = isApproved
             };
 
             await _unitOfWork.DeliveryCompanies.AddAsync(company);
@@ -219,7 +239,20 @@ namespace Blocko.Services.Implementations.Delivery
         #endregion
 
         #region Drivers
-        public async Task<DeliveryDriver> RegisterDriverAsync(int userId, int? companyId, string? vehicleType, string? vehiclePlateNumber, string? licenseNumber)
+        public async Task<DeliveryDriver> RegisterDriverAsync(
+            int userId,
+            int? companyId,
+            string? vehicleType,
+            string? vehiclePlateNumber,
+            string? licenseNumber,
+            string? nationalId = null,
+            string? heavyLicenseCategory = null,
+            string? licenseDocUrl = null,
+            string? registrationDocUrl = null,
+            string? vehiclePhotoUrl = null,
+            string? cliqAlias = null,
+            int capacityTons = 15,
+            string? coveredGovernorate = null)
         {
             var driver = new DeliveryDriver
             {
@@ -228,6 +261,14 @@ namespace Blocko.Services.Implementations.Delivery
                 VehicleType = vehicleType,
                 VehiclePlateNumber = vehiclePlateNumber,
                 LicenseNumber = licenseNumber,
+                NationalId = nationalId,
+                HeavyLicenseCategory = heavyLicenseCategory ?? "الفئة السادسة - قاطرة ومقطورة",
+                LicenseDocUrl = licenseDocUrl,
+                RegistrationDocUrl = registrationDocUrl,
+                VehiclePhotoUrl = vehiclePhotoUrl,
+                CliqAlias = cliqAlias,
+                CapacityTons = capacityTons,
+                CoveredGovernorate = coveredGovernorate ?? "كافة محافظات المملكة",
                 IsAvailable = true,
                 IsApproved = false,
                 AverageRating = 0.0m,
