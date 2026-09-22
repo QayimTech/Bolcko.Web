@@ -20,6 +20,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        [HttpGet]
+        [Route("Shop/Product/Details/{id:int}")]
+        [Route("Product/Details/{id:int}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            return await Index(id);
+        }
+
         public async Task<IActionResult> Index(int id)
         {
             if (id <= 0)
