@@ -23,9 +23,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [HttpGet]
         [Route("Shop/Product/Details/{id:int}")]
         [Route("Product/Details/{id:int}")]
-        public async Task<IActionResult> Details(int id)
+        public IActionResult Details(int id)
         {
-            return await Index(id);
+            if (id <= 0)
+            {
+                return RedirectToActionPermanent("Index", "Category", new { area = "Shop" });
+            }
+
+            return RedirectToActionPermanent(nameof(Index), "Product", new { area = "Shop", id = id });
         }
 
         public async Task<IActionResult> Index(int id)
@@ -45,7 +50,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             var culture = CultureInfo.CurrentCulture.Name;
             await product.TranslateAsync(_translationService, culture, _unitOfWork);
 
-            return View(product);
+            return View("Index", product);
         }
 
         public async Task<IActionResult> Search(string query, int page = 1, int pageSize = 24)
