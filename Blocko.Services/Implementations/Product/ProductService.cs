@@ -95,8 +95,10 @@ namespace Blocko.Services.Implementations.Product
                     TechnicalDatasheetUrl = p.TechnicalDatasheetUrl,
                     MillTestCertificateUrl = p.MillTestCertificateUrl,
                     RssApprovalUrl = p.RssApprovalUrl,
-                    IsExclusivePatented = p.IsExclusivePatented,
-                    SearchRankingScore = p.SearchRankingScore,
+                    SupplierId = p.SupplierId,
+                    ModerationStatus = p.ModerationStatus,
+                    RejectionReason = p.RejectionReason,
+                    ModeratedAt = p.ModeratedAt,
                     UpdatedAt = p.UpdatedAt,
                     Variants = p.Variants.Select(v => new ProductVariantDto
                     {

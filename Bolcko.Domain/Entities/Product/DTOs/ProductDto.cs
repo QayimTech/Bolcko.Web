@@ -52,6 +52,11 @@ namespace Bolcko.Domain.Entities.Product.DTOs
         public bool IsExclusivePatented { get; set; } = false;
         public double SearchRankingScore { get; set; } = 1.0;
 
+        // Quality Gate & SuperAdmin Catalog Moderation (GOV-01)
+        public string ModerationStatus { get; set; } = "Approved"; // "Approved", "PendingReview", "Rejected"
+        public string? RejectionReason { get; set; }
+        public DateTime? ModeratedAt { get; set; }
+
         public decimal DisplayPrice
         {
             get

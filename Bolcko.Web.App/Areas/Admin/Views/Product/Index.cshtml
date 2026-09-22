@@ -71,7 +71,7 @@
                     <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider select-none">
                         <!-- Product Column -->
                         <th class="px-6 py-3.5 text-right">
-                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, sortOrder = (Model.SortOrder == "name_asc" ? "name_desc" : "name_asc") })" 
+                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, supplierId = Model.SupplierId, moderationStatus = Model.ModerationStatus, sortOrder = (Model.SortOrder == "name_asc" ? "name_desc" : "name_asc") })" 
                                class="inline-flex items-center gap-2 group hover:text-[#E8A020] transition-colors py-1 px-2 rounded-lg hover:bg-slate-200/50">
                                 <span>@L["Product"]</span>
                                 <div class="flex flex-col text-[10px] leading-none opacity-60 group-hover:opacity-100">
@@ -103,7 +103,7 @@
                                             <span class="material-symbols-outlined text-xs cursor-pointer hover:text-slate-700" onclick="toggleCategoryDropdown()">close</span>
                                         </div>
                                         <div class="max-h-60 overflow-y-auto space-y-0.5">
-                                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, sortOrder = Model.SortOrder })" 
+                                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, supplierId = Model.SupplierId, moderationStatus = Model.ModerationStatus, sortOrder = Model.SortOrder })" 
                                                class="block px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-50 @(!Model.CategoryId.HasValue ? "text-[#E8A020] font-bold bg-amber-50" : "text-slate-700")">
                                                 الكل (جميع التصنيفات)
                                             </a>
@@ -112,7 +112,7 @@
                                                 foreach (var cat in filterCats)
                                                 {
                                                     bool isSelected = Model.CategoryId == cat.Id;
-                                                    <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = cat.Id, sortOrder = Model.SortOrder })" 
+                                                    <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = cat.Id, supplierId = Model.SupplierId, moderationStatus = Model.ModerationStatus, sortOrder = Model.SortOrder })" 
                                                        class="block px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-50 @(isSelected ? "text-[#E8A020] font-bold bg-amber-50" : "text-slate-700")">
                                                         @cat.Name
                                                     </a>
@@ -124,9 +124,19 @@
                             </div>
                         </th>
 
+                        <!-- Vendor / Supplier Column (GOV-01) -->
+                        <th class="px-6 py-3.5 text-right">
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">المورد والشركة المصنعة</span>
+                        </th>
+
+                        <!-- Moderation & Quality Gate Column (GOV-01) -->
+                        <th class="px-6 py-3.5 text-center">
+                            <span class="inline-flex items-center justify-center py-1 px-2">مطابقة الجودة والاعتماد</span>
+                        </th>
+
                         <!-- Price Column -->
                         <th class="px-6 py-3.5 text-right">
-                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, sortOrder = (Model.SortOrder == "price_asc" ? "price_desc" : "price_asc") })" 
+                            <a href="@Url.Action("Index", "Product", new { area = "Admin", page = 1, search = Model.Search, categoryId = Model.CategoryId, supplierId = Model.SupplierId, moderationStatus = Model.ModerationStatus, sortOrder = (Model.SortOrder == "price_asc" ? "price_desc" : "price_asc") })" 
                                class="inline-flex items-center gap-2 group hover:text-[#E8A020] transition-colors py-1 px-2 rounded-lg hover:bg-slate-200/50">
                                 <span>@L["Price"]</span>
                                 <div class="flex flex-col text-[10px] leading-none opacity-60 group-hover:opacity-100">
@@ -139,11 +149,6 @@
                         <!-- Quantity Column -->
                         <th class="px-6 py-3.5 text-right">
                             <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Quantity"]</span>
-                        </th>
-
-                        <!-- SKU Column -->
-                        <th class="px-6 py-3.5 text-right">
-                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Sku"]</span>
                         </th>
 
                         <!-- Actions Column -->
@@ -171,6 +176,7 @@
                                     }
                                     <div>
                                         <span class="font-bold text-slate-900 group-hover:text-[#E8A020] transition-colors block">@item.Name</span>
+                                        <span class="text-[11px] font-mono text-slate-400">@item.Sku</span>
                                     </div>
                                 </div>
                             </td>
@@ -178,6 +184,37 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60">
                                     @(item.CategoryName ?? "-")
                                 </span>
+                            </td>
+                            <!-- Vendor / Supplier Attribution -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-amber-500 text-base">storefront</span>
+                                    <span class="text-xs font-bold text-slate-800">@(item.SupplierName ?? "مجموعة القنّاص")</span>
+                                </div>
+                            </td>
+                            <!-- Moderation / Quality Gate -->
+                            <td class="px-6 py-4 text-center">
+                                @if (item.ModerationStatus == "Approved")
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        معتمد ومطابق ✓
+                                    </span>
+                                }
+                                else if (item.ModerationStatus == "PendingReview")
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse" title="بانتظار التحقق الهندسي ومطابقة RSS/ASTM">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        قيد المراجعة والتدقيق ⏳
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200" title="@(item.RejectionReason ?? "مرفوض لعدم مطابقة المعايير")">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        مرفوض ✕
+                                    </span>
+                                }
                             </td>
                             <td class="px-6 py-4">
                                 <span class="font-black text-[#E8A020] text-sm">@item.RetailPrice.ToString("C")</span>
@@ -189,10 +226,22 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600 border border-slate-200">@item.Sku</span>
-                            </td>
-                            <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-1">
+                                    @if (item.ModerationStatus != "Approved")
+                                    {
+                                        <form asp-action="Approve" asp-route-id="@item.Id" method="post" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-all font-bold" title="اعتماد ونشر المادة">
+                                                <span class="material-symbols-outlined text-lg">check_circle</span>
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (item.ModerationStatus != "Rejected")
+                                    {
+                                        <button type="button" onclick="openRejectModal(@item.Id, '@item.Name')" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-all font-bold" title="رفض المادة مع ذكر السبب">
+                                            <span class="material-symbols-outlined text-lg">cancel</span>
+                                        </button>
+                                    }
                                     <a href="@Url.Action("Edit", new { id = item.Id })" class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all" title="تعديل">
                                         <span class="material-symbols-outlined text-lg">edit</span>
                                     </a>
@@ -211,7 +260,7 @@
                     @if (!Model.Products.Items.Any())
                     {
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
                                 <div class="flex flex-col items-center gap-2">
                                     <span class="material-symbols-outlined text-4xl text-slate-300">inventory_2</span>
                                     <span>@L["NoProductsAvailable"]</span>
@@ -223,6 +272,32 @@
             </table>
         </div>
 
+        <!-- Reject Modal -->
+        <div id="rejectProductModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl text-right">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h3 class="text-base font-black text-slate-900">رفض اعتماد مادة البناء</h3>
+                    <button type="button" onclick="closeRejectModal()" class="text-slate-400 hover:text-slate-600">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form asp-action="Reject" method="post" id="rejectForm" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="rejectProductId" value="" />
+                    <p class="text-xs text-slate-600">
+                        هل أنت متأكد من رفض اعتماد المادة <span id="rejectProductName" class="font-bold text-slate-900"></span>؟
+                    </p>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">سبب الرفض والملاحظات الهندسية للمورد:</label>
+                        <textarea name="reason" rows="3" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:border-rose-500 focus:ring-rose-500" placeholder="مثال: لم يتم إرفاق شهادة الفحص المخبري RSS أو مطابقة ASTM C90..."></textarea>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2">
+                        <button type="button" onclick="closeRejectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">إلغاء</button>
+                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-700">تأكيد الرفض</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         @* Pagination on bottom *@
         <partial name="~/Views/Shared/Partials/_Pagination.cshtml" model="Model.Products" />
@@ -387,6 +462,20 @@ async function runBulkTranslate() {
             }
         }
     );
+}
+
+function openRejectModal(productId, productName) {
+    document.getElementById('rejectProductId').value = productId;
+    document.getElementById('rejectProductName').textContent = productName;
+    const modal = document.getElementById('rejectProductModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeRejectModal() {
+    const modal = document.getElementById('rejectProductModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 </script>
 }

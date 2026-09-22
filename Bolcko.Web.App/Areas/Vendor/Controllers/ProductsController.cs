@@ -100,6 +100,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             model.SupplierKey = "vendor_" + vendor.Id;
             model.Sku = string.IsNullOrWhiteSpace(model.Sku) ? $"VND-{vendor.Id}-{DateTime.UtcNow.Ticks % 1000000}" : model.Sku;
             model.Status = ProductStatus.InStock;
+            model.ModerationStatus = "PendingReview";
             model.CreatedAt = DateTime.UtcNow;
             model.UpdatedAt = DateTime.UtcNow;
 
@@ -125,7 +126,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             _context.SEOMetadata.Add(seo);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تمت إضافة مادة البناء وتكوين محرك الـ SEO بنجاح!";
+            TempData["Success"] = "تمت إضافة مادة البناء بنجاح! تم إدراجها قيد مراجعة الجودة ومطابقة المواصفات الهندسية من إدارة المنصة.";
             return RedirectToAction(nameof(Index));
         }
 

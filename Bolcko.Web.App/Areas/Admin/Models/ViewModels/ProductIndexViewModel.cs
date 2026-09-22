@@ -8,6 +8,8 @@ namespace Bolcko.Web.App.Areas.Admin.Models.ViewModels
         public IPagedList<ProductDto> Products { get; set; } = null!;
         public string? Search { get; set; }
         public int? CategoryId { get; set; }
+        public int? SupplierId { get; set; }
+        public string? ModerationStatus { get; set; }
         public string? SortOrder { get; set; }
     }
 }
