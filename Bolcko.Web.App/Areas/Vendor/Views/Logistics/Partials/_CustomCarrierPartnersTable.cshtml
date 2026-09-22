@@ -1,0 +1,171 @@
+@{
+    var customCarriers = ViewBag.CustomCarriers as IEnumerable<Bolcko.Domain.Entities.Delivery.VendorCustomCarrier> ?? Enumerable.Empty<Bolcko.Domain.Entities.Delivery.VendorCustomCarrier>();
+}
+
+<div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+                🤝
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-black text-slate-900 dark:text-white">شركاء الشحن الثقيل المعتمدون (Custom 3PL Carriers)</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-mono font-bold">@customCarriers.Count() شركاء</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    إدارة شركات النقل الثقيل الخارجية المعتمدة، أسعار التعرفة التجارية، وأجور الونش والتفريغ المتفق عليها
+                </p>
+            </div>
+        </div>
+        <button type="button" onclick="document.getElementById('addCarrierModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5 self-start sm:self-auto">
+            <span class="material-symbols-outlined text-sm">local_shipping</span>
+            <span>إضافة شريك شحن ثقيل معتمد (Add Custom 3PL Carrier)</span>
+        </button>
+    </div>
+
+    @if (!customCarriers.Any())
+    {
+        <div class="text-center py-12 text-slate-400 text-xs font-bold">
+            لم يتم تسجيل أي شريك شحن ثقيل خارجي حتى الآن. يمكنك إضافة شركات النقل التي تتعامل معها.
+        </div>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                        <th class="p-4">شركة / أسطول الشحن</th>
+                        <th class="p-4">المفوض ورقم الاتصال</th>
+                        <th class="p-4">نوع الأسطول والمعدات</th>
+                        <th class="p-4">تعرفة النقل الأساسية</th>
+                        <th class="p-4">أجرة تفريغ الونش</th>
+                        <th class="p-4">المحافظات المغطاة</th>
+                        <th class="p-4 text-center">الحالة</th>
+                        <th class="p-4 text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach (var c in customCarriers)
+                    {
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                            <td class="p-4 font-bold text-slate-900 dark:text-white">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span>@c.CarrierName</span>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">@(string.IsNullOrEmpty(c.ContactPerson) ? "الإدارة العامة" : c.ContactPerson)</div>
+                                <div class="font-mono text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">@c.ContactPhone</div>
+                            </td>
+                            <td class="p-4 font-bold text-slate-700 dark:text-slate-300">
+                                @c.FleetType
+                            </td>
+                            <td class="p-4 font-mono font-black text-amber-600 dark:text-amber-400">
+                                @c.BaseTariffJod.ToString("N2") د.أ
+                            </td>
+                            <td class="p-4 font-mono font-black text-sky-600 dark:text-sky-400">
+                                @c.CraneFeeJod.ToString("N2") د.أ
+                            </td>
+                            <td class="p-4 text-[11px] text-slate-600 dark:text-slate-400 max-w-xs">
+                                @c.CoveredGovernorates
+                            </td>
+                            <td class="p-4 text-center">
+                                <span class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-500/10 text-emerald-500">
+                                    معتمد للتعيين
+                                </span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <form asp-action="DeleteCustomCarrier" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذا الشريك اللوجستي؟');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button type="submit" class="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="حذف الشريك">
+                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Modal: Add Custom 3PL Carrier -->
+<div id="addCarrierModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative text-right" dir="rtl">
+        <button type="button" onclick="document.getElementById('addCarrierModal').classList.add('hidden')" class="absolute top-5 left-5 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4 mb-5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">local_shipping</span>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">إضافة شريك شحن ثقيل معتمد (Add Custom 3PL Carrier)</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">تسجيل شركة نقل أو أسطول شاحنات خارجي معتمد للتعيين المباشر</p>
+            </div>
+        </div>
+
+        <form asp-action="AddCustomCarrier" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم شركة الشحن / الناقل المعتمد *</label>
+                <input type="text" name="carrierName" required placeholder="مثال: شركة أسطول الأردن للنقل الثقيل"
+                       class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم هاتف التواصل / العمليات *</label>
+                    <input type="tel" name="contactPhone" required placeholder="079XXXXXXX"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم مسؤول العمليات / المفوض</label>
+                    <input type="text" name="contactPerson" placeholder="مثال: م. سامر الشوابكة"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">نوع الأسطول والمعدات المتاحة</label>
+                <input type="text" name="fleetType" value="تريلات مسطحة وونشات حمولة 40 طن" placeholder="مثال: تريلات قلاب 40 طن، شاحنات ونش بوم ترك"
+                       class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">تعرفة النقل الأساسية (دينار)</label>
+                    <input type="number" step="0.5" name="baseTariffJod" value="25.00"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">أجرة تفريغ الونش الهيدروليكي (دينار)</label>
+                    <input type="number" step="0.5" name="craneFeeJod" value="35.00"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المحافظات ونطاقات التغطية</label>
+                <input type="text" name="coveredGovernorates" value="عمان, الزرقاء, البلقاء, إربد, المفرق, مأدبا"
+                       class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="document.getElementById('addCarrierModal').classList.add('hidden')" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                    إلغاء
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition-all">
+                    حفظ واعتماد الشريك
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

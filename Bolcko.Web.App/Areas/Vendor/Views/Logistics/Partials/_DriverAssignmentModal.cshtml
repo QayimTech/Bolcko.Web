@@ -1,49 +1,93 @@
+@{
+    var customCarriers = ViewBag.CustomCarriers as IEnumerable<Bolcko.Domain.Entities.Delivery.VendorCustomCarrier> ?? Enumerable.Empty<Bolcko.Domain.Entities.Delivery.VendorCustomCarrier>();
+    var vehicles = ViewBag.Vehicles as IEnumerable<Bolcko.Domain.Entities.Delivery.DTOs.VendorFleetVehicleDto> ?? Enumerable.Empty<Bolcko.Domain.Entities.Delivery.DTOs.VendorFleetVehicleDto>();
+}
+
 <div id="driverModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-2xl space-y-4" dir="rtl">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-2xl space-y-4" dir="rtl">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-                <h3 class="text-base font-black text-slate-900 dark:text-white">تعيين سائق وشاحنة للتوريد</h3>
+                <h3 class="text-base font-black text-slate-900 dark:text-white">تعيين أسطول / شريك الشحن للتوريد (VL-03)</h3>
                 <p class="text-xs text-slate-400 mt-0.5" id="driverModalSub">الشحنة: BLK-00000</p>
             </div>
             <button type="button" onclick="closeDriverModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl font-bold">&times;</button>
         </div>
 
+        <!-- Mode Toggle: Own Fleet vs Custom 3PL -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+            <button type="button" id="btnModeFleet" onclick="setAssignmentMode('FLEET')" class="py-2 px-3 rounded-xl font-bold text-xs transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-amber-500">local_shipping</span>
+                <span>أسطول المنشأة الخاص</span>
+            </button>
+            <button type="button" id="btnMode3pl" onclick="setAssignmentMode('3PL')" class="py-2 px-3 rounded-xl font-bold text-xs transition text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-sky-500">handshake</span>
+                <span>شريك شحن ثقيل (Custom 3PL)</span>
+            </button>
+        </div>
+
         <form asp-action="AssignDriver" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
             <input type="hidden" name="orderId" id="driverOrderId" value="0" />
+            <input type="hidden" name="carrierType" id="driverCarrierType" value="FLEET" />
+            <input type="hidden" name="customCarrierId" id="driverCustomCarrierId" value="" />
+
+            <!-- 3PL Carrier Selection Box (visible in 3PL mode) -->
+            <div id="carrierSelectGroup" class="hidden space-y-3 p-3.5 bg-sky-50/60 dark:bg-sky-950/40 rounded-2xl border border-sky-100 dark:border-sky-900">
+                <label class="block text-xs font-bold text-sky-900 dark:text-sky-300">اختر شريك الشحن الثقيل المعتمد</label>
+                <select id="customCarrierDropdown" onchange="onCustomCarrierSelected(this)" class="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                    <option value="">-- حدد شركة النقل المعتمدة --</option>
+                    @foreach (var c in customCarriers)
+                    {
+                        <option value="@c.Id" data-name="@c.CarrierName" data-phone="@c.ContactPhone" data-fleet="@c.FleetType" data-tariff="@c.BaseTariffJod" data-crane="@c.CraneFeeJod">
+                            @c.CarrierName (@c.ContactPhone) - تعرفة: @c.BaseTariffJod د.أ
+                        </option>
+                    }
+                </select>
+                <p class="text-[11px] text-sky-700 dark:text-sky-400 font-medium">سيتم ربط بيانات تسعيرة الشريك وبيان الحمولة تلقائياً.</p>
+            </div>
+
+            <!-- Fleet Vehicle Selection Box (visible in FLEET mode) -->
+            <div id="fleetSelectGroup" class="space-y-2 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">اختر من شاحنات الأسطول الجاهزة</label>
+                <select id="fleetVehicleDropdown" onchange="onFleetVehicleSelected(this)" class="w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
+                    <option value="">-- اختيار سريع من شاحنات الأسطول --</option>
+                    @foreach (var v in vehicles)
+                    {
+                        <option value="@v.Id" data-driver="@v.DriverName" data-phone="@v.DriverPhone" data-plate="@v.PlateNumber" data-type="@v.VehicleType">
+                            @v.PlateNumber - @v.VehicleType (@v.DriverName)
+                        </option>
+                    }
+                </select>
+            </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم السائق المعتمد *</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1" id="driverNameLabel">اسم السائق / الناقل المسند إليه *</label>
                 <input type="text" name="driverName" id="driverNameInput" required placeholder="مثال: أحمد الخالدي"
                        class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم هاتف السائق *</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم هاتف السائق / ضابط العمليات *</label>
                 <input type="tel" name="driverPhone" id="driverPhoneInput" required placeholder="079XXXXXXX"
                        class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم لوحة الشاحنة *</label>
-                    <input type="text" name="truckPlateNumber" required placeholder="مثال: 12-38491"
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رقم لوحة الشاحنة / معرف الأسطول *</label>
+                    <input type="text" name="truckPlateNumber" id="truckPlateInput" required placeholder="مثال: 12-38491"
                            class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white font-mono" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">نوع الشاحنة والمعدة</label>
-                    <select name="vehicleType" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white">
-                        <option value="تريلا قلاب 30 طن">تريلا قلاب 30 طن</option>
-                        <option value="شاحنة ونش هيدروليكي">شاحنة ونش هيدروليكي</option>
-                        <option value="لوري مسطح 10 طن">لوري مسطح 10 طن</option>
-                        <option value="خلاطة خرسانة جاهزة">خلاطة خرسانة جاهزة</option>
-                    </select>
+                    <input type="text" name="vehicleType" id="vehicleTypeInput" value="تريلا قلاب 30 طن"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white" />
                 </div>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button type="button" onclick="closeDriverModal()" class="px-5 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">إلغاء</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-xs shadow-md transition-all">تثبيت وتعيين السائق</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-xs shadow-md transition-all">تثبيت وتعيين للشحنة</button>
             </div>
         </form>
     </div>
@@ -56,8 +100,56 @@
         document.getElementById('driverModal').classList.remove('hidden');
         document.getElementById('driverModal').classList.add('flex');
     }
+
     function closeDriverModal() {
         document.getElementById('driverModal').classList.add('hidden');
         document.getElementById('driverModal').classList.remove('flex');
+    }
+
+    function setAssignmentMode(mode) {
+        const btnFleet = document.getElementById('btnModeFleet');
+        const btn3pl = document.getElementById('btnMode3pl');
+        const carrierType = document.getElementById('driverCarrierType');
+        const carrierGroup = document.getElementById('carrierSelectGroup');
+        const fleetGroup = document.getElementById('fleetSelectGroup');
+        const driverLabel = document.getElementById('driverNameLabel');
+
+        carrierType.value = mode;
+
+        if (mode === '3PL') {
+            btnFleet.className = 'py-2 px-3 rounded-xl font-bold text-xs transition text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5';
+            btn3pl.className = 'py-2 px-3 rounded-xl font-bold text-xs transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs flex items-center justify-center gap-1.5';
+            carrierGroup.classList.remove('hidden');
+            fleetGroup.classList.add('hidden');
+            driverLabel.textContent = 'اسم شركة الشحن / السائق المسند *';
+        } else {
+            btn3pl.className = 'py-2 px-3 rounded-xl font-bold text-xs transition text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5';
+            btnFleet.className = 'py-2 px-3 rounded-xl font-bold text-xs transition bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs flex items-center justify-center gap-1.5';
+            carrierGroup.classList.add('hidden');
+            fleetGroup.classList.remove('hidden');
+            driverLabel.textContent = 'اسم السائق المعتمد *';
+            document.getElementById('driverCustomCarrierId').value = '';
+        }
+    }
+
+    function onCustomCarrierSelected(select) {
+        const opt = select.options[select.selectedIndex];
+        if (opt && opt.value) {
+            document.getElementById('driverCustomCarrierId').value = opt.value;
+            document.getElementById('driverNameInput').value = opt.getAttribute('data-name') || '';
+            document.getElementById('driverPhoneInput').value = opt.getAttribute('data-phone') || '';
+            document.getElementById('vehicleTypeInput').value = opt.getAttribute('data-fleet') || 'شاحنة نقل ثقيل 3PL';
+            document.getElementById('truckPlateInput').value = '3PL-' + opt.value + ' (أسطول معتمد)';
+        }
+    }
+
+    function onFleetVehicleSelected(select) {
+        const opt = select.options[select.selectedIndex];
+        if (opt && opt.value) {
+            document.getElementById('driverNameInput').value = opt.getAttribute('data-driver') || '';
+            document.getElementById('driverPhoneInput').value = opt.getAttribute('data-phone') || '';
+            document.getElementById('truckPlateInput').value = opt.getAttribute('data-plate') || '';
+            document.getElementById('vehicleTypeInput').value = opt.getAttribute('data-type') || '';
+        }
     }
 </script>

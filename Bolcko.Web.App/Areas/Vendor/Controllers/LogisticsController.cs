@@ -40,7 +40,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         }
 
         // ==========================================
-        // VL-01: Autonomous Fulfillment Hub
+        // VL-01: Autonomous Fulfillment Hub & Custom 3PL Carriers (VL-03)
         // ==========================================
         [HttpGet]
         [Route("")]
@@ -76,10 +76,101 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 new VendorFleetVehicleDto { Id = 3, PlateNumber = "16-55102", VehicleType = "لوري مسطح 10 طن", MaxCapacityTons = 10.0m, DriverName = "سامر المجالي", DriverPhone = "0775544332", IsAvailable = false, HasCrane = false }
             };
 
+            // VL-03: Load Custom 3PL Carrier Partners
+            var customCarriers = await _context.VendorCustomCarriers
+                .Where(c => c.VendorId == vendor.Id)
+                .OrderByDescending(c => c.Id)
+                .ToListAsync();
+
+            if (!customCarriers.Any())
+            {
+                var c1 = new Bolcko.Domain.Entities.Delivery.VendorCustomCarrier
+                {
+                    VendorId = vendor.Id,
+                    CarrierName = "شركة أسطول الأردن للنقل الثقيل والرافعات",
+                    ContactPhone = "0798822119",
+                    ContactPerson = "م. سامر الشوابكة",
+                    FleetType = "تريلات مسطحة وونشات حمولة 40 طن",
+                    BaseTariffJod = 25.00m,
+                    CraneFeeJod = 35.00m,
+                    CoveredGovernorates = "عمان, الزرقاء, البلقاء, إربد",
+                    IsActive = true
+                };
+                var c2 = new Bolcko.Domain.Entities.Delivery.VendorCustomCarrier
+                {
+                    VendorId = vendor.Id,
+                    CarrierName = "مؤسسة الرمحي للشحن الثقيل والتفريغ الهيدروليكي",
+                    ContactPhone = "0785511223",
+                    ContactPerson = "أبو طارق الرمحي",
+                    FleetType = "شاحنات بوم ترك (Boom Truck) 15-25 طن",
+                    BaseTariffJod = 30.00m,
+                    CraneFeeJod = 40.00m,
+                    CoveredGovernorates = "عمان, مادبا, الكرك, العقبة",
+                    IsActive = true
+                };
+                _context.VendorCustomCarriers.AddRange(c1, c2);
+                await _context.SaveChangesAsync();
+                customCarriers = new List<Bolcko.Domain.Entities.Delivery.VendorCustomCarrier> { c1, c2 };
+            }
+
             ViewBag.Vendor = vendor;
             ViewBag.Vehicles = vehicles;
+            ViewBag.CustomCarriers = customCarriers;
 
             return View(config);
+        }
+
+        [HttpPost]
+        [Route("AddCustomCarrier")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCustomCarrier(string carrierName, string contactPhone, string? contactPerson, string? fleetType, decimal baseTariffJod, decimal craneFeeJod, string? coveredGovernorates)
+        {
+            var vendor = await GetCurrentVendorProfileAsync();
+            if (vendor == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(carrierName) || string.IsNullOrWhiteSpace(contactPhone))
+            {
+                TempData["Error"] = "يرجى تعبئة اسم شركة الشحن ورقم الهاتف على الأقل.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var carrier = new Bolcko.Domain.Entities.Delivery.VendorCustomCarrier
+            {
+                VendorId = vendor.Id,
+                CarrierName = carrierName.Trim(),
+                ContactPhone = contactPhone.Trim(),
+                ContactPerson = contactPerson?.Trim() ?? string.Empty,
+                FleetType = !string.IsNullOrWhiteSpace(fleetType) ? fleetType.Trim() : "تريلات مسطحة وونشات ثقيلة",
+                BaseTariffJod = baseTariffJod > 0 ? baseTariffJod : 25.00m,
+                CraneFeeJod = craneFeeJod >= 0 ? craneFeeJod : 35.00m,
+                CoveredGovernorates = !string.IsNullOrWhiteSpace(coveredGovernorates) ? coveredGovernorates.Trim() : "عمان, الزرقاء, البلقاء, إربد",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.VendorCustomCarriers.Add(carrier);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"تمت إضافة شريك الشحن الثقيل المعتمد ({carrier.CarrierName}) بنجاح!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Route("DeleteCustomCarrier")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCustomCarrier(int id)
+        {
+            var vendor = await GetCurrentVendorProfileAsync();
+            if (vendor == null) return NotFound();
+
+            var carrier = await _context.VendorCustomCarriers.FirstOrDefaultAsync(c => c.Id == id && c.VendorId == vendor.Id);
+            if (carrier != null)
+            {
+                _context.VendorCustomCarriers.Remove(carrier);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "تم حذف شريك الشحن بنجاح.";
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -200,19 +291,44 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 });
             }
 
+            var vehicles = new List<VendorFleetVehicleDto>
+            {
+                new VendorFleetVehicleDto { Id = 1, PlateNumber = "12-38491", VehicleType = "تريلا قلاب ثقيل 30 طن", MaxCapacityTons = 30.0m, DriverName = "أحمد الخالدي", DriverPhone = "0791234567", IsAvailable = true, HasCrane = false },
+                new VendorFleetVehicleDto { Id = 2, PlateNumber = "14-88219", VehicleType = "شاحنة ونش هيدروليكي 15 طن", MaxCapacityTons = 15.0m, DriverName = "محمود الزعبي", DriverPhone = "0788765432", IsAvailable = true, HasCrane = true },
+                new VendorFleetVehicleDto { Id = 3, PlateNumber = "16-55102", VehicleType = "لوري مسطح 10 طن", MaxCapacityTons = 10.0m, DriverName = "سامر المجالي", DriverPhone = "0775544332", IsAvailable = false, HasCrane = false }
+            };
+
+            var customCarriers = await _context.VendorCustomCarriers
+                .Where(c => c.VendorId == vendorId && c.IsActive)
+                .ToListAsync();
+
             ViewBag.Vendor = vendor;
+            ViewBag.Vehicles = vehicles;
+            ViewBag.CustomCarriers = customCarriers;
             return View(dispatchOrders);
         }
 
         [HttpPost]
         [Route("AssignDriver")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignDriver(int orderId, string driverName, string driverPhone, string truckPlateNumber, string vehicleType)
+        public async Task<IActionResult> AssignDriver(int orderId, string driverName, string driverPhone, string truckPlateNumber, string vehicleType, string? carrierType, int? customCarrierId)
         {
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null) return NotFound();
 
-            TempData["Success"] = $"تم تعيين السائق ({driverName} - {truckPlateNumber}) للشحنة #{orderId} بنجاح!";
+            string carrierName = driverName;
+            if (carrierType == "3PL" && customCarrierId.HasValue)
+            {
+                var carrier = await _context.VendorCustomCarriers.FirstOrDefaultAsync(c => c.Id == customCarrierId.Value && c.VendorId == vendor.Id);
+                if (carrier != null)
+                {
+                    carrierName = carrier.CarrierName;
+                    if (string.IsNullOrWhiteSpace(driverPhone)) driverPhone = carrier.ContactPhone;
+                }
+            }
+
+            string logType = carrierType == "3PL" ? "شريك الشحن الثقيل المعتمد (3PL)" : "سائق الأسطول الخاص";
+            TempData["Success"] = $"تم تعيين {logType} ({carrierName} - {truckPlateNumber}) للشحنة #{orderId} وتوليد بيان الشحن بنجاح!";
             return RedirectToAction(nameof(Dispatch));
         }
 
