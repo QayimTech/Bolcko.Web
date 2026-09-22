@@ -1,6 +1,18 @@
 @model Bolcko.Domain.Entities.User.User
 @{
     var user = Model;
+    var profile = ViewBag.ContractorProfile as Bolcko.Domain.Entities.Contractor.ContractorProfile;
+    
+    var crNumber = !string.IsNullOrWhiteSpace(profile?.CommercialRegistrationNo) 
+        ? profile.CommercialRegistrationNo 
+        : (user?.BusinessRegistrationNumber ?? "200189422");
+        
+    var classification = !string.IsNullOrWhiteSpace(profile?.ClassificationGrade) 
+        ? profile.ClassificationGrade 
+        : (!string.IsNullOrWhiteSpace(user?.LastName) && user.LastName.Contains("درجة") ? user.LastName.Trim('(', ')') : "الدرجة الأولى - إنشاء أبنية");
+        
+    var jccaNo = !string.IsNullOrWhiteSpace(profile?.JccaMembershipNumber) ? profile.JccaMembershipNumber : "JCCA-8942";
+    var isJccaVerified = profile?.IsJccaVerified == true;
 }
 
 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
@@ -12,22 +24,40 @@
     <div class="space-y-3 text-xs">
         <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
             <span class="text-slate-600 font-medium">السجل التجاري (CR):</span>
-            <span class="font-bold text-slate-900 font-mono">@(user?.BusinessRegistrationNumber ?? "200189422")</span>
+            <span class="font-bold text-slate-900 font-mono">@crNumber</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
             <span class="text-slate-600 font-medium">درجة التصنيف الإنشائي:</span>
-            <span class="font-bold text-indigo-700">@(user?.LastName ?? "درجة أولى - أبنية")</span>
+            <span class="font-bold text-indigo-700">@classification</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-slate-600 font-medium">عضوية نقابة المقاولين (JCCA):</span>
+            <span class="font-bold text-slate-900 font-mono">@jccaNo</span>
         </div>
         <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
             <span class="text-slate-600 font-medium">الرقم الضريبي (VAT ID):</span>
             <span class="font-bold text-slate-900 font-mono">018492048</span>
         </div>
-        <div class="flex justify-between items-center p-3 bg-emerald-50/60 rounded-2xl border border-emerald-100">
-            <span class="text-slate-700 font-medium">حالة الاعتماد الحكومي:</span>
-            <span class="inline-flex items-center gap-1 font-bold text-emerald-700">
-                <span class="material-symbols-outlined text-xs">check_circle</span>
-                <span>ساري ومطابق للأنظمة (Verified)</span>
-            </span>
-        </div>
+        
+        @if (isJccaVerified)
+        {
+            <div class="flex justify-between items-center p-3 bg-emerald-50/60 rounded-2xl border border-emerald-100">
+                <span class="text-slate-700 font-medium">حالة الاعتماد الهندسي:</span>
+                <span class="inline-flex items-center gap-1 font-bold text-emerald-700">
+                    <span class="material-symbols-outlined text-xs">check_circle</span>
+                    <span>ساري ومطابق للأنظمة (Verified)</span>
+                </span>
+            </div>
+        }
+        else
+        {
+            <div class="flex justify-between items-center p-3 bg-amber-50 rounded-2xl border border-amber-200">
+                <span class="text-slate-700 font-medium">حالة الاعتماد الهندسي:</span>
+                <button type="button" onclick="document.getElementById('jccaUploadModal').classList.remove('hidden')" class="inline-flex items-center gap-1 font-bold text-amber-700 hover:text-amber-800 underline">
+                    <span class="material-symbols-outlined text-xs">upload_file</span>
+                    <span>رفع وثيقة النقابة</span>
+                </button>
+            </div>
+        }
     </div>
 </div>

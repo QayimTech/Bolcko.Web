@@ -1,39 +1,143 @@
 @model Bolcko.Domain.Entities.User.User
 @{
     var user = Model;
+    var profile = ViewBag.ContractorProfile as Bolcko.Domain.Entities.Contractor.ContractorProfile;
+    var companyName = !string.IsNullOrWhiteSpace(profile?.CompanyNameAr) 
+        ? profile.CompanyNameAr 
+        : (!string.IsNullOrWhiteSpace(user?.CompanyName) ? user.CompanyName : "شركة المقاولات الهندسية المعتمدة");
+    
+    var classification = !string.IsNullOrWhiteSpace(profile?.ClassificationGrade) 
+        ? profile.ClassificationGrade 
+        : (!string.IsNullOrWhiteSpace(user?.LastName) && user.LastName.Contains("درجة") ? user.LastName.Trim('(', ')') : "الدرجة الأولى - إنشاء أبنية");
+    
+    var crNumber = !string.IsNullOrWhiteSpace(profile?.CommercialRegistrationNo) 
+        ? profile.CommercialRegistrationNo 
+        : (user?.BusinessRegistrationNumber ?? "200189422");
+
+    var jccaNo = !string.IsNullOrWhiteSpace(profile?.JccaMembershipNumber) ? profile.JccaMembershipNumber : "JCCA-8942";
+    var isJccaVerified = profile?.IsJccaVerified == true;
 }
 
-<div class="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-white/10">
-    <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div class="space-y-2">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    🏗️ مقاول معتمد (Verified B2B Contractor)
-                </span>
-                <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-mono">
-                    س.ت: @(user?.BusinessRegistrationNumber ?? "200189422")
-                </span>
-                <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold font-mono">
-                    درجة التصنيف: @(user?.LastName ?? "درجة أولى إنشائي")
-                </span>
+<div class="space-y-4">
+    <div class="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-white/10">
+        <div class="absolute -left-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    @if (isJccaVerified)
+                    {
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            🏗️ مقاول معتمد (Verified B2B Contractor)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            ⚠️ قيد استكمال وثائق نقابة المقاولين (JCCA)
+                        </span>
+                    }
+                    <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-mono">
+                        س.ت: @crNumber
+                    </span>
+                    <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold font-mono">
+                        درجة التصنيف: @classification
+                    </span>
+                    <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold font-mono">
+                        عضوية النقابة: @jccaNo
+                    </span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white">@companyName</h1>
+                <p class="text-xs text-slate-300 max-w-2xl">
+                    مساحة عمل مركزية متكاملة لحساب كميات المشاريع الهندسية، استدراج عروض الأسعار بالجملة، وتسهيلات تمويل المرابحة الإسلامية المباشرة.
+                </p>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-black text-white">@(user?.CompanyName ?? user?.FirstName ?? "شركة المقاولات الإنشائية")</h1>
-            <p class="text-xs text-slate-300 max-w-2xl">
-                مساحة عمل مركزية متكاملة لحساب كميات المشاريع الهندسية، استدراج عروض الأسعار بالجملة، وتسهيلات تمويل المرابحة الإسلامية المباشرة.
-            </p>
+
+            <div class="flex flex-wrap gap-3">
+                <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-md active:scale-95">
+                    <span class="material-symbols-outlined text-base">calculate</span>
+                    <span>حاسبة الكميات الذكية BOQ</span>
+                </a>
+                <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-white/10 transition flex items-center gap-1.5 shadow-md active:scale-95">
+                    <span class="material-symbols-outlined text-base text-emerald-400">account_balance</span>
+                    <span>طلب تمويل مرابحة فوري</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!isJccaVerified)
+    {
+        <div class="bg-amber-500/10 border-2 border-dashed border-amber-500/40 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-2xl">upload_file</span>
+                </div>
+                <div>
+                    <h2 class="text-sm font-black text-slate-900">تنبيه اعتماد نقابة مقاولي الإنشاءات الأردنيين (JCCA Compliance)</h2>
+                    <p class="text-xs text-slate-600 mt-0.5">
+                        يرجى رفع شهادة تصنيف المقاولين أو وثيقة الانتساب لنقابة المقاولين الأردنيين لتفعيل حدود التمويل المالي المباشر وأسعار مصانع الجملة لمشروعك.
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="document.getElementById('jccaUploadModal').classList.remove('hidden')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shadow-xs flex items-center gap-1.5 shrink-0">
+                <span class="material-symbols-outlined text-base">verified_user</span>
+                <span>رفع شهادة النقابة (JCCA)</span>
+            </button>
+        </div>
+    }
+</div>
+
+<!-- JCCA Upload Modal -->
+<div id="jccaUploadModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative text-right" dir="rtl">
+        <button type="button" onclick="document.getElementById('jccaUploadModal').classList.add('hidden')" class="absolute top-5 left-5 text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-5">
+            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-xl">account_balance</span>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">توثيق شهادة نقابة مقاولي الإنشاءات الأردنيين</h3>
+                <p class="text-xs text-slate-500">Jordanian Construction Contractors Association (JCCA)</p>
+            </div>
         </div>
 
-        <div class="flex flex-wrap gap-3">
-            <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-md active:scale-95">
-                <span class="material-symbols-outlined text-base">calculate</span>
-                <span>حاسبة الكميات الذكية BOQ</span>
-            </a>
-            <a href="@Url.Action("Create", "Financing", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-white/10 transition flex items-center gap-1.5 shadow-md active:scale-95">
-                <span class="material-symbols-outlined text-base text-emerald-400">account_balance</span>
-                <span>طلب تمويل مرابحة فوري</span>
-            </a>
-        </div>
+        <form asp-action="UploadJccaDocument" asp-controller="Contractor" asp-area="Shop" method="post" enctype="multipart/form-data" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">رقم عضوية النقابة (JCCA Membership No.)</label>
+                <input type="text" name="jccaNumber" value="@jccaNo" placeholder="مثال: JCCA-8942" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 font-mono" required />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">درجة التصنيف الهندسي الرسمي</label>
+                <select name="classificationGrade" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 bg-white">
+                    <option value="الدرجة الأولى - إنشاء أبنية" selected="@(classification.Contains("أولى"))">الدرجة الأولى - إنشاء أبنية</option>
+                    <option value="الدرجة الثانية - إنشاء أبنية" selected="@(classification.Contains("ثانية"))">الدرجة الثانية - إنشاء أبنية</option>
+                    <option value="الدرجة الثالثة - إنشاء أبنية" selected="@(classification.Contains("ثالثة"))">الدرجة الثالثة - إنشاء أبنية</option>
+                    <option value="الدرجة الرابعة - أعمال مدنية" selected="@(classification.Contains("رابعة"))">الدرجة الرابعة - أعمال مدنية</option>
+                    <option value="الدرجة الخامسة - أعمال تخصصية" selected="@(classification.Contains("خامسة"))">الدرجة الخامسة - أعمال تخصصية</option>
+                    <option value="تصنيف كهروميكانيك - درجة أولى" selected="@(classification.Contains("كهروميكانيك"))">تصنيف كهروميكانيك - درجة أولى</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">ملف شهادة النقابة / شهادة التصنيف السارية (PDF / JPG / PNG)</label>
+                <input type="file" name="jccaFile" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-slate-50" required />
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                <button type="button" onclick="document.getElementById('jccaUploadModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    إلغاء
+                </button>
+                <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shadow-sm">
+                    حفظ وتوثيق الشهادة
+                </button>
+            </div>
+        </form>
     </div>
 </div>
