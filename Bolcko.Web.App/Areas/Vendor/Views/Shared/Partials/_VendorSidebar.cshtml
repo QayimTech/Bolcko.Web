@@ -1,7 +1,29 @@
+@inject Blocko.Persistence.BlockoDbContext DbContext
+@inject Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> UserManager
+
 @{
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    var user = await UserManager.GetUserAsync(User);
+    var vendor = user != null ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(DbContext.VendorProfiles, v => v.UserId == user.Id) : null;
+    
+    var companyName = !string.IsNullOrWhiteSpace(vendor?.CompanyNameAr) 
+        ? vendor.CompanyNameAr 
+        : (!string.IsNullOrWhiteSpace(user?.CompanyName) ? user.CompanyName : (!string.IsNullOrWhiteSpace(user?.FirstName) ? $"{user.FirstName} {user.LastName}".Trim() : (isRtl ? "المورد المعتمد" : "Authorized Vendor")));
+    
+    var vendorSlug = !string.IsNullOrWhiteSpace(vendor?.CompanyNameEn)
+        ? vendor.CompanyNameEn.ToLower().Trim().Replace(" ", "-")
+        : (!string.IsNullOrWhiteSpace(vendor?.CompanyNameAr) ? Uri.EscapeDataString(vendor.CompanyNameAr) : "al-qannas");
+
+    var vendorId = vendor?.Id ?? 0;
+    var productCount = vendorId > 0 
+        ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.CountAsync(DbContext.Products, p => p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId)
+        : (user != null ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.CountAsync(DbContext.Products, p => p.SupplierKey == "vendor_" + user.Id) : 0);
+
+    var initialLetter = !string.IsNullOrWhiteSpace(companyName) ? companyName.Trim().Substring(0, 1) : "م";
+    var tierBadge = vendor?.SubscriptionTier ?? "Gold";
 }
 
 <!-- Desktop Sidebar -->
@@ -27,11 +49,11 @@
     <!-- Store Live Preview Card -->
     <div class="p-3 border-b border-slate-800/80 sidebar-text">
         <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs">
-            <div class="truncate text-start">
+            <div class="truncate text-start pe-2">
                 <span class="text-[10px] text-slate-400 block font-bold">المتجر الفعّال</span>
-                <span class="font-bold text-white text-xs truncate block">مجموعة القنّاص</span>
+                <span class="font-bold text-white text-xs truncate block" title="@companyName">@companyName</span>
             </div>
-            <a href="/Store/al-qannas" target="_blank" class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition text-[10px] font-bold flex items-center gap-1" title="معاينة المعرض في المتجر">
+            <a href="/Store/@vendorSlug" target="_blank" class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition text-[10px] font-bold flex items-center gap-1 shrink-0" title="معاينة المعرض في المتجر">
                 <span class="material-symbols-outlined text-xs">visibility</span>
             </a>
         </div>
@@ -63,7 +85,7 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Products" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
                 <span class="material-symbols-outlined text-lg">inventory_2</span>
                 <span class="sidebar-text">المنتجات والمخزون</span>
-                <span class="sidebar-text ms-auto text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">1,229</span>
+                <span class="sidebar-text ms-auto text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">@productCount.ToString("N0")</span>
             </a>
             <a asp-area="Vendor" asp-controller="DataHub" asp-action="Index"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "DataHub" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-slate-300 hover:text-white hover:bg-slate-800/60")">
@@ -95,7 +117,7 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-semibold @(currentCtrl == "Subscription" ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20" : "text-amber-300 hover:text-amber-200 hover:bg-slate-800/60")">
                 <span class="material-symbols-outlined text-lg text-amber-400">workspace_premium</span>
                 <span class="sidebar-text">الباقات والترقية الذهبية</span>
-                <span class="sidebar-text ms-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">Gold</span>
+                <span class="sidebar-text ms-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">@tierBadge</span>
             </a>
         </div>
 
@@ -121,10 +143,10 @@
         <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 overflow-hidden text-start">
                 <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-xs flex-shrink-0">
-                    ق
+                    @initialLetter
                 </div>
                 <div class="truncate">
-                    <div class="text-xs font-bold text-white truncate">@(User.Identity?.Name ?? "المورد المعتمد")</div>
+                    <div class="text-xs font-bold text-white truncate" title="@companyName">@companyName</div>
                     <div class="text-[10px] text-emerald-400 font-mono">متصل الآن ✓</div>
                 </div>
             </div>
