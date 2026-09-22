@@ -1,0 +1,587 @@
+@using Bolcko.Domain.Entities.Delivery
+@{
+    ViewData["Title"] = "بوابة تدقيق ومصادقة وثائق النقل الثقيل (Carrier KYC Gate)";
+    ViewData["ParentTitle"] = "إدارة اللوجستيات والنقل";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var drivers = ViewBag.Drivers as List<DeliveryDriver> ?? new List<DeliveryDriver>();
+    var companies = ViewBag.Companies as List<DeliveryCompany> ?? new List<DeliveryCompany>();
+
+    var pendingDrivers = drivers.Where(d => !d.IsApproved && string.IsNullOrEmpty(d.RejectionReason)).ToList();
+    var pendingCompanies = companies.Where(c => !c.IsApproved && string.IsNullOrEmpty(c.RejectionReason)).ToList();
+    var approvedDrivers = drivers.Where(d => d.IsApproved).ToList();
+    var approvedCompanies = companies.Where(c => c.IsApproved).ToList();
+}
+
+<div class="p-4 md:p-8 space-y-6 text-right font-sans min-h-screen max-w-7xl mx-auto" dir="rtl">
+
+    <!-- Universal Breadcrumb Partial -->
+    <partial name="~/Areas/Admin/Views/Shared/Partials/_Breadcrumb.cshtml" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-emerald-600 text-xl">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 text-xs font-black flex items-center gap-3 shadow-xs">
+            <span class="material-symbols-outlined text-amber-600 text-xl">warning</span>
+            <span>@TempData["WarningMessage"]</span>
+        </div>
+    }
+
+    <!-- Header Actions Zone -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-100/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/30 flex items-center justify-center font-bold shadow-sm shrink-0">
+                <span class="material-symbols-outlined text-3xl">verified_user</span>
+            </div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-xl md:text-2xl font-black text-slate-900">
+                        وحدة تدقيق ومصادقة وثائق النقل الثقيل (SuperAdmin KYC Gate)
+                    </h2>
+                    <span class="px-3 py-0.5 rounded-full text-[11px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                        LOG-02 COMPLIANCE
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 max-w-2xl leading-relaxed">
+                    فحص الرخص المهنية (فئة 5 و 6)، فحص السلامة الفنية للشاحنات والمعدات الإنشائية، وتراخيص هيئة تنظيم النقل البري (LTRC) قبل منح صلاحيات دخول الورش.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="@Url.Action("Index", "DeliveryDispatch")" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">alt_route</span>
+                <span>غرفة توجيه الشاحنات</span>
+            </a>
+            <a href="@Url.Action("Index", "DeliverySettings")" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">settings</span>
+                <span>إعدادات التوصيل</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-bold">كباتن بانتظار الاعتماد</span>
+                <span class="material-symbols-outlined text-amber-500">pending</span>
+            </div>
+            <div class="text-3xl font-black text-slate-900">@pendingDrivers.Count</div>
+            <div class="text-[11px] text-amber-600 font-bold">يتطلب فحص رخصة القيادة والشاحنة</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-bold">شركات 3PL بانتظار التدقيق</span>
+                <span class="material-symbols-outlined text-blue-500">domain</span>
+            </div>
+            <div class="text-3xl font-black text-slate-900">@pendingCompanies.Count</div>
+            <div class="text-[11px] text-blue-600 font-bold">يتطلب مطابقة السجل وترخيص LTRC</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-bold">كباتن معتمدون نشطون</span>
+                <span class="material-symbols-outlined text-emerald-500">how_to_reg</span>
+            </div>
+            <div class="text-3xl font-black text-slate-900">@approvedDrivers.Count</div>
+            <div class="text-[11px] text-emerald-600 font-bold">مفعلون على رادار حمولات بولكو</div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-bold">شركات شحن معتمدة</span>
+                <span class="material-symbols-outlined text-indigo-500">verified</span>
+            </div>
+            <div class="text-3xl font-black text-slate-900">@approvedCompanies.Count</div>
+            <div class="text-[11px] text-indigo-600 font-bold">أساطيل معتمدة تجارياً</div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+        <button type="button" id="tabBtnDrivers" onclick="switchKycTab('drivers')" 
+                class="px-5 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-2 bg-slate-900 text-white shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined text-base">rv_hookup</span>
+            <span>كباتن النقل الثقيل المستقلين (@drivers.Count)</span>
+            @if (pendingDrivers.Any())
+            {
+                <span class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px]">@pendingDrivers.Count جديد</span>
+            }
+        </button>
+
+        <button type="button" id="tabBtnCompanies" onclick="switchKycTab('companies')" 
+                class="px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer">
+            <span class="material-symbols-outlined text-base">local_shipping</span>
+            <span>شركات الشحن وأساطيل 3PL (@companies.Count)</span>
+            @if (pendingCompanies.Any())
+            {
+                <span class="px-2 py-0.5 rounded-full bg-blue-500 text-white font-bold text-[10px]">@pendingCompanies.Count جديد</span>
+            }
+        </button>
+    </div>
+
+    <!-- Drivers KYC List Section -->
+    <div id="sectionDrivers" class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500">assignment_ind</span>
+                    <span>سجل كباتن الشاحنات الثقيلة والمعدات الإنشائية</span>
+                </h3>
+                <span class="text-xs text-slate-400">انقر على "فحص الوثائق" لمعاينة الرخص والمستندات قبل الاعتماد</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-start text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold">
+                        <tr>
+                            <th class="p-4">الكابتن / السائق</th>
+                            <th class="p-4">الرقم الوطني والفئة</th>
+                            <th class="p-4">المعدة والشاحنة</th>
+                            <th class="p-4">الحمولة والتغطية</th>
+                            <th class="p-4">معرّف CliQ / الآيبان</th>
+                            <th class="p-4">حالة التدقيق</th>
+                            <th class="p-4 text-center">الإجراءات والاعتماد</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        @if (!drivers.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-slate-400">لا توجد طلبات تسجيل كباتن مسجلة حالياً.</td>
+                            </tr>
+                        }
+                        @foreach (var d in drivers)
+                        {
+                            var hasDocs = !string.IsNullOrEmpty(d.LicenseDocUrl) || !string.IsNullOrEmpty(d.RegistrationDocUrl) || !string.IsNullOrEmpty(d.VehiclePhotoUrl);
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="p-4">
+                                    <div class="font-bold text-slate-900 text-sm">@(d.User != null ? $"{d.User.FirstName} {d.User.LastName}" : "سائق غير مسمى")</div>
+                                    <div class="text-slate-400 font-mono text-[11px]">@(d.User?.PhoneNumber ?? "-")</div>
+                                    <div class="text-slate-400 text-[11px]">@(d.User?.Email ?? "-")</div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-mono font-bold text-slate-800">@(d.NationalId ?? "غير محدد")</div>
+                                    <span class="inline-block mt-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200">
+                                        @(d.HeavyLicenseCategory ?? "الفئة السادسة")
+                                    </span>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-bold text-slate-900">@(d.VehicleType ?? "تريلا مقطورات")</div>
+                                    <div class="font-mono text-slate-500 text-[11px]">لوحة: @(d.VehiclePlateNumber ?? "-")</div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-mono font-bold text-xs border border-blue-100">
+                                        @(d.CapacityTons) طن
+                                    </span>
+                                    <div class="text-slate-500 text-[11px] mt-1">@(d.CoveredGovernorate ?? "كافة المحافظات")</div>
+                                </td>
+                                <td class="p-4">
+                                    @if (!string.IsNullOrEmpty(d.CliqAlias))
+                                    {
+                                        <div class="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 inline-block text-[11px]">
+                                            @d.CliqAlias
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 italic">غير مدخل</span>
+                                    }
+                                </td>
+                                <td class="p-4">
+                                    @if (d.IsApproved)
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span>معتمد ونشط</span>
+                                        </span>
+                                        @if (d.ApprovedAt.HasValue)
+                                        {
+                                            <div class="text-[10px] text-slate-400 mt-0.5">@d.ApprovedAt.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(d.RejectionReason))
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                            <span>مرفوض</span>
+                                        </span>
+                                        <div class="text-[10px] text-red-500 mt-1 max-w-xs truncate" title="@d.RejectionReason">@d.RejectionReason</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                            <span>قيد المراجعة</span>
+                                        </span>
+                                    }
+                                </td>
+                                <td class="p-4 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <!-- View Documents Button -->
+                                        <button type="button" 
+                                                onclick="openDriverDrawer('@d.Id', '@(d.User != null ? $"{d.User.FirstName} {d.User.LastName}" : "")', '@(d.VehicleType ?? "")', '@(d.VehiclePlateNumber ?? "")', '@(d.NationalId ?? "")', '@(d.HeavyLicenseCategory ?? "")', '@(d.CapacityTons)', '@(d.CliqAlias ?? "")', '@(d.LicenseDocUrl ?? "")', '@(d.RegistrationDocUrl ?? "")', '@(d.VehiclePhotoUrl ?? "")')"
+                                                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-xs">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                            <span>فحص الوثائق</span>
+                                        </button>
+
+                                        @if (!d.IsApproved)
+                                        {
+                                            <!-- One-Click Approve -->
+                                            <form asp-action="ApproveDriver" method="post" class="inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="driverId" value="@d.Id" />
+                                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all cursor-pointer">
+                                                    <span class="material-symbols-outlined text-sm">check</span>
+                                                    <span>اعتماد</span>
+                                                </button>
+                                            </form>
+
+                                            <!-- Reject Button -->
+                                            <button type="button" onclick="promptRejectDriver('@d.Id', '@(d.User != null ? $"{d.User.FirstName} {d.User.LastName}" : "")')" 
+                                                    class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-all cursor-pointer">
+                                                <span>رفض</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Companies KYC List Section -->
+    <div id="sectionCompanies" style="display: none;" class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">corporate_fare</span>
+                    <span>سجل شركات الشحن والناقلين التجاريين 3PL</span>
+                </h3>
+                <span class="text-xs text-slate-400">تدقيق السجل التجاري وترخيص هيئة النقل البري</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-start text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold">
+                        <tr>
+                            <th class="p-4">اسم الشركة / المشغل</th>
+                            <th class="p-4">السجل التجاري والضريبي</th>
+                            <th class="p-4">ترخيص هيئة النقل (LTRC)</th>
+                            <th class="p-4">حجم الأسطول</th>
+                            <th class="p-4">معرّف كليك / الآيبان</th>
+                            <th class="p-4">حالة التدقيق</th>
+                            <th class="p-4 text-center">الإجراءات والاعتماد</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        @if (!companies.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-slate-400">لا توجد شركات شحن مسجلة حالياً.</td>
+                            </tr>
+                        }
+                        @foreach (var c in companies)
+                        {
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="p-4">
+                                    <div class="font-bold text-slate-900 text-sm">@c.Name</div>
+                                    <div class="text-slate-400 font-mono text-[11px]">@(c.PhoneNumber ?? "-")</div>
+                                    <div class="text-slate-400 text-[11px]">@(c.Email ?? "-")</div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-mono font-bold text-slate-800">@(c.CommercialRegister ?? "-")</div>
+                                    <div class="text-[11px] text-slate-400">ضريبي: @(c.TaxId ?? "غير مدخل")</div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-mono text-slate-700 font-bold">@(c.TransportCommissionLicense ?? "قيد المراجعة")</div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="inline-block px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 font-mono font-bold text-xs border border-indigo-100">
+                                        @(c.TotalTrucksCount) شاحنة
+                                    </span>
+                                </td>
+                                <td class="p-4">
+                                    @if (!string.IsNullOrEmpty(c.CliqAlias))
+                                    {
+                                        <div class="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 inline-block text-[11px]">
+                                            @c.CliqAlias
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-400 italic">غير مدخل</span>
+                                    }
+                                </td>
+                                <td class="p-4">
+                                    @if (c.IsApproved)
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span>شركة معتمدة</span>
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(c.RejectionReason))
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                            <span>مرفوضة</span>
+                                        </span>
+                                        <div class="text-[10px] text-red-500 mt-1 max-w-xs truncate" title="@c.RejectionReason">@c.RejectionReason</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[11px]">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                            <span>قيد المراجعة</span>
+                                        </span>
+                                    }
+                                </td>
+                                <td class="p-4 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <!-- View Documents Button -->
+                                        <button type="button" 
+                                                onclick="openCompanyDrawer('@c.Id', '@c.Name', '@(c.CommercialRegister ?? "")', '@(c.TaxId ?? "")', '@(c.TransportCommissionLicense ?? "")', '@(c.TotalTrucksCount)', '@(c.CliqAlias ?? "")', '@(c.CommercialRegisterDocUrl ?? "")', '@(c.TransportLicenseDocUrl ?? "")')"
+                                                class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-xs">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                            <span>فحص الوثائق</span>
+                                        </button>
+
+                                        @if (!c.IsApproved)
+                                        {
+                                            <!-- One-Click Approve -->
+                                            <form asp-action="ApproveCompany" method="post" class="inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="companyId" value="@c.Id" />
+                                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all cursor-pointer">
+                                                    <span class="material-symbols-outlined text-sm">check</span>
+                                                    <span>اعتماد</span>
+                                                </button>
+                                            </form>
+
+                                            <!-- Reject Button -->
+                                            <button type="button" onclick="promptRejectCompany('@c.Id', '@c.Name')" 
+                                                    class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-all cursor-pointer">
+                                                <span>رفض</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Inspection Drawer / Modal for Driver KYC -->
+<div id="driverDrawerModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 text-right" dir="rtl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-[#E8A020] flex items-center justify-center">
+                    <span class="material-symbols-outlined">badge</span>
+                </div>
+                <div>
+                    <h3 id="dModalTitle" class="text-base font-black text-slate-900">ملف تدقيق وثائق الكابتن</h3>
+                    <p class="text-xs text-slate-400">معاينة رخصة القيادة المهنية، رخصة المركبة، وتفاصيل الحساب</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeDriverDrawer()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl text-xs">
+            <div>
+                <span class="text-slate-400 block text-[11px]">الرقم الوطني:</span>
+                <span id="dModalNationalId" class="font-bold font-mono text-slate-900">-</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">فئة الرخصة:</span>
+                <span id="dModalLicenseCat" class="font-bold text-slate-900">-</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">رقم اللوحة:</span>
+                <span id="dModalPlate" class="font-bold font-mono text-slate-900">-</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">معرّف CliQ:</span>
+                <span id="dModalCliq" class="font-bold font-mono text-emerald-700">-</span>
+            </div>
+        </div>
+
+        <!-- Full Resolution Document Viewers -->
+        <div class="space-y-4">
+            <h4 class="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-blue-600">attach_file</span>
+                <span>المستندات والوثائق المرفوعة للمطابقة:</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="border border-slate-200 rounded-2xl p-3 text-center space-y-2">
+                    <div class="text-[11px] font-bold text-slate-700">1. رخصة القيادة الثقيلة</div>
+                    <div id="dDocLicensePreview" class="h-40 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                        <span class="text-slate-400 text-xs">لا يوجد مرفق</span>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl p-3 text-center space-y-2">
+                    <div class="text-[11px] font-bold text-slate-700">2. رخصة اقتناء المركبة / الفحص</div>
+                    <div id="dDocRegistrationPreview" class="h-40 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                        <span class="text-slate-400 text-xs">لا يوجد مرفق</span>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl p-3 text-center space-y-2">
+                    <div class="text-[11px] font-bold text-slate-700">3. صورة الشاحنة / المعدة</div>
+                    <div id="dDocVehiclePreview" class="h-40 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                        <span class="text-slate-400 text-xs">لا يوجد مرفق</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="button" onclick="closeDriverDrawer()" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer">
+                إغلاق
+            </button>
+            <form id="dModalApproveForm" asp-action="ApproveDriver" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="dModalDriverId" name="driverId" value="" />
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    <span>اعتماد الكابتن وتفعيل الحساب فوراً</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Prompt Modal -->
+<div id="rejectModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4 text-right" dir="rtl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-sm font-black text-rose-700 flex items-center gap-1.5">
+                <span class="material-symbols-outlined">warning</span>
+                <span>تحديد سبب رفض الاعتماد</span>
+            </h3>
+            <button type="button" onclick="closeRejectModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="rejectForm" method="post" class="space-y-4 text-xs">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="rejectEntityId" name="" value="" />
+            
+            <p id="rejectModalDesc" class="text-slate-600 text-xs">يرجى كتابة سبب عدم قبول الوثائق لإشعار المتقدم:</p>
+            
+            <div>
+                <textarea name="reason" required rows="3" placeholder="مثال: رخصة القيادة المهنية منتهية الصلاحية أو عدم وضوح صورة الفحص الفني للقلاب..." class="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:border-rose-500"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+                    إلغاء
+                </button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold cursor-pointer">
+                    تأكيد الرفض والإشعار
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function switchKycTab(tab) {
+        const isDrivers = tab === 'drivers';
+        document.getElementById('sectionDrivers').style.display = isDrivers ? 'block' : 'none';
+        document.getElementById('sectionCompanies').style.display = isDrivers ? 'none' : 'block';
+
+        const btnDrivers = document.getElementById('tabBtnDrivers');
+        const btnCompanies = document.getElementById('tabBtnCompanies');
+
+        if (isDrivers) {
+            btnDrivers.className = "px-5 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-2 bg-slate-900 text-white shadow-sm cursor-pointer";
+            btnCompanies.className = "px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer";
+        } else {
+            btnCompanies.className = "px-5 py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-2 bg-slate-900 text-white shadow-sm cursor-pointer";
+            btnDrivers.className = "px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer";
+        }
+    }
+
+    function renderDocPreview(containerId, url) {
+        const container = document.getElementById(containerId);
+        if (!url || url.trim() === '') {
+            container.innerHTML = '<span class="text-slate-400 text-xs">لا يوجد مرفق</span>';
+            return;
+        }
+        if (url.toLowerCase().endsWith('.pdf')) {
+            container.innerHTML = `<a href="${url}" target="_blank" class="p-3 text-blue-600 font-bold hover:underline flex flex-col items-center gap-1"><span class="material-symbols-outlined text-3xl">picture_as_pdf</span><span>فتح ملف PDF</span></a>`;
+        } else {
+            container.innerHTML = `<a href="${url}" target="_blank" class="block w-full h-full"><img src="${url}" class="w-full h-full object-cover hover:scale-105 transition-transform" /></a>`;
+        }
+    }
+
+    function openDriverDrawer(id, name, vtype, plate, nationalId, licenseCat, tons, cliq, licDoc, regDoc, vehPhoto) {
+        document.getElementById('dModalTitle').textContent = `ملف الكابتن: ${name} (${vtype})`;
+        document.getElementById('dModalDriverId').value = id;
+        document.getElementById('dModalNationalId').textContent = nationalId || 'غير محدد';
+        document.getElementById('dModalLicenseCat').textContent = licenseCat || 'الفئة السادسة';
+        document.getElementById('dModalPlate').textContent = plate || '-';
+        document.getElementById('dModalCliq').textContent = cliq || 'غير مدخل';
+
+        renderDocPreview('dDocLicensePreview', licDoc);
+        renderDocPreview('dDocRegistrationPreview', regDoc);
+        renderDocPreview('dDocVehiclePreview', vehPhoto);
+
+        document.getElementById('driverDrawerModal').style.display = 'flex';
+    }
+
+    function closeDriverDrawer() {
+        document.getElementById('driverDrawerModal').style.display = 'none';
+    }
+
+    function promptRejectDriver(id, name) {
+        const modal = document.getElementById('rejectModal');
+        const form = document.getElementById('rejectForm');
+        form.action = '@Url.Action("RejectDriver", "DeliverySettings")';
+        const input = document.getElementById('rejectEntityId');
+        input.name = "driverId";
+        input.value = id;
+        document.getElementById('rejectModalDesc').textContent = `رفض تدقيق الكابتن: ${name}. سيتم إرسال السبب إلى حسابه:`;
+        modal.style.display = 'flex';
+    }
+
+    function promptRejectCompany(id, name) {
+        const modal = document.getElementById('rejectModal');
+        const form = document.getElementById('rejectForm');
+        form.action = '@Url.Action("RejectCompany", "DeliverySettings")';
+        const input = document.getElementById('rejectEntityId');
+        input.name = "companyId";
+        input.value = id;
+        document.getElementById('rejectModalDesc').textContent = `رفض اعتماد شركة الشحن: ${name}. سيتم إشعار مدير الحركة بالسبب:`;
+        modal.style.display = 'flex';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+    }
+</script>

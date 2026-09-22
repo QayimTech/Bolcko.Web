@@ -48,10 +48,16 @@
             </div>
         </div>
 
-        <button type="button" onclick="openAddProviderModal()" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 shrink-0">
-            <span class="material-symbols-outlined text-lg text-[#E8A020]">add_circle</span>
-            <span>إضافة شركة توصيل جديدة ➕</span>
-        </button>
+        <div class="flex items-center gap-2 flex-wrap w-full md:w-auto">
+            <a href="@Url.Action("CarrierApprovals", "DeliverySettings")" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-amber-600 shrink-0">
+                <span class="material-symbols-outlined text-lg">verified_user</span>
+                <span>تدقيق ومصادقة وثائق النقل (KYC)</span>
+            </a>
+            <button type="button" onclick="openAddProviderModal()" class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black px-6 py-3 rounded-2xl text-xs transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-slate-800 shrink-0">
+                <span class="material-symbols-outlined text-lg text-[#E8A020]">add_circle</span>
+                <span>إضافة شركة توصيل جديدة ➕</span>
+            </button>
+        </div>
     </div>
 
     <!-- Active Providers Cards Grid -->

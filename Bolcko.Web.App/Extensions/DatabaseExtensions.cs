@@ -145,6 +145,7 @@ public static class DatabaseExtensions
                 ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "CapacityTons" integer NOT NULL DEFAULT 15;
                 ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "CoveredGovernorate" text;
                 ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "ApprovedAt" timestamp with time zone;
+                ALTER TABLE "DeliveryDrivers" ADD COLUMN IF NOT EXISTS "RejectionReason" text;
 
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TaxId" text;
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TransportCommissionLicense" text;
@@ -153,6 +154,7 @@ public static class DatabaseExtensions
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "CliqAlias" text;
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TotalTrucksCount" integer NOT NULL DEFAULT 5;
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "IsApproved" boolean NOT NULL DEFAULT false;
+                ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "RejectionReason" text;
                 """);
 
             // Ensure DeliveryProviderConfigs has origin and sender columns

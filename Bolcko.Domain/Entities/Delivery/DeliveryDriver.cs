@@ -38,6 +38,7 @@ namespace Bolcko.Domain.Entities.Delivery
 
         // Is the driver approved by admin?
         public bool IsApproved { get; set; } = false;
+        public string? RejectionReason { get; set; }
 
         public decimal AverageRating { get; set; } = 0.0m;
         public int TotalRatings { get; set; } = 0;

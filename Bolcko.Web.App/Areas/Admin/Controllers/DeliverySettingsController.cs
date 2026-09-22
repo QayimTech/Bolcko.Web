@@ -1,8 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Blocko.Services.Interfaces.Delivery;
+using Blocko.Services.Interfaces.Notifications;
 using Bolcko.Domain.Entities.Delivery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
@@ -12,11 +17,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     {
         private readonly IDeliveryApiService _deliveryApiService;
         private readonly Bolcko.Domain.Interfaces.IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
 
-        public DeliverySettingsController(IDeliveryApiService deliveryApiService, Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
+        public DeliverySettingsController(
+            IDeliveryApiService deliveryApiService,
+            Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork,
+            INotificationService notificationService)
         {
             _deliveryApiService = deliveryApiService;
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -398,6 +408,141 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                 _unitOfWork.AppSettings.Update(setting);
             }
             await _unitOfWork.CompleteAsync();
+        }
+
+        // ==========================================
+        // Heavy Hauler & 3PL Carrier KYC Approvals (LOG-02)
+        // ==========================================
+
+        [HttpGet]
+        public async Task<IActionResult> CarrierApprovals()
+        {
+            var drivers = await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
+                .Include(d => d.User)
+                .Include(d => d.DeliveryCompany)
+                .OrderByDescending(d => d.Id)
+                .ToListAsync();
+
+            var companies = await _unitOfWork.DeliveryCompanies.GetAllAsQueryable()
+                .Include(c => c.Drivers)
+                .OrderByDescending(c => c.Id)
+                .ToListAsync();
+
+            ViewBag.Drivers = drivers;
+            ViewBag.Companies = companies;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveDriver(int driverId)
+        {
+            var driver = await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == driverId);
+
+            if (driver != null)
+            {
+                driver.IsApproved = true;
+                driver.IsAvailable = true;
+                driver.ApprovedAt = DateTime.UtcNow;
+                driver.RejectionReason = null;
+                _unitOfWork.DeliveryDrivers.Update(driver);
+                await _unitOfWork.CompleteAsync();
+
+                await _notificationService.SendNotificationToUserAsync(
+                    driver.UserId,
+                    "اعتماد رخصة النقل الثقيل 🚛",
+                    "تهانينا! تمت مراجعة رخصة القيادة وأوراق الشاحنة واعتماد حسابك ككابتن نقل ثقيل معتمد على منصة بولكو. يمكنك الآن قبول مهام التوصيل واستلام الأرباح الفورية عبر CliQ."
+                );
+
+                TempData["SuccessMessage"] = $"تم اعتماد الكابتن '{driver.User?.FirstName} {driver.User?.LastName}' وتفعيل حسابه بنجاح! 🚀";
+            }
+
+            return RedirectToAction(nameof(CarrierApprovals));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectDriver(int driverId, string reason)
+        {
+            var driver = await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == driverId);
+
+            if (driver != null)
+            {
+                driver.IsApproved = false;
+                driver.RejectionReason = string.IsNullOrWhiteSpace(reason) ? "لم يتم استيفاء معايير الفحص الفني أو التراخيص المطلوبة" : reason.Trim();
+                _unitOfWork.DeliveryDrivers.Update(driver);
+                await _unitOfWork.CompleteAsync();
+
+                await _notificationService.SendNotificationToUserAsync(
+                    driver.UserId,
+                    "ملاحظات تدقيق وثائق النقل ⚠️",
+                    $"نأسف لإبلاغك بأنه تعذر اعتماد ملف السائق للسبب التالي: {driver.RejectionReason}. يرجى مراجعة وتحديث البيانات."
+                );
+
+                TempData["WarningMessage"] = $"تم رفض اعتماد السائق وتوثيق السبب وإشعار المستخدم فوراً.";
+            }
+
+            return RedirectToAction(nameof(CarrierApprovals));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveCompany(int companyId)
+        {
+            var company = await _unitOfWork.DeliveryCompanies.GetByIdAsync(companyId);
+            if (company != null)
+            {
+                company.IsApproved = true;
+                company.IsActive = true;
+                company.RejectionReason = null;
+                _unitOfWork.DeliveryCompanies.Update(company);
+                await _unitOfWork.CompleteAsync();
+
+                if (int.TryParse(company.ManagerUserId, out int managerId))
+                {
+                    await _notificationService.SendNotificationToUserAsync(
+                        managerId,
+                        "اعتماد شركة الشحن والأسطول 🏢",
+                        $"تمت المصادقة على السجل التجاري وترخيص هيئة النقل لشركة '{company.Name}' وتفعيل لوحة التحكم والأسطول بنجاح!"
+                    );
+                }
+
+                TempData["SuccessMessage"] = $"تم اعتماد شركة الشحن '{company.Name}' وتفعيل أسطولها بالكامل بنجاح! 🚀";
+            }
+
+            return RedirectToAction(nameof(CarrierApprovals));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectCompany(int companyId, string reason)
+        {
+            var company = await _unitOfWork.DeliveryCompanies.GetByIdAsync(companyId);
+            if (company != null)
+            {
+                company.IsApproved = false;
+                company.RejectionReason = string.IsNullOrWhiteSpace(reason) ? "عدم تطابق السجل التجاري أو انتهاء صلاحية ترخيص هيئة النقل البري" : reason.Trim();
+                _unitOfWork.DeliveryCompanies.Update(company);
+                await _unitOfWork.CompleteAsync();
+
+                if (int.TryParse(company.ManagerUserId, out int managerId))
+                {
+                    await _notificationService.SendNotificationToUserAsync(
+                        managerId,
+                        "ملاحظات تدقيق ملف شركة الشحن ⚠️",
+                        $"يرجى العلم بأنه تعذر اعتماد ملف الشركة للسبب التالي: {company.RejectionReason}."
+                    );
+                }
+
+                TempData["WarningMessage"] = $"تم رفض اعتماد شركة الشحن وتوثيق السبب.";
+            }
+
+            return RedirectToAction(nameof(CarrierApprovals));
         }
     }
 }

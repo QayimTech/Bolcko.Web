@@ -27,6 +27,7 @@ namespace Bolcko.Domain.Entities.Delivery
         public string? CliqAlias { get; set; }
         public int TotalTrucksCount { get; set; } = 5;
         public bool IsApproved { get; set; } = false;
+        public string? RejectionReason { get; set; }
         
         public ICollection<DeliveryDriver> Drivers { get; set; } = new List<DeliveryDriver>();
     }
