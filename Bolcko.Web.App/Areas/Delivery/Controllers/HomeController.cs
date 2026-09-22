@@ -25,6 +25,13 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        public IActionResult PendingApproval()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Index(DateTime? startDate = null, DateTime? endDate = null)
         {
             var user = await _userManager.GetUserAsync(User);
