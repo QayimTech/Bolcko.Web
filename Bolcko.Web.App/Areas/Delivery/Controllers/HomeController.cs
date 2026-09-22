@@ -7,7 +7,7 @@ using Bolcko.Domain.Entities.User;
 namespace Bolcko.Web.App.Areas.Delivery.Controllers
 {
     [Area("Delivery")]
-    [Authorize(Roles = "DeliveryDriver, DeliveryCompanyUser")]
+    [Authorize(Roles = "DeliveryDriver, DeliveryCompanyUser, SuperAdmin, Admin")]
     public class HomeController : Controller
     {
         private readonly IServiceManager _serviceManager;
@@ -27,6 +27,12 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         [HttpGet]
         [AllowAnonymous]
         public IActionResult PendingApproval()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Register()
         {
             return View();
         }
@@ -81,8 +87,17 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
             if (company == null)
             {
-                TempData["Error"] = "حسابك غير مرتبط بشركة شحن مسجلة. يرجى التواصل مع الإدارة.";
-                return RedirectToAction("AccessDenied", "Account", new { area = "Shop" });
+                if (await _userManager.IsInRoleAsync(user, "SuperAdmin") || await _userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    var allCompanies = await _serviceManager.DeliveryService.GetAllCompaniesAsync();
+                    company = allCompanies.FirstOrDefault();
+                }
+
+                if (company == null)
+                {
+                    var companyName = !string.IsNullOrWhiteSpace(user.CompanyName) ? user.CompanyName : $"{user.FirstName} {user.LastName} للشحن";
+                    company = await _serviceManager.DeliveryService.CreateCompanyAsync(companyName, user.Email, user.PhoneNumber, "200189422", 25.00m, user.Id.ToString());
+                }
             }
 
             var jobsQuery = (await _serviceManager.DeliveryService.GetCompanyJobsAsync(company.Id)).AsQueryable();

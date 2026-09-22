@@ -11,11 +11,16 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IServiceManager _serviceManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IServiceManager serviceManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _serviceManager = serviceManager;
         }
 
         [HttpGet]
@@ -71,14 +76,15 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
             string fullName,
-            string companyName,
+            string? companyName,
             string phone,
             string email,
             string password,
-            string vehicleType,
-            string plateNumber,
-            int capacityTons,
-            string coveredCity,
+            string? vehicleType,
+            string? plateNumber,
+            int? capacityTons,
+            string? coveredCity,
+            string? registrationType = null,
             string? returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -98,6 +104,8 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var firstName = nameParts.Length > 0 ? nameParts[0] : "سائق";
             var lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "أسطول";
 
+            bool isCompany = !string.IsNullOrWhiteSpace(companyName) || registrationType == "company";
+
             var user = new User
             {
                 UserName = email.Trim(),
@@ -105,7 +113,8 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 PhoneNumber = phone?.Trim(),
                 FirstName = firstName,
                 LastName = lastName,
-                UserType = UserType.DeliveryDriver,
+                CompanyName = isCompany ? (!string.IsNullOrWhiteSpace(companyName) ? companyName.Trim() : $"{firstName} {lastName} للشحن") : null,
+                UserType = isCompany ? UserType.DeliveryCompanyUser : UserType.DeliveryDriver,
                 EmailConfirmed = true,
                 RegistrationDate = DateTime.UtcNow
             };
@@ -113,12 +122,45 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
-                try
+                if (isCompany)
+                {
+                    await _userManager.AddToRoleAsync(user, "DeliveryCompanyUser");
+                    // Persist DeliveryCompany record
+                    try
+                    {
+                        await _serviceManager.DeliveryService.CreateCompanyAsync(
+                            user.CompanyName ?? $"{fullName} لخدمات الشحن",
+                            email.Trim(),
+                            phone?.Trim(),
+                            "200189422",
+                            25.00m,
+                            user.Id.ToString()
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Company creation error: " + ex.Message);
+                    }
+                }
+                else
                 {
                     await _userManager.AddToRoleAsync(user, "DeliveryDriver");
-                    await _userManager.AddToRoleAsync(user, "DeliveryCompanyUser");
+                    // Persist DeliveryDriver record
+                    try
+                    {
+                        await _serviceManager.DeliveryService.RegisterDriverAsync(
+                            user.Id,
+                            null,
+                            vehicleType ?? "ونش تفريغ هيدروليكي",
+                            plateNumber ?? "12-38491",
+                            "DL-" + user.Id
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Driver registration error: " + ex.Message);
+                    }
                 }
-                catch { }
 
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
