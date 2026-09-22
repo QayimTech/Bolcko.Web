@@ -100,8 +100,7 @@
         <div class="flex-1 flex flex-col min-h-screen">
             <header class="bg-slate-900 border-b border-slate-800 text-white h-16 flex items-center justify-between px-6">
                 <a href="/" class="flex items-center gap-2">
-                    <span class="font-black text-xl font-mono text-white">BLOCKO</span>
-                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Vendor Portal</span>
+                    <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-8")' />
                 </a>
                 <div class="flex items-center gap-3 text-xs">
                     <a href="/Vendor/Account/Login" class="text-slate-300 hover:text-white">تسجيل الدخول</a>
@@ -134,16 +133,19 @@
 
         function toggleSidebarCollapse() {
             const sidebar = document.getElementById('vendorSidebar');
+            const iconLogo = document.querySelector('.sidebar-logo-icon');
             const isCollapsed = sidebar.classList.contains('w-20');
             if (isCollapsed) {
                 sidebar.classList.remove('w-20');
                 sidebar.classList.add('w-64');
                 document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
+                if (iconLogo) iconLogo.classList.add('hidden');
                 localStorage.setItem('vendor_sidebar_collapsed', 'false');
             } else {
                 sidebar.classList.remove('w-64');
                 sidebar.classList.add('w-20');
                 document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+                if (iconLogo) iconLogo.classList.remove('hidden');
                 localStorage.setItem('vendor_sidebar_collapsed', 'true');
             }
         }
@@ -151,10 +153,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('vendor_sidebar_collapsed') === 'true') {
                 const sidebar = document.getElementById('vendorSidebar');
+                const iconLogo = document.querySelector('.sidebar-logo-icon');
                 if (sidebar) {
                     sidebar.classList.remove('w-64');
                     sidebar.classList.add('w-20');
                     document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+                    if (iconLogo) iconLogo.classList.remove('hidden');
                 }
             }
         });
