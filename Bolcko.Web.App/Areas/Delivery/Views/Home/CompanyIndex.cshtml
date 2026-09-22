@@ -98,18 +98,22 @@
     <partial name="~/Views/Shared/Partials/Logistics/_LogisticsCharts.cshtml" view-data='new ViewDataDictionary(ViewData) { { "ChartSuffix", "CompanyDashboard" } }' />
 
     <!-- TABS Navigation -->
-    <div class="flex border-b border-slate-200 mb-6 bg-slate-50 p-2 rounded-2xl gap-2">
-        <button onclick="switchTab('pickup')" id="tab-pickup" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-slate-800 shadow-sm">
+    <div class="flex border-b border-slate-200 mb-6 bg-slate-50 p-2 rounded-2xl gap-2 flex-wrap">
+        <button onclick="switchTab('pickup')" id="tab-pickup" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-slate-800 shadow-sm cursor-pointer">
             <span class="material-symbols-outlined text-sm">download</span>
-            بانتظار الاستلام (@pendingPickup.Count())
+            بانتظار الاستلام والتعيين (@pendingPickup.Count())
         </button>
-        <button onclick="switchTab('delivery')" id="tab-delivery" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700">
+        <button onclick="switchTab('delivery')" id="tab-delivery" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700 cursor-pointer">
             <span class="material-symbols-outlined text-sm">local_shipping</span>
             قيد التوصيل في الشارع (@outForDelivery.Count())
         </button>
-        <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700">
+        <button onclick="switchTab('archive')" id="tab-archive" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700 cursor-pointer">
             <span class="material-symbols-outlined text-sm">archive</span>
             الشحنات المنجزة (@archivedJobs.Count())
+        </button>
+        <button onclick="switchTab('fleet')" id="tab-fleet" class="tab-btn flex-1 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-700 cursor-pointer">
+            <span class="material-symbols-outlined text-sm">rv_hookup</span>
+            سجل أسطول الشاحنات والسائقين
         </button>
     </div>
 
@@ -121,32 +125,58 @@
             <table class="w-full text-right">
                 <thead class="bg-slate-100 text-slate-600 font-bold text-[10px] uppercase border-b border-slate-200">
                     <tr>
-                        <th class="px-6 py-4">رقم الشحنة</th>
-                        <th class="px-6 py-4">الزبون والعنوان</th>
-                        <th class="px-6 py-4">المبلغ المطلوب (COD)</th>
+                        <th class="px-6 py-4">رقم الشحنة والمادة</th>
+                        <th class="px-6 py-4">الزبون وموقع الورشة</th>
+                        <th class="px-6 py-4">السائق والشاحنة المسندة</th>
                         <th class="px-6 py-4">أجر التوصيل</th>
-                        <th class="px-6 py-4 text-center">الإجراء</th>
+                        <th class="px-6 py-4 text-center">الإجراء والإسناد</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
                     @foreach (var job in pendingPickup)
                     {
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-slate-900">شحنة #@job.Id</td>
+                            <td class="px-6 py-4">
+                                <span class="font-bold text-slate-900 block">طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())</span>
+                                <span class="text-amber-700 font-bold text-[11px] block mt-0.5">@(string.IsNullOrEmpty(job.MaterialType) ? "مواد إنشائية ثقيلة" : job.MaterialType)</span>
+                            </td>
                             <td class="px-6 py-4">
                                 <span class="block font-bold text-slate-800">@(job.Order?.User?.FirstName) @(job.Order?.User?.LastName)</span>
-                                <span class="block text-slate-400 text-[10px] mt-0.5">@(job.Order?.ShippingAddress?.AddressLine1), @(job.Order?.ShippingAddress?.City)</span>
+                                <span class="block text-slate-400 text-[10px] mt-0.5">@(job.DropoffLocation)</span>
                             </td>
-                            <td class="px-6 py-4 font-bold text-slate-800">@(job.Order?.TotalAmount.ToString("N2")) د.أ</td>
-                            <td class="px-6 py-4 font-bold text-slate-700">@job.DeliveryFee.ToString("N2") د.أ</td>
+                            <td class="px-6 py-4">
+                                @if (job.Driver != null)
+                                {
+                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 block w-fit">
+                                        🚛 @(job.Driver.User?.FirstName) @(job.Driver.User?.LastName)
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 block mt-0.5">لوحة: @(job.Driver.VehiclePlateNumber ?? "-")</span>
+                                }
+                                else
+                                {
+                                    <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-bold text-xs border border-amber-200 block w-fit">
+                                        ⚠️ لم يُعين سائق بعد
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 font-bold text-emerald-600 font-mono text-sm">@job.DeliveryFee.ToString("N2") د.أ</td>
                             <td class="px-6 py-4 text-center">
-                                <form asp-action="AcceptPickup" method="post" class="inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="jobId" value="@job.Id" />
-                                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-[10px] transition-all">
-                                        تأكيد الاستلام من المخزن
+                                <div class="flex items-center justify-center gap-2 flex-wrap">
+                                    <button type="button" 
+                                            onclick="openDispatchAssignModal('@job.Id', '@(job.Order?.OrderNumber ?? job.OrderId.ToString())', '@(job.MaterialType ?? "مواد إنشائية")', '@(job.DropoffLocation)')"
+                                            class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1 shadow-sm cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm">person_add</span>
+                                        <span>تعيين السائق للشحنة</span>
                                     </button>
-                                </form>
+
+                                    <form asp-action="AcceptPickup" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="jobId" value="@job.Id" />
+                                        <button type="submit" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-all cursor-pointer">
+                                            استلام من المخزن
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -262,6 +292,14 @@
             </table>
         </div>
     </div>
+
+    <!-- Tab D: Fleet Roster & Trucks (LOG-04) -->
+    <div id="content-fleet" class="tab-content hidden">
+        <partial name="Partials/_FleetTrucksManager" />
+    </div>
+
+    <!-- Dispatch Assignment Modal (LOG-04) -->
+    <partial name="Partials/_DispatchAssignmentModal" />
 </div>
 
 <!-- Reconcile Modal -->

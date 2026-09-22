@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Blocko.Services.Interfaces;
 using Bolcko.Domain.Entities.User;
+using Bolcko.Domain.Enums;
 
 namespace Bolcko.Web.App.Areas.Delivery.Controllers
 {
@@ -158,6 +160,13 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 jobs.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Returned)
             };
             ViewBag.StatusCountsJson = System.Text.Json.JsonSerializer.Serialize(statusCounts);
+
+            var companyDrivers = await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
+                .Include(d => d.User)
+                .Where(d => d.DeliveryCompanyId == company.Id)
+                .ToListAsync();
+
+            ViewBag.CompanyDrivers = companyDrivers;
 
             return View("CompanyIndex", jobs);
         }
@@ -388,6 +397,111 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
 
             TempData["Success"] = $"تم إثبات التسليم الرقمي e-POD بنجاح! تم إيداع أتعاب التوصيل ({job.DeliveryFee:F2} د.أ) إلى محفظة CliQ الخاصة بك.";
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDriverToJob(int jobId, int driverId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
+            if (company == null) return Unauthorized();
+
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(jobId);
+            if (job == null) return NotFound();
+
+            var driver = await _unitOfWork.DeliveryDrivers.GetAllAsQueryable()
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == driverId && d.DeliveryCompanyId == company.Id);
+
+            if (driver == null)
+            {
+                TempData["Error"] = "السائق المحدد غير مسجل ضمن أسطول شركتك.";
+                return RedirectToAction("CompanyIndex");
+            }
+
+            job.DriverId = driver.Id;
+            job.DeliveryCompanyId = company.Id;
+            job.AssignedAt = DateTime.UtcNow;
+            job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Assigned;
+            if (string.IsNullOrEmpty(job.DeliveryOtpCode))
+            {
+                job.DeliveryOtpCode = new Random().Next(100000, 999999).ToString();
+            }
+
+            _unitOfWork.DeliveryJobs.Update(job);
+            await _unitOfWork.CompleteAsync();
+
+            await _notificationService.SendNotificationToUserAsync(
+                driver.UserId,
+                "مهمة نقل جديدة مسندة 🚛",
+                $"قامت إدارة أسطول '{company.Name}' بإسناد حمولة جديدة لك (طلب #{job.OrderId}) لنقل {job.MaterialType ?? "مواد إنشائية"}. يرجى التوجه لساحة التحميل."
+            );
+
+            TempData["Success"] = $"تم إسناد الشحنة بنجاح إلى السائق '{driver.User?.FirstName} {driver.User?.LastName}' وتوجيهه للتحميل!";
+            return RedirectToAction("CompanyIndex");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddFleetTruck(string driverName, string phone, string vehicleType, string plateNumber, int capacityTons)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var company = await _serviceManager.DeliveryService.GetCompanyByManagerUserIdAsync(user.Id.ToString());
+            if (company == null) return Unauthorized();
+
+            var nameParts = (driverName ?? "سائق أسطول").Trim().Split(' ');
+            var firstName = nameParts.Length > 0 ? nameParts[0] : "سائق";
+            var lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "أسطول";
+
+            var randomSuffix = Guid.NewGuid().ToString("N")[..8];
+            var driverUser = new User
+            {
+                UserName = $"fleet_{randomSuffix}@bolcko.jo",
+                Email = $"fleet_{randomSuffix}@bolcko.jo",
+                FirstName = firstName,
+                LastName = lastName,
+                PhoneNumber = phone?.Trim(),
+                UserType = UserType.DeliveryDriver,
+                EmailConfirmed = true,
+                RegistrationDate = DateTime.UtcNow
+            };
+
+            var res = await _userManager.CreateAsync(driverUser, "FleetTruck@123");
+            if (res.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(driverUser, "DeliveryDriver");
+                await _serviceManager.DeliveryService.RegisterDriverAsync(
+                    userId: driverUser.Id,
+                    companyId: company.Id,
+                    vehicleType: vehicleType ?? "تريلا مقطورات 30-40 طن",
+                    vehiclePlateNumber: plateNumber ?? "12-38491",
+                    licenseNumber: "LTRC-DRV-" + driverUser.Id,
+                    capacityTons: capacityTons > 0 ? capacityTons : 20,
+                    coveredGovernorate: "كافة المحافظات"
+                );
+
+                var createdDriver = await _serviceManager.DeliveryService.GetDriverByUserIdAsync(driverUser.Id);
+                if (createdDriver != null)
+                {
+                    createdDriver.IsApproved = true;
+                    createdDriver.ApprovedAt = DateTime.UtcNow;
+                    _unitOfWork.DeliveryDrivers.Update(createdDriver);
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                TempData["Success"] = $"تمت إضافة الشاحنة والسائق '{driverName}' إلى سجل أسطول الشركة بنجاح!";
+            }
+            else
+            {
+                TempData["Error"] = res.Errors.FirstOrDefault()?.Description ?? "تعذر إضافة الشاحنة للأسطول.";
+            }
+
+            return RedirectToAction("CompanyIndex");
         }
 
         [HttpPost]

@@ -1,0 +1,159 @@
+@using Bolcko.Domain.Entities.Delivery
+@{
+    var company = ViewBag.Company as DeliveryCompany;
+    var companyDrivers = ViewBag.CompanyDrivers as List<DeliveryDriver> ?? new List<DeliveryDriver>();
+}
+
+<div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-6 text-right" dir="rtl">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">rv_hookup</span>
+            </div>
+            <div>
+                <h3 class="text-base sm:text-lg font-black text-slate-900">سجل أسطول الشاحنات وسائقي الشركة (Fleet Roster)</h3>
+                <p class="text-xs text-slate-400">إدارة الشاحنات، تتبع السائقين المتفرغين، وربط المعدات برخص هيئة النقل</p>
+            </div>
+        </div>
+
+        <button type="button" onclick="openAddTruckModal()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-sm">add_circle</span>
+            <span>إضافة شاحنة / سائق للأسطول</span>
+        </button>
+    </div>
+
+    <!-- Fleet Cards / Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-xs text-start">
+            <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold">
+                <tr>
+                    <th class="p-3.5">السائق / الكابتن</th>
+                    <th class="p-3.5">نوع الشاحنة والمعدة</th>
+                    <th class="p-3.5">رقم اللوحة</th>
+                    <th class="p-3.5">حمولة الشاحنة (طن)</th>
+                    <th class="p-3.5">الحالة التشغيلية</th>
+                    <th class="p-3.5">إجمالي النقلات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+                @if (!companyDrivers.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-slate-400">
+                            لا يوجد سائقون مسجلون في أسطول شركتك حالياً. انقر على "إضافة شاحنة / سائق للأسطول" لإدراج شاحناتك.
+                        </td>
+                    </tr>
+                }
+                @foreach (var d in companyDrivers)
+                {
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="p-3.5">
+                            <div class="font-bold text-slate-900">@(d.User != null ? $"{d.User.FirstName} {d.User.LastName}" : "سائق أسطول")</div>
+                            <div class="font-mono text-slate-400 text-[11px]">@(d.User?.PhoneNumber ?? "-")</div>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-bold text-slate-800">@(d.VehicleType ?? "تريلا مقطورات")</span>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-mono font-bold text-slate-800 px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                                @(d.VehiclePlateNumber ?? "-")
+                            </span>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-mono font-bold text-blue-700">@(d.CapacityTons) طن</span>
+                        </td>
+                        <td class="p-3.5">
+                            @if (d.IsAvailable)
+                            {
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>متاح للإسناد</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10px]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                    <span>في مهمة توصيل</span>
+                                </span>
+                            }
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-mono font-bold text-slate-900">@d.TotalDeliveredOrders نقلة</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal: Add Fleet Truck -->
+<div id="addTruckModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right" dir="rtl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">add_circle</span>
+                <span>إضافة شاحنة وسائق لأسطول الشركة</span>
+            </h3>
+            <button type="button" onclick="closeAddTruckModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-action="AddFleetTruck" method="post" class="space-y-4 text-xs">
+            @Html.AntiForgeryToken()
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">اسم السائق: <span class="text-red-500">*</span></label>
+                <input name="driverName" type="text" required placeholder="مثال: خالد العمري" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">رقم هاتف السائق (واتساب): <span class="text-red-500">*</span></label>
+                <input name="phone" type="tel" required placeholder="079XXXXXXXX" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white font-mono focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700 block">نوع الشاحنة / المعدة: <span class="text-red-500">*</span></label>
+                    <select name="vehicleType" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500">
+                        <option value="تريلا مقطورات 30-40 طن">تريلا مقطورات 30-40 طن</option>
+                        <option value="قلاب رمل وحصمة">قلاب رمل وحصمة</option>
+                        <option value="شاحنة ونش هيدروليكي">شاحنة ونش هيدروليكي</option>
+                        <option value="خلاطة خرسانة جاهزة">خلاطة خرسانة جاهزة</option>
+                        <option value="لوري 4-7 طن">لوري 4-7 طن</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-700 block">رقم لوحة الشاحنة: <span class="text-red-500">*</span></label>
+                    <input name="plateNumber" type="text" required placeholder="مثال: 12-89210" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white font-mono focus:outline-none focus:border-blue-500" />
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-bold text-slate-700 block">سعة الحمولة الصافية (طن): <span class="text-red-500">*</span></label>
+                <input name="capacityTons" type="number" value="25" min="2" max="60" class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white font-mono focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeAddTruckModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+                    إلغاء
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold cursor-pointer">
+                    إضافة الشاحنة للأسطول
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddTruckModal() {
+        document.getElementById('addTruckModal').style.display = 'flex';
+    }
+    function closeAddTruckModal() {
+        document.getElementById('addTruckModal').style.display = 'none';
+    }
+</script>
