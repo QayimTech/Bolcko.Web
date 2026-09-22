@@ -13,15 +13,18 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
         private readonly IServiceManager _serviceManager;
         private readonly UserManager<User> _userManager;
         private readonly Blocko.Services.Interfaces.Notifications.INotificationService _notificationService;
+        private readonly Bolcko.Domain.Interfaces.IUnitOfWork _unitOfWork;
 
         public HomeController(
             IServiceManager serviceManager,
             UserManager<User> userManager,
-            Blocko.Services.Interfaces.Notifications.INotificationService notificationService)
+            Blocko.Services.Interfaces.Notifications.INotificationService notificationService,
+            Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
         {
             _serviceManager = serviceManager;
             _userManager = userManager;
             _notificationService = notificationService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -252,7 +255,138 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             if (driver == null) return BadRequest();
 
             await _serviceManager.DeliveryService.UpdateDriverAvailabilityAsync(driver.Id, !driver.IsAvailable);
-            TempData["Success"] = driver.IsAvailable ? "تم تغيير حالتك إلى غير متاح." : "تم تغيير حالتك إلى متاح.";
+            TempData["Success"] = driver.IsAvailable ? "تم تغيير حالتك إلى غير متاح (في استراحة)." : "تم تغيير حالتك إلى متاح (جاهز لتلقي الحمولات على الرادار) 🟢";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptLoad(int jobId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var driver = await _serviceManager.DeliveryService.GetDriverByUserIdAsync(user.Id);
+            if (driver == null || !driver.IsApproved)
+            {
+                TempData["Error"] = "حسابك غير مؤهل أو بانتظار الاعتماد الإداري.";
+                return RedirectToAction("Index");
+            }
+
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(jobId);
+            if (job == null || (job.Status != Bolcko.Domain.Enums.DeliveryJobStatus.Available && job.DriverId != null))
+            {
+                TempData["Error"] = "عذراً، هذه الحمولة تم حجزها من كابتن آخر أو لم تعد متاحة.";
+                return RedirectToAction("Index");
+            }
+
+            job.DriverId = driver.Id;
+            job.AssignedAt = DateTime.UtcNow;
+            job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Assigned;
+            if (string.IsNullOrEmpty(job.DeliveryOtpCode))
+            {
+                job.DeliveryOtpCode = new Random().Next(100000, 999999).ToString();
+            }
+
+            _unitOfWork.DeliveryJobs.Update(job);
+            await _unitOfWork.CompleteAsync();
+
+            TempData["Success"] = $"تم قبول الحمولة للطلب #{job.OrderId} بنجاح! توجه الآن إلى مستودع التحميل وقم بوزن الشاحنة وتصوير تذكرة القبان.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadWeighbridge(int jobId, IFormFile? weighbridgePhoto, decimal? grossWeight, decimal? tareWeight)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var driver = await _serviceManager.DeliveryService.GetDriverByUserIdAsync(user.Id);
+            if (driver == null) return Unauthorized();
+
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(jobId);
+            if (job == null || job.DriverId != driver.Id)
+            {
+                TempData["Error"] = "المهمة غير موجودة أو غير مسندة إليك.";
+                return RedirectToAction("Index");
+            }
+
+            if (weighbridgePhoto == null || weighbridgePhoto.Length == 0)
+            {
+                TempData["Error"] = "يرجى تصوير وإرفاق صورة واضحة لتذكرة القبان الرسمية عند بوابة الخروج.";
+                return RedirectToAction("Index");
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf" };
+            var ext = Path.GetExtension(weighbridgePhoto.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(ext))
+            {
+                TempData["Error"] = "صيغة الملف غير مدعومة. يرجى إرفاق صورة عادية (JPG/PNG).";
+                return RedirectToAction("Index");
+            }
+
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "weighbridge");
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            var fileName = $"wb_{jobId}_{Guid.NewGuid():N}{ext}";
+            var filePath = Path.Combine(uploadFolder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await weighbridgePhoto.CopyToAsync(stream);
+            }
+
+            job.WeighbridgeTicketUrl = $"/uploads/weighbridge/{fileName}";
+            job.GrossWeightTons = grossWeight ?? 0;
+            job.TareWeightTons = tareWeight ?? 0;
+            job.WeighedAt = DateTime.UtcNow;
+            job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.InTransit; // Transitions to EnRoute / InTransit
+
+            _unitOfWork.DeliveryJobs.Update(job);
+            await _unitOfWork.CompleteAsync();
+
+            TempData["Success"] = "تم توثيق تذكرة القبان بنجاح! انتقلت الشاحنة الآن إلى حالة قيد التوصيل (InTransit) باتجاه الورشة. 🚛";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyDeliveryOtp(int jobId, string otpCode)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var driver = await _serviceManager.DeliveryService.GetDriverByUserIdAsync(user.Id);
+            if (driver == null) return Unauthorized();
+
+            var job = await _serviceManager.DeliveryService.GetJobByIdAsync(jobId);
+            if (job == null || job.DriverId != driver.Id)
+            {
+                TempData["Error"] = "المهمة غير موجودة.";
+                return RedirectToAction("Index");
+            }
+
+            if (string.IsNullOrWhiteSpace(otpCode) || (job.DeliveryOtpCode != null && job.DeliveryOtpCode.Trim() != otpCode.Trim()))
+            {
+                TempData["Error"] = "رمز التسليم الرقمي (e-POD OTP) غير صحيح! اطلب الرمز المكون من 6 أرقام من المقاول أو المشرف في الورشة.";
+                return RedirectToAction("Index");
+            }
+
+            job.Status = Bolcko.Domain.Enums.DeliveryJobStatus.Delivered;
+            job.DeliveredAt = DateTime.UtcNow;
+            job.IsPodVerified = true;
+            job.PodVerifiedAt = DateTime.UtcNow;
+
+            driver.TotalDeliveredOrders += 1;
+            _unitOfWork.DeliveryDrivers.Update(driver);
+            _unitOfWork.DeliveryJobs.Update(job);
+
+            await _unitOfWork.CompleteAsync();
+
+            TempData["Success"] = $"تم إثبات التسليم الرقمي e-POD بنجاح! تم إيداع أتعاب التوصيل ({job.DeliveryFee:F2} د.أ) إلى محفظة CliQ الخاصة بك.";
             return RedirectToAction("Index");
         }
 

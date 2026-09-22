@@ -35,6 +35,17 @@ namespace Bolcko.Domain.Entities.Delivery
         // Security token for driver anonymous update link
         public string? DeliveryToken { get; set; }
 
+        // LOG-03 Heavy Transport Load Radar, Weighbridge & e-POD Specifications
+        public string? MaterialType { get; set; } // نوع المادة: إسمنت سائب، حديد تسليح، باطون، رمل وحصمة
+        public decimal? WeightTons { get; set; } // الوزن الصافي المطلوب نقله (طن)
+        public string? WeighbridgeTicketUrl { get; set; } // صورة تذكرة القبان عند بوابة الخروج
+        public decimal? GrossWeightTons { get; set; } // الوزن القائم الإجمالي (طن)
+        public decimal? TareWeightTons { get; set; } // وزن الشاحنة فارغة (طن)
+        public DateTime? WeighedAt { get; set; } // وقت التوزين والخروج
+        public string? DeliveryOtpCode { get; set; } // 6-digit OTP code for e-POD
+        public bool IsPodVerified { get; set; } = false;
+        public DateTime? PodVerifiedAt { get; set; }
+
         public ICollection<DeliveryBid> Bids { get; set; } = new List<DeliveryBid>();
         public DeliveryRating? Rating { get; set; }
     }

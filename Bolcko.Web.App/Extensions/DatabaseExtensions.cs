@@ -155,6 +155,17 @@ public static class DatabaseExtensions
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "TotalTrucksCount" integer NOT NULL DEFAULT 5;
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "IsApproved" boolean NOT NULL DEFAULT false;
                 ALTER TABLE "DeliveryCompanies" ADD COLUMN IF NOT EXISTS "RejectionReason" text;
+
+                -- LOG-03 Heavy Transport Load Radar, Weighbridge & e-POD Columns
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "MaterialType" text;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "WeightTons" numeric;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "WeighbridgeTicketUrl" text;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "GrossWeightTons" numeric;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "TareWeightTons" numeric;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "WeighedAt" timestamp with time zone;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "DeliveryOtpCode" text;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "IsPodVerified" boolean NOT NULL DEFAULT false;
+                ALTER TABLE "DeliveryJobs" ADD COLUMN IF NOT EXISTS "PodVerifiedAt" timestamp with time zone;
                 """);
 
             // Ensure DeliveryProviderConfigs has origin and sender columns

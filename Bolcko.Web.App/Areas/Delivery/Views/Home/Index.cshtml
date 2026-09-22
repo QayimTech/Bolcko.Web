@@ -2,155 +2,240 @@
 @using Bolcko.Domain.Enums
 @model IEnumerable<DeliveryJob>
 @{
-    ViewData["Title"] = "لوحة المندوب";
+    ViewData["Title"] = "قمرة قيادة كابتن النقل الثقيل (Heavy Hauler Cockpit)";
     Layout = "_Layout";
     var driver = ViewBag.Driver as DeliveryDriver;
     var availableJobs = ViewBag.AvailableJobs as IEnumerable<DeliveryJob> ?? new List<DeliveryJob>();
     var myBids = ViewBag.MyBids as IEnumerable<DeliveryBid> ?? new List<DeliveryBid>();
-    var activeJobs = Model.Where(j => j.Status != DeliveryJobStatus.Delivered && j.Status != DeliveryJobStatus.Cancelled).ToList();
+
+    var myActiveJobs = Model.Where(j => j.Status == DeliveryJobStatus.Assigned || j.Status == DeliveryJobStatus.PickedUp || j.Status == DeliveryJobStatus.InTransit).ToList();
+    var completedJobs = Model.Where(j => j.Status == DeliveryJobStatus.Delivered).ToList();
 }
 
-<div class="p-6 text-right" dir="rtl">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800">مرحباً، @driver?.User?.FirstName 👋</h1>
-            <p class="text-slate-500 text-sm">لوحة تحكم المندوب</p>
-        </div>
-        <form asp-action="ToggleAvailability" method="post">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="px-4 py-2 @(driver?.IsAvailable == true ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-400 hover:bg-slate-500") text-white rounded-lg font-medium text-sm transition-colors">
-                @(driver?.IsAvailable == true ? "🟢 متاح" : "🔴 غير متاح")
-            </button>
-        </form>
-    </div>
+<div class="p-3 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 text-right font-sans" dir="rtl">
 
     @if (TempData["Success"] != null)
     {
-        <div class="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg">✅ @TempData["Success"]</div>
+        <div class="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-bold flex items-center gap-3 shadow-lg">
+            <span class="material-symbols-outlined text-emerald-400 text-2xl">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="mb-4 bg-red-50 border border-red-300 text-red-800 px-5 py-3 rounded-lg">❌ @TempData["Error"]</div>
+        <div class="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs sm:text-sm font-bold flex items-center gap-3 shadow-lg">
+            <span class="material-symbols-outlined text-rose-400 text-2xl">error</span>
+            <span>@TempData["Error"]</span>
+        </div>
     }
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
-            <p class="text-3xl font-bold text-blue-600">@activeJobs.Count</p>
-            <p class="text-xs text-slate-500 mt-1">مهام نشطة</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
-            <p class="text-3xl font-bold text-amber-600">@myBids.Count(b => b.Status == DeliveryBidStatus.Pending)</p>
-            <p class="text-xs text-slate-500 mt-1">عروض قيد الانتظار</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
-            <p class="text-3xl font-bold text-emerald-600">@Model.Count(j => j.Status == DeliveryJobStatus.Delivered)</p>
-            <p class="text-xs text-slate-500 mt-1">مهام مكتملة</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
-            <p class="text-3xl font-bold text-amber-500">⭐ @(driver?.AverageRating.ToString("N1") ?? "—")</p>
-            <p class="text-xs text-slate-500 mt-1">متوسط التقييم</p>
-        </div>
-    </div>
-
-    <!-- Active Jobs -->
-    @if (activeJobs.Any())
+    <!-- 1. Captain Wallet & Profile Card -->
+    @if (driver != null)
     {
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
-            <h2 class="font-bold text-lg mb-4 border-b pb-2">🚚 مهامي النشطة</h2>
-            @foreach (var job in activeJobs)
+        <partial name="Partials/_CaptainWalletCard" model="driver" />
+    }
+
+    <!-- 2. Active Trips Zone (High Priority) -->
+    @if (myActiveJobs.Any())
+    {
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base sm:text-lg font-black text-slate-800 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500 text-2xl">local_shipping</span>
+                    <span>الرحلات الجارية تحت التنفيذ (@myActiveJobs.Count)</span>
+                </h3>
+                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-mono font-bold text-xs">
+                    ACTIVE HAULING
+                </span>
+            </div>
+
+            @foreach (var job in myActiveJobs)
             {
-                var statusText = job.Status switch
-                {
-                    DeliveryJobStatus.Assigned => "تم التعيين - في انتظار استلام الطلب",
-                    DeliveryJobStatus.PickedUp => "تم الاستلام - في الطريق",
-                    DeliveryJobStatus.InTransit => "في الطريق لموقع العميل",
-                    _ => job.Status.ToString()
-                };
-                <div class="border border-slate-100 rounded-xl p-4 mb-3 hover:bg-slate-50">
-                    <div class="flex justify-between items-start mb-3">
+                <div class="bg-white border-2 @(job.Status == DeliveryJobStatus.InTransit ? "border-indigo-500" : "border-amber-400") rounded-3xl p-5 sm:p-7 shadow-xl space-y-5">
+                    
+                    <!-- Trip Header -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
-                            <p class="font-bold">طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())</p>
-                            <p class="text-sm text-slate-500">📍 @job.DropoffLocation</p>
-                            <p class="text-sm text-emerald-600 font-medium">💰 @job.DeliveryFee.ToString("N2") د.أ</p>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-mono text-xs font-bold">
+                                    طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())
+                                </span>
+                                <h4 class="font-black text-slate-900 text-base">@(string.IsNullOrEmpty(job.MaterialType) ? "توريد مواد إنشائية" : job.MaterialType)</h4>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">الحمولة: <strong class="text-slate-800">@(job.WeightTons?.ToString("N1") ?? "25.0") طن</strong> • المستلم: <strong class="text-slate-800">@(job.Order?.User != null ? $"{job.Order.User.FirstName} {job.Order.User.LastName}" : "مشرف الورشة")</strong></p>
                         </div>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">@statusText</span>
+
+                        <div class="text-start sm:text-left">
+                            <span class="text-[11px] text-slate-400 block font-bold">الأتعاب المستحقة</span>
+                            <span class="text-2xl font-black text-emerald-600 font-mono">@job.DeliveryFee.ToString("N2") د.أ</span>
+                        </div>
                     </div>
-                    <form asp-action="UpdateStatus" method="post" class="flex gap-2 items-center flex-wrap">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="jobId" value="@job.Id" />
+
+                    <!-- Route Tracker -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">مستودع التحميل:</span>
+                            <span class="font-bold text-slate-800">@(string.IsNullOrEmpty(job.PickupLocation) ? "مستودع بلوكو المركزي" : job.PickupLocation)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">موقع الورشة المقصود:</span>
+                            <span class="font-bold text-amber-700">@(string.IsNullOrEmpty(job.DropoffLocation) ? "موقع العمل" : job.DropoffLocation)</span>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Dispatch Action Flow -->
+                    <div class="p-4 sm:p-5 rounded-2xl @(job.Status == DeliveryJobStatus.Assigned ? "bg-amber-50 border border-amber-200" : (job.Status == DeliveryJobStatus.InTransit ? "bg-indigo-50 border border-indigo-200" : "bg-slate-50 border border-slate-200")) space-y-4">
+                        
                         @if (job.Status == DeliveryJobStatus.Assigned)
                         {
-                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.PickedUp)"
-                                    class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
-                                ✔ استلمت الطلب
-                            </button>
+                            <!-- Stage 1: Depart for Loading Yard -->
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <div>
+                                    <h5 class="font-black text-amber-900 text-sm flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-base">directions_car</span>
+                                        <span>المرحلة 1: الانطلاق لمستودع التحميل</span>
+                                    </h5>
+                                    <p class="text-xs text-amber-700 mt-0.5">توجه إلى موقع الكسارة أو المستودع لبدء تحميل الشاحنة.</p>
+                                </div>
+                                <form asp-action="UpdateStatus" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="jobId" value="@job.Id" />
+                                    <input type="hidden" name="status" value="@((int)DeliveryJobStatus.PickedUp)" />
+                                    <button type="submit" class="py-3 px-6 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer">
+                                        وصلت للمستودع وبدأت التحميل 📦
+                                    </button>
+                                </form>
+                            </div>
                         }
                         else if (job.Status == DeliveryJobStatus.PickedUp)
                         {
-                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.InTransit)"
-                                    class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">
-                                🚗 في الطريق
-                            </button>
+                            <!-- Stage 2: Weighbridge Verification (تذكرة القبان) Mandatory before EnRoute -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h5 class="font-black text-indigo-900 text-sm flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-base text-indigo-600">scale</span>
+                                        <span>المرحلة 2: توثيق تذكرة القبان عند بوابة الخروج (Weighbridge)</span>
+                                    </h5>
+                                    <p class="text-xs text-indigo-700 mt-0.5">إلزام نظامي: قم بوزن الشاحنة وتصوير تذكرة القبان الرسمية لفتح مسار الرحلة والانتقال إلى قيد التوصيل (InTransit).</p>
+                                </div>
+
+                                <form asp-action="UploadWeighbridge" method="post" enctype="multipart/form-data" class="space-y-3">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="jobId" value="@job.Id" />
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-700 mb-1">صورة تذكرة القبان: <span class="text-red-500">*</span></label>
+                                            <input name="weighbridgePhoto" type="file" required accept="image/*" capture="camera" 
+                                                   class="w-full text-xs text-slate-600 file:me-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-700 mb-1">الوزن القائم الإجمالي (Gross Ton):</label>
+                                            <input name="grossWeight" type="number" step="0.1" value="42.5" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-700 mb-1">وزن الشاحنة فارغة (Tare Ton):</label>
+                                            <input name="tareWeight" type="number" step="0.1" value="14.0" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold" />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                        <span class="material-symbols-outlined text-base">upload_file</span>
+                                        <span>اعتماد تذكرة القبان والانطلاق للورشة (EnRoute) 🚛</span>
+                                    </button>
+                                </form>
+                            </div>
                         }
                         else if (job.Status == DeliveryJobStatus.InTransit)
                         {
-                            <button type="submit" name="status" value="@((int)DeliveryJobStatus.Delivered)"
-                                    class="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700">
-                                ✅ تم التسليم
-                            </button>
+                            <!-- Stage 3: Jobsite Arrival & e-POD 6-digit OTP Handover -->
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h5 class="font-black text-emerald-900 text-sm flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-base text-emerald-600">verified_user</span>
+                                            <span>المرحلة 3: الوصول لموقع العميل وإثبات التسليم الرقمي (e-POD)</span>
+                                        </h5>
+                                        <p class="text-xs text-emerald-700 mt-0.5">اطلب من المقاول أو مهندس الموقع رمز التحقق (OTP) المكون من 6 أرقام لإتمام التسليم وصرف الأتعاب الفورية.</p>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(job.WeighbridgeTicketUrl))
+                                    {
+                                        <a href="@job.WeighbridgeTicketUrl" target="_blank" class="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">receipt_long</span>
+                                            <span>معاينة تذكرة القبان المرفقة</span>
+                                        </a>
+                                    }
+                                </div>
+
+                                <form asp-action="VerifyDeliveryOtp" method="post" class="flex flex-col sm:flex-row items-center gap-3">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="jobId" value="@job.Id" />
+                                    
+                                    <div class="relative w-full sm:flex-1">
+                                        <input name="otpCode" type="text" maxlength="6" required placeholder="أدخل رمز e-POD (مثال: 729401)" 
+                                               class="w-full py-3.5 px-4 rounded-xl border border-emerald-400 bg-white text-slate-900 font-mono font-black text-base text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                                    </div>
+
+                                    <button type="submit" class="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                                        <span class="material-symbols-outlined text-lg">payments</span>
+                                        <span>تأكيد التسليم وصرف الأرباح الفورية عبر CliQ</span>
+                                    </button>
+                                </form>
+                            </div>
                         }
-                    </form>
+                    </div>
+
                 </div>
             }
         </div>
     }
 
-    <!-- Available Jobs -->
-    @if (availableJobs.Any())
-    {
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 class="font-bold text-lg mb-4 border-b pb-2">📋 الطلبات المتاحة للتوصيل</h2>
-            @foreach (var job in availableJobs)
-            {
-                var hasBid = myBids.Any(b => b.DeliveryJobId == job.Id);
-                <div class="border border-slate-100 rounded-xl p-4 mb-3 hover:bg-blue-50/50">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <p class="font-bold">طلب #@(job.Order?.OrderNumber ?? job.OrderId.ToString())</p>
-                            <p class="text-sm text-slate-500">📦 من: @job.PickupLocation</p>
-                            <p class="text-sm text-slate-500">📍 إلى: @job.DropoffLocation</p>
-                            <p class="text-sm text-blue-600 font-medium">💰 رسوم مقترحة: @job.DeliveryFee.ToString("N2") د.أ</p>
-                        </div>
-                        @if (hasBid)
-                        {
-                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">⏳ قدمت عرضاً</span>
-                        }
-                    </div>
-                    @if (!hasBid)
-                    {
-                        <form asp-action="PlaceBid" method="post" class="flex gap-2 items-center">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="jobId" value="@job.Id" />
-                            <input name="bidAmount" type="number" step="0.01" min="1" value="@job.DeliveryFee"
-                                   placeholder="عرض السعر (د.أ)"
-                                   class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-400" />
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
-                                📤 تقديم عرض
-                            </button>
-                        </form>
-                    }
+    <!-- 3. Load Radar (رادار الحمولات والفرص المتاحة) -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-2xl animate-spin">radar</span>
                 </div>
-            }
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-slate-900">رادار الحمولات الإنشائية اللحظي (Load Radar)</h3>
+                    <p class="text-xs text-slate-500">حمولات حقيقية مطابقة لحمولة شاحنتك ونطاق محافظتك</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-xs font-bold text-slate-600">مباشر • Live Radar</span>
+            </div>
         </div>
-    }
-    else if (!activeJobs.Any())
-    {
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
-            <p class="text-5xl mb-4">🎯</p>
-            <p class="text-slate-500">لا توجد طلبات متاحة للتوصيل حالياً.</p>
-            <p class="text-slate-400 text-sm mt-2">سيتم إشعارك فور توفر طلب جديد.</p>
-        </div>
-    }
+
+        @if (driver != null && !driver.IsAvailable)
+        {
+            <div class="bg-amber-50 border border-amber-300 rounded-3xl p-8 text-center space-y-3">
+                <span class="material-symbols-outlined text-4xl text-amber-600">pause_circle</span>
+                <h4 class="text-base font-black text-amber-900">أنت في وضع الاستراحة المؤقتة</h4>
+                <p class="text-xs text-amber-700 max-w-md mx-auto">قم بتفعيل زر "جاهز لاستلام الحمولات" في بطاقة الكابتن أعلاه لاستقبال إشعارات الحمولات الجديدة وعرضها على الرادار.</p>
+            </div>
+        }
+        else if (availableJobs.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach (var load in availableJobs)
+                {
+                    <partial name="Partials/_LoadRadarCard" model="load" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-3 shadow-xs">
+                <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                    <span class="material-symbols-outlined text-3xl">radar</span>
+                </div>
+                <h4 class="text-base font-black text-slate-800">جاري مسح الحمولات في منطقتك...</h4>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto">لا توجد حمولات غير مسندة في نطاق تغطيتك حالياً. سيقوم النظام بإرسال إشعار صوتي فوري فور قيام أي تاجر أو مقاول بطلب نقل مواد إنشائية.</p>
+            </div>
+        }
+    </div>
+
 </div>

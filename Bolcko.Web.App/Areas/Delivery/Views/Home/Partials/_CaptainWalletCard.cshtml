@@ -1,0 +1,72 @@
+@using Bolcko.Domain.Entities.Delivery
+@model DeliveryDriver
+
+<div class="bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950 border border-white/10 rounded-3xl p-5 sm:p-7 shadow-2xl text-white space-y-6">
+    <!-- Top Bar: Avatar, Status, Tonnage -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+        <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
+                <span class="material-symbols-outlined text-3xl">local_shipping</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-lg sm:text-xl font-black text-white">@(Model.User != null ? $"{Model.User.FirstName} {Model.User.LastName}" : "كابتن بولكو")</h2>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-400/10 text-amber-300 font-mono text-[11px] font-bold border border-amber-400/20">
+                        @Model.TierLevel
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <span class="material-symbols-outlined text-xs text-blue-400">rv_hookup</span>
+                    <span>@(Model.VehicleType ?? "تريلا مقطورات")</span>
+                    <span>•</span>
+                    <span class="font-mono text-slate-300 font-bold">لوحة: @(Model.VehiclePlateNumber ?? "-")</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Availability Switch Big Touch Button -->
+        <form asp-action="ToggleAvailability" method="post" class="w-full sm:w-auto">
+            @Html.AntiForgeryToken()
+            <button type="submit" 
+                    class="w-full sm:w-auto py-3.5 px-6 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all shadow-xl cursor-pointer active:scale-95 @(Model.IsAvailable ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/60 border border-emerald-400/40" : "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10")">
+                <span class="w-3 h-3 rounded-full @(Model.IsAvailable ? "bg-emerald-300 animate-pulse" : "bg-red-500")"></span>
+                <span>@(Model.IsAvailable ? "🟢 جاهز لاستلام الحمولات فوراً" : "🔴 في استراحة مؤقتة (غير متاح)")</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-start">
+        <div class="p-3.5 bg-slate-950/60 border border-white/5 rounded-2xl space-y-1">
+            <span class="text-[11px] text-slate-400 block font-bold">حمولة الشاحنة المصرحة:</span>
+            <div class="text-xl font-black text-amber-400 font-mono flex items-center gap-1">
+                <span>@(Model.CapacityTons)</span>
+                <span class="text-xs text-slate-400 font-sans">طن صافي</span>
+            </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-950/60 border border-white/5 rounded-2xl space-y-1">
+            <span class="text-[11px] text-slate-400 block font-bold">إجمالي النقلات المنجزة:</span>
+            <div class="text-xl font-black text-white font-mono flex items-center gap-1">
+                <span>@(Model.TotalDeliveredOrders)</span>
+                <span class="text-xs text-emerald-400 font-sans">مهمة ناجحة</span>
+            </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-950/60 border border-white/5 rounded-2xl space-y-1">
+            <span class="text-[11px] text-slate-400 block font-bold">تقييم الجودة والسلامة:</span>
+            <div class="text-xl font-black text-amber-300 flex items-center gap-1 font-mono">
+                <span>⭐ @(Model.AverageRating > 0 ? Model.AverageRating.ToString("N1") : "5.0")</span>
+                <span class="text-[10px] text-slate-400">(@(Model.TotalRatings))</span>
+            </div>
+        </div>
+
+        <div class="p-3.5 bg-emerald-950/30 border border-emerald-500/20 rounded-2xl space-y-1">
+            <span class="text-[11px] text-emerald-300 block font-bold">معرّف كليك (CliQ Payout):</span>
+            <div class="text-sm font-black text-emerald-400 font-mono truncate" title="@Model.CliqAlias">
+                @(string.IsNullOrEmpty(Model.CliqAlias) ? "غير مربوط" : Model.CliqAlias)
+            </div>
+            <span class="text-[10px] text-emerald-300/80 block">صرف فوري عند التسليم</span>
+        </div>
+    </div>
+</div>
