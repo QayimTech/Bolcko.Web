@@ -244,6 +244,96 @@ namespace Bolcko.Web.App.Extensions
                 }
             }
 
+            // 5b. Seed Freelance Heavy Hauler Driver (LOG-01 / LOG-03)
+            var driverEmail = "driver@blocko.com";
+            var driverUser = await userManager.FindByEmailAsync(driverEmail);
+            if (driverUser == null)
+            {
+                var newDriverUser = new User
+                {
+                    UserName = driverEmail,
+                    Email = driverEmail,
+                    FirstName = "أحمد",
+                    LastName = "الخالدي",
+                    PhoneNumber = "0791234567",
+                    UserType = UserType.DeliveryDriver,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var dResult = await userManager.CreateAsync(newDriverUser, "Driver@2026!");
+                if (dResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newDriverUser, "DeliveryDriver");
+
+                    var driverEntity = new Bolcko.Domain.Entities.Delivery.DeliveryDriver
+                    {
+                        UserId = newDriverUser.Id,
+                        VehicleType = "تريلا قلاب 30 طن",
+                        VehiclePlateNumber = "12-38491",
+                        LicenseNumber = "LTRC-DRV-001",
+                        NationalId = "9901020304",
+                        HeavyLicenseCategory = "الفئة السادسة - قاطرة ومقطورة",
+                        CapacityTons = 30,
+                        CoveredGovernorate = "عمان، الزرقاء، البلقاء، إربد",
+                        CliqAlias = "BLOCKO_DRIVER_CLI",
+                        IsAvailable = true,
+                        IsApproved = true,
+                        ApprovedAt = DateTime.UtcNow,
+                        AverageRating = 4.9m,
+                        TotalRatings = 18,
+                        TotalDeliveredOrders = 42
+                    };
+                    await db.DeliveryDrivers.AddAsync(driverEntity);
+                    await db.SaveChangesAsync();
+                }
+            }
+
+            // 5c. Seed 3PL Fleet Carrier Company (LOG-01 / LOG-04)
+            var carrierEmail = "carrier@blocko.com";
+            var carrierUser = await userManager.FindByEmailAsync(carrierEmail);
+            if (carrierUser == null)
+            {
+                var newCarrierUser = new User
+                {
+                    UserName = carrierEmail,
+                    Email = carrierEmail,
+                    FirstName = "محمود",
+                    LastName = "الزعبي",
+                    CompanyName = "شركة أسطول الأردن للنقل اللوجستي ذ.م.م",
+                    PhoneNumber = "0788765432",
+                    UserType = UserType.DeliveryCompanyUser,
+                    EmailConfirmed = true,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var cResult = await userManager.CreateAsync(newCarrierUser, "Carrier@2026!");
+                if (cResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(newCarrierUser, "DeliveryCompanyUser");
+
+                    var companyEntity = new Bolcko.Domain.Entities.Delivery.DeliveryCompany
+                    {
+                        Name = "شركة أسطول الأردن للنقل اللوجستي ذ.م.م",
+                        Email = carrierEmail,
+                        PhoneNumber = "0788765432",
+                        CommercialRegister = "100294819",
+                        TaxId = "78912345",
+                        TransportCommissionLicense = "LTRC-CO-2026-99",
+                        CliqAlias = "JORDAN_FLEET_3PL",
+                        TotalTrucksCount = 8,
+                        BaseDeliveryRate = 25.00m,
+                        IsActive = true,
+                        IsApproved = true,
+                        SupportsOversized = true,
+                        IsApiIntegration = true,
+                        ManagerUserId = newCarrierUser.Id.ToString()
+                    };
+                    await db.DeliveryCompanies.AddAsync(companyEntity);
+                    await db.SaveChangesAsync();
+                }
+            }
+
             // 6. Seed Market Prices
             var dbContext = scope.ServiceProvider.GetRequiredService<Blocko.Persistence.BlockoDbContext>();
             if (!dbContext.MarketPrices.Any())
