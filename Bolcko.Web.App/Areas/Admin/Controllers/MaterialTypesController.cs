@@ -1,8 +1,7 @@
-using Blocko.Persistence;
 using Bolcko.Domain.Entities.Catalog;
+using Bolcko.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +13,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     [Route("Admin/[controller]")]
     public class MaterialTypesController : Controller
     {
-        private readonly BlockoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MaterialTypesController(BlockoDbContext context)
+        public MaterialTypesController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -26,10 +25,10 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [Route("Index")]
         public async Task<IActionResult> Index()
         {
-            var materials = await _context.MaterialTypes
+            var materials = (await _unitOfWork.MaterialTypes.GetAllAsync())
                 .OrderBy(m => m.SortOrder)
                 .ThenBy(m => m.NameAr)
-                .ToListAsync();
+                .ToList();
             return View(materials);
         }
 
@@ -55,8 +54,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
 
             model.CreatedAt = DateTime.UtcNow;
-            _context.MaterialTypes.Add(model);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.MaterialTypes.AddAsync(model);
+            await _unitOfWork.CompleteAsync();
 
             TempData["Success"] = "تمت إضافة مادة البناء وتصنيفها الديناميكي بنجاح!";
             return RedirectToAction(nameof(Index));
@@ -67,7 +66,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(MaterialType model)
         {
-            var existing = await _context.MaterialTypes.FindAsync(model.Id);
+            var existing = await _unitOfWork.MaterialTypes.GetByIdAsync(model.Id);
             if (existing == null) return NotFound();
 
             existing.NameAr = model.NameAr;
@@ -79,7 +78,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             existing.IsActive = model.IsActive;
             existing.SortOrder = model.SortOrder;
 
-            await _context.SaveChangesAsync();
+            _unitOfWork.MaterialTypes.Update(existing);
+            await _unitOfWork.CompleteAsync();
             TempData["Success"] = "تم تحديث مواصفات مادة البناء بنجاح!";
             return RedirectToAction(nameof(Index));
         }
@@ -89,11 +89,11 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _context.MaterialTypes.FindAsync(id);
+            var existing = await _unitOfWork.MaterialTypes.GetByIdAsync(id);
             if (existing != null)
             {
-                _context.MaterialTypes.Remove(existing);
-                await _context.SaveChangesAsync();
+                _unitOfWork.MaterialTypes.Remove(existing);
+                await _unitOfWork.CompleteAsync();
                 TempData["Success"] = "تم حذف المادة بنجاح.";
             }
             return RedirectToAction(nameof(Index));
@@ -103,7 +103,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
         [Route("GetSchema/{id}")]
         public async Task<IActionResult> GetSchema(int id)
         {
-            var mat = await _context.MaterialTypes.FindAsync(id);
+            var mat = await _unitOfWork.MaterialTypes.GetByIdAsync(id);
             if (mat == null) return NotFound();
             return Json(new
             {

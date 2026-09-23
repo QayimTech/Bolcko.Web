@@ -1,0 +1,160 @@
+@model Bolcko.Domain.Entities.Catalog.VendorProfile
+@{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic ? "كشف حساب الضمان المالي والمستحقات (Escrow Payouts) | بلوكو" : "Vendor Escrow & Financial Settlements | BLOCKO";
+}
+
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-start font-sans" dir="@(isArabic ? "rtl" : "ltr")">
+    <div class="max-w-6xl mx-auto space-y-8">
+
+        <!-- Top Header & Escrow Protection Badge -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-[#E8A020] border border-amber-500/20 flex items-center justify-center font-black text-2xl shadow-inner shrink-0">
+                    <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">كشف حساب الضمان المالي والمستحقات</h1>
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-mono text-xs font-bold border border-emerald-500/20">
+                            Bank Escrow Protected
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        إدارة المستحقات المالية عن توريد المواد الإنشائية والإفراج التلقائي عن المبالغ المحجوزة عبر حساب الضمان.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <a asp-action="Index" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                    العودة للوحة المورد
+                </a>
+            </div>
+        </div>
+
+        <!-- Escrow Financial Balances Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">الرصيد المتاح للصرف</span>
+                    <span class="material-symbols-outlined text-emerald-500">payments</span>
+                </div>
+                <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    12,450.00 <span class="text-xs font-sans">د.أ</span>
+                </div>
+                <span class="text-[11px] text-slate-500 block">جاهز للتحويل البنكي الفوري</span>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-amber-500/30 dark:border-amber-500/40 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-wider">مبالغ قيد الضمان (Escrow)</span>
+                    <span class="material-symbols-outlined text-[#E8A020]">lock</span>
+                </div>
+                <div class="text-3xl font-black text-amber-600 dark:text-amber-400 font-mono">
+                    5,800.00 <span class="text-xs font-sans">د.أ</span>
+                </div>
+                <span class="text-[11px] text-slate-500 block">يُفرَج عنها عند تأكيد تسليم e-POD</span>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">إجمالي المبيعات المنجزة</span>
+                    <span class="material-symbols-outlined text-blue-500">trending_up</span>
+                </div>
+                <div class="text-3xl font-black text-slate-800 dark:text-white font-mono">
+                    18,250.00 <span class="text-xs font-sans text-slate-400">د.أ</span>
+                </div>
+                <span class="text-[11px] text-slate-500 block">من خلال منصة وعطاءات بلوكو</span>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">معرف التسوية البنكية</span>
+                    <span class="material-symbols-outlined text-indigo-500">account_balance</span>
+                </div>
+                <div class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 truncate" title="@(Model?.CompanyNameAr ?? "بنك الاتحاد الأردني")">
+                    @(Model?.CompanyNameAr != null ? $"حساب تسوية: {Model.CompanyNameAr}" : "بنك الاتحاد الأردني")
+                </div>
+                <span class="text-[11px] text-slate-500 font-mono block">IBAN: JO98ETIH0000000000000000000000</span>
+            </div>
+        </div>
+
+        <!-- Escrow Protection Explanation Alert -->
+        <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-4">
+            <span class="material-symbols-outlined text-[#E8A020] text-2xl shrink-0 mt-0.5">verified_user</span>
+            <div class="space-y-1 text-xs">
+                <h4 class="font-bold text-slate-900 dark:text-white">آلية عمل الضمان المالي في عقود التوريد الإنشائي:</h4>
+                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    يتم قفل أموال المقاولين أو الممولين بنسبة 100% في حساب الضمان البنكي التابع للمنصة قبل انطلاق الشاحنات. وبمجرد وصول الشاحنة لموقع الورشة وتوثيق رمز التسليم الرقمي (e-POD) وتذكرة القبان، يتم الإفراج التلقائي عن المبالغ وتحويلها إلى رصيدك القابل للصرف فوراً دون مخاطر تعثر أو تأخير في السداد.
+                </p>
+            </div>
+        </div>
+
+        <!-- Ledger Table of Recent Escrow Releases -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 class="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#E8A020]">receipt_long</span>
+                    <span>سجل حركات الضمان المالي والتسويات الأخيرة</span>
+                </h3>
+                <span class="text-xs text-slate-500 font-mono">آخر تحديث لحظي</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-start text-xs">
+                    <thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 font-bold border-b border-slate-100 dark:border-slate-800">
+                        <tr>
+                            <th class="p-4">رقم الحركة والطلب</th>
+                            <th class="p-4">المادة الموردة</th>
+                            <th class="p-4">القيمة الإجمالية</th>
+                            <th class="p-4">حالة الضمان المالي</th>
+                            <th class="p-4">حالة الإفراج والصرف</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="p-4">
+                                <span class="font-bold text-slate-900 dark:text-white block font-mono">TXN-984102</span>
+                                <span class="text-[10px] text-slate-400 font-mono">طلب #ORD-2026-081</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="font-bold">حديد تسليح عالي المقاومة (40 طن)</span>
+                                <span class="text-[10px] text-slate-400 block">مشروع أبراج العبدلي</span>
+                            </td>
+                            <td class="p-4 font-mono font-bold text-slate-900 dark:text-white">20,600.00 د.أ</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-[10px]">
+                                    ✔ تم الإفراج بعد e-POD
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">تم التحويل للآيبان</span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="p-4">
+                                <span class="font-bold text-slate-900 dark:text-white block font-mono">TXN-984095</span>
+                                <span class="text-[10px] text-slate-400 font-mono">طلب #ORD-2026-079</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="font-bold">إسمنت بورتلاندي عادي (30 طن)</span>
+                                <span class="text-[10px] text-slate-400 block">مستودع شركة الشرق</span>
+                            </td>
+                            <td class="p-4 font-mono font-bold text-slate-900 dark:text-white">2,850.00 د.أ</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-bold text-[10px]">
+                                    🔒 محجوز بقيد الطريق (EnRoute)
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <span class="font-bold text-slate-500">بانتظار وصول الشاحنة</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

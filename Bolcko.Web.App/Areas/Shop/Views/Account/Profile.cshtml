@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = SharedLocalizer["Dashboard"];
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
+}
+<script>
+    window.location.replace('@Url.Action("Index", "Account", new { area = "Shop" })');
+</script>
+<noscript>
+    <meta http-equiv="refresh" content="0;url=@Url.Action("Index", "Account", new { area = "Shop" })" />
+</noscript>

@@ -1,4 +1,4 @@
-@inject Blocko.Persistence.BlockoDbContext DbContext
+@inject Bolcko.Domain.Interfaces.IUnitOfWork UnitOfWork
 @inject Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> UserManager
 
 @{
@@ -7,7 +7,8 @@
     var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
     var user = await UserManager.GetUserAsync(User);
-    var vendor = user != null ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(DbContext.VendorProfiles, v => v.UserId == user.Id) : null;
+    var vendorList = user != null ? await UnitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id) : null;
+    var vendor = vendorList?.FirstOrDefault();
     
     var companyName = !string.IsNullOrWhiteSpace(vendor?.CompanyNameAr) 
         ? vendor.CompanyNameAr 
@@ -18,9 +19,17 @@
         : (!string.IsNullOrWhiteSpace(vendor?.CompanyNameAr) ? Uri.EscapeDataString(vendor.CompanyNameAr) : "al-qannas");
 
     var vendorId = vendor?.Id ?? 0;
-    var productCount = vendorId > 0 
-        ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.CountAsync(DbContext.Products, p => p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId)
-        : (user != null ? await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.CountAsync(DbContext.Products, p => p.SupplierKey == "vendor_" + user.Id) : 0);
+    var productCount = 0;
+    if (vendorId > 0)
+    {
+        var prods = await UnitOfWork.Products.FindAsync(p => p.SupplierId == vendorId || p.SupplierKey == "vendor_" + vendorId);
+        productCount = prods.Count();
+    }
+    else if (user != null)
+    {
+        var prods = await UnitOfWork.Products.FindAsync(p => p.SupplierKey == "vendor_" + user.Id);
+        productCount = prods.Count();
+    }
 
     var initialLetter = !string.IsNullOrWhiteSpace(companyName) ? companyName.Trim().Substring(0, 1) : "م";
     var tierBadge = vendor?.SubscriptionTier ?? "Gold";

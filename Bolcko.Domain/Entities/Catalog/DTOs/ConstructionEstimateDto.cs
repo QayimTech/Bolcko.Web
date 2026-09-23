@@ -87,4 +87,13 @@ namespace Bolcko.Domain.Entities.Catalog.DTOs
         public List<MaterialEstimateItem> MaterialItems { get; set; } = new();
         public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
     }
+
+    public class MaterialBaselineRatesDto
+    {
+        public decimal SteelRatePerTon { get; set; }
+        public decimal CementRatePerTon { get; set; }
+        public decimal ConcreteRatePerM3 { get; set; }
+        public decimal BlocksRatePerThousand { get; set; }
+        public decimal SandRatePerM3 { get; set; }
+    }
 }

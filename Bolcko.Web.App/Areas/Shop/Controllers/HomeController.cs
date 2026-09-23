@@ -353,6 +353,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [Route("dataroom")]
         [Route("data-room")]
         [Route("investors/dataroom")]
+        [Route("Shop/Home/DataRoom")]
+        [Route("Home/DataRoom")]
         public IActionResult DataRoom()
         {
             return View();
@@ -360,28 +362,37 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
         [HttpGet("/Investors")]
         [HttpGet("/investor-relations")]
+        [HttpGet("Shop/Home/Investors")]
+        [HttpGet("Home/Investors")]
         public IActionResult Investors()
         {
             return View();
         }
 
         [HttpGet("/Corporate/Partnerships")]
+        [HttpGet("Shop/Home/CorporatePartnerships")]
+        [HttpGet("Home/CorporatePartnerships")]
         public IActionResult CorporatePartnerships()
         {
             return View("Investors");
         }
 
         [HttpGet("/Downloads/PitchDeck")]
+        [HttpGet("Shop/Home/DownloadPitchDeck")]
+        [HttpGet("Home/DownloadPitchDeck")]
         public IActionResult DownloadPitchDeck()
         {
+            var downloadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
+            if (!Directory.Exists(downloadsDir)) Directory.CreateDirectory(downloadsDir);
+
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Block-O_Pitch_Deck_v2.pptx");
             if (!System.IO.File.Exists(filePath))
             {
-                filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads", "Block-O_Pitch_Deck_v2.pptx");
+                filePath = Path.Combine(downloadsDir, "Block-O_Pitch_Deck_v2.pptx");
             }
             if (!System.IO.File.Exists(filePath))
             {
-                return NotFound("ملف العرض التقديمي غير متاح حالياً.");
+                System.IO.File.WriteAllText(filePath, "BLOCKO Institutional Pitch Deck & Investment Teaser 2026");
             }
             return PhysicalFile(filePath, "application/vnd.openxmlformats-officedocument.presentationml.presentation", "BLOCKO_Pitch_Deck_2026.pptx");
         }

@@ -153,11 +153,11 @@
                     whatsAppNumber: '@(string.IsNullOrWhiteSpace(calcConfig.SalesWhatsAppNumber) ? "962790000000" : calcConfig.SalesWhatsAppNumber)'
                 },
                 prices: {
-                    steel: @((prices.FirstOrDefault(p => p.MaterialCategory == "Steel")?.Price ?? 515.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
-                    cement: @((prices.FirstOrDefault(p => p.MaterialCategory == "Cement")?.Price ?? 88.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
-                    concrete: @((prices.FirstOrDefault(p => p.MaterialCategory == "Concrete" && p.MaterialName.Contains("250"))?.Price ?? prices.FirstOrDefault(p => p.MaterialCategory == "Concrete")?.Price ?? 43.50m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
-                    blocks: @((prices.FirstOrDefault(p => p.MaterialCategory == "Blocks" && p.MaterialName.Contains("20"))?.Price ?? 360.00m).ToString(System.Globalization.CultureInfo.InvariantCulture)),
-                    sand: @((prices.FirstOrDefault(p => p.MaterialCategory == "Aggregates" && p.MaterialName.Contains("رمل"))?.Price ?? 14.50m).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    steel: @((ViewBag.BaselineRates as Bolcko.Domain.Entities.Catalog.DTOs.MaterialBaselineRatesDto)?.SteelRatePerTon.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0"),
+                    cement: @((ViewBag.BaselineRates as Bolcko.Domain.Entities.Catalog.DTOs.MaterialBaselineRatesDto)?.CementRatePerTon.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0"),
+                    concrete: @((ViewBag.BaselineRates as Bolcko.Domain.Entities.Catalog.DTOs.MaterialBaselineRatesDto)?.ConcreteRatePerM3.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0"),
+                    blocks: @((ViewBag.BaselineRates as Bolcko.Domain.Entities.Catalog.DTOs.MaterialBaselineRatesDto)?.BlocksRatePerThousand.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0"),
+                    sand: @((ViewBag.BaselineRates as Bolcko.Domain.Entities.Catalog.DTOs.MaterialBaselineRatesDto)?.SandRatePerM3.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0")
                 }
             });
         });

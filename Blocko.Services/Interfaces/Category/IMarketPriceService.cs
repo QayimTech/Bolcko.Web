@@ -17,5 +17,6 @@ namespace Blocko.Services.Interfaces.Category
         Task<ConstructionEstimateResultDto> CalculateEstimateAsync(ConstructionEstimateRequestDto request);
         Task<CalculatorConfigurationDto> GetCalculatorConfigurationAsync();
         Task SaveCalculatorConfigurationAsync(CalculatorConfigurationDto config);
+        Task<MaterialBaselineRatesDto> GetBaselineMaterialRatesAsync();
     }
 }

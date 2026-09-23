@@ -10,8 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]
+    [Route("Shop/[controller]/[action]")]
+    [Route("Shop/[controller]")]
     [Route("Contractor/Financing")]
     [Route("Contractor/[controller]/[action]")]
+    [Route("[controller]/[action]")]
+    [Route("[controller]")]
     [Authorize(Roles = "Contractor, Admin, SuperAdmin, DashboardUser")]
     public class ContractorFinancingController : Controller
     {
@@ -25,6 +29,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         [HttpGet]
         [Route("")]
         [Route("Dashboard")]
+        [Route("Index")]
         public async Task<IActionResult> Dashboard()
         {
             int? userId = null;

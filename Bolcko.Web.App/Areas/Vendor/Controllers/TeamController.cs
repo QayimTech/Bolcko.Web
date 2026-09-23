@@ -1,11 +1,10 @@
-using Blocko.Persistence;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
+using Bolcko.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,12 +16,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
     [Route("Vendor/[controller]")]
     public class TeamController : Controller
     {
-        private readonly BlockoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
 
-        public TeamController(BlockoDbContext context, UserManager<User> userManager)
+        public TeamController(IUnitOfWork unitOfWork, UserManager<User> userManager)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
 
@@ -30,7 +29,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return null;
-            return await _context.VendorProfiles.FirstOrDefaultAsync(v => v.UserId == user.Id);
+            var list = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            return list.FirstOrDefault();
         }
 
         [HttpGet]
@@ -45,29 +45,29 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            var query = _context.VendorTeamMembers
-                .Include(t => t.User)
-                .Where(t => t.VendorId == vendor.Id)
-                .AsQueryable();
+            var allMembers = (await _unitOfWork.VendorTeamMembers.FindAsync(t => t.VendorId == vendor.Id)).ToList();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim().ToLower();
-                query = query.Where(t => t.FullName.ToLower().Contains(s) || t.Email.ToLower().Contains(s) || t.PhoneNumber.Contains(s));
+                allMembers = allMembers.Where(t => t.FullName.ToLower().Contains(s) || t.Email.ToLower().Contains(s) || t.PhoneNumber.Contains(s)).ToList();
             }
 
             if (role.HasValue)
             {
-                query = query.Where(t => t.RoleType == role.Value);
+                allMembers = allMembers.Where(t => t.RoleType == role.Value).ToList();
             }
 
-            var teamMembers = await query.OrderByDescending(t => t.InvitedAt).ToListAsync();
+            var teamMembers = allMembers.OrderByDescending(t => t.InvitedAt).ToList();
+
+            var totalMembers = await _unitOfWork.VendorTeamMembers.FindAsync(t => t.VendorId == vendor.Id);
+            var totalList = totalMembers.ToList();
 
             ViewBag.VendorProfile = vendor;
-            ViewBag.TotalCount = await _context.VendorTeamMembers.CountAsync(t => t.VendorId == vendor.Id);
-            ViewBag.DataEntryCount = await _context.VendorTeamMembers.CountAsync(t => t.VendorId == vendor.Id && t.RoleType == VendorRoleType.DataEntry);
-            ViewBag.WarehouseCount = await _context.VendorTeamMembers.CountAsync(t => t.VendorId == vendor.Id && t.RoleType == VendorRoleType.WarehouseDispatch);
-            ViewBag.AccountantCount = await _context.VendorTeamMembers.CountAsync(t => t.VendorId == vendor.Id && t.RoleType == VendorRoleType.Accountant);
+            ViewBag.TotalCount = totalList.Count;
+            ViewBag.DataEntryCount = totalList.Count(t => t.RoleType == VendorRoleType.DataEntry);
+            ViewBag.WarehouseCount = totalList.Count(t => t.RoleType == VendorRoleType.WarehouseDispatch);
+            ViewBag.AccountantCount = totalList.Count(t => t.RoleType == VendorRoleType.Accountant);
 
             return View(teamMembers);
         }
@@ -96,8 +96,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var existingMember = await _context.VendorTeamMembers
-                .FirstOrDefaultAsync(t => t.VendorId == vendor.Id && t.Email.ToLower() == cleanedEmail);
+            var existingList = await _unitOfWork.VendorTeamMembers.FindAsync(t => t.VendorId == vendor.Id && t.Email.ToLower() == cleanedEmail);
+            var existingMember = existingList.FirstOrDefault();
 
             if (existingMember != null)
             {
@@ -169,8 +169,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
                 JoinedAt = DateTime.UtcNow
             };
 
-            _context.VendorTeamMembers.Add(teamMember);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.VendorTeamMembers.AddAsync(teamMember);
+            await _unitOfWork.CompleteAsync();
 
             TempData["Success"] = $"تمت إضافة العضو ({fullName}) وتعيين صلاحياته ضمن فريق العمل بنجاح!";
             return RedirectToAction(nameof(Index));
@@ -184,11 +184,13 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null) return Json(new { success = false, message = "غير مصرح." });
 
-            var member = await _context.VendorTeamMembers.FirstOrDefaultAsync(t => t.Id == id && t.VendorId == vendor.Id);
+            var list = await _unitOfWork.VendorTeamMembers.FindAsync(t => t.Id == id && t.VendorId == vendor.Id);
+            var member = list.FirstOrDefault();
             if (member == null) return Json(new { success = false, message = "العضو غير موجود." });
 
             member.IsActive = !member.IsActive;
-            await _context.SaveChangesAsync();
+            _unitOfWork.VendorTeamMembers.Update(member);
+            await _unitOfWork.CompleteAsync();
 
             return Json(new { success = true, isActive = member.IsActive, message = member.IsActive ? "تم تفعيل حساب العضو." : "تم تعطيل وصول العضو مؤقتاً." });
         }
@@ -201,11 +203,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var vendor = await GetCurrentVendorProfileAsync();
             if (vendor == null) return Json(new { success = false, message = "غير مصرح." });
 
-            var member = await _context.VendorTeamMembers.FirstOrDefaultAsync(t => t.Id == id && t.VendorId == vendor.Id);
+            var list = await _unitOfWork.VendorTeamMembers.FindAsync(t => t.Id == id && t.VendorId == vendor.Id);
+            var member = list.FirstOrDefault();
             if (member == null) return Json(new { success = false, message = "العضو غير موجود." });
 
-            _context.VendorTeamMembers.Remove(member);
-            await _context.SaveChangesAsync();
+            _unitOfWork.VendorTeamMembers.Remove(member);
+            await _unitOfWork.CompleteAsync();
 
             return Json(new { success = true, message = "تم حذف العضو من فريق العمل بنجاح." });
         }

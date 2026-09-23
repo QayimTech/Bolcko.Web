@@ -19,6 +19,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IServiceManager _serviceManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly ITranslationService _translationService;
@@ -26,12 +27,14 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         public ProductController(
             IServiceManager serviceManager,
+            IUnitOfWork unitOfWork,
             IWebHostEnvironment webHostEnvironment,
             IBackgroundJobClient backgroundJobClient,
             ITranslationService translationService,
             IImageService imageService)
         {
             _serviceManager = serviceManager;
+            _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
             _backgroundJobClient = backgroundJobClient;
             _translationService = translationService;
@@ -45,134 +48,119 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             int? categoryId = null, 
             int? supplierId = null,
             string? moderationStatus = null,
-            string? sortOrder = null,
-            [FromServices] Blocko.Persistence.BlockoDbContext? db = null)
+            string? sortOrder = null)
         {
-            if (db != null)
+            var query = _unitOfWork.Products
+                .GetAllAsQueryable(trackChanges: false)
+                .Include(p => p.Category)
+                .Include(p => p.Variants)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                var query = db.Products
-                    .AsNoTracking()
-                    .Include(p => p.Category)
-                    .Include(p => p.Variants)
-                    .AsQueryable();
-
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var s = search.Trim().ToLower();
-                    query = query.Where(p => p.Name.ToLower().Contains(s) || 
-                                             (p.NameEn != null && p.NameEn.ToLower().Contains(s)) ||
-                                             p.Sku.ToLower().Contains(s));
-                }
-
-                if (categoryId.HasValue && categoryId.Value > 0)
-                {
-                    query = query.Where(p => p.CategoryId == categoryId.Value);
-                }
-
-                if (supplierId.HasValue && supplierId.Value > 0)
-                {
-                    query = query.Where(p => p.SupplierId == supplierId.Value || p.SupplierKey == "vendor_" + supplierId.Value);
-                }
-
-                if (!string.IsNullOrWhiteSpace(moderationStatus) && moderationStatus != "All")
-                {
-                    query = query.Where(p => p.ModerationStatus == moderationStatus);
-                }
-
-                var totalCount = await query.CountAsync();
-
-                IOrderedQueryable<Bolcko.Domain.Entities.Product.Product> ordered = sortOrder switch
-                {
-                    "name_asc" => query.OrderBy(p => p.Name),
-                    "name_desc" => query.OrderByDescending(p => p.Name),
-                    "price_asc" => query.OrderBy(p => p.RetailPrice),
-                    "price_desc" => query.OrderByDescending(p => p.RetailPrice),
-                    _ => query.OrderByDescending(p => p.Id)
-                };
-
-                var items = await ordered
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
-
-                var vendorProfiles = await db.VendorProfiles.AsNoTracking().ToListAsync();
-                var vendorDict = vendorProfiles.ToDictionary(v => v.Id, v => v.CompanyNameAr);
-
-                var productDtos = items.Select(p => {
-                    string supplierName = "مجموعة القنّاص";
-                    int vId = 0;
-                    if (p.SupplierId.HasValue && vendorDict.ContainsKey(p.SupplierId.Value))
-                    {
-                        supplierName = vendorDict[p.SupplierId.Value];
-                    }
-                    else if (!string.IsNullOrEmpty(p.SupplierKey) && p.SupplierKey.StartsWith("vendor_") && int.TryParse(p.SupplierKey.Replace("vendor_", ""), out vId) && vendorDict.ContainsKey(vId))
-                    {
-                        supplierName = vendorDict[vId];
-                    }
-
-                    return new ProductDto
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        NameEn = p.NameEn,
-                        Description = p.Description,
-                        DescriptionEn = p.DescriptionEn,
-                        CategoryId = p.CategoryId,
-                        CategoryName = p.Category?.Name,
-                        SupplierId = p.SupplierId,
-                        SupplierName = supplierName,
-                        RetailPrice = p.RetailPrice,
-                        StockQuantity = p.StockQuantity,
-                        UnitOfMeasure = p.UnitOfMeasure,
-                        Sku = p.Sku,
-                        ImageUrl = p.ImageUrl,
-                        ModerationStatus = string.IsNullOrEmpty(p.ModerationStatus) ? "Approved" : p.ModerationStatus,
-                        RejectionReason = p.RejectionReason,
-                        ModeratedAt = p.ModeratedAt,
-                        UpdatedAt = p.UpdatedAt
-                    };
-                }).ToList();
-
-                var pagedList = new Blocko.Persistence.Common.PagedList<ProductDto>(productDtos, totalCount, page, pageSize);
-                ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-                ViewBag.Vendors = vendorProfiles;
-
-                var viewModel = new ProductIndexViewModel
-                {
-                    Products = pagedList,
-                    Search = search,
-                    CategoryId = categoryId,
-                    SupplierId = supplierId,
-                    ModerationStatus = moderationStatus,
-                    SortOrder = sortOrder
-                };
-                return View(viewModel);
+                var s = search.Trim().ToLower();
+                query = query.Where(p => p.Name.ToLower().Contains(s) || 
+                                         (p.NameEn != null && p.NameEn.ToLower().Contains(s)) ||
+                                         p.Sku.ToLower().Contains(s));
             }
 
-            var products = await _serviceManager.ProductService.GetPagedProductsAsync(page, pageSize, search, categoryId, sortOrder);
-            ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
-
-            var defaultViewModel = new ProductIndexViewModel
+            if (categoryId.HasValue && categoryId.Value > 0)
             {
-                Products = products,
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (supplierId.HasValue && supplierId.Value > 0)
+            {
+                query = query.Where(p => p.SupplierId == supplierId.Value || p.SupplierKey == "vendor_" + supplierId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(moderationStatus) && moderationStatus != "All")
+            {
+                query = query.Where(p => p.ModerationStatus == moderationStatus);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            IOrderedQueryable<Bolcko.Domain.Entities.Product.Product> ordered = sortOrder switch
+            {
+                "name_asc" => query.OrderBy(p => p.Name),
+                "name_desc" => query.OrderByDescending(p => p.Name),
+                "price_asc" => query.OrderBy(p => p.RetailPrice),
+                "price_desc" => query.OrderByDescending(p => p.RetailPrice),
+                _ => query.OrderByDescending(p => p.Id)
+            };
+
+            var items = await ordered
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vendorProfiles = await _unitOfWork.VendorProfiles.GetAllAsQueryable(trackChanges: false).ToListAsync();
+            var vendorDict = vendorProfiles.ToDictionary(v => v.Id, v => v.CompanyNameAr);
+
+            var productDtos = items.Select(p => {
+                string supplierName = "(بدون مورد)";
+                int vId = 0;
+                if (p.SupplierId.HasValue && vendorDict.ContainsKey(p.SupplierId.Value))
+                {
+                    supplierName = vendorDict[p.SupplierId.Value];
+                }
+                else if (!string.IsNullOrEmpty(p.SupplierKey) && p.SupplierKey.StartsWith("vendor_") && int.TryParse(p.SupplierKey.Replace("vendor_", ""), out vId) && vendorDict.ContainsKey(vId))
+                {
+                    supplierName = vendorDict[vId];
+                }
+
+                return new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NameEn = p.NameEn,
+                    Description = p.Description,
+                    DescriptionEn = p.DescriptionEn,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category?.Name,
+                    SupplierId = p.SupplierId,
+                    SupplierName = supplierName,
+                    RetailPrice = p.RetailPrice,
+                    StockQuantity = p.StockQuantity,
+                    UnitOfMeasure = p.UnitOfMeasure,
+                    Sku = p.Sku,
+                    ImageUrl = p.ImageUrl,
+                    ModerationStatus = string.IsNullOrEmpty(p.ModerationStatus) ? "Approved" : p.ModerationStatus,
+                    RejectionReason = p.RejectionReason,
+                    ModeratedAt = p.ModeratedAt,
+                    UpdatedAt = p.UpdatedAt
+                };
+            }).ToList();
+
+            var pagedList = new Blocko.Persistence.Common.PagedList<ProductDto>(productDtos, totalCount, page, pageSize);
+            ViewBag.Categories = await _serviceManager.CategoryService.GetAllCategoriesAsync();
+            ViewBag.Vendors = vendorProfiles;
+
+            var viewModel = new ProductIndexViewModel
+            {
+                Products = pagedList,
                 Search = search,
                 CategoryId = categoryId,
+                SupplierId = supplierId,
+                ModerationStatus = moderationStatus,
                 SortOrder = sortOrder
             };
-            return View(defaultViewModel);
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Approve(int id, [FromServices] Blocko.Persistence.BlockoDbContext db)
+        public async Task<IActionResult> Approve(int id)
         {
-            var product = await db.Products.FindAsync(id);
+            var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product != null)
             {
                 product.ModerationStatus = "Approved";
                 product.RejectionReason = null;
                 product.ModeratedAt = DateTime.UtcNow;
-                await db.SaveChangesAsync();
+                _unitOfWork.Products.Update(product);
+                await _unitOfWork.CompleteAsync();
                 TempData["SuccessMessage"] = $"تم اعتماد ونشر مادة البناء '{product.Name}' بنجاح! ✓";
             }
             return RedirectToAction(nameof(Index));
@@ -180,15 +168,16 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(int id, string? reason, [FromServices] Blocko.Persistence.BlockoDbContext db)
+        public async Task<IActionResult> Reject(int id, string? reason)
         {
-            var product = await db.Products.FindAsync(id);
+            var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product != null)
             {
                 product.ModerationStatus = "Rejected";
                 product.RejectionReason = string.IsNullOrWhiteSpace(reason) ? "لم يستوفِ معايير الجودة ومطابقة الجمعية العلمية الملكية (RSS/ASTM)" : reason.Trim();
                 product.ModeratedAt = DateTime.UtcNow;
-                await db.SaveChangesAsync();
+                _unitOfWork.Products.Update(product);
+                await _unitOfWork.CompleteAsync();
                 TempData["SuccessMessage"] = $"تم رفض مادة البناء '{product.Name}' وتوثيق السبب للمورد.";
             }
             return RedirectToAction(nameof(Index));

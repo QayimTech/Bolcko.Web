@@ -48,6 +48,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             var estimate = await _serviceManager.MarketPriceService.CalculateEstimateAsync(defaultReq);
             ViewBag.Prices = await _serviceManager.MarketPriceService.GetMarketPricesDtoAsync();
+            ViewBag.BaselineRates = await _serviceManager.MarketPriceService.GetBaselineMaterialRatesAsync();
             ViewBag.FAQs = await _serviceManager.FAQService.GetActiveFAQsByPageAsync("Calculator");
             ViewBag.DefaultReq = defaultReq;
             ViewBag.CalculatorConfig = await _serviceManager.MarketPriceService.GetCalculatorConfigurationAsync();

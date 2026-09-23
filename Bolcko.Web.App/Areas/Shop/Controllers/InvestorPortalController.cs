@@ -12,8 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Shop.Controllers
 {
     [Area("Shop")]
+    [Route("Shop/[controller]")]
+    [Route("Shop/[controller]/[action]")]
+    [Route("InvestorPortal")]
     [Route("Investor/Marketplace")]
     [Route("Investor/[controller]/[action]")]
+    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class InvestorPortalController : Controller
     {
         private readonly IServiceManager _serviceManager;

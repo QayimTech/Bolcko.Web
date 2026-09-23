@@ -84,10 +84,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
                     }
 
-                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser") ||
-                        await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+                    if (await _userManager.IsInRoleAsync(user, "DeliveryCompanyUser"))
                     {
-                        return RedirectToAction("DriverPOD", "Financing", new { area = "Shop" });
+                        return RedirectToAction("CompanyIndex", "Home", new { area = "Delivery" });
+                    }
+
+                    if (await _userManager.IsInRoleAsync(user, "DeliveryDriver"))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Delivery" });
                     }
 
                     return RedirectToAction("Index", "Category", new { area = "Shop" });
@@ -123,7 +127,8 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             if (role == "Vendor") return RedirectToAction("Index", "Dashboard", new { area = "Vendor" });
             if (role == "Contractor") return RedirectToAction("Workspace", "Contractor", new { area = "Shop" });
             if (role == "Investor") return RedirectToAction("InvestorDashboard", "Financing", new { area = "Shop" });
-            if (role == "DeliveryDriver") return RedirectToAction("DriverPOD", "Financing", new { area = "Shop" });
+            if (role == "DeliveryDriver") return RedirectToAction("Index", "Home", new { area = "Delivery" });
+            if (role == "DeliveryCompanyUser") return RedirectToAction("CompanyIndex", "Home", new { area = "Delivery" });
 
             return RedirectToAction("Index", "Home");
         }
@@ -296,7 +301,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             ViewBag.Tenders = tenders.ToList();
             ViewBag.Projects = projects.ToList();
 
-            return View();
+            return View("Index");
         }
 
         public IActionResult AccessDenied()

@@ -189,7 +189,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-1.5">
                                     <span class="material-symbols-outlined text-amber-500 text-base">storefront</span>
-                                    <span class="text-xs font-bold text-slate-800">@(item.SupplierName ?? "مجموعة القنّاص")</span>
+                                    <span class="text-xs font-bold text-slate-800">@(string.IsNullOrWhiteSpace(item.SupplierName) ? "(بدون مورد)" : item.SupplierName)</span>
                                 </div>
                             </td>
                             <!-- Moderation / Quality Gate -->

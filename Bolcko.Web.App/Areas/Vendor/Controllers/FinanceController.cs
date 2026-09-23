@@ -1,12 +1,11 @@
-using Blocko.Persistence;
 using Bolcko.Domain.Entities.Catalog;
 using Bolcko.Domain.Entities.Order;
 using Bolcko.Domain.Entities.User;
 using Bolcko.Domain.Enums;
+using Bolcko.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,12 +17,12 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
     [Route("Vendor/[controller]")]
     public class FinanceController : Controller
     {
-        private readonly BlockoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
 
-        public FinanceController(BlockoDbContext context, UserManager<User> userManager)
+        public FinanceController(IUnitOfWork unitOfWork, UserManager<User> userManager)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
 
@@ -31,7 +30,8 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return null;
-            return await _context.VendorProfiles.FirstOrDefaultAsync(v => v.UserId == user.Id);
+            var list = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            return list.FirstOrDefault();
         }
 
         [HttpGet]
@@ -44,12 +44,11 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var commissionRate = (vendor?.CommissionRatePercentage ?? 2.5m) / 100m;
 
             // Fetch vendor order items
-            var orderItems = await _context.OrderItems
-                .Include(oi => oi.Order)
-                .Include(oi => oi.Product)
-                .Where(oi => oi.Product.SupplierId == vendorId || oi.Product.SupplierKey == "vendor_" + vendorId)
+            var allItems = await _unitOfWork.OrderItems.GetAllAsync();
+            var orderItems = allItems
+                .Where(oi => oi.Product != null && (oi.Product.SupplierId == vendorId || oi.Product.SupplierKey == "vendor_" + vendorId))
                 .OrderByDescending(oi => oi.Id)
-                .ToListAsync();
+                .ToList();
 
             decimal grossSales = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity);
             decimal platformFees = grossSales * commissionRate;
@@ -57,7 +56,7 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
 
             // Delivered orders count towards available payout balance
             decimal availableBalance = orderItems
-                .Where(oi => oi.Order.Status == OrderStatus.Delivered)
+                .Where(oi => oi.Order != null && oi.Order.Status == OrderStatus.Delivered)
                 .Sum(oi => (oi.UnitPrice * oi.Quantity) * (1 - commissionRate));
 
             decimal pendingSettlement = netEarnings - availableBalance;
