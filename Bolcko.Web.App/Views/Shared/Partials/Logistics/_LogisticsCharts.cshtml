@@ -9,8 +9,8 @@
 <!-- Charts & Analytics Section -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
     <!-- Daily Deliveries & COD Histogram -->
-    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+    <div class="lg:col-span-2 bg-white dark:bg-[#0D111A] rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+        <h3 class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-[#E8A020]">bar_chart</span>
             مؤشر التوصيل والتحصيل المالي اليومي (آخر 7 أيام)
         </h3>
@@ -20,9 +20,9 @@
     </div>
 
     <!-- Job Status Distribution Doughnut -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 class="text-xs font-black text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined text-indigo-600">pie_chart</span>
+    <div class="bg-white dark:bg-[#0D111A] rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+        <h3 class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#E8A020]">pie_chart</span>
             توزيع حالات الشحنات
         </h3>
         <div class="relative h-64 flex items-center justify-center">
@@ -65,13 +65,22 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { family: 'Noto Kufi Arabic', size: 11 } } }
-                    },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { type: 'linear', display: true, position: 'right', grid: { color: '#F1F5F9' } },
-                        y1: { type: 'linear', display: true, position: 'left', grid: { drawOnChartArea: false } }
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { precision: 0 }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false }
+                        }
                     }
                 }
             });
@@ -82,21 +91,19 @@
             new Chart(ctxStatus.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['متاح (سوق)', 'قيد التوصيل', 'تم التسليم', 'مرتجع'],
+                    labels: ['متاحة للتوصيل', 'مسندة', 'قيد التوصيل', 'تم التوصيل'],
                     datasets: [{
                         data: statusCounts,
-                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#EF4444'],
-                        borderWidth: 2,
-                        borderColor: '#FFFFFF'
+                        backgroundColor: ['#94A3B8', '#E8A020', '#3B82F6', '#10B981'],
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { font: { family: 'Noto Kufi Arabic', size: 11 } } }
-                    },
-                    cutout: '70%'
+                        legend: { position: 'bottom' }
+                    }
                 }
             });
         }

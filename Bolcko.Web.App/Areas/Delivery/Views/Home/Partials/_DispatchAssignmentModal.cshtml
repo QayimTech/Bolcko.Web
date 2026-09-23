@@ -4,19 +4,19 @@
     var availableDrivers = companyDrivers.Where(d => d.IsAvailable).ToList();
 }
 
-<div id="dispatchAssignModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right" dir="rtl">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+<div id="dispatchAssignModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0D111A] rounded-3xl border border-slate-800 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right" dir="rtl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center font-bold">
                     <span class="material-symbols-outlined">person_add</span>
                 </div>
                 <div>
-                    <h3 class="text-base font-black text-slate-900">تعيين سائق من أسطول الشركة للشحنة</h3>
-                    <p id="assignModalOrderTitle" class="text-xs text-slate-400">إسناد الطلب واختيار الشاحنة المناسبة</p>
+                    <h3 class="text-base font-black text-white">تعيين سائق من أسطول الشركة للشحنة</h3>
+                    <p id="assignModalOrderTitle" class="text-xs text-slate-400">إسناد الشحنة الإنشائية واختيار الشاحنة المناسبة</p>
                 </div>
             </div>
-            <button type="button" onclick="closeDispatchAssignModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button type="button" onclick="closeDispatchAssignModal()" class="text-slate-400 hover:text-white cursor-pointer">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -25,19 +25,19 @@
             @Html.AntiForgeryToken()
             <input type="hidden" id="assignModalJobId" name="jobId" value="" />
 
-            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
+            <div class="p-3.5 bg-[#070A0F] border border-slate-800 rounded-2xl space-y-1">
                 <span class="text-[11px] text-slate-400 block font-bold">تفاصيل المهمة المطلوب نقلها:</span>
-                <div id="assignModalJobDesc" class="font-bold text-slate-800 text-xs">-</div>
+                <div id="assignModalJobDesc" class="font-bold text-amber-300 text-xs">-</div>
             </div>
 
             <div class="space-y-2">
-                <label class="font-bold text-slate-800 block text-xs">
-                    اختر السائق والشاحنة المتاحة: <span class="text-red-500">*</span>
+                <label class="font-bold text-slate-300 block text-xs">
+                    اختر السائق والشاحنة المتاحة: <span class="text-amber-400">*</span>
                 </label>
 
                 @if (!availableDrivers.Any())
                 {
-                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
+                    <div class="p-4 bg-amber-950/20 border border-amber-500/30 rounded-xl text-amber-300 text-xs">
                         ⚠️ لا يوجد سائقون متفرغون حالياً في أسطولك. جميع الشاحنات في مهام توصيل أو يرجى إضافة سائقين جدد.
                     </div>
                 }
@@ -46,17 +46,17 @@
                     <div class="space-y-2 max-h-60 overflow-y-auto pe-1">
                         @foreach (var driver in availableDrivers)
                         {
-                            <label class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 hover:border-blue-500 cursor-pointer bg-white transition-all">
+                            <label class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-800 hover:border-amber-500/40 cursor-pointer bg-[#070A0F] transition-all">
                                 <div class="flex items-center gap-3">
-                                    <input type="radio" name="driverId" value="@driver.Id" required class="text-blue-600 focus:ring-blue-500 h-4 w-4" />
+                                    <input type="radio" name="driverId" value="@driver.Id" required class="text-amber-500 focus:ring-amber-500 h-4 w-4 bg-slate-900 border-slate-700" />
                                     <div>
-                                        <div class="font-bold text-slate-900">@(driver.User != null ? $"{driver.User.FirstName} {driver.User.LastName}" : "سائق أسطول")</div>
-                                        <div class="text-[11px] text-slate-500">
-                                            @(driver.VehicleType ?? "تريلا") • لوحة: <span class="font-mono">@(driver.VehiclePlateNumber ?? "-")</span> • حمولة: <strong class="text-blue-700">@driver.CapacityTons طن</strong>
+                                        <div class="font-bold text-white">@(driver.User != null ? $"{driver.User.FirstName} {driver.User.LastName}" : "سائق أسطول")</div>
+                                        <div class="text-[11px] text-slate-400">
+                                            @(driver.VehicleType ?? "تريلا") • لوحة: <span class="font-mono text-slate-300">@(driver.VehiclePlateNumber ?? "-")</span> • حمولة: <strong class="text-emerald-400 font-mono">@driver.CapacityTons طن</strong>
                                         </div>
                                     </div>
                                 </div>
-                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
                                     🟢 متاح
                                 </span>
                             </label>
@@ -65,13 +65,13 @@
                 }
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                <button type="button" onclick="closeDispatchAssignModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                <button type="button" onclick="closeDispatchAssignModal()" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 font-bold hover:bg-slate-800 cursor-pointer">
                     إلغاء
                 </button>
-                <button type="submit" @(availableDrivers.Any() ? "" : "disabled") class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold cursor-pointer flex items-center gap-1.5 shadow-md">
-                    <span class="material-symbols-outlined text-sm">send</span>
-                    <span>تأكيد الإسناد وإشعار السائق فوراً</span>
+                <button type="submit" @(availableDrivers.Any() ? "" : "disabled") class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black cursor-pointer flex items-center gap-1.5 shadow-lg shadow-amber-950/60">
+                    <span class="material-symbols-outlined text-sm font-bold">send</span>
+                    <span>تأكيد الإسناد وإشعار الكابتن فوراً</span>
                 </button>
             </div>
         </form>
