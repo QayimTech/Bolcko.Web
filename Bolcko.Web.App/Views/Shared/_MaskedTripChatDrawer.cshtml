@@ -1,0 +1,392 @@
+<!-- LOG-07: In-Trip Masked Load Communication Drawer & Official WhatsApp Notifications -->
+<div id="maskedChatDrawerBackdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 hidden transition-opacity duration-300 opacity-0" onclick="closeMaskedChatDrawer()"></div>
+
+<div id="maskedChatDrawer" class="fixed top-0 bottom-0 start-0 w-full max-w-lg bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col font-sans text-right" dir="rtl">
+    
+    <!-- Drawer Header -->
+    <div class="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between border-b border-white/10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">shield</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm sm:text-base font-black text-white" id="drawerTitle">غرفة التنسيق اللوجستي المشفرة</h3>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                        Anti-Leak Shield
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-300 mt-0.5 font-mono" id="drawerSubtitle">طلب #BLK-00000 • حماية الأرقام الشخصية</p>
+            </div>
+        </div>
+
+        <button type="button" onclick="closeMaskedChatDrawer()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+    </div>
+
+    <!-- Masked Contacts & Security Bar -->
+    <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 border-b border-slate-200 dark:border-slate-800 text-xs shrink-0 space-y-2">
+        <div class="flex items-center justify-between text-[11px]">
+            <div class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold">
+                <span class="material-symbols-outlined text-amber-500 text-sm">lock</span>
+                <span>المستلم: <span id="drawerRecipientName" class="text-slate-900 dark:text-white">مشرف الورشة</span></span>
+                <span id="drawerMaskedCustomerPhone" class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono font-black text-[11px] border border-amber-300 dark:border-amber-800">
+                    079****123
+                </span>
+            </div>
+            
+            <button type="button" onclick="simulateInAppSecureCall()" 
+                    class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] flex items-center gap-1 shadow-sm cursor-pointer transition-all active:scale-95">
+                <span class="material-symbols-outlined text-xs">phone_in_talk</span>
+                <span>اتصال داخلي آمن</span>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+            <span class="flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>السائق: <strong id="drawerDriverName" class="text-slate-700 dark:text-slate-200">كابتن النقل</strong> (<span id="drawerMaskedDriverPhone" class="font-mono">078****890</span>)</span>
+            </span>
+            <span id="drawerCallingToken" class="font-mono text-[9px] text-slate-400">Token: tok_call_secure</span>
+        </div>
+    </div>
+
+    <!-- Official WhatsApp Dispatch Banner -->
+    <div class="bg-emerald-950/20 border-b border-emerald-500/20 p-2.5 px-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+            <span class="material-symbols-outlined text-emerald-500 text-base">chat</span>
+            <span class="text-[11px] font-bold">إشعار واتساب للأعمال (Block-O Official):</span>
+        </div>
+        <button type="button" onclick="triggerOfficialWhatsAppDispatch('Dispatched')"
+                class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] flex items-center gap-1 shadow-xs transition-colors cursor-pointer">
+            <span>إرسال تحديث رسمي 📲</span>
+        </button>
+    </div>
+
+    <!-- Chat Messages Scroll Area -->
+    <div id="drawerMessagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-100/60 dark:bg-slate-900/60">
+        <div class="text-center py-6 text-slate-400 text-xs">
+            <span class="inline-block animate-spin text-lg">⏳</span>
+            <p class="mt-1">جاري تحميل سجل المحادثات اللوجستية...</p>
+        </div>
+    </div>
+
+    <!-- Quick Coordination Chips (توجيهات سريعة للموقع) -->
+    <div class="p-2.5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+        <div class="text-[10px] text-slate-400 font-bold mb-1.5 flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs">bolt</span>
+            <span>توجيهات ميدانية سريعة:</span>
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
+            <button type="button" onclick="insertQuickMessage('📍 تم الوصول لبوابة الموقع، يرجى فتح البوابة وتوجيه الشاحنة للمنطقة المحددة.')"
+                    class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold whitespace-nowrap transition-colors cursor-pointer">
+                📍 إحداثيات البوابة
+            </button>
+            <button type="button" onclick="insertQuickMessage('🏗️ هل ونش التفريغ جاهز في الموقع لاستلام الحمولة فوراً لتفادي غرامات الانتظار؟')"
+                    class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold whitespace-nowrap transition-colors cursor-pointer">
+                🏗️ جاهزية الونش
+            </button>
+            <button type="button" onclick="insertQuickMessage('⏱️ الكابتن يبعد 15 دقيقة عن موقع الورشة، يرجى تجهيز مسار الدخول ورمز OTP.')"
+                    class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold whitespace-nowrap transition-colors cursor-pointer">
+                ⏱️ وصول خلال 15 دقيقة
+            </button>
+            <button type="button" onclick="insertQuickMessage('⚠️ يوجد عائق في الشارع المؤدي للورشة، يرجى التواصل عبر المحادثة لاقتراح مسار بديل.')"
+                    class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold whitespace-nowrap transition-colors cursor-pointer">
+                ⚠️ عائق بالطريق
+            </button>
+        </div>
+    </div>
+
+    <!-- Message Input Bar -->
+    <div class="p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+        <form id="maskedChatForm" onsubmit="submitMaskedTripMessage(event)" class="flex items-center gap-2">
+            <input type="hidden" id="currentChatJobId" value="0" />
+            <input type="hidden" id="currentSenderRole" value="Driver" />
+            <input type="hidden" id="currentSenderDisplayName" value="كابتن الشاحنة" />
+
+            <div class="relative flex-1">
+                <input type="text" id="maskedChatMessageInput" required placeholder="اكتب توجيهات التفريغ أو استفسارك هنا..." 
+                       class="w-full py-2.5 px-3.5 pe-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium" />
+                <span class="material-symbols-outlined absolute end-3 top-2.5 text-slate-400 text-lg">chat_bubble</span>
+            </div>
+
+            <button type="submit" id="btnSendTripMessage"
+                    class="py-2.5 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95">
+                <span class="material-symbols-outlined text-base">send</span>
+                <span>إرسال</span>
+            </button>
+        </form>
+        <p class="text-[10px] text-slate-400 text-center mt-2 flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-[12px] text-amber-500">lock</span>
+            <span>نظام بلوكو لمكافحة التسريب: يُمنع تبادل أرقام الهواتف أو الاتفاق على تعاملات نقدية خارج المنصة.</span>
+        </p>
+    </div>
+
+</div>
+
+<!-- In-App Audio Calling Modal Simulation -->
+<div id="callingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-2xl" dir="rtl">
+        <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-500 border-2 border-emerald-500/30 flex items-center justify-center mx-auto animate-pulse">
+            <span class="material-symbols-outlined text-4xl">phone_in_talk</span>
+        </div>
+        <div>
+            <h4 class="text-base font-black text-slate-900 dark:text-white">مكالمة صوتية مشفرة عبر تطبيق بلوكو</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">جاري الاتصال بـ: <strong id="callModalRecipient">مشرف الموقع</strong></p>
+            <p class="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold mt-1">الرقم المشفر: <span id="callModalMaskedPhone">079****123</span></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 font-mono">
+            Token: <span id="callModalToken">tok_call_voice_channel</span>
+        </div>
+        <button type="button" onclick="closeCallingModal()" 
+                class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer">
+            إنهاء المكالمة
+        </button>
+    </div>
+</div>
+
+<script>
+    let activeChatJobId = 0;
+    let chatRefreshInterval = null;
+
+    function openMaskedChatDrawer(jobId, role, displayName, recipientName, maskedPhone) {
+        activeChatJobId = jobId;
+        document.getElementById('currentChatJobId').value = jobId;
+        if (role) document.getElementById('currentSenderRole').value = role;
+        if (displayName) document.getElementById('currentSenderDisplayName').value = displayName;
+
+        if (recipientName) document.getElementById('drawerRecipientName').textContent = recipientName;
+        if (maskedPhone) document.getElementById('drawerMaskedCustomerPhone').textContent = maskedPhone;
+
+        document.getElementById('drawerSubtitle').textContent = 'طلب #' + jobId + ' • حماية الأرقام الشخصية (Anti-Leak)';
+
+        // Open drawer
+        const backdrop = document.getElementById('maskedChatDrawerBackdrop');
+        const drawer = document.getElementById('maskedChatDrawer');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            drawer.classList.remove('-translate-x-full');
+        }, 10);
+
+        // Fetch contact details and messages
+        loadMaskedContact(jobId);
+        loadTripMessages(jobId);
+
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+        chatRefreshInterval = setInterval(() => {
+            if (activeChatJobId === jobId) {
+                loadTripMessages(jobId, true);
+            }
+        }, 5000);
+    }
+
+    function closeMaskedChatDrawer() {
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+        const backdrop = document.getElementById('maskedChatDrawerBackdrop');
+        const drawer = document.getElementById('maskedChatDrawer');
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.add('opacity-0');
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+        }, 300);
+    }
+
+    async function loadMaskedContact(jobId) {
+        try {
+            const resp = await fetch(`/api/v1/MaskedComm/job/${jobId}/contact`);
+            if (resp.ok) {
+                const res = await resp.json();
+                if (res.success && res.data) {
+                    const c = res.data;
+                    document.getElementById('drawerRecipientName').textContent = c.customerName;
+                    document.getElementById('drawerMaskedCustomerPhone').textContent = c.maskedCustomerPhone;
+                    document.getElementById('drawerDriverName').textContent = c.driverName || 'كابتن الشاحنة';
+                    document.getElementById('drawerMaskedDriverPhone').textContent = c.maskedDriverPhone || '078****890';
+                    document.getElementById('drawerCallingToken').textContent = 'Token: ' + c.inAppCallingToken;
+
+                    // Also for calling modal
+                    document.getElementById('callModalRecipient').textContent = c.customerName;
+                    document.getElementById('callModalMaskedPhone').textContent = c.maskedCustomerPhone;
+                    document.getElementById('callModalToken').textContent = c.inAppCallingToken;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading masked contact info:', e);
+        }
+    }
+
+    async function loadTripMessages(jobId, isBackgroundRefresh = false) {
+        const container = document.getElementById('drawerMessagesContainer');
+        try {
+            const resp = await fetch(`/api/v1/MaskedComm/job/${jobId}/messages`);
+            if (resp.ok) {
+                const res = await resp.json();
+                if (res.success && res.data) {
+                    renderTripMessages(res.data, container, isBackgroundRefresh);
+                }
+            }
+        } catch (e) {
+            console.error('Error loading trip messages:', e);
+        }
+    }
+
+    function renderTripMessages(messages, container, isBackgroundRefresh) {
+        const currentRole = document.getElementById('currentSenderRole').value;
+        const previousScrollHeight = container.scrollHeight;
+        const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+
+        let html = '';
+        messages.forEach(m => {
+            const isMe = m.senderRole === currentRole;
+            const isSystem = m.isSystemNotification;
+            const isWhatsApp = m.isDeliveredViaWhatsApp;
+
+            if (isSystem || isWhatsApp) {
+                html += `
+                    <div class="p-3 rounded-2xl ${isWhatsApp ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300' : 'bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300'} text-xs space-y-1 my-2">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">${isWhatsApp ? 'chat' : 'verified_user'}</span>
+                                <span>${m.senderDisplayName}</span>
+                            </span>
+                            <span class="text-[10px] font-mono opacity-75">${m.formattedTime}</span>
+                        </div>
+                        <p class="leading-relaxed whitespace-pre-line text-[11px]">${escapeHtml(m.messageText)}</p>
+                    </div>
+                `;
+            } else if (isMe) {
+                html += `
+                    <div class="flex flex-col items-start space-y-1">
+                        <span class="text-[10px] text-slate-400 font-bold px-1">${m.senderDisplayName} (أنت)</span>
+                        <div class="max-w-[85%] p-3 rounded-2xl rounded-br-xs bg-indigo-600 text-white text-xs shadow-xs">
+                            <p class="leading-relaxed">${escapeHtml(m.messageText)}</p>
+                            <span class="block text-[9px] text-indigo-200 mt-1 font-mono text-left">${m.formattedTime}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="flex flex-col items-end space-y-1">
+                        <span class="text-[10px] text-slate-400 font-bold px-1">${m.senderDisplayName}</span>
+                        <div class="max-w-[85%] p-3 rounded-2xl rounded-bl-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs shadow-xs">
+                            <p class="leading-relaxed">${escapeHtml(m.messageText)}</p>
+                            <span class="block text-[9px] text-slate-400 mt-1 font-mono text-left">${m.formattedTime}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        container.innerHTML = html;
+
+        // Auto-scroll to bottom if user was already at bottom or on first load
+        if (!isBackgroundRefresh || isNearBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    async function submitMaskedTripMessage(e) {
+        e.preventDefault();
+        const jobId = parseInt(document.getElementById('currentChatJobId').value);
+        const input = document.getElementById('maskedChatMessageInput');
+        const role = document.getElementById('currentSenderRole').value;
+        const displayName = document.getElementById('currentSenderDisplayName').value;
+        const text = input.value.trim();
+
+        if (!text || jobId <= 0) return;
+
+        const btn = document.getElementById('btnSendTripMessage');
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+
+        try {
+            const resp = await fetch(`/api/v1/MaskedComm/job/${jobId}/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    jobId: jobId,
+                    senderRole: role,
+                    senderDisplayName: displayName,
+                    messageText: text,
+                    category: 'General'
+                })
+            });
+
+            if (resp.ok) {
+                input.value = '';
+                await loadTripMessages(jobId);
+            } else {
+                alert('تعذر إرسال الرسالة، يرجى المحاولة ثانية.');
+            }
+        } catch (e) {
+            console.error('Error sending message:', e);
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+        }
+    }
+
+    function insertQuickMessage(text) {
+        const input = document.getElementById('maskedChatMessageInput');
+        input.value = text;
+        input.focus();
+    }
+
+    async function triggerOfficialWhatsAppDispatch(milestone) {
+        const jobId = parseInt(document.getElementById('currentChatJobId').value);
+        if (jobId <= 0) return;
+
+        if (!confirm('هل تريد إرسال إشعار رسمي عبر واتساب للأعمال (Block-O Official) للورشة والعميل دون كشف رقمك الشخصي؟')) {
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/v1/MaskedComm/job/${jobId}/whatsapp-dispatch`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    jobId: jobId,
+                    milestone: milestone,
+                    recipientRole: 'Contractor',
+                    customNote: 'تم إرسال التحديث عبر بوابة بلوكو المعتمدة'
+                })
+            });
+
+            if (resp.ok) {
+                const res = await resp.json();
+                if (res.success) {
+                    await loadTripMessages(jobId);
+                }
+            }
+        } catch (e) {
+            console.error('Error triggering whatsapp dispatch:', e);
+        }
+    }
+
+    function simulateInAppSecureCall() {
+        document.getElementById('callingModal').classList.remove('hidden');
+    }
+
+    function closeCallingModal() {
+        document.getElementById('callingModal').classList.add('hidden');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, function(m) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m];
+        });
+    }
+</script>

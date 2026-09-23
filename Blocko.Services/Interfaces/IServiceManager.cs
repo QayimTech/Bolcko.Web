@@ -30,5 +30,6 @@ namespace Blocko.Services.Interfaces
         Blocko.Services.Interfaces.Subscription.ISubscriptionService SubscriptionService { get; }
         Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine SubscriptionBillingEngine { get; }
         Blocko.Services.Interfaces.Auth.ISmsOtpService SmsOtpService { get; }
+        IMaskedCommService MaskedCommService { get; }
     }
 }

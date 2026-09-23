@@ -39,6 +39,12 @@
                             <td class="p-4 font-mono font-bold text-amber-600 dark:text-amber-400">@item.TrackingCode</td>
                             <td class="p-4">
                                 <div class="font-bold text-slate-900 dark:text-white">@item.ProjectTitle</div>
+                                <div class="text-[11px] text-slate-600 dark:text-slate-300 font-bold mt-0.5 flex items-center gap-1.5">
+                                    <span>@item.CustomerName</span>
+                                    <span class="px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono font-bold text-[10px] border border-amber-300 dark:border-amber-800" title="رقم الهاتف محمي ضد التسريب التجاري">
+                                        @item.MaskedCustomerPhone
+                                    </span>
+                                </div>
                                 <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[12px]">location_on</span>
                                     <span>@item.DestinationCity - @item.DestinationAddress</span>
@@ -62,7 +68,13 @@
                                 else if (!string.IsNullOrEmpty(item.AssignedDriverName))
                                 {
                                     <div class="font-bold text-slate-900 dark:text-white">@item.AssignedDriverName</div>
-                                    <div class="text-[10px] text-slate-400 font-mono">@item.TruckPlateNumber (@item.VehicleType)</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">
+                                        @item.TruckPlateNumber (@item.VehicleType)
+                                        @if (!string.IsNullOrEmpty(item.MaskedDriverPhone))
+                                        {
+                                            <span> • @item.MaskedDriverPhone</span>
+                                        }
+                                    </div>
                                     @if (item.FulfillmentType == "OwnFleet")
                                     {
                                         <div class="flex items-center gap-1 mt-0.5">
@@ -125,6 +137,13 @@
                             </td>
                             <td class="p-4 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" 
+                                            onclick="openMaskedChatDrawer(@item.OrderId, 'Vendor', 'إدارة لوجستيات المصنع', '@item.CustomerName', '@item.MaskedCustomerPhone')"
+                                            title="محادثة فورية وتنسيق ميداني آمن (In-App Chat)"
+                                            class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer">
+                                        <span class="material-symbols-outlined text-xs">chat</span>
+                                        <span>محادثة فورية</span>
+                                    </button>
                                     <a asp-action="Manifest" asp-route-id="@item.OrderId" target="_blank"
                                        class="px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 font-bold text-[11px] transition-colors flex items-center gap-1 shadow-sm">
                                         <span class="material-symbols-outlined text-xs">receipt_long</span>

@@ -62,6 +62,9 @@ namespace Bolcko.Domain.Interfaces
         // LOG-06 Carrier Payouts & Escrow
         IGenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction> CarrierPayoutTransactions { get; }
 
+        // LOG-07 Masked Communications & In-Trip Chat
+        IGenericRepository<DeliveryTripMessage> DeliveryTripMessages { get; }
+
         Task<int> CompleteAsync();
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

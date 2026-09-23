@@ -199,6 +199,23 @@ public static class DatabaseExtensions
                     "DisputePhotoEvidenceUrl" text,
                     "DisputedAt" timestamp with time zone
                 );
+
+                -- LOG-07: In-Trip Masked Communication & Official WhatsApp Notifications
+                CREATE TABLE IF NOT EXISTS "DeliveryTripMessages" (
+                    "Id" serial PRIMARY KEY,
+                    "JobId" integer NOT NULL,
+                    "OrderId" integer,
+                    "SenderUserId" integer,
+                    "SenderRole" text NOT NULL DEFAULT 'Driver',
+                    "SenderDisplayName" text NOT NULL DEFAULT '',
+                    "MessageText" text NOT NULL,
+                    "Category" text DEFAULT 'General',
+                    "IsSystemNotification" boolean NOT NULL DEFAULT false,
+                    "IsDeliveredViaWhatsApp" boolean NOT NULL DEFAULT false,
+                    "WhatsAppTemplateName" text,
+                    "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now())
+                );
+                CREATE INDEX IF NOT EXISTS "IX_DeliveryTripMessages_JobId" ON "DeliveryTripMessages" ("JobId");
                 """);
 
             // Ensure DeliveryProviderConfigs has origin and sender columns

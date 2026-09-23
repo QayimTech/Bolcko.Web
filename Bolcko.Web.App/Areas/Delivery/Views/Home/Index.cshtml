@@ -71,6 +71,39 @@
                         </div>
                     </div>
 
+                    <!-- Anti-Leak Masked Communication (LOG-07) -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-lg">shield</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500 text-[11px]">هاتف المستلم المحمي:</span>
+                                    <span class="font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                                        @(Bolcko.Domain.Entities.Delivery.DTOs.VendorDispatchOrderDto.MaskPhoneNumber(job.Order?.User?.PhoneNumber ?? "0795544123"))
+                                    </span>
+                                </div>
+                                <span class="text-[10px] text-amber-700 font-bold block mt-0.5">درع الحماية ضد التسريب (Anti-Disintermediation Shield)</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" 
+                                    onclick="openMaskedChatDrawer(@job.Id, 'Driver', 'كابتن الشاحنة', '@(job.Order?.User != null ? $"{job.Order.User.FirstName} {job.Order.User.LastName}" : "مشرف الورشة")', '@(Bolcko.Domain.Entities.Delivery.DTOs.VendorDispatchOrderDto.MaskPhoneNumber(job.Order?.User?.PhoneNumber ?? "0795544123"))')"
+                                    class="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+                                <span class="material-symbols-outlined text-sm">chat</span>
+                                <span>محادثة فورية (In-App Chat) 💬</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="openMaskedChatDrawer(@job.Id, 'Driver', 'كابتن الشاحنة'); setTimeout(() => triggerOfficialWhatsAppDispatch('Dispatched'), 400);"
+                                    class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                                <span>واتساب رسمي</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Route Tracker -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
                         <div>
@@ -239,3 +272,6 @@
     </div>
 
 </div>
+
+<!-- LOG-07: In-Trip Masked Load Communication & Official WhatsApp Notifications Drawer -->
+<partial name="_MaskedTripChatDrawer" />

@@ -43,6 +43,7 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
         public string ProjectTitle { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
         public string CustomerPhone { get; set; } = string.Empty;
+        public string MaskedCustomerPhone => MaskPhoneNumber(CustomerPhone);
         public string DestinationAddress { get; set; } = string.Empty;
         public string DestinationCity { get; set; } = "عمان";
         public double Latitude { get; set; } = 31.9539;
@@ -56,7 +57,17 @@ namespace Bolcko.Domain.Entities.Delivery.DTOs
         // Fleet Dispatch
         public string? AssignedDriverName { get; set; }
         public string? AssignedDriverPhone { get; set; }
+        public string? MaskedDriverPhone => !string.IsNullOrEmpty(AssignedDriverPhone) ? MaskPhoneNumber(AssignedDriverPhone) : null;
         public string? TruckPlateNumber { get; set; }
+
+        public static string MaskPhoneNumber(string? phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return "079****000";
+            var clean = phone.Trim();
+            if (clean.Length <= 4) return "****";
+            if (clean.Length <= 6) return string.Concat(clean.AsSpan(0, 2), "****", clean.AsSpan(clean.Length - 1));
+            return string.Concat(clean.AsSpan(0, 3), "****", clean.AsSpan(clean.Length - 3));
+        }
         public string? VehicleType { get; set; } // تريلا قلاب، رأس شاحنة، ونش تفريغ، لوري
 
         // Weighbridge

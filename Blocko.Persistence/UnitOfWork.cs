@@ -78,6 +78,9 @@ namespace Blocko.Persistence
 
             // LOG-06 Carrier Payouts & Escrow
             CarrierPayoutTransactions = new GenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction>(_context);
+
+            // LOG-07 Masked Communications & In-Trip Chat
+            DeliveryTripMessages = new GenericRepository<DeliveryTripMessage>(_context);
         }
 
         public IUserRepository Users { get; private set; }
@@ -132,6 +135,9 @@ namespace Blocko.Persistence
 
         // LOG-06 Carrier Payouts & Escrow
         public IGenericRepository<Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction> CarrierPayoutTransactions { get; private set; }
+
+        // LOG-07 Masked Communications & In-Trip Chat
+        public IGenericRepository<DeliveryTripMessage> DeliveryTripMessages { get; private set; }
 
         public async Task<int> CompleteAsync()
         {
