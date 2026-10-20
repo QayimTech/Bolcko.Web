@@ -59,6 +59,23 @@ namespace Blocko.Services
                     new Amazon.S3.AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(s3Region)));
             }
 
+            // ─── Redis (ElastiCache) ──────────────────────────────────────────────────
+            // Only when Redis__ConnectionString is set. Otherwise: in-memory cache as before.
+            var redisOptions = RedisSettings.Build(configuration);
+            if (redisOptions != null)
+            {
+                services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(_ =>
+                    StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions));
+                services.AddStackExchangeRedisCache(o => o.InstanceName = "blocko:");
+                services.AddOptions<Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions>()
+                    .Configure<StackExchange.Redis.IConnectionMultiplexer>((o, mux) =>
+                        o.ConnectionMultiplexerFactory = () => Task.FromResult(mux));
+            }
+            else
+            {
+                services.AddDistributedMemoryCache();
+            }
+
             // ─── Delivery & Supplier API HttpClient Registration ─────────────────────
             services.AddHttpClient<Blocko.Services.Interfaces.Delivery.IDeliveryApiService, Blocko.Services.Implementations.Delivery.DeliveryApiService>();
             services.AddHttpClient<Blocko.Services.Interfaces.Supplier.ISupplierApiService, Blocko.Services.Implementations.Supplier.SupplierApiService>();
@@ -68,7 +85,7 @@ namespace Blocko.Services
             services.AddScoped<IProductSeoService>(sp =>
                 new ProductSeoService(
                     sp.GetRequiredService<Bolcko.Domain.Interfaces.IUnitOfWork>(),
-                    sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ProductSeoService>>()));
 
             // ─── Service Manager (aggregates all services via Lazy pattern) ───────
@@ -80,6 +97,7 @@ namespace Blocko.Services
                     sp.GetRequiredService<IEmailSender>(),
                     sp.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>>(),
                     sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>(),
                     sp.GetRequiredService<IProductSeoService>(),
                     sp.GetRequiredService<Blocko.Persistence.BlockoDbContext>()));

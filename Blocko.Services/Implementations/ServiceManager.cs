@@ -54,6 +54,7 @@ namespace Blocko.Services.Implementations
             IEmailSender emailSender,
             Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager,
             Microsoft.Extensions.Caching.Memory.IMemoryCache cache,
+            Microsoft.Extensions.Caching.Distributed.IDistributedCache distributedCache,
             Microsoft.Extensions.Logging.ILoggerFactory loggerFactory,
             IProductSeoService productSeoService,
             Blocko.Persistence.BlockoDbContext dbContext)
@@ -80,7 +81,7 @@ namespace Blocko.Services.Implementations
             _lazyFinancingService    = new Lazy<Blocko.Services.Interfaces.Financing.IFinancingService>(() => new Blocko.Services.Implementations.Financing.FinancingService(unitOfWork, loggerFactory.CreateLogger<Blocko.Services.Implementations.Financing.FinancingService>(), crifService));
             _lazySubscriptionService = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionService>(() => new Blocko.Services.Implementations.Subscription.SubscriptionService(dbContext));
             _lazySubscriptionBillingEngine = new Lazy<Blocko.Services.Interfaces.Subscription.ISubscriptionBillingEngine>(() => new Blocko.Services.Implementations.Subscription.SubscriptionBillingEngine(dbContext, loggerFactory.CreateLogger<Blocko.Services.Implementations.Subscription.SubscriptionBillingEngine>()));
-            _lazySmsOtpService       = new Lazy<Blocko.Services.Interfaces.Auth.ISmsOtpService>(() => new Blocko.Services.Implementations.Auth.SmsOtpService(cache, loggerFactory.CreateLogger<Blocko.Services.Implementations.Auth.SmsOtpService>()));
+            _lazySmsOtpService       = new Lazy<Blocko.Services.Interfaces.Auth.ISmsOtpService>(() => new Blocko.Services.Implementations.Auth.SmsOtpService(distributedCache, loggerFactory.CreateLogger<Blocko.Services.Implementations.Auth.SmsOtpService>()));
             _lazyMaskedCommService   = new Lazy<IMaskedCommService>(() => new MaskedCommService(unitOfWork, notificationService, loggerFactory.CreateLogger<MaskedCommService>()));
         }
 
