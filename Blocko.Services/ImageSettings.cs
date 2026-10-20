@@ -18,6 +18,14 @@
         /// <summary>Optional folder prefix inside the bucket (e.g. "site/"). Usually left empty.</summary>
         public string S3KeyPrefix { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Optional KMS key (ID or ARN) used to encrypt uploads. The bucket policy requires
+        /// "x-amz-server-side-encryption: aws:kms" on every upload, so uploads are always sent
+        /// with KMS encryption; if this is empty the bucket's default KMS key is used.
+        /// Env var: ImageSettings__S3KmsKeyId (or S3__KmsKeyId).
+        /// </summary>
+        public string S3KmsKeyId { get; set; } = string.Empty;
+
         public bool UseS3 => !string.IsNullOrWhiteSpace(S3BucketName);
     }
 }

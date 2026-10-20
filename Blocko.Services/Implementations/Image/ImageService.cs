@@ -28,6 +28,7 @@ namespace Blocko.Services.Implementations.Images
         private readonly IAmazonS3? _s3;
         private readonly string _bucket;
         private readonly string _keyPrefix;
+        private readonly string _kmsKeyId;
 
         private bool UseS3 => _s3 != null && !string.IsNullOrWhiteSpace(_bucket);
 
@@ -43,6 +44,7 @@ namespace Blocko.Services.Implementations.Images
             _s3 = s3;
             _bucket = settings.Value.S3BucketName?.Trim() ?? string.Empty;
             _keyPrefix = NormalizePrefix(settings.Value.S3KeyPrefix);
+            _kmsKeyId = settings.Value.S3KmsKeyId?.Trim() ?? string.Empty;
 
             var settingsPath = settings.Value.BasePath;
             if (string.IsNullOrWhiteSpace(settingsPath))
@@ -130,8 +132,12 @@ namespace Blocko.Services.Implementations.Images
                     Key = _keyPrefix + relativeResultPath,
                     InputStream = ms,
                     ContentType = "image/webp",
-                    AutoCloseStream = false
+                    AutoCloseStream = false,
+                    // The bucket policy DENIES uploads that do not request KMS encryption.
+                    ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS
                 };
+                if (!string.IsNullOrWhiteSpace(_kmsKeyId))
+                    request.ServerSideEncryptionKeyManagementServiceKeyId = _kmsKeyId;
                 request.Headers.CacheControl = "public, max-age=31536000, immutable";
 
                 _logger.LogInformation("Uploading image to S3: s3://{Bucket}/{Key}", _bucket, request.Key);

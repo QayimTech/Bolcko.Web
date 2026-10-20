@@ -49,6 +49,8 @@ namespace Blocko.Services
                 if (string.IsNullOrWhiteSpace(s.S3BucketName) && !string.IsNullOrWhiteSpace(s3Bucket))
                     s.S3BucketName = s3Bucket!;
                 s.S3Region = s3Region;
+                if (string.IsNullOrWhiteSpace(s.S3KmsKeyId))
+                    s.S3KmsKeyId = FirstSet(configuration["S3:KmsKeyId"], configuration["S3:KmsKeyArn"]) ?? string.Empty;
             });
 
             if (!string.IsNullOrWhiteSpace(s3Bucket))
