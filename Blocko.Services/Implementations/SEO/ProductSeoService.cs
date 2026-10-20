@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Distributed;
 using Blocko.Services.Interfaces.SEO;
 using ProductEntity = Bolcko.Domain.Entities.Product.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
