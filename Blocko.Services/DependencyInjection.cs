@@ -33,6 +33,30 @@ namespace Blocko.Services
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
+            // ─── AWS S3 (image storage) ───────────────────────────────────────────────
+            // Only registered when a bucket name is configured (env var ImageSettings__S3BucketName).
+            // Credentials come from the ECS task role automatically - no keys in code.
+            // The bucket name is read from ImageSettings__S3BucketName, or from the variable the
+            // infrastructure team already created on the ECS task: S3__BucketName.
+            // The region comes from ImageSettings__S3Region, S3__Region or AWS_REGION.
+            string? FirstSet(params string?[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+            var s3Bucket = FirstSet(configuration["ImageSettings:S3BucketName"], configuration["S3:BucketName"]);
+            var s3Region = FirstSet(configuration["ImageSettings:S3Region"], configuration["S3:Region"], configuration["AWS_REGION"]) ?? "eu-central-1";
+
+            services.PostConfigure<ImageSettings>(s =>
+            {
+                if (string.IsNullOrWhiteSpace(s.S3BucketName) && !string.IsNullOrWhiteSpace(s3Bucket))
+                    s.S3BucketName = s3Bucket!;
+                s.S3Region = s3Region;
+            });
+
+            if (!string.IsNullOrWhiteSpace(s3Bucket))
+            {
+                services.AddSingleton<Amazon.S3.IAmazonS3>(_ =>
+                    new Amazon.S3.AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(s3Region)));
+            }
+
             // ─── Delivery & Supplier API HttpClient Registration ─────────────────────
             services.AddHttpClient<Blocko.Services.Interfaces.Delivery.IDeliveryApiService, Blocko.Services.Implementations.Delivery.DeliveryApiService>();
             services.AddHttpClient<Blocko.Services.Interfaces.Supplier.ISupplierApiService, Blocko.Services.Implementations.Supplier.SupplierApiService>();
@@ -80,7 +104,8 @@ namespace Blocko.Services
                     sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ImageSettings>>(),
                     sp.GetRequiredService<System.Net.Http.HttpClient>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ImageService>>(),
-                    contentRootPath));
+                    contentRootPath,
+                    sp.GetService<Amazon.S3.IAmazonS3>()));
 
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();
