@@ -14,6 +14,8 @@ namespace Bolcko.Domain.Entities.Tender
         public string? ProductName { get; set; }
         public string? Unit { get; set; }
         public decimal RequestedQuantity { get; set; }
+        public string? MaterialCategory { get; set; }
+        public string? Specifications { get; set; }
         public decimal? ProposedPricePerUnit { get; set; }
         public decimal? TargetPricePerUnit { get; set; }
         public decimal? SubtotalItem { get; set; }

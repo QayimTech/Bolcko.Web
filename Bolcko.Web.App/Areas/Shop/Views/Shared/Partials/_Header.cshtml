@@ -54,7 +54,7 @@
             <a href="/" class="flex items-center flex-shrink-0 text-white hover:opacity-90 transition-opacity">
                 <partial name="~/Views/Shared/Partials/_BrandLogo.cshtml" model='(false, false, "dark", "h-7 lg:h-8")' />
             </a>
-            <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 flex-shrink-0 ms-1">
+            <nav class="hidden md:flex items-center gap-1 xl:gap-1.5 flex-shrink-0 ms-1">
                 <!-- Categories Mega Menu Trigger -->
                 <div class="relative" id="mega-menu-trigger">
                     <button type="button" id="mega-menu-btn"
@@ -66,70 +66,168 @@
                     </button>
                 </div>
 
-                <!-- B2B Contractor Portal Link -->
-                @if (User.IsInRole("Contractor"))
-                {
-                    <a asp-action="Workspace" asp-controller="Contractor" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold transition-all whitespace-nowrap border border-emerald-500/20">
-                        <span class="material-symbols-outlined text-[15px]">engineering</span>
-                        <span>@(isArabic ? "مساحة المقاول" : "Contractor Hub")</span>
-                    </a>
-                }
-                else
-                {
-                    <a asp-action="Join" asp-controller="Contractor" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold transition-all whitespace-nowrap border border-emerald-500/20">
-                        <span class="material-symbols-outlined text-[15px]">engineering</span>
-                        <span>@(isArabic ? "بوابة المقاولين" : "Contractors B2B")</span>
-                    </a>
-                }
+                <!-- Business Hub Dropdown (Contractors, Investors, Vendors, Logistics) -->
+                <div class="relative group" id="business-menu-trigger">
+                    <button type="button" id="business-menu-btn"
+                            class="flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300 border border-amber-500/25 text-xs font-bold transition-all focus:outline-none whitespace-nowrap shadow-sm group-hover:border-amber-500/40"
+                            aria-expanded="false" aria-controls="business-menu-panel">
+                        <span class="material-symbols-outlined text-[16px] text-amber-400">corporate_fare</span>
+                        <span>@SharedLocalizer["BusinessHub"]</span>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono font-black uppercase">B2B</span>
+                        <span class="material-symbols-outlined text-[13px] text-amber-400/80 transition-transform duration-200 group-hover:rotate-180" id="business-menu-chevron">expand_more</span>
+                    </button>
 
-                <!-- Investor Portal Link -->
-                @if (User.IsInRole("Investor"))
-                {
-                    <a asp-action="InvestorDashboard" asp-controller="Financing" asp-area="Shop" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
-                        <span class="material-symbols-outlined text-[15px]">monitoring</span>
-                        <span>@(isArabic ? "محفظة الاستثمار" : "Investor Portfolio")</span>
-                    </a>
-                }
-                else
-                {
-                    <a href="/Invest" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 text-xs font-bold transition-all whitespace-nowrap border border-sky-500/20">
-                        <span class="material-symbols-outlined text-[15px]">trending_up</span>
-                        <span>@(isArabic ? "فرص الاستثمار" : "Invest Hub")</span>
-                    </a>
-                }
+                    <!-- Business Mega Dropdown Card -->
+                    <div id="business-menu-panel"
+                         class="absolute start-0 top-full mt-2 bg-[#161d2d] border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[105] divide-y divide-white/10"
+                         style="width: 440px; max-width: calc(100vw - 2rem);">
+                        
+                        <!-- Header Banner inside dropdown -->
+                        <div class="px-4 py-3 bg-white/5 flex items-center justify-between text-start">
+                            <div>
+                                <p class="text-xs font-black text-white flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-amber-400 text-sm">domain</span>
+                                    <span>@SharedLocalizer["BusinessHubSubtitle"]</span>
+                                </p>
+                                <p class="text-[10px] text-slate-300 mt-0.5">@SharedLocalizer["BusinessHubDesc"]</p>
+                            </div>
+                            <span class="px-2 py-0.5 text-[9px] font-black font-mono rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">PRO</span>
+                        </div>
 
-                <!-- Vendor / Supplier Portal Link -->
-                @if (User.IsInRole("Vendor"))
-                {
-                    <a asp-action="Index" asp-controller="Dashboard" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
-                        <span class="material-symbols-outlined text-[15px]">storefront</span>
-                        <span>@(isArabic ? "لوحة المورد" : "Vendor Hub")</span>
-                    </a>
-                }
-                else
-                {
-                    <a asp-action="Join" asp-controller="Account" asp-area="Vendor" class="flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold transition-all whitespace-nowrap border border-amber-500/20">
-                        <span class="material-symbols-outlined text-[15px]">storefront</span>
-                        <span>@(isArabic ? "انضم كمورد" : "Suppliers")</span>
-                    </a>
-                }
+                        <!-- 4 Business Portals -->
+                        <div class="p-2.5 space-y-1.5 text-start">
+                            
+                            <!-- 1. Contractor Hub -->
+                            <a href="@(User.IsInRole("Contractor") ? Url.Action("Workspace", "Contractor", new { area = "Shop" }) : Url.Action("Join", "Contractor", new { area = "Shop" }))"
+                               class="flex items-start gap-3 p-3 rounded-xl hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all group/item">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0 group-hover/item:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">engineering</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-black text-white group-hover/item:text-emerald-400 transition-colors">
+                                            @SharedLocalizer["ContractorHubTitle"]
+                                        </span>
+                                        <span style="background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.35); font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;" class="shrink-0">
+                                            @(isArabic ? "مشاريع ومرابحة" : "Tenders")
+                                        </span>
+                                    </div>
+                                    <p style="color: #cbd5e1; font-size: 11px; line-height: 1.4; margin-top: 4px;">
+                                        @SharedLocalizer["ContractorHubDesc"]
+                                    </p>
+                                </div>
+                            </a>
 
-                <a href="/calculator" class="hidden 2xl:flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold transition-all whitespace-nowrap border border-purple-500/20">
-                    <span class="material-symbols-outlined text-[15px]">calculate</span>
-                    <span>@(isArabic ? "حاسبة البناء" : "Estimator")</span>
+                            <!-- 2. Investor Portal -->
+                            <a href="@(User.IsInRole("Investor") ? Url.Action("InvestorDashboard", "Financing", new { area = "Shop" }) : "/Invest")"
+                               class="flex items-start gap-3 p-3 rounded-xl hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all group/item">
+                                <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 flex-shrink-0 group-hover/item:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">monitoring</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-black text-white group-hover/item:text-sky-400 transition-colors">
+                                            @SharedLocalizer["InvestorHubTitle"]
+                                        </span>
+                                        <span style="background: rgba(14, 165, 233, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;" class="shrink-0">
+                                            @(isArabic ? "عوائد واستثمار" : "Yield & Escrow")
+                                        </span>
+                                    </div>
+                                    <p style="color: #cbd5e1; font-size: 11px; line-height: 1.4; margin-top: 4px;">
+                                        @SharedLocalizer["InvestorHubDesc"]
+                                    </p>
+                                </div>
+                            </a>
+
+                            <!-- 3. Vendor Hub -->
+                            <a href="@(User.IsInRole("Vendor") ? Url.Action("Index", "Dashboard", new { area = "Vendor" }) : Url.Action("Join", "Account", new { area = "Vendor" }))"
+                               class="flex items-start gap-3 p-3 rounded-xl hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all group/item">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 group-hover/item:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">storefront</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-black text-white group-hover/item:text-amber-400 transition-colors">
+                                            @SharedLocalizer["VendorHubTitle"]
+                                        </span>
+                                        <span style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.35); font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;" class="shrink-0">
+                                            @(isArabic ? "سوق الجملة" : "B2B Supply")
+                                        </span>
+                                    </div>
+                                    <p style="color: #cbd5e1; font-size: 11px; line-height: 1.4; margin-top: 4px;">
+                                        @SharedLocalizer["VendorHubDesc"]
+                                    </p>
+                                </div>
+                            </a>
+
+                            <!-- 4. Logistics & Fleet 3PL -->
+                            <a href="@(User.IsInRole("DeliveryCompanyUser") || User.IsInRole("DeliveryDriver") ? Url.Action("CompanyIndex", "Home", new { area = "Delivery" }) : Url.Action("Register", "Account", new { area = "Delivery" }))"
+                               class="flex items-start gap-3 p-3 rounded-xl hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all group/item">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 group-hover/item:scale-105 transition-transform">
+                                    <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-black text-white group-hover/item:text-blue-400 transition-colors">
+                                            @SharedLocalizer["FleetHubTitle"]
+                                        </span>
+                                        <span style="background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.35); font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 700;" class="shrink-0">
+                                            @(isArabic ? "أسطول النقل" : "Heavy Fleet")
+                                        </span>
+                                    </div>
+                                    <p style="color: #cbd5e1; font-size: 11px; line-height: 1.4; margin-top: 4px;">
+                                        @SharedLocalizer["FleetHubDesc"]
+                                    </p>
+                                </div>
+                            </a>
+
+                        </div>
+
+                        <!-- B2B Partner Sign-in Banner -->
+                        <div class="px-4 py-2.5 bg-white/[0.03] border-t border-white/10 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 text-[11px] flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[15px] text-[#E8A020]">verified_user</span>
+                                @SharedLocalizer["AlreadyPartner"]
+                            </span>
+                            <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-[#E8A020] hover:text-[#f3b03b] font-bold hover:underline transition-colors text-[11px] flex items-center gap-1">
+                                <span>@SharedLocalizer["PartnerLogin"]</span>
+                                <span class="material-symbols-outlined text-[13px] rtl:-scale-x-100">arrow_forward</span>
+                            </a>
+                        </div>
+
+                        <!-- Footer inside Dropdown -->
+                        <div class="px-4 py-3 bg-black/25 flex items-center justify-between text-xs">
+                            <a href="/calculator" class="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">calculate</span>
+                                <span>@SharedLocalizer["SmartEstimator"]</span>
+                            </a>
+                            <a href="@Url.Action("TrackOrder", "Home", new { area = "Shop" })" class="text-slate-300 hover:text-[#E8A020] font-bold flex items-center gap-1.5 transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">local_shipping</span>
+                                <span>@SharedLocalizer["TrackOrder"]</span>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Estimator Direct Button -->
+                <a href="/calculator" class="hidden sm:flex items-center gap-1 px-2.5 xl:px-3 py-1.5 rounded-xl text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold transition-all whitespace-nowrap border border-purple-500/20 shadow-sm">
+                    <span class="material-symbols-outlined text-[15px] text-purple-400">calculate</span>
+                    <span>@SharedLocalizer["SmartEstimator"]</span>
                 </a>
 
-                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="hidden xl:flex items-center gap-1 px-2 py-1.5 rounded-xl text-slate-200 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
+                <!-- Track Order Button -->
+                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="hidden xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
                     <span class="material-symbols-outlined text-[15px]">local_shipping</span>
                     <span>@SharedLocalizer["TrackOrder"]</span>
                 </a>
             </nav>
         </div>
 
-        <!-- Column 2: Responsive Search Bar (flexible, shrinks without forcing overflow) -->
-        <div class="flex-1 min-w-[120px] max-w-[180px] xl:max-w-xs 2xl:max-w-md hidden lg:block mx-1 xl:mx-2.5">
+        <!-- Column 2: Responsive Search Bar (flexible, smoothly adapts across viewports) -->
+        <div class="flex-1 min-w-[140px] max-w-xs md:max-w-sm xl:max-w-md 2xl:max-w-lg hidden md:block mx-1.5 xl:mx-3">
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
-                  class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
+                  class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
                 <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer" aria-label="@(isArabic ? "بحث" : "Search")">
                     <span class="material-symbols-outlined text-[16px]">search</span>
                 </button>
@@ -608,7 +706,7 @@
                         <span class="material-symbols-outlined text-[20px]">trending_up</span>
                     </div>
                     <div>
-                        <span class="font-bold text-sm block text-sky-400">@(isArabic ? "بوابة المستثمرين (/Invest)" : "Investor Gateway")</span>
+                        <span class="font-bold text-sm block text-sky-400">@SharedLocalizer["InvestorHubTitle"]</span>
                         <span class="text-[10px] text-sky-500/80 font-medium block">@(isArabic ? "عوائد 10-14% مرابحة متوافقة مع الشريعة" : "10-14% Sharia-Compliant Murabaha")</span>
                     </div>
                 </div>
@@ -648,6 +746,35 @@
                 </div>
                 <span class="material-symbols-outlined text-[16px] text-amber-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
             </a>
+        }
+
+        <!-- Logistics & Fleet 3PL in Mobile Drawer -->
+        <a href="@(User.IsInRole("DeliveryCompanyUser") || User.IsInRole("DeliveryDriver") ? Url.Action("CompanyIndex", "Home", new { area = "Delivery" }) : Url.Action("Register", "Account", new { area = "Delivery" }))"
+           class="flex items-center justify-between px-3 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-all group mb-2 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                </div>
+                <div>
+                    <span class="font-bold text-sm block text-blue-400">@SharedLocalizer["FleetHubTitle"]</span>
+                    <span class="text-[10px] text-blue-500/80 font-medium block">@(isArabic ? "أسطول النقل الثقيل وشركات الشحن (3PL)" : "3PL Dispatch & Heavy Transport")</span>
+                </div>
+            </div>
+            <span class="material-symbols-outlined text-[16px] text-blue-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:-scale-x-100">chevron_right</span>
+        </a>
+
+        @if (!User.Identity?.IsAuthenticated == true)
+        {
+            <div class="px-3.5 py-2.5 mb-2.5 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between text-xs">
+                <span class="text-slate-400 text-[11px] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px] text-[#E8A020]">verified_user</span>
+                    @SharedLocalizer["AlreadyPartner"]
+                </span>
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="text-[#E8A020] font-bold hover:underline text-[11px] flex items-center gap-0.5">
+                    <span>@SharedLocalizer["PartnerLogin"]</span>
+                    <span class="material-symbols-outlined text-[12px] rtl:-scale-x-100">arrow_forward</span>
+                </a>
+            </div>
         }
 
         <!-- Featured Cost Calculator in Mobile Drawer -->
@@ -906,11 +1033,13 @@
               class="flex items-center gap-2 bg-white/5 border border-white/10 p-1 rounded-2xl">
             <button type="submit" name="culture" value="ar"
                     class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all @(isArabic ? "bg-[#E8A020] text-[#111827] shadow" : "text-slate-400 hover:text-slate-200 hover:bg-white/5")">
-                <span>🇯🇴</span> العربية
+                <span class="material-symbols-outlined text-sm">language</span>
+                <span>العربية</span>
             </button>
             <button type="submit" name="culture" value="en"
                     class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all @(!isArabic ? "bg-[#E8A020] text-[#111827] shadow" : "text-slate-400 hover:text-slate-200 hover:bg-white/5")">
-                <span>🇺🇸</span> English
+                <span class="material-symbols-outlined text-sm">translate</span>
+                <span>English</span>
             </button>
         </form>
     </div>
@@ -976,6 +1105,24 @@
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && spotlightEl && !spotlightEl.classList.contains("opacity-0")) closeSpotlight();
     });
+
+    // Business Hub Dropdown Touch & Click Handler
+    var bizTrigger = document.getElementById("business-menu-trigger");
+    var bizBtn     = document.getElementById("business-menu-btn");
+    if (bizBtn && bizTrigger) {
+        bizBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            bizTrigger.classList.toggle("active");
+        });
+        document.addEventListener("click", function (e) {
+            if (!bizTrigger.contains(e.target)) {
+                bizTrigger.classList.remove("active");
+            }
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") bizTrigger.classList.remove("active");
+        });
+    }
 })();
 
 // =========================================================

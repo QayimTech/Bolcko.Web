@@ -571,3 +571,12 @@ secrets.json
 /Bolcko.Web.App/wwwroot/products
 /Bolcko.Web.App/App_Data/Imports/ImageLibrary
 /Bolcko.Web.App/wwwroot/variants
+
+# Database dumps & production backups
+*.dump
+*.sql.gz
+*.tar.gz
+
+# Data Protection Keys
+**/App_Data/Keys/**
+

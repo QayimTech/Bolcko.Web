@@ -8,13 +8,13 @@
     var verifyUrl = Model != null ? $"{appHost}/Shop/Financing/Verify?code={Model.TrackingCode}" : $"{appHost}/Shop/Financing/Verify";
     var qrCodeUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={Uri.EscapeDataString(verifyUrl)}";
     
-    // Formatting party names cleanly
+    // Formatting party names cleanly and preventing email/PII leakage
     string funderDisplayName = "المستثمر الممول المعتمد";
     if (!string.IsNullOrWhiteSpace(Model?.FunderName))
     {
         if (Model.FunderName.Contains("@"))
         {
-            funderDisplayName = "المستثمر الممول (" + Model.FunderName.Split('@')[0] + ")";
+            funderDisplayName = "السيد المستثمر الممول المعتمد";
         }
         else
         {
@@ -23,9 +23,9 @@
     }
 
     string contractorDisplayName = Model?.ContractorName ?? "المقاول المنفذ";
-    if (contractorDisplayName.Contains("@"))
+    if (string.IsNullOrWhiteSpace(contractorDisplayName) || contractorDisplayName.Contains("@"))
     {
-        contractorDisplayName = contractorDisplayName.Split('@')[0];
+        contractorDisplayName = "السيد المقاول المنفذ المعتمد";
     }
 }
 <!DOCTYPE html>
@@ -234,14 +234,24 @@
                                     int idx = 1;
                                     foreach (var it in Model.Items)
                                     {
+                                        var catDisplay = it.MaterialCategory switch
+                                        {
+                                            "Steel" => "حديد تسليح",
+                                            "Concrete" => "خرسانة جاهزة",
+                                            "Cement" => "إسمنت ومواد لاصقة",
+                                            "Stone" => "حجر بناء",
+                                            "Blocks" => "طوب وبلوك",
+                                            "Custom" => "مواد إنشائية",
+                                            _ => it.MaterialCategory
+                                        };
                                         <tr class="hover:bg-slate-50/80">
                                             <td class="p-2.5 text-center font-mono text-slate-500 border-e border-slate-200">@(idx++)</td>
-                                            <td class="p-2.5 font-bold text-slate-800 border-e border-slate-200">@it.MaterialCategory</td>
+                                            <td class="p-2.5 font-bold text-slate-800 border-e border-slate-200">@catDisplay</td>
                                             <td class="p-2.5 text-slate-900 border-e border-slate-200">@it.MaterialName</td>
-                                            <td class="p-2.5 text-center font-mono font-bold border-e border-slate-200">@it.Quantity.ToString("N1")</td>
+                                            <td class="p-2.5 text-center font-mono font-bold border-e border-slate-200"><bdi>@it.Quantity.ToString("N1")</bdi></td>
                                             <td class="p-2.5 text-center text-slate-600 border-e border-slate-200">@it.Unit</td>
-                                            <td class="p-2.5 text-center font-mono border-e border-slate-200">@it.UnitPriceJod.ToString("N2")</td>
-                                            <td class="p-2.5 font-mono font-bold text-end text-slate-950">@it.SubtotalJod.ToString("N2")</td>
+                                            <td class="p-2.5 text-center font-mono border-e border-slate-200"><bdi>@it.UnitPriceJod.ToString("N2")</bdi></td>
+                                            <td class="p-2.5 font-mono font-bold text-end text-slate-950"><bdi>@it.SubtotalJod.ToString("N2") د.أ</bdi></td>
                                         </tr>
                                     }
                                 }
@@ -249,7 +259,7 @@
                             <tfoot class="bg-slate-50 border-t border-slate-300 font-bold">
                                 <tr>
                                     <td colspan="6" class="p-2.5 text-end text-slate-700">إجمالي قيمة شراء المواد الأساسية (سعر التكلفة الأصلية):</td>
-                                    <td class="p-2.5 text-end font-mono font-black text-slate-950 text-sm">@Model.BaseMaterialCost.ToString("N2") د.أ</td>
+                                    <td class="p-2.5 text-end font-mono font-black text-slate-950 text-sm"><bdi>@Model.BaseMaterialCost.ToString("N2") د.أ</bdi></td>
                                 </tr>
                             </tfoot>
                         </table>

@@ -1,0 +1,31 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var measurementId = Configuration["GoogleAnalytics:MeasurementId"] ?? "G-Q3V7Y73RE7";
+}
+
+@if (!string.IsNullOrWhiteSpace(measurementId))
+{
+    <!-- Google tag (gtag.js) - Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=@measurementId"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '@measurementId', {
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+
+        // Block-O Global Custom Event Tracker
+        window.trackBlockoEvent = function(eventName, eventParams) {
+            try {
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', eventName, eventParams || {});
+                }
+            } catch (e) {
+                console.debug('GA4 tracking error:', e);
+            }
+        };
+    </script>
+}

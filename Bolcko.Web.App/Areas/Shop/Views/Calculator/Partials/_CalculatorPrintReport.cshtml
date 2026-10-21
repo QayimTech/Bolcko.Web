@@ -1,0 +1,195 @@
+@model Bolcko.Domain.Entities.Catalog.DTOs.ConstructionEstimateResultDto
+@{
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var isEn = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.OrdinalIgnoreCase);
+
+    string GetItemName(string category, string defaultAr, string defaultEn) {
+        return isEn ? (!string.IsNullOrEmpty(defaultEn) ? defaultEn : defaultAr) : defaultAr;
+    }
+
+    string GetItemUnit(string category) {
+        if (!isEn) {
+            return category switch {
+                "Steel" => "طن",
+                "Concrete" => "م³",
+                "Cement" => "كيس",
+                "Blocks" => "حبة",
+                "Sand" or "Aggregates" => "م³",
+                "Labor" => "م² مسطح",
+                "Stone" => "م² واجهات",
+                "StoneDecor" => "متر طولي / حبة",
+                "StoneLabor" => "م² تركيب",
+                _ => "وحدة"
+            };
+        } else {
+            return category switch {
+                "Steel" => "Tons",
+                "Concrete" => "m³",
+                "Cement" => "Bags",
+                "Blocks" => "Pcs",
+                "Sand" or "Aggregates" => "m³",
+                "Labor" => "m² Built-up",
+                "Stone" => "m² Facades",
+                "StoneDecor" => "Linear m / Pcs",
+                "StoneLabor" => "m² Fixation",
+                _ => "Unit"
+            };
+        }
+    }
+
+    string GetItemNote(string category, string noteAr) {
+        if (!isEn) return noteAr;
+        return category switch {
+            "Steel" => "Includes footings, columns, beams & slabs (8-25mm)",
+            "Concrete" => "Cast for foundations, beams, columns & slabs with pump",
+            "Cement" => "For masonry walls, ground sub-base, and plastering",
+            "Blocks" => "For exterior walls, interior partitions, and rib slabs",
+            "Sand" or "Aggregates" => "For mortar mixes, masonry, and ground slabs",
+            "Labor" => "Carpentry, steel fixing, concrete casting, and mason workforce",
+            "Stone" => "Calibrated building stone with 7% cutting wastage",
+            "StoneDecor" => "Decorative floor cornices, window architraves, entrance portico pillars",
+            "StoneLabor" => "Mechanical / wet anchors installation, backing concrete cast & mortar joints",
+            _ => noteAr
+        };
+    }
+}
+
+<!-- ══════════════════════ DEDICATED OFFICIAL PRINT REPORT (A4) ══════════════════════ -->
+<div id="printReportContainer" class="print-only-report p-8 max-w-4xl mx-auto text-black bg-white" dir="@(isRtl ? "rtl" : "ltr")">
+    
+    <!-- Report Header -->
+    <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-5">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="text-3xl font-black tracking-tight text-slate-950 font-mono">BLOCKO</span>
+                <span class="text-xs bg-slate-900 text-white px-2.5 py-1 rounded font-bold">
+                    @(isEn ? "Building Materials Direct Supply Platform" : "بلوكو لتوريد مواد البناء والإنشاءات")
+                </span>
+            </div>
+            <p class="text-xs text-slate-700 mt-1 font-semibold">@(isEn ? "Hashemite Kingdom of Jordan • Direct Construction Supplies" : "المملكة الأردنية الهاشمية • منصة التوريد الإنشائي المباشر")</p>
+            <p class="text-xs text-slate-600">@(isEn ? "Website: bolcko.com • Projects & Commercial Sales" : "الموقع الإلكتروني: bolcko.com • خدمة المشاريع والتعاقدات")</p>
+        </div>
+        <div class="text-end text-xs space-y-1">
+            <p class="font-black text-sm text-slate-950">@(isEn ? "Construction Cost & Quantity Estimate Report" : "تقرير تقدير كميات وتكاليف البناء الرسمي")</p>
+            <p class="text-slate-700">@(isEn ? "Reference No:" : "الرقم المرجعي:") <span class="font-mono font-bold text-slate-950" id="printReportRef">BLK-@DateTime.Now.ToString("yyMMdd-HHmm")</span></p>
+            <p class="text-slate-700">@(isEn ? "Issue Date:" : "تاريخ الإصدار:") <span class="font-mono font-semibold" id="printIssueDate">@DateTime.Now.ToString("yyyy/MM/dd - HH:mm")</span></p>
+            <p class="text-emerald-800 font-bold">@(isEn ? "Status: Verified with Live Market Rates" : "حالة التقدير: معتمد وفق أسعار البورصة اللحظية")</p>
+        </div>
+    </div>
+
+    <!-- Project Specifications Summary Grid -->
+    <div class="border-2 border-slate-300 rounded-xl p-4 mb-5 bg-slate-50 page-break-avoid">
+        <h4 class="font-black text-xs text-slate-950 border-b border-slate-200 pb-2 mb-3">
+            @(isEn ? "1. Project Specifications & Scope:" : "1. مواصفات ومحددات المشروع:")
+        </h4>
+        <div class="grid grid-cols-4 gap-3 text-xs">
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Floor Footprint Area:" : "مساحة الطابق المسطح:")</span>
+                <strong class="text-slate-950 font-mono text-sm" id="printArea">250 @(isEn ? "m²" : "م²")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Number of Floors:" : "عدد الطوابق:")</span>
+                <strong class="text-slate-950 text-sm" id="printFloors">2 @(isEn ? "Floors" : "طوابق")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Total Built-up Area:" : "إجمالي مسطح البناء:")</span>
+                <strong class="text-slate-950 font-mono text-sm" id="printTotalArea">@Model.TotalBuiltUpArea @(isEn ? "m²" : "م²")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Location / Governorate:" : "المحافظة / الموقع:")</span>
+                <strong class="text-slate-950 text-sm" id="printCity">@(isEn ? "Amman" : "عمان")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Usage Type:" : "نوع الاستخدام:")</span>
+                <strong class="text-slate-950" id="printBuildingType">@(isEn ? "Residential / Villa" : "سكني / فيلا")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Foundation System:" : "نوع الأساسات:")</span>
+                <strong class="text-slate-950" id="printFoundationType">@(isEn ? "Isolated Footings" : "قواعد منفصلة")</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Column Rebar Detail:" : "تسليح الأعمدة:")</span>
+                <strong class="text-slate-950" id="printColumnBars">6 Bars (Grade 60)</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 block text-[10px] font-bold">@(isEn ? "Stone Facades Cladding:" : "حجر البناء والواجهات:")</span>
+                <strong class="text-slate-950" id="printStoneStatus">@(isEn ? "Included (4 Facades)" : "مشمول (4 واجهات)")</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Financial Total Card (High-Contrast Print Layout) -->
+    <div class="border-2 border-slate-900 rounded-xl p-5 mb-5 flex justify-between items-center bg-slate-100 text-slate-950 page-break-avoid">
+        <div>
+            <span class="text-xs text-slate-700 font-bold block">
+                @(isEn ? "Total Combined Construction Cost (Skeleton + Facades & Decor):" : "التكلفة التقديرية الإجمالية للمشروع (عظم كامل + حجر وديكورات الواجهات):")
+            </span>
+            <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-4xl font-black text-slate-950 font-mono" id="printGrandTotalCost">@Model.GrandTotalCostJod.ToString("N0")</span>
+                <span class="text-base font-extrabold text-slate-800">@(isEn ? "JOD" : "دينار أردني")</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-slate-700 mt-2 font-bold">
+                <span>@(isEn ? "Skeleton:" : "العظم:") <strong class="text-slate-950 font-mono text-sm" id="printSkeletonCost">@Model.TotalSkeletonCostJod.ToString("N0") د.أ</strong></span>
+                <span>•</span>
+                <span>@(isEn ? "Stone & Decor:" : "الحجر والديكور:") <strong class="text-slate-950 font-mono text-sm" id="printStoneCost">@Model.TotalStoneCostJod.ToString("N0") د.أ</strong></span>
+            </div>
+        </div>
+        <div class="text-end border-s-2 border-slate-300 ps-6">
+            <span class="text-xs text-slate-600 block font-bold">@(isEn ? "Average Cost per m²:" : "متوسط تكلفة المتر المربع مسطح:")</span>
+            <span class="text-2xl font-black text-slate-950 font-mono" id="printCostPerM2">@Model.CostPerSquareMeterJod @(isEn ? "JOD/m²" : "د.أ/م²")</span>
+        </div>
+    </div>
+
+    <!-- Itemized Bill of Quantities (BOQ) -->
+    <div class="mb-5 page-break-avoid">
+        <h4 class="font-black text-xs text-slate-950 mb-2">
+            @(isEn ? "2. Itemized Bill of Quantities (BOQ):" : "2. جدول حصر الكميات والتسعير التفصيلي (Bill of Quantities):")
+        </h4>
+        <table class="w-full text-xs border border-slate-300">
+            <thead>
+                <tr class="bg-slate-200 text-slate-950 font-black border-b-2 border-slate-400">
+                    <th class="py-2.5 px-3 text-start">@(isEn ? "Structural Item" : "البند الإنشائي")</th>
+                    <th class="py-2.5 px-3 text-center">@(isEn ? "Estimated Qty" : "الكمية التقديرية")</th>
+                    <th class="py-2.5 px-3 text-center">@(isEn ? "Unit Rate" : "سعر الوحدة")</th>
+                    <th class="py-2.5 px-3 text-end">@(isEn ? "Total Amount" : "التكلفة الإجمالية")</th>
+                </tr>
+            </thead>
+            <tbody id="printBreakdownTbody" class="divide-y divide-slate-300">
+                @foreach (var item in Model.MaterialItems)
+                {
+                    var itemName = GetItemName(item.Category, item.ItemNameAr, item.ItemNameEn);
+                    var itemUnit = GetItemUnit(item.Category);
+                    var itemNote = GetItemNote(item.Category, item.Note);
+                    <tr>
+                        <td class="py-2 px-3">
+                            <strong class="text-slate-950">@itemName</strong>
+                            <span class="text-slate-600 block text-[10px]">@itemNote</span>
+                        </td>
+                        <td class="py-2 px-3 text-center font-mono font-bold text-slate-950">@item.Quantity.ToString("N1") @itemUnit</td>
+                        <td class="py-2 px-3 text-center font-mono text-slate-800">@item.UnitPriceJod.ToString("N2") @(isEn ? "JOD" : "د.أ")</td>
+                        <td class="py-2 px-3 text-end font-mono font-black text-slate-950">@item.TotalPriceJod.ToString("N0") @(isEn ? "JOD" : "د.أ")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Engineering Compliance Notes & Signatures -->
+    <div class="border-t-2 border-slate-300 pt-3 text-[10px] text-slate-700 space-y-1.5 page-break-avoid">
+        <p>• <strong>@(isEn ? "Engineering Note:" : "ملاحظات هندسية:")</strong> @(isEn ? "This estimate is based on standard structural engineering consumption ratios in Jordanian Building Codes. Actual final quantities may vary ±5% depending on structural design drawings prepared by the supervising engineering firm." : "هذا التقدير مبني على معادلات التصميم الإنشائي المعتمدة ومعدلات الاستهلاك في الكودات الأردنية، وقد تختلف الكميات النهائية بنسبة ±5% تبعاً للمخططات الإنشائية التفصيلية المعدة من المكتب الهندسي المشرف.")</p>
+        <p>• <strong>@(isEn ? "Price Validity:" : "صلاحية الأسعار:")</strong> @(isEn ? "Prices are linked to building commodity exchanges and local factory prices at the date of this report." : "الأسعار مرتبطة ببورصات المواد الإنشائية وأسعار المصانع المحلية في تاريخ إصدار هذا التقرير.")</p>
+        <p>• @(isEn ? "To request supply and lock in material prices, contact BLOCKO Sales & Project Supplies via platform or phone." : "لطلب التوريد وتثبيت الأسعار، يرجى التواصل مع قسم المبيعات والمشاريع عبر منصة BLOCKO أو عبر الهاتف.")</p>
+        
+        <div class="flex justify-between items-center pt-5 text-xs text-slate-900 border-t border-slate-200 mt-4">
+            <div>
+                <p class="font-black">@(isEn ? "Prepared by: Structural Estimation Department" : "إعداد: قسم الحسابات والتسعير الإنشائي")</p>
+                <p class="text-[10px] text-slate-600">@(isEn ? "BLOCKO Building Materials Direct Platform" : "منصة بلوكو لتوريد مواد البناء")</p>
+            </div>
+            <div class="text-end">
+                <p class="font-black">@(isEn ? "Official Platform Approval" : "ختم المنصة والاعتماد الرسمي")</p>
+                <p class="text-[10px] text-slate-500 font-mono">BLOCKO JORDAN • CERTIFIED</p>
+            </div>
+        </div>
+    </div>
+
+</div>

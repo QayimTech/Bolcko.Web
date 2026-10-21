@@ -11,11 +11,14 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
         public string ProductName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "الكمية مطلوبة / Quantity is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "الكمية يجب أن تكون 1 على الأقل / Quantity must be at least 1.")]
-        public int Quantity { get; set; }
+        [Range(0.001, (double)decimal.MaxValue, ErrorMessage = "الكمية يجب أن تكون أكبر من صفر / Quantity must be greater than 0.")]
+        public decimal Quantity { get; set; }
 
         [Required(ErrorMessage = "الوحدة مطلوبة / Unit is required.")]
         public string Unit { get; set; } = string.Empty;
+
+        public string? Category { get; set; }
+        public string? Specifications { get; set; }
     }
 
     public class QuoteRequestDto
@@ -41,6 +44,11 @@ namespace Bolcko.Domain.Entities.Tender.DTOs
         public string? ProjectType { get; set; }
 
         public string? Notes { get; set; }
+
+        public int? TargetVendorId { get; set; }
+        public string TenderScope { get; set; } = "OpenNearest"; // "OpenNearest", "DirectVendor", "SubscribedPrivate"
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
 
         public List<QuoteRequestItemDto> Products { get; set; } = new List<QuoteRequestItemDto>();
     }

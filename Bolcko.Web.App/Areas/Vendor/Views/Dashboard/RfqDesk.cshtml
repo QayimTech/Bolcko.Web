@@ -1,35 +1,46 @@
 @model Bolcko.Domain.Entities.Catalog.VendorProfile
 @{
-    ViewData["Title"] = "مكتب تسعير طلبات الكميات (RFQ Desk)";
-    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = isArabic ? "مكتب تسعير طلبات الكميات (RFQ Desk)" : "B2B RFQ Pricing Desk";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
+    var activeTenders = ViewBag.ActiveTenders as List<Bolcko.Domain.Entities.Tender.Tender> ?? new List<Bolcko.Domain.Entities.Tender.Tender>();
 }
 
-<div class="space-y-6 text-right" dir="rtl">
+<div class="space-y-6 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <!-- Header Card -->
     <div class="bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
         <div class="relative z-10 space-y-2">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold">
                 <span class="material-symbols-outlined text-sm">request_quote</span>
-                <span>بوابة تسعير عروض الجملة B2B</span>
+                <span>بوابة تسعير عروض الجملة B2B المعتمدة</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black">مكتب استقبال وتسعير طلبات الأسعار (RFQ Desk) 🏭</h1>
             <p class="text-xs text-amber-100 max-w-2xl">
-                استقبل طلبات عروض الأسعار الواردة من شركات ومؤسسات المقاولات المعتمدة، وقدم عروض أسعار تنافسية بأسعار الجملة المباشرة مع تحديد جدول التوريد.
+                استقبل طلبات عروض الأسعار الواردة من المقاولين والمهندسين من حاسبة الكميات ومنظومة بلوكو، وقدم عروض أسعار تنافسية بأسعار الجملة المباشرة مع تحديد جدول التوريد.
             </p>
         </div>
     </div>
+
+    <!-- Alert messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
 
     <!-- RFQ Items Table -->
     <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
             <div>
-                <h2 class="text-base font-bold text-slate-900">طلبات التسعير الواردة والنشطة</h2>
-                <p class="text-xs text-slate-500">طلبات عروض أسعار تحتاج إلى تسعير وتحديد مدة الصلاحية</p>
+                <h2 class="text-base font-bold text-slate-900">طلبات التسعير الواردة والنشطة لمؤسستك</h2>
+                <p class="text-xs text-slate-500">طلبات حقيقية صادرة ومطابقة لموقع مستودعك وتخصص توريداتك</p>
             </div>
             <div class="flex items-center gap-2">
                 <span class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
-                    3 طلبات جديدة بانتظار التسعير
+                    @activeTenders.Count طلبات متاحة للتسعير
                 </span>
             </div>
         </div>
@@ -40,119 +51,160 @@
                     <tr>
                         <th class="p-3.5">رقم الـ RFQ</th>
                         <th class="p-3.5">اسم المقاول / المنشأة</th>
-                        <th class="p-3.5">المواد المطلوبة</th>
-                        <th class="p-3.5">الكمية</th>
+                        <th class="p-3.5">المواد والمواصفات المطلوبة</th>
+                        <th class="p-3.5">نطاق التوجيه</th>
                         <th class="p-3.5">موقع المشروع</th>
                         <th class="p-3.5">تاريخ الطلب</th>
                         <th class="p-3.5 text-center">الإجراء</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-882</td>
-                        <td class="p-3.5 font-bold text-slate-900">مؤسسة التعمير الإنشائي</td>
-                        <td class="p-3.5">حديد تسليح 16 ملم و 14 ملم (سابك)</td>
-                        <td class="p-3.5 font-bold text-slate-900 font-mono">120 طن</td>
-                        <td class="p-3.5 text-slate-600">الرياض - حي النرجس</td>
-                        <td class="p-3.5 text-slate-500 font-mono">اليوم 14:30</td>
-                        <td class="p-3.5 text-center">
-                            <button onclick="openRfqModal('RFQ-2026-882', 'مؤسسة التعمير الإنشائي', 'حديد تسليح 16 ملم و 14 ملم', '120 طن', 'الرياض - حي النرجس')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
-                                تقديم عرض سعر
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-879</td>
-                        <td class="p-3.5 font-bold text-slate-900">شركة آفاق الهندسة للمقاولات</td>
-                        <td class="p-3.5">خرسانة جاهزة مقاومة C40 مع مضخة 42م</td>
-                        <td class="p-3.5 font-bold text-slate-900 font-mono">450 م³</td>
-                        <td class="p-3.5 text-slate-600">الدرعية - مشروع سكني</td>
-                        <td class="p-3.5 text-slate-500 font-mono">أمس 18:15</td>
-                        <td class="p-3.5 text-center">
-                            <button onclick="openRfqModal('RFQ-2026-879', 'شركة آفاق الهندسة للمقاولات', 'خرسانة جاهزة مقاومة C40', '450 م³', 'الدرعية - مشروع سكني')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm">
-                                تقديم عرض سعر
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3.5 font-bold font-mono text-indigo-600">#RFQ-2026-865</td>
-                        <td class="p-3.5 font-bold text-slate-900">مجموعة الرواد للمقاولات</td>
-                        <td class="p-3.5">بلوك إسمنتي مفرغ 20 سم عالي المقاومة</td>
-                        <td class="p-3.5 font-bold text-slate-900 font-mono">15,000 حبة</td>
-                        <td class="p-3.5 text-slate-600">جدة - حي أبحر الشمالية</td>
-                        <td class="p-3.5 text-slate-500 font-mono">16/09/2026</td>
-                        <td class="p-3.5 text-center">
-                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
-                                تم إرسال العرض (2.80 ر.س)
-                            </span>
-                        </td>
-                    </tr>
+                    @if (activeTenders.Any())
+                    {
+                        foreach (var tender in activeTenders)
+                        {
+                            var contractorName = tender.User != null 
+                                ? $"{tender.User.FirstName} {tender.User.LastName}".Trim() 
+                                : (tender.GuestCompany ?? tender.GuestName ?? "شركة مقاولات هندسية");
+                            if (string.IsNullOrWhiteSpace(contractorName)) contractorName = "مقاول معتمد";
+
+                            var itemsSummary = string.Join(" • ", tender.Items.Select(i => $"{i.ProductName} ({i.RequestedQuantity:0.#} {i.Unit})"));
+                            if (string.IsNullOrEmpty(itemsSummary)) itemsSummary = tender.TenderTitle;
+
+                            var specsSummary = string.Join(" | ", tender.Items.Where(i => !string.IsNullOrEmpty(i.Specifications)).Select(i => i.Specifications));
+
+                            var isPricedByMe = tender.Status == Bolcko.Domain.Enums.TenderStatus.Priced && tender.AwardedSupplierId == Model?.Id;
+
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3.5 font-bold font-mono text-indigo-600">#QT-@tender.Id.ToString("D5")</td>
+                                <td class="p-3.5 font-bold text-slate-900">@contractorName</td>
+                                <td class="p-3.5 max-w-xs">
+                                    <div class="font-bold text-slate-900">@itemsSummary</div>
+                                    @if (!string.IsNullOrEmpty(specsSummary))
+                                    {
+                                        <div class="text-[10px] text-amber-700 mt-0.5 font-medium bg-amber-50/80 px-2 py-0.5 rounded border border-amber-200/50 inline-block">
+                                            📋 @specsSummary
+                                        </div>
+                                    }
+                                </td>
+                                <td class="p-3.5">
+                                    @if (tender.TargetVendorId == Model?.Id)
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-300">
+                                            ⭐ موجّه لك بالاسم
+                                        </span>
+                                    }
+                                    else if (tender.TenderScope == "SubscribedPrivate")
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] border border-amber-300">
+                                            🔒 مناقصة خاصة للمشتركين
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 font-bold text-[10px] border border-sky-300">
+                                            📍 أقرب مورد للموقع
+                                        </span>
+                                    }
+                                </td>
+                                <td class="p-3.5 text-slate-600 font-medium">@(tender.ProjectCity ?? tender.GuestCity ?? "عمان")</td>
+                                <td class="p-3.5 text-slate-500 font-mono">@tender.RequestDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                <td class="p-3.5 text-center">
+                                    @if (isPricedByMe)
+                                    {
+                                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] inline-block">
+                                            تم إرسال العرض (@tender.TotalQuotedAmount?.ToString("N2") د.أ)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" onclick="openRealRfqModal(@tender.Id, '@tender.TenderTitle', '@itemsSummary.Replace("'", "\\'")', '@(tender.ProjectCity ?? "عمان")')" class="px-3.5 py-1.5 rounded-xl bg-[#E8A020] text-slate-900 font-bold hover:bg-amber-400 transition shadow-sm cursor-pointer">
+                                            تقديم عرض سعر
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-slate-400">
+                                <span class="material-symbols-outlined text-4xl block mb-2 text-slate-300">inbox</span>
+                                <span>لا توجد طلبات تسعير جديدة مطابقة حالياً. عند قيام المقاولين بحساب كمياتهم ستظهر هنا فوراً.</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Live RFQ Quote Modal -->
+    <!-- Live RFQ Quote Modal with Real Binding Form -->
     <div id="rfqQuoteModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
-                    <h3 class="font-black text-lg text-slate-900" id="modalRfqTitle">تقديم عرض سعر ملزم</h3>
-                    <p class="text-xs text-slate-400" id="modalRfqSub">طلب رقم: #RFQ-882</p>
+                    <h3 class="font-black text-lg text-slate-900" id="modalRfqTitle">تقديم عرض سعر رسمي ملزم</h3>
+                    <p class="text-xs text-slate-400" id="modalRfqSub">طلب رقم: #QT-00000</p>
                 </div>
-                <button onclick="closeRfqModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                <button type="button" onclick="closeRfqModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer">
                     <span class="material-symbols-outlined text-sm">close</span>
                 </button>
             </div>
 
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">سعر الوحدة المقترح شامل الضريبة والتوريد (د.أ / ر.س):</label>
-                    <input type="number" step="0.01" id="rfqUnitPrice" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 font-mono text-slate-900 outline-none focus:ring-2 focus:ring-[#E8A020]" placeholder="0.00" />
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">المدة الزمنية لبدء التوريد والصب بالموقع:</label>
-                    <select id="rfqLeadTime" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 outline-none">
-                        <option value="24h">خلال 24 ساعة (فوري)</option>
-                        <option value="48h">خلال 48 ساعة</option>
-                        <option value="3d">خلال 3 أيام عمل</option>
-                        <option value="scheduled">جدول زمني مخصص حسب طلب المقاول</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">ملاحظات والتزامات الجودة والمطابقة:</label>
-                    <textarea rows="2" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-slate-900 outline-none" placeholder="الشهادات المرفقة، نوع الإسمنت، شروط المضخة..."></textarea>
-                </div>
-            </div>
+            <form id="realBidForm" asp-area="Vendor" asp-controller="Dashboard" asp-action="SubmitVendorBid" method="post" class="space-y-3 text-xs">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="tenderId" id="modalTenderId" value="" />
 
-            <div class="flex gap-3 pt-2">
-                <button onclick="submitRfqQuote()" class="flex-1 py-3 rounded-xl bg-[#E8A020] hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition">
-                    إرسال عرض السعر للمقاول
-                </button>
-                <button onclick="closeRfqModal()" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
-                    إلغاء
-                </button>
-            </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">إجمالي سعر المواد (د.أ) <span class="text-rose-500">*</span></label>
+                        <input type="number" step="0.01" name="totalPrice" id="bidTotalPrice" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-slate-900 outline-none focus:ring-2 focus:ring-[#E8A020]" placeholder="0.00" />
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">أجور النقل والتوصيل بالونش (د.أ) <span class="text-rose-500">*</span></label>
+                        <input type="number" step="0.01" name="deliveryFee" id="bidDeliveryFee" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-slate-900 outline-none focus:ring-2 focus:ring-[#E8A020]" placeholder="0.00" value="0.00" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">مدة بدء التوريد للموقع (أيام):</label>
+                        <input type="number" min="1" name="deliveryDays" id="bidDeliveryDays" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 outline-none" value="3" />
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">صلاحية العرض (أيام):</label>
+                        <input type="number" min="1" name="validityDays" id="bidValidityDays" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-900 outline-none" value="7" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ملاحظات والتزامات الجودة والمطابقة الفنية:</label>
+                    <textarea rows="2" name="notes" id="bidNotes" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-slate-900 outline-none resize-none" placeholder="مثال: مطابقة للمواصفات الأردنية JS، يشمل شهادة فحص الجمعية العلمية الملكية..."></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-3 border-t border-slate-100">
+                    <button type="submit" id="submitBidBtn" class="flex-1 py-3 rounded-xl bg-[#E8A020] hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer">
+                        إرسال عرض السعر للمقاول
+                    </button>
+                    <button type="button" onclick="closeRfqModal()" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    function openRfqModal(rfqCode, contractor, material, qty, loc) {
-        document.getElementById('modalRfqTitle').innerText = 'تقديم عرض سعر: ' + material;
-        document.getElementById('modalRfqSub').innerText = 'طلب رقم: ' + rfqCode + ' | المقاول: ' + contractor + ' | الكمية: ' + qty;
+    function openRealRfqModal(tenderId, title, items, city) {
+        document.getElementById('modalTenderId').value = tenderId;
+        document.getElementById('modalRfqTitle').innerText = 'تقديم عرض سعر: #QT-' + String(tenderId).padStart(5, '0');
+        document.getElementById('modalRfqSub').innerText = title + ' | ' + city + ' • ' + items;
         document.getElementById('rfqQuoteModal').classList.remove('hidden');
     }
     function closeRfqModal() {
         document.getElementById('rfqQuoteModal').classList.add('hidden');
-    }
-    function submitRfqQuote() {
-        var price = document.getElementById('rfqUnitPrice').value;
-        if (!price || parseFloat(price) <= 0) {
-            alert('يرجى إدخال سعر الوحدة المقترح.');
-            return;
-        }
-        alert('تم إرسال عرض السعر بنجاح إلى المقاول والمنصة وتم تسجيله في دفتر العروض!');
-        closeRfqModal();
     }
 </script>

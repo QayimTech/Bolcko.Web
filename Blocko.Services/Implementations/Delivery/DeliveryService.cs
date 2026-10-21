@@ -377,6 +377,7 @@ namespace Blocko.Services.Implementations.Delivery
                 .Include(j => j.Order)
                 .Include(j => j.Driver!)
                 .ThenInclude(d => d.User)
+                .Include(j => j.Company)
                 .FirstOrDefaultAsync(j => j.OrderId == orderId);
         }
 

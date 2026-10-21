@@ -16,20 +16,28 @@
 <style>
     /* ══════════════════════ PRINT STYLESHEET ══════════════════════ */
     @@media print {
-        header, footer, nav, #quickPresetsContainer, #calcFormContainer, #liveTickerSection, #faqSection, .no-print, .action-buttons-group {
+        header, footer, nav, aside, #quickPresetsContainer, #calcFormContainer, #liveTickerSection, #faqSection, .no-print, .action-buttons-group, .calculator-main-wrapper {
             display: none !important;
         }
 
-        body, main, .calculator-main-wrapper {
+        html, body {
             background: #ffffff !important;
             color: #000000 !important;
             padding: 0 !important;
             margin: 0 !important;
-            font-size: 11pt !important;
+            font-size: 10pt !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         .print-only-report {
             display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.8cm !important;
+            margin: 0 auto !important;
+            background: #ffffff !important;
+            color: #000000 !important;
         }
 
         .page-break-avoid {
@@ -49,13 +57,14 @@
         }
 
         th, td {
-            border: 1px solid #cbd5e1 !important;
+            border: 1px solid #94a3b8 !important;
             padding: 6px 10px !important;
         }
 
         th {
-            background-color: #f1f5f9 !important;
+            background-color: #e2e8f0 !important;
             color: #0f172a !important;
+            font-weight: bold !important;
         }
     }
 
@@ -127,6 +136,9 @@
 
 <!-- 5. Interactive Modals Partial (Sample Box & Encrypted QR Pass) -->
 <partial name="Partials/_CalculatorModals" />
+
+<!-- 6. Dedicated Official Print Report (Isolated outside .no-print for A4 Export) -->
+<partial name="Partials/_CalculatorPrintReport" model="Model" />
 
 @section Scripts {
     <!-- Three.js and OrbitControls via high-speed CDN -->

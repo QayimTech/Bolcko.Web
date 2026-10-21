@@ -5,7 +5,7 @@ class Program
 {
     static void Main()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://bolcko.com");
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://bolck-o.com");
         request.Headers.TryAddWithoutValidation("company-id", "186");
         request.Headers.TryAddWithoutValidation("company-id", "186");
         

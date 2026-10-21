@@ -407,6 +407,29 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 }
             }
 
+            if (funderId.HasValue)
+            {
+                var funderUser = await _userManager.FindByIdAsync(funderId.Value.ToString());
+                if (funderUser != null)
+                {
+                    var formalName = $"{funderUser.FirstName} {funderUser.LastName}".Trim();
+                    if (string.IsNullOrWhiteSpace(formalName)) formalName = funderUser.CompanyName ?? "";
+
+                    if (!string.IsNullOrWhiteSpace(formalName) && (string.IsNullOrWhiteSpace(request.FunderName) || request.FunderName.Contains("@") || request.FunderName == funderUser.UserName))
+                    {
+                        request.FunderName = formalName;
+                    }
+                    if (string.IsNullOrWhiteSpace(request.FunderPhone) && !string.IsNullOrWhiteSpace(funderUser.PhoneNumber))
+                    {
+                        request.FunderPhone = funderUser.PhoneNumber;
+                    }
+                }
+            }
+            if (string.IsNullOrWhiteSpace(request.FunderName) || request.FunderName.Contains("@"))
+            {
+                request.FunderName = "المستثمر الممول المعتمد";
+            }
+
             var result = await _serviceManager.FinancingService.FundTenderAsync(request, funderId);
             if (!result)
             {

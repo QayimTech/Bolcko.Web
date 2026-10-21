@@ -24,6 +24,16 @@ namespace Bolcko.Domain.Entities.Tender
         public string? Notes { get; set; }
         public string? NegotiationNotes { get; set; }
 
+        public int? TargetVendorId { get; set; }
+        public string TenderScope { get; set; } = "OpenNearest"; // "OpenNearest", "DirectVendor", "SubscribedPrivate"
+        public string? ProjectCity { get; set; }
+        public double? TargetLatitude { get; set; }
+        public double? TargetLongitude { get; set; }
+        public decimal? DeliveryFee { get; set; }
+        public int? EstimatedDeliveryDays { get; set; }
+        public int? BidValidityDays { get; set; }
+        public string? VendorOfferNotes { get; set; }
+
         public ICollection<TenderItem> Items { get; set; } = new List<TenderItem>();
     }
 }

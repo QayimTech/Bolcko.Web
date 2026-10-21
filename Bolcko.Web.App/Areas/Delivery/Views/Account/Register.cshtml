@@ -1,9 +1,12 @@
 @{
     Layout = null;
-    ViewData["Title"] = "بوابة اعتماد وتوثيق أساطيل النقل الثقيل (KYC) | بلوكو";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "بوابة اعتماد وتوثيق أساطيل النقل الثقيل (KYC) | بلوكو" 
+        : "Heavy Fleet & Carrier Onboarding (KYC) | BLOCKO";
 }
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="@(isArabic ? "ar" : "en")" dir="@(isArabic ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,10 +14,10 @@
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        body { font-family: 'Noto Kufi Arabic', sans-serif; }
+        body { font-family: @(isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Inter', system-ui, sans-serif"); }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
@@ -24,17 +27,33 @@
     <header class="w-full max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-800/80 pb-4 mb-6">
         <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="text-slate-300 font-mono text-[11px]">LTRC COMPLIANT • اعتماد هيئة تنظيم النقل البري</span>
+            <span class="text-slate-300 font-mono text-[11px]">
+                LTRC COMPLIANT • @(isArabic ? "اعتماد هيئة تنظيم النقل البري" : "Jordan Land Transport Regulatory Commission")
+            </span>
         </div>
-        <div class="flex items-center gap-4 text-[11px] text-slate-400">
-            <span class="flex items-center gap-1">
+        <div class="flex items-center gap-3 sm:gap-4 text-[11px] text-slate-400">
+            <span class="hidden sm:flex items-center gap-1">
                 <span class="material-symbols-outlined text-amber-400 text-sm">scale</span>
-                <span>تكامل القبان الرقمي</span>
+                <span>@(isArabic ? "تكامل القبان الرقمي" : "Digital Weighbridge")</span>
             </span>
-            <span class="flex items-center gap-1">
+            <span class="hidden sm:flex items-center gap-1">
                 <span class="material-symbols-outlined text-emerald-400 text-sm">payments</span>
-                <span>محفظة CliQ الفورية</span>
+                <span>@(isArabic ? "محفظة CliQ الفورية" : "Instant CliQ Payouts")</span>
             </span>
+
+            <!-- Language Switcher -->
+            <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" name="culture" value="@(isArabic ? "en" : "ar")" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-mono text-[11px] transition-colors cursor-pointer border border-slate-700">
+                    <span class="material-symbols-outlined text-[13px]">language</span>
+                    <span>@(isArabic ? "English" : "العربية")</span>
+                </button>
+            </form>
+
+            <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 transition-all">
+                <span class="material-symbols-outlined text-[15px]">login</span>
+                <span>@(isArabic ? "تسجيل الدخول" : "Sign In")</span>
+            </a>
         </div>
     </header>
 
@@ -52,10 +71,24 @@
                 <span>HEAVY LOGISTICS & 3PL CARRIER ONBOARDING</span>
             </div>
 
-            <h1 class="text-2xl sm:text-3xl font-black text-white">انضمام أسطول النقل الثقيل وناقلي المواد الإنشائية</h1>
+            <h1 class="text-2xl sm:text-3xl font-black text-white">
+                @(isArabic ? "انضمام أسطول النقل الثقيل وناقلي المواد الإنشائية" : "Heavy Transport Fleet & Material Carrier Onboarding")
+            </h1>
             <p class="text-slate-400 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed">
-                بوابة التوثيق المعتمدة لقطاع الإنشاءات (KYC). سجل شاحنتك أو أسطولك التجاري لنقل وتفريغ الإسمنت، الحديد، الرمل، والخرسانة في كافة محافظات المملكة.
+                @(isArabic 
+                    ? "بوابة التوثيق المعتمدة لقطاع الإنشاءات (KYC). سجل شاحنتك أو أسطولك التجاري لنقل وتفريغ الإسمنت، الحديد، الرمل، والخرسانة في كافة محافظات المملكة." 
+                    : "Certified KYC verification portal for construction logistics. Register your heavy truck or commercial fleet for cement, steel, aggregate, and ready-mix freight across Jordan.")
             </p>
+
+            <div class="pt-1">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-white/[0.04] border border-white/10 text-xs text-slate-300">
+                    <span>@(isArabic ? "لديك حساب أسطول أو كابتن معتمد بالفعل؟" : "Already an approved carrier or captain?")</span>
+                    <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="text-amber-400 font-bold hover:underline flex items-center gap-1">
+                        <span>@(isArabic ? "تسجيل الدخول لقمرة القيادة" : "Sign in to Dispatch Cockpit")</span>
+                        <span class="material-symbols-outlined text-[13px] rtl:-scale-x-100">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         @if (ViewBag.Error != null)
@@ -70,14 +103,14 @@
         <div class="p-3 bg-[#070A0F] border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-2 text-slate-400">
                 <span class="material-symbols-outlined text-amber-400 text-sm">bolt</span>
-                <span class="text-[11px] font-bold">تعبئة تجريبية سريعة للفحص (1-Click Test):</span>
+                <span class="text-[11px] font-bold">@(isArabic ? "تعبئة تجريبية سريعة للفحص (1-Click Test):" : "1-Click Test Auto-Fill:")</span>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" onclick="fillTestCaptain()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 text-amber-300 font-bold text-[11px] transition-colors cursor-pointer">
-                    🚛 تجربة كابتن مستقل
+                    @(isArabic ? "🚛 تجربة كابتن مستقل" : "🚛 Test Freelance Captain")
                 </button>
                 <button type="button" onclick="fillTestCompany()" class="px-3 py-1.5 rounded-xl bg-blue-500/15 border border-blue-500/30 hover:bg-blue-500/25 text-blue-300 font-bold text-[11px] transition-colors cursor-pointer">
-                    🏢 تجربة شركة أسطول 3PL
+                    @(isArabic ? "🏢 تجربة شركة أسطول 3PL" : "🏢 Test 3PL Fleet Company")
                 </button>
             </div>
         </div>
@@ -87,12 +120,12 @@
             <button type="button" id="tabCaptain" onclick="switchRole('captain')" 
                     class="py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-950/60 cursor-pointer">
                 <span class="material-symbols-outlined text-lg font-bold">person_pin</span>
-                <span>كابتن مستقل (سائق شاحنة فردي)</span>
+                <span>@(isArabic ? "كابتن مستقل (سائق شاحنة فردي)" : "Independent Captain (Single Truck)")</span>
             </button>
             <button type="button" id="tabCompany" onclick="switchRole('company')" 
                     class="py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white cursor-pointer">
                 <span class="material-symbols-outlined text-lg">domain</span>
-                <span>شركة شحن وأسطول 3PL</span>
+                <span>@(isArabic ? "شركة شحن وأسطول 3PL" : "3PL Carrier Fleet & Dispatch")</span>
             </button>
         </div>
 
@@ -106,40 +139,52 @@
             <div class="space-y-4">
                 <div class="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
                     <span class="material-symbols-outlined text-base">badge</span>
-                    <span>1. البيانات الأساسية وبيانات تسجيل الدخول</span>
+                    <span>@(isArabic ? "1. البيانات الأساسية وبيانات تسجيل الدخول" : "1. Account Credentials & Basic Information")</span>
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs" id="lblFullName">الاسم الكامل للكابتن / المالك: <span class="text-amber-400">*</span></label>
-                        <input name="fullName" id="txtFullName" type="text" required placeholder="مثال: يوسف محمود العبادي" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs" id="lblFullName">
+                            @(isArabic ? "الاسم الكامل للكابتن / المالك: " : "Captain / Owner Full Name: ")<span class="text-amber-400">*</span>
+                        </label>
+                        <input name="fullName" id="txtFullName" type="text" required placeholder="@(isArabic ? "مثال: يوسف محمود العبادي" : "e.g., Youssef Mahmoud Al-Abbadi")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5" id="companyNameContainer" style="display: none;">
-                        <label class="font-bold text-slate-300 block text-xs">اسم الشركة / المنشأة المسجلة: <span class="text-amber-400">*</span></label>
-                        <input name="companyName" id="txtCompanyName" type="text" placeholder="مثال: شركة البرج للخدمات اللوجستية والنقل الثقيل" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "اسم الشركة / المنشأة المسجلة: " : "Registered Enterprise / Fleet Name: ")<span class="text-amber-400">*</span>
+                        </label>
+                        <input name="companyName" id="txtCompanyName" type="text" placeholder="@(isArabic ? "مثال: شركة البرج للخدمات اللوجستية والنقل الثقيل" : "e.g., Al-Burj Logistics & Heavy Haul Co.")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5" id="nationalIdContainer">
-                        <label class="font-bold text-slate-300 block text-xs">الرقم الوطني الأردني: <span class="text-amber-400">*</span></label>
-                        <input name="nationalId" id="txtNationalId" type="text" maxlength="10" placeholder="مثال: 9851029384" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "الرقم الوطني الأردني: " : "National ID (Jordanian): ")<span class="text-amber-400">*</span>
+                        </label>
+                        <input name="nationalId" id="txtNationalId" type="text" maxlength="10" placeholder="@(isArabic ? "مثال: 9851029384" : "e.g., 9851029384")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">رقم الهاتف الخلوي (مربوط بالواتساب): <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "رقم الهاتف الخلوي (مربوط بالواتساب): " : "Mobile Phone (WhatsApp Active): ")<span class="text-amber-400">*</span>
+                        </label>
                         <input name="phone" id="txtPhone" type="tel" required placeholder="079XXXXXXXX" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">البريد الإلكتروني المهني: <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "البريد الإلكتروني المهني: " : "Official Business Email: ")<span class="text-amber-400">*</span>
+                        </label>
                         <input name="email" id="txtEmail" type="email" required placeholder="hauler@blocko.com" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="font-bold text-slate-300 block text-xs">كلمة المرور المشفرة: <span class="text-amber-400">*</span></label>
+                    <label class="font-bold text-slate-300 block text-xs">
+                        @(isArabic ? "كلمة المرور المشفرة: " : "Encrypted Password: ")<span class="text-amber-400">*</span>
+                    </label>
                     <input name="password" id="txtPassword" type="password" required placeholder="••••••••••••" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                 </div>
             </div>
@@ -148,51 +193,61 @@
             <div id="sectionCaptainDetails" class="space-y-4 pt-6 border-t border-slate-800">
                 <div class="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
                     <span class="material-symbols-outlined text-base">rv_hookup</span>
-                    <span>2. مواصفات شاحنة النقل الثقيل ورخصة القيادة</span>
+                    <span>@(isArabic ? "2. مواصفات شاحنة النقل الثقيل ورخصة القيادة" : "2. Heavy Truck Specifications & Commercial License")</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">نوع المركبة / الشاحنة الإنشائية: <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "نوع المركبة / الشاحنة الإنشائية: " : "Vehicle / Heavy Machinery Type: ")<span class="text-amber-400">*</span>
+                        </label>
                         <select name="vehicleType" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors">
-                            <option value="تريلا مقطورات 30-40 طن">تريلا مقطورات 30-40 طن (تريلا مسطحة مقطورات ثقيلة)</option>
-                            <option value="قلاب رمل وحصمة">قلاب رمل وحصمة (قلاب باطون ورمل وحصمة 16-32 م³)</option>
-                            <option value="شاحنة ونش هيدروليكي">شاحنة ونش هيدروليكي (لتنزيل الطوب، الإسمنت، والحديد)</option>
-                            <option value="خلاطة خرسانة جاهزة">خلاطة خرسانة جاهزة (Transit Mixer)</option>
-                            <option value="لوري 4-7 طن">لوري 4-7 طن (شاحنة متوسطة لمواد التشطيب والدهان)</option>
+                            <option value="تريلا مقطورات 30-40 طن">@(isArabic ? "تريلا مقطورات 30-40 طن (تريلا مسطحة مقطورات ثقيلة)" : "Flatbed Semi-Trailer 30-40 Ton (Heavy Freight)")</option>
+                            <option value="قلاب رمل وحصمة">@(isArabic ? "قلاب رمل وحصمة (قلاب باطون ورمل وحصمة 16-32 م³)" : "Tipper / Dump Truck (Sand & Aggregate 16-32 m³)")</option>
+                            <option value="شاحنة ونش هيدروليكي">@(isArabic ? "شاحنة ونش هيدروليكي (لتنزيل الطوب، الإسمنت، والحديد)" : "Hydraulic Boom Crane Truck (Blocks, Cement & Steel)")</option>
+                            <option value="خلاطة خرسانة جاهزة">@(isArabic ? "خلاطة خرسانة جاهزة (Transit Mixer)" : "Ready-Mix Transit Mixer")</option>
+                            <option value="لوري 4-7 طن">@(isArabic ? "لوري 4-7 طن (شاحنة متوسطة لمواد التشطيب والدهان)" : "Medium Lorry 4-7 Ton (Finishes & Paints)")</option>
                         </select>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">فئة رخصة القيادة المهنية: <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "فئة رخصة القيادة المهنية: " : "Commercial Driver License Category: ")<span class="text-amber-400">*</span>
+                        </label>
                         <select name="heavyLicenseCategory" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors">
-                            <option value="الفئة السادسة - قاطرة ومقطورة">الفئة السادسة - قاطرة ومقطورة / مركبات ثقيلة</option>
-                            <option value="الفئة الخامسة - مركبات شحن عمومي">الفئة الخامسة - مركبات شحن عمومي وتفريغ</option>
-                            <option value="تصريح تشغيل ونش ومعدات هيدروليكية">تصريح تشغيل ونش ومعدات هيدروليكية خاصة</option>
+                            <option value="الفئة السادسة - قاطرة ومقطورة">@(isArabic ? "الفئة السادسة - قاطرة ومقطورة / مركبات ثقيلة" : "Category 6 - Articulated Semi-Trailer / Heavy Transport")</option>
+                            <option value="الفئة الخامسة - مركبات شحن عمومي">@(isArabic ? "الفئة الخامسة - مركبات شحن عمومي وتفريغ" : "Category 5 - Public Freight & Heavy Tipper")</option>
+                            <option value="تصريح تشغيل ونش ومعدات هيدروليكية">@(isArabic ? "تصريح تشغيل ونش ومعدات هيدروليكية خاصة" : "Hydraulic Crane & Heavy Rigging Permit")</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">رقم لوحة الشاحنة: <span class="text-amber-400">*</span></label>
-                        <input name="plateNumber" id="txtPlateNumber" type="text" placeholder="مثال: 12-45890" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "رقم لوحة الشاحنة: " : "Truck Plate Number: ")<span class="text-amber-400">*</span>
+                        </label>
+                        <input name="plateNumber" id="txtPlateNumber" type="text" placeholder="@(isArabic ? "مثال: 12-45890" : "e.g., 12-45890")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">سعة الحمولة الصافية (طن): <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "سعة الحمولة الصافية (طن): " : "Net Payload Capacity (Tons): ")<span class="text-amber-400">*</span>
+                        </label>
                         <input name="capacityTons" id="txtCapacityTons" type="number" value="25" min="2" max="60" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-amber-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">نطاق التغطية والمحافظات: <span class="text-amber-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "نطاق التغطية والمحافظات: " : "Coverage Area & Governorates: ")<span class="text-amber-400">*</span>
+                        </label>
                         <select name="coveredGovernorate" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white focus:outline-none focus:border-amber-500 transition-colors">
-                            <option value="كافة محافظات المملكة">كافة محافظات المملكة</option>
-                            <option value="محافظة العاصمة عمّان ومحيطها">محافظة العاصمة عمّان ومحيطها</option>
-                            <option value="الزرقاء والرصيفة والحلابات">الزرقاء والرصيفة والحلابات</option>
-                            <option value="إربد وعجلون والشمال">إربد وعجلون والشمال</option>
-                            <option value="المفرق والرويشد">المفرق والرويشد</option>
-                            <option value="الكرك والطفيلة ومعان والعقبة">الكرك والطفيلة ومعان والعقبة</option>
+                            <option value="كافة محافظات المملكة">@(isArabic ? "كافة محافظات المملكة" : "All Governorates of Jordan")</option>
+                            <option value="محافظة العاصمة عمّان ومحيطها">@(isArabic ? "محافظة العاصمة عمّان ومحيطها" : "Amman Capital Governorate & Vicinity")</option>
+                            <option value="الزرقاء والرصيفة والحلابات">@(isArabic ? "الزرقاء والرصيفة والحلابات" : "Zarqa, Russayfah & Hallabat")</option>
+                            <option value="إربد وعجلون والشمال">@(isArabic ? "إربد وعجلون والشمال" : "Irbid, Ajloun & Northern Region")</option>
+                            <option value="المفرق والرويشد">@(isArabic ? "المفرق والرويشد" : "Mafraq & Ruwaished")</option>
+                            <option value="الكرك والطفيلة ومعان والعقبة">@(isArabic ? "الكرك والطفيلة ومعان والعقبة" : "Karak, Tafilah, Ma'an & Aqaba")</option>
                         </select>
                     </div>
                 </div>
@@ -201,22 +256,28 @@
                 <div class="p-5 bg-[#070A0F] rounded-2xl border border-slate-800 space-y-3">
                     <div class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-amber-400 text-sm">verified_user</span>
-                        <span>الوثائق الثبوتية ورخصة الشاحنة (KYC Verification):</span>
+                        <span>@(isArabic ? "الوثائق الثبوتية ورخصة الشاحنة (KYC Verification):" : "Verification Documents & Vehicle License (KYC):")</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-300 block">1. صورة رخصة القيادة الثقيلة <span class="text-amber-400">*</span></label>
+                            <label class="text-[11px] font-bold text-slate-300 block">
+                                @(isArabic ? "1. صورة رخصة القيادة الثقيلة " : "1. Heavy Driver's License ")<span class="text-amber-400">*</span>
+                            </label>
                             <input name="licenseDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer" />
                         </div>
 
                         <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-300 block">2. رخصة اقتناء المركبة / الفحص <span class="text-amber-400">*</span></label>
+                            <label class="text-[11px] font-bold text-slate-300 block">
+                                @(isArabic ? "2. رخصة اقتناء المركبة / الفحص " : "2. Vehicle Registration / Inspection Card ")<span class="text-amber-400">*</span>
+                            </label>
                             <input name="registrationDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer" />
                         </div>
 
                         <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-300 block">3. صورة واضحة للشاحنة / الونش</label>
+                            <label class="text-[11px] font-bold text-slate-300 block">
+                                @(isArabic ? "3. صورة واضحة للشاحنة / الونش" : "3. Clear Photo of Truck / Crane")
+                            </label>
                             <input name="vehiclePhoto" type="file" accept=".jpg,.jpeg,.png" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer" />
                         </div>
                     </div>
@@ -226,10 +287,14 @@
                 <div class="p-5 bg-emerald-950/20 border border-emerald-500/25 rounded-2xl space-y-2">
                     <div class="flex items-center gap-2 text-emerald-400 font-bold">
                         <span class="material-symbols-outlined text-base">payments</span>
-                        <span>معرّف كليك (CliQ Alias) أو الآيبان لصرف أجور النقل الفورية: <span class="text-amber-400">*</span></span>
+                        <span>@(isArabic ? "معرّف كليك (CliQ Alias) أو الآيبان لصرف أجور النقل الفورية: " : "CliQ Alias or IBAN for Instant Freight Settlements: ")<span class="text-amber-400">*</span></span>
                     </div>
-                    <input name="driverCliqAlias" id="txtDriverCliq" type="text" placeholder="مثال: CAPTAIN99 أو JO98ARAB0000000000000000000000" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-emerald-500 transition-colors" />
-                    <p class="text-[11px] text-emerald-400/80">يتم تحويل أجور النقل والتفريغ فور تأكيد استلام العميل في موقع العمل عبر رمز e-POD بنظام كليك الأردني الفوري.</p>
+                    <input name="driverCliqAlias" id="txtDriverCliq" type="text" placeholder="@(isArabic ? "مثال: CAPTAIN99 أو JO98ARAB0000000000000000000000" : "e.g., CAPTAIN99 or JO98ARAB0000000000000000000000")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-emerald-500 transition-colors" />
+                    <p class="text-[11px] text-emerald-400/80">
+                        @(isArabic 
+                            ? "يتم تحويل أجور النقل والتفريغ فور تأكيد استلام العميل في موقع العمل عبر رمز e-POD بنظام كليك الأردني الفوري." 
+                            : "Freight fees are settled instantly upon jobsite e-POD delivery confirmation via the Jordanian instant payment network (CliQ).")
+                    </p>
                 </div>
             </div>
 
@@ -237,35 +302,45 @@
             <div id="sectionCompanyDetails" style="display: none;" class="space-y-4 pt-6 border-t border-slate-800">
                 <div class="flex items-center gap-2 text-blue-400 font-black text-xs uppercase tracking-wider">
                     <span class="material-symbols-outlined text-base">corporate_fare</span>
-                    <span>2. بيانات السجل التجاري والترخيص الحكومي (3PL Carrier)</span>
+                    <span>@(isArabic ? "2. بيانات السجل التجاري والترخيص الحكومي (3PL Carrier)" : "2. Commercial Registry & Government License (3PL Carrier)")</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">رقم السجل التجاري: <span class="text-blue-400">*</span></label>
-                        <input name="commercialRegister" id="txtCommercialRegister" type="text" placeholder="مثال: 200194821" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "رقم السجل التجاري: " : "Commercial Registration No. (CR): ")<span class="text-blue-400">*</span>
+                        </label>
+                        <input name="commercialRegister" id="txtCommercialRegister" type="text" placeholder="@(isArabic ? "مثال: 200194821" : "e.g., 200194821")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">الرقم الضريبي للمنشأة:</label>
-                        <input name="taxId" id="txtTaxId" type="text" placeholder="مثال: 100482910" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "الرقم الضريبي للمنشأة:" : "Corporate Tax ID / VAT:")
+                        </label>
+                        <input name="taxId" id="txtTaxId" type="text" placeholder="@(isArabic ? "مثال: 100482910" : "e.g., 100482910")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">ترخيص هيئة تنظيم النقل (LTRC):</label>
-                        <input name="transportCommissionLicense" id="txtTransportLicense" type="text" placeholder="مثال: LTRC-2024-8849" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "ترخيص هيئة تنظيم النقل (LTRC):" : "LTRC Transport Commission License:")
+                        </label>
+                        <input name="transportCommissionLicense" id="txtTransportLicense" type="text" placeholder="@(isArabic ? "مثال: LTRC-2024-8849" : "e.g., LTRC-2024-8849")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">إجمالي عدد الشاحنات في الأسطول: <span class="text-blue-400">*</span></label>
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "إجمالي عدد الشاحنات في الأسطول: " : "Total Heavy Trucks in Fleet: ")<span class="text-blue-400">*</span>
+                        </label>
                         <input name="totalTrucksCount" id="txtTotalTrucks" type="number" value="5" min="1" max="500" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="font-bold text-slate-300 block text-xs">معرّف كليك للشركات / الآيبان البنكي (CliQ / IBAN): <span class="text-blue-400">*</span></label>
-                        <input name="companyCliqAlias" id="txtCompanyCliq" type="text" placeholder="مثال: 3PLCORP@ETIHAD أو الآيبان البنكي" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
+                        <label class="font-bold text-slate-300 block text-xs">
+                            @(isArabic ? "معرّف كليك للشركات / الآيبان البنكي (CliQ / IBAN): " : "Corporate CliQ Alias / Bank IBAN: ")<span class="text-blue-400">*</span>
+                        </label>
+                        <input name="companyCliqAlias" id="txtCompanyCliq" type="text" placeholder="@(isArabic ? "مثال: 3PLCORP@ETIHAD أو الآيبان البنكي" : "e.g., 3PLCORP@ETIHAD or Bank IBAN")" class="w-full p-3.5 rounded-xl border border-slate-800 bg-[#070A0F] text-white font-mono focus:outline-none focus:border-blue-500 transition-colors" />
                     </div>
                 </div>
 
@@ -273,17 +348,21 @@
                 <div class="p-5 bg-[#070A0F] rounded-2xl border border-slate-800 space-y-3">
                     <div class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-blue-400 text-sm">folder_open</span>
-                        <span>مرفقات الاعتماد المؤسسي (KYC B2B Carrier Documents):</span>
+                        <span>@(isArabic ? "مرفقات الاعتماد المؤسسي (KYC B2B Carrier Documents):" : "Corporate Verification Documents (3PL KYC):")</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-300 block">1. صورة شهادة السجل التجاري <span class="text-blue-400">*</span></label>
+                            <label class="text-[11px] font-bold text-slate-300 block">
+                                @(isArabic ? "1. صورة شهادة السجل التجاري " : "1. Commercial Registration Certificate ")<span class="text-blue-400">*</span>
+                            </label>
                             <input name="commercialRegisterDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
                         </div>
 
                         <div class="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5">
-                            <label class="text-[11px] font-bold text-slate-300 block">2. رخصة هيئة تنظيم النقل البري <span class="text-blue-400">*</span></label>
+                            <label class="text-[11px] font-bold text-slate-300 block">
+                                @(isArabic ? "2. رخصة هيئة تنظيم النقل البري " : "2. LTRC Transport Operating License ")<span class="text-blue-400">*</span>
+                            </label>
                             <input name="transportLicenseDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" class="w-full text-[10px] text-slate-400 file:me-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600/30 file:text-blue-300 hover:file:bg-blue-600/50 cursor-pointer" />
                         </div>
                     </div>
@@ -294,25 +373,29 @@
             <div class="pt-4">
                 <button type="submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-amber-950/80 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
                     <span class="material-symbols-outlined text-xl font-bold">how_to_reg</span>
-                    <span id="btnSubmitText">تقديم طلب تسجيل كابتن النقل الثقيل (KYC)</span>
+                    <span id="btnSubmitText">@(isArabic ? "تقديم طلب تسجيل كابتن النقل الثقيل (KYC)" : "Submit Heavy Transport Captain Application (KYC)")</span>
                 </button>
             </div>
         </form>
 
         <!-- Login Switcher -->
         <div class="text-center pt-4 border-t border-slate-800 text-xs text-slate-400">
-            <span>لديك حساب ناقل معتمد مسبقاً؟</span>
-            <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="text-amber-400 font-bold hover:underline me-1">تسجيل الدخول إلى البوابة هنا</a>
+            <span>@(isArabic ? "لديك حساب ناقل معتمد مسبقاً؟" : "Already an approved carrier?")</span>
+            <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="text-amber-400 font-bold hover:underline mx-1">
+                @(isArabic ? "تسجيل الدخول إلى البوابة هنا" : "Sign in to the portal here")
+            </a>
         </div>
 
     </main>
 
     <!-- Footer -->
     <footer class="w-full max-w-4xl mx-auto text-center text-slate-500 text-xs mt-8 space-y-1">
-        <p>© 2026 بلوكو اللوجستية (BLOCKO Heavy Logistics Platform) • منظومة النقل الإنشائي الوطني في المملكة الأردنية الهاشمية</p>
+        <p>@(isArabic ? "© 2026 بلوكو اللوجستية (BLOCKO Heavy Logistics Platform) • منظومة النقل الإنشائي الوطني في المملكة الأردنية الهاشمية" : "© 2026 BLOCKO Heavy Logistics Platform • National Construction Transport Grid in Jordan")</p>
     </footer>
 
     <script>
+        const isAr = @(isArabic ? "true" : "false");
+
         function switchRole(role) {
             const isCompany = role === 'company';
             document.getElementById('registrationType').value = role;
@@ -337,8 +420,8 @@
                 nationalIdContainer.style.display = "none";
                 txtCompanyName.required = true;
 
-                lblFullName.innerHTML = 'اسم مدير الحركة / المفوّض بالتوقيع: <span class="text-blue-400">*</span>';
-                btnSubmitText.textContent = "تقديم طلب اعتماد شركة الشحن والأسطول (3PL KYC)";
+                lblFullName.innerHTML = (isAr ? 'اسم مدير الحركة / المفوّض بالتوقيع: ' : 'Dispatch Manager / Authorized Representative: ') + '<span class="text-blue-400">*</span>';
+                btnSubmitText.textContent = isAr ? "تقديم طلب اعتماد شركة الشحن والأسطول (3PL KYC)" : "Submit 3PL Fleet & Carrier Application (KYC)";
             } else {
                 tabCaptain.className = "py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-950/60 cursor-pointer";
                 tabCompany.className = "py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white cursor-pointer";
@@ -349,14 +432,14 @@
                 nationalIdContainer.style.display = "block";
                 txtCompanyName.required = false;
 
-                lblFullName.innerHTML = 'الاسم الكامل للكابتن / السائق المستقل: <span class="text-amber-400">*</span>';
-                btnSubmitText.textContent = "تقديم طلب تسجيل كابتن النقل الثقيل (KYC)";
+                lblFullName.innerHTML = (isAr ? 'الاسم الكامل للكابتن / السائق المستقل: ' : 'Captain / Owner Full Name: ') + '<span class="text-amber-400">*</span>';
+                btnSubmitText.textContent = isAr ? "تقديم طلب تسجيل كابتن النقل الثقيل (KYC)" : "Submit Heavy Transport Captain Application (KYC)";
             }
         }
 
         function fillTestCaptain() {
             switchRole('captain');
-            document.getElementById('txtFullName').value = "كابتن سفيان بني هاني";
+            document.getElementById('txtFullName').value = isAr ? "كابتن سفيان بني هاني" : "Captain Sofian Bani Hani";
             document.getElementById('txtNationalId').value = "9821039841";
             document.getElementById('txtPhone').value = "0798877665";
             document.getElementById('txtEmail').value = "driver.test@blocko.com";
@@ -368,8 +451,8 @@
 
         function fillTestCompany() {
             switchRole('company');
-            document.getElementById('txtFullName').value = "م. خالد الرواشدة (مدير الحركة)";
-            document.getElementById('txtCompanyName').value = "شركة النخبة للنقل الثقيل والمقاولات";
+            document.getElementById('txtFullName').value = isAr ? "م. خالد الرواشدة (مدير الحركة)" : "Eng. Khaled Rawashdeh (Operations)";
+            document.getElementById('txtCompanyName').value = isAr ? "شركة النخبة للنقل الثقيل والمقاولات" : "Elite Heavy Transport & Contracting Co.";
             document.getElementById('txtPhone').value = "0791122334";
             document.getElementById('txtEmail').value = "carrier.test@blocko.com";
             document.getElementById('txtPassword').value = "Carrier@2026!";

@@ -145,6 +145,17 @@
                 maxZoom: 19
             }).addTo(map);
 
+            // Invalidate size after CSS rendering to prevent blank canvas (QT1-186)
+            setTimeout(function() {
+                if (map) map.invalidateSize();
+            }, 250);
+            setTimeout(function() {
+                if (map) map.invalidateSize();
+            }, 800);
+            window.addEventListener('resize', function() {
+                if (map) map.invalidateSize();
+            });
+
             // Custom Pin Icon
             const pinIcon = L.divIcon({
                 className: 'custom-pin-wrapper',

@@ -1,9 +1,12 @@
 @{
     Layout = null;
-    ViewData["Title"] = "الطلب قيد التدقيق والمطابقة القانونية | أساطيل بلوكو للنقل الثقيل";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "الطلب قيد التدقيق والمطابقة القانونية | أساطيل بلوكو للنقل الثقيل" 
+        : "KYC Application Under Review | BLOCKO Heavy Logistics";
 }
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="@(isArabic ? "ar" : "en")" dir="@(isArabic ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,10 +14,10 @@
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        body { font-family: 'Noto Kufi Arabic', sans-serif; }
+        body { font-family: @(isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Inter', system-ui, sans-serif"); }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
@@ -26,7 +29,17 @@
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
             <span class="text-slate-300 font-mono text-[11px]">KYC REVIEW IN PROGRESS</span>
         </div>
-        <div class="text-[11px] text-slate-400 font-mono">LTRC • هیئة تنظیم النقل البري</div>
+        <div class="flex items-center gap-3">
+            <!-- Language Switcher -->
+            <form asp-area="" asp-controller="Language" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" name="culture" value="@(isArabic ? "en" : "ar")" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-mono text-[11px] transition-colors cursor-pointer border border-slate-700">
+                    <span class="material-symbols-outlined text-[13px]">language</span>
+                    <span>@(isArabic ? "English" : "العربية")</span>
+                </button>
+            </form>
+            <div class="text-[11px] text-slate-400 font-mono hidden sm:block">LTRC • @(isArabic ? "هيئة تنظيم النقل البري" : "Transport Commission")</div>
+        </div>
     </header>
 
     <main class="w-full max-w-xl bg-[#0D111A] border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 text-center">
@@ -42,9 +55,13 @@
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-mono font-bold border border-amber-500/20">
                 <span>KYC VERIFICATION PENDING</span>
             </div>
-            <h1 class="text-2xl font-black text-white">طلب الاعتماد قيد التدقيق والمراجعة</h1>
+            <h1 class="text-2xl font-black text-white">
+                @(isArabic ? "طلب الاعتماد قيد التدقيق والمراجعة" : "Verification Application Under Review")
+            </h1>
             <p class="text-slate-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                شكراً لانضمامك إلى شبكة ناقلي بلوكو الإنشائية. يقوم فريق العمليات اللوجستية الآن بمراجعة رخصة القيادة المهنية (الفئة السادسة / الخامسة)، رخصة اقتناء الشاحنة، وترخيص هيئة تنظيم النقل.
+                @(isArabic 
+                    ? "شكراً لانضمامك إلى شبكة ناقلي بلوكو الإنشائية. يقوم فريق العمليات اللوجستية الآن بمراجعة رخصة القيادة المهنية (الفئة السادسة / الخامسة)، رخصة اقتناء الشاحنة، وترخيص هيئة تنظيم النقل." 
+                    : "Thank you for onboarding with BLOCKO's construction transport grid. Our logistics dispatch team is currently verifying your commercial driver license, vehicle registration, and LTRC commission status.")
             </p>
         </div>
 
@@ -66,15 +83,17 @@
 
         <!-- Live Verification Tracker -->
         <div class="bg-[#070A0F] border border-slate-800 rounded-2xl p-4 text-start space-y-3">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">مراحل التدقيق والمصادقة:</div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                @(isArabic ? "مراحل التدقيق والمصادقة:" : "Verification Stages:")
+            </div>
             
             <div class="flex items-center gap-3">
                 <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-xs font-bold">
                     ✓
                 </div>
                 <div class="flex-1 text-xs">
-                    <span class="font-bold text-slate-200">استلام الوثائق وبيانات الشاحنة</span>
-                    <p class="text-[11px] text-slate-400">تم تسجيل الحساب وإيداع المرفقات بنجاح</p>
+                    <span class="font-bold text-slate-200">@(isArabic ? "استلام الوثائق وبيانات الشاحنة" : "Documents & Truck Specs Submitted")</span>
+                    <p class="text-[11px] text-slate-400">@(isArabic ? "تم تسجيل الحساب وإيداع المرفقات بنجاح" : "Account registered and attachments received successfully")</p>
                 </div>
             </div>
 
@@ -83,8 +102,8 @@
                     ●
                 </div>
                 <div class="flex-1 text-xs">
-                    <span class="font-bold text-amber-300">مطابقة الفئة ورخصة هيئة النقل البري</span>
-                    <p class="text-[11px] text-slate-400">جاري التدقيق من قبل موظفي الفحص والتدقيق الفني</p>
+                    <span class="font-bold text-amber-300">@(isArabic ? "مطابقة الفئة ورخصة هيئة النقل البري" : "License & LTRC Authority Verification")</span>
+                    <p class="text-[11px] text-slate-400">@(isArabic ? "جاري التدقيق من قبل موظفي الفحص والتدقيق الفني" : "Technical screening currently in progress by operations team")</p>
                 </div>
             </div>
 
@@ -93,8 +112,8 @@
                     3
                 </div>
                 <div class="flex-1 text-xs">
-                    <span class="font-bold text-slate-400">تفعيل قمرة رادار الحمولات وصرف أجور CliQ</span>
-                    <p class="text-[11px] text-slate-500">سيتم فتح المهام وتوجيه الشاحنات فور الاعتماد</p>
+                    <span class="font-bold text-slate-400">@(isArabic ? "تفعيل قمرة رادار الحمولات وصرف أجور CliQ" : "Live Freight Radar & CliQ Payouts Activation")</span>
+                    <p class="text-[11px] text-slate-500">@(isArabic ? "سيتم فتح المهام وتوجيه الشاحنات فور الاعتماد" : "Dispatch orders will be routed immediately upon approval")</p>
                 </div>
             </div>
         </div>
@@ -105,13 +124,13 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="w-full py-2.5 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors cursor-pointer border border-slate-700 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-sm">logout</span>
-                    <span>تسجيل الخروج</span>
+                    <span>@(isArabic ? "تسجيل الخروج" : "Sign Out")</span>
                 </button>
             </form>
 
             <a href="https://wa.me/962790000000" target="_blank" class="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-colors flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-sm">support_agent</span>
-                <span>تواصل مع عمليات النقل (واتساب)</span>
+                <span>@(isArabic ? "تواصل مع عمليات النقل (واتساب)" : "Contact Dispatch Ops (WhatsApp)")</span>
             </a>
         </div>
 
@@ -119,7 +138,7 @@
 
     <!-- Footer -->
     <footer class="w-full max-w-xl text-center text-slate-500 text-xs mt-6">
-        <p>© 2026 بلوكو اللوجستية (BLOCKO Heavy Fleet) • المملكة الأردنية الهاشمية</p>
+        <p>@(isArabic ? "© 2026 بلوكو اللوجستية (BLOCKO Heavy Fleet) • المملكة الأردنية الهاشمية" : "© 2026 BLOCKO Heavy Fleet Logistics • Hashemite Kingdom of Jordan")</p>
     </footer>
 
 </body>

@@ -3,18 +3,23 @@
 
 @{
     Layout = null; // Lightweight standalone page for drivers
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    var currentCulture = isArabic ? "ar" : "en";
+    var targetCulture = isArabic ? "en" : "ar";
+    var currency = isArabic ? "د.أ" : "JOD";
 }
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="@(isArabic ? "ar" : "en")" dir="@(isRtl ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تحديث حالة التوصيل - بلوكو</title>
+    <title>@(isArabic ? "تحديث حالة التوصيل - بلوكو" : "Update Delivery Status - Block-O")</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        body { font-family: @(isArabic ? "'Tajawal', sans-serif" : "'Inter', sans-serif"); background-color: #f8fafc; }
     </style>
 </head>
 <body class="text-slate-800 antialiased p-4 sm:p-8">
@@ -23,8 +28,22 @@
         
         <div class="bg-slate-900 px-6 py-8 text-center text-white relative overflow-hidden">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-[#E8A020] rounded-full opacity-20 blur-2xl"></div>
-            <h1 class="text-2xl font-black tracking-tight mb-2 relative z-10">بوابة المندوب 🚚</h1>
-            <p class="text-slate-300 text-sm relative z-10">يرجى تحديث حالة تسليم الطلب من هنا</p>
+
+            <!-- Language Switcher in Driver Header -->
+            <div class="flex justify-end mb-4 relative z-20">
+                <form asp-controller="Language" asp-action="SetLanguage" method="post" class="inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="culture" value="@targetCulture" />
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition backdrop-blur-xs">
+                        <span class="material-symbols-outlined text-sm">language</span>
+                        <span>@(isArabic ? "English" : "العربية")</span>
+                    </button>
+                </form>
+            </div>
+
+            <h1 class="text-2xl font-black tracking-tight mb-2 relative z-10">@(isArabic ? "بوابة المندوب 🚚" : "Driver Portal 🚚")</h1>
+            <p class="text-slate-300 text-sm relative z-10">@(isArabic ? "يرجى تحديث حالة تسليم الطلب من هنا" : "Please update your delivery assignment status here")</p>
         </div>
 
         <div class="p-6">
@@ -44,27 +63,27 @@
             }
 
             <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-6">
-                <h2 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">تفاصيل المهمة</h2>
+                <h2 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">@(isArabic ? "تفاصيل المهمة" : "Assignment Details")</h2>
                 
                 <div class="space-y-3">
                     <div class="flex justify-between border-b border-slate-200 pb-2">
-                        <span class="text-slate-500 text-sm">رقم الطلب</span>
+                        <span class="text-slate-500 text-sm">@(isArabic ? "رقم الطلب" : "Order Number")</span>
                         <span class="font-bold font-mono">@(Model.Order?.OrderNumber ?? "-")</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-200 pb-2">
-                        <span class="text-slate-500 text-sm">أجرة التوصيل لك</span>
-                        <span class="font-bold text-blue-700">@Model.DeliveryFee.ToString("N2") د.أ</span>
+                        <span class="text-slate-500 text-sm">@(isArabic ? "أجرة التوصيل لك" : "Your Delivery Fee")</span>
+                        <span class="font-bold text-blue-700">@Model.DeliveryFee.ToString("N2") @currency</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-200 pb-2">
-                        <span class="text-slate-500 text-sm">المبلغ المطلوب تحصيله (COD)</span>
-                        <span class="font-bold text-emerald-600">@(Model.Order?.TotalAmount.ToString("N2") ?? "0.00") د.أ</span>
+                        <span class="text-slate-500 text-sm">@(isArabic ? "المبلغ المطلوب تحصيله (COD)" : "COD Collection Amount")</span>
+                        <span class="font-bold text-emerald-600">@(Model.Order?.TotalAmount.ToString("N2") ?? "0.00") @currency</span>
                     </div>
                     <div class="flex flex-col gap-1 pb-2">
-                        <span class="text-slate-500 text-sm">موقع التوصيل</span>
+                        <span class="text-slate-500 text-sm">@(isArabic ? "موقع التوصيل" : "Dropoff Location")</span>
                         <span class="font-bold text-sm">@Model.DropoffLocation</span>
                         <a href="https://maps.google.com/?q=@(Model.Order?.ShippingAddress?.Latitude),@(Model.Order?.ShippingAddress?.Longitude)" target="_blank" class="text-blue-600 hover:underline text-xs flex items-center gap-1 mt-1">
                             <span class="material-symbols-outlined text-sm">pin_drop</span>
-                            فتح في خرائط جوجل
+                            <span>@(isArabic ? "فتح في خرائط جوجل" : "Open in Google Maps")</span>
                         </a>
                     </div>
                 </div>
@@ -73,27 +92,27 @@
             <form asp-action="UpdateStatus" asp-route-token="@Model.DeliveryToken" method="post" class="space-y-4">
                 @Html.AntiForgeryToken()
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">تحديث الحالة:</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">@(isArabic ? "تحديث الحالة:" : "Update Status:")</label>
                     <div class="grid grid-cols-1 gap-3">
                         <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500">
                             <input type="radio" name="status" value="@((int)DeliveryJobStatus.InTransit)" @(Model.Status == DeliveryJobStatus.InTransit ? "checked" : "") class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
-                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">في الطريق للعميل 🚀</span>
+                            <span class="ms-3 me-3 text-sm font-bold text-slate-900 flex-1">@(isArabic ? "في الطريق للعميل 🚀" : "In Transit to Jobsite 🚀")</span>
                         </label>
 
                         <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-emerald-50 has-[:checked]:border-emerald-500">
                             <input type="radio" name="status" value="@((int)DeliveryJobStatus.Delivered)" @(Model.Status == DeliveryJobStatus.Delivered ? "checked" : "") class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500">
-                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">تم التسليم بنجاح ✅</span>
+                            <span class="ms-3 me-3 text-sm font-bold text-slate-900 flex-1">@(isArabic ? "تم التسليم بنجاح ✅" : "Delivered Successfully ✅")</span>
                         </label>
                         
                         <label class="relative flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all has-[:checked]:bg-red-50 has-[:checked]:border-red-500">
                             <input type="radio" name="status" value="@((int)DeliveryJobStatus.Returned)" @(Model.Status == DeliveryJobStatus.Returned ? "checked" : "") class="w-4 h-4 text-red-600 border-slate-300 focus:ring-red-500">
-                            <span class="ml-3 mr-3 text-sm font-bold text-slate-900 flex-1">تعذر التسليم (مرتجع) ❌</span>
+                            <span class="ms-3 me-3 text-sm font-bold text-slate-900 flex-1">@(isArabic ? "تعذر التسليم (مرتجع) ❌" : "Delivery Failed (Returned) ❌")</span>
                         </label>
                     </div>
                 </div>
 
                 <button type="submit" @(Model.Status == DeliveryJobStatus.Delivered ? "disabled" : "") class="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-bold py-4 rounded-xl shadow-md transition-all text-lg mt-4 flex items-center justify-center gap-2">
-                    <span>حفظ التحديث</span>
+                    <span>@(isArabic ? "حفظ التحديث" : "Save Status Update")</span>
                     <span class="material-symbols-outlined">save</span>
                 </button>
             </form>

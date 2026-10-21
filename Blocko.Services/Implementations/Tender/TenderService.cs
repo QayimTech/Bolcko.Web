@@ -38,6 +38,11 @@ namespace Blocko.Services.Implementations.Tender
                 GuestPhone = !userId.HasValue ? quoteRequestDto.Phone : null,
                 GuestCompany = !userId.HasValue ? quoteRequestDto.CompanyName : null,
                 GuestCity = !userId.HasValue ? quoteRequestDto.City : null,
+                ProjectCity = quoteRequestDto.City,
+                TargetVendorId = quoteRequestDto.TargetVendorId,
+                TenderScope = string.IsNullOrWhiteSpace(quoteRequestDto.TenderScope) ? "OpenNearest" : quoteRequestDto.TenderScope,
+                TargetLatitude = quoteRequestDto.Latitude,
+                TargetLongitude = quoteRequestDto.Longitude,
                 TenderTitle = $"Quote Request: {quoteRequestDto.ProjectName ?? "General Materials"}",
                 TenderDescription = $"Company: {quoteRequestDto.CompanyName}\n" +
                                     $"Name: {quoteRequestDto.FullName}\n" +
@@ -45,6 +50,7 @@ namespace Blocko.Services.Implementations.Tender
                                     $"Phone: {quoteRequestDto.Phone}\n" +
                                     $"City: {quoteRequestDto.City}\n" +
                                     $"Project Type: {quoteRequestDto.ProjectType}\n" +
+                                    $"Scope: {quoteRequestDto.TenderScope}\n" +
                                     $"Notes: {quoteRequestDto.Notes}",
                 RequestDate = DateTime.UtcNow,
                 Status = Bolcko.Domain.Enums.TenderStatus.Pending
@@ -63,7 +69,9 @@ namespace Blocko.Services.Implementations.Tender
                         ProductId = product.ProductId,
                         ProductName = product.ProductName,
                         Unit = product.Unit,
-                        RequestedQuantity = product.Quantity
+                        RequestedQuantity = product.Quantity,
+                        MaterialCategory = product.Category,
+                        Specifications = product.Specifications
                     };
                     await _unitOfWork.TenderItems.AddAsync(tenderItem);
                 }

@@ -2,7 +2,10 @@
 @using Bolcko.Domain.Enums
 @model IEnumerable<DeliveryJob>
 @{
-    ViewData["Title"] = "قمرة كباتن النقل الثقيل واللوجستيات | بلوكو";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "قمرة كباتن النقل الثقيل واللوجستيات | بلوكو" 
+        : "Heavy Hauler & Captain Cockpit | BLOCKO";
     Layout = "_Layout";
     var driver = ViewBag.Driver as DeliveryDriver;
     var availableJobs = ViewBag.AvailableJobs as IEnumerable<DeliveryJob> ?? new List<DeliveryJob>();
@@ -12,7 +15,7 @@
     var completedJobs = Model.Where(j => j.Status == DeliveryJobStatus.Delivered).ToList();
 }
 
-<div class="p-3 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 text-right font-sans" dir="rtl">
+<div class="p-3 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 text-start font-sans" dir="@(isArabic ? "rtl" : "ltr")">
 
     <!-- Flash Alerts -->
     @if (TempData["Success"] != null)

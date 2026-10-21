@@ -66,17 +66,17 @@
             @foreach (var cat in categories)
             {
                 <a href="@Url.Action("Index", "Category", new { area = "Shop", id = cat.Id })" 
-                   class="group flex flex-col items-center text-center bg-white border border-slate-100 rounded-[24px] p-4 sm:p-6 shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
+                   class="group flex flex-col items-center justify-between text-center bg-white border border-slate-100 rounded-[24px] p-4 sm:p-5 pb-5 sm:pb-6 min-h-[190px] sm:min-h-[220px] shadow-sm hover:shadow-[0_15px_40px_-10px_rgba(232,160,32,0.15)] hover:border-[#E8A020]/40 transition-all duration-500 hover:-translate-y-1.5 relative overflow-hidden">
                     
                     <div class="absolute inset-0 bg-gradient-to-b from-[#fffaf0] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                    <div class="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-500 shadow-sm group-hover:shadow-md mb-3 sm:mb-4 transform group-hover:scale-110">
+                    <div class="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8A020] group-hover:text-[#151B26] transition-all duration-500 shadow-sm group-hover:shadow-md mb-2 sm:mb-3 transform group-hover:scale-110 shrink-0">
                         <span class="material-symbols-outlined text-2xl sm:text-3xl">@cat.ImageUrl.ToCategoryIcon(cat.Name)</span>
                     </div>
                     
-                    <div class="relative flex flex-col items-center w-full min-w-0">
-                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm group-hover:text-[#E8A020] transition-colors duration-300 line-clamp-2 w-full px-1" title="@cat.Name">@cat.Name</h3>
-                        <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-2 bg-slate-100 px-2 py-0.5 rounded-lg group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors truncate max-w-full">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
+                    <div class="relative flex flex-col items-center justify-between w-full min-w-0 flex-grow">
+                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm group-hover:text-[#E8A020] transition-colors duration-300 line-clamp-2 w-full px-1 min-h-[2.5rem] flex items-center justify-center leading-snug" title="@cat.Name">@cat.Name</h3>
+                        <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-2 bg-slate-100 px-2.5 py-1 rounded-lg group-hover:bg-[#E8A020]/10 group-hover:text-[#d18f1c] transition-colors whitespace-nowrap max-w-full">@string.Format(SharedLocalizer["ProductsAvailableForOrder"].Value, cat.ProductCount)</span>
                     </div>
                 </a>
             }

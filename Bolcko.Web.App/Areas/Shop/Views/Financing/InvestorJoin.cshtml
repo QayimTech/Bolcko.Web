@@ -1,26 +1,44 @@
-﻿@model Bolcko.Web.App.Areas.Shop.Models.InvestorJoinViewModel
+@model Bolcko.Web.App.Areas.Shop.Models.InvestorJoinViewModel
 @{
-    ViewData["Title"] = "تسجيل وتأهيل المستثمر المالي | بلكو للمرابحة";
-    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "تسجيل وتأهيل المستثمر المالي | بلكو للمرابحة" 
+        : "Investor Qualification & KYC | BLOCKO Murabaha";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 }
 
-<div class="min-h-screen bg-[#0B0F19] text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-[#0B0F19] text-slate-100 py-12 px-4 sm:px-6 lg:px-8 text-start" dir="@(isArabic ? "rtl" : "ltr")">
     <div class="max-w-4xl mx-auto">
         <!-- Header & Breadcrumb -->
-        <div class="text-center mb-10">
+        <div class="text-center mb-8">
             <a href="/Invest" class="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 mb-3 transition-colors">
                 <span class="material-symbols-outlined text-[16px] rtl:-scale-x-100">arrow_back</span>
-                <span>العودة لبوابة المستثمرين (/Invest)</span>
+                <span>@(isArabic ? "العودة لبوابة المستثمرين (/Invest)" : "Back to Investor Portal (/Invest)")</span>
             </a>
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold mb-3 block mx-auto w-fit">
                 <span class="material-symbols-outlined text-[16px]">verified_user</span>
-                <span>الملاءمة المالية ومكافحة غسل الأموال (AML & KYC)</span>
+                <span>@(isArabic ? "الملاءمة المالية ومكافحة غسل الأموال (AML & KYC)" : "Financial Suitability & AML / KYC")</span>
             </div>
-            <h1 class="text-2xl sm:text-4xl font-black text-white mb-2">فتح حساب مستثمر معتمد</h1>
+            <h1 class="text-2xl sm:text-4xl font-black text-white mb-2">
+                @(isArabic ? "فتح حساب مستثمر معتمد" : "Accredited Investor Account Opening")
+            </h1>
             <p class="text-slate-400 text-sm max-w-xl mx-auto">
-                انضم لمنظومة تمويل مواد البناء بالمرابحة الإسلامية بعوائد سنوية 10-14% وضمانات تنفيذية مشددة.
+                @(isArabic 
+                    ? "انضم لمنظومة تمويل مواد البناء بالمرابحة الإسلامية بعوائد سنوية 10-14% وضمانات تنفيذية مشددة." 
+                    : "Join our asset-backed Islamic Murabaha building materials ecosystem yielding 10-14% ARR with strong escrow safeguards.")
             </p>
+        </div>
+
+        <!-- Existing Investor Sign In Ribbon -->
+        <div class="mb-8 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2 text-amber-200">
+                <span class="material-symbols-outlined text-amber-400 text-[18px]">account_circle</span>
+                <span>@(isArabic ? "لديك حساب مستثمر معتمد بالفعل في منصة بلكو؟" : "Already an approved investor on BLOCKO?")</span>
+            </div>
+            <a href="@Url.Action("Login", "Account", new { area = "Shop", returnUrl = "/Shop/Financing/InvestorDashboard" })" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold hover:underline flex items-center gap-1 transition-all">
+                <span>@(isArabic ? "تسجيل الدخول للمحفظة الاستثمارية" : "Sign In to Investor Portfolio")</span>
+                <span class="material-symbols-outlined text-[14px] rtl:-scale-x-100">arrow_forward</span>
+            </a>
         </div>
 
         <form asp-action="InvestorJoin" asp-controller="Financing" asp-area="Shop" method="post" enctype="multipart/form-data" class="space-y-8">
@@ -40,45 +58,61 @@
                         1
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-white">بيانات الهوية والكيان الاستثماري</h2>
-                        <p class="text-xs text-slate-400">البيانات القانونية المعتمدة للمستثمر الفردي أو الكيان المؤسسي</p>
+                        <h2 class="text-lg font-bold text-white">
+                            @(isArabic ? "بيانات الهوية والكيان الاستثماري" : "Investor Identity & Entity Information")
+                        </h2>
+                        <p class="text-xs text-slate-400">
+                            @(isArabic ? "البيانات القانونية المعتمدة للمستثمر الفردي أو الكيان المؤسسي" : "Official legal profile for individual or institutional investor")
+                        </p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label asp-for="LegalName" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="LegalName" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="مثال: خالد عبد الله / شركة الأفق للاستثمار" />
+                        <label asp-for="LegalName" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "الاسم القانوني الكامل" : "Full Legal Name")
+                        </label>
+                        <input asp-for="LegalName" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="@(isArabic ? "مثال: خالد عبد الله / شركة الأفق للاستثمار" : "e.g., Khaled Abdullah / Horizon Investments Ltd.")" />
                         <span asp-validation-for="LegalName" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="NationalIdOrCr" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="NationalIdOrCr" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="الرقم الوطني (10 أرقام) أو رقم السجل التجاري" />
+                        <label asp-for="NationalIdOrCr" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "الرقم الوطني أو رقم السجل التجاري" : "National ID or Commercial Registration No.")
+                        </label>
+                        <input asp-for="NationalIdOrCr" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-mono" placeholder="@(isArabic ? "الرقم الوطني (10 أرقام) أو رقم السجل التجاري" : "National ID (10 digits) or CR Number")" />
                         <span asp-validation-for="NationalIdOrCr" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="Email" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="Email" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" placeholder="investor@example.com" />
+                        <label asp-for="Email" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "البريد الإلكتروني المعتمد" : "Official Contact Email")
+                        </label>
+                        <input asp-for="Email" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-mono" placeholder="investor@example.com" />
                         <span asp-validation-for="Email" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="PhoneNumber" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="PhoneNumber" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all text-start" placeholder="07XXXXXXXX" />
+                        <label asp-for="PhoneNumber" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "رقم الهاتف للتواصل" : "Contact Phone Number")
+                        </label>
+                        <input asp-for="PhoneNumber" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-mono text-start" placeholder="07XXXXXXXX" />
                         <span asp-validation-for="PhoneNumber" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="Password" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="Password" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" />
+                        <label asp-for="Password" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "كلمة المرور" : "Password")
+                        </label>
+                        <input asp-for="Password" type="password" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" />
                         <span asp-validation-for="Password" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="ConfirmPassword" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="ConfirmPassword" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" />
+                        <label asp-for="ConfirmPassword" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "تأكيد كلمة المرور" : "Confirm Password")
+                        </label>
+                        <input asp-for="ConfirmPassword" type="password" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" />
                         <span asp-validation-for="ConfirmPassword" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
                 </div>
@@ -91,41 +125,51 @@
                         2
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-white">الملاءمة المالية ومكافحة غسل الأموال (AML)</h2>
-                        <p class="text-xs text-slate-400">تصنيف المستثمر وحجم المحفظة الاستثمارية المستهدفة ومصدر رأس المال</p>
+                        <h2 class="text-lg font-bold text-white">
+                            @(isArabic ? "الملاءمة المالية ومكافحة غسل الأموال (AML)" : "Financial Suitability & AML Profile")
+                        </h2>
+                        <p class="text-xs text-slate-400">
+                            @(isArabic ? "تصنيف المستثمر وحجم المحفظة الاستثمارية المستهدفة ومصدر رأس المال" : "Investor qualification category, target portfolio liquidity, and source of funds")
+                        </p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label asp-for="InvestorCategory" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="InvestorCategory" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "تصنيف المستثمر" : "Investor Category")
+                        </label>
                         <select asp-for="InvestorCategory" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 transition-all">
-                            <option value="مستثمر فردي مؤهل">مستثمر فردي مؤهل (Qualified Individual)</option>
-                            <option value="مكتب عائلي (Family Office)">مكتب استثماري عائلي (Family Office)</option>
-                            <option value="صندوق استثماري / مالي">صندوق استثماري أو مصرفي (Investment Fund)</option>
-                            <option value="شركة تجارية / صناعية">شركة تجارية أو صناعية (Corporate Entity)</option>
+                            <option value="مستثمر فردي مؤهل">@(isArabic ? "مستثمر فردي مؤهل (Qualified Individual)" : "Qualified Individual Investor")</option>
+                            <option value="مكتب عائلي (Family Office)">@(isArabic ? "مكتب استثماري عائلي (Family Office)" : "Family Office")</option>
+                            <option value="صندوق استثماري / مالي">@(isArabic ? "صندوق استثماري أو مصرفي (Investment Fund)" : "Investment / Banking Fund")</option>
+                            <option value="شركة تجارية / صناعية">@(isArabic ? "شركة تجارية أو صناعية (Corporate Entity)" : "Corporate / Industrial Entity")</option>
                         </select>
                         <span asp-validation-for="InvestorCategory" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="TargetPortfolioAmount" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="TargetPortfolioAmount" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "حجم المحفظة المستهدف" : "Target Liquidity / Portfolio Size")
+                        </label>
                         <select asp-for="TargetPortfolioAmount" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 transition-all">
-                            <option value="5,000 - 25,000 د.أ">5,000 - 25,000 د.أ (محفظة نشطة أولية)</option>
-                            <option value="25,000 - 100,000 د.أ" selected>25,000 - 100,000 د.أ (محفظة متوسطة)</option>
-                            <option value="100,000 - 500,000 د.أ">100,000 - 500,000 د.أ (محفظة كبار المستثمرين VIP)</option>
-                            <option value="500,000+ د.أ">أكثر من 500,000 د.أ (محفظة مؤسسية خاصة)</option>
+                            <option value="5,000 - 25,000 د.أ">@(isArabic ? "5,000 - 25,000 د.أ (محفظة نشطة أولية)" : "5,000 - 25,000 JOD (Initial Active Portfolio)")</option>
+                            <option value="25,000 - 100,000 د.أ" selected>@(isArabic ? "25,000 - 100,000 د.أ (محفظة متوسطة)" : "25,000 - 100,000 JOD (Growth Portfolio)")</option>
+                            <option value="100,000 - 500,000 د.أ">@(isArabic ? "100,000 - 500,000 د.أ (محفظة كبار المستثمرين VIP)" : "100,000 - 500,000 JOD (VIP Private Pool)")</option>
+                            <option value="500,000+ د.أ">@(isArabic ? "أكثر من 500,000 د.أ (محفظة مؤسسية خاصة)" : "500,000+ JOD (Institutional Dedicated Pool)")</option>
                         </select>
                         <span asp-validation-for="TargetPortfolioAmount" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label asp-for="SourceOfFunds" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="SourceOfFunds" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "مصدر الأموال ورأس المال" : "Source of Funds / Capital")
+                        </label>
                         <select asp-for="SourceOfFunds" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-500 transition-all">
-                            <option value="أرباح أنشطة تجارية واستثمارية">أرباح أنشطة تجارية واستثمارية قائمة</option>
-                            <option value="مدخرات شخصية وعوائد وظيفة">مدخرات مالية شخصية وعوائد مهنية</option>
-                            <option value="عوائد تسييل عقارات أو أصول">عوائد بيع عقارات أو أصول رأسمالية</option>
-                            <option value="توزيعات تركات ومواريث">توزيعات تركات ومواريث عائلية</option>
+                            <option value="أرباح أنشطة تجارية واستثمارية">@(isArabic ? "أرباح أنشطة تجارية واستثمارية قائمة" : "Operating Business & Investment Earnings")</option>
+                            <option value="مدخرات شخصية وعوائد وظيفة">@(isArabic ? "مدخرات مالية شخصية وعوائد مهنية" : "Personal Savings & Professional Income")</option>
+                            <option value="عوائد تسييل عقارات أو أصول">@(isArabic ? "عوائد بيع عقارات أو أصول رأسمالية" : "Capital Gains from Real Estate or Asset Liquidation")</option>
+                            <option value="توزيعات تركات ومواريث">@(isArabic ? "توزيعات تركات ومواريث عائلية" : "Inheritance & Family Estate Distributions")</option>
                         </select>
                         <span asp-validation-for="SourceOfFunds" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
@@ -139,34 +183,50 @@
                         3
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-white">بيانات الحساب البنكي وصرف العوائد</h2>
-                        <p class="text-xs text-slate-400">الحساب المعتمد لتحويل أرباح المرابحة والأقساط المستردة</p>
+                        <h2 class="text-lg font-bold text-white">
+                            @(isArabic ? "بيانات الحساب البنكي وصرف العوائد" : "Banking & Direct Payout Details")
+                        </h2>
+                        <p class="text-xs text-slate-400">
+                            @(isArabic ? "الحساب المعتمد لتحويل أرباح المرابحة والأقساط المستردة" : "Designated bank account for profit distributions and principal amortizations")
+                        </p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label asp-for="BankName" class="block text-xs font-bold text-slate-300 mb-2"></label>
-                        <input asp-for="BankName" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="مثال: البنك العربي / بنك الإسكان / بنك الاتحاد" />
+                        <label asp-for="BankName" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "اسم البنك المعتمد" : "Bank Name")
+                        </label>
+                        <input asp-for="BankName" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="@(isArabic ? "مثال: البنك العربي / بنك الإسكان / بنك الاتحاد" : "e.g., Arab Bank / Housing Bank / Bank al Etihad")" />
                         <span asp-validation-for="BankName" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="Iban" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="Iban" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "رقم الآيبان (IBAN)" : "IBAN (International Bank Account Number)")
+                        </label>
                         <input asp-for="Iban" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono text-start" placeholder="JO00XXXX0000000000000000000000" />
                         <span asp-validation-for="Iban" class="text-[11px] text-red-400 mt-1 block"></span>
                     </div>
 
                     <div>
-                        <label asp-for="IdentityDocument" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="IdentityDocument" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "وثيقة إثبات الشخصية" : "Identity Document")
+                        </label>
                         <input asp-for="IdentityDocument" type="file" accept=".pdf,.png,.jpg,.jpeg" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-2.5 text-xs text-slate-300 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500/20 file:text-amber-400 hover:file:bg-amber-500/30 cursor-pointer" />
-                        <p class="text-[10px] text-slate-500 mt-1">صورة الهوية الوطنية أو جواز السفر أو السجل التجاري</p>
+                        <p class="text-[10px] text-slate-500 mt-1">
+                            @(isArabic ? "صورة الهوية الوطنية أو جواز السفر أو السجل التجاري" : "National ID, Passport, or CR Document (PDF/Image)")
+                        </p>
                     </div>
 
                     <div>
-                        <label asp-for="IbanDocument" class="block text-xs font-bold text-slate-300 mb-2"></label>
+                        <label asp-for="IbanDocument" class="block text-xs font-bold text-slate-300 mb-2">
+                            @(isArabic ? "وثيقة تأكيد الآيبان" : "IBAN Confirmation Document")
+                        </label>
                         <input asp-for="IbanDocument" type="file" accept=".pdf,.png,.jpg,.jpeg" class="w-full bg-[#0E1420] border border-white/10 rounded-2xl px-4 py-2.5 text-xs text-slate-300 file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer" />
-                        <p class="text-[10px] text-slate-500 mt-1">شهادة الآيبان البنكي أو كشف حساب حديث</p>
+                        <p class="text-[10px] text-slate-500 mt-1">
+                            @(isArabic ? "شهادة الآيبان البنكي أو كشف حساب حديث" : "Official IBAN certificate or recent bank statement")
+                        </p>
                     </div>
                 </div>
             </div>
@@ -176,14 +236,16 @@
                 <div class="flex items-start gap-3 mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
                     <input asp-for="AcceptTerms" type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-700 text-[#E8A020] focus:ring-[#E8A020] bg-[#0E1420] cursor-pointer" />
                     <label asp-for="AcceptTerms" class="text-xs text-slate-300 leading-relaxed cursor-pointer">
-                        أوافق على <strong class="text-white">عقد الوكالة بالاستثمار بالمرابحة الإسلامية</strong> وتعيين منصة بلكو كوكيل لشراء مواد البناء وتملكها وقبضها حكماً/فعلياً وإعادة بيعها للمقاول المعتمد بربح متفق عليه، وأقر بصحة ومطابقة مصدر الأموال المودعة لقوانين مكافحة غسل الأموال وتمويل الإرهاب.
+                        @(isArabic 
+                            ? "أوافق على عقد الوكالة بالاستثمار بالمرابحة الإسلامية وتعيين منصة بلكو كوكيل لشراء مواد البناء وتملكها وقبضها حكماً/فعلياً وإعادة بيعها للمقاول المعتمد بربح متفق عليه، وأقر بصحة ومطابقة مصدر الأموال المودعة لقوانين مكافحة غسل الأموال وتمويل الإرهاب." 
+                            : "I agree to the Islamic Murabaha Investment Wakala Agreement, appointing BLOCKO as agent to acquire, hold, and resell building materials to verified contractors at agreed markups, and certify AML/CFT compliance of funds.")
                     </label>
                 </div>
                 <span asp-validation-for="AcceptTerms" class="text-[11px] text-red-400 mb-4 block"></span>
 
                 <button type="submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#E8A020] to-amber-500 hover:from-amber-400 hover:to-amber-600 text-slate-950 font-black text-base transition-all shadow-[0_10px_30px_rgba(232,160,32,0.3)] hover:scale-[1.01] flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[22px]">how_to_reg</span>
-                    <span>إرسال طلب الانضمام وتفعيل المحفظة الاستثمارية</span>
+                    <span>@(isArabic ? "إرسال طلب الانضمام وتفعيل المحفظة الاستثمارية" : "Submit Application & Activate Investment Portfolio")</span>
                 </button>
             </div>
         </form>

@@ -298,13 +298,7 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 else
                 {
                     var fullOrder = await uow.Orders.GetOrderByIdWithItemsAsync(order.Id);
-                    var activeConfig = await deliveryApiService.GetActiveConfigAsync();
-
-                    if (activeConfig == null)
-                    {
-                        logMsg += " -> SKIPPED: GetActiveConfigAsync returned NULL (No active provider in DB)!\n";
-                    }
-                    else if (fullOrder == null)
+                    if (fullOrder == null)
                     {
                         logMsg += " -> ERROR: fullOrder is NULL!\n";
                     }
@@ -313,18 +307,52 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                         var hasOversized = fullOrder.Items != null && fullOrder.Items.Any(i => i.Product != null && i.Product.IsOversized);
                         if (hasOversized)
                         {
-                            logMsg += " -> SKIPPED: Order contains Heavy/Oversized items!\n";
+                            logMsg += " -> Heavy/Oversized items detected -> Dispatching to BlockO Heavy Fleet Pool & Logistics Center...\n";
+                            var freightFee = (checkoutDto.CalculatedShippingFee.HasValue && checkoutDto.CalculatedShippingFee.Value > 0)
+                                ? checkoutDto.CalculatedShippingFee.Value
+                                : 15.00m;
+
+                            var totalWeightTons = fullOrder.Items?
+                                .Where(i => i.Product != null && i.Product.IsOversized)
+                                .Sum(i => (decimal)i.Quantity * (i.Product.Weight ?? 1000m) / 1000m) ?? 2.0m;
+
+                            var heavyJob = new Bolcko.Domain.Entities.Delivery.DeliveryJob
+                            {
+                                OrderId = fullOrder.Id,
+                                Status = Bolcko.Domain.Enums.DeliveryJobStatus.Available,
+                                DeliveryFee = freightFee,
+                                PlatformFreightFee = freightFee,
+                                PickupLocation = !string.IsNullOrWhiteSpace(checkoutDto.NearestFulfillmentHub) ? checkoutDto.NearestFulfillmentHub : "عمان - مستودع رأس العين المركزي",
+                                DropoffLocation = $"{checkoutDto.City} - {checkoutDto.Area} - {checkoutDto.DetailedAddress}",
+                                MaterialType = "مواد إنشائية ثقيلة (حديد تسليح / إسمنت)",
+                                WeightTons = totalWeightTons,
+                                FulfillmentType = "BlockoPool",
+                                DeliveryOtpCode = new Random().Next(100000, 999999).ToString()
+                            };
+
+                            await uow.DeliveryJobs.AddAsync(heavyJob);
+                            fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                            await uow.CompleteAsync();
+                            logMsg += $" -> Successfully created Heavy DeliveryJob #{heavyJob.Id} for Order #{fullOrder.Id}\n";
                         }
                         else
                         {
-                            logMsg += $" -> Invoking CreateShipmentAsync for Active Provider ({activeConfig.ProviderKey})...\n";
-                            var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder, "", "", "", "تحويل أوتوماتيكي تلقائي عند الطلب عبر المتجر");
-                            logMsg += $" -> Result Success={dispatchRes.Success}, Message={dispatchRes.Message}, ErrorDetail={dispatchRes.ErrorDetail}\n";
-
-                            if (dispatchRes.Success)
+                            var activeConfig = await deliveryApiService.GetActiveConfigAsync();
+                            if (activeConfig == null)
                             {
-                                fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
-                                await uow.CompleteAsync();
+                                logMsg += " -> SKIPPED: GetActiveConfigAsync returned NULL (No active provider in DB)!\n";
+                            }
+                            else
+                            {
+                                logMsg += $" -> Invoking CreateShipmentAsync for Active Provider ({activeConfig.ProviderKey})...\n";
+                                var dispatchRes = await deliveryApiService.CreateShipmentAsync(fullOrder, "", "", "", "تحويل أوتوماتيكي تلقائي عند الطلب عبر المتجر");
+                                logMsg += $" -> Result Success={dispatchRes.Success}, Message={dispatchRes.Message}, ErrorDetail={dispatchRes.ErrorDetail}\n";
+
+                                if (dispatchRes.Success)
+                                {
+                                    fullOrder.Status = Bolcko.Domain.Enums.OrderStatus.Processing;
+                                    await uow.CompleteAsync();
+                                }
                             }
                         }
                     }

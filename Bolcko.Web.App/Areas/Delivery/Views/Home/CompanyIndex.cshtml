@@ -14,9 +14,13 @@
     bool jobIsActive(DeliveryJob j) {
         return j.Status == DeliveryJobStatus.InTransit;
     }
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "لوحة أساطيل 3PL وإدارة العمليات اللوجستية | بلوكو" 
+        : "3PL Fleet & Operations Cockpit | BLOCKO";
 }
 
-<div class="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8 text-right font-sans" dir="rtl">
+<div class="p-3 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8 text-start font-sans" dir="@(isArabic ? "rtl" : "ltr")">
     
     <!-- Header Banner -->
     <div class="bg-[#0D111A] rounded-3xl border border-slate-800 p-6 md:p-8 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
@@ -324,7 +328,7 @@
                 <span class="material-symbols-outlined text-lg">close</span>
             </button>
         </div>
-        <form asp-action="UpdateCompanyCollection" method="post" class="p-6 space-y-4 text-right" dir="rtl">
+        <form asp-action="UpdateCompanyCollection" method="post" class="p-6 space-y-4 text-start" dir="@(isArabic ? "rtl" : "ltr")">
             @Html.AntiForgeryToken()
             <input type="hidden" name="jobId" id="modalJobId" />
 

@@ -13,17 +13,30 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         private readonly Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> _userManager;
         private readonly IServiceManager _serviceManager;
         private readonly ITranslationService _translationService;
+        private readonly Bolcko.Domain.Interfaces.IUnitOfWork _unitOfWork;
 
         public QuoteController(
             ITenderService tenderService, 
             Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User> userManager, 
             IServiceManager serviceManager,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            Bolcko.Domain.Interfaces.IUnitOfWork unitOfWork)
         {
             _tenderService = tenderService;
             _userManager = userManager;
             _serviceManager = serviceManager;
             _translationService = translationService;
+            _unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Quotes", "Account", new { area = "Shop" });
+            }
+            return RedirectToAction("Request", "Quote", new { area = "Shop" });
         }
 
         [HttpGet]
@@ -62,6 +75,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                 id = c.Id,
                 name = c.Name
             }));
+
+            var activeVendors = await _unitOfWork.VendorProfiles.FindAsync(v => v.Status == "Active");
+            ViewBag.ActiveVendors = activeVendors.ToList();
 
             return View("Request", dto);
         }
@@ -118,6 +134,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
                     id = c.Id,
                     name = c.Name
                 }));
+
+                var activeVendors = await _unitOfWork.VendorProfiles.FindAsync(v => v.Status == "Active");
+                ViewBag.ActiveVendors = activeVendors.ToList();
 
                 return View(dto);
             }

@@ -1,11 +1,13 @@
 @using Bolcko.Domain.Entities.Delivery
 @{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
     var companyDrivers = ViewBag.CompanyDrivers as List<DeliveryDriver> ?? new List<DeliveryDriver>();
     var availableDrivers = companyDrivers.Where(d => d.IsAvailable).ToList();
 }
 
 <div id="dispatchAssignModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#0D111A] rounded-3xl border border-slate-800 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-right" dir="rtl">
+    <div class="bg-[#0D111A] rounded-3xl border border-slate-800 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 text-start" dir="@(isRtl ? "rtl" : "ltr")">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2.5">
                 <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center font-bold">

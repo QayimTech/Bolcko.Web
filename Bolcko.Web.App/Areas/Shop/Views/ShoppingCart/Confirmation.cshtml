@@ -1,8 +1,9 @@
 @model Bolcko.Domain.Entities.Order.DTOs.OrderDto
 @{
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
     ViewData["Title"] = SharedLocalizer["OrderConfirmed"];
 }
-<main class="max-w-3xl mx-auto px-4 md:px-6 py-16 md:py-24 text-center" dir="auto">
+<main class="max-w-3xl mx-auto px-4 md:px-6 py-16 md:py-24 text-center">
     <div class="bg-white border border-slate-100 rounded-[2rem] p-8 md:p-14 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
         
         <!-- Subtle Background Glow -->
@@ -13,11 +14,14 @@
                 <span class="material-symbols-outlined text-5xl font-black">done</span>
             </div>
             
-            <h1 class="font-black text-3xl md:text-4xl text-slate-900 mb-4 tracking-tight">@SharedLocalizer["OrderConfirmed"]</h1>
+            <h1 class="font-black text-3xl md:text-4xl text-slate-900 mb-4 tracking-tight"><bdi>@SharedLocalizer["OrderConfirmed"]</bdi></h1>
             
             <div class="inline-flex items-center gap-2 text-sm font-bold text-slate-600 mb-10 bg-slate-50 px-5 py-2.5 rounded-full border border-slate-200 shadow-sm">
                 <span class="material-symbols-outlined text-slate-400 text-lg">receipt_long</span>
-                <span class="font-mono">@string.Format(SharedLocalizer["YourOrderNumberIs"].Value, Model?.OrderNumber)</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <span>@(isArabic ? "رقم الطلب الخاص بك هو:" : "Your order number is:")</span>
+                    <bdi dir="ltr" class="font-mono text-emerald-700 font-black bg-emerald-100/70 px-2.5 py-0.5 rounded-md border border-emerald-300">@Model?.OrderNumber</bdi>
+                </span>
             </div>
             
             @if(Model?.Items != null && Model.Items.Any())
@@ -60,21 +64,21 @@
                 </div>
             }
             
-            <div class="bg-indigo-50/50 rounded-2xl p-6 md:p-8 border-s-4 border-indigo-500 text-start mb-12 relative overflow-hidden">
+            <div class="bg-indigo-50/50 rounded-2xl p-6 md:p-8 border-s-4 border-indigo-500 text-start mb-12 relative overflow-hidden" dir="@(isArabic ? "rtl" : "ltr")">
                 <span class="material-symbols-outlined text-indigo-500/10 text-9xl absolute -end-4 -bottom-4 pointer-events-none">local_shipping</span>
                 <h3 class="font-black text-indigo-950 mb-4 text-lg">@SharedLocalizer["WhatHappensNow"]</h3>
                 <ul class="space-y-4 text-sm text-indigo-900/70 font-bold relative z-10">
                     <li class="flex items-center gap-3">
                         <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">inventory_2</span></span>
-                        @SharedLocalizer["Step1Text"]
+                        <span class="leading-relaxed">@SharedLocalizer["Step1Text"]</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">local_shipping</span></span>
-                        @SharedLocalizer["Step2Text"]
+                        <span class="leading-relaxed">@SharedLocalizer["Step2Text"]</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px]">home_work</span></span>
-                        @SharedLocalizer["Step3Text"]
+                        <span class="leading-relaxed">@SharedLocalizer["Step3Text"]</span>
                     </li>
                 </ul>
             </div>

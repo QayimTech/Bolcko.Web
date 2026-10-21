@@ -6,6 +6,7 @@ using Bolcko.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,12 +44,14 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var vendorId = vendor?.Id ?? 0;
             var commissionRate = (vendor?.CommissionRatePercentage ?? 2.5m) / 100m;
 
-            // Fetch vendor order items
-            var allItems = await _unitOfWork.OrderItems.GetAllAsync();
-            var orderItems = allItems
+            // Fetch vendor order items with eager-loaded navigation properties
+            var orderItems = await _unitOfWork.OrderItems
+                .GetAllAsQueryable()
+                .Include(oi => oi.Product)
+                .Include(oi => oi.Order)
                 .Where(oi => oi.Product != null && (oi.Product.SupplierId == vendorId || oi.Product.SupplierKey == "vendor_" + vendorId))
                 .OrderByDescending(oi => oi.Id)
-                .ToList();
+                .ToListAsync();
 
             decimal grossSales = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity);
             decimal platformFees = grossSales * commissionRate;

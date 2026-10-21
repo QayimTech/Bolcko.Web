@@ -5,9 +5,10 @@
     var txn = ViewBag.PayoutTransaction as Bolcko.Domain.Entities.Financing.CarrierPayoutTransaction;
     bool isDelivered = Model.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered || Model.IsPodVerified;
     string cliqRecipient = Model.Driver?.CliqAlias ?? Model.Company?.CliqAlias ?? Model.Driver?.User?.PhoneNumber ?? "CLIQ-VERIFIED";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
 
-<div class="max-w-2xl mx-auto px-4 py-6 sm:py-10 space-y-6" dir="rtl">
+<div class="max-w-2xl mx-auto px-4 py-6 sm:py-10 space-y-6" dir="@(isArabic ? "rtl" : "ltr")">
     
     <!-- Top Card: Jobsite Overview -->
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">

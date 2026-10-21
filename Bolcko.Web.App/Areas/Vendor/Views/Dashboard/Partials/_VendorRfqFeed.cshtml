@@ -1,6 +1,7 @@
 @model Bolcko.Domain.Entities.Catalog.VendorProfile
 @{
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var activeTenders = ViewBag.ActiveTenders as List<Bolcko.Domain.Entities.Tender.Tender> ?? new List<Bolcko.Domain.Entities.Tender.Tender>();
 }
 
 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -9,44 +10,92 @@
             <h2 class="text-base font-bold text-slate-900 dark:text-white">@(isArabic ? "أحدث طلبات عروض الأسعار والتوريد (Live Calculator RFQs)" : "Incoming Calculator RFQs in Your City")</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">@(isArabic ? "طلبات حقيقية صادرة من عملاء أنهوا حساب كمياتهم في حاسبة البناء وينتظرون عروض التوريد" : "Real inquiries from clients who calculated quantities via our smart calculator")</p>
         </div>
-        <a href="/calculator" target="_blank" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 flex items-center gap-1">
-            <span>@(isArabic ? "تجربة الحاسبة" : "Try Calculator")</span>
-            <span class="material-symbols-outlined text-sm">open_in_new</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="@Url.Action("RfqDesk", "Dashboard", new { area = "Vendor" })" class="text-xs font-bold text-[#E8A020] hover:underline flex items-center gap-1">
+                <span>@(isArabic ? "عرض الكل في مكتب التسعير" : "View All in RFQ Desk")</span>
+                <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_forward</span>
+            </a>
+        </div>
     </div>
 
     <div class="divide-y divide-slate-100 dark:divide-slate-800">
-        <div class="p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-            <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">@(isArabic ? "فيلا سكنية • 2 طوابق" : "Residential Villa • 2 Floors")</span>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white">@(isArabic ? "مشروع فيلا مسطح 500 م²" : "Villa 500 sqm Project")</span>
-                    <span class="text-[11px] text-slate-400">• @(Model?.City ?? (isArabic ? "عمان" : "Amman"))</span>
+        @if (activeTenders.Any())
+        {
+            foreach (var tender in activeTenders.Take(4))
+            {
+                var contractorName = tender.User != null 
+                    ? $"{tender.User.FirstName} {tender.User.LastName}".Trim() 
+                    : (tender.GuestCompany ?? tender.GuestName ?? "شركة مقاولات هندسية");
+                if (string.IsNullOrWhiteSpace(contractorName)) contractorName = "مقاول معتمد";
+
+                var itemsSummary = string.Join(" • ", tender.Items.Select(i => $"{i.ProductName} ({i.RequestedQuantity:0.#} {i.Unit})"));
+                if (string.IsNullOrEmpty(itemsSummary)) itemsSummary = tender.TenderTitle;
+
+                var specsSummary = string.Join(" | ", tender.Items.Where(i => !string.IsNullOrEmpty(i.Specifications)).Select(i => i.Specifications));
+                var isPricedByMe = tender.Status == Bolcko.Domain.Enums.TenderStatus.Priced && tender.AwardedSupplierId == Model?.Id;
+
+                <div class="p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                #QT-@tender.Id.ToString("D5")
+                            </span>
+                            <span class="text-xs font-bold text-slate-900 dark:text-white">@contractorName</span>
+                            <span class="text-[11px] text-slate-400">• @(tender.ProjectCity ?? tender.GuestCity ?? (isArabic ? "عمان" : "Amman"))</span>
+                            @if (tender.TargetVendorId == Model?.Id)
+                            {
+                                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[9px]">⭐ موجه لك بالاسم</span>
+                            }
+                            else if (tender.TenderScope == "SubscribedPrivate")
+                            {
+                                <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[9px]">🔒 VIP للمشتركين</span>
+                            }
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">
+                            <strong>@(isArabic ? "المواد المطلوبة:" : "Required Materials:")</strong> @itemsSummary
+                        </p>
+                        @if (!string.IsNullOrEmpty(specsSummary))
+                        {
+                            <p class="text-[10px] text-amber-700 font-medium">
+                                📋 @specsSummary
+                            </p>
+                        }
+                        <span class="text-[10px] text-slate-400 font-mono">@tender.RequestDate.ToString("yyyy/MM/dd HH:mm") • عبر حاسبة بلوكو الذكية</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        @if (isPricedByMe)
+                        {
+                            <span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs">
+                                تم تقديم العرض (@tender.TotalQuotedAmount?.ToString("N2") د.أ)
+                            </span>
+                        }
+                        else if (Model?.Status == "Active")
+                        {
+                            <a href="@Url.Action("RfqDesk", "Dashboard", new { area = "Vendor" })"
+                               class="px-5 py-2.5 bg-slate-900 hover:bg-[#E8A020] hover:text-slate-950 text-white font-bold text-xs rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm">request_quote</span>
+                                <span>@(isArabic ? "تسعير الطلب" : "Submit Supply Quote")</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button" disabled
+                                    title="@(isArabic ? "الحساب بانتظار الاعتماد لتقديم العروض" : "Account pending verification")"
+                                    class="px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center gap-1.5 border border-slate-300 dark:border-slate-700">
+                                <span class="material-symbols-outlined text-sm">lock_clock</span>
+                                <span>@(isArabic ? "بانتظار اعتماد الحساب للتقديم" : "Pending Verification")</span>
+                            </button>
+                        }
+                    </div>
                 </div>
-                <p class="text-xs text-slate-600 dark:text-slate-300">
-                    <strong>@(isArabic ? "المواد المطلوبة:" : "Required Materials:")</strong> @(isArabic ? "حجر رويشد طبيعي مفجر (580 م²) • كرانيش 64 م طولي • حديد تسليح Grade 60 (20.5 طن) • باطون جاهز B250 (190 م³)" : "Natural Ruwaished Stone (580 m²) • Cornices 64 lm • Rebar Grade 60 (20.5 Ton) • Ready-mix B250 (190 m³)")
-                </p>
-                <span class="text-[10px] text-slate-400 font-mono">@(isArabic ? "منذ 25 دقيقة • عبر حاسبة بلوكو الذكية" : "25 mins ago • via BLOCKO Smart Calculator")</span>
+            }
+        }
+        else
+        {
+            <div class="p-8 text-center text-slate-400">
+                <span class="material-symbols-outlined text-3xl block mb-1 text-slate-300">inbox</span>
+                <span class="text-xs">لا توجد طلبات تسعير نشطة حالياً. ستظهر هنا فور إرسالها من الحاسبة أو بوابة المقاولين.</span>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-                @if (Model?.Status == "Active")
-                {
-                    <button type="button" onclick="openBiddingModal('فيلا مسطح 500 م²', 'حجر رويشد مفجر 580م²، كرانيش، حديد، باطون', 'عمان')"
-                            class="px-5 py-2.5 bg-slate-900 hover:bg-[#E8A020] hover:text-slate-950 text-white font-bold text-xs rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm">request_quote</span>
-                        <span>@(isArabic ? "تقديم عرض سعر رسمي" : "Submit Official Quotation")</span>
-                    </button>
-                }
-                else
-                {
-                    <button type="button" disabled
-                            title="@(isArabic ? "الحساب بانتظار الاعتماد لتقديم العروض" : "Account pending verification")"
-                            class="px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center gap-1.5 border border-slate-300 dark:border-slate-700">
-                        <span class="material-symbols-outlined text-sm">lock_clock</span>
-                        <span>@(isArabic ? "بانتظار اعتماد الحساب للتقديم" : "Pending Verification")</span>
-                    </button>
-                }
-            </div>
-        </div>
+        }
     </div>
 </div>

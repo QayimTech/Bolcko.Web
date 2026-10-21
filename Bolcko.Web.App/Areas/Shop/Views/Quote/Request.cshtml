@@ -321,6 +321,69 @@
                 </div>
             </div>
 
+            <!-- Step 2.5: Vendor Routing & Fulfillment Allocation (توجيه الموردين والمناقصات) -->
+            <div class="q-card">
+                <div class="q-card-head">
+                    <div class="q-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <span class="material-symbols-outlined" style="color: #fff; font-size: 18px;">hub</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="q-step" style="background:#059669;color:#fff;">🎯</span>
+                            <h2 style="font-size: 15px; font-weight: 800; color: #151B26; margin: 0;">@(isAr ? "توجيه العطاء واختيار الموردين المعتمدين" : "Supplier Routing & Tender Targeting")</h2>
+                        </div>
+                        <p style="font-size: 12px; color: #94a3b8; margin: 2px 0 0 32px;">@(isAr ? "حدد آلية تحويل الكميات للموردين (أقرب مورد، مورد مخصص، أو مناقصة داخلية للمشتركين)" : "Choose vendor allocation mechanism")</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Option 1: Open Nearest -->
+                    <label style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" class="routing-option hover:border-amber-400">
+                        <input type="radio" asp-for="TenderScope" value="OpenNearest" checked onchange="toggleVendorSelect(this.value)" style="margin-top: 3px;" />
+                        <div>
+                            <span style="font-size: 13px; font-weight: 800; color: #1e293b; display: block;">@(isAr ? "⚡ التوزيع الذكي لأقرب الموردين المعتمدين (الأوفر والأسرع)" : "Smart Distribution to Nearest Verified Vendors")</span>
+                            <span style="font-size: 11px; color: #64748b;">@(isAr ? "توجيه تلقائي لأقرب مصانع وخلاطات ومستودعات المواد بحسب موقع المشروع لتقليل نولون الشحن وضمان وقت الشك للباطون." : "Automatic dispatch to closest plants to minimize haulage fees and guarantee setting time.")</span>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Direct Specific Vendor -->
+                    <label style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" class="routing-option hover:border-amber-400">
+                        <input type="radio" asp-for="TenderScope" value="DirectVendor" onchange="toggleVendorSelect(this.value)" style="margin-top: 3px;" />
+                        <div style="flex: 1;">
+                            <span style="font-size: 13px; font-weight: 800; color: #1e293b; display: block;">@(isAr ? "🏭 توجيه الطلب مباشرة لمورد معتمد بالاسم (حساب مسجل بالنظام)" : "Direct Assignment to a Specific Registered Vendor")</span>
+                            <span style="font-size: 11px; color: #64748b;">@(isAr ? "إرسال العطاء حصرياً لتاجر أو منشار أو مصنع محدد مسجل على منصة بلوكو." : "Send tender exclusively to a specific verified merchant on Blocko.")</span>
+                            
+                            <!-- Dropdown showing registered vendors -->
+                            <div id="vendorSelectWrap" style="display: none; margin-top: 10px;">
+                                <label class="q-label">@(isAr ? "اختر المورد المعتمد من القائمة:" : "Select Registered Vendor:")</label>
+                                <select asp-for="TargetVendorId" class="q-input" style="background:#fff;">
+                                    <option value="">@(isAr ? "-- اختر من الموردين النشطين في المنصة --" : "-- Choose from active vendors --")</option>
+                                    @if (ViewBag.ActiveVendors != null)
+                                    {
+                                        foreach (var v in (IEnumerable<Bolcko.Domain.Entities.Catalog.VendorProfile>)ViewBag.ActiveVendors)
+                                        {
+                                            <option value="@v.Id">@v.CompanyNameAr - (@v.City) • تخصص: @v.SuppliedCategories (@v.SubscriptionTier)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: Subscribed Private Tender -->
+                    <label style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" class="routing-option hover:border-amber-400">
+                        <input type="radio" asp-for="TenderScope" value="SubscribedPrivate" onchange="toggleVendorSelect(this.value)" style="margin-top: 3px;" />
+                        <div>
+                            <span style="font-size: 13px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                <span>@(isAr ? "🔒 مناقصة داخلية خاصة للموردين المشتركين (VIP Private Tender)" : "Private Internal Tender for Subscribed Tier")</span>
+                                <span style="padding: 2px 8px; border-radius: 6px; background: #fef3c7; color: #b45309; font-size: 10px; font-weight: 800;">GOLD / SILVER</span>
+                            </span>
+                            <span style="font-size: 11px; color: #64748b;">@(isAr ? "طرح مغلق لكبار الموردين والمصانع الحاصلة على اشتراك معتمد وفحص جودة الجمعية العلمية الملكية." : "Closed tender restricted to verified subscribed top-tier manufacturers.")</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <!-- Step 3: Tender Items -->
             <div class="q-card">
                 <div class="q-card-head" style="flex-wrap: wrap;">
@@ -466,6 +529,13 @@
     var catalogHasMore = true;
     var catalogDebounce = null;
 
+    window.toggleVendorSelect = function(scope) {
+        var wrap = document.getElementById('vendorSelectWrap');
+        if (wrap) {
+            wrap.style.display = (scope === 'DirectVendor') ? 'block' : 'none';
+        }
+    };
+
     // ── Init ──────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
         loadSavedItems();
@@ -565,16 +635,38 @@
         var cart = [];
         try { cart = JSON.parse(sessionStorage.getItem(TENDER_KEY)) || []; } catch(e) {}
         cart.forEach(function (item) {
-            addItemRow({ name: item.productName, qty: item.quantity, unit: item.unit, isCatalog: !!item.productId, productId: item.productId, imageUrl: item.imageUrl || '', sku: item.sku || '' });
+            addItemRow({ 
+                name: item.productName, 
+                qty: item.quantity, 
+                unit: item.unit, 
+                category: item.category || 'General',
+                specifications: item.specifications || '',
+                isCatalog: !!item.productId, 
+                productId: item.productId, 
+                imageUrl: item.imageUrl || '', 
+                sku: item.sku || '' 
+            });
         });
+
+        // Also check if calculator passed project metadata
+        try {
+            var projMeta = JSON.parse(sessionStorage.getItem('TenderProjectMeta')) || null;
+            if (projMeta) {
+                var pn = document.querySelector('[name="ProjectName"]');
+                if (pn && (!pn.value || pn.value.trim() === '') && projMeta.projectName) pn.value = projMeta.projectName;
+                var ct = document.querySelector('[name="City"]');
+                if (ct && (!ct.value || ct.value === 'عمان') && projMeta.city) ct.value = projMeta.city;
+            }
+        } catch(e) {}
+
         toggleEmpty();
     }
 
     // ── Add item row ─────────────────────────────────────────────────────────
     function addItemRow(opts) {
-        var d = { name:'', qty:1, unit: IS_AR?'كيس':'Bag', isCatalog:false, productId:null, imageUrl:'', sku:'' };
+        var d = { name:'', qty:1, unit: IS_AR?'كيس':'Bag', category:'General', specifications:'', isCatalog:false, productId:null, imageUrl:'', sku:'' };
         for (var k in opts) { if (opts.hasOwnProperty(k)) d[k] = opts[k]; }
-        var name = d.name, qty = d.qty, unit = d.unit, isCatalog = d.isCatalog, productId = d.productId, imageUrl = d.imageUrl, sku = d.sku;
+        var name = d.name, qty = d.qty, unit = d.unit, category = d.category, specifications = d.specifications, isCatalog = d.isCatalog, productId = d.productId, imageUrl = d.imageUrl, sku = d.sku;
 
         var idx = productCount++;
         var units = IS_AR ? ['كيس','طن','متر مكعب','لتر','متر خطي','حبة'] : ['Bag','Ton','Cubic Meter','Liter','Linear Meter','Piece'];
@@ -608,18 +700,23 @@
                         (sku ? '<span style="font-size:11px;color:#94a3b8;font-family:monospace;">' + esc(sku) + '</span>' : '') +
                         '<input type="hidden" name="Products[' + idx + '].ProductName" value="' + esc(name) + '" />' +
                         '<input type="hidden" name="Products[' + idx + '].ProductId" value="' + (productId||'') + '" />' +
+                        '<input type="hidden" name="Products[' + idx + '].Category" value="' + esc(category||'Catalog') + '" />' +
                     '</div>' +
                 '</div>' +
                 '<div class="q-grid-2">' +
                     '<div>' +
                         '<label class="q-label">' + (IS_AR?'الكمية':'Qty') + ' <span class="q-req">*</span></label>' +
-                        '<input type="number" name="Products[' + idx + '].Quantity" class="q-input q-qty" value="' + qty + '" min="1" required />' +
+                        '<input type="number" step="any" min="0.01" name="Products[' + idx + '].Quantity" class="q-input q-qty" value="' + qty + '" required />' +
                         '<span class="q-err-msg" style="display:none;color:#ef4444;font-size:11px;margin-top:2px;">' + (IS_AR?'مطلوب':'Required') + '</span>' +
                     '</div>' +
                     '<div>' +
                         '<label class="q-label">' + (IS_AR?'الوحدة':'Unit') + ' <span class="q-req">*</span></label>' +
                         '<select name="Products[' + idx + '].Unit" class="q-input">' + unitOpts + '</select>' +
                     '</div>' +
+                '</div>' +
+                '<div style="margin-top:8px;">' +
+                    '<label class="q-label" style="font-size:11px;color:#64748b;">' + (IS_AR?'المواصفات القياسية المطلوبة:':'Engineering Specifications:') + '</label>' +
+                    '<input type="text" name="Products[' + idx + '].Specifications" class="q-input" style="font-size:12px;background:#fff;" placeholder="' + (IS_AR?'مثال: Grade 60 أطوال 12م، أو C30/37 مع مضخة صب...':'e.g. Grade 60 ASTM A615...') + '" value="' + esc(specifications||'') + '" />' +
                 '</div>' +
             '</div>';
         } else {
@@ -629,21 +726,26 @@
                     '<span class="material-symbols-outlined" style="font-size:18px;">close</span>' +
                 '</button>' +
                 '<div style="margin-bottom:12px;padding-inline-end:32px;">' +
-                    '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(232,160,32,0.1);color:#d18f1c;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:6px;border:1px solid rgba(232,160,32,0.2);">' + (IS_AR?'مادة مخصصة':'Custom') + '</span>' +
-                    '<label class="q-label">' + (IS_AR?'اسم المادة ومواصفاتها':'Material Name & Specs') + ' <span class="q-req">*</span></label>' +
+                    '<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:rgba(232,160,32,0.1);color:#d18f1c;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:6px;border:1px solid rgba(232,160,32,0.2);">' + (IS_AR?'مادة مخصصة / حاسبة':'Custom / Calculator') + '</span>' +
+                    '<label class="q-label">' + (IS_AR?'اسم المادة':'Material Name') + ' <span class="q-req">*</span></label>' +
                     '<input type="text" name="Products[' + idx + '].ProductName" class="q-input q-name" placeholder="' + (IS_AR?'مثال: حديد تسليح أردني 14 ملم...':'e.g. 14mm Rebar Grade 60...') + '" value="' + esc(name) + '" required />' +
                     '<span class="q-err-msg" style="display:none;color:#ef4444;font-size:11px;margin-top:2px;">' + (IS_AR?'يرجى كتابة اسم المادة':'Material name required') + '</span>' +
+                    '<input type="hidden" name="Products[' + idx + '].Category" value="' + esc(category||'Custom') + '" />' +
                 '</div>' +
                 '<div class="q-grid-2">' +
                     '<div>' +
                         '<label class="q-label">' + (IS_AR?'الكمية':'Qty') + ' <span class="q-req">*</span></label>' +
-                        '<input type="number" name="Products[' + idx + '].Quantity" class="q-input q-qty" value="' + qty + '" min="1" required />' +
+                        '<input type="number" step="any" min="0.01" name="Products[' + idx + '].Quantity" class="q-input q-qty" value="' + qty + '" required />' +
                         '<span class="q-err-msg" style="display:none;color:#ef4444;font-size:11px;margin-top:2px;">' + (IS_AR?'مطلوب':'Required') + '</span>' +
                     '</div>' +
                     '<div>' +
                         '<label class="q-label">' + (IS_AR?'الوحدة':'Unit') + ' <span class="q-req">*</span></label>' +
                         '<select name="Products[' + idx + '].Unit" class="q-input">' + unitOpts + '</select>' +
                     '</div>' +
+                '</div>' +
+                '<div style="margin-top:8px;">' +
+                    '<label class="q-label" style="font-size:11px;color:#64748b;">' + (IS_AR?'المواصفات القياسية المطلوبة:':'Engineering Specifications:') + '</label>' +
+                    '<input type="text" name="Products[' + idx + '].Specifications" class="q-input" style="font-size:12px;background:#fff;" placeholder="' + (IS_AR?'مثال: Grade 60 أطوال 12م، أو C30/37 مع مضخة صب...':'e.g. Grade 60 ASTM A615...') + '" value="' + esc(specifications||'') + '" />' +
                 '</div>' +
             '</div>';
         }
@@ -755,7 +857,7 @@
         // Validate qty
         var qtyInputs = document.querySelectorAll('.q-qty');
         for (var j = 0; j < qtyInputs.length; j++) {
-            if (!qtyInputs[j].value || Number(qtyInputs[j].value) < 1) {
+            if (!qtyInputs[j].value || Number(qtyInputs[j].value) <= 0) {
                 qtyInputs[j].style.borderColor = '#f87171';
                 qtyInputs[j].style.background = '#fef2f2';
                 var errQ = qtyInputs[j].nextElementSibling;

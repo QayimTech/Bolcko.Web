@@ -38,6 +38,9 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var activeCompanies = await _serviceManager.DeliveryService.GetActiveCompaniesAsync();
             ViewBag.DeliveryCompanies = activeCompanies ?? new List<Bolcko.Domain.Entities.Delivery.DeliveryCompany>();
 
+            var deliveryJob = await _serviceManager.DeliveryService.GetJobByOrderIdAsync(id);
+            ViewBag.DeliveryJob = deliveryJob;
+
             return View(order);
         }
 

@@ -8,7 +8,7 @@
     var financingDashboard = ViewBag.FinancingDashboard as Bolcko.Domain.Entities.Financing.DTOs.ContractorDashboardDto;
 }
 
-<div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 text-right" dir="rtl">
+<div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8 text-start" dir="@(isArabic ? "rtl" : "ltr")">
     <div class="max-w-7xl mx-auto space-y-8">
 
         @if (isNew)
@@ -17,8 +17,8 @@
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-emerald-600 text-2xl">check_circle</span>
                     <div>
-                        <p class="text-sm font-bold text-emerald-900">تم تسجيل حساب المنشأة بنجاح ومطابقة السجل التجاري الأردني!</p>
-                        <p class="text-xs text-emerald-700">مرحباً بك في مجمع أعمال المقاولين المعتمدين في منصة Block-O.</p>
+                        <p class="text-sm font-bold text-emerald-900">@(isArabic ? "تم تسجيل حساب المنشأة بنجاح ومطابقة السجل التجاري الأردني!" : "Enterprise registration successful and verified!")</p>
+                        <p class="text-xs text-emerald-700">@(isArabic ? "مرحباً بك في مجمع أعمال المقاولين المعتمدين في منصة Block-O." : "Welcome to BLOCKO Approved Contractors Workspace.")</p>
                     </div>
                 </div>
                 <span class="px-3 py-1 rounded-full bg-emerald-200/60 text-emerald-800 text-xs font-bold font-mono">KYC Verified</span>
@@ -45,23 +45,27 @@
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-indigo-600">request_quote</span>
-                            <h2 class="text-base font-bold text-slate-900">محرك تصدير جدول الكميات (Smart BOQ) وطلب عروض الأسعار (RFQ)</h2>
+                            <h2 class="text-base font-bold text-slate-900">
+                                @(isArabic ? "محرك تصدير جدول الكميات (Smart BOQ) وطلب عروض الأسعار (RFQ)" : "Smart BOQ Export Engine & RFQ Comparison")
+                            </h2>
                         </div>
                         <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold font-mono">Multi-Vendor RFQ</span>
                     </div>
 
                     <p class="text-xs text-slate-600 leading-relaxed">
-                        قم بتصدير جدول الكميات (BOQ) الناتج من الحاسبة الهندسية الذكية وارسله فوراً لشبكة الموردين والمصانع المعتمدة لتلقي عروض أسعار تنافسية ومقارنتها بنقرة واحدة.
+                        @(isArabic 
+                            ? "قم بتصدير جدول الكميات (BOQ) الناتج من الحاسبة الهندسية الذكية وارسله فوراً لشبكة الموردين والمصانع المعتمدة لتلقي عروض أسعار تنافسية ومقارنتها بنقرة واحدة." 
+                            : "Export BOQ generated from the smart calculator directly to verified mills and suppliers to receive competitive quotes and compare them in 1-click.")
                     </p>
 
                     <div class="flex flex-wrap items-center gap-3 pt-1">
                         <a href="@Url.Action("Index", "Calculator", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-sm">
                             <span class="material-symbols-outlined text-sm">calculate</span>
-                            <span>فتح حاسبة البناء الهندسية</span>
+                            <span>@(isArabic ? "فتح حاسبة البناء الهندسية" : "Open Smart Calculator")</span>
                         </a>
-                        <a href="@Url.Action("Index", "Quote", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-2 border border-slate-200">
+                        <a href="@Url.Action("Quotes", "Account", new { area = "Shop" })" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center gap-2 border border-slate-200">
                             <span class="material-symbols-outlined text-sm text-indigo-600">compare_arrows</span>
-                            <span>مقارنة عروض أسعار الموردين</span>
+                            <span>@(isArabic ? "مقارنة عروض أسعار الموردين" : "Compare Supplier Quotes")</span>
                         </a>
                     </div>
                 </div>

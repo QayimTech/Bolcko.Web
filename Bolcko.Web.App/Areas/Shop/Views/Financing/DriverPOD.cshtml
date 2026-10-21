@@ -1,11 +1,12 @@
 @model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
 @{
-    ViewData["Title"] = $"إثبات تسليم المواد للموقع | {Model.TrackingCode}";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = isArabic ? $"إثبات تسليم المواد للموقع | {Model.TrackingCode}" : $"Jobsite POD Verification | {Model.TrackingCode}";
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
-    var isArabic = true;
 }
 
-<div class="max-w-xl mx-auto px-4 py-8" dir="rtl">
+<div class="max-w-xl mx-auto px-4 py-8 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6 text-start">
         
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">

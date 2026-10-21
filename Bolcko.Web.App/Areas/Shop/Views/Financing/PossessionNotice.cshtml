@@ -8,12 +8,13 @@
     var verifyUrl = Model != null ? $"{appHost}/Shop/Financing/Verify?code={Model.TrackingCode}" : $"{appHost}/Shop/Financing/Verify";
     var qrCodeUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={Uri.EscapeDataString(verifyUrl)}";
 
+    // Formatting party names cleanly and preventing email/PII leakage
     string funderDisplayName = "المستثمر الممول المعتمد";
     if (!string.IsNullOrWhiteSpace(Model?.FunderName))
     {
         if (Model.FunderName.Contains("@"))
         {
-            funderDisplayName = "المستثمر الممول (" + Model.FunderName.Split('@')[0] + ")";
+            funderDisplayName = "السيد المستثمر الممول المعتمد";
         }
         else
         {

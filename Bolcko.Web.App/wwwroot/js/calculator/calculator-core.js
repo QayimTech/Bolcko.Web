@@ -1095,20 +1095,57 @@ class BlockoCalculatorController {
 
     // ──────────────── ACTIONS: PRINT / QUOTE / WHATSAPP ────────────────
     triggerPrintReport() {
-        window.print();
+        // 1. Force fresh synchronization of calculation data into print DOM elements
+        if (this.latestCalculationData) {
+            this.updateUI(this.latestCalculationData);
+        } else {
+            this.recalculate();
+        }
+
+        // 2. Refresh dynamic reference code and timestamp
+        const refEl = document.getElementById('printReportRef');
+        if (refEl) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            refEl.innerText = `BLK-${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+        }
+        const dateEl = document.getElementById('printIssueDate');
+        if (dateEl) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            dateEl.innerText = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} - ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        }
+
+        // 3. Small deferral to ensure DOM paints before native browser print modal blocks thread
+        setTimeout(() => {
+            window.print();
+        }, 60);
     }
 
     sendToQuote() {
         const quoteItems = [];
+        const specsMap = {
+            'Steel': this.isEnMode ? 'Grade 60, ASTM A615 / BS 4449, Standard 12m' : 'حديد عالي المقاومة Grade 60 قياسات 12م معتمدة أردنياً',
+            'Concrete': this.isEnMode ? 'Ready-mix B250/B300 C25/C30 with pump 36-42m' : 'خرسانة جاهزة معتمدة B250/B300 مع مضخة صب ونولون موقعي',
+            'Cement': this.isEnMode ? 'CEM I 42.5N, 50kg bags, Ordinary Portland' : 'إسمنت بورتلاندي CEM I 42.5N مكيس 50 كغم نخب أول',
+            'Blocks': this.isEnMode ? 'Hollow & rib concrete blocks 10/15/20cm' : 'طوب إسمنتي مفرغ وهوردي 10/15/20 سم عالي التحمل',
+            'Stone': this.isEnMode ? 'Natural Ruwaished Class A, Mufajjar 25cm/50cm' : 'حجر رويشد طبيعي نخب أول مفجر/طبزة سمك 5-7 سم',
+            'Sand': this.isEnMode ? 'Sweileh clean sand & graded aggregates' : 'رمل صويلح مغسول وحصمة مدرجة لأعمال البناء والمدات',
+            'Labor': this.isEnMode ? 'Skilled workforce, carpentry & concrete casting' : 'أجور مقاولة العظم والنجارة والحدادة والصب'
+        };
+
         if (this.latestCalculationData && this.latestCalculationData.materialItems && this.latestCalculationData.materialItems.length > 0) {
             this.latestCalculationData.materialItems.forEach(item => {
                 const dict = this.itemDictionary[item.category] || {};
                 const name = this.isEnMode ? (dict.nameEn || item.category) : (dict.nameAr || item.category);
                 const unit = this.isEnMode ? (dict.unitEn || 'Unit') : (dict.unitAr || 'وحدة');
+                const spec = specsMap[item.category] || '';
                 quoteItems.push({
                     productName: name,
                     quantity: Math.max(1, Math.round(item.quantity * 10) / 10),
                     unit: unit,
+                    category: item.category || 'General',
+                    specifications: spec,
                     productId: null,
                     imageUrl: '',
                     sku: ''
@@ -1118,6 +1155,12 @@ class BlockoCalculatorController {
 
         try {
             sessionStorage.setItem('TenderSessionCart', JSON.stringify(quoteItems));
+            sessionStorage.setItem('TenderProjectMeta', JSON.stringify({
+                area: this.latestCalculationData?.totalBuiltUpArea || 350,
+                floors: this.latestCalculationData?.floors || 2,
+                projectName: this.isEnMode ? `Construction Project (${this.latestCalculationData?.totalBuiltUpArea || 350} m²)` : `مشروع إنشاء مبنى مسطح (${this.latestCalculationData?.totalBuiltUpArea || 350} م²)`,
+                city: 'عمان'
+            }));
         } catch (e) {
             console.error('Failed to store TenderSessionCart', e);
         }
@@ -1526,17 +1569,18 @@ class BlockoCalculatorController {
     }
 
     sendToFinancingWizard() {
-        if (!this.latestCalculationData || !this.latestCalculationData.items) {
+        const rawItems = (this.latestCalculationData && (this.latestCalculationData.materialItems || this.latestCalculationData.items)) || [];
+        if (!this.latestCalculationData || rawItems.length === 0) {
             window.location.href = '/Shop/Financing/Create';
             return;
         }
 
-        const items = this.latestCalculationData.items.map(item => ({
-            name: this.isEnMode ? item.itemNameEn : item.itemNameAr,
-            category: item.category,
-            qty: item.quantity,
-            unit: item.unitOfMeasure,
-            price: item.unitPriceJod
+        const items = rawItems.map(item => ({
+            name: this.isEnMode ? (item.itemNameEn || item.itemNameAr) : (item.itemNameAr || item.itemNameEn),
+            category: item.category || 'Custom',
+            qty: item.quantity || 1,
+            unit: item.unit || item.unitOfMeasure || 'وحدة',
+            price: item.unitPriceJod || 0
         }));
 
         localStorage.setItem('blocko_calculator_boq', JSON.stringify(items));

@@ -41,5 +41,26 @@
                 </button>
             </div>
         </form>
+
+        @{
+            var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+        }
+        <div class="pt-6 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500 mb-2">@(isArabic ? "بوابات الدخول السريع للشركاء (B2B):" : "B2B Partner Quick Portals:")</p>
+            <div class="flex flex-wrap items-center justify-center gap-2 text-xs">
+                <a href="@Url.Action("Join", "Contractor", new { area = "Shop" })" class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors">
+                    @(isArabic ? "المقاولون" : "Contractors")
+                </a>
+                <a href="/Invest" class="px-2 py-1 rounded-md bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 transition-colors">
+                    @(isArabic ? "المستثمرون" : "Investors")
+                </a>
+                <a href="@Url.Action("Login", "Account", new { area = "Vendor" })" class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 font-bold hover:bg-amber-100 transition-colors">
+                    @(isArabic ? "الموردون" : "Vendors")
+                </a>
+                <a href="@Url.Action("Login", "Account", new { area = "Delivery" })" class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 font-bold hover:bg-blue-100 transition-colors">
+                    @(isArabic ? "الأسطول 3PL" : "Fleet 3PL")
+                </a>
+            </div>
+        </div>
     </div>
 </main>

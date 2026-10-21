@@ -1,4 +1,5 @@
 @model Bolcko.Domain.Entities.Financing.DTOs.FinancingTenderDto
+@inject Microsoft.AspNetCore.Identity.UserManager<User> UserManager
 @{
     var title = $"عطاء تمويل مرابحة: {Model.ProjectTitle} | عائد {Model.AnnualizedYieldPercentage}% | Block-O";
     var description = $"فرصة استثمار بالمرابحة الإسلامية لمشروع {Model.ProjectTitle} في {Model.ProjectCity} بقيمة {Model.BaseMaterialCost:N0} د.أ بربح صافي {Model.InvestorNetYieldAmount:N0} د.أ ({Model.AnnualizedYieldPercentage}% APR). موثق بالـ GPS ورخصة البناء {Model.BuildingPermitNumber}.";
@@ -9,7 +10,11 @@
     Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
-    var userName = User.Identity?.Name ?? "";
+    var userEntity = isAuthenticated ? await UserManager.GetUserAsync(User) : null;
+    var userDisplayName = userEntity != null && (!string.IsNullOrWhiteSpace(userEntity.FirstName) || !string.IsNullOrWhiteSpace(userEntity.LastName))
+        ? $"{userEntity.FirstName} {userEntity.LastName}".Trim()
+        : (!string.IsNullOrWhiteSpace(userEntity?.CompanyName) ? userEntity.CompanyName : "");
+    var userPhone = userEntity?.PhoneNumber ?? "";
     var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 }
@@ -140,19 +145,29 @@
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             @foreach (var item in Model.Items)
                             {
+                                var catDisplay = item.MaterialCategory switch
+                                {
+                                    "Steel" => "حديد تسليح",
+                                    "Concrete" => "خرسانة جاهزة",
+                                    "Cement" => "إسمنت ومواد لاصقة",
+                                    "Stone" => "حجر بناء",
+                                    "Blocks" => "طوب وبلوك",
+                                    "Custom" => "مواد إنشائية",
+                                    _ => item.MaterialCategory
+                                };
                                 <tr>
                                     <td class="p-3 font-bold text-slate-900">@item.MaterialName</td>
-                                    <td class="p-3 text-slate-500">@item.MaterialCategory</td>
-                                    <td class="p-3 text-center font-mono font-bold">@item.Quantity @item.Unit</td>
-                                    <td class="p-3 text-end font-mono">@item.UnitPriceJod.ToString("N2")</td>
-                                    <td class="p-3 text-end font-mono font-bold text-slate-900">@item.SubtotalJod.ToString("N2")</td>
+                                    <td class="p-3 text-slate-600 font-medium">@catDisplay</td>
+                                    <td class="p-3 text-center font-mono font-bold"><bdi>@item.Quantity @item.Unit</bdi></td>
+                                    <td class="p-3 text-end font-mono"><bdi>@item.UnitPriceJod.ToString("N2") د.أ</bdi></td>
+                                    <td class="p-3 text-end font-mono font-bold text-slate-900"><bdi>@item.SubtotalJod.ToString("N2") د.أ</bdi></td>
                                 </tr>
                             }
                         </tbody>
                         <tfoot class="bg-slate-50 font-bold text-slate-900 border-t border-slate-200">
                             <tr>
                                 <td colspan="4" class="p-3 text-start">إجمالي تكلفة شراء الأصول العينية من المصانع:</td>
-                                <td class="p-3 text-end font-mono text-base text-amber-600">@Model.BaseMaterialCost.ToString("N2") د.أ</td>
+                                <td class="p-3 text-end font-mono text-base text-amber-600"><bdi>@Model.BaseMaterialCost.ToString("N2") د.أ</bdi></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -223,12 +238,12 @@
 
                         <div class="space-y-2">
                             <label class="text-xs text-slate-300 font-bold block">الاسم الكامل للمستثمر / جهة التمويل: <span class="text-rose-400">*</span></label>
-                            <input type="text" id="funderNameInput" placeholder="مثال: م. طارق المجالي" value="@(isAuthenticated ? userName : "")" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500" />
+                            <input type="text" id="funderNameInput" placeholder="مثال: م. طارق المجالي" value="@(isAuthenticated ? userDisplayName : "")" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500" />
                         </div>
 
                         <div class="space-y-2">
                             <label class="text-xs text-slate-300 font-bold block">رقم هاتف المستثمر (CliQ / الاتصال): <span class="text-rose-400">*</span></label>
-                            <input type="tel" id="funderPhoneInput" placeholder="079XXXXXXX" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500 text-start" dir="ltr" />
+                            <input type="tel" id="funderPhoneInput" placeholder="079XXXXXXX" value="@(isAuthenticated ? userPhone : "")" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-amber-500 text-start" dir="ltr" />
                         </div>
 
                         @if (!isAuthenticated)

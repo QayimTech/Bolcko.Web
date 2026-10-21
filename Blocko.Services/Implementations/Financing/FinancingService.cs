@@ -431,6 +431,10 @@ namespace Blocko.Services.Implementations.Financing
                 : 12.5m;
 
             var investorName = list.FirstOrDefault()?.FunderName ?? "المستثمر الممول";
+            if (!string.IsNullOrWhiteSpace(investorName) && investorName.Contains("@"))
+            {
+                investorName = "المستثمر الممول المعتمد";
+            }
 
             var ledger = new List<InvestorWalletTransactionDto>();
             int ledgerIdx = 1;

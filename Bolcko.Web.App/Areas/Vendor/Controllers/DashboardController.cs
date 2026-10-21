@@ -41,6 +41,11 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
             var profile = profileList.FirstOrDefault();
 
+            if (profile != null)
+            {
+                ViewBag.ActiveTenders = await GetMatchingTendersForVendorAsync(profile);
+            }
+
             // If user has no vendor profile yet, redirect them to join or provide fallback
             return View(profile);
         }
@@ -137,7 +142,64 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
             var profile = profileList.FirstOrDefault();
 
+            if (profile != null)
+            {
+                ViewBag.ActiveTenders = await GetMatchingTendersForVendorAsync(profile);
+            }
+
             return View(profile);
+        }
+
+        /// <summary>
+        /// تقديم عرض سعر رسمي ملزم من المورد (Submit Vendor Binding Supply Quote)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitVendorBid(int tenderId, decimal totalPrice, decimal deliveryFee, int deliveryDays, int validityDays, string? notes)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var profileList = await _unitOfWork.VendorProfiles.FindAsync(v => v.UserId == user.Id);
+            var profile = profileList.FirstOrDefault();
+            if (profile == null) return BadRequest("الملف الشخصي للمورد غير موجود.");
+
+            var tender = await _unitOfWork.Tenders.GetByIdAsync(tenderId);
+            if (tender == null) return NotFound("طلب عرض السعر غير موجود.");
+
+            tender.TotalQuotedAmount = totalPrice;
+            tender.DeliveryFee = deliveryFee;
+            tender.EstimatedDeliveryDays = deliveryDays;
+            tender.BidValidityDays = validityDays;
+            tender.VendorOfferNotes = notes;
+            tender.AwardedSupplierId = profile.Id;
+            tender.Status = Bolcko.Domain.Enums.TenderStatus.Priced;
+
+            _unitOfWork.Tenders.Update(tender);
+            await _unitOfWork.CompleteAsync();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, message = "تم تقديم عرض السعر بنجاح إلى العميل." });
+            }
+
+            TempData["SuccessMessage"] = "تم تقديم عرض السعر بنجاح إلى العميل.";
+            return RedirectToAction(nameof(RfqDesk));
+        }
+
+        private async Task<List<Bolcko.Domain.Entities.Tender.Tender>> GetMatchingTendersForVendorAsync(VendorProfile profile)
+        {
+            var openTenders = await _unitOfWork.Tenders.GetOpenTendersAsync();
+            var list = openTenders.Where(t =>
+                // 1. Direct assignment to this vendor
+                t.TargetVendorId == profile.Id
+                // 2. Subscribed private tender for Gold/Silver
+                || (t.TenderScope == "SubscribedPrivate" && (profile.SubscriptionTier == "Gold" || profile.SubscriptionTier == "Silver"))
+                // 3. Open nearest tender matching city / unassigned
+                || (t.TenderScope == "OpenNearest" || string.IsNullOrEmpty(t.TenderScope) || t.TargetVendorId == null)
+            ).ToList();
+
+            return list;
         }
 
         /// <summary>

@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bolcko.Web.App.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Route("Admin/[controller]")]
     [Route("Admin/Security/Center")]
-    [Route("Admin/SecurityCenter")]
-    [Route("Admin/[controller]/[action]")]
     [Authorize(Roles = "SuperAdmin,Admin")]
     public class SecurityCenterController : Controller
     {
@@ -22,9 +21,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             _analyticsService = analyticsService;
         }
 
-        [HttpGet]
-        [Route("")]
-        [Route("Index")]
+        [HttpGet("")]
+        [HttpGet("Index")]
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
         {
             try
@@ -46,7 +44,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("BlacklistIp")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BlacklistIp(string ipAddress, string reason, int? durationHours)
         {
@@ -63,7 +61,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return Json(new { success, message = success ? $"تم حظر الـ IP {ipAddress} بنجاح!" : "تعذّر إجراء الحظر." });
         }
 
-        [HttpPost]
+        [HttpPost("RemoveBlacklist")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveBlacklist(string ipAddress)
         {
@@ -71,7 +69,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return Json(new { success, message = success ? $"تم فك حظر الـ IP {ipAddress} بنجاح!" : "تعذّر إزالة الحظر." });
         }
 
-        [HttpPost]
+        [HttpPost("DismissThreat")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DismissThreat(long auditLogId)
         {
@@ -79,7 +77,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             return Json(new { success });
         }
 
-        [HttpPost]
+        [HttpPost("ClearAllData")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearAllData()
         {

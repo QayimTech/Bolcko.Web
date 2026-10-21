@@ -1,3 +1,5 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Bolcko.Web.App.SharedResource> L
 @{
     var actionName = ViewData["ActionName"]?.ToString() ?? "Index";
     var controllerName = ViewData["ControllerName"]?.ToString() ?? "DeliveryDispatch";
@@ -19,9 +21,9 @@
         @if (deliveryCompanies != null && deliveryCompanies.Any())
         {
             <div class="flex items-center gap-2">
-                <label class="text-xs font-bold text-slate-600 dark:text-slate-300">شركة التوصيل:</label>
+                <label class="text-xs font-bold text-slate-600 dark:text-slate-300">@L["DeliveryCompanyLabel"]</label>
                 <select name="companyId" class="bg-slate-50 dark:bg-[#070A0F] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-[#E8A020]">
-                    <option value="">جميع الشركات</option>
+                    <option value="">@L["AllDeliveryCompanies"]</option>
                     @foreach (var comp in deliveryCompanies)
                     {
                         if (selectedCompanyId.HasValue && selectedCompanyId.Value == comp.Id)
@@ -38,16 +40,28 @@
         }
 
         <div class="flex items-center gap-2">
-            <label class="text-xs font-bold text-slate-600 dark:text-slate-300">من:</label>
-            <input type="date" name="startDate" value="@startDate" class="bg-slate-50 dark:bg-[#070A0F] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-[#E8A020]" />
+            <label class="text-xs font-bold text-slate-600 dark:text-slate-300">@L["DateRangeFrom"]:</label>
+            <input type="@(string.IsNullOrEmpty(startDate) ? "text" : "date")" 
+                   onfocus="(this.type='date')" 
+                   onblur="if(!this.value)this.type='text'" 
+                   placeholder="@L["DatePickerPlaceholder"]" 
+                   name="startDate" 
+                   value="@startDate" 
+                   class="bg-slate-50 dark:bg-[#070A0F] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-[#E8A020] text-center font-mono" />
         </div>
         <div class="flex items-center gap-2">
-            <label class="text-xs font-bold text-slate-600 dark:text-slate-300">إلى:</label>
-            <input type="date" name="endDate" value="@endDate" class="bg-slate-50 dark:bg-[#070A0F] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-[#E8A020]" />
+            <label class="text-xs font-bold text-slate-600 dark:text-slate-300">@L["DateRangeTo"]:</label>
+            <input type="@(string.IsNullOrEmpty(endDate) ? "text" : "date")" 
+                   onfocus="(this.type='date')" 
+                   onblur="if(!this.value)this.type='text'" 
+                   placeholder="@L["DatePickerPlaceholder"]" 
+                   name="endDate" 
+                   value="@endDate" 
+                   class="bg-slate-50 dark:bg-[#070A0F] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-[#E8A020] text-center font-mono" />
         </div>
         <button type="submit" class="px-4 py-1.5 bg-[#E8A020] hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl transition-all shadow-sm">
-            تطبيق الفلتر
+            @L["ApplyFilter"]
         </button>
-        <a asp-area="@areaName" asp-controller="@controllerName" asp-action="@actionName" class="text-xs font-bold text-slate-400 hover:text-slate-300 underline">إعادة ضبط</a>
+        <a asp-area="@areaName" asp-controller="@controllerName" asp-action="@actionName" class="text-xs font-bold text-slate-400 hover:text-slate-300 underline">@L["ResetFilter"]</a>
     </form>
 </div>

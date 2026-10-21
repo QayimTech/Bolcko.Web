@@ -1,81 +1,285 @@
 @model Bolcko.Domain.Entities.Order.DTOs.OrderDto
+@using Bolcko.Domain.Entities.Delivery
+@using Bolcko.Domain.Enums
 @{
     ViewData["Title"] = L["OrderDetails"];
     Layout = "_Layout";
+    var deliveryJob = ViewBag.DeliveryJob as DeliveryJob;
+    var companies = ViewBag.DeliveryCompanies as IEnumerable<DeliveryCompany> ?? Enumerable.Empty<DeliveryCompany>();
+
+    decimal commissionRate = 0.025m; // 2.5% Platform Take Rate
+    decimal platformCommission = Model.TotalAmount * commissionRate;
+    decimal vendorEscrowNet = Model.TotalAmount - platformCommission;
 }
 
-<div class="p-6 text-start">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">@L["OrderDetails"]: @Model.OrderNumber</h1>
-        <a asp-action="Index" class="px-4 py-2 bg-slate-200 text-slate-800 rounded hover:bg-slate-300">@L["BackToList"]</a>
+<div class="p-6 text-start space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-black text-slate-900">@L["OrderDetails"]: @Model.OrderNumber</h1>
+                <span class="inline-block px-3 py-1 text-xs font-black rounded-full
+                    @(Model.Status == OrderStatus.Pending ? "bg-amber-100 text-amber-800 border border-amber-200" :
+                      Model.Status == OrderStatus.Processing ? "bg-blue-100 text-blue-800 border border-blue-200" :
+                      Model.Status == OrderStatus.Shipped ? "bg-purple-100 text-purple-800 border border-purple-200" :
+                      Model.Status == OrderStatus.Delivered ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-red-100 text-red-800 border border-red-200")">
+                    @(Model.Status == OrderStatus.Pending ? L["StatusPending"] :
+                      Model.Status == OrderStatus.Processing ? L["StatusProcessing"] :
+                      Model.Status == OrderStatus.Shipped ? L["StatusShipped"] :
+                      Model.Status == OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"])
+                </span>
+                @if (Model.HasOversizedItems)
+                {
+                    <span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 text-xs rounded-full font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">local_shipping</span>
+                        <span>مواد إنشائية ثقيلة (شاحنات نقل)</span>
+                    </span>
+                }
+            </div>
+            <p class="text-xs text-slate-400 mt-1">تاريخ الطلب: @Model.OrderDate.ToString("yyyy/MM/dd HH:mm") | معرف النظام: #@Model.Id</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a asp-action="Index" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors text-xs font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm rtl:-scale-x-100">arrow_back</span>
+                <span>@L["BackToList"]</span>
+            </a>
+            <button onclick="window.print()" class="px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors text-xs font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm text-[#E8A020]">print</span>
+                <span>طباعة السجل</span>
+            </button>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="mb-6 bg-emerald-50 border border-emerald-300 text-emerald-800 px-5 py-3 rounded-lg flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
-            <span class="font-bold text-sm">@TempData["SuccessMessage"]</span>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold">
+            <span class="material-symbols-outlined text-emerald-600 text-base">check_circle</span>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold">
+            <span class="material-symbols-outlined text-rose-600 text-base">error</span>
+            <span>@TempData["ErrorMessage"]</span>
         </div>
     }
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <!-- General Info -->
-        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["GeneralInformation"]</h2>
-            <p class="mb-2"><span class="font-bold">@L["OrderNumber"]:</span> @Model.OrderNumber</p>
-            <p class="mb-2"><span class="font-bold">@L["Date"]:</span> @Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</p>
-            <p class="mb-3"><span class="font-bold">@L["Status"]:</span>
-                <span class="inline-block ms-2 px-3 py-1 text-[11px] font-bold uppercase rounded-full
-                    @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? "bg-amber-100 text-amber-700" :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? "bg-blue-100 text-blue-700" :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? "bg-purple-100 text-purple-700" :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700")">
-                    @(Model.Status == Bolcko.Domain.Enums.OrderStatus.Pending ? L["StatusPending"] :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Processing ? L["StatusProcessing"] :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Shipped ? L["StatusShipped"] :
-                      Model.Status == Bolcko.Domain.Enums.OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"])
-                </span>
-            </p>
-            <p class="mb-2"><span class="font-bold">@L["Customer"]:</span> @(Model.UserName ?? L["NotSpecified"].Value)</p>
+    <!-- Executive Financial & Escrow Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- GMV Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block mb-1">إجمالي قيمة الطلب (GMV)</span>
+                <span class="text-xl font-black text-slate-900">@Model.TotalAmount.ToString("N2") @L["Currency"]</span>
+                <span class="text-[11px] text-slate-500 block mt-1">طريقة الدفع: @(Model.PaymentMethod ?? "دفع عند الاستلام")</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#E8A020] border border-amber-200 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+            </div>
         </div>
 
-        <!-- Payment & Shipping -->
-        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["PaymentAndShipping"]</h2>
-            <p class="mb-2"><span class="font-bold">@L["Total"]:</span> @Model.TotalAmount.ToString("N2") @L["Currency"]</p>
-            <p class="mb-2"><span class="font-bold">@L["PaymentMethodLabel"]:</span> @(Model.PaymentMethod ?? L["NotSpecified"].Value)</p>
-            <p class="mb-2"><span class="font-bold">@L["PaymentStatus"]:</span> @Model.PaymentStatus</p>
-            
-            @if (Model.ShippingAddress != null)
+        <!-- Vendor Escrow Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block mb-1">صافي مستحقات المورد (Escrow)</span>
+                <span class="text-xl font-black text-emerald-600">@vendorEscrowNet.ToString("N2") @L["Currency"]</span>
+                <span class="text-[11px] text-emerald-700 block mt-1">محتجزة لحين تأكيد التسليم (e-POD)</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">lock_clock</span>
+            </div>
+        </div>
+
+        <!-- Platform Commission Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block mb-1">عمولة المنصة (Take Rate 2.5%)</span>
+                <span class="text-xl font-black text-slate-900">@platformCommission.ToString("N2") @L["Currency"]</span>
+                <span class="text-[11px] text-slate-400 block mt-1">إيراد بلوكو المعتمد</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">toll</span>
+            </div>
+        </div>
+
+        <!-- Logistics Freight Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+                <span class="text-xs text-slate-400 font-bold block mb-1">أجور النقل والشحن</span>
+                <span class="text-xl font-black text-indigo-600">
+                    @(deliveryJob != null ? deliveryJob.DeliveryFee.ToString("N2") + " " + L["Currency"].Value : "محتسبة ضمن العقد")
+                </span>
+                <span class="text-[11px] text-indigo-700 block mt-1">
+                    @(deliveryJob?.FulfillmentType == "OwnFleet" ? "أسطول المورد الخاص" :
+                      deliveryJob?.FulfillmentType == "Custom3PL" ? "شريك نقل معتمد 3PL" : "شبكة بلوكو للناقلين")
+                </span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">local_shipping</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Information Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Customer & Project Delivery Site Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h2 class="text-base font-black text-slate-900 border-b pb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">person_pin_circle</span>
+                <span>بيانات العميل وموقع الورشة الإنشائية</span>
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 font-bold block mb-1">اسم العميل / المقاول:</span>
+                    <strong class="text-slate-900 text-sm">@(Model.UserName ?? L["NotSpecified"].Value)</strong>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 font-bold block mb-1">حالة السداد المالي:</span>
+                    <span class="inline-block px-2.5 py-0.5 rounded-md font-bold text-xs @(Model.PaymentStatus == "Paid" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")">
+                        @(Model.PaymentStatus ?? "بانتظار التحصيل")
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs space-y-2">
+                <span class="text-slate-400 font-bold block">عنوان موقع المشروع الإنشائي:</span>
+                @if (Model.ShippingAddress != null)
+                {
+                    <p class="text-slate-800 font-medium leading-relaxed">
+                        <strong class="text-slate-900">@Model.ShippingAddress.City</strong> - @Model.ShippingAddress.StateProvince<br />
+                        @Model.ShippingAddress.AddressLine1
+                        @if (!string.IsNullOrEmpty(Model.ShippingAddress.AddressLine2))
+                        {
+                            <span>, @Model.ShippingAddress.AddressLine2</span>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ShippingAddress.PostalCode))
+                        {
+                            <span class="block text-slate-400 text-[11px] mt-1">الرمز البريدي: @Model.ShippingAddress.PostalCode</span>
+                        }
+                    </p>
+                }
+                else
+                {
+                    <p class="text-slate-400 italic">@L["NoDeliveryAddressRegistered"]</p>
+                }
+            </div>
+        </div>
+
+        <!-- Dynamic Multi-Vendor Fulfillment & Logistics Oversight Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h2 class="text-base font-black text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#E8A020] text-xl">hub</span>
+                    <span>مسار التوريد والشحن اللوجستي (Fulfillment Pipeline)</span>
+                </h2>
+                @if (deliveryJob != null)
+                {
+                    <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">
+                        مجدول في مسار الشحن
+                    </span>
+                }
+                else
+                {
+                    <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full font-bold">
+                        قيد الفرز لدى المورد
+                    </span>
+                }
+            </div>
+
+            @if (deliveryJob != null)
             {
-                <h3 class="font-bold mt-6 mb-2 border-b pb-1 text-slate-800">@L["DeliveryAddress"]:</h3>
-                <p class="text-sm leading-relaxed text-slate-700">
-                    @Model.ShippingAddress.City, @Model.ShippingAddress.StateProvince<br />
-                    @Model.ShippingAddress.AddressLine1<br />
-                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.AddressLine2)) { <span>@Model.ShippingAddress.AddressLine2<br /></span> }
-                    @if (!string.IsNullOrEmpty(Model.ShippingAddress.PostalCode)) { <span>@L["PostalCode"]: @Model.ShippingAddress.PostalCode</span> }
-                </p>
+                <div class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 font-bold block mb-0.5">رقم بوليصة الشحن (Waybill):</span>
+                            <span class="font-mono font-bold text-slate-900 text-sm">@(deliveryJob.WaybillNumber ?? $"WB-BLK-{deliveryJob.Id}")</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 font-bold block mb-0.5">حالة الشحنة المباشرة:</span>
+                            <span class="font-bold text-indigo-700">@deliveryJob.Status.ToString()</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-bold">الناقل / أسطول التوصيل المعين:</span>
+                            <strong class="text-slate-900">
+                                @(deliveryJob.Company?.Name ?? (deliveryJob.Driver?.User != null ? $"{deliveryJob.Driver.User.FirstName} {deliveryJob.Driver.User.LastName}" : "أسطول المورد الداخلي"))
+                            </strong>
+                        </div>
+                        @if (deliveryJob.Driver != null)
+                        {
+                            <div class="flex items-center justify-between text-[11px] text-slate-500">
+                                <span>لوحة المركبة ونوعها:</span>
+                                <span class="font-mono font-bold text-slate-700">@(deliveryJob.Driver.VehiclePlateNumber ?? "-") | @(deliveryJob.Driver.VehicleType ?? "شاحنة نقل")</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Delivery Verification OTP Badge -->
+                    <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-emerald-800 font-black block">كود الاستلام والتوثيق الرقمي (e-POD OTP)</span>
+                            <span class="text-[11px] text-emerald-600">يقدمه المهندس المستلم لسائق الشاحنة في موقع المشروع</span>
+                        </div>
+                        <div class="font-mono font-black text-lg bg-white px-3 py-1 rounded-lg border border-emerald-300 text-emerald-800 tracking-wider">
+                            @(deliveryJob.DeliveryOtpCode ?? "842190")
+                        </div>
+                    </div>
+
+                    @if (deliveryJob.WeightTons.HasValue && deliveryJob.WeightTons.Value > 0)
+                    {
+                        <div class="bg-amber-50/60 border border-amber-200 p-3 rounded-xl flex items-center justify-between text-[11px]">
+                            <span class="text-amber-900 font-bold">حمولة القبان الموزونة: @deliveryJob.WeightTons.Value.ToString("N2") طن</span>
+                            <span class="text-slate-500 font-mono">قائم: @(deliveryJob.GrossWeightTons?.ToString("N2") ?? "-") طن | فارغ: @(deliveryJob.TareWeightTons?.ToString("N2") ?? "-") طن</span>
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <p class="text-sm mt-4 text-slate-500 italic">@L["NoDeliveryAddressRegistered"]</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center space-y-3">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto">
+                        <span class="material-symbols-outlined text-2xl">pending_actions</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">بانتظار إجراءات التجهيز والشحن من المورد</h4>
+                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                            يقوم المورد بفحص المخزون وتحديد أسلوب الشحن (أسطوله الخاص أو تعيين ناقل معتمد) عبر لوحة تحكم المورد اللوجستية.
+                        </p>
+                    </div>
+                </div>
             }
         </div>
+    </div>
 
-        <!-- Update Status -->
-        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2">
-            <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["UpdateOrderStatus"]</h2>
-            <form asp-action="UpdateStatus" method="post" class="flex flex-col sm:flex-row gap-4 items-end">
+    <!-- Administrative Governance & Emergency Override Section -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        <div class="border-b pb-3">
+            <h2 class="text-base font-black text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-700 text-xl">admin_panel_settings</span>
+                <span>الحوكمة الإدارية والتدخل الاستثنائي (Administrative Governance & SLA Override)</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">تحديث حالة الطلب أو إسناد الشحن لناقل معتمد كإجراء رقابي عند تعثر التوريد أو انتهاك الـ SLA</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Update Order Status Form -->
+            <form asp-action="UpdateStatus" method="post" class="space-y-4 bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Id" />
-                <div class="flex-grow w-full">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SelectNewOrderStatus"]</label>
-                    <select name="status" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
-                        @foreach (Bolcko.Domain.Enums.OrderStatus status in Enum.GetValues(typeof(Bolcko.Domain.Enums.OrderStatus)))
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-2">@L["SelectNewOrderStatus"]</label>
+                    <select name="status" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-xl text-xs font-bold">
+                        @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
                         {
-                            var localizedStatus = status == Bolcko.Domain.Enums.OrderStatus.Pending ? L["StatusPending"] :
-                                                 status == Bolcko.Domain.Enums.OrderStatus.Processing ? L["StatusProcessing"] :
-                                                 status == Bolcko.Domain.Enums.OrderStatus.Shipped ? L["StatusShipped"] :
-                                                 status == Bolcko.Domain.Enums.OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"];
+                            var localizedStatus = status == OrderStatus.Pending ? L["StatusPending"] :
+                                                 status == OrderStatus.Processing ? L["StatusProcessing"] :
+                                                 status == OrderStatus.Shipped ? L["StatusShipped"] :
+                                                 status == OrderStatus.Delivered ? L["StatusDelivered"] : L["StatusCancelled"];
 
                             if (Model.Status == status)
                             {
@@ -88,256 +292,103 @@
                         }
                     </select>
                 </div>
-                <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 transition-all shadow-hard w-full sm:w-auto">
+                <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl transition-all text-xs w-full sm:w-auto">
                     @L["SaveOrderStatus"]
                 </button>
             </form>
-        </div>
 
-        <!-- Delivery Dispatch Section -->
-        <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h2 class="text-base font-bold mb-4 border-b pb-2 flex items-center gap-2">
-                    @L["Option1AssignToCompany"]
-                    @if (Model.HasOversizedItems)
-                    {
-                        <span class="px-2 py-0.5 text-[10px] bg-red-100 text-red-700 rounded-full font-bold">⚠️ يحتوي شحن ثقيل</span>
-                    }
-                </h2>
-                <form asp-controller="DeliveryDispatch" asp-action="AssignToCompany" method="post" class="space-y-4">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="orderId" value="@Model.Id" />
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SelectShippingCompany"]</label>
-                        <select name="companyId" id="companySelect" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold">
-                            @if (ViewBag.DeliveryCompanies is IEnumerable<Bolcko.Domain.Entities.Delivery.DeliveryCompany> companies)
+            <!-- Emergency Carrier Assignment Form -->
+            <form asp-controller="DeliveryDispatch" asp-action="AssignToCompany" method="post" class="space-y-4 bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-2">إسناد / إعادة توجيه لشركة نقل معتمدة (تدخل استثنائي)</label>
+                    <select name="companyId" id="companySelect" class="w-full bg-white border border-slate-200 px-4 py-3 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-xl text-xs font-bold">
+                        @foreach (var company in companies)
+                        {
+                            if (Model.HasOversizedItems && !company.SupportsOversized)
                             {
-                                foreach (var company in companies)
-                                {
-                                    if (Model.HasOversizedItems && !company.SupportsOversized)
-                                    {
-                                        continue; // Skip companies that don't support oversized items if the order is oversized
-                                    }
-                                    <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (@L["Price"]: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
-                                }
+                                continue;
                             }
-                        </select>
-                        @if (Model.HasOversizedItems)
-                        {
-                            <p class="text-[10px] text-red-600 font-bold mt-1">تم إخفاء الشركات التي لا تمتلك سيارات نقل ثقيل (شاحنات).</p>
+                            <option value="@company.Id" data-rate="@company.BaseDeliveryRate">@company.Name (التعرفة: @company.BaseDeliveryRate.ToString("N2") @L["Currency"])</option>
                         }
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-start">@L["SuggestedDeliveryFee"]</label>
-                        <input name="deliveryFee" id="companyDeliveryFee" type="number" step="0.01" min="0" value="5.00" required
-                               class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm text-start font-bold" />
-                    </div>
-
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-8 transition-all w-full">
-                        @L["AssignToShippingCompany"]
-                    </button>
-                </form>
-            </div>
-
-            <div class="border-t md:border-t-0 md:border-s md:ps-6 pt-6 md:pt-0 space-y-4">
-                <h2 class="text-base font-bold border-b pb-2 flex items-center justify-between">
-                    <span>التوريد والتوصيل الآلي (Sourcing & Dispatch)</span>
-                    <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">مستودع رأس العين</span>
-                </h2>
-
-                <!-- 1. Sourcing Step (Qannas API) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 text-xs">
-                    <div class="flex items-center justify-between">
-                        <div class="font-black text-slate-900 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[#E8A020]">warehouse</span>
-                            <span>أمر الشراء من المورد (القناص بالجملة)</span>
-                        </div>
-                        @if (!string.IsNullOrEmpty(Model.ExternalSupplierOrderNumber))
-                        {
-                            <span class="bg-emerald-100 text-emerald-800 font-mono font-bold px-2 py-0.5 rounded-md">
-                                طلب القناص: #@Model.ExternalSupplierOrderNumber
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md">
-                                بانتظار الرفع
-                            </span>
-                        }
-                    </div>
-                    <p class="text-slate-500 leading-relaxed">
-                        رفع الطلب لمستودع القناص برأس العين ليقوم موظف بلوكو بتجهيزه وتبكيجه لتسليمه لـ GLC.
-                    </p>
-                    <button type="button" onclick="dispatchToSupplier(@Model.Id)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[#E8A020] text-base">cloud_upload</span>
-                        <span>@(string.IsNullOrEmpty(Model.ExternalSupplierOrderNumber) ? "رفع أمر الشراء للقناص API ⚡" : "إعادة رفع / تحديث أمر القناص")</span>
-                    </button>
+                    </select>
                 </div>
 
-                <!-- 2. Delivery Step (GLC Dispatch from Ras Al-Ain) -->
-                @if (Model.HasOversizedItems)
-                {
-                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2 text-xs">
-                        <div class="font-bold text-red-900 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">warning</span>
-                            <span>الطلب غير مؤهل لشركات الطرود</span>
-                        </div>
-                        <p class="text-red-800 leading-relaxed">هذا الطلب يحتوي على مواد بناء ضخمة لا يمكن رفعها لشركة الطرود السريعة (GLC). يرجى تعيينه لأسطول النقل الثقيل من القائمة المجاورة.</p>
+                <div class="flex gap-3 items-end">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-600 mb-2">@L["SuggestedDeliveryFee"]</label>
+                        <input name="deliveryFee" id="companyDeliveryFee" type="number" step="0.01" min="0" value="15.00" required
+                               class="w-full bg-white border border-slate-200 px-4 py-2.5 text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-xl text-xs font-bold" />
                     </div>
-                    <button type="button" disabled class="bg-slate-300 text-slate-500 font-black py-3 px-8 rounded-xl shadow-none w-full flex items-center justify-center gap-2 cursor-not-allowed text-xs">
-                        <span class="material-symbols-outlined">block</span>
-                        <span>مغلق بسبب الحجم</span>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all text-xs shrink-0">
+                        @L["AssignToShippingCompany"]
                     </button>
-                }
-                else
-                {
-                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3 text-xs">
-                        <div class="font-black text-amber-900 flex items-center justify-between">
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-base">local_shipping</span>
-                                <span>شحن شركة Green Line (GLC API)</span>
-                            </div>
-                            <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md text-[10px]">
-                                بيك أب: رأس العين
-                            </span>
-                        </div>
-                        <p class="text-amber-800 leading-relaxed">
-                            استدعاء سيارة GLC لاستلام الطرد من موظفنا في مستودع رأس العين وتوصيله للعميل.
-                        </p>
-                        <button type="button" onclick="dispatchOrderDirectToLogesTechs(@Model.Id)" class="bg-[#E8A020] hover:bg-amber-500 text-slate-950 font-black py-2.5 px-4 rounded-xl shadow-sm transition-all w-full flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-base">send</span>
-                            <span>رفع الشحنة واستدعاء بيك أب GLC 🚚</span>
-                        </button>
-                    </div>
-                }
-            </div>
+                </div>
+            </form>
         </div>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var select = document.getElementById("companySelect");
-                var feeInput = document.getElementById("companyDeliveryFee");
-                
-                function updateFee() {
-                    if(select && select.selectedOptions.length > 0) {
-                        var rate = select.selectedOptions[0].getAttribute("data-rate");
-                        if(rate && feeInput) {
-                            feeInput.value = parseFloat(rate).toFixed(2);
-                        }
-                    }
-                }
-                
-                if (select) {
-                    select.addEventListener("change", updateFee);
-                    updateFee();
-                }
-            });
-
-            function dispatchOrderDirectToLogesTechs(orderId) {
-                if (!confirm('هل ترغب بتأكيد رفع الشحنة فوراً لشركة التوصيل LogesTechs / GLC؟')) return;
-                
-                const params = new URLSearchParams({
-                    orderId: orderId,
-                    cityId: '0',
-                    regionId: '0',
-                    villageId: '0',
-                    notes: 'رفع مباشر عبر تفاصيل الطلب بـ Admin Dashboard'
-                });
-
-                fetch('@Url.Action("DispatchToLogesTechs", "DeliveryDispatch", new { area = "Admin" })', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: params
-                })
-                .then(r => r.json())
-                .then(res => {
-                    alert(res.message);
-                    if (res.success) {
-                        location.reload();
-                    }
-                })
-                .catch(() => alert('تعذّر التواصل مع السيرفر.'));
-            }
-
-            function dispatchToSupplier(orderId) {
-                if (!confirm('هل ترغب بتأكيد رفع أمر الشراء لمستودع القناص برأس العين عبر Qannas API؟')) return;
-
-                fetch('@Url.Action("DispatchOrderToSupplier", "SupplierSettings", new { area = "Admin" })', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ orderId: orderId })
-                })
-                .then(r => r.json())
-                .then(res => {
-                    alert(res.message);
-                    if (res.success) {
-                        location.reload();
-                    }
-                })
-                .catch(() => alert('تعذّر التواصل مع سيرفر المورد.'));
-            }
-        </script>
     </div>
 
     <!-- Items Section -->
-    <div class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg mb-6">
-        <h2 class="text-lg font-bold mb-4 border-b pb-2">@L["Items"]</h2>
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+        <h2 class="text-base font-black text-slate-900 mb-4 border-b pb-3 flex items-center justify-between">
+            <span>@L["Items"] (@(Model.Items?.Count ?? 0) بنود)</span>
+            <span class="text-xs text-slate-400 font-normal">يتم توريد وتجهيز الأصناف مباشرة من مستودعات الموردين المعتمدين</span>
+        </h2>
+
         @if (Model.Items != null && Model.Items.Any())
         {
             <div class="overflow-x-auto">
                 <table class="w-full text-start border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
-                            <th class="p-3">المنتج</th>
-                            <th class="p-3">رمز الـ SKU</th>
-                            <th class="p-3">المتغير / المواصفة</th>
-                            <th class="p-3">الكمية</th>
-                            <th class="p-3">سعر الوحدة</th>
-                            <th class="p-3">الإجمالي</th>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-black text-slate-600">
+                            <th class="p-3 text-start">المنتج / الصنف</th>
+                            <th class="p-3 text-start">رمز الـ SKU</th>
+                            <th class="p-3 text-start">المواصفة / المتغير</th>
+                            <th class="p-3 text-start">المورد / المصدر</th>
+                            <th class="p-3 text-center">الكمية</th>
+                            <th class="p-3 text-end">سعر الوحدة</th>
+                            <th class="p-3 text-end">الإجمالي</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm">
+                    <tbody class="text-xs">
                         @foreach (var item in Model.Items)
                         {
                             var imgUrl = !string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/product-placeholder.png";
-                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
                                 <td class="p-3 flex items-center gap-3">
-                                    <img src="@imgUrl" alt="@item.ProductName" class="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                                    <img src="@imgUrl" alt="@item.ProductName" class="w-12 h-12 object-cover rounded-xl border border-slate-200 shrink-0" />
                                     <div>
-                                        <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = item.ProductId })" target="_blank" class="font-bold text-slate-800 hover:text-primary transition-colors flex items-center gap-1">
+                                        <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = item.ProductId })" target="_blank" class="font-bold text-slate-900 hover:text-primary transition-colors flex items-center gap-1">
                                             <span>@item.ProductName</span>
                                             <span class="material-symbols-outlined text-xs text-slate-400">open_in_new</span>
                                         </a>
-                                        <span class="text-[10px] text-slate-400 block">ID: #@item.ProductId</span>
+                                        <span class="text-[10px] text-slate-400 block font-mono">ID: #@item.ProductId</span>
                                     </div>
                                 </td>
-                                <td class="p-3 font-mono text-xs">
-                                    @if (!string.IsNullOrEmpty(item.Sku))
-                                    {
-                                        <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded font-bold text-slate-700">@item.Sku</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-slate-400 italic">غير محدد</span>
-                                    }
+                                <td class="p-3 font-mono text-slate-600 font-bold">
+                                    @(!string.IsNullOrEmpty(item.Sku) ? item.Sku : "-")
                                 </td>
                                 <td class="p-3">
                                     @if (!string.IsNullOrEmpty(item.VariantInfo))
                                     {
-                                        <span class="px-2 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs font-bold">@item.VariantInfo</span>
+                                        <span class="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-md font-bold text-[11px]">@item.VariantInfo</span>
                                     }
                                     else
                                     {
-                                        <span class="text-slate-400 text-xs">-</span>
+                                        <span class="text-slate-400">-</span>
                                     }
                                 </td>
-                                <td class="p-3 font-bold text-slate-800">@item.Quantity</td>
-                                <td class="p-3">@item.UnitPrice.ToString("N2") @L["Currency"]</td>
-                                <td class="p-3 font-black text-emerald-600">@item.TotalPrice.ToString("N2") @L["Currency"]</td>
+                                <td class="p-3">
+                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg font-bold text-[11px] inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs text-[#E8A020]">store</span>
+                                        <span>@(!string.IsNullOrEmpty(item.SupplierKey) ? item.SupplierKey : "مورد معتمد")</span>
+                                    </span>
+                                </td>
+                                <td class="p-3 font-black text-slate-800 text-center text-sm">@item.Quantity</td>
+                                <td class="p-3 text-end font-medium">@item.UnitPrice.ToString("N2") @L["Currency"]</td>
+                                <td class="p-3 text-end font-black text-emerald-600 text-sm">@item.TotalPrice.ToString("N2") @L["Currency"]</td>
                             </tr>
                         }
                     </tbody>
@@ -346,7 +397,28 @@
         }
         else
         {
-            <p class="text-secondary">@L["NoItemsForThisOrder"]</p>
+            <p class="text-slate-400 italic text-sm text-center py-6">@L["NoItemsForThisOrder"]</p>
         }
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var select = document.getElementById("companySelect");
+        var feeInput = document.getElementById("companyDeliveryFee");
+        
+        function updateFee() {
+            if (select && select.selectedOptions.length > 0) {
+                var rate = select.selectedOptions[0].getAttribute("data-rate");
+                if (rate && feeInput) {
+                    feeInput.value = parseFloat(rate).toFixed(2);
+                }
+            }
+        }
+        
+        if (select) {
+            select.addEventListener("change", updateFee);
+            updateFee();
+        }
+    });
+</script>

@@ -209,11 +209,11 @@
                             <td class="p-3"><input type="text" class="boq-name w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold" value="حديد تسليح Grade 60 (أقطار مختلفة)" /></td>
                             <td class="p-3">
                                 <select class="boq-category px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold">
-                                    <option value="Steel" selected>Steel</option>
-                                    <option value="Concrete">Concrete</option>
-                                    <option value="Stone">Stone</option>
-                                    <option value="Cement">Cement</option>
-                                    <option value="Blocks">Blocks</option>
+                                    <option value="Steel" selected>حديد تسليح (Steel)</option>
+                                    <option value="Concrete">خرسانة جاهزة (Concrete)</option>
+                                    <option value="Stone">حجر بناء (Stone)</option>
+                                    <option value="Cement">إسمنت ومواد لاصقة (Cement)</option>
+                                    <option value="Blocks">طوب وبلوك (Blocks)</option>
                                 </select>
                             </td>
                             <td class="p-3"><input type="number" step="0.1" class="boq-qty w-20 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="10" oninput="recalcBOQ()" /></td>
@@ -380,12 +380,12 @@
             <td class="p-3"><input type="text" class="boq-name w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold" value="${name}" /></td>
             <td class="p-3">
                 <select class="boq-category px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-bold">
-                    <option value="Steel" ${cat==='Steel'?'selected':''}>Steel</option>
-                    <option value="Concrete" ${cat==='Concrete'?'selected':''}>Concrete</option>
-                    <option value="Stone" ${cat==='Stone'?'selected':''}>Stone</option>
-                    <option value="Cement" ${cat==='Cement'?'selected':''}>Cement</option>
-                    <option value="Blocks" ${cat==='Blocks'?'selected':''}>Blocks</option>
-                    <option value="Custom" ${cat==='Custom'?'selected':''}>Custom</option>
+                    <option value="Steel" ${cat==='Steel'?'selected':''}>حديد تسليح (Steel)</option>
+                    <option value="Concrete" ${cat==='Concrete'?'selected':''}>خرسانة جاهزة (Concrete)</option>
+                    <option value="Stone" ${cat==='Stone'?'selected':''}>حجر بناء (Stone)</option>
+                    <option value="Cement" ${cat==='Cement'?'selected':''}>إسمنت ومواد لاصقة (Cement)</option>
+                    <option value="Blocks" ${cat==='Blocks'?'selected':''}>طوب وبلوك (Blocks)</option>
+                    <option value="Custom" ${cat==='Custom'?'selected':''}>مواد أخرى (Custom)</option>
                 </select>
             </td>
             <td class="p-3"><input type="number" step="0.1" class="boq-qty w-20 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border rounded-lg text-xs font-mono text-center" value="${qty}" oninput="recalcBOQ()" /></td>

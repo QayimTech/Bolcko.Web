@@ -6,7 +6,8 @@
     var hasTax = !string.IsNullOrEmpty(Model?.TaxCertificateDocUrl);
     var hasQc = !string.IsNullOrEmpty(Model?.QualityCertificatesDocUrl);
     var docsCount = (hasCr ? 1 : 0) + (hasVoc ? 1 : 0) + (hasTax ? 1 : 0) + (hasQc ? 1 : 0);
-    var isApproved = Model?.Status == "Active";
+    var isAudited = docsCount >= 2;
+    var isFullyVerified = Model?.Status == "Active" && isAudited;
 }
 
 <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-800 space-y-6">
@@ -41,40 +42,40 @@
         </div>
 
         <!-- Step 2: KYC Docs Upload -->
-        <div class="p-4 rounded-2xl @(docsCount > 0 ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60") flex items-start gap-3">
-            <span class="w-8 h-8 rounded-xl @(docsCount > 0 ? "bg-emerald-500 text-white" : "bg-amber-500 text-white") flex items-center justify-center font-bold text-sm shrink-0">
-                @(docsCount > 0 ? "✓" : "2")
+        <div class="p-4 rounded-2xl @(docsCount >= 2 ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(docsCount >= 2 ? "bg-emerald-500 text-white" : "bg-amber-500 text-white") flex items-center justify-center font-bold text-sm shrink-0">
+                @(docsCount >= 2 ? "✓" : "2")
             </span>
             <div>
-                <h4 class="text-xs font-black @(docsCount > 0 ? "text-emerald-900 dark:text-emerald-300" : "text-amber-900 dark:text-amber-300")">@(isArabic ? "2. الوثائق والمستندات" : "2. KYC Documents")</h4>
-                <p class="text-[11px] @(docsCount > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400") mt-0.5">
+                <h4 class="text-xs font-black @(docsCount >= 2 ? "text-emerald-900 dark:text-emerald-300" : "text-amber-900 dark:text-amber-300")">@(isArabic ? "2. الوثائق والمستندات" : "2. KYC Documents")</h4>
+                <p class="text-[11px] @(docsCount >= 2 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400") mt-0.5">
                     @(docsCount > 0 ? (isArabic ? $"تم رفع {docsCount} من 4 وثائق" : $"{docsCount}/4 docs uploaded") : (isArabic ? "بانتظار رفع الوثائق" : "Pending upload"))
                 </p>
             </div>
         </div>
 
         <!-- Step 3: Legal Audit -->
-        <div class="p-4 rounded-2xl @(isApproved ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/60") flex items-start gap-3">
-            <span class="w-8 h-8 rounded-xl @(isApproved ? "bg-emerald-500 text-white" : "bg-sky-500 text-white") flex items-center justify-center font-bold text-sm shrink-0">
-                @(isApproved ? "✓" : "3")
+        <div class="p-4 rounded-2xl @(isAudited ? "bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60" : "bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-400") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(isAudited ? "bg-emerald-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400") flex items-center justify-center font-bold text-sm shrink-0">
+                @(isAudited ? "✓" : "3")
             </span>
             <div>
-                <h4 class="text-xs font-black @(isApproved ? "text-emerald-900 dark:text-emerald-300" : "text-sky-900 dark:text-sky-300")">@(isArabic ? "3. التدقيق والمطابقة" : "3. Legal Audit")</h4>
-                <p class="text-[11px] @(isApproved ? "text-emerald-700 dark:text-emerald-400" : "text-sky-700 dark:text-sky-400") mt-0.5">
-                    @(isApproved ? (isArabic ? "تم التدقيق والمطابقة" : "Audited & Cleared") : (isArabic ? "جاري المراجعة والتدقيق" : "Under Review"))
+                <h4 class="text-xs font-black @(isAudited ? "text-emerald-900 dark:text-emerald-300" : "text-slate-700 dark:text-slate-300")">@(isArabic ? "3. التدقيق والمطابقة" : "3. Legal Audit")</h4>
+                <p class="text-[11px] @(isAudited ? "text-emerald-700 dark:text-emerald-400" : "text-slate-400") mt-0.5">
+                    @(isAudited ? (isArabic ? "تم التدقيق والمطابقة" : "Audited & Cleared") : (docsCount > 0 ? (isArabic ? "جاري تدقيق الوثائق المرفوعة" : "Reviewing Docs") : (isArabic ? "بانتظار رفع الوثائق" : "Awaiting Docs")))
                 </p>
             </div>
         </div>
 
         <!-- Step 4: Full Accreditation -->
-        <div class="p-4 rounded-2xl @(isApproved ? "bg-emerald-500 text-white" : "bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-400") flex items-start gap-3">
-            <span class="w-8 h-8 rounded-xl @(isApproved ? "bg-white text-emerald-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400") flex items-center justify-center font-bold text-sm shrink-0">
-                @(isApproved ? "★" : "4")
+        <div class="p-4 rounded-2xl @(isFullyVerified ? "bg-emerald-500 text-white" : "bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-400") flex items-start gap-3">
+            <span class="w-8 h-8 rounded-xl @(isFullyVerified ? "bg-white text-emerald-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400") flex items-center justify-center font-bold text-sm shrink-0">
+                @(isFullyVerified ? "★" : "4")
             </span>
             <div>
-                <h4 class="text-xs font-black @(isApproved ? "text-white" : "text-slate-700 dark:text-slate-300")">@(isArabic ? "4. مورد معتمد رسمي" : "4. Verified Supplier")</h4>
-                <p class="text-[11px] @(isApproved ? "text-emerald-100" : "text-slate-400") mt-0.5">
-                    @(isApproved ? (isArabic ? "مفعل للمناقصات والطلبات" : "Bidding & RFQs Active") : (isArabic ? "بانتظار الاعتماد النهائي" : "Awaiting badge"))
+                <h4 class="text-xs font-black @(isFullyVerified ? "text-white" : "text-slate-700 dark:text-slate-300")">@(isArabic ? "4. مورد معتمد رسمي" : "4. Verified Supplier")</h4>
+                <p class="text-[11px] @(isFullyVerified ? "text-emerald-100" : "text-slate-400") mt-0.5">
+                    @(isFullyVerified ? (isArabic ? "مفعل للمناقصات والطلبات" : "Bidding & RFQs Active") : (isArabic ? "بانتظار الاعتماد النهائي" : "Awaiting badge"))
                 </p>
             </div>
         </div>

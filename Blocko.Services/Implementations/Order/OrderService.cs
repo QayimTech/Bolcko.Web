@@ -67,7 +67,9 @@ namespace Blocko.Services.Implementations.order
                 await _unitOfWork.Addresses.AddAsync(billingAddress);
                 await _unitOfWork.CompleteAsync(); // To get Address IDs
 
-                decimal shippingFeeVal = await GetShippingFeeAsync(checkoutDto.City, cart.HasOversizedItems);
+                decimal shippingFeeVal = (checkoutDto.CalculatedShippingFee.HasValue && checkoutDto.CalculatedShippingFee.Value > 0)
+                    ? checkoutDto.CalculatedShippingFee.Value
+                    : await GetShippingFeeAsync(checkoutDto.City, cart.HasOversizedItems);
 
                 // Coupon Calculations
                 decimal discountAmt = 0.00m;
@@ -389,7 +391,7 @@ namespace Blocko.Services.Implementations.order
         {
             if (hasOversizedItems)
             {
-                return 0.00m;
+                return 15.00m;
             }
 
             var rateObj = await _unitOfWork.ShippingRates.GetByCityNameAsync(city);

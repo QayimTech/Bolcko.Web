@@ -1,11 +1,13 @@
 @model Bolcko.Web.App.Areas.Shop.Models.ContractorJoinViewModel
 @{
-    ViewData["Title"] = "انضمام وتأهيل المقاولين (B2B Contractor KYC)";
-    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    ViewData["Title"] = isArabic 
+        ? "انضمام وتأهيل المقاولين (B2B Contractor KYC) | بلوكو" 
+        : "Contractor Qualification & Registration (B2B KYC) | BLOCKO";
+    Layout = "~/Areas/Shop/Views/Shared/_Layout.cshtml";
 }
 
-<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 text-right" dir="rtl">
+<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 text-start" dir="@(isArabic ? "rtl" : "ltr")">
     <div class="max-w-3xl mx-auto space-y-8">
         
         <!-- Header Banner -->
@@ -14,17 +16,41 @@
             <div class="relative z-10 space-y-3">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8A020]/20 text-[#E8A020] text-xs font-black uppercase">
                     <span class="w-2 h-2 rounded-full bg-[#E8A020] animate-pulse"></span>
-                    بوابة منشآت وشركات المقاولات B2B
+                    @(isArabic ? "بوابة منشآت وشركات المقاولات B2B" : "B2B Contractor Hub & Credit Facilities")
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black text-white">تسجيل وتأهيل منشأة مقاولات معتمدة 🏗️</h1>
+                <h1 class="text-2xl sm:text-3xl font-black text-white">
+                    @(isArabic ? "تسجيل وتأهيل منشأة مقاولات معتمدة 🏗️" : "Contractor Onboarding & Verification 🏗️")
+                </h1>
                 <p class="text-sm text-slate-300 max-w-xl leading-relaxed">
-                    انضم لشبكة المقاولين المعتمدين في منصة BlockO واستفد من أسعار الجملة المباشرة، خطوط تمويل المرابحة الإسلامية، وحاسبة جداول الكميات الذكية.
+                    @(isArabic 
+                        ? "انضم لشبكة المقاولين المعتمدين في منصة BlockO واستفد من أسعار الجملة المباشرة، خطوط تمويل المرابحة الإسلامية، وحاسبة جداول الكميات الذكية." 
+                        : "Join BLOCKO's certified contractor network to unlock direct mill pricing, Islamic Murabaha credit lines, and the smart BOQ quantity calculator.")
                 </p>
             </div>
         </div>
 
         <!-- Registration Form Card -->
         <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+            
+            <!-- Existing Contractor Sign In Bar -->
+            <div class="border-b border-slate-100 pb-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">
+                        @(isArabic ? "طلب تسجيل وتأهيل مقاول جديد" : "Contractor Registration Application")
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        @(isArabic ? "يرجى تعبئة البيانات التجارية لتسريع اعتماد حسابك وتفعيل التسهيلات" : "Please submit your company details to verify your firm and activate credit facilities.")
+                    </p>
+                </div>
+                <div class="text-xs text-slate-600 bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 rounded-xl flex items-center gap-1.5 shrink-0">
+                    <span>@(isArabic ? "لديك حساب مقاول بالفعل؟" : "Already registered?")</span>
+                    <a href="@Url.Action("Login", "Account", new { area = "Shop", returnUrl = "/Shop/Contractor/Workspace" })" class="text-amber-700 font-bold hover:underline flex items-center gap-1">
+                        <span>@(isArabic ? "تسجيل الدخول لمساحة العمل" : "Sign In to Workspace")</span>
+                        <span class="material-symbols-outlined text-[13px] rtl:-scale-x-100">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
             <form asp-action="Join" method="post" enctype="multipart/form-data" class="space-y-6">
                 @Html.AntiForgeryToken()
                 
@@ -34,37 +60,47 @@
                 <div class="space-y-4">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <span class="material-symbols-outlined text-indigo-600">apartment</span>
-                        <h2 class="text-base font-bold text-slate-900">1. بيانات المنشأة والسجل التجاري</h2>
+                        <h2 class="text-base font-bold text-slate-900">
+                            @(isArabic ? "1. بيانات المنشأة والسجل التجاري" : "1. Enterprise & Commercial Registration")
+                        </h2>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label asp-for="CompanyName" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="CompanyName" placeholder="مثال: شركة البناء الحديث للمقاولات" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
+                            <label asp-for="CompanyName" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "اسم المنشأة / الشركة" : "Company / Firm Legal Name")
+                            </label>
+                            <input asp-for="CompanyName" placeholder="@(isArabic ? "مثال: شركة البناء الحديث للمقاولات" : "e.g., Modern Construction Co.")" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
                             <span asp-validation-for="CompanyName" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="CommercialRegistration" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="CommercialRegistration" placeholder="رقم السجل التجاري (10 أرقام)" maxlength="10" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
+                            <label asp-for="CommercialRegistration" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "رقم السجل التجاري (CR)" : "Commercial Registration Number (CR)")
+                            </label>
+                            <input asp-for="CommercialRegistration" placeholder="@(isArabic ? "رقم السجل التجاري (10 أرقام)" : "Commercial Registration No.")" maxlength="10" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
                             <span asp-validation-for="CommercialRegistration" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="TaxId" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="TaxId" placeholder="الرقم الضريبي (15 رقم)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
+                            <label asp-for="TaxId" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "الرقم الضريبي (VAT / Tax ID)" : "Tax Identification Number (VAT)")
+                            </label>
+                            <input asp-for="TaxId" placeholder="@(isArabic ? "الرقم الضريبي" : "Tax ID / VAT No.")" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
                             <span asp-validation-for="TaxId" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="ContractorClass" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
+                            <label asp-for="ContractorClass" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "تصنيف المقاول" : "Contractor Classification")
+                            </label>
                             <select asp-for="ContractorClass" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition bg-white">
-                                <option value="الدرجة الأولى">الدرجة الأولى (مشاريع كبرى)</option>
-                                <option value="الدرجة الثانية">الدرجة الثانية</option>
-                                <option value="الدرجة الثالثة" selected>الدرجة الثالثة</option>
-                                <option value="الدرجة الرابعة">الدرجة الرابعة</option>
-                                <option value="الدرجة الخامسة">الدرجة الخامسة</option>
-                                <option value="مؤسسة فردية / غير مصنف">مؤسسة فردية / غير مصنف</option>
+                                <option value="الدرجة الأولى">@(isArabic ? "الدرجة الأولى (مشاريع كبرى)" : "First Class (Mega Projects)")</option>
+                                <option value="الدرجة الثانية">@(isArabic ? "الدرجة الثانية" : "Second Class")</option>
+                                <option value="الدرجة الثالثة" selected>@(isArabic ? "الدرجة الثالثة" : "Third Class")</option>
+                                <option value="الدرجة الرابعة">@(isArabic ? "الدرجة الرابعة" : "Fourth Class")</option>
+                                <option value="الدرجة الخامسة">@(isArabic ? "الدرجة الخامسة" : "Fifth Class")</option>
+                                <option value="مؤسسة فردية / غير مصنف">@(isArabic ? "مؤسسة فردية / غير مصنف" : "Sole Proprietorship / Unclassified")</option>
                             </select>
                             <span asp-validation-for="ContractorClass" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
@@ -75,31 +111,41 @@
                 <div class="space-y-4 pt-4">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <span class="material-symbols-outlined text-indigo-600">badge</span>
-                        <h2 class="text-base font-bold text-slate-900">2. بيانات المفوض بالتوقيع والاتصال</h2>
+                        <h2 class="text-base font-bold text-slate-900">
+                            @(isArabic ? "2. بيانات المفوض بالتوقيع والاتصال" : "2. Authorized Signatory & Contact Info")
+                        </h2>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label asp-for="AuthorizedPersonName" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="AuthorizedPersonName" placeholder="الاسم الرباعي للمفوض" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
+                            <label asp-for="AuthorizedPersonName" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "اسم المفوض بالتوقيع" : "Authorized Representative Name")
+                            </label>
+                            <input asp-for="AuthorizedPersonName" placeholder="@(isArabic ? "الاسم الرباعي للمفوض" : "Full Name")" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
                             <span asp-validation-for="AuthorizedPersonName" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="AuthorizedPhone" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="AuthorizedPhone" placeholder="05xxxxxxxx" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
+                            <label asp-for="AuthorizedPhone" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "رقم الهاتف المعتمد" : "Authorized Phone Number")
+                            </label>
+                            <input asp-for="AuthorizedPhone" placeholder="07xxxxxxxx" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
                             <span asp-validation-for="AuthorizedPhone" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="Email" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
+                            <label asp-for="Email" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "البريد الإلكتروني المهني" : "Official Business Email")
+                            </label>
                             <input asp-for="Email" type="email" placeholder="contact@company.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition font-mono" />
                             <span asp-validation-for="Email" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="City" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
-                            <input asp-for="City" placeholder="المدينة (الرياض، جدة، الدمام...)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
+                            <label asp-for="City" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "المدينة / المحافظة" : "City / Region")
+                            </label>
+                            <input asp-for="City" placeholder="@(isArabic ? "المدينة (عمان، إربد، الزرقاء...)" : "City (Amman, Irbid, Zarqa...)")" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
                         </div>
                     </div>
                 </div>
@@ -108,18 +154,24 @@
                 <div class="space-y-4 pt-4">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <span class="material-symbols-outlined text-indigo-600">lock</span>
-                        <h2 class="text-base font-bold text-slate-900">3. أمان الحساب وكلمة المرور</h2>
+                        <h2 class="text-base font-bold text-slate-900">
+                            @(isArabic ? "3. أمان الحساب وكلمة المرور" : "3. Account Security & Password")
+                        </h2>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label asp-for="Password" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
+                            <label asp-for="Password" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "كلمة المرور" : "Password")
+                            </label>
                             <input asp-for="Password" type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
                             <span asp-validation-for="Password" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
 
                         <div>
-                            <label asp-for="ConfirmPassword" class="block text-xs font-bold text-slate-700 mb-1.5"></label>
+                            <label asp-for="ConfirmPassword" class="block text-xs font-bold text-slate-700 mb-1.5">
+                                @(isArabic ? "تأكيد كلمة المرور" : "Confirm Password")
+                            </label>
                             <input asp-for="ConfirmPassword" type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-[#E8A020] focus:border-transparent outline-none transition" />
                             <span asp-validation-for="ConfirmPassword" class="text-rose-500 text-[11px] mt-1 block"></span>
                         </div>
@@ -130,19 +182,25 @@
                 <div class="space-y-4 pt-4">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <span class="material-symbols-outlined text-indigo-600">upload_file</span>
-                        <h2 class="text-base font-bold text-slate-900">4. وثائق التوثيق والاعتماد (KYC Attachments)</h2>
+                        <h2 class="text-base font-bold text-slate-900">
+                            @(isArabic ? "4. وثائق التوثيق والاعتماد (KYC Attachments)" : "4. Verification Documents (KYC Attachments)")
+                        </h2>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-[#E8A020] transition bg-slate-50">
                             <span class="material-symbols-outlined text-slate-400 text-3xl mb-1">description</span>
-                            <label asp-for="CrDocument" class="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">صورة أو ملف السجل التجاري</label>
+                            <label asp-for="CrDocument" class="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
+                                @(isArabic ? "صورة أو ملف السجل التجاري" : "Commercial Registration Certificate (PDF/Image)")
+                            </label>
                             <input asp-for="CrDocument" type="file" accept=".pdf,.png,.jpg,.jpeg" class="text-[11px] text-slate-500 w-full" />
                         </div>
 
                         <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-[#E8A020] transition bg-slate-50">
                             <span class="material-symbols-outlined text-slate-400 text-3xl mb-1">verified_user</span>
-                            <label asp-for="TaxCertificate" class="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">شهادة التسجيل في ضريبة القيمة المضافة</label>
+                            <label asp-for="TaxCertificate" class="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
+                                @(isArabic ? "شهادة التسجيل في ضريبة القيمة المضافة" : "Tax / VAT Certificate (PDF/Image)")
+                            </label>
                             <input asp-for="TaxCertificate" type="file" accept=".pdf,.png,.jpg,.jpeg" class="text-[11px] text-slate-500 w-full" />
                         </div>
                     </div>
@@ -152,10 +210,12 @@
                 <div class="pt-6">
                     <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#E8A020] to-amber-600 text-white font-bold text-base shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-amber-700 transition flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined">how_to_reg</span>
-                        <span>إرسال طلب الانضمام وتأهيل المقاول 🏗️</span>
+                        <span>@(isArabic ? "إرسال طلب الانضمام وتأهيل المقاول 🏗️" : "Submit Contractor Qualification Application 🏗️")</span>
                     </button>
                     <p class="text-center text-[11px] text-slate-400 mt-3">
-                        بالضغط على إرسال، فإنك تقر بصحة البيانات التجارية وتوافق على اتفاقية شروط الاستخدام والتمويل لمنصة BlockO.
+                        @(isArabic 
+                            ? "بالضغط على إرسال، فإنك تقر بصحة البيانات التجارية وتوافق على اتفاقية شروط الاستخدام والتمويل لمنصة BlockO." 
+                            : "By submitting, you certify that all commercial data is accurate and agree to BLOCKO Terms of Service & Financing Policy.")
                     </p>
                 </div>
             </form>

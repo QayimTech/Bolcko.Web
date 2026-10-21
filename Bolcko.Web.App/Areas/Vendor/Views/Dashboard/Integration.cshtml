@@ -1,11 +1,12 @@
 @model Bolcko.Domain.Entities.Catalog.VendorProfile
 @{
-    ViewData["Title"] = "مركز تكامل الـ ERP والربط البرمجي";
-    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = isArabic ? "مركز تكامل الـ ERP والربط البرمجي" : "ERP Integration & API Webhooks Hub";
+    Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
 }
 
-<div class="space-y-6 text-right" dir="rtl">
+<div class="space-y-6 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <!-- Header -->
     <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
         <div class="relative z-10 space-y-2">

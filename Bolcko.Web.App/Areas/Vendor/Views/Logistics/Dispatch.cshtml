@@ -1,10 +1,12 @@
 @model IEnumerable<Bolcko.Domain.Entities.Delivery.DTOs.VendorDispatchOrderDto>
 @{
-    ViewData["Title"] = "لوحة أوامر الشحن وتذاكر القبان";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = isArabic ? "لوحة أوامر الشحن وتذاكر القبان" : "Dispatch Operations & Weighbridge Slips";
     Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
 }
 
-<div class="space-y-6" dir="rtl">
+<div class="space-y-6 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <div class="flex items-center gap-4">

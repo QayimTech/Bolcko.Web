@@ -80,7 +80,7 @@
 
                         <!-- Total -->
                         <th class="px-6 py-4">
-                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["Total"]</span>
+                            <span class="inline-flex items-center gap-1.5 py-1 px-2">@L["TotalLabel"]</span>
                         </th>
 
                         <!-- Status with quick header filter -->
@@ -89,7 +89,7 @@
                                 <span>@L["Status"]</span>
                                 @if (Model.Status.HasValue)
                                 {
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-white font-bold">نشط</span>
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-white font-bold">@L["ActiveFilterBadge"]</span>
                                 }
                             </div>
                         </th>
@@ -105,7 +105,7 @@
                     @foreach (var item in Model.Orders.Items)
                     {
                         <tr class="hover:bg-slate-50 transition-colors group">
-                            <td class="px-6 py-4 font-mono text-xs font-bold text-primary whitespace-nowrap">#ORD-@item.Id.ToString("D4")</td>
+                            <td class="px-6 py-4 font-mono text-xs font-bold text-primary whitespace-nowrap"><bdi dir="ltr">#ORD-@item.Id.ToString("D4")</bdi></td>
                             <td class="px-6 py-4 text-slate-900 font-bold whitespace-nowrap">@item.UserName</td>
                             <td class="px-6 py-4 text-slate-600 whitespace-nowrap">@item.OrderDate.ToString("yyyy-MM-dd")</td>
                             <td class="px-6 py-4 text-primary font-black whitespace-nowrap">@item.TotalAmount.ToString("N2") @L["Currency"]</td>

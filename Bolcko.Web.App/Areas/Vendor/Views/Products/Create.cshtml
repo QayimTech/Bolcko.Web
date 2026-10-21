@@ -1,10 +1,12 @@
 @model Bolcko.Domain.Entities.Product.Product
 @{
-    ViewData["Title"] = "إضافة مادة بناء جديدة";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var isRtl = System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = isArabic ? "إضافة مادة بناء جديدة" : "Add New Building Material";
     Layout = "~/Areas/Vendor/Views/Shared/_Layout.cshtml";
 }
 
-<div class="max-w-4xl mx-auto space-y-6" dir="rtl">
+<div class="max-w-4xl mx-auto space-y-6 text-start" dir="@(isRtl ? "rtl" : "ltr")">
     <!-- Header -->
     <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <div class="flex items-center gap-3.5">
