@@ -275,6 +275,10 @@
                 var el = form.querySelector('[name="' + n + '"]');
                 if (el) el.required = true;
             });
+        var pwd = form.querySelector('[name="Password"]');
+        if (pwd) pwd.minLength = 6;
+        var ph = form.querySelector('[name="Phone"]');
+        if (ph) ph.pattern = '[0-9+()\\-\\s]{6,}';
         form.addEventListener('submit', function (e) {
             var boxes = form.querySelectorAll('input[name="SuppliedCategories"]');
             var anyChecked = Array.prototype.some.call(boxes, function (b) { return b.checked; });
