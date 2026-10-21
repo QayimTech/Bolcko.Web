@@ -15,7 +15,7 @@ namespace Bolcko.Web.App.Middleware
     {
         private static readonly string[] ImagePrefixes =
         {
-            "/images/products/", "/images/variants/", "/products/", "/variants/"
+            "/images/products/", "/images/variants/", "/products/", "/variants/", "/sounds/"
         };
 
         private readonly RequestDelegate _next;
@@ -65,7 +65,7 @@ namespace Bolcko.Web.App.Middleware
 
                 context.Response.StatusCode = StatusCodes.Status200OK;
                 context.Response.ContentType = string.IsNullOrEmpty(response.Headers.ContentType)
-                    ? "image/webp"
+                    ? Bolcko.Web.App.Services.DocumentStorage.GuessContentType(path)
                     : response.Headers.ContentType;
                 context.Response.ContentLength = response.ContentLength;
                 context.Response.Headers["Cache-Control"] = "public, max-age=31536000, immutable";

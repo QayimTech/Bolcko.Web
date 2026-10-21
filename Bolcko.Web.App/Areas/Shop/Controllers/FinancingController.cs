@@ -105,27 +105,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             await _userManager.AddToRoleAsync(user, "Investor");
 
             // Handle KYC documents upload
-            if (_env != null)
+            var docStorage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+
+            if (model.IdentityDocument != null && model.IdentityDocument.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "investors", user.Id.ToString());
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+                await docStorage.SaveAsync(model.IdentityDocument, $"investors/{user.Id}", "ID_" + Path.GetFileName(model.IdentityDocument.FileName));
+            }
 
-                if (model.IdentityDocument != null && model.IdentityDocument.Length > 0)
-                {
-                    string idPath = Path.Combine(uploadsFolder, "ID_" + Path.GetFileName(model.IdentityDocument.FileName));
-                    using var stream = new FileStream(idPath, FileMode.Create);
-                    await model.IdentityDocument.CopyToAsync(stream);
-                }
-
-                if (model.IbanDocument != null && model.IbanDocument.Length > 0)
-                {
-                    string ibanPath = Path.Combine(uploadsFolder, "IBAN_" + Path.GetFileName(model.IbanDocument.FileName));
-                    using var stream = new FileStream(ibanPath, FileMode.Create);
-                    await model.IbanDocument.CopyToAsync(stream);
-                }
+            if (model.IbanDocument != null && model.IbanDocument.Length > 0)
+            {
+                await docStorage.SaveAsync(model.IbanDocument, $"investors/{user.Id}", "IBAN_" + Path.GetFileName(model.IbanDocument.FileName));
             }
 
             await _signInManager.SignInAsync(user, isPersistent: true);

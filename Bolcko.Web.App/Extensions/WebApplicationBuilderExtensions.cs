@@ -29,6 +29,8 @@ public static class WebApplicationBuilderExtensions
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day, shared: true);
@@ -128,6 +130,13 @@ public static class WebApplicationBuilderExtensions
         }
         services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, Hubs.CustomUserIdProvider>();
         
+        // Private document storage (KYC, weighbridge): S3 in AWS, local disk in development
+        services.AddScoped<Bolcko.Web.App.Services.IDocumentStorage>(sp =>
+            new Bolcko.Web.App.Services.DocumentStorage(
+                sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Blocko.Services.ImageSettings>>(),
+                sp.GetRequiredService<IWebHostEnvironment>(),
+                sp.GetService<Amazon.S3.IAmazonS3>()));
+
         // Notification Service
         services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, 
             Services.NotificationService>();

@@ -155,22 +155,9 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".webp" };
             if (!allowedExtensions.Contains(ext)) return null;
 
-            var webRoot = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var uploadsFolder = Path.Combine(webRoot, "uploads", "vendor-kyc");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
             var fileName = $"{docType}_{userId}_{Guid.NewGuid():N}{ext}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return $"/uploads/vendor-kyc/{fileName}";
+            var storage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+            return await storage.SaveAsync(file, "vendor-kyc", fileName);
         }
 
         // GET: /Vendor/Confirmation

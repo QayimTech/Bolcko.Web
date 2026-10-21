@@ -145,22 +145,10 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             // Handle file upload
             if (notificationSoundFile != null && notificationSoundFile.Length > 0)
             {
-                var soundsFolder = Path.Combine(_env.WebRootPath, "sounds");
-                if (!Directory.Exists(soundsFolder))
-                {
-                    Directory.CreateDirectory(soundsFolder);
-                }
-
                 var ext = Path.GetExtension(notificationSoundFile.FileName);
                 var fileName = $"notification-sound-{Guid.NewGuid().ToString().Substring(0, 8)}{ext}";
-                var filePath = Path.Combine(soundsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await notificationSoundFile.CopyToAsync(stream);
-                }
-
-                finalSoundUrl = $"/sounds/{fileName}";
+                var storage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+                finalSoundUrl = await storage.SavePublicAsync(notificationSoundFile, "sounds", fileName);
             }
 
             // Save Notification Settings

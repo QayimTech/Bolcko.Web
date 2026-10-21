@@ -120,6 +120,7 @@ try
     // =========================================================================
     app.MapApplicationEndpoints();
     app.MapSitemapEndpoint();
+    app.MapDocumentEndpoints();
 
     // =========================================================================
     // STEP 7: Run Application
