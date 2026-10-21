@@ -262,3 +262,37 @@
 
     </div>
 </div>
+
+@section Scripts {
+<script>
+    // Stop the form from being sent until every required field is filled,
+    // so the page does not reload and the chosen files are not lost.
+    (function () {
+        var form = document.querySelector('form[action*="Register"]');
+        if (!form) return;
+        ['CompanyNameAr', 'CommercialRegistrationNo', 'City', 'ContactPersonName', 'Phone', 'WhatsApp', 'Email', 'Password', 'ConfirmPassword']
+            .forEach(function (n) {
+                var el = form.querySelector('[name="' + n + '"]');
+                if (el) el.required = true;
+            });
+        form.addEventListener('submit', function (e) {
+            var boxes = form.querySelectorAll('input[name="SuppliedCategories"]');
+            var anyChecked = Array.prototype.some.call(boxes, function (b) { return b.checked; });
+            if (boxes.length && !anyChecked) {
+                e.preventDefault();
+                boxes[0].setCustomValidity('@(isArabic ? "يرجى اختيار مادة واحدة على الأقل" : "Select at least one category")');
+                boxes[0].reportValidity();
+                boxes[0].setCustomValidity('');
+                return;
+            }
+            var pw = form.querySelector('[name="Password"]'), cf = form.querySelector('[name="ConfirmPassword"]');
+            if (pw && cf && pw.value !== cf.value) {
+                e.preventDefault();
+                cf.setCustomValidity('@(isArabic ? "كلمتا المرور غير متطابقتين" : "Passwords do not match")');
+                cf.reportValidity();
+                cf.setCustomValidity('');
+            }
+        });
+    })();
+</script>
+}
