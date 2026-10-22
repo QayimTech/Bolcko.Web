@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Distributed;
 using Blocko.Services.Interfaces.SEO;
 using ProductEntity = Bolcko.Domain.Entities.Product.Product;
 using Bolcko.Domain.Entities.Product.DTOs;
@@ -19,17 +20,31 @@ namespace Blocko.Services.Implementations.SEO
     public class ProductSeoService : IProductSeoService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMemoryCache _cache;
+        private readonly Microsoft.Extensions.Caching.Distributed.IDistributedCache _cache;
         private readonly ILogger<ProductSeoService> _logger;
 
         public ProductSeoService(
             IUnitOfWork unitOfWork,
-            IMemoryCache cache,
+            Microsoft.Extensions.Caching.Distributed.IDistributedCache cache,
             ILogger<ProductSeoService> logger)
         {
             _unitOfWork = unitOfWork;
             _cache = cache;
             _logger = logger;
+        }
+
+        private void SetJob(string jobId, BulkSeoJobResultDto result)
+        {
+            try
+            {
+                _cache.SetString("seojob:" + jobId, System.Text.Json.JsonSerializer.Serialize(result),
+                    new Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions
+                    { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2) });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not store SEO job progress {JobId}", jobId);
+            }
         }
 
         public async Task<byte[]> ExportProductsSeoToExcelAsync(ProductSeoFilterParamsDto filter)
@@ -247,7 +262,7 @@ namespace Blocko.Services.Implementations.SEO
                 JobId = jobId,
                 StartedAt = DateTime.UtcNow
             };
-            _cache.Set(jobId, result, TimeSpan.FromHours(2));
+            SetJob(jobId, result);
 
             try
             {
@@ -255,7 +270,7 @@ namespace Blocko.Services.Implementations.SEO
                 {
                     result.Errors.Add("ملف الاستيراد المؤقت غير موجود.");
                     result.IsCompleted = true;
-                    _cache.Set(jobId, result, TimeSpan.FromHours(2));
+                    SetJob(jobId, result);
                     return;
                 }
 
@@ -265,7 +280,7 @@ namespace Blocko.Services.Implementations.SEO
                 var rows = worksheet.RowsUsed().Skip(1).ToList();
 
                 result.TotalRecords = rows.Count;
-                _cache.Set(jobId, result, TimeSpan.FromHours(2));
+                SetJob(jobId, result);
 
                 int batchSize = 150;
                 for (int i = 0; i < rows.Count; i += batchSize)
@@ -353,12 +368,12 @@ namespace Blocko.Services.Implementations.SEO
                     }
 
                     await _unitOfWork.CompleteAsync();
-                    _cache.Set(jobId, result, TimeSpan.FromHours(2));
+                    SetJob(jobId, result);
                 }
 
                 result.IsCompleted = true;
                 result.CompletedAt = DateTime.UtcNow;
-                _cache.Set(jobId, result, TimeSpan.FromHours(2));
+                SetJob(jobId, result);
 
                 if (File.Exists(tempFilePath))
                 {
@@ -370,14 +385,22 @@ namespace Blocko.Services.Implementations.SEO
                 _logger.LogError(ex, "Hangfire SEO Job Failed: {JobId}", jobId);
                 result.Errors.Add($"خطأ استثنائي أثناء معالجة الوظيفة: {ex.Message}");
                 result.IsCompleted = true;
-                _cache.Set(jobId, result, TimeSpan.FromHours(2));
+                SetJob(jobId, result);
             }
         }
 
         public async Task<BulkSeoJobResultDto?> GetSeoJobResultAsync(string jobId)
         {
-            _cache.TryGetValue<BulkSeoJobResultDto>(jobId, out var result);
-            return await Task.FromResult(result);
+            try
+            {
+                var json = await _cache.GetStringAsync("seojob:" + jobId);
+                return string.IsNullOrEmpty(json) ? null : System.Text.Json.JsonSerializer.Deserialize<BulkSeoJobResultDto>(json);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not read SEO job result {JobId}", jobId);
+                return null;
+            }
         }
 
         public async Task<bool> UpdateSingleProductSeoAsync(ProductSeoImportDto dto)

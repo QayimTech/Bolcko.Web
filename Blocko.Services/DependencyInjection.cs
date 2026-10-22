@@ -33,6 +33,49 @@ namespace Blocko.Services
         {
             services.Configure<ImageSettings>(configuration.GetSection("ImageSettings"));
 
+            // ─── AWS S3 (image storage) ───────────────────────────────────────────────
+            // Only registered when a bucket name is configured (env var ImageSettings__S3BucketName).
+            // Credentials come from the ECS task role automatically - no keys in code.
+            // The bucket name is read from ImageSettings__S3BucketName, or from the variable the
+            // infrastructure team already created on the ECS task: S3__BucketName.
+            // The region comes from ImageSettings__S3Region, S3__Region or AWS_REGION.
+            string? FirstSet(params string?[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+            var s3Bucket = FirstSet(configuration["ImageSettings:S3BucketName"], configuration["S3:BucketName"]);
+            var s3Region = FirstSet(configuration["ImageSettings:S3Region"], configuration["S3:Region"], configuration["AWS_REGION"]) ?? "eu-central-1";
+
+            services.PostConfigure<ImageSettings>(s =>
+            {
+                if (string.IsNullOrWhiteSpace(s.S3BucketName) && !string.IsNullOrWhiteSpace(s3Bucket))
+                    s.S3BucketName = s3Bucket!;
+                s.S3Region = s3Region;
+                if (string.IsNullOrWhiteSpace(s.S3KmsKeyId))
+                    s.S3KmsKeyId = FirstSet(configuration["S3:KmsKeyId"], configuration["S3:KmsKeyArn"]) ?? string.Empty;
+            });
+
+            if (!string.IsNullOrWhiteSpace(s3Bucket))
+            {
+                services.AddSingleton<Amazon.S3.IAmazonS3>(_ =>
+                    new Amazon.S3.AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(s3Region)));
+            }
+
+            // ─── Redis (ElastiCache) ──────────────────────────────────────────────────
+            // Only when Redis__ConnectionString is set. Otherwise: in-memory cache as before.
+            var redisOptions = RedisSettings.Build(configuration);
+            if (redisOptions != null)
+            {
+                services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(_ =>
+                    StackExchange.Redis.ConnectionMultiplexer.Connect(redisOptions));
+                services.AddStackExchangeRedisCache(o => o.InstanceName = "blocko:");
+                services.AddOptions<Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions>()
+                    .Configure<StackExchange.Redis.IConnectionMultiplexer>((o, mux) =>
+                        o.ConnectionMultiplexerFactory = () => Task.FromResult(mux));
+            }
+            else
+            {
+                services.AddDistributedMemoryCache();
+            }
+
             // ─── Delivery & Supplier API HttpClient Registration ─────────────────────
             services.AddHttpClient<Blocko.Services.Interfaces.Delivery.IDeliveryApiService, Blocko.Services.Implementations.Delivery.DeliveryApiService>();
             services.AddHttpClient<Blocko.Services.Interfaces.Supplier.ISupplierApiService, Blocko.Services.Implementations.Supplier.SupplierApiService>();
@@ -42,7 +85,7 @@ namespace Blocko.Services
             services.AddScoped<IProductSeoService>(sp =>
                 new ProductSeoService(
                     sp.GetRequiredService<Bolcko.Domain.Interfaces.IUnitOfWork>(),
-                    sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ProductSeoService>>()));
 
             // ─── Service Manager (aggregates all services via Lazy pattern) ───────
@@ -54,6 +97,7 @@ namespace Blocko.Services
                     sp.GetRequiredService<IEmailSender>(),
                     sp.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Bolcko.Domain.Entities.User.User>>(),
                     sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>(),
                     sp.GetRequiredService<IProductSeoService>(),
                     sp.GetRequiredService<Blocko.Persistence.BlockoDbContext>()));
@@ -80,7 +124,8 @@ namespace Blocko.Services
                     sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ImageSettings>>(),
                     sp.GetRequiredService<System.Net.Http.HttpClient>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ImageService>>(),
-                    contentRootPath));
+                    contentRootPath,
+                    sp.GetService<Amazon.S3.IAmazonS3>()));
 
             services.AddScoped<IShoppingCartService, ShoppingCartService>();
             services.AddScoped<IProjectService, ProjectService>();

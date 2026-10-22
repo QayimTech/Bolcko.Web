@@ -574,6 +574,8 @@ public static class DatabaseExtensions
                 SELECT 
                     'كيف يتم احتساب كمية حديد التسليح للمشروع؟',
                     'يتم احتساب كمية الحديد بناءً على الكودات الهندسية الأردنية المعتمدة للمباني السكنية والتجارية بمعدل يتراوح بين 38 إلى 45 كغم لكل متر مربع مسطح من إجمالي مساحة البناء (Built-up Area)، وتزداد النسبة تلقائياً في حال اختيار أساسات اللبشة (Raft) أو الاستخدام التجاري.',
+                    'How is the reinforcement steel quantity for a project calculated?',
+                    'The steel quantity is calculated according to the approved Jordanian engineering codes for residential and commercial buildings, at roughly 38 to 45 kg per square metre of total built-up area. The rate increases automatically when raft foundations or commercial use are selected.',
                     'calculator', 1, true, now()
                 WHERE NOT EXISTS (SELECT 1 FROM "FAQItems" LIMIT 1);
                 """);

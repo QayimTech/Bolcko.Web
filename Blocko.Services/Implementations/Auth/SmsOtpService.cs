@@ -2,17 +2,17 @@ using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Blocko.Services.Interfaces.Auth;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 namespace Blocko.Services.Implementations.Auth
 {
     public class SmsOtpService : ISmsOtpService
     {
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly ILogger<SmsOtpService> _logger;
 
-        public SmsOtpService(IMemoryCache cache, ILogger<SmsOtpService> logger)
+        public SmsOtpService(IDistributedCache cache, ILogger<SmsOtpService> logger)
         {
             _cache = cache;
             _logger = logger;
@@ -24,7 +24,7 @@ namespace Blocko.Services.Implementations.Auth
             var code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
             var cacheKey = $"OTP_{purpose}_{normalizedPhone}";
 
-            _cache.Set(cacheKey, code, TimeSpan.FromMinutes(5));
+            await _cache.SetStringAsync(cacheKey, code, new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
             _logger.LogInformation("SMS OTP generated for {Phone} ({Purpose}): {Code} (Valid 5 mins)", normalizedPhone, purpose, code);
 
             await Task.Delay(20); // Simulate SMS Gateway dispatch (Zain/Orange/Umniah SMS API)
@@ -33,17 +33,17 @@ namespace Blocko.Services.Implementations.Auth
 
         public async Task<bool> VerifyOtpAsync(string phoneNumber, string code, string purpose)
         {
-            await Task.Yield();
             if (string.IsNullOrWhiteSpace(code)) return false;
 
             var normalizedPhone = (phoneNumber ?? "").Trim().Replace(" ", "").Replace("-", "");
             var cacheKey = $"OTP_{purpose}_{normalizedPhone}";
 
-            if (_cache.TryGetValue<string>(cacheKey, out var cachedCode))
+            var cachedCode = await _cache.GetStringAsync(cacheKey);
+            if (cachedCode != null)
             {
                 if (string.Equals(cachedCode, code.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
-                    _cache.Remove(cacheKey); // Single-use OTP token
+                    await _cache.RemoveAsync(cacheKey); // Single-use OTP token
                     _logger.LogInformation("SMS OTP successfully verified for {Phone} ({Purpose})", normalizedPhone, purpose);
                     return true;
                 }

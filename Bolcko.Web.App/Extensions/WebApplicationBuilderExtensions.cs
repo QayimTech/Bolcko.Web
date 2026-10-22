@@ -29,6 +29,8 @@ public static class WebApplicationBuilderExtensions
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day, shared: true);
@@ -74,17 +76,27 @@ public static class WebApplicationBuilderExtensions
         services.AddServices(configuration, contentRootPath);
         
         // Data Protection - essential for preventing CryptographicExceptions
-        ConfigureDataProtection(services, contentRootPath);
+        ConfigureDataProtection(services, configuration, contentRootPath);
     }
 
-    private static void ConfigureDataProtection(IServiceCollection services, string contentRootPath)
+    private static void ConfigureDataProtection(IServiceCollection services, IConfiguration configuration, string contentRootPath)
     {
-        var keysFolder = Path.Combine(contentRootPath, "App_Data", "Keys");
-        Directory.CreateDirectory(keysFolder);
+        var dp = services.AddDataProtection().SetApplicationName("BolckoApp");
 
-        services.AddDataProtection()
-            .PersistKeysToFileSystem(new DirectoryInfo(keysFolder))
-            .SetApplicationName("BolckoApp");
+        if (RedisSettings.IsConfigured(configuration))
+        {
+            // Several containers share the same keys (login cookies stay valid on every container).
+            services.AddOptions<Microsoft.AspNetCore.DataProtection.KeyManagement.KeyManagementOptions>()
+                .Configure<StackExchange.Redis.IConnectionMultiplexer>((o, mux) =>
+                    o.XmlRepository = new Microsoft.AspNetCore.DataProtection.StackExchangeRedis.RedisXmlRepository(
+                        () => mux.GetDatabase(), RedisSettings.DataProtectionKey));
+        }
+        else
+        {
+            var keysFolder = Path.Combine(contentRootPath, "App_Data", "Keys");
+            Directory.CreateDirectory(keysFolder);
+            dp.PersistKeysToFileSystem(new DirectoryInfo(keysFolder));
+        }
     }
 
     #endregion
@@ -109,9 +121,22 @@ public static class WebApplicationBuilderExtensions
         services.AddBlockoSwagger();
         
         // Real-time Communication
-        services.AddSignalR();
+        var signalR = services.AddSignalR();
+        if (RedisSettings.IsConfigured(configuration))
+        {
+            signalR.AddStackExchangeRedis(o =>
+                o.ConnectionFactory = async writer =>
+                    await StackExchange.Redis.ConnectionMultiplexer.ConnectAsync(RedisSettings.Build(configuration)!, writer));
+        }
         services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, Hubs.CustomUserIdProvider>();
         
+        // Private document storage (KYC, weighbridge): S3 in AWS, local disk in development
+        services.AddScoped<Bolcko.Web.App.Services.IDocumentStorage>(sp =>
+            new Bolcko.Web.App.Services.DocumentStorage(
+                sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Blocko.Services.ImageSettings>>(),
+                sp.GetRequiredService<IWebHostEnvironment>(),
+                sp.GetService<Amazon.S3.IAmazonS3>()));
+
         // Notification Service
         services.AddScoped<Blocko.Services.Interfaces.Notifications.INotificationService, 
             Services.NotificationService>();

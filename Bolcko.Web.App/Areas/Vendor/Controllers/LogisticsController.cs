@@ -526,15 +526,9 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             string? fileUrl = null;
             if (ticketFile != null && ticketFile.Length > 0)
             {
-                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "weighbridge");
-                Directory.CreateDirectory(uploadsFolder);
                 var fileName = $"wb_{orderId}_{Guid.NewGuid():N}{Path.GetExtension(ticketFile.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ticketFile.CopyToAsync(stream);
-                }
-                fileUrl = $"/uploads/weighbridge/{fileName}";
+                var storage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+                fileUrl = await storage.SaveAsync(ticketFile, "weighbridge", fileName);
             }
 
             var job = await _context.DeliveryJobs.FirstOrDefaultAsync(j => j.OrderId == orderId);

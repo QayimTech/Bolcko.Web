@@ -1,0 +1,136 @@
+# ---------------------------------------------------------------------------
+# buildspec.yml - Bolcko.Web
+#
+# One file, both environments. Nothing in here names dev or production: the
+# CodeBuild project injects the environment variables below and this file acts
+# on whatever it is given. dev and prod live in separate AWS accounts, each
+# with its own pipeline, so a build can only ever reach its own account.
+#
+# Injected by the pipeline module (modules/pipeline/main.tf):
+#   AWS_ACCOUNT_ID            account the build runs in
+#   AWS_DEFAULT_REGION        eu-central-1
+#   ENVIRONMENT               dev | prod
+#   ECR_REPOSITORY            repository the image is pushed to
+#   ECS_CLUSTER               cluster to deploy into
+#   ECS_SERVICE               service to update
+#   CONTAINER_NAME            container whose image is replaced
+#   BASE_TASK_DEFINITION_ARN  OpenTofu-managed revision used as the template
+#
+# Flow: build image -> push to ECR -> clone the base task definition with the
+# new image -> update the service -> wait for it to stabilise. The deployment
+# happens here rather than in a separate CodePipeline stage, so a failed
+# rollout fails the build instead of going unnoticed.
+# ---------------------------------------------------------------------------
+version: 0.2
+
+env:
+  variables:
+    DOCKER_BUILDKIT: "1"
+
+phases:
+  pre_build:
+    commands:
+      - set -euo pipefail
+
+      # Fail loudly and immediately if the project is misconfigured, rather
+      # than producing a confusing docker or aws error several minutes in.
+      - |
+        for v in AWS_ACCOUNT_ID AWS_DEFAULT_REGION ENVIRONMENT ECR_REPOSITORY \
+                 ECS_CLUSTER ECS_SERVICE CONTAINER_NAME BASE_TASK_DEFINITION_ARN; do
+          if [ -z "$(eval "printf '%s' \"\${$v:-}\"")" ]; then
+            echo "FATAL: required environment variable $v is not set on this CodeBuild project."
+            exit 1
+          fi
+        done
+
+      - REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+      - REPO_URI="${REGISTRY}/${ECR_REPOSITORY}"
+
+      # The 12-character commit SHA is the only tag this pipeline ever pushes.
+      # It is unique per commit, which is what lets both repositories stay
+      # IMMUTABLE: a tag is written once and never rewritten.
+      - IMAGE_TAG="$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-manual-$(date -u +%Y%m%d%H%M%S)}" | cut -c1-12)"
+      - IMAGE_URI="${REPO_URI}:${IMAGE_TAG}"
+
+      - 'echo "Environment : ${ENVIRONMENT}"'
+      - 'echo "Image       : ${IMAGE_URI}"'
+      - 'echo "Cluster     : ${ECS_CLUSTER}"'
+      - 'echo "Service     : ${ECS_SERVICE}"'
+
+      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$REGISTRY"
+
+  build:
+    commands:
+      - set -euo pipefail
+
+      # The CodeBuild image is aarch64 and the task definition requests ARM64,
+      # so this is a native build - no emulation and no --platform flag.
+      - echo "Building $IMAGE_URI"
+      - docker build --tag "$IMAGE_URI" --file Dockerfile .
+
+  post_build:
+    commands:
+      - set -euo pipefail
+
+      - docker push "$IMAGE_URI"
+
+      # No moving tag, and deliberately no "latest". Both repositories are
+      # IMMUTABLE and every image carries its own commit-SHA tag, so a tag
+      # always identifies exactly one image and can never be repointed.
+      # Re-pushing a shared tag would fail the build anyway.
+
+      # Clone the OpenTofu-managed revision rather than the service's current
+      # one. If a previous deployment went out broken, the next build still
+      # starts from a known-good definition instead of compounding the problem.
+      - echo "Cloning task definition $BASE_TASK_DEFINITION_ARN"
+      - aws ecs describe-task-definition --task-definition "$BASE_TASK_DEFINITION_ARN" --query 'taskDefinition' > base-task-definition.json
+
+      # Guard against a renamed container silently deploying nothing.
+      - |
+        if ! jq -e --arg n "$CONTAINER_NAME" 'any(.containerDefinitions[]; .name == $n)' base-task-definition.json > /dev/null; then
+          echo "FATAL: no container named '$CONTAINER_NAME' in $BASE_TASK_DEFINITION_ARN."
+          echo "Containers present: $(jq -r '[.containerDefinitions[].name] | join(", ")' base-task-definition.json)"
+          exit 1
+        fi
+
+      # Swap the image and strip the read-only fields that describe returns but
+      # register rejects.
+      - |
+        jq --arg img "$IMAGE_URI" --arg n "$CONTAINER_NAME" '
+          .containerDefinitions = (
+            .containerDefinitions | map(if .name == $n then .image = $img else . end)
+          )
+          | del(
+              .taskDefinitionArn, .revision, .status, .requiresAttributes,
+              .compatibilities, .registeredAt, .registeredBy, .deregisteredAt
+            )
+        ' base-task-definition.json > new-task-definition.json
+
+      - TASK_DEFINITION_ARN="$(aws ecs register-task-definition --cli-input-json file://new-task-definition.json --query 'taskDefinition.taskDefinitionArn' --output text)"
+      - echo "Registered $TASK_DEFINITION_ARN"
+
+      - aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --task-definition "$TASK_DEFINITION_ARN" > /dev/null
+      - echo "Service updated. Waiting for it to reach a steady state..."
+
+      # On failure, print why. Without this the build just reports a timeout
+      # and the actual reason stays buried in the service event log.
+      - |
+        if ! aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"; then
+          echo "----- service did not stabilise; recent events -----"
+          aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+            --query 'services[0].events[0:15].[createdAt,message]' --output table || true
+          echo "----- stopped task reasons -----"
+          for t in $(aws ecs list-tasks --cluster "$ECS_CLUSTER" --service-name "$ECS_SERVICE" \
+                       --desired-status STOPPED --query 'taskArns[0:5]' --output text 2>/dev/null); do
+            aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$t" \
+              --query 'tasks[0].[stoppedReason,containers[0].reason]' --output text || true
+          done
+          exit 1
+        fi
+
+      - echo "Deployed ${IMAGE_TAG} to ${ECS_SERVICE} (${ENVIRONMENT})."
+
+artifacts:
+  files:
+    - new-task-definition.json
+  name: blocko-web-$ENVIRONMENT

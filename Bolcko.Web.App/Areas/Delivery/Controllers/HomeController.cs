@@ -335,20 +335,9 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
                 return RedirectToAction("Index");
             }
 
-            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "weighbridge");
-            if (!Directory.Exists(uploadFolder))
-            {
-                Directory.CreateDirectory(uploadFolder);
-            }
-
             var fileName = $"wb_{jobId}_{Guid.NewGuid():N}{ext}";
-            var filePath = Path.Combine(uploadFolder, fileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await weighbridgePhoto.CopyToAsync(stream);
-            }
-
-            job.WeighbridgeTicketUrl = $"/uploads/weighbridge/{fileName}";
+            var storage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+            job.WeighbridgeTicketUrl = await storage.SaveAsync(weighbridgePhoto, "weighbridge", fileName);
             job.GrossWeightTons = grossWeight ?? 0;
             job.TareWeightTons = tareWeight ?? 0;
             job.WeighedAt = DateTime.UtcNow;

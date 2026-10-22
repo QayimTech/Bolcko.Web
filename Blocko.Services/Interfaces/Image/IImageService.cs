@@ -9,6 +9,7 @@ namespace Blocko.Services.Interfaces.Image
         Task<string> DownloadAndCompressImageAsync(string imageUrl, string folderPath);
         Task<string> CompressImageAsync(string imagePath, int quality = 75);
         void DeleteImage(string imagePath);
+        Task DeleteImageAsync(string imagePath);
         string GenerateUniqueFileName(string originalFileName);
     }
 }
