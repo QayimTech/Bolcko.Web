@@ -221,20 +221,9 @@ namespace Bolcko.Web.App.Areas.Delivery.Controllers
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(ext)) return null;
 
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "delivery", userId.ToString());
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
             var fileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
-            var filePath = Path.Combine(folderPath, fileName);
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return $"/uploads/delivery/{userId}/{fileName}";
+            var storage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+            return await storage.SaveAsync(file, $"delivery/{userId}", fileName);
         }
 
         [HttpPost]

@@ -264,16 +264,8 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                                 var img = existingProduct.Images.FirstOrDefault(i => i.Id == id);
                                 if (img != null && !string.IsNullOrEmpty(img.Url))
                                 {
-                                    try
-                                    {
-                                        string relativePath = img.Url.Replace("/", "\\").TrimStart('\\');
-                                        string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
-                                        if (System.IO.File.Exists(fullPath))
-                                        {
-                                            System.IO.File.Delete(fullPath);
-                                        }
-                                    }
-                                    catch (Exception) { /* Ignore file access/deletion errors */ }
+                                    // Removes the file from S3 (or local disk when S3 is not configured)
+                                    await _imageService.DeleteImageAsync(img.Url);
                                 }
                             }
                         }
@@ -325,30 +317,12 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
                     {
                         foreach (var img in product.Images)
                         {
-                            try
-                            {
-                                string relativePath = img.Url.Replace("/", "\\").TrimStart('\\');
-                                string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
-                                if (System.IO.File.Exists(fullPath))
-                                {
-                                    System.IO.File.Delete(fullPath);
-                                }
-                            }
-                            catch (Exception) { /* Ignore */ }
+                            await _imageService.DeleteImageAsync(img.Url);
                         }
                     }
                     if (!string.IsNullOrEmpty(product.ImageUrl))
                     {
-                        try
-                        {
-                            string relativePath = product.ImageUrl.Replace("/", "\\").TrimStart('\\');
-                            string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
-                            if (System.IO.File.Exists(fullPath))
-                            {
-                                System.IO.File.Delete(fullPath);
-                            }
-                        }
-                        catch (Exception) { /* Ignore */ }
+                        await _imageService.DeleteImageAsync(product.ImageUrl);
                     }
                 }
 

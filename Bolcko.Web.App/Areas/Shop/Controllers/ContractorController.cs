@@ -114,24 +114,16 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
             await _userManager.AddToRoleAsync(user, "Contractor");
 
             // Handle KYC documents upload
-            string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "contractors", user.Id.ToString());
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
+            var docStorage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
 
             if (model.CrDocument != null && model.CrDocument.Length > 0)
             {
-                string crPath = Path.Combine(uploadsFolder, "CR_" + Path.GetFileName(model.CrDocument.FileName));
-                using var stream = new FileStream(crPath, FileMode.Create);
-                await model.CrDocument.CopyToAsync(stream);
+                await docStorage.SaveAsync(model.CrDocument, $"contractors/{user.Id}", "CR_" + Path.GetFileName(model.CrDocument.FileName));
             }
 
             if (model.TaxCertificate != null && model.TaxCertificate.Length > 0)
             {
-                string taxPath = Path.Combine(uploadsFolder, "TAX_" + Path.GetFileName(model.TaxCertificate.FileName));
-                using var stream = new FileStream(taxPath, FileMode.Create);
-                await model.TaxCertificate.CopyToAsync(stream);
+                await docStorage.SaveAsync(model.TaxCertificate, $"contractors/{user.Id}", "TAX_" + Path.GetFileName(model.TaxCertificate.FileName));
             }
 
             await _signInManager.SignInAsync(user, isPersistent: true);
@@ -231,20 +223,9 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
 
             if (jccaFile != null && jccaFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "contractors", uId.ToString());
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
                 string fileName = "JCCA_" + Guid.NewGuid().ToString("N").Substring(0, 8) + Path.GetExtension(jccaFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await jccaFile.CopyToAsync(stream);
-                }
-
-                profile.JccaCertificateDocUrl = $"/uploads/contractors/{uId}/{fileName}";
+                var docStorage = HttpContext.RequestServices.GetRequiredService<Bolcko.Web.App.Services.IDocumentStorage>();
+                profile.JccaCertificateDocUrl = await docStorage.SaveAsync(jccaFile, $"contractors/{uId}", fileName);
                 profile.IsJccaVerified = true;
                 profile.VerifiedAt = DateTime.UtcNow;
                 TempData["Success"] = "تم رفع شهادة نقابة مقاولي الإنشاءات الأردنيين (JCCA) بنجاح وتفعيل الاعتماد الهندسي!";

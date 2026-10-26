@@ -66,6 +66,10 @@ public static class WebApplicationExtensions
                 ctx.Context.Response.Headers[HeaderNames.Vary] = "Accept-Encoding";
             }
         });
+
+        // Uploaded product/variant images live in S3 (not on the container disk).
+        // This serves them when the static-files middleware above did not find a local file.
+        app.UseMiddleware<S3ImageMiddleware>();
     }
 
     #endregion
