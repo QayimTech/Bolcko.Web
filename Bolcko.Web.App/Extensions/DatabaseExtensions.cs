@@ -780,6 +780,134 @@ public static class DatabaseExtensions
                 WHERE NOT EXISTS (SELECT 1 FROM "SEOMetadata" WHERE "PageName" = 'Contact');
                 """);
 
+            // Ensure all Financing, Tender, Product, and VendorProfile columns and tables exist
+            await db.Database.ExecuteSqlRawAsync(
+                """
+                -- Products new columns
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsExclusivePatented" boolean NOT NULL DEFAULT false;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "TechnicalDatasheetUrl" text;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "MillTestCertificateUrl" text;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "RssApprovalUrl" text;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "SearchRankingScore" double precision NOT NULL DEFAULT 1.0;
+
+                -- VendorProfiles new columns
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "MerchantType" integer NOT NULL DEFAULT 0;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "SubscriptionTier" text NOT NULL DEFAULT 'Standard';
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "IsGoldVerified" boolean NOT NULL DEFAULT false;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "IsExclusiveAgent" boolean NOT NULL DEFAULT false;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "Latitude" double precision NOT NULL DEFAULT 31.9392;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "Longitude" double precision NOT NULL DEFAULT 35.9189;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "WarehouseLocationName" text NOT NULL DEFAULT 'مستودعات رأس العين - عمان المركزية';
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "CommercialRegistrationDocUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "VocationalLicenseDocUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "TaxCertificateDocUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "QualityCertificatesDocUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "TechnicalDatasheetUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "MillTestCertificateUrl" text;
+                ALTER TABLE "VendorProfiles" ADD COLUMN IF NOT EXISTS "RssApprovalUrl" text;
+
+                -- FinancingTenders table & columns
+                CREATE TABLE IF NOT EXISTS "FinancingTenders" (
+                    "Id" serial PRIMARY KEY,
+                    "ContractorId" integer NULL,
+                    "ContractorName" text NOT NULL DEFAULT '',
+                    "ContractorPhone" text NOT NULL DEFAULT '',
+                    "ContractorCompany" text NULL,
+                    "TrackingCode" text NOT NULL DEFAULT '',
+                    "ProjectTitle" text NOT NULL DEFAULT '',
+                    "ProjectCity" text NOT NULL DEFAULT 'Amman',
+                    "ProjectAddress" text NULL,
+                    "BuildingPermitNumber" text NOT NULL DEFAULT '',
+                    "TargetLatitude" double precision NOT NULL DEFAULT 0.0,
+                    "TargetLongitude" double precision NOT NULL DEFAULT 0.0,
+                    "BaseMaterialCost" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "ContractorMarkupRate" numeric(18,4) NOT NULL DEFAULT 0.06,
+                    "TotalPayableAmount" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "PlatformAgencyFeeRate" numeric(18,4) NOT NULL DEFAULT 0.015,
+                    "PlatformAgencyFeeAmount" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "InvestorNetYieldAmount" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "TenureDays" integer NOT NULL DEFAULT 45,
+                    "DueDate" timestamp with time zone NULL,
+                    "Status" integer NOT NULL DEFAULT 0,
+                    "FunderInvestorId" integer NULL,
+                    "FunderName" text NULL,
+                    "FunderPhone" text NULL,
+                    "WakalaContractPdfUrl" text NULL,
+                    "PromissoryNoteUrl" text NULL,
+                    "IsCollateralVerified" boolean NOT NULL DEFAULT true,
+                    "ContractorTrustScore" double precision NOT NULL DEFAULT 95.0,
+                    "DeliveryOtpCode" text NULL,
+                    "DeliveryOtpExpiresAt" timestamp with time zone NULL,
+                    "EscrowStatus" text NOT NULL DEFAULT 'HeldInEscrow',
+                    "EscrowReleasedAt" timestamp with time zone NULL,
+                    "EscrowReleaseTransactionReference" text NULL,
+                    "MurabahaContractStatus" text NOT NULL DEFAULT 'Draft',
+                    "InstallmentScheduleJson" text NULL,
+                    "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now()),
+                    "FundedAt" timestamp with time zone NULL,
+                    "DeliveredAt" timestamp with time zone NULL,
+                    "SettledAt" timestamp with time zone NULL
+                );
+
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "DeliveryOtpCode" text NULL;
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "DeliveryOtpExpiresAt" timestamp with time zone NULL;
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "EscrowStatus" text NOT NULL DEFAULT 'HeldInEscrow';
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "EscrowReleasedAt" timestamp with time zone NULL;
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "EscrowReleaseTransactionReference" text NULL;
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "MurabahaContractStatus" text NOT NULL DEFAULT 'Draft';
+                ALTER TABLE "FinancingTenders" ADD COLUMN IF NOT EXISTS "InstallmentScheduleJson" text NULL;
+
+                -- FinancingTenderItems table
+                CREATE TABLE IF NOT EXISTS "FinancingTenderItems" (
+                    "Id" serial PRIMARY KEY,
+                    "FinancingTenderId" integer NOT NULL,
+                    "MaterialCategory" text NOT NULL DEFAULT '',
+                    "MaterialName" text NOT NULL DEFAULT '',
+                    "Quantity" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "Unit" text NOT NULL DEFAULT '',
+                    "UnitPriceJod" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "SubtotalJod" numeric(18,2) NOT NULL DEFAULT 0.00
+                );
+
+                -- JobsiteProofOfDeliveries table
+                CREATE TABLE IF NOT EXISTS "JobsiteProofOfDeliveries" (
+                    "Id" serial PRIMARY KEY,
+                    "FinancingTenderId" integer NOT NULL,
+                    "DriverName" text NOT NULL DEFAULT '',
+                    "DriverPhone" text NOT NULL DEFAULT '',
+                    "VehiclePlateNumber" text NOT NULL DEFAULT '',
+                    "DriverLatitude" double precision NOT NULL DEFAULT 0.0,
+                    "DriverLongitude" double precision NOT NULL DEFAULT 0.0,
+                    "TargetJobsiteLatitude" double precision NOT NULL DEFAULT 0.0,
+                    "TargetJobsiteLongitude" double precision NOT NULL DEFAULT 0.0,
+                    "DistanceVarianceMeters" double precision NOT NULL DEFAULT 0.0,
+                    "IsWithinGeoFence" boolean NOT NULL DEFAULT false,
+                    "DispatcherOverride" boolean NOT NULL DEFAULT false,
+                    "DispatcherOverrideNotes" text NULL,
+                    "PhotoEvidenceUrl" text NOT NULL DEFAULT '',
+                    "DeliveredAt" timestamp with time zone NOT NULL DEFAULT (now()),
+                    "ContractorConfirmed" boolean NOT NULL DEFAULT false,
+                    "ContractorSignOffTime" timestamp with time zone NULL,
+                    "ContractorDigitalSignatureUrl" text NULL
+                );
+
+                -- Tenders new columns
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "TargetVendorId" integer NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "TenderScope" text NOT NULL DEFAULT 'OpenNearest';
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "ProjectCity" text NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "TargetLatitude" double precision NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "TargetLongitude" double precision NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "DeliveryFee" numeric(18,2) NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "EstimatedDeliveryDays" integer NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "BidValidityDays" integer NULL;
+                ALTER TABLE "Tenders" ADD COLUMN IF NOT EXISTS "VendorOfferNotes" text NULL;
+
+                -- TenderItems new columns
+                ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "ProposedPricePerUnit" numeric(18,2) NULL;
+                ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "TargetPricePerUnit" numeric(18,2) NULL;
+                ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "SubtotalItem" numeric(18,2) NULL;
+                """);
+
             Log.Information("Database tables (Delivery, FAQItems, MarketPrices, SEOMetadata) verified/created successfully via raw SQL.");
         }
         catch (Exception sqlEx)

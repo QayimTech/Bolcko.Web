@@ -12,6 +12,10 @@ namespace Bolcko.Web.App.Areas.Admin.Models
         public decimal TotalSales { get; set; }
         public int TotalOrders { get; set; }
         public int OpenTenders { get; set; }
+        public decimal NetSales { get; set; }
+        public decimal TotalDeliveryFees { get; set; }
+        public int ReturnedJobsCount { get; set; }
+        public decimal ReturnRate { get; set; }
         public IEnumerable<OrderDto> LatestOrders { get; set; } = new List<OrderDto>();
         public IEnumerable<TenderDto> LatestTenders { get; set; } = new List<TenderDto>();
     }

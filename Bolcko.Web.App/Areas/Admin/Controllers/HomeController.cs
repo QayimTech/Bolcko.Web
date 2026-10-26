@@ -65,23 +65,23 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             var totalJobsCount = jobsList.Count;
             var returnRate     = totalJobsCount > 0 ? ((decimal)returnedCount / totalJobsCount) * 100m : 0m;
 
-            ViewBag.NetSales          = totalSales - totalDeliveryFees;
-            ViewBag.TotalDeliveryFees = totalDeliveryFees;
-            ViewBag.ReturnedJobsCount = returnedCount;
-            ViewBag.ReturnRate        = returnRate;
+            ViewData["NetSales"]          = totalSales - totalDeliveryFees;
+            ViewData["TotalDeliveryFees"] = totalDeliveryFees;
+            ViewData["ReturnedJobsCount"] = returnedCount;
+            ViewData["ReturnRate"]        = returnRate;
 
             // ─── Chart: Last 7 Days ───────────────────────────────────────────────
             var last7Days = Enumerable.Range(0, 7)
                 .Select(i => DateTime.UtcNow.Date.AddDays(-6 + i)).ToList();
 
-            ViewBag.DailyLabelsJson    = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d => d.ToString("dd/MM")));
-            ViewBag.DailyDeliveredJson = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d =>
+            ViewData["DailyLabelsJson"]    = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d => d.ToString("dd/MM")));
+            ViewData["DailyDeliveredJson"] = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d =>
                 jobsList.Count(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered)));
-            ViewBag.DailyCollectedJson = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d =>
+            ViewData["DailyCollectedJson"] = System.Text.Json.JsonSerializer.Serialize(last7Days.Select(d =>
                 jobsList.Where(j => j.DeliveredAt.HasValue && j.DeliveredAt.Value.Date == d && j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Delivered)
                         .Sum(j => j.CollectedAmount ?? 0)));
 
-            ViewBag.StatusCountsJson = System.Text.Json.JsonSerializer.Serialize(new[]
+            ViewData["StatusCountsJson"] = System.Text.Json.JsonSerializer.Serialize(new[]
             {
                 jobsList.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Available),
                 jobsList.Count(j => j.Status == Bolcko.Domain.Enums.DeliveryJobStatus.Assigned
@@ -94,14 +94,18 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             // ─── ViewModel ────────────────────────────────────────────────────────
             var model = new Areas.Admin.Models.AdminDashboardViewModel
             {
-                UserCount     = await _userManager.Users.CountAsync(),
-                ProductCount  = (await _serviceManager.ProductService.GetAllProductsAsync()).Count(),
-                CategoryCount = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count(),
-                TotalSales    = totalSales,
-                TotalOrders   = totalOrders,
-                OpenTenders   = await _serviceManager.TenderService.GetPendingCountAsync(),
-                LatestTenders = latestTenders.ToList(),
-                LatestOrders  = latestOrdersPaged.Items
+                UserCount         = await _userManager.Users.CountAsync(),
+                ProductCount      = (await _serviceManager.ProductService.GetAllProductsAsync()).Count(),
+                CategoryCount     = (await _serviceManager.CategoryService.GetAllCategoriesAsync()).Count(),
+                TotalSales        = totalSales,
+                NetSales          = totalSales - totalDeliveryFees,
+                TotalDeliveryFees = totalDeliveryFees,
+                ReturnedJobsCount = returnedCount,
+                ReturnRate        = returnRate,
+                TotalOrders       = totalOrders,
+                OpenTenders       = await _serviceManager.TenderService.GetPendingCountAsync(),
+                LatestTenders     = latestTenders.ToList(),
+                LatestOrders      = latestOrdersPaged.Items
             };
 
             return View(model);
