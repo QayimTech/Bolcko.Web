@@ -17,7 +17,7 @@
             'cookie_flags': 'SameSite=None;Secure'
         });
 
-        // Block-O Global Custom Event Tracker
+        // Block-O Global Custom Event Tracker (Unified GA4 & Meta Pixel)
         window.trackBlockoEvent = function(eventName, eventParams) {
             try {
                 if (typeof window.gtag === 'function') {
@@ -25,6 +25,16 @@
                 }
             } catch (e) {
                 console.debug('GA4 tracking error:', e);
+            }
+
+            try {
+                if (typeof window.trackBlockoPixel === 'function') {
+                    window.trackBlockoPixel(eventName, eventParams);
+                } else if (typeof window.fbq === 'function') {
+                    window.fbq('trackCustom', eventName, eventParams || {});
+                }
+            } catch (e) {
+                console.debug('Meta Pixel tracking error:', e);
             }
         };
     </script>
