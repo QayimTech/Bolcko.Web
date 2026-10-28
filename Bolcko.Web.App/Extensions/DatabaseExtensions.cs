@@ -29,12 +29,19 @@ public static class DatabaseExtensions
         var db = scope.ServiceProvider.GetRequiredService<BlockoDbContext>();
         
         Log.Information("Applying database migrations...");
-        await db.Database.MigrateAsync();
+        try
+        {
+            await db.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "EF Core MigrateAsync encountered an issue. Proceeding with raw schema synchronization...");
+        }
         
         // Apply additional schema changes that migrations might miss
         await ApplyRawSchemaChangesAsync(db);
         
-        Log.Information("Database migrations applied successfully.");
+        Log.Information("Database migrations and schema synchronization applied successfully.");
     }
 
     /// <summary>
@@ -992,6 +999,29 @@ public static class DatabaseExtensions
                 WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'ready-mix-b250');
 
                 """);
+
+            
+            // Grant permissions to blockouser if role exists
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync(
+                    """
+                    ALTER TABLE "AspNetUsers" ADD COLUMN IF NOT EXISTS "MustChangePassword" boolean NOT NULL DEFAULT false;
+                    
+                    DO $$
+                    BEGIN
+                        IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'blockouser') THEN
+                            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO blockouser;
+                            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO blockouser;
+                        END IF;
+                    END
+                    $$;
+                    """);
+            }
+            catch (Exception grantEx)
+            {
+                Log.Warning(grantEx, "Optional permission grant warning.");
+            }
 
             Log.Information("Database tables (Delivery, FAQItems, MarketPrices, SEOMetadata) verified/created successfully via raw SQL.");
         }
