@@ -908,6 +908,89 @@ public static class DatabaseExtensions
                 ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "ProposedPricePerUnit" numeric(18,2) NULL;
                 ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "TargetPricePerUnit" numeric(18,2) NULL;
                 ALTER TABLE "TenderItems" ADD COLUMN IF NOT EXISTS "SubtotalItem" numeric(18,2) NULL;
+                -- MaterialTypes table
+                CREATE TABLE IF NOT EXISTS "MaterialTypes" (
+                    "Id" serial PRIMARY KEY,
+                    "NameAr" text NOT NULL,
+                    "NameEn" text NOT NULL DEFAULT '',
+                    "Slug" text NOT NULL DEFAULT '',
+                    "CategoryType" text NOT NULL DEFAULT 'Custom',
+                    "UnitOfMeasure" text NOT NULL DEFAULT 'Unit',
+                    "DefaultPriceEstimated" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "SpecSchemaJson" text NOT NULL DEFAULT '{}',
+                    "IsActive" boolean NOT NULL DEFAULT true,
+                    "SortOrder" integer NOT NULL DEFAULT 0,
+                    "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now())
+                );
+
+                -- SubscriptionPlans table
+                CREATE TABLE IF NOT EXISTS "SubscriptionPlans" (
+                    "Id" serial PRIMARY KEY,
+                    "NameAr" text NOT NULL,
+                    "NameEn" text NOT NULL DEFAULT '',
+                    "DescriptionAr" text NOT NULL DEFAULT '',
+                    "DescriptionEn" text NOT NULL DEFAULT '',
+                    "TargetRole" text NOT NULL DEFAULT '',
+                    "PriceMonthly" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "PriceYearly" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "MaxTenderLimit" numeric(18,2) NOT NULL DEFAULT 10000.00,
+                    "CommissionDiscountPercent" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "EarlyAccessHours" integer NOT NULL DEFAULT 0,
+                    "AutoInvestAllowed" boolean NOT NULL DEFAULT false,
+                    "FeaturesJson" text NOT NULL DEFAULT '[]',
+                    "BadgeText" text NULL,
+                    "IsPopular" boolean NOT NULL DEFAULT false,
+                    "IsActive" boolean NOT NULL DEFAULT true,
+                    "DisplayOrder" integer NOT NULL DEFAULT 0,
+                    "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now())
+                );
+
+                -- UserSubscriptions table
+                CREATE TABLE IF NOT EXISTS "UserSubscriptions" (
+                    "Id" serial PRIMARY KEY,
+                    "UserId" integer NOT NULL,
+                    "PlanId" integer NOT NULL,
+                    "BillingCycle" text NOT NULL DEFAULT 'Monthly',
+                    "AmountPaid" numeric(18,2) NOT NULL DEFAULT 0.00,
+                    "StartDate" timestamp with time zone NOT NULL DEFAULT (now()),
+                    "EndDate" timestamp with time zone NOT NULL DEFAULT (now() + interval '30 days'),
+                    "Status" integer NOT NULL DEFAULT 1,
+                    "AutoRenew" boolean NOT NULL DEFAULT true,
+                    "PaymentTransactionRef" text NULL,
+                    "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now()),
+                    "UpdatedAt" timestamp with time zone NULL
+                );
+
+                -- Seed default Subscription Plans if table is empty
+                INSERT INTO "SubscriptionPlans" ("NameAr", "NameEn", "DescriptionAr", "DescriptionEn", "TargetRole", "PriceMonthly", "PriceYearly", "MaxTenderLimit", "CommissionDiscountPercent", "EarlyAccessHours", "AutoInvestAllowed", "FeaturesJson", "BadgeText", "IsPopular", "IsActive", "DisplayOrder", "CreatedAt")
+                SELECT 'باقة المستثمر البرونزية', 'Investor Bronze', 'خطة استثمار أساسية للمستثمرين الأفراد', 'Basic individual investment plan', 'Investor', 29.00, 290.00, 25000.00, 10.00, 0, false, '["الوصول إلى عروض التمويل المعتمدة","لوحة تحكم الأرباح اللحظية","تقارير دورية"]', 'المبتدئ', false, true, 1, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SubscriptionPlans" WHERE "TargetRole" = 'Investor');
+
+                INSERT INTO "SubscriptionPlans" ("NameAr", "NameEn", "DescriptionAr", "DescriptionEn", "TargetRole", "PriceMonthly", "PriceYearly", "MaxTenderLimit", "CommissionDiscountPercent", "EarlyAccessHours", "AutoInvestAllowed", "FeaturesJson", "BadgeText", "IsPopular", "IsActive", "DisplayOrder", "CreatedAt")
+                SELECT 'باقة المستثمر الماسي VIP', 'Investor VIP Diamond', 'خطة كبار المستثمرين بعوائد تفضيلية ودخول مسبق للصفقات', 'VIP investment plan with priority access', 'Investor', 99.00, 990.00, 150000.00, 25.00, 24, true, '["أسبقية حجز الصفقات قبل 24 ساعة","استثمار آلي تلقائي Auto-Invest","إشعارات واتساب لحظية فور طرح الصفقات"]', 'الأكثر طلباً', true, true, 2, now()
+                WHERE (SELECT COUNT(*) FROM "SubscriptionPlans" WHERE "TargetRole" = 'Investor') = 1;
+
+                INSERT INTO "SubscriptionPlans" ("NameAr", "NameEn", "DescriptionAr", "DescriptionEn", "TargetRole", "PriceMonthly", "PriceYearly", "MaxTenderLimit", "CommissionDiscountPercent", "EarlyAccessHours", "AutoInvestAllowed", "FeaturesJson", "BadgeText", "IsPopular", "IsActive", "DisplayOrder", "CreatedAt")
+                SELECT 'باقة المقاول المعتمد', 'Verified Contractor', 'خطة المقاولين لاستدراج عروض الأسعار وتسهيلات الدفع', 'Contractor plan for tenders and financing', 'Contractor', 49.00, 490.00, 50000.00, 15.00, 0, false, '["طلب تمويل مرابحة حتى 50,000 دينار","إدارة مواقع البناء والتسليم","خصومات على عمولات التوريد"]', 'المقاولين', true, true, 3, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SubscriptionPlans" WHERE "TargetRole" = 'Contractor');
+
+                INSERT INTO "SubscriptionPlans" ("NameAr", "NameEn", "DescriptionAr", "DescriptionEn", "TargetRole", "PriceMonthly", "PriceYearly", "MaxTenderLimit", "CommissionDiscountPercent", "EarlyAccessHours", "AutoInvestAllowed", "FeaturesJson", "BadgeText", "IsPopular", "IsActive", "DisplayOrder", "CreatedAt")
+                SELECT 'باقة التاجر المورد الذهبي', 'Gold Supplier Tier', 'خطة تجار وموردي مواد البناء لإدراج المنتجات في المنظومة', 'Vendor and merchant supplier plan', 'Vendor', 79.00, 790.00, 0.00, 20.00, 0, false, '["إدراج منتجات غير محدود في المتجر","الربط مع أسطول التوصيل الموحد","أولوية الظهور في نتائج البحث"]', 'الموردين', true, true, 4, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "SubscriptionPlans" WHERE "TargetRole" = 'Vendor');
+
+                -- Seed default Material Types if table is empty
+                INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
+                SELECT 'حديد تسليح مشوه (Grade 60)', 'Deformed Steel Rebar (Grade 60)', 'steel-rebar', 'Steel', 'Ton', 515.00, '{}', true, 1, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'steel-rebar');
+
+                INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
+                SELECT 'إسمنت بورتلاندي (CEM I)', 'Portland Cement (CEM I)', 'portland-cement', 'Cement', 'Ton', 88.00, '{}', true, 2, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'portland-cement');
+
+                INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
+                SELECT 'خرسانة جاهزة B250 / B300', 'Ready-Mix Concrete B250/B300', 'ready-mix-b250', 'ReadyMix', 'm3', 43.50, '{}', true, 3, now()
+                WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'ready-mix-b250');
+
                 """);
 
             Log.Information("Database tables (Delivery, FAQItems, MarketPrices, SEOMetadata) verified/created successfully via raw SQL.");
