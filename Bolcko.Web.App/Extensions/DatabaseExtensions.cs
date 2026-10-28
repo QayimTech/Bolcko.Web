@@ -924,7 +924,7 @@ public static class DatabaseExtensions
                     "CategoryType" text NOT NULL DEFAULT 'Custom',
                     "UnitOfMeasure" text NOT NULL DEFAULT 'Unit',
                     "DefaultPriceEstimated" numeric(18,2) NOT NULL DEFAULT 0.00,
-                    "SpecSchemaJson" text NOT NULL DEFAULT '{}',
+                    "SpecSchemaJson" text NOT NULL DEFAULT '',
                     "IsActive" boolean NOT NULL DEFAULT true,
                     "SortOrder" integer NOT NULL DEFAULT 0,
                     "CreatedAt" timestamp with time zone NOT NULL DEFAULT (now())
@@ -987,15 +987,15 @@ public static class DatabaseExtensions
 
                 -- Seed default Material Types if table is empty
                 INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
-                SELECT 'حديد تسليح مشوه (Grade 60)', 'Deformed Steel Rebar (Grade 60)', 'steel-rebar', 'Steel', 'Ton', 515.00, '{}', true, 1, now()
+                SELECT 'حديد تسليح مشوه (Grade 60)', 'Deformed Steel Rebar (Grade 60)', 'steel-rebar', 'Steel', 'Ton', 515.00, '', true, 1, now()
                 WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'steel-rebar');
 
                 INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
-                SELECT 'إسمنت بورتلاندي (CEM I)', 'Portland Cement (CEM I)', 'portland-cement', 'Cement', 'Ton', 88.00, '{}', true, 2, now()
+                SELECT 'إسمنت بورتلاندي (CEM I)', 'Portland Cement (CEM I)', 'portland-cement', 'Cement', 'Ton', 88.00, '', true, 2, now()
                 WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'portland-cement');
 
                 INSERT INTO "MaterialTypes" ("NameAr", "NameEn", "Slug", "CategoryType", "UnitOfMeasure", "DefaultPriceEstimated", "SpecSchemaJson", "IsActive", "SortOrder", "CreatedAt")
-                SELECT 'خرسانة جاهزة B250 / B300', 'Ready-Mix Concrete B250/B300', 'ready-mix-b250', 'ReadyMix', 'm3', 43.50, '{}', true, 3, now()
+                SELECT 'خرسانة جاهزة B250 / B300', 'Ready-Mix Concrete B250/B300', 'ready-mix-b250', 'ReadyMix', 'm3', 43.50, '', true, 3, now()
                 WHERE NOT EXISTS (SELECT 1 FROM "MaterialTypes" WHERE "Slug" = 'ready-mix-b250');
 
                 """);
