@@ -14,7 +14,6 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
     [Area("Shop")]
     [Route("Shop/[controller]")]
     [Route("Shop/[controller]/[action]")]
-    [Route("InvestorPortal")]
     [Route("Investor/Marketplace")]
     [Route("Investor/[controller]/[action]")]
     [Route("[controller]")]

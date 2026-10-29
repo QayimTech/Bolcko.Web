@@ -49,6 +49,14 @@ namespace Bolcko.Web.App.Areas.Shop.Controllers
         /// <summary>
         /// صفحة تسجيل وتأهيل المقاولين B2B (Contractor Onboarding & KYC)
         /// </summary>
+        [HttpGet("Register")]
+        [AllowAnonymous]
+        public IActionResult Register() => RedirectToAction(nameof(Join));
+
+        [HttpGet("Portal")]
+        [Authorize(Roles = "Contractor, Admin, SuperAdmin, DashboardUser")]
+        public IActionResult Portal() => RedirectToAction(nameof(Workspace));
+
         [HttpGet("Join")]
         [AllowAnonymous]
         public IActionResult Join()

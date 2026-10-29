@@ -36,6 +36,10 @@ namespace Bolcko.Web.App.Areas.Vendor.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
+        // GET: /Vendor/Register -> redirect to Join
+        [HttpGet]
+        public IActionResult Register() => RedirectToAction(nameof(Join));
+
         // GET: /Vendor/Join or /Vendor/Account/Join
         [HttpGet]
         public IActionResult Join()
