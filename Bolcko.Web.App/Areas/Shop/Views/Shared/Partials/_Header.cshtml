@@ -47,7 +47,7 @@
     </div>
 
     <!-- Symmetrical Flex Row Layout (Flex-based spacing with zero overflow across all screen widths) -->
-    <div class="flex items-center justify-between w-full px-3 sm:px-4 lg:px-6 py-2.5 max-w-[1536px] mx-auto gap-1.5 sm:gap-2 lg:gap-3">
+    <div class="flex items-center justify-between w-full px-3 sm:px-4 lg:px-6 py-2 max-w-[1536px] mx-auto gap-1 sm:gap-2">
         
         <!-- Column 1: Logo & Nav Links (Compact, responsive, zero-overflow) -->
         <div class="flex items-center gap-2 xl:gap-3.5 flex-shrink-0">
@@ -210,14 +210,15 @@
                     </div>
                 </div>
 
-                <!-- Estimator Direct Button -->
-                <a href="/calculator" class="hidden sm:flex items-center gap-1 px-2.5 xl:px-3 py-1.5 rounded-xl text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold transition-all whitespace-nowrap border border-purple-500/20 shadow-sm">
+                <!-- Estimator Direct Button (Responsive label) -->
+                <a href="/calculator" class="hidden lg:flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold transition-all whitespace-nowrap border border-purple-500/20 shadow-sm flex-shrink-0" title="@SharedLocalizer["SmartEstimator"]">
                     <span class="material-symbols-outlined text-[15px] text-purple-400">calculate</span>
-                    <span>@SharedLocalizer["SmartEstimator"]</span>
+                    <span class="hidden 2xl:inline">@SharedLocalizer["SmartEstimator"]</span>
+                    <span class="inline 2xl:hidden">@(isArabic ? "الحاسبة" : "Estimator")</span>
                 </a>
 
-                <!-- Track Order Button -->
-                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="hidden xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap">
+                <!-- Track Order Button (Visible on wide screens) -->
+                <a asp-action="TrackOrder" asp-controller="Home" asp-area="Shop" class="hidden 2xl:flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-slate-300 hover:text-[#E8A020] hover:bg-white/5 text-xs font-bold transition-all whitespace-nowrap flex-shrink-0">
                     <span class="material-symbols-outlined text-[15px]">local_shipping</span>
                     <span>@SharedLocalizer["TrackOrder"]</span>
                 </a>
@@ -225,7 +226,7 @@
         </div>
 
         <!-- Column 2: Responsive Search Bar (flexible, smoothly adapts across viewports) -->
-        <div class="flex-1 min-w-[140px] max-w-xs md:max-w-sm xl:max-w-md 2xl:max-w-lg hidden md:block mx-1.5 xl:mx-3">
+        <div class="flex-1 min-w-[90px] max-w-xs md:max-w-sm xl:max-w-md hidden md:block mx-1.5 xl:mx-2.5">
             <form asp-action="Search" asp-controller="Product" asp-area="Shop" method="get"
                   class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 w-full focus-within:ring-1 focus-within:ring-[#E8A020] focus-within:border-[#E8A020] focus-within:bg-white/10 transition-all group">
                 <button type="submit" class="flex-shrink-0 flex items-center text-slate-400 group-focus-within:text-[#E8A020] transition-colors bg-transparent border-none p-0 cursor-pointer" aria-label="@(isArabic ? "بحث" : "Search")">
@@ -275,6 +276,28 @@
             <!-- Divider -->
             <div class="hidden lg:block w-px h-4 bg-white/10 mx-0.5"></div>
 
+            <!-- Quote Requests (hidden on very small screens to reduce clutter) -->
+            <div class="relative group hidden sm:block flex-shrink-0">
+                <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" aria-label="@SharedLocalizer["QuoteRequests"]" class="relative flex items-center justify-center p-1.5 xl:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">request_quote</span>
+                    <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
+                </a>
+                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @SharedLocalizer["QuoteRequests"]
+                </div>
+            </div>
+
+            <!-- Shopping Cart -->
+            <div class="relative group flex-shrink-0">
+                <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" aria-label="@SharedLocalizer["ShoppingCartTitle"]" class="relative flex items-center justify-center p-1.5 xl:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                    @await Component.InvokeAsync("CartCount")
+                </a>
+                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
+                    @SharedLocalizer["ShoppingCartTitle"]
+                </div>
+            </div>
+
             <!-- User Account & Notifications -->
             @if (User.Identity?.IsAuthenticated == true)
             {
@@ -301,12 +324,11 @@
                 </div>
 
                 <div class="relative group hidden sm:block" onclick="this.classList.toggle('active')" tabindex="0">
-                    <button type="button" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none border border-transparent hover:border-white/10" aria-haspopup="true" aria-label="@(isArabic ? "حسابي ومساحة العمل" : "Account & Workspaces")">
-                        <div class="w-6 h-6 rounded-lg bg-[#E8A020]/20 text-[#E8A020] flex items-center justify-center font-bold text-xs">
+                    <button type="button" class="flex items-center gap-1 p-1 sm:p-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/10 transition-all focus:outline-none border border-transparent hover:border-white/10 shrink-0" aria-haspopup="true" aria-label="@(isArabic ? "حسابي ومساحة العمل" : "Account & Workspaces")" title="@User.Identity.Name">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#E8A020]/25 to-[#E8A020]/10 border border-[#E8A020]/30 text-[#E8A020] flex items-center justify-center font-black text-xs shadow-xs">
                             @(!string.IsNullOrEmpty(User.Identity?.Name) ? User.Identity.Name.Substring(0, 1).ToUpper() : "U")
                         </div>
-                        <span class="text-xs font-bold hidden xl:inline max-w-[90px] truncate">@User.Identity.Name</span>
-                        <span class="material-symbols-outlined text-[12px] text-slate-400 hidden xl:inline">expand_more</span>
+                        <span class="material-symbols-outlined text-[14px] text-slate-400">expand_more</span>
                     </button>
                     <div class="absolute end-0 top-full mt-2 w-72 bg-[#161d2d] border border-white/10 shadow-2xl rounded-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-[.active]:opacity-100 group-[.active]:visible transition-all duration-200 overflow-hidden z-[100] backdrop-blur-xl divide-y divide-white/5">
                         <!-- User Card Header with Role Badge -->
@@ -451,33 +473,11 @@
             }
             else
             {
-                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="hidden sm:flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all flex-shrink-0">
-                    <span class="material-symbols-outlined text-[18px] text-slate-400">person</span>
-                    <span class="text-xs font-bold hidden xl:inline">@SharedLocalizer["Login"]</span>
+                <a href="@Url.Action("Login", "Account", new { area = "Shop" })" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/10 transition-all flex-shrink-0" title="@SharedLocalizer["Login"]">
+                    <span class="material-symbols-outlined text-[18px] text-[#E8A020]">person</span>
+                    <span class="text-xs font-bold hidden 2xl:inline">@SharedLocalizer["Login"]</span>
                 </a>
             }
-
-            <!-- Quote Requests (hidden on very small screens to reduce clutter) -->
-            <div class="relative group hidden sm:block flex-shrink-0">
-                <a href="@Url.Action("Request", "Quote", new { area = "Shop" })" aria-label="@SharedLocalizer["QuoteRequests"]" class="relative flex items-center justify-center p-1.5 xl:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-                    <span class="material-symbols-outlined text-[18px]">request_quote</span>
-                    <span id="tender-badge" class="absolute -top-0.5 -end-0.5 bg-[#E8A020] text-[#151B26] text-[8px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center hidden">0</span>
-                </a>
-                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
-                    @SharedLocalizer["QuoteRequests"]
-                </div>
-            </div>
-
-            <!-- Shopping Cart -->
-            <div class="relative group flex-shrink-0">
-                <a href="@Url.Action("Index", "ShoppingCart", new { area = "Shop" })" aria-label="@SharedLocalizer["ShoppingCartTitle"]" class="relative flex items-center justify-center p-1.5 xl:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-                    <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
-                    @await Component.InvokeAsync("CartCount")
-                </a>
-                <div class="absolute top-full mt-2 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 scale-95 opacity-0 invisible group-hover:scale-100 group-hover:opacity-100 group-hover:visible transition-all pointer-events-none bg-slate-900 border border-white/5 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50">
-                    @SharedLocalizer["ShoppingCartTitle"]
-                </div>
-            </div>
 
             <!-- Mobile Hamburger (animates to X when drawer open) -->
             <button id="drawerOpenBtn" class="lg:hidden flex items-center justify-center p-1.5 sm:p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all ms-0.5 sm:ms-1" aria-label="Toggle Menu">
