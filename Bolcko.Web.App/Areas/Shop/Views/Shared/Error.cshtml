@@ -10,7 +10,7 @@
         <h1 class="text-2xl font-black text-red-700 mb-2">عذراً، حدث خطأ أثناء معالجة الطلب</h1>
         <p class="text-sm text-slate-600 mb-4">تم تسجيل تفاصيل هذا الخطأ في نظام السجلات لمراجعته ومعالجته فوراً.</p>
 
-        @if (Model.ShowRequestId)
+        @if (Model?.ShowRequestId == true)
         {
             <div class="inline-block bg-white px-3 py-1.5 rounded-lg border border-red-200 text-xs font-mono text-red-800 mb-4">
                 <strong>معرف الطلب (Request ID):</strong> <code>@Model.RequestId</code>

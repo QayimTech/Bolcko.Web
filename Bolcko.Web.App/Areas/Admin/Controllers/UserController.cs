@@ -361,7 +361,7 @@ namespace Bolcko.Web.App.Areas.Admin.Controllers
             }
             if (isContractor)
             {
-                return RedirectToAction("Index", "Financing", new { area = "Shop" });
+                return RedirectToAction("Workspace", "Contractor", new { area = "Shop" });
             }
 
             return RedirectToAction("Index", "Home", new { area = "Shop" });

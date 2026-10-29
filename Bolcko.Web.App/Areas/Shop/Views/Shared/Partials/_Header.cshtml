@@ -303,7 +303,7 @@
                 <div class="relative group hidden sm:block" onclick="this.classList.toggle('active')" tabindex="0">
                     <button type="button" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/5 transition-all focus:outline-none border border-transparent hover:border-white/10" aria-haspopup="true" aria-label="@(isArabic ? "حسابي ومساحة العمل" : "Account & Workspaces")">
                         <div class="w-6 h-6 rounded-lg bg-[#E8A020]/20 text-[#E8A020] flex items-center justify-center font-bold text-xs">
-                            @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                            @(!string.IsNullOrEmpty(User.Identity?.Name) ? User.Identity.Name.Substring(0, 1).ToUpper() : "U")
                         </div>
                         <span class="text-xs font-bold hidden xl:inline max-w-[90px] truncate">@User.Identity.Name</span>
                         <span class="material-symbols-outlined text-[12px] text-slate-400 hidden xl:inline">expand_more</span>
@@ -880,7 +880,7 @@
             <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 mb-3 text-start">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-[#E8A020]/20 text-[#E8A020] flex items-center justify-center font-black text-sm flex-shrink-0">
-                        @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                        @(!string.IsNullOrEmpty(User.Identity?.Name) ? User.Identity.Name.Substring(0, 1).ToUpper() : "U")
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-bold text-white truncate">@User.Identity.Name</p>
